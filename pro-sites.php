@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite blog upgrade plugin, turn regular blogs into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0 Beta 5
+Version: 3.0 Beta 6
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-BETA-5';
+  var $version = '3.0-BETA-6';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -287,10 +287,7 @@ Many thanks again for being a member!", 'psts'),
    		'ptb_front_msg' => __('This blog is temporarily disabled until payment is received. Please check back later.', 'psts'),
    		'ptb_checkout_msg' => __('You must pay to enable your blog.', 'psts'),
 			'pq_level' => 1,
-			'pq_pages' => 'unlimited',
-			'pq_posts' => 'unlimited',
-			'pq_post_message' => __('To publish more posts, please upgrade to LEVEL &raquo;', 'psts'),
-			'pq_page_message' => __('To publish more pages, please upgrade to LEVEL &raquo;', 'psts'),
+			'pq_quotas' => array('post' => array('quota' => 'unlimited'), 'page' => array('quota' => 'unlimited')),
 			'uh_level' => 1,
 			'uh_message' => __('To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts')
     );
@@ -2778,7 +2775,7 @@ Many thanks again for being a member!", 'psts'),
 	    //check nonce
       check_admin_referer('psts_settings');
 
-      $_POST['psts'] = array_map('stripslashes', $_POST['psts']); //strip slashes
+      @array_walk_recursive($_POST['psts'], 'stripslashes'); //strip slashes
       $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
 
       //merge settings

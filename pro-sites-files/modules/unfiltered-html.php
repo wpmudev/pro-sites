@@ -11,15 +11,15 @@ class ProSites_Module_UnfilterHtml {
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message') );
-		add_filter( 'user_has_cap', array(&$this, 'unfilter_caps'), 100, 3 );
-		add_filter( 'map_meta_cap', array(&$this, 'unfilter_check'), 10, 4 );
+		add_filter( 'user_has_cap', array(&$this, 'unfilter_check'), 100, 3 );
+		add_filter( 'map_meta_cap', array(&$this, 'unfilter_caps'), 10, 4 );
 		
 		define('DISALLOW_UNFILTERED_HTML', false);
 	}
 	
 	function unfilter_check($allcaps, $caps, $args) {
 		
-		if (is_super_admin())
+		if ( is_super_admin() )
 			return;
 		
 		if ( is_pro_blog(false, $psts->get_setting('uh_level', 1)) ) {
