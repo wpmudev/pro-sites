@@ -324,7 +324,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
   function payment_info($payment_info, $blog_id) {
   	global $psts;
 
-    $profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id');
+    $profile_id = $this->get_profile_id($blog_id);
     if ($profile_id) {
 			$resArray = $this->GetRecurringPaymentsProfileDetails($profile_id);
 
@@ -360,7 +360,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
   function subscription_info($blog_id) {
     global $psts;
     
-    $profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id');
+    $profile_id = $this->get_profile_id($blog_id);
     
     if ($profile_id) {
 			$resArray = $this->GetRecurringPaymentsProfileDetails($profile_id);
@@ -436,6 +436,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			} else {
 	      echo '<div id="message" class="error fade"><p>'.sprintf( __("Whoops! There was a problem accessing this blog's subscription information: %s", 'psts'), $this->parse_error_string($resArray) ).'</p></div>';
 	    }
+			
+			//show past profiles if they exists
+			$profile_history = get_profile_id($blog_id, true);
+			if (is_array($profile_history) && count($profile_history)) {
+				$history_lines = array();
+				foreach ($profile_history as $profile) {
+					$history_lines[] = '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile['profile_id'].'&mp_id='.$profile['profile_id'].'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="'.sprintf(__('Last used on %s', 'psts'), date_i18n(get_option('date_format'), $profile['timestamp'])).'">'.$profile['profile_id'].'</a>'; 
+				}
+				echo __('Profile History:', 'psts') . ' <small>' . implode(', ', $history_lines) . '</small>';
+			}
     } else {
       echo '<p>'.__("This blog is using an older gateway so their information is not accessible.", 'psts').'</p>';
 		}
@@ -444,7 +454,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
   function subscriber_info($blog_id) {
     global $psts;
     
-    $profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id');
+    $profile_id = $this->get_profile_id($blog_id);
 
     if ($profile_id) {
 			$resArray = $this->GetRecurringPaymentsProfileDetails($profile_id);
@@ -473,7 +483,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$canceled_member = false;
 		
     //get subscription info
-    $profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id');
+    $profile_id = $this->get_profile_id($blog_id);
 
     if ($profile_id) {
 			$resArray = $this->GetRecurringPaymentsProfileDetails($profile_id);
@@ -525,7 +535,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     
 		if ( isset($_POST['pypl_mod_action']) ) {
 		
-    	$profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id');
+    	$profile_id = $this->get_profile_id($blog_id);
     
 	    //handle different cases
 	    switch ($_POST['pypl_mod_action']) {
@@ -793,7 +803,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	        //cancel old subscription
 	        $old_gateway = $wpdb->get_var("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
-         	if ($profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id')) {
+         	if ($profile_id = $this->get_profile_id($blog_id)) {
 	          $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', sprintf(__('Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s.', 'psts'), $psts->get_setting('rebrand'), $desc, $end_date) );
             if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning')
 							$psts->log_action( $blog_id, sprintf(__('User modifying subscription via PayPal Express: Old subscription canceled - %s', 'psts'), $profile_id) );
@@ -818,8 +828,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	          $psts->use_coupon($_SESSION['COUPON_CODE']);
 
           //save new profile_id
-          update_blog_option($blog_id, 'psts_paypal_profile_id', $new_profile_id);
-					  
+          $this->set_profile_id($blog_id, $new_profile_id);
+					
+					//save new period/term
+					$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET term = %d WHERE blog_ID = %d", $_SESSION['PERIOD'], $blog_id) );
+					 
 	        //show confirmation page
 	        $this->complete_message = sprintf(__('Your PayPal subscription modification was successful for %s.', 'psts'), $desc);
 
@@ -855,7 +868,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	          $psts->use_coupon($_SESSION['COUPON_CODE']);
 
         	//just in case, try to cancel any old subscription
-         	if ($profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id')) {
+         	if ($profile_id = $this->get_profile_id($blog_id)) {
 	          $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', sprintf(__('Your %s subscription has been modified. This previous subscription has been canceled.', 'psts'), $psts->get_setting('rebrand')) );
 	        }
 
@@ -864,7 +877,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      	if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
 
 						//save new profile_id
-            update_blog_option($blog_id, 'psts_paypal_profile_id', $resArray["PROFILEID"]);
+            $this->set_profile_id($blog_id, $resArray["PROFILEID"]);
 
             $psts->log_action( $blog_id, sprintf(__('User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts'), $desc, $resArray["PROFILEID"]) );
             
@@ -1036,7 +1049,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			        //cancel old subscription
 			        $old_gateway = $wpdb->get_var("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
-		         	if ($profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id')) {
+		         	if ($profile_id = $this->get_profile_id($blog_id)) {
 			          $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', sprintf(__('Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s.', 'psts'), $psts->get_setting('rebrand'), $desc, $end_date) );
                 if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning')
 									$psts->log_action( $blog_id, sprintf(__('User modifying subscription via CC: Old subscription canceled - %s', 'psts'), $profile_id) );
@@ -1061,8 +1074,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			          $psts->use_coupon($_SESSION['COUPON_CODE']);
 
 		          //save new profile_id
-		          update_blog_option($blog_id, 'psts_paypal_profile_id', $new_profile_id);
-
+		          $this->set_profile_id($blog_id, $new_profile_id);
+							
+							//save new period/term
+							$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET term = %d WHERE blog_ID = %d", $_POST['period'], $blog_id) );
+					
 			        //show confirmation page
 			        $this->complete_message = sprintf(__('Your Credit Card subscription modification was successful for %s.', 'psts'), $desc);
 
@@ -1090,7 +1106,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	            $init_transaction = $resArray["TRANSACTIONID"];
 
 	            //just in case, try to cancel any old subscription
-		         	if ($profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id')) {
+		         	if ($profile_id = $this->get_profile_id($blog_id)) {
 			          $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', sprintf(__('Your %s subscription has been modified. This previous subscription has been canceled.', 'psts'), $psts->get_setting('rebrand')) );
 			        }
 
@@ -1105,7 +1121,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	          	if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
 
               	//save new profile_id
-	          		update_blog_option($blog_id, 'psts_paypal_profile_id', $resArray["PROFILEID"]);
+	          		$this->set_profile_id($blog_id, $resArray["PROFILEID"]);
 
                 $psts->log_action( $blog_id, sprintf(__('User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts'), $desc, $resArray["PROFILEID"]) );
 
@@ -1151,7 +1167,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	//js to be printed only on checkout page
 	function checkout_js() {
-	  ?><script type="text/javascript"> jQuery(document).ready( function() { jQuery("a#pypl_cancel").click( function() { if ( confirm( "<?php echo esc_js(__('Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts') ); ?>" ) ) return true; else return false; }); });</script><?php
+	  ?><script type="text/javascript"> jQuery(document).ready( function() { jQuery("a#pypl_cancel").click( function() { if ( confirm( "<?php echo __('Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts'); ?>" ) ) return true; else return false; }); });</script><?php
 	}
 
 	function checkout_screen($content, $blog_id) {
@@ -1180,7 +1196,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	  }
 		
     //check if pro/express user
-    if ($profile_id = get_blog_option($blog_id, 'psts_paypal_profile_id')) {
+    if ($profile_id = $this->get_profile_id($blog_id)) {
     
 			$content .= '<div id="psts_existing_info">';
 			
@@ -1442,7 +1458,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
       	$args['user-agent'] = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express/Pro Gateway";
 	      $args['body'] = $req;
 	      $args['sslverify'] = false;
-	      $args['timeout'] = 30;
+	      $args['timeout'] = 60;
 
 	      //use built in WP http class to work with most server setups
 	    	$response = wp_remote_post($domain, $args);
@@ -1580,7 +1596,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		    $psts->log_action( $blog_id, sprintf(__('PayPal subscription IPN "%s" received.', 'psts'), $_POST['txn_type']) . $profile_string );
 
         //save new profile_id
-        update_blog_option($blog_id, 'psts_paypal_profile_id', $_POST['recurring_payment_id']);
+        $this->set_profile_id($blog_id, $_POST['recurring_payment_id']);
 
 		    //failed initial payment
 		    if ($_POST['initial_payment_status'] == 'Failed') {
@@ -1599,7 +1615,32 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		exit;
 	}
 
+	//record last payment
+	function set_profile_id($blog_id, $profile_id) {
+	  $trans_meta = get_blog_option($blog_id, 'psts_paypal_profile_id');
 
+	  $trans_meta[$profile_id]['profile_id'] = $profile_id;
+	  $trans_meta[$txn_id]['timestamp'] = time();
+	  update_blog_option($blog_id, 'psts_paypal_profile_id', $trans_meta);
+	}
+	
+	function get_profile_id($blog_id, $history = false) {
+	  $trans_meta = get_blog_option($blog_id, 'psts_paypal_profile_id');
+		
+	  if ( is_array( $trans_meta ) ) {
+			$last = array_pop( $trans_meta );
+			if ( $history ) {
+				return $trans_meta;
+			} else {
+				return $last['profile_id'];
+			}
+	  } else if ( !empty($trans_meta) ) {
+	    return $trans_meta;
+	  } else {
+			return false;
+		}
+	}
+	
 	/**** PayPal API methods *****/
 
 	function SetExpressCheckout($paymentAmount, $desc, $blog_id) {
