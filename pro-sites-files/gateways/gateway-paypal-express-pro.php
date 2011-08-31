@@ -779,7 +779,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//check for modifiying
-			if (is_pro_blog($blog_id)) {
+			if (is_pro_site($blog_id)) {
 			  $modify = $psts->get_expire($blog_id);
 			  //check for a upgrade and get new first payment date
 			  if ($upgrade = $psts->calc_upgrade($blog_id, $initAmount, $_SESSION['LEVEL'], $_SESSION['PERIOD'])) {
@@ -1025,7 +1025,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 
 					//check for modifiying
-					if (is_pro_blog($blog_id)) {
+					if (is_pro_site($blog_id)) {
 					  $modify = $psts->get_expire($blog_id);
 					  //check for a upgrade and get new first payment date
 					  if ($upgrade = $psts->calc_upgrade($blog_id, $initAmount, $_SESSION['LEVEL'], $_SESSION['PERIOD'])) {
@@ -1180,7 +1180,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     $pp_active = false;
 
     //hide top part of content if its a pro blog
-		if ( is_pro_blog($blog_id) || $psts->errors->get_error_message('coupon') )
+		if ( is_pro_site($blog_id) || $psts->errors->get_error_message('coupon') )
 			$content = '';
 			
 		if ($errmsg = $psts->errors->get_error_message('general')) {
@@ -1242,7 +1242,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
         $content .= '<h3>' . stripslashes($resArray['DESC']) . '</h3><ul>';
 
-				if ( is_pro_blog($blog_id) ) {
+				if ( is_pro_site($blog_id) ) {
           $content .= '<li>'.__('Level:', 'psts').' <strong>'.$level.'</strong></li>';
 				}
 
@@ -1259,7 +1259,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         $content .= '</ul><br />';
 
         $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
-        if (is_pro_blog($blog_id))
+        if (is_pro_site($blog_id))
         	$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this blog should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
         $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
 
@@ -1275,7 +1275,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         $content .= '<p>'.__('Please update your payment information below to resolve this.', 'psts').'</p>';
 
         $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
-        if (is_pro_blog($blog_id))
+        if (is_pro_site($blog_id))
 					$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this blog should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
         $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($this->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
         $pp_active = true;

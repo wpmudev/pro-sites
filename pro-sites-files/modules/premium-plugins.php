@@ -84,7 +84,7 @@ class ProSites_Module_Plugins {
 		
 	  if ($context != 'active') {
 	    if ( isset($psts_plugins[$plugin_file]['level']) && $psts_plugins[$plugin_file]['level'] != 0 ) {
-				if ( is_pro_blog(false, $psts_plugins[$plugin_file]['level']) || in_array($plugin_file, $override_plugins) ) {
+				if ( is_pro_site(false, $psts_plugins[$plugin_file]['level']) || in_array($plugin_file, $override_plugins) ) {
 	        return $action_links;
 	      } else {
 	        $this->checkbox_rows[] = $plugin_file;
@@ -123,7 +123,7 @@ class ProSites_Module_Plugins {
 
 	  foreach ( (array)$active_plugins as $plugin_file => $plugin_data) {
      	if ( isset($psts_plugins[$plugin_file]['level']) ) {
-	      if ( !in_array($plugin_file, $override_plugins) && !is_pro_blog(false, $psts_plugins[$plugin_file]['level']) ) {
+	      if ( !in_array($plugin_file, $override_plugins) && !is_pro_site(false, $psts_plugins[$plugin_file]['level']) ) {
 		      deactivate_plugins($plugin_file, true); //silently remove any plugins
 		      unset($active_plugins[$plugin_file]);
 				}
@@ -145,7 +145,7 @@ class ProSites_Module_Plugins {
 		    $level_plugins[] = $plugin_file;
 		}
 		
-	  if ( count($level_plugins) && is_pro_blog($blog_id, $new_level) ) {
+	  if ( count($level_plugins) && is_pro_site($blog_id, $new_level) ) {
 	    switch_to_blog($blog_id);
 	    activate_plugins($level_plugins, '', false); //silently activate any plugins
 	    restore_current_blog();
@@ -176,7 +176,7 @@ class ProSites_Module_Plugins {
 	  require_once( ABSPATH.'wp-admin/includes/plugin.php' );
     global $psts;
     
-    if ( is_pro_blog($blog_id) )
+    if ( is_pro_site($blog_id) )
       return;
     
 		$psts_plugins = (array)$psts->get_setting('pp_plugins');

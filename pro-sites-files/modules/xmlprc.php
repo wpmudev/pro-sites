@@ -17,7 +17,7 @@ class ProSites_Module_XMLRPC {
 	function xmlrpc_check() {
 		global $psts;
 
-		if ( !is_pro_blog(false, $psts->get_setting('xmlrpc_level', 1)) ) {
+		if ( !is_pro_site(false, $psts->get_setting('xmlrpc_level', 1)) ) {
 	    add_filter('pre_option_enable_xmlrpc', create_function('','return 0;'));
 			add_filter('pre_option_enable_app', create_function('','return 0;'));
 		}
@@ -26,7 +26,7 @@ class ProSites_Module_XMLRPC {
   function message() {
 		global $psts, $current_screen;
 
-    if ( is_pro_blog(false, $psts->get_setting('xmlrpc_level', 1)) )
+    if ( is_pro_site(false, $psts->get_setting('xmlrpc_level', 1)) )
       return;
 
 	  if ($current_screen->id == 'options-writing') {

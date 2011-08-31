@@ -19,7 +19,7 @@ class ProSites_Module_PostingQuota {
 	function write_filter($allcaps, $caps, $args) {
     global $psts;
 
-		if ( !is_pro_blog(false, $psts->get_setting('pq_level', 1)) ) {
+		if ( !is_pro_site(false, $psts->get_setting('pq_level', 1)) ) {
 			$quota_settings = $psts->get_setting("pq_quotas");
 			if (is_array($quota_settings)) {
 				foreach ($quota_settings as $post_type => $settings) {
@@ -111,7 +111,7 @@ class ProSites_Module_PostingQuota {
 	function message() {
 		global $psts, $current_screen, $post_type;
 
-    if ( is_pro_blog(false, $psts->get_setting('pq_level', 1)) )
+    if ( is_pro_site(false, $psts->get_setting('pq_level', 1)) )
       return;
 		
 		if ( in_array( $current_screen->id, array('edit-post', 'post', 'edit-page', 'page') ) ) {

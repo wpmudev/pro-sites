@@ -27,7 +27,7 @@ class ProSites_Module_PayToBlog {
 	    return $content;
     
     //show top part of content if its not a pro blog
-		if ( !is_pro_blog($blog_id) )
+		if ( !is_pro_site($blog_id) )
 			$content .= $psts->get_setting('ptb_checkout_msg');
 
 	  return $content;
@@ -39,7 +39,7 @@ class ProSites_Module_PayToBlog {
 		if (is_admin())
 			return;
 
-		if ( $psts->get_setting('ptb_front_disable') && !is_pro_blog($blog_id, 1) ) {
+		if ( $psts->get_setting('ptb_front_disable') && !is_pro_site($blog_id, 1) ) {
 			
 			//send temporary headers
 			header('HTTP/1.1 503 Service Temporarily Unavailable');
@@ -61,7 +61,7 @@ class ProSites_Module_PayToBlog {
 	function force_redirect($value) {
     global $psts;
 
-		if ( is_pro_blog(false, 1) ) {
+		if ( is_pro_site(false, 1) ) {
 			return 0;
 	  } else {
 			return 1;

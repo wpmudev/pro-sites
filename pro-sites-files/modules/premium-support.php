@@ -101,7 +101,7 @@ class ProSites_Module_Support {
 	  <h3><?php _e('Your Support Question:', 'psts') ?></h3>
 	  <?php
 	  //show feature message
-		if ( !is_pro_blog(false, $psts->get_setting('ps_level', 1)) ) {
+		if ( !is_pro_site(false, $psts->get_setting('ps_level', 1)) ) {
     	$notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('ps_level', 1), 'name'), $psts->get_setting('ps_notice') );
 	   	echo '<div class="error"><p><a href="'.$psts->checkout_url().'">' . $notice . '</a></p></div>';
 	    $disabled = ' disabled="disabled"';
