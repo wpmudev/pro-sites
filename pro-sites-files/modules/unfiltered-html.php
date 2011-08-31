@@ -22,7 +22,7 @@ class ProSites_Module_UnfilterHtml {
 		if ( is_super_admin() )
 			return;
 		
-		if ( is_pro_blog(false, $psts->get_setting('uh_level', 1)) ) {
+		if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) ) {
 			$allcaps['unfiltered_html'] = true;
 			kses_remove_filters();
 		} else {
@@ -74,7 +74,7 @@ class ProSites_Module_UnfilterHtml {
 	function message() {
 		global $psts, $current_screen;
 
-    if ( is_pro_blog(false, $psts->get_setting('uh_level', 1)) )
+    if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) )
       return;
 
 	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) && isset( $_GET['message'] ) ) {

@@ -61,7 +61,7 @@ class ProSites_Gateway_Manual {
 	    return $content;
     
     //hide top part of content if its a pro blog
-		if ( is_pro_blog($blog_id) )
+		if ( is_pro_site($blog_id) )
 			$content = '';
 			
 		if ($errmsg = $psts->errors->get_error_message('general')) {

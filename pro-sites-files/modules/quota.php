@@ -31,7 +31,7 @@ class ProSites_Module_Quota {
 	    return $space;
 
 		$quota = $psts->get_level_setting($psts->get_level(), 'quota');
-		if ($quota && is_pro_blog(false, $psts->get_level())) {
+		if ($quota && is_pro_site(false, $psts->get_level())) {
 			return $quota;
 		} else {
 			return $space;

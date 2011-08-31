@@ -85,7 +85,7 @@ class ProSites_Module_Ads {
 		if ( is_main_site($blog_id) ) {
 			return false;
 		} else {
-			if ( is_pro_blog($blog_id, $psts->get_setting('ads_level')) || $this->check($blog_id) ) {
+			if ( is_pro_site($blog_id, $psts->get_setting('ads_level')) || $this->check($blog_id) ) {
 				return false;
 			} else {
 				return true;
@@ -103,7 +103,7 @@ class ProSites_Module_Ads {
 		if ( is_main_site($blog_id) ) {
 			return true;
 		} else {
-			if ( is_pro_blog($blog_id, $psts->get_setting('ads_level')) || $this->check($blog_id) ) {
+			if ( is_pro_site($blog_id, $psts->get_setting('ads_level')) || $this->check($blog_id) ) {
 				return true;
 			} else {
 				return false;
@@ -118,7 +118,7 @@ class ProSites_Module_Ads {
 			$blog_id = $wpdb->blogid;
 		}
 		
-		$ads = is_pro_blog($blog_id) ? $psts->get_level_setting($psts->get_level($blog_id), 'ads') : 0;
+		$ads = is_pro_site($blog_id) ? $psts->get_level_setting($psts->get_level($blog_id), 'ads') : 0;
 		return intval($ads);
 	}
 
@@ -298,7 +298,7 @@ class ProSites_Module_Ads {
 	      </div>
 	    </div>
 	    
-	    <?php if ( $ad_free_blogs_remaining > 0 && is_pro_blog() ) { ?>
+	    <?php if ( $ad_free_blogs_remaining > 0 && is_pro_site() ) { ?>
 	    <div class="postbox">
 	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a blog to disable ads on.', 'psts') ?></span></h3>
 	      <div class="inside">
@@ -352,7 +352,7 @@ class ProSites_Module_Ads {
 	    </div>
 	    <?php } ?>
 
-			<?php if ( isset($_POST['submit_search']) && is_pro_blog() ) { ?>
+			<?php if ( isset($_POST['submit_search']) && is_pro_site() ) { ?>
 			
 			  <div class="postbox">
 		      <h3 class='hndle'><span><?php _e('Search Results', 'psts'); ?></span></h3>
@@ -409,7 +409,7 @@ class ProSites_Module_Ads {
 			
 			<?php } else { ?>
 			
-	      <?php if ( $ad_free_blogs_current > 0 && is_pro_blog() ) { ?>
+	      <?php if ( $ad_free_blogs_current > 0 && is_pro_site() ) { ?>
 		    <div class="postbox">
 		      <h3 class='hndle'><span><?php _e('Currently Disabled Sites', 'psts'); ?></span></h3>
 		      <div class="inside">

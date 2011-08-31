@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite blog upgrade plugin, turn regular blogs into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0 Beta 6
+Version: 3.0 Beta 7
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-BETA-6';
+  var $version = '3.0-BETA-7';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -198,6 +198,8 @@ class ProSites {
       'curr_symbol_position' => 1,
       'curr_decimal' => 1,
       'rebrand' => __('Pro Site', 'psts'),
+      'lbl_signup' => __('Pro Upgrade', 'psts'),
+      'lbl_curr' => __('Your Account', 'psts'),
       'gateways_enabled' => array( 'ProSites_Gateway_PayPalExpressPro' ),
 			'modules_enabled' => array(),
 			'enabled_periods' => array(1,3,12),
@@ -315,7 +317,8 @@ Many thanks again for being a member!", 'psts'),
 	//an easy way to get to our settings array without undefined indexes
 	function get_setting($key, $default = null) {
     $settings = get_site_option( 'psts_settings' );
-    return isset($settings[$key]) ? $settings[$key] : $default;
+    $setting = isset($settings[$key]) ? $settings[$key] : $default;
+		return apply_filters( "psts_setting_$key", $setting, $default );
 	}
 
 	function update_setting($key, $value) {
@@ -504,7 +507,8 @@ Many thanks again for being a member!", 'psts'),
 
 	function plug_pages() {
 		if ( !is_main_site() ) {
-			add_menu_page($this->get_setting('rebrand'), $this->get_setting('rebrand'), 'edit_pages', 'psts-checkout', array(&$this, 'checkout_redirect_page'), $this->plugin_url . 'images/plus.png', 3);
+			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
+			add_menu_page($label, $label, 'edit_pages', 'psts-checkout', array(&$this, 'checkout_redirect_page'), $this->plugin_url . 'images/plus.png', 3);
 		}
 	}
 
@@ -519,8 +523,10 @@ Many thanks again for being a member!", 'psts'),
 		} else {
       $checkout = $this->checkout_url();
 		}
-
-    $wp_admin_bar->add_menu( array( 'id' => 'pro-blog' , 'title' => $this->get_setting('rebrand'), 'href' => $checkout ) );
+		
+		$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
+		
+    $wp_admin_bar->add_menu( array( 'id' => 'pro-blog' , 'title' => $label, 'href' => $checkout ) );
     do_action( 'psts_admin_bar', 'pro-blog' ); //for modules to add to admin bar. Passes parent id
 	}
 
@@ -655,7 +661,7 @@ Many thanks again for being a member!", 'psts'),
 
 	function check() {
 	  global $blog_id;
-		if ( is_pro_blog() ) {
+		if ( is_pro_site() ) {
 			do_action('psts_active');
 		} else {
 			do_action('psts_inactive');
@@ -778,7 +784,7 @@ Many thanks again for being a member!", 'psts'),
 	  }
 	}
 
-	function is_pro_blog($blog_id = false, $level = false) {
+	function is_pro_site($blog_id = false, $level = false) {
 		global $wpdb, $current_site;
 
 		if ( !$blog_id ) {
@@ -1225,7 +1231,7 @@ Many thanks again for being a member!", 'psts'),
 		global $blog_id;
 
 	  //dismiss redirect if link is clicked or paid
-	  if (isset($_GET['psts_dismiss']) || is_pro_blog())
+	  if (isset($_GET['psts_dismiss']) || is_pro_site())
 	    update_option('psts_signed_up', 0);
 
 	  //force to checkout page
@@ -1580,7 +1586,7 @@ Many thanks again for being a member!", 'psts'),
 			</div>
 	    </div>
 
-      <?php if ( is_pro_blog($blog_id) || has_action('psts_modify_form') ) { ?>
+      <?php if ( is_pro_site($blog_id) || has_action('psts_modify_form') ) { ?>
 	    <div style="width: 49%;" class="postbox-container">
 	      <div class="postbox">
 	      <h3 class='hndle'><span><?php _e('Modify Pro Site Status', 'psts') ?></span></h3>
@@ -1591,7 +1597,7 @@ Many thanks again for being a member!", 'psts'),
 
           <?php do_action('psts_modify_form', $blog_id); ?>
 
-					<?php if ( is_pro_blog($blog_id) ) { ?>
+					<?php if ( is_pro_site($blog_id) ) { ?>
           <p><label><input type="checkbox" name="psts_remove" value="1" /> <?php _e('Remove Pro Site status from this blog.', 'psts'); ?></label></p>
 	    		<?php } ?>
 
@@ -2810,6 +2816,19 @@ Many thanks again for being a member!", 'psts'),
 	          <td><input type="text" name="psts[rebrand]" value="<?php echo esc_attr($this->get_setting('rebrand')); ?>" />
 	          <br /><?php _e('Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts'); ?></td>
 	          </tr>
+						<tr valign="top">
+	          <th scope="row"><?php _e('Admin Menu Labels', 'psts') ?></th>
+	          <td>
+							<label><input type="text" name="psts[lbl_signup]" value="<?php echo esc_attr($this->get_setting('lbl_signup')); ?>" /> <?php _e('Not Pro', 'psts'); ?></label><br />
+							<label><input type="text" name="psts[lbl_curr]" value="<?php echo esc_attr($this->get_setting('lbl_curr')); ?>" /> <?php _e('Current Pro', 'psts'); ?></label>
+						</td>
+	          </tr>
+						<tr valign="top">
+	          <th scope="row"><?php _e('Hide Admin Bar Menu', 'psts'); ?></th>
+	          <td><label><input type="checkbox" name="psts[hide_adminbar]" value="1"<?php checked($this->get_setting('hide_adminbar')); ?> />
+	          <?php _e('Remove the Pro Sites menu from the admin bar', 'psts'); ?></label>
+	          </td>
+	          </tr>
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Show Option On Signup', 'psts'); ?></th>
 	          <td><label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked($this->get_setting('show_signup')); ?> />
@@ -2833,12 +2852,6 @@ Many thanks again for being a member!", 'psts'),
 	          <td>
 	          <input name="psts[feature_message]" type="text" id="feature_message" value="<?php echo esc_attr($this->get_setting('feature_message')); ?>" style="width: 95%" />
 	          <br /><?php _e('Required - No HTML - This message is displayed when a feature is accessed on a blog that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts') ?></td>
-	          </tr>
-						<tr valign="top">
-	          <th scope="row"><?php _e('Hide Admin Bar Menu', 'psts'); ?></th>
-	          <td><label><input type="checkbox" name="psts[hide_adminbar]" value="1"<?php checked($this->get_setting('hide_adminbar')); ?> />
-	          <?php _e('Remove the Pro Sites menu from the admin bar', 'psts'); ?></label>
-	          </td>
 	          </tr>
 						<tr valign="top">
 						<th scope="row"><?php _e('Free Trial', 'psts') ?></th>
@@ -3247,9 +3260,9 @@ $psts = new ProSites();
  * @param int $level optional - Check if blog is at this level or below. If ommited checks if at any level.
  * @return bool
  */
-function is_pro_blog($blog_id = false, $level = false) {
+function is_pro_site($blog_id = false, $level = false) {
   global $psts;
-	return $psts->is_pro_blog($blog_id, $level);
+	return $psts->is_pro_site($blog_id, $level);
 }
 
 /**
@@ -3267,7 +3280,7 @@ function is_pro_user($user_id = false) {
 
 //depreciated!
 function is_supporter($blog_id = false) {
-	return is_pro_blog( $blog_id );
+	return is_pro_site( $blog_id );
 }
 
 //depreciated!
@@ -3287,16 +3300,9 @@ if ( !function_exists( 'wdp_un_check' ) ) {
   add_action( 'admin_notices', 'wdp_un_check', 5 );
   add_action( 'network_admin_notices', 'wdp_un_check', 5 );
   function wdp_un_check() {
-    if ( class_exists( 'WPMUDEV_Update_Notifications' ) )
-      return;
-
-    if ( $delay = get_site_option( 'un_delay' ) ) {
-      if ( $delay <= time() && current_user_can( 'install_plugins' ) )
-      	echo '<div class="error fade"><p>' . __('Please install the latest version of <a href="http://premium.wpmudev.org/project/update-notifications/" title="Download Now &raquo;">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href="http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/">More information &raquo;</a>', 'wpmudev') . '</a></p></div>';
-	  } else {
-			update_site_option( 'un_delay', strtotime( "+1 week" ) );
-		}
-	}
+    if ( !class_exists( 'WPMUDEV_Update_Notifications' ) && current_user_can( 'install_plugins' ) )
+      echo '<div class="error fade"><p>' . __('Please install the latest version of <a href="http://premium.wpmudev.org/project/update-notifications/" title="Download Now &raquo;">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href="http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/">More information &raquo;</a>', 'wpmudev') . '</a></p></div>';
+  }
 }
 /* --------------------------------------------------------------------- */
 ?>

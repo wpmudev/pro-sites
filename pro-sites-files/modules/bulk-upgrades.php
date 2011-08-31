@@ -619,7 +619,7 @@ class ProSites_Module_BulkUpgrades {
 			$blogs = (array)$_POST['blogs'];
 			foreach ( $blogs as $blog_id => $value ) {
 				if ( $credits > 0 && $value == '1' ) {
-					if ( !is_pro_blog($blog_id) ) {
+					if ( !is_pro_site($blog_id) ) {
 						$credits--;
 						$upgraded_blogs++;
 						$psts->extend($blog_id, 12, 'Bulk Upgrade', $psts->get_setting('bu_level'));
@@ -742,12 +742,12 @@ class ProSites_Module_BulkUpgrades {
 							}
 	       			//=========================================================//
       	 			echo "<tr class='" . $class . "'>";
-							if ( is_pro_blog($blog_id) ) {
+							if ( is_pro_site($blog_id) ) {
 								echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_{$blog_id}' value='1' type='checkbox' disabled='disabled'></center></td>";
 							} else {
 								echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_{$blog_id}' value='1' type='checkbox'></center></td>";
 							}
-							if ( is_pro_blog($blog_id) ) {
+							if ( is_pro_site($blog_id) ) {
         				echo "<td valign='top' style='color:#666666;'><strong>" . $blog->blogname . " (<em>" . $blog->domain . "</em>): " . __('Already Upgraded', 'psts') . "</strong></td>";
 							} else {
 								echo "<td valign='top'><label for='blog_{$blog_id}'><strong>" . $blog->blogname . " (<em>" . $blog->domain . "</em>)</strong></label></td>";
@@ -812,12 +812,12 @@ class ProSites_Module_BulkUpgrades {
 							}
 	       			//=========================================================//
 							echo "<tr class='" . $class . "'>";
-							if ( is_pro_blog($blog['blog_id']) ) {
+							if ( is_pro_site($blog['blog_id']) ) {
 								echo "<td valign='top'><center><input name='blogs[" . $blog['blog_id'] . "]' id='blog_{$blog['blog_id']}' value='1' type='checkbox' disabled='disabled'></center></td>";
 							} else {
 								echo "<td valign='top'><center><input name='blogs[" . $blog['blog_id'] . "]' id='blog_{$blog['blog_id']}' value='1' type='checkbox'></center></td>";
 							}
-							if ( is_pro_blog($blog['blog_id']) ) {
+							if ( is_pro_site($blog['blog_id']) ) {
         				echo "<td valign='top' style='color:#666666;'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>): " . __('Already Upgraded', 'psts') . "</strong></td>";
 							} else {
 								echo "<td valign='top'><label for='blog_{$blog['blog_id']}'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>)</strong></label></td>";
@@ -873,13 +873,13 @@ class ProSites_Module_BulkUpgrades {
 	       			//=========================================================//
 							echo "<tr class='" . $class . "'>";
 							if ( $upgrade_credits > 0 ) {
-								if ( is_pro_blog($blog_id) ) {
+								if ( is_pro_site($blog_id) ) {
 									echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_{$blog_id}' value='1' type='checkbox' disabled='disabled'></center></td>";
 								} else {
 									echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_{$blog_id}' value='1' type='checkbox'></center></td>";
 								}
 							}
-							if ( is_pro_blog($blog_id) ) {
+							if ( is_pro_site($blog_id) ) {
         				echo "<td valign='top' style='color:#666666;'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>): " . __('Already Upgraded', 'psts') . "</strong></td>";
 							} else {
 								echo "<td valign='top'><label for='blog_{$blog_id}'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>)</strong></label></td>";

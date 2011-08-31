@@ -54,7 +54,7 @@ class ProSites_Module_PremiumThemes {
       return;
     
     //if they have permission for this theme skip
-    if ( is_pro_blog($blog_id, $psts_allowed_themes[$current_theme]) || $this->ads_theme() )
+    if ( is_pro_site($blog_id, $psts_allowed_themes[$current_theme]) || $this->ads_theme() )
       return;
     
 	  //check for our default theme plugin first
@@ -388,7 +388,7 @@ class ProSites_Module_PremiumThemes {
 	  	$activate_text = esc_attr( sprintf( __('Activate &#8220;%s&#8221;'), $title ) );
 	  	$actions = array();
 
-	  	if ( is_pro_blog(false, $level) || $this->ads_theme() ) {
+	  	if ( is_pro_site(false, $level) || $this->ads_theme() ) {
 	      $actions[] = '<a href="' . $activate_link .  '" class="activatelink" title="' . $activate_text . '">' . __('Activate') . '</a>';
 	  	} else {
 	  	  $rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($level, 'name') );

@@ -18,7 +18,7 @@ class ProSites_Module_Writing {
 	function write_filter($allcaps, $caps, $args) {
     global $psts;
 
-		if ( !is_pro_blog(false, $psts->get_setting('publishing_level', 1)) ) {
+		if ( !is_pro_site(false, $psts->get_setting('publishing_level', 1)) ) {
 	    //limit posts
 	    if ($psts->get_setting('publishing_posts'))
 	      unset($allcaps["publish_posts"]);
@@ -78,7 +78,7 @@ class ProSites_Module_Writing {
 	function message() {
 		global $psts, $current_screen;
 
-    if ( is_pro_blog(false, $psts->get_setting('publishing_level', 1)) )
+    if ( is_pro_site(false, $psts->get_setting('publishing_level', 1)) )
       return;
 
 	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) ) {
