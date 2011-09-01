@@ -526,8 +526,8 @@ Many thanks again for being a member!", 'psts'),
 		
 		$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
 		
-    $wp_admin_bar->add_menu( array( 'id' => 'pro-blog' , 'title' => $label, 'href' => $checkout ) );
-    do_action( 'psts_admin_bar', 'pro-blog' ); //for modules to add to admin bar. Passes parent id
+    $wp_admin_bar->add_menu( array( 'id' => 'pro-site' , 'title' => $label, 'href' => $checkout ) );
+    do_action( 'psts_admin_bar', 'pro-site' ); //for modules to add to admin bar. Passes parent id
 	}
 
 	function checkout_url($blog_id = false) {
@@ -2687,6 +2687,7 @@ Many thanks again for being a member!", 'psts'),
         <?php
         $css = '';
         $css2 = '';
+				uasort( $psts_modules, create_function('$a,$b', 'if ($a[0] == $b[0]) return 0;return ($a[0] < $b[0])? -1 : 1;') ); //sort modules by name
         foreach ((array)$psts_modules as $class => $plugin) {
           $css = ('alt' == $css) ? '' : 'alt';
           if ( in_array($class, (array)$this->get_setting('modules_enabled')) ) {
@@ -2993,11 +2994,13 @@ Many thanks again for being a member!", 'psts'),
 	function checkout_redirect_page() {
 		//This page should never be shown
 		global $blog_id;
-
+		
+		/*
 		if( !current_user_can('edit_pages') ) {
 			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
 			return;
 		}
+		*/
 
 	  echo '<div class="wrap">';
 	  echo "<SCRIPT LANGUAGE='JavaScript'>window.location='".$this->checkout_url($blog_id)."';</script>";

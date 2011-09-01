@@ -141,7 +141,10 @@ class ProSites_Module_Ads {
 	  	$psts->update_level_setting($level, 'ads', $num);
 	  	
 	  $settings['ads_enable_blogs'] = isset($settings['ads_enable_blogs']) ? 1 : 0;
+		
 	  $settings['ads_themes'] = isset($settings['ads_themes']) ? 1 : 0;
+	  $settings['ads_xmlrpc'] = isset($settings['ads_xmlrpc']) ? 1 : 0;
+	  $settings['ads_unfilter'] = isset($settings['ads_unfilter']) ? 1 : 0;
 	  return $settings;
 	}
 
@@ -193,14 +196,21 @@ class ProSites_Module_Ads {
 				  <td><input type="text" name="psts[ads_message]" id="ads_message" value="<?php echo esc_attr($psts->get_setting( "ads_message" )); ?>" style="width: 95%" />
 				  <br /><?php _e('Required - This message is displayed on the Disable Ads page as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "NUM" will be replaced with the number of blogs that can be disabled in the next level.', 'psts') ?></td>
 				  </tr>
-					<?php if ( class_exists('ProSites_Module_PremiumThemes') ) { ?>
 					<tr valign="top">
-					<th scope="row"><?php _e('Enable Premium Themes', 'psts'); ?></th>
-					<td><label><input type="checkbox" name="psts[ads_themes]" value="1"<?php checked($psts->get_setting('ads_themes')); ?> /> <?php _e('Make disabling ads also enable the premium themes', 'psts') ?></label>
-					<br /><?php _e('This overrides any level limits you add to premium themes. You will want to tell users of this in the Ads Message above.', 'psts') ?>
+					<th scope="row"><?php _e('Enable Other Modules', 'psts'); ?></th>
+					<td>
+						<?php if ( class_exists('ProSites_Module_PremiumThemes') ) { ?>
+						<label><input type="checkbox" name="psts[ads_themes]" value="1"<?php checked($psts->get_setting('ads_themes')); ?> /> <?php _e('Enable all Premium Themes', 'psts') ?></label><br />
+						<?php } ?>
+						<?php if ( class_exists('ProSites_Module_XMLRPC') ) { ?>
+						<label><input type="checkbox" name="psts[ads_xmlrpc]" value="1"<?php checked($psts->get_setting('ads_xmlrpc')); ?> /> <?php _e('Enable XML-RPC', 'psts') ?></label><br />
+						<?php } ?>
+						<?php if ( class_exists('ProSites_Module_UnfilterHtml') ) { ?>
+						<label><input type="checkbox" name="psts[ads_unfilter]" value="1"<?php checked($psts->get_setting('ads_unfilter')); ?> /> <?php _e('Enable Unfiltered HTML', 'psts') ?></label><br />
+						<?php } ?>
+						<?php _e('These override any level limits you add in the module. You will want to tell users of this in the Ads Message above.', 'psts') ?>
 					</td>
 					</tr>
-					<?php } ?>
 				</table>
 		  </div>
 		</div>
@@ -479,5 +489,9 @@ function supporter_show_ads($blog_id = null) {
 
 function supporter_hide_ads($blog_id = null) {
   return psts_hide_ads($blog_id);
+}
+
+function supporter_ads_check($blog_id = null) {
+	return psts_hide_ads($blog_id);
 }
 ?>

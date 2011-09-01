@@ -17,12 +17,22 @@ class ProSites_Module_UnfilterHtml {
 		define('DISALLOW_UNFILTERED_HTML', false);
 	}
 	
+	//for ads module to allow unfiltered
+	function ads_unfilter() {
+    global $psts;
+    
+		if (function_exists('psts_hide_ads') && $psts->get_setting('ads_unfilter') && psts_hide_ads())
+	    return true;
+	  else
+	    return false;
+	}
+	
 	function unfilter_check($allcaps, $caps, $args) {
 		
 		if ( is_super_admin() )
 			return;
 		
-		if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) ) {
+		if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) || $this->ads_unfilter() ) {
 			$allcaps['unfiltered_html'] = true;
 			kses_remove_filters();
 		} else {
@@ -74,7 +84,7 @@ class ProSites_Module_UnfilterHtml {
 	function message() {
 		global $psts, $current_screen;
 
-    if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) )
+    if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) || $this->ads_unfilter() )
       return;
 
 	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) && isset( $_GET['message'] ) ) {
