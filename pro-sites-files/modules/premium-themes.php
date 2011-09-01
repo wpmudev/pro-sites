@@ -39,7 +39,7 @@ class ProSites_Module_PremiumThemes {
     if ( !is_admin_bar_showing() || !current_user_can('switch_themes') )
       return;
         
-    $wp_admin_bar->add_menu( array( 'parent' => 'pro-blog', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
+    $wp_admin_bar->add_menu( array( 'parent' => 'pro-site', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
     $wp_admin_bar->add_menu( array( 'parent' => 'themes', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
 	}
 
