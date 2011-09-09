@@ -34,14 +34,14 @@ class ProSites_Module_XMLRPC {
 	}
 
   function message() {
-		global $psts, $current_screen;
+		global $psts, $current_screen, $blog_id;
 
     if ( is_pro_site(false, $psts->get_setting('xmlrpc_level', 1)) || $this->ads_xmlrpc() )
       return;
 
 	  if ($current_screen->id == 'options-writing') {
 	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('xmlrpc_level', 1), 'name'), $psts->get_setting('xmlrpc_message') );
-	   	$error = '<div class="error"><p><a href="'.$psts->checkout_url().'">' . $notice . '</a></p></div>';
+	   	$error = '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 	   	?><script type="text/javascript">
 	  	  jQuery(document).ready(function () {
 	  		  jQuery('#enable_app,#enable_xmlrpc').attr("disabled", true);

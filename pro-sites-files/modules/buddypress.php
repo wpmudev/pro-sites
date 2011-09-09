@@ -82,10 +82,10 @@ class ProSites_Module_BP {
 	}
 
 	function message() {
-	  global $psts;
+	  global $psts, $blog_id;
 
 		$notice = str_replace( 'LEVEL', $psts->get_level_setting(1, 'name'), $psts->get_setting('bp_notice') );
-	  echo '<div id="message" class="error"><p><a href="'.$psts->checkout_url().'">' . $notice . '</a></p></div>';
+	  echo '<div id="message" class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 	}
 
 	function css_output() {

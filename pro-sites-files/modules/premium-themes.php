@@ -231,7 +231,7 @@ class ProSites_Module_PremiumThemes {
 	}
 	
 	function themes_page() {
-		global $psts, $wp_registered_sidebars;
+		global $psts, $wp_registered_sidebars, $blog_id;
 
 	  $themes = get_themes();
 	  $ct = current_theme_info();
@@ -393,7 +393,7 @@ class ProSites_Module_PremiumThemes {
 	  	} else {
 	  	  $rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($level, 'name') );
 	  	  $upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($level, 'name'), $psts->get_setting('pt_text') );
-	      $actions[] = '<a href="' . $psts->checkout_url() .  '" class="activatelink nonpsts" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';
+	      $actions[] = '<a href="' . $psts->checkout_url($blog_id) .  '" class="activatelink nonpsts" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';
 			}
 			
 	    $actions[] = '<a href="' . $preview_link . '" class="thickbox thickbox-preview" title="' . esc_attr(sprintf(__('Preview &#8220;%s&#8221;'), $theme_name)) . '">' . __('Preview') . '</a>';

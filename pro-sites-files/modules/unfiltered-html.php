@@ -28,6 +28,7 @@ class ProSites_Module_UnfilterHtml {
 	}
 	
 	function unfilter_check($allcaps, $caps, $args) {
+		global $psts;
 		
 		if ( is_super_admin() )
 			return;
@@ -82,14 +83,14 @@ class ProSites_Module_UnfilterHtml {
 	}
 
 	function message() {
-		global $psts, $current_screen;
+		global $psts, $current_screen, $blog_id;
 
     if ( is_pro_site(false, $psts->get_setting('uh_level', 1)) || $this->ads_unfilter() )
       return;
 
 	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) && isset( $_GET['message'] ) ) {
-	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('uh_level', 1), 'name'), $psts->get_setting('uh_level') );
-	   	echo '<div class="updated below-h2"><p><a href="'.$psts->checkout_url().'">' . $notice . '</a></p></div>';
+	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('uh_level', 1), 'name'), $psts->get_setting('uh_message') );
+	   	echo '<div class="updated below-h2"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
 }

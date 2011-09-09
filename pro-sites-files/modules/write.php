@@ -76,14 +76,14 @@ class ProSites_Module_Writing {
 	}
 
 	function message() {
-		global $psts, $current_screen;
+		global $psts, $current_screen, $blog_id;
 
     if ( is_pro_site(false, $psts->get_setting('publishing_level', 1)) )
       return;
 
 	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) ) {
 	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('publishing_level', 1), 'name'), $psts->get_setting('publishing_message') );
-	   	echo '<div class="error"><p><a href="'.$psts->checkout_url().'">' . $notice . '</a></p></div>';
+	   	echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
 }
