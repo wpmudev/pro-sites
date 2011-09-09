@@ -104,14 +104,14 @@ class ProSites_Module_Quota {
 	}
 
 	function message() {
-	  global $psts;
+	  global $psts, $blog_id;
 	  if( current_user_can('edit_pages') ) {
 			$level = $psts->get_level() + 1;
 			if ($name = $psts->get_level_setting($level, 'name')) { //only show if there is a higher level
         $space = $this->display_space($psts->get_level_setting($level, 'quota'));
 				$msg = str_replace( 'LEVEL', $name, $psts->get_setting('quota_message') );
 	      $msg = str_replace( 'SPACE', $space, $msg );
-		    echo '<p><strong><a href="'.$psts->checkout_url().'">'.$msg.'</a></strong></p>';
+		    echo '<p><strong><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></strong></p>';
 			}
 	  }
 	}
@@ -124,7 +124,7 @@ class ProSites_Module_Quota {
       	$space = $this->display_space($psts->get_level_setting($level, 'quota'));
 				$msg = str_replace( 'LEVEL', $name, $psts->get_setting('quota_message') );
 	      $msg = str_replace( 'SPACE', $space, $msg );
-		    echo '<div class="error"><p><a href="'.$psts->checkout_url().'">'.$msg.'</a></p></div>';
+		    echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></p></div>';
 			}
 	  }
 	}

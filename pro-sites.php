@@ -2,7 +2,7 @@
 /*
 Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
-Description: The ultimate multisite blog upgrade plugin, turn regular blogs into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
+Description: The ultimate multisite blog upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
 Version: 3.0 Beta 7
 Author URI: http://premium.wpmudev.org
@@ -65,9 +65,11 @@ class ProSites {
 		add_action( 'init', array(&$this, 'check') );
 		add_action( 'load-toplevel_page_psts-checkout', array(&$this, 'redirect_checkout') );
 		add_action( 'admin_init', array(&$this, 'signup_redirect'), 100 ); //delay to make sure it is last hook to admin_init
-
+		
+		//trials
 		add_action( 'wpmu_new_blog', array(&$this, 'trial_extend') );
-
+		add_action( 'admin_notices', array(&$this, 'trial_notice'), 2 );
+		
 		add_action( 'pre_get_posts', array(&$this, 'checkout_page_load') );
 
 		//handle signup pages
@@ -206,6 +208,7 @@ class ProSites {
 			'hide_adminbar' => 0,
 			'trial_level' => 1,
 			'trial_days' => get_site_option("supporter_free_days"),
+      'trial_message' => __('You have DAYS days left in your LEVEL free trial. Checkout now to prevent loosing LEVEL features &raquo;', 'psts'),
       'feature_message' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
       'active_message' => __('Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your blog was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts'),
       'success_subject' => __('Thank you for becoming a Pro Site member!', 'psts'),
@@ -282,7 +285,7 @@ Many thanks again for being a member!", 'psts'),
    		'bu_payment_type' => 'recurring',
    		'bu_level' => 1,
    		'bu_credits_1' => 10,
-   		'bu_option_msg' => __('Upgrade CREDITS blogs to LEVEL for one year for only PRICE:', 'psts'),
+   		'bu_option_msg' => __('Upgrade CREDITS sites to LEVEL for one year for only PRICE:', 'psts'),
    		'bu_checkout_msg' => __('You can upgrade multiple sites at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your sites via the tool at the bottom of the page, and upgrade them to Pro Site status. Each site is upgraded for one year.', 'psts'),
    		'bu_payment_msg' => __('Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available.', 'psts'),
    		'ptb_front_disable' => 1,
@@ -345,7 +348,23 @@ Many thanks again for being a member!", 'psts'),
 			$this->extend($blog_id, $extend, 'Trial', $this->get_setting('trial_level', 1));
 		}
 	}
-
+	
+	function trial_notice() {
+		global $wpdb, $blog_id;
+		if ( current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
+			$expire = $wpdb->get_var("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE gateway = 'Trial' AND expire >= '" . time() . "'");
+			if ($expire) {
+				$days = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
+				$notice = str_replace( 'LEVEL', $this->get_level_setting($this->get_setting('trial_level', 1), 'name'), $this->get_setting('trial_message') );
+				$notice = str_replace( 'DAYS', $days, $notice );
+				echo '
+					<div class="update-nag">
+						<a href="' . $this->checkout_url($blog_id) . '">' . $notice . '</a>
+					</div>';
+			}
+		}
+	}
+	
 	//run daily via wp_cron
 	function process_stats() {
 	  global $wpdb;
@@ -504,7 +523,7 @@ Many thanks again for being a member!", 'psts'),
 
   	do_action('psts_page_after_settings');
 	}
-
+	
 	function plug_pages() {
 		if ( !is_main_site() ) {
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
@@ -1630,7 +1649,7 @@ Many thanks again for being a member!", 'psts'),
 	        <input type="submit" value="<?php _e('Continue &raquo;', 'psts') ?>" />
 	        </p>
 	        </form>
-	        <p><?php _e('You can also browse or search for blogs to modify on the <a href="sites.php">Sites admin page</a>.', 'psts'); ?></p>
+	        <p><?php _e('You can also browse or search for sites to modify on the <a href="sites.php">Sites admin page</a>.', 'psts'); ?></p>
 	      </div>
 	      </div>
       </div>
@@ -2513,7 +2532,7 @@ Many thanks again for being a member!", 'psts'),
 		);
 		?>
     <h3><?php _e('Edit Pro Site Levels', 'psts') ?></h3>
-		<span class="description"><?php _e('Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for exisiting blogs in that level. When you delete a level, existing blogs in that level will retain the features of all levels below their current level number.', 'psts') ?></span>
+		<span class="description"><?php _e('Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number.', 'psts') ?></span>
 		<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
 			<thead>
 				<tr>
@@ -2864,7 +2883,7 @@ Many thanks again for being a member!", 'psts'),
 						}
 						?>
 						</select>
-						<?php _e('Free days for all new blogs.', 'psts'); ?></td>
+						<?php _e('Free days for all new sites.', 'psts'); ?></td>
 						</tr>
 						<tr valign="top">
 					  <th scope="row"><?php _e('Free Trial Level', 'psts') ?></th>
@@ -2876,9 +2895,14 @@ Many thanks again for being a member!", 'psts'),
 						}
 						?>
 		        </select>
-		        <?php _e('Select the level given to blogs during their trial period.', 'psts') ?>
+		        <?php _e('Select the level given to sites during their trial period.', 'psts') ?>
 						</td>
 					  </tr>
+						<tr valign="top">
+						<th scope="row"><?php _e('Free Trial Message', 'psts') ?></th>
+						<td><input type="text" name="psts[trial_message]" id="trial_message" value="<?php esc_attr_e($this->get_setting('trial_message')); ?>" style="width: 95%" />
+						<br /><?php _e('Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+						</tr>
 	          <?php do_action('psts_general_settings'); ?>
 	        </table>
 	      </div>
@@ -3230,7 +3254,7 @@ Many thanks again for being a member!", 'psts'),
 
 	    //show message if no valid blogs
 	    if (!$has_blog)
-	      $content .= '<strong>' . __('Sorry, but it appears you are not an administrator for any blogs.', 'psts') . '</strong>';
+	      $content .= '<strong>' . __('Sorry, but it appears you are not an administrator for any sites.', 'psts') . '</strong>';
 
 	  }
 

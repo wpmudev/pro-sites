@@ -74,7 +74,7 @@ class ProSites_Module_Plugins {
 
 	//plugin activate links
 	function action_links($action_links, $plugin_file, $plugin_data, $context) {
-    global $psts;
+    global $psts, $blog_id;
     
    	if ( is_super_admin() || is_plugin_active( $plugin_file ) )
 	    return $action_links;
@@ -89,7 +89,7 @@ class ProSites_Module_Plugins {
 	      } else {
 	        $this->checkbox_rows[] = $plugin_file;
 	        $rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($psts_plugins[$plugin_file]['level'], 'name') );
-	        return array('<a style="color:red;" href="'.$psts->checkout_url().'">'.$rebrand.'</a>');
+	        return array('<a style="color:red;" href="'.$psts->checkout_url($blog_id).'">'.$rebrand.'</a>');
 	      }
 	    }
 	  }

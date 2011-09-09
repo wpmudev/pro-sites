@@ -109,7 +109,7 @@ class ProSites_Module_PostingQuota {
 	}
 
 	function message() {
-		global $psts, $current_screen, $post_type;
+		global $psts, $current_screen, $post_type, $blog_id;
 
     if ( is_pro_site(false, $psts->get_setting('pq_level', 1)) )
       return;
@@ -120,7 +120,7 @@ class ProSites_Module_PostingQuota {
 				if ( isset($quota_settings[$post_type]) ) {
 					if ( is_numeric(@$quota_settings[$post_type]['quota']) && wp_count_posts($post_type) >= @$quota_settings[$post_type]['quota'] ) {
 						$notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('pq_level', 1), 'name'), @$quota_settings[$post_type]['message'] );
-						echo '<div class="error"><p><a href="'.$psts->checkout_url().'">' . $notice . '</a></p></div>';	
+						echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';	
 					}
 				}
 			}
