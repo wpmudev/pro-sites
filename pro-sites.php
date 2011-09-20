@@ -2,7 +2,7 @@
 /*
 Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
-Description: The ultimate multisite blog upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
+Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
 Version: 3.0 Beta 7
 Author URI: http://premium.wpmudev.org
@@ -58,7 +58,6 @@ class ProSites {
 		add_action( 'network_admin_menu', array(&$this, 'plug_network_pages') );
 		add_action( 'admin_menu', array(&$this, 'plug_pages') );
 		add_action( 'admin_bar_menu', array(&$this, 'add_menu_admin_bar'), 15);
-		add_action( 'admin_head', array(&$this, 'admin_css') );
 		add_filter( 'wpmu_blogs_columns', array(&$this, 'add_column') );
 		add_action( 'manage_sites_custom_column', array(&$this, 'add_column_field'), 1, 3 );
 
@@ -81,7 +80,7 @@ class ProSites {
 
 
 		add_action( 'psts_process_stats', array(&$this, 'process_stats') ); //cronjob hook
-		add_filter( 'blog_template_exclude_settings', array(&$this, 'blog_template_settings') ); // exclude pro blog setting from blog template copies
+		add_filter( 'blog_template_exclude_settings', array(&$this, 'blog_template_settings') ); // exclude pro site setting from blog template copies
 
 		//update install script if necessary
 		if ($this->get_setting('version') != $this->version) {
@@ -210,7 +209,7 @@ class ProSites {
 			'trial_days' => get_site_option("supporter_free_days"),
       'trial_message' => __('You have DAYS days left in your LEVEL free trial. Checkout now to prevent loosing LEVEL features &raquo;', 'psts'),
       'feature_message' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
-      'active_message' => __('Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your blog was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts'),
+      'active_message' => __('Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts'),
       'success_subject' => __('Thank you for becoming a Pro Site member!', 'psts'),
       'success_msg' => __("Thank you for becoming a Pro Site member!
 
@@ -289,8 +288,8 @@ Many thanks again for being a member!", 'psts'),
    		'bu_checkout_msg' => __('You can upgrade multiple sites at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your sites via the tool at the bottom of the page, and upgrade them to Pro Site status. Each site is upgraded for one year.', 'psts'),
    		'bu_payment_msg' => __('Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available.', 'psts'),
    		'ptb_front_disable' => 1,
-   		'ptb_front_msg' => __('This blog is temporarily disabled until payment is received. Please check back later.', 'psts'),
-   		'ptb_checkout_msg' => __('You must pay to enable your blog.', 'psts'),
+   		'ptb_front_msg' => __('This site is temporarily disabled until payment is received. Please check back later.', 'psts'),
+   		'ptb_checkout_msg' => __('You must pay to enable your site.', 'psts'),
 			'pq_level' => 1,
 			'pq_quotas' => array('post' => array('quota' => 'unlimited'), 'page' => array('quota' => 'unlimited')),
 			'uh_level' => 1,
@@ -351,8 +350,8 @@ Many thanks again for being a member!", 'psts'),
 	
 	function trial_notice() {
 		global $wpdb, $blog_id;
-		if ( current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
-			$expire = $wpdb->get_var("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE gateway = 'Trial' AND expire >= '" . time() . "'");
+		if ( !is_main_site() && current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
+			$expire = $wpdb->get_var("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id' AND gateway = 'Trial' AND expire >= '" . time() . "' LIMIT 1");
 			if ($expire) {
 				$days = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
 				$notice = str_replace( 'LEVEL', $this->get_level_setting($this->get_setting('trial_level', 1), 'name'), $this->get_setting('trial_message') );
@@ -1330,21 +1329,6 @@ Many thanks again for being a member!", 'psts'),
 	  return $meta;
 	}
 
-	function admin_css() {
-	  //add icon to nav menu
-	  ?>
-	  <style type="text/css">
-	    #adminmenu #menu-supporter div.wp-menu-image {
-	      background:transparent url(<?php bloginfo('siteurl'); ?>/wp-content/mu-plugins/supporter-files/images/supporter-icon.png) no-repeat scroll 0 -33px;
-	    }
-	    #adminmenu #menu-supporter:hover div.wp-menu-image, #adminmenu #menu-supporter.wp-has-current-submenu div.wp-menu-image {
-	      background:transparent url(<?php bloginfo('siteurl'); ?>/wp-content/mu-plugins/supporter-files/images/supporter-icon.png) no-repeat scroll 0 -1px;
-	    }
-
-	  </style>
-	  <?php
-	}
-
 	function add_column( $columns ) {
 
 		$first_array = array_splice ($columns, 0, 2);
@@ -1358,9 +1342,9 @@ Many thanks again for being a member!", 'psts'),
 
 		if ( $column == 'psts' ) {
 			if ( isset($this->column_fields[$blog_id]) ) {
-				echo "<a title='".__('Manage blog &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".$this->column_fields[$blog_id]."</a>";
+				echo "<a title='".__('Manage site &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".$this->column_fields[$blog_id]."</a>";
 			} else {
-	      echo "<a title='".__('Extend blog &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".__('Extend &raquo;', 'psts')."</a>";
+	      echo "<a title='".__('Extend site &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".__('Extend &raquo;', 'psts')."</a>";
 	    }
 		}
 	}
@@ -1497,7 +1481,7 @@ Many thanks again for being a member!", 'psts'),
         echo '</ul>';
 
       } else {
-        echo '<p><strong>"'.get_blog_option($blog_id, 'blogname').'" '.__('has never been a Pro Sites blog.', 'psts').'</strong></p>';
+        echo '<p><strong>"'.get_blog_option($blog_id, 'blogname').'" '.__('has never been a Pro Site.', 'psts').'</strong></p>';
       }
 
 		//meta boxes hooked by gateway plugins
@@ -1533,7 +1517,7 @@ Many thanks again for being a member!", 'psts'),
 	    <div class="postbox">
 	      <h3 class='hndle'><span><?php _e('Account History', 'psts') ?></span></h3>
 	      <div class="inside">
-	        <span class="description"><?php _e('This logs basically every action done in the system regarding the blog for an audit trail.', 'psts'); ?></span>
+	        <span class="description"><?php _e('This logs basically every action done in the system regarding the site for an audit trail.', 'psts'); ?></span>
 	        <div style="height:150px;overflow:auto;margin-top:5px;">
 	          <table class="widefat">
 	            <?php
@@ -1545,7 +1529,7 @@ Many thanks again for being a member!", 'psts'),
 	                echo '<tr class="'.$class.'"><td><strong>' . date( 'Y-m-d g:i:s a', $timestamp ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
 	              }
 	            } else {
-	              echo '<tr><td colspan="2">'.__('No history recorded for this blog yet.', 'psts').'</td></tr>';
+	              echo '<tr><td colspan="2">'.__('No history recorded for this site yet.', 'psts').'</td></tr>';
 	            }
 							?>
 	          </table>
@@ -1583,7 +1567,7 @@ Many thanks again for being a member!", 'psts'),
 		        ?>
 		        </select><?php _e('Days', 'psts'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php _e('or', 'psts'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		        <label><input type="checkbox" name="extend_permanent" value="1" /> <?php _e('Permanent', 'psts'); ?></label>
-		        <br /><?php _e('Period you wish to extend the blog. Leave at zero to only change the level.', 'psts'); ?></td>
+		        <br /><?php _e('Period you wish to extend the site. Leave at zero to only change the level.', 'psts'); ?></td>
 		        </tr>
 		        <tr valign="top">
 		        <th scope="row"><?php _e('Level', 'psts') ?></th>
@@ -1594,7 +1578,7 @@ Many thanks again for being a member!", 'psts'),
 							}
 		        ?>
 		        </select>
-		        <br /><?php _e('Choose what level the blog should have access to.', 'psts'); ?></td>
+		        <br /><?php _e('Choose what level the site should have access to.', 'psts'); ?></td>
 		        </tr>
 		      </table>
 		      <p class="submit">
@@ -1617,7 +1601,7 @@ Many thanks again for being a member!", 'psts'),
           <?php do_action('psts_modify_form', $blog_id); ?>
 
 					<?php if ( is_pro_site($blog_id) ) { ?>
-          <p><label><input type="checkbox" name="psts_remove" value="1" /> <?php _e('Remove Pro Site status from this blog.', 'psts'); ?></label></p>
+          <p><label><input type="checkbox" name="psts_remove" value="1" /> <?php _e('Remove Pro status from this site.', 'psts'); ?></label></p>
 	    		<?php } ?>
 
 					<p class="submit">
@@ -2871,7 +2855,7 @@ Many thanks again for being a member!", 'psts'),
 	          <th scope="row"><?php _e('Pro Site Feature Message', 'psts') ?></th>
 	          <td>
 	          <input name="psts[feature_message]" type="text" id="feature_message" value="<?php echo esc_attr($this->get_setting('feature_message')); ?>" style="width: 95%" />
-	          <br /><?php _e('Required - No HTML - This message is displayed when a feature is accessed on a blog that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts') ?></td>
+	          <br /><?php _e('Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts') ?></td>
 	          </tr>
 						<tr valign="top">
 						<th scope="row"><?php _e('Free Trial', 'psts') ?></th>
@@ -2915,7 +2899,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Pro Site Signup', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the blog\'s level. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr($this->get_setting('success_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -2926,7 +2910,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Pro Site Canceled', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the blog\'s level. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr($this->get_setting('canceled_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -2948,7 +2932,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Payment Problem', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the blog\'s level. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr($this->get_setting('failed_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -3204,7 +3188,7 @@ Many thanks again for being a member!", 'psts'),
 
 	  //make sure logged in
 	  if (!is_user_logged_in()) {
-	    $content .= '<p>' . __('You must first login before you can choose a blog to upgrade:', 'psts') . '</p>';
+	    $content .= '<p>' . __('You must first login before you can choose a site to upgrade:', 'psts') . '</p>';
 	    $content .= wp_login_form( array('echo' => false) );
 	    return $content;
 	  }
@@ -3224,8 +3208,8 @@ Many thanks again for being a member!", 'psts'),
 	    $permission = current_user_can('edit_pages');
 	    restore_current_blog();
 	    if (!$permission) {
-	      $content = '<p>' . __('Sorry, but you do not have permission to upgrade this blog. Only the blog administrator can upgrade their blog.', 'psts') . '</p>';
-	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different blog', 'psts') . '</a></p>';
+	      $content = '<p>' . __('Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts') . '</p>';
+	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
 	      return $content;
 	    }
 
@@ -3235,7 +3219,7 @@ Many thanks again for being a member!", 'psts'),
 	  } else { //blogid not set
 	    $blogs = get_blogs_of_user(get_current_user_id());
 	    if ($blogs) {
-	      $content .= '<h3>' . __('Please choose a blog to Upgrade or Modify:', 'psts') . '</h3>';
+	      $content .= '<h3>' . __('Please choose a site to Upgrade or Modify:', 'psts') . '</h3>';
 	      $content .= '<ul>';
 	      foreach ($blogs as $blog) {
 
@@ -3279,12 +3263,12 @@ $psts = new ProSites();
 /* --------------------------------------------------------------------- */
 
 /**
- * Check if a given blog is Pro or at a given Pro level
+ * Check if a given site is Pro or at a given Pro level
  *
  * @since 3.0
  *
- * @param int $blog_id optional - The ID of the blog to check. Defaults to current blog.
- * @param int $level optional - Check if blog is at this level or below. If ommited checks if at any level.
+ * @param int $blog_id optional - The ID of the site to check. Defaults to current blog.
+ * @param int $level optional - Check if site is at this level or below. If ommited checks if at any level.
  * @return bool
  */
 function is_pro_site($blog_id = false, $level = false) {
@@ -3293,7 +3277,7 @@ function is_pro_site($blog_id = false, $level = false) {
 }
 
 /**
- * Check if a given user is a member of a Pro blog (at any level)
+ * Check if a given user is a member of a Pro site (at any level)
  *
  * @since 3.0
  *

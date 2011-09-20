@@ -432,6 +432,7 @@ $this->currencies = array(
   "EUR"=> array("Euro", "20ac"),
   "FKP"=> array("Falkland Islands, Pounds", "a3"),
   "FJD"=> array("Fiji, Dollars", "24"),
+  "GEL"=> array("Georgia, lari", "6c, 61, 72, 69"),
   "GHC"=> array("Ghana, Cedis", "a2"),
   "GIP"=> array("Gibraltar, Pounds", "a3"),
   "GTQ"=> array("Guatemala, Quetzales", "51"),

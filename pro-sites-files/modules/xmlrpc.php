@@ -76,7 +76,7 @@ class ProSites_Module_XMLRPC {
 			  <tr valign="top">
 			  <th scope="row"><?php _e('Restricted Message', 'psts') ?></th>
 			  <td><input type="text" name="psts[xmlrpc_message]" id="xmlrpc_message" value="<?php echo esc_attr($psts->get_setting('xmlrpc_message')); ?>" style="width: 95%" />
-			  <br /><?php _e('Required - This message is displayed on the remote publishing settings screen for blogs that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+			  <br /><?php _e('Required - This message is displayed on the remote publishing settings screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
 			  </tr>
 		  </table>
 		  </div>

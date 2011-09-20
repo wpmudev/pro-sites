@@ -153,7 +153,7 @@ class ProSites_Module_Ads {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Ads', 'psts') ?></span> - <span class="description"><?php _e('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other blogs.', 'psts') ?></span></h3>
+	    <h3 class='hndle'><span><?php _e('Ads', 'psts') ?></span> - <span class="description"><?php _e('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts') ?></span></h3>
 	    <div class="inside">
 				<table class="form-table">
           <tr valign="top">
@@ -172,12 +172,12 @@ class ProSites_Module_Ads {
 						}
 						?>
 	        </select><br />
-	        <?php _e('Select the minimum level required to not show ads on the blog.', 'psts') ?>
+	        <?php _e('Select the minimum level required to not show ads on the site.', 'psts') ?>
 					</td>
 				  </tr>
 				  <tr valign="top">
 				  <th scope="row"><?php _e('Enable Additional Ad-Free Sites', 'psts'); ?></th>
-				  <td><label><input type="checkbox" name="psts[ads_enable_blogs]" value="1"<?php checked($psts->get_setting('ads_enable_blogs')); ?> /> <?php _e('Allow disabling of ads on other blogs', 'psts'); ?></label></td>
+				  <td><label><input type="checkbox" name="psts[ads_enable_blogs]" value="1"<?php checked($psts->get_setting('ads_enable_blogs')); ?> /> <?php _e('Allow disabling of ads on other sites', 'psts'); ?></label></td>
 				  </tr>
 					<tr valign="top">
 				  <th scope="row"><?php _e('Additional Ad-Free Sites', 'psts') ?></th>
@@ -187,14 +187,14 @@ class ProSites_Module_Ads {
 						$this->ads_select($level, @$data['ads']);
 					  echo ' ' . $level . ' - ' . $data['name'] . '</label><br />';
 					}
-					_e('Number of blogs that can have ads disabled in addition to the Pro Site. Each level should have an identical or progressively higher number.', 'psts');
+					_e('Number of sites that can have ads disabled in addition to the Pro Site. Each level should have an identical or progressively higher number.', 'psts');
 					?>
 					</td>
 				  </tr>
 				  <tr valign="top">
 				  <th scope="row"><?php _e('Ads Message', 'psts') ?></th>
 				  <td><input type="text" name="psts[ads_message]" id="ads_message" value="<?php echo esc_attr($psts->get_setting( "ads_message" )); ?>" style="width: 95%" />
-				  <br /><?php _e('Required - This message is displayed on the Disable Ads page as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "NUM" will be replaced with the number of blogs that can be disabled in the next level.', 'psts') ?></td>
+				  <br /><?php _e('Required - This message is displayed on the Disable Ads page as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "NUM" will be replaced with the number of sites that can be disabled in the next level.', 'psts') ?></td>
 				  </tr>
 					<tr valign="top">
 					<th scope="row"><?php _e('Enable Other Modules', 'psts'); ?></th>
@@ -279,7 +279,7 @@ class ProSites_Module_Ads {
 		<script type="text/javascript">
   	  jQuery(document).ready(function () {
   		  jQuery('input#submit_remove').click(function() {
-          var answer = confirm("<?php _e('Are you sure you really want to remove these blogs?', 'psts'); ?>")
+          var answer = confirm("<?php _e('Are you sure you really want to remove these sites?', 'psts'); ?>")
           if (answer){
               return true;
           } else {
@@ -300,7 +300,7 @@ class ProSites_Module_Ads {
     			<?php $this->message(); ?>
 					<p>
 					<ul>
-						<li><?php _e('Maximum blogs', 'psts') ?>: <strong><?php echo $ad_free_blogs_max; ?></strong></li>
+						<li><?php _e('Maximum sites', 'psts') ?>: <strong><?php echo $ad_free_blogs_max; ?></strong></li>
 	        	<li><?php _e('Currently disabling ads on', 'psts') ?>: <strong><?php echo $ad_free_blogs_current; ?></strong></li>
 	        	<li><?php _e('Remaining', 'psts') ?>: <strong><?php echo $ad_free_blogs_remaining; ?></strong></li>
         	</ul>
@@ -310,14 +310,14 @@ class ProSites_Module_Ads {
 	    
 	    <?php if ( $ad_free_blogs_remaining > 0 && is_pro_site() ) { ?>
 	    <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a blog to disable ads on.', 'psts') ?></span></h3>
+	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to disable ads on.', 'psts') ?></span></h3>
 	      <div class="inside">
           <?php
           $curr_blogs = get_blogs_of_user(get_current_user_id());
           unset($curr_blogs[$wpdb->blogid]); //remove current blog
 				  if (!isset($_POST['submit_search']) && $curr_blogs) {
 				  ?>
-          <h4><?php _e('Choose a blog you are a member of:', 'psts'); ?></h4>
+          <h4><?php _e('Choose a site you are a member of:', 'psts'); ?></h4>
 					<table cellpadding='3' cellspacing='3' width='100%' class='widefat'>
 						<thead><tr>
 							<th scope='col' width='75px'><?php _e('Disable Ads', 'psts'); ?></th>
@@ -351,9 +351,9 @@ class ProSites_Module_Ads {
             </p>
      		<?php } ?>
      		
-     		  <h4><?php _e('Search for a blog:', 'psts'); ?></h4>
+     		  <h4><?php _e('Search for a site:', 'psts'); ?></h4>
      			<p><input type="text" name="search" value="" size="30" /><br />
-          <?php _e('Enter the blog domain here. Example - for "ablog.edublogs.org" you would search for "ablog".', 'psts') ?>
+          <?php _e('Enter the site domain here. Example - for "asite.edublogs.org" you would search for "asite".', 'psts') ?>
           </p>
           <p class="submit">
           	<input type="submit" name="submit_search" value="<?php _e('Search', 'psts') ?> &raquo;" />
@@ -373,7 +373,7 @@ class ProSites_Module_Ads {
 						if ( count( $blogs ) > 0 ) {
 							if ( count( $blogs ) >= 150 ) {
 								?>
-		            <span class="description"><?php _e('Over 150 blogs were found matching the provided search criteria. If you do not find the blog you are looking for in the selection below please try refining your search.', 'psts') ?></span>
+		            <span class="description"><?php _e('Over 150 sites were found matching the provided search criteria. If you do not find the site you are looking for in the selection below please try refining your search.', 'psts') ?></span>
 		            <?php
 							}
 						?>
@@ -412,7 +412,7 @@ class ProSites_Module_Ads {
             <input type="submit" name="back" value="&laquo; <?php _e('Back', 'psts') ?>" />
             <input type="submit" name="submit_process" value="<?php _e('Disable Ads', 'psts') ?> &raquo;" />
 	          <?php } else { ?>
-            <p><?php _e('No blogs found matching your search criteria.', 'psts') ?></p>
+            <p><?php _e('No sites found matching your search criteria.', 'psts') ?></p>
             <?php } ?>
 		      </div>
 		    </div>
@@ -459,7 +459,7 @@ class ProSites_Module_Ads {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_Ads', __('Advertising', 'psts'), __('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other blogs.', 'psts') );
+psts_register_module( 'ProSites_Module_Ads', __('Advertising', 'psts'), __('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts') );
 
 
 /* Ads functions used by other plugins */
