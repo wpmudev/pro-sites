@@ -359,7 +359,7 @@ class ProSites_Module_BulkUpgrades {
 					<label><?php _e('Price', 'psts') ?>:
           <?php echo $psts->format_currency(); ?><input value="<?php echo ($psts->get_setting('bu_price_1')) ? number_format( (float)$psts->get_setting('bu_price_1'), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_1]" type="text" />
           </label>
-					<br /><?php _e('One credit allows for one blog to be upgraded for one year.', 'psts'); ?>
+					<br /><?php _e('One credit allows for one site to be upgraded for one year.', 'psts'); ?>
 					</td>
           </tr>
 	        <tr valign="top">
@@ -377,7 +377,7 @@ class ProSites_Module_BulkUpgrades {
 					<label><?php _e('Price', 'psts') ?>:
           <?php echo $psts->format_currency(); ?><input value="<?php echo ($psts->get_setting('bu_price_2')) ? number_format( (float)$psts->get_setting('bu_price_2'), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_2]" type="text" />
           </label>
-					<br /><?php _e('One credit allows for one blog to be upgraded for one year.', 'psts'); ?>
+					<br /><?php _e('One credit allows for one site to be upgraded for one year.', 'psts'); ?>
 					</td>
           </tr>
 	        <tr valign="top">
@@ -395,7 +395,7 @@ class ProSites_Module_BulkUpgrades {
 					<label><?php _e('Price', 'psts') ?>:
           <?php echo $psts->format_currency(); ?><input value="<?php echo ($psts->get_setting('bu_price_3')) ? number_format( (float)$psts->get_setting('bu_price_3'), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_3]" type="text" />
           </label>
-					<br /><?php _e('One credit allows for one blog to be upgraded for one year.', 'psts'); ?>
+					<br /><?php _e('One credit allows for one site to be upgraded for one year.', 'psts'); ?>
 					</td>
           </tr>
 	        <tr valign="top">
@@ -413,7 +413,7 @@ class ProSites_Module_BulkUpgrades {
 					<label><?php _e('Price', 'psts') ?>:
           <?php echo $psts->format_currency(); ?><input value="<?php echo ($psts->get_setting('bu_price_4')) ? number_format( (float)$psts->get_setting('bu_price_4'), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_4]" type="text" />
           </label>
-					<br /><?php _e('One credit allows for one blog to be upgraded for one year.', 'psts'); ?>
+					<br /><?php _e('One credit allows for one site to be upgraded for one year.', 'psts'); ?>
 					</td>
           </tr>
           <tr valign="top">
@@ -611,7 +611,7 @@ class ProSites_Module_BulkUpgrades {
 		if (isset($_POST['submit_process'])) {
 			$credits = $this->get_credits($user_ID);
 			if ( $credits < 1 ) {
-				wp_die( __('You must purchase more Pro Site credits in order to upgrade blogs.', 'psts') );
+				wp_die( __('You must purchase more Pro Site credits in order to upgrade sites.', 'psts') );
 			}
 			$upgraded_blogs = 0;
 			$now = time();
@@ -714,14 +714,14 @@ class ProSites_Module_BulkUpgrades {
 		
   	<?php if ( $upgrade_credits > 0 ) { ?>
 	    <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a blog to apply an upgrade to.', 'psts') ?></span></h3>
+	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to apply an upgrade to.', 'psts') ?></span></h3>
 	      <div class="inside">
           <?php
           $curr_blogs = get_blogs_of_user(get_current_user_id());
           unset($curr_blogs[$wpdb->blogid]); //remove current blog
 				  if (!isset($_POST['submit_search']) && $curr_blogs) {
 				  ?>
-          <h4><?php _e('Choose a blog you are a member of:', 'psts'); ?></h4>
+          <h4><?php _e('Choose a site you are a member of:', 'psts'); ?></h4>
 					<table cellpadding='3' cellspacing='3' width='100%' class='widefat'>
 						<thead><tr>
        				<th scope='col' width='50px'><?php _e('Upgrade', 'psts'); ?></th>
@@ -764,9 +764,9 @@ class ProSites_Module_BulkUpgrades {
             </p>
      		<?php } ?>
 
-     		  <h4><?php _e('Search for a blog:', 'psts'); ?></h4>
+     		  <h4><?php _e('Search for a site:', 'psts'); ?></h4>
      			<p><input type="text" name="search" value="" size="30" /><br />
-          <?php _e('Enter the blog domain here. Example - for "ablog.edublogs.org" you would search for "ablog".', 'psts') ?>
+          <?php _e('Enter the site domain here. Example - for "ablog.edublogs.org" you would search for "ablog".', 'psts') ?>
           </p>
           <p class="submit">
           	<input type="submit" name="submit_search" value="<?php _e('Search', 'psts') ?> &raquo;" />
@@ -786,7 +786,7 @@ class ProSites_Module_BulkUpgrades {
 						if ( count( $blogs ) > 0 ) {
 							if ( count( $blogs ) >= 150 ) {
 								?>
-		            <span class="description"><?php _e('Over 150 blogs were found matching the provided search criteria. If you do not find the blog you are looking for in the selection below please try refining your search.', 'psts') ?></span>
+		            <span class="description"><?php _e('Over 150 sites were found matching the provided search criteria. If you do not find the site you are looking for in the selection below please try refining your search.', 'psts') ?></span>
 		            <?php
 							}
 						?>
@@ -833,7 +833,7 @@ class ProSites_Module_BulkUpgrades {
             <input type="submit" name="back" value="&laquo; <?php _e('Back', 'psts') ?>" />
             <input type="submit" name="submit_process" value="<?php _e('Upgrade Sites', 'psts') ?> &raquo;" />
 	          <?php } else { ?>
-            <p><?php _e('No blogs found matching your search criteria.', 'psts') ?></p>
+            <p><?php _e('No sites found matching your search criteria.', 'psts') ?></p>
             <?php } ?>
 		      </div>
 		    </div>
@@ -844,7 +844,7 @@ class ProSites_Module_BulkUpgrades {
 				$blogs = get_user_meta($user_ID, 'psts_upgraded', true);
 				if ( is_array($blogs) && count($blogs) ) { ?>
 		    <div class="postbox">
-		      <h3 class='hndle'><span><?php _e('Previously Upgraded Sites', 'psts'); ?></span> - <span class="description"><?php _e('These are blogs that you have previously upgraded in the past.', 'psts'); ?></span></h3>
+		      <h3 class='hndle'><span><?php _e('Previously Upgraded Sites', 'psts'); ?></span> - <span class="description"><?php _e('These are sites that you have previously upgraded in the past.', 'psts'); ?></span></h3>
 		      <div class="inside">
 					 <p>
 					 <table cellpadding='3' cellspacing='3' width='100%' class='widefat'>

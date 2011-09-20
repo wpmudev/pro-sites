@@ -94,7 +94,7 @@ class ProSites_Module_PremiumThemes {
 				  <th scope="row"><?php _e('Theme Preview Message', 'psts') ?></th>
 				  <td>
 				  <input type="text" name="psts[pt_text]" value="<?php echo esc_attr($psts->get_setting('pt_text', __('Upgrade to LEVEL to activate this premium theme &raquo;', 'psts'))); ?>" style="width: 95%" />
-				  <br /><?php _e('Required - No HTML! - This message is displayed when the wrong level blog is previewing a premium theme. "LEVEL" will be replaced with the needed level name for that theme.', 'psts') ?></td>
+				  <br /><?php _e('Required - No HTML! - This message is displayed when the wrong level site is previewing a premium theme. "LEVEL" will be replaced with the needed level name for that theme.', 'psts') ?></td>
 				  </tr>
 			  </table>
 		  </div>
@@ -144,7 +144,7 @@ class ProSites_Module_PremiumThemes {
     <div class="wrap">
     <div class="icon32" id="icon-themes"></div>
     <h2><?php _e('Premium Themes', 'psts'); ?></h2>
-    <p><?php _e('Select the minimum Pro Site level for premium themes that you want to enable for blogs of that level or above. Only <a href="themes.php?theme_status=disabled">disabled network themes</a> are shown in this list. ', 'psts'); ?></p>
+    <p><?php _e('Select the minimum Pro Site level for premium themes that you want to enable for sites of that level or above. Only <a href="themes.php?theme_status=disabled">disabled network themes</a> are shown in this list. ', 'psts'); ?></p>
 
 		<form method="post" action="">
     <?php wp_nonce_field('psts_themes') ?>

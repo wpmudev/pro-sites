@@ -434,7 +434,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         echo '<p>'.sprintf(__('The Subscription profile status is currently: <strong>%s</strong>', 'psts'), $resArray['STATUS']).'</p>';
         echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
 			} else {
-	      echo '<div id="message" class="error fade"><p>'.sprintf( __("Whoops! There was a problem accessing this blog's subscription information: %s", 'psts'), $this->parse_error_string($resArray) ).'</p></div>';
+	      echo '<div id="message" class="error fade"><p>'.sprintf( __("Whoops! There was a problem accessing this site's subscription information: %s", 'psts'), $this->parse_error_string($resArray) ).'</p></div>';
 	    }
 			
 			//show past profiles if they exists
@@ -447,7 +447,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				echo __('Profile History:', 'psts') . ' <small>' . implode(', ', $history_lines) . '</small>';
 			}
     } else {
-      echo '<p>'.__("This blog is using an older gateway so their information is not accessible.", 'psts').'</p>';
+      echo '<p>'.__("This site is using an older gateway so their information is not accessible.", 'psts').'</p>';
 		}
 	}
 
@@ -473,7 +473,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      }
 	    }
 		} else {
-      echo '<p>'.__("This blog is using an older gateway so their information is not accessible.", 'psts').'</p>';
+      echo '<p>'.__("This site is using an older gateway so their information is not accessible.", 'psts').'</p>';
 		}
 	}
 	
@@ -524,7 +524,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	    <?php
 	  } else {
 	    ?>
-	    <p><small style="color:red;"><?php _e('Note: This <strong>will not</strong> cancel their PayPal subscription or refund any payments made. You will have to do it from your PayPal account for this blog.', 'psts'); ?></small></p>
+	    <p><small style="color:red;"><?php _e('Note: This <strong>will not</strong> cancel their PayPal subscription or refund any payments made. You will have to do it from your PayPal account for this site.', 'psts'); ?></small></p>
 	    <?php
 	  }
 
@@ -901,7 +901,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
               update_blog_option($blog_id, 'psts_waiting_step', 1);
             }
 	      	} else {
-	          $this->complete_message .= __('Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your blog should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
+	          $this->complete_message .= __('Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
 	        	$psts->log_action( $blog_id, sprintf(__('User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts'), $this->parse_error_string($resArray) ) );
           }
 
@@ -1146,7 +1146,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		              update_blog_option($blog_id, 'psts_waiting_step', 1);
 		            }
 	          	} else {
-	              $this->complete_message = __('Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your blog should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
+	              $this->complete_message = __('Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
 	            	$psts->log_action( $blog_id, sprintf(__('User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts'), $this->parse_error_string($resArray) ) );
           		}
 
@@ -1191,7 +1191,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	  if ($this->complete_message) {
 	    $content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
 	    $content .= '<p>' . $psts->get_setting('pypl_thankyou') . '</p>';
-	    $content .= '<p><a href="' . get_admin_url($blog_id) . '">' . __('Visit your newly upgraded blog &raquo;', 'psts') . '</a></p>';
+	    $content .= '<p><a href="' . get_admin_url($blog_id) . '">' . __('Visit your newly upgraded site &raquo;', 'psts') . '</a></p>';
 	    return $content;
 	  }
 		
@@ -1260,14 +1260,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
         $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
         if (is_pro_site($blog_id))
-        	$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this blog should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+        	$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
         $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
 
 				$pp_active = true;
       } else if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Cancelled') {
 
         $content .= '<h3>'.__('Your subscription has been canceled', 'psts').'</h3>';
-        $content .= '<p>'.sprintf(__('This blog should continue to have %1$s features until %2$s.', 'psts'), $psts->get_setting('rebrand'), $end_date).'</p>';
+        $content .= '<p>'.sprintf(__('This site should continue to have %1$s features until %2$s.', 'psts'), $psts->get_setting('rebrand'), $end_date).'</p>';
 
       } else if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning')) {
 
@@ -1276,7 +1276,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
         $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
         if (is_pro_site($blog_id))
-					$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this blog should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+					$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
         $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($this->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
         $pp_active = true;
       } else {

@@ -199,7 +199,7 @@ class ProSites_Module_Plugins {
 
 	  //advertises premium plugins on the main plugins page.
 	  if ( $pagenow == 'plugins.php' && is_super_admin() ) {
-	   	echo '<div class="updated"><p>'.__('As a Super Admin you can activate any plugins for this blog.', 'psts').'</p></div>';
+	   	echo '<div class="updated"><p>'.__('As a Super Admin you can activate any plugins for this site.', 'psts').'</p></div>';
 		}
 
 		//Warns of Multisite Plugin Manager conflict
@@ -360,7 +360,7 @@ class ProSites_Module_Plugins {
 	  <div class="wrap">
     <div class="icon32" id="icon-plugins"></div>
     <h2><?php _e('Premium Plugins', 'psts'); ?></h2>
-  	<p><?php _e('Select the minimum Pro Site level for premium plugins that you want to enable for blogs of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list.', 'psts'); ?></p>
+  	<p><?php _e('Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list.', 'psts'); ?></p>
 
 		<form method="post" action="">
 		<table class="widefat">

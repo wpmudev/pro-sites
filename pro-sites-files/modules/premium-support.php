@@ -63,7 +63,7 @@ class ProSites_Module_Support {
 				  <tr valign="top">
 				  <th scope="row"><?php _e('Restricted Message', 'psts') ?></th>
 				  <td><input type="text" name="psts[ps_notice]" id="ps_notice" value="<?php echo esc_attr($psts->get_setting('ps_notice')); ?>" style="width: 95%" />
-				  <br /><?php _e('Required - This message is displayed on for blogs that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+				  <br /><?php _e('Required - This message is displayed on for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
 				  </tr>
 			  </table>
 		  </div>
@@ -85,7 +85,7 @@ class ProSites_Module_Support {
 	    $support_email = $psts->get_setting('ps_email');
 	    $message_headers = "MIME-Version: 1.0\n" . "From: \"{$current_user->display_name}\" <{$current_user->user_email}>\n" . "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"\n";
 	    $subject = sprintf(__('Premium Support Request: %s', 'psts'), get_bloginfo('url'));
-	    $message = sprintf(__("%s has submitted a new premium support request for the blog %s (%s).\nHere is their message:\n_______________________\n\n%s\n\n_______________________\nYou can reply to this email directly.", 'psts'), $current_user->display_name, get_bloginfo('name'), get_bloginfo('url'), $message);
+	    $message = sprintf(__("%s has submitted a new premium support request for the site %s (%s).\nHere is their message:\n_______________________\n\n%s\n\n_______________________\nYou can reply to this email directly.", 'psts'), $current_user->display_name, get_bloginfo('name'), get_bloginfo('url'), $message);
 	    $message .= sprintf(__("Site Address: %s\n", 'psts'), site_url());
 	    $message .= sprintf(__("Site Admin: %s\n", 'psts'), admin_url());
 			

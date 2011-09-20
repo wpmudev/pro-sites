@@ -48,7 +48,7 @@ class ProSites_Module_PayToBlog {
 			
 			//load template if exists
 			if ( file_exists( WP_CONTENT_DIR . '/ptb-template.php') ) {
-				require_once( WP_CONTENT_DIR . '/custom-wpsignup.php' );
+				require_once( WP_CONTENT_DIR . '/ptb-template.php' );
 			} else {
 				$content = $psts->get_setting('ptb_front_msg');
 				if (is_user_logged_in() && current_user_can('edit_pages'))
@@ -84,7 +84,7 @@ class ProSites_Module_PayToBlog {
 				  <th scope="row"><?php _e('Checkout Message', 'psts') ?></th>
 				  <td>
 					<textarea name="psts[ptb_checkout_msg]" rows="5" wrap="soft" style="width: 95%"><?php echo esc_textarea($psts->get_setting('ptb_checkout_msg')); ?></textarea>
-				  <br /><?php _e('Required - This message is displayed on the checkout page if the blog is unpaid. HTML Allowed', 'psts') ?></td>
+				  <br /><?php _e('Required - This message is displayed on the checkout page if the site is unpaid. HTML Allowed', 'psts') ?></td>
 				  </tr>
 					<tr valign="top">
 				  <th scope="row"><?php _e('Disable Front End', 'psts'); ?></th>
@@ -94,7 +94,7 @@ class ProSites_Module_PayToBlog {
 				  <th scope="row"><?php _e('Front End Restricted Message', 'psts') ?></th>
 				  <td>
 					<textarea name="psts[ptb_front_msg]" rows="5" wrap="soft" style="width: 95%"><?php echo esc_textarea($psts->get_setting('ptb_front_msg')); ?></textarea>
-				  <br /><?php _e('Required - This message is displayed on front end of the blog if it is unpaid and disabling the front end is enabled. HTML Allowed', 'psts') ?></td>
+				  <br /><?php _e('Required - This message is displayed on front end of the site if it is unpaid and disabling the front end is enabled. HTML Allowed', 'psts') ?></td>
 				  </tr>
 			  </table>
 		  </div>

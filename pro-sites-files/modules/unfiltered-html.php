@@ -74,7 +74,7 @@ class ProSites_Module_UnfilterHtml {
 	      	<tr valign="top">
 				  <th scope="row"><?php _e('Filtered Message', 'psts') ?></th>
 				  <td><input type="text" name="psts[uh_message]" id="uh_message" value="<?php echo esc_attr($psts->get_setting('uh_message')); ?>" style="width: 95%" />
-				  <br /><?php _e('Required - This message is displayed on the post/page screen for blogs that don\'t have unfiltered html permissions upon the saving of a post. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+				  <br /><?php _e('Required - This message is displayed on the post/page screen for sites that don\'t have unfiltered html permissions upon the saving of a post. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
 				  </tr>
 			  </table>
 		  </div>
