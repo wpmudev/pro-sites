@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0 Beta 7
+Version: 3.0 RC 1
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-BETA-7';
+  var $version = '3.0-RC-1';
   var $location;
   var $language;
   var $plugin_dir = '';
