@@ -64,11 +64,11 @@ class ProSites {
 		add_action( 'init', array(&$this, 'check') );
 		add_action( 'load-toplevel_page_psts-checkout', array(&$this, 'redirect_checkout') );
 		add_action( 'admin_init', array(&$this, 'signup_redirect'), 100 ); //delay to make sure it is last hook to admin_init
-		
+
 		//trials
 		add_action( 'wpmu_new_blog', array(&$this, 'trial_extend') );
 		add_action( 'admin_notices', array(&$this, 'trial_notice'), 2 );
-		
+
 		add_action( 'pre_get_posts', array(&$this, 'checkout_page_load') );
 
 		//handle signup pages
@@ -127,7 +127,7 @@ class ProSites {
 
 	function install() {
 		global $wpdb, $current_site;
-		
+
 		//rename tables if upgrading from old supporter
 		if (get_site_option("supporter_installed") == "yes") {
 			$wpdb->query("RENAME TABLE `{$wpdb->base_prefix}supporters` TO `{$wpdb->base_prefix}pro_sites`");
@@ -135,7 +135,7 @@ class ProSites {
 			$wpdb->query("RENAME TABLE `{$wpdb->base_prefix}supporter_daily_stats` TO `{$wpdb->base_prefix}pro_sites_daily_stats`");
 			delete_site_option( "supporter_installed" );
 		}
-		
+
 		$table1 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites` (
 		  `blog_ID` bigint(20) NOT NULL,
 		  `level` int(3) NOT NULL DEFAULT 1,
@@ -347,7 +347,7 @@ Many thanks again for being a member!", 'psts'),
 			$this->extend($blog_id, $extend, 'Trial', $this->get_setting('trial_level', 1));
 		}
 	}
-	
+
 	function trial_notice() {
 		global $wpdb, $blog_id;
 		if ( !is_main_site() && current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
@@ -363,7 +363,7 @@ Many thanks again for being a member!", 'psts'),
 			}
 		}
 	}
-	
+
 	//run daily via wp_cron
 	function process_stats() {
 	  global $wpdb;
@@ -522,7 +522,7 @@ Many thanks again for being a member!", 'psts'),
 
   	do_action('psts_page_after_settings');
 	}
-	
+
 	function plug_pages() {
 		if ( !is_main_site() ) {
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
@@ -541,9 +541,9 @@ Many thanks again for being a member!", 'psts'),
 		} else {
       $checkout = $this->checkout_url();
 		}
-		
+
 		$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
-		
+
     $wp_admin_bar->add_menu( array( 'id' => 'pro-site' , 'title' => $label, 'href' => $checkout ) );
     do_action( 'psts_admin_bar', 'pro-site' ); //for modules to add to admin bar. Passes parent id
 	}
@@ -2162,9 +2162,9 @@ Many thanks again for being a member!", 'psts'),
 			<tbody id="the-list">
 			<?php
 			if ( is_array($coupon_list) && count($coupon_list) ) {
-				$bgcolor = $class = '';
+				$bgcolor = isset($class) ? $class : '';
 				foreach ($coupon_list as $coupon_code => $coupon) {
-					$class = ('alternate' == $class) ? '' : 'alternate';
+					$class = (isset($class) && 'alternate' == $class) ? '' : 'alternate';
 
           //assign classes based on coupon availability
           //$class = ($this->check_coupon($coupon_code)) ? $class . ' coupon-active' : $class . ' coupon-inactive';
@@ -2784,8 +2784,12 @@ Many thanks again for being a member!", 'psts'),
 	  if ( isset( $_POST['submit_settings'] ) ) {
 	    //check nonce
       check_admin_referer('psts_settings');
-
-      @array_walk_recursive($_POST['psts'], 'stripslashes'); //strip slashes
+			
+			//strip slashes from all inputs
+			if (get_magic_quotes_gpc())
+				$_POST['psts'] = stripslashes_deep($_POST['psts']);
+			
+			$_POST['psts']['hide_adminbar'] = isset($_POST['psts']['hide_adminbar']) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
       $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
 
       //merge settings
@@ -3002,7 +3006,7 @@ Many thanks again for being a member!", 'psts'),
 	function checkout_redirect_page() {
 		//This page should never be shown
 		global $blog_id;
-		
+
 		/*
 		if( !current_user_can('edit_pages') ) {
 			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.

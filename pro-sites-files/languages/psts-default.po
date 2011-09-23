@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-22 15:17-0600\n"
-"PO-Revision-Date: 2011-08-22 15:19-0600\n"
+"POT-Creation-Date: 2011-09-23 11:32-0600\n"
+"PO-Revision-Date: 2011-09-23 11:32-0600\n"
 "Last-Translator: Aaron Edwards\n"
 "Language-Team: Incsub\n"
 "MIME-Version: 1.0\n"
@@ -14,41 +14,56 @@ msgstr ""
 "X-Poedit-SearchPath-0: /Users/aaron2/Documents/WPMU Test/wp-content/plugins/pro-sites\n"
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:119
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:120
 msgid "There was an issue determining where Pro Sites is installed. Please reinstall."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:200
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1322
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:201
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1335
 msgid "Pro Site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:207
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:272
-msgid "Upgrade to LEVEL to access this feature &raquo;"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:202
+msgid "Pro Upgrade"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:208
-msgid "Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your blog was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:209
-msgid "Thank you for becoming a Pro Site member!"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:203
+msgid "Your Account"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:210
+msgid "You have DAYS days left in your LEVEL free trial. Checkout now to prevent loosing LEVEL features &raquo;"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:211
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:276
+msgid "Upgrade to LEVEL to access this feature &raquo;"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:212
+msgid "Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:213
+msgid "Thank you for becoming a Pro Site member!"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:214
 msgid ""
 "Thank you for becoming a Pro Site member!\r\n"
 "\r\n"
 "We have received your first subscription payment and you can now access all LEVEL features!\r\n"
 "\r\n"
 "Subscription payments should show on your credit card or bank statement as \"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:\r\n"
-"http://mysite.com/pro-blog/\r\n"
+"http://mysite.com/pro-site/\r\n"
 "\r\n"
 "If you ever have any billing questions please contact us:\r\n"
 "http://mysite.com/contact/\r\n"
@@ -57,12 +72,12 @@ msgid ""
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:221
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:225
 msgid "Your Pro Site subscription has been canceled"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:222
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:226
 msgid ""
 "Your Pro Site subscription has been canceled.\r\n"
 "\r\n"
@@ -71,25 +86,25 @@ msgid ""
 "We are very sorry to see you go, but we are looking forward to you subscribing to our services again.\r\n"
 "\r\n"
 "You can resubscribe at any time here:\r\n"
-"http://mysite.com/pro-blog/\r\n"
+"http://mysite.com/pro-site/\r\n"
 "\r\n"
 "Thanks!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:232
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:236
 msgid "Your Pro Site payment receipt"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:233
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:237
 msgid ""
 "Your Pro Site subscription payment was successful!\r\n"
 "\r\n"
 "PAYMENTINFO\r\n"
 "\r\n"
 "Subscription payments should show on your credit card or bank statement as \"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:\r\n"
-"http://mysite.com/pro-blog/\r\n"
+"http://mysite.com/pro-site/\r\n"
 "\r\n"
 "If you ever have any billing questions please contact us:\r\n"
 "http://mysite.com/contact/\r\n"
@@ -98,17 +113,17 @@ msgid ""
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:244
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:248
 msgid "Your Pro Site subscription payment failed"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:245
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:249
 msgid ""
 "It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.\r\n"
 "\r\n"
 "Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features:\r\n"
-"http://mysite.com/pro-blog/\r\n"
+"http://mysite.com/pro-site/\r\n"
 "\r\n"
 "If you're still having billing problems please contact us for help:\r\n"
 "http://mysite.com/contact/\r\n"
@@ -117,66 +132,66 @@ msgid ""
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:258
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:262
 msgid "Manual Payment"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:259
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:263
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:23
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:84
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:90
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:146
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:258
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:445
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:257
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:444
 msgid "Premium Themes"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:260
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:264
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:96
 msgid "Upgrade to LEVEL to activate this premium theme &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:263
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:267
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:29
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:120
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:123
 msgid "Premium Support"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:264
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:268
 msgid "You can send us a priority direct email support request here if you need help with your site."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:265
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:269
 msgid "To enable premium support, please upgrade to LEVEL &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:267
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:271
 msgid "To enable writing posts, please upgrade to LEVEL &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:268
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:272
 msgid "For SPACE of upload space, upgrade to LEVEL!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:269
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:273
 msgid "You are out of upload space! Please upgrade to LEVEL to enable SPACE of storage space."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:271
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:275
 msgid "To enable XML-RPC or Atom remote publishing please upgrade to LEVEL &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:273
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:277
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:39
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:329
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:335
@@ -186,215 +201,220 @@ msgid "Premium Plugins"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:274
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:313
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:340
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:373
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:403
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:278
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:323
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:350
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:383
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:413
 msgid "Disable Ads"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:283
-msgid "Upgrade CREDITS blogs to LEVEL for one year for only PRICE:"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:284
-msgid "You can upgrade multiple blogs at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your blogs via the tool at the bottom of the page, and upgrade them to Pro Site status. Each blog is upgraded for one year."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:285
-msgid "Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:287
-msgid "This blog is temporarily disabled until payment is received. Please check back later."
+msgid "Upgrade CREDITS sites to LEVEL for one year for only PRICE:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:288
-msgid "You must pay to enable your blog."
+msgid "You can upgrade multiple sites at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your sites via the tool at the bottom of the page, and upgrade them to Pro Site status. Each site is upgraded for one year."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:289
+msgid "Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:291
+msgid "This site is temporarily disabled until payment is received. Please check back later."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:292
+msgid "You must pay to enable your site."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:296
+msgid "To enable the embedding html, please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:304
 msgid "Pro"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:411
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:436
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:446
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:456
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:461
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:471
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:481
 msgid "no change"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:414
-#, php-format
-msgid "%s active Pro Sites %s since last week"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:439
 #, php-format
+msgid "%s active Pro Sites %s since last week"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:464
+#, php-format
 msgid "%s new signups this week %s compared to last week"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:449
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:474
 #, php-format
 msgid "%s upgrades this week %s compared to last week"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:459
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:484
 #, php-format
 msgid "%s cancelations this week %s compared to last week"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:468
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:493
 msgid "Pro Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:473
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1945
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:498
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1958
 msgid "Pro Sites Statistics"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:473
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:498
 msgid "Statistics"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:479
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2024
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:504
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2037
 msgid "Pro Sites Coupons"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:479
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:504
 msgid "Coupons"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:486
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2412
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:511
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2425
 msgid "Pro Sites Levels"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:486
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:511
 msgid "Levels"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:491
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:516
 msgid "Pro Sites Modules & Gateways"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:491
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:516
 msgid "Modules/Gateways"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:496
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2794
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:521
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2812
 msgid "Pro Sites Settings"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:496
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:521
 msgid "Settings"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:621
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:649
 msgid "Sorry, the coupon code you entered is not valid for your chosen level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:623
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:636
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:651
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:664
 msgid "Whoops! The coupon code you entered is not valid."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:634
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:662
 msgid "User added a valid coupon to their order on the checkout page:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:637
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:665
 msgid "User attempted to add an invalid coupon to their order on the checkout page:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:675
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:703
 #, php-format
 msgid "Signup success email sent to %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:681
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:709
 #, php-format
 msgid "Every %s Month(s)"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:686
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:714
 #, php-format
 msgid "Payment Method: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:688
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:716
 #, php-format
 msgid "Payment Term: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:689
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:717
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:350
 #, php-format
 msgid "Payment Amount: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:696
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:724
 #, php-format
 msgid "Payment receipt email sent to %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:708
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:736
 #, php-format
 msgid "Subscription canceled email sent to %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:715
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:743
 #, php-format
 msgid "Payment failed email sent to %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:961
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1791
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1813
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:989
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1804
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1826
 msgid "Manual"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:967
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1556
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:995
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1569
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:737
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:807
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:867
@@ -402,695 +422,695 @@ msgid "Permanent"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:983
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1011
 msgid "Pro Site status expiration permanently extended."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:985
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1013
 #, php-format
 msgid "Pro Site status expiration extended until %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:992
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:809
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1052
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1020
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:819
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1065
 #, php-format
 msgid "Pro Site level upgraded from \"%s\" to \"%s\"."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:995
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1023
 #, php-format
 msgid "Pro Site level downgraded from \"%s\" to \"%s\"."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1028
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1056
 msgid "Pro Site status has been withdrawn."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1217
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1245
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1273
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1301
 msgid "I'm Interested"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1277
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1305
 msgid "Not Now"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1332
-msgid "Manage blog &raquo;"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1345
+msgid "Manage site &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1334
-msgid "Extend blog &raquo;"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1347
+msgid "Extend site &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1334
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1572
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1347
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1585
 msgid "Extend &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1359
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1636
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2011
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2367
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2643
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2765
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2981
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:226
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1372
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1649
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2024
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2380
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2656
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2779
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:236
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:602
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:315
 msgid "Nice Try..."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1375
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1388
 msgid "Site Extended."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1386
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1399
 msgid "Pro Site Status Removed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1394
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1407
 msgid "Invalid blog ID. Please try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1408
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1421
 msgid "Are you sure you really want to do this?"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1418
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1431
 msgid "Pro Sites Management"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1421
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1434
 msgid "Modify Site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1434
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1447
 #, php-format
 msgid "%s Month"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1442
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1455
 msgid "Current Pro Site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1446
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1459
 msgid "Pro Site priviledges will expire: <strong>Never</strong>"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1448
-#, php-format
-msgid "Pro Site priviledges will expire on: <strong>%s</strong>"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1450
-#, php-format
-msgid "Level: <strong>%s</strong>"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1452
-#, php-format
-msgid "Payment Gateway: <strong>%s</strong>"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1454
-#, php-format
-msgid "Payment Term: <strong>%s</strong>"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1458
-msgid "Expired Pro Site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1461
 #, php-format
-msgid "Pro Site priviledges expired on: <strong>%s</strong>"
+msgid "Pro Site priviledges will expire on: <strong>%s</strong>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1463
 #, php-format
-msgid "Previous Level: <strong>%s</strong>"
+msgid "Level: <strong>%s</strong>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1465
 #, php-format
-msgid "Previous Payment Gateway: <strong>%s</strong>"
+msgid "Payment Gateway: <strong>%s</strong>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1467
 #, php-format
-msgid "Previous Payment Term: <strong>%s</strong>"
+msgid "Payment Term: <strong>%s</strong>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1471
-msgid "has never been a Pro Sites blog."
+msgid "Expired Pro Site"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1474
+#, php-format
+msgid "Pro Site priviledges expired on: <strong>%s</strong>"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1476
+#, php-format
+msgid "Previous Level: <strong>%s</strong>"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1478
+#, php-format
+msgid "Previous Payment Gateway: <strong>%s</strong>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1480
+#, php-format
+msgid "Previous Payment Term: <strong>%s</strong>"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1484
+msgid "has never been a Pro Site."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1493
 msgid "Subscription Information"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1491
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1504
 msgid "Subscriber Information"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1505
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1518
 msgid "Account History"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1507
-msgid "This logs basically every action done in the system regarding the blog for an audit trail."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1520
+msgid "This logs basically every action done in the system regarding the site for an audit trail."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1519
-msgid "No history recorded for this blog yet."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1532
+msgid "No history recorded for this site yet."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1533
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1546
 msgid "Manually Extend Pro Site Status"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1535
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1548
 msgid "Please note that these changes will not adjust the payment dates or level for any existing subscription."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1541
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1554
 msgid "Period"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1548
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1561
 msgid "Months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1555
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1568
 msgid "Days"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1555
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1568
 msgid "or"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1557
-msgid "Period you wish to extend the blog. Leave at zero to only change the level."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1570
+msgid "Period you wish to extend the site. Leave at zero to only change the level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1560
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2131
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2307
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2497
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1573
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2144
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2320
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2510
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2598
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3043
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2523
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2611
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3075
 msgid "Level"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1568
-msgid "Choose what level the blog should have access to."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1582
-msgid "Modify Pro Site Status"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1591
-msgid "Remove Pro Site status from this blog."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1581
+msgid "Choose what level the site should have access to."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:1595
+msgid "Modify Pro Site Status"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1604
+msgid "Remove Pro status from this site."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1608
 msgid "Modify &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1610
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1623
 msgid "Modify a Site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1616
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1629
 msgid "Site ID"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1620
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1633
 msgid "Continue &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1623
-msgid "You can also browse or search for blogs to modify on the <a href=\"sites.php\">Sites admin page</a>."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1636
+msgid "You can also browse or search for sites to modify on the <a href=\"sites.php\">Sites admin page</a>."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1779
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1792
 msgid "Total Pro Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1788
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1810
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1801
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1823
 msgid "1 Month"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1789
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1811
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1802
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1824
 msgid "3 Month"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1790
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1812
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1803
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1825
 msgid "12 Month"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1793
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1798
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1806
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1811
 msgid "Signups"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1794
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1799
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1807
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1812
 msgid "Upgrades"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1795
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1800
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1808
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1813
 msgid "Modifications"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1796
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1801
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1809
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1814
 msgid "Cancelations"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1952
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1965
 msgid "Monthly Activity Summary"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1954
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1961
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1971
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1976
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1986
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1993
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1995
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2002
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1967
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1974
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1984
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1989
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1999
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2006
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2008
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2015
 msgid "No data available yet"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1959
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1972
 msgid "Weekly Activity Summary"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1966
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1979
 msgid "Ratios"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1970
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1983
 #, php-format
 msgid "Current Pro Site Levels (%s Total)"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1975
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1988
 msgid "Current Gateway Use"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1984
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:1997
 msgid "Pro Sites History"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1991
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2004
 msgid "Pro Sites Term History"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:1994
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2007
 msgid "Current Terms"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2025
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2038
 msgid "You can create, delete, or update coupon codes for your network here."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2043
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2056
 msgid "Coupon(s) succesfully deleted."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2056
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2069
 msgid "Please enter a valid Coupon Code"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2060
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2073
 msgid "Please enter a valid Discount Amount"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2064
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2077
 msgid "Please choose a valid Discount Type"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2068
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2081
 msgid "Please enter a valid Start Date"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2072
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2085
 msgid "Please enter a valid End Date not earlier than the Start Date"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2081
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2094
 msgid "Coupon succesfully saved."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2117
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2130
 msgid "Delete"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2127
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2297
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2140
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2310
 msgid "Coupon Code"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2128
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2300
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2141
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2313
 msgid "Discount"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2129
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2301
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2142
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2314
 msgid "Start Date"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2130
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2303
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2143
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2316
 msgid "Expire Date"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2132
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2145
 msgid "Used"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2133
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2146
 msgid "Remaining Uses"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2134
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2228
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2147
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2241
 msgid "Edit"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2195
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2208
 msgid "No End"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2202
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2335
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2215
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2348
 msgid "Any Level"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2220
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2233
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:89
 msgid "Unlimited"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2241
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2254
 msgid "No coupons yet."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2270
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2283
 msgid "Edit Coupon"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2272
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2285
 msgid "Add Coupon"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2298
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2311
 msgid "Letters and Numbers only"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2304
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2317
 msgid "No end if blank"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2310
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2323
 msgid "Allowed Uses"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2311
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2324
 msgid "Unlimited if blank"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2351
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2364
 msgid "Save Coupon"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2375
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2388
 msgid "Are you sure you really want to remove this level? This will also delete all feature settings for the level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2428
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2441
 #, php-format
 msgid "Level %s successfully deleted."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2440
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2453
 msgid "Please enter a valid level name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2443
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2456
 msgid "You must enter a price for at least one payment period."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2452
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2465
 msgid "Level added."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2483
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2496
 msgid "Levels saved."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2498
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2511
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2599
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2524
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2612
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:225
 msgid "Name"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2499
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2512
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2600
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2525
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2613
 msgid "1 Month Price"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2500
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2513
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2601
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2526
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2614
 msgid "3 Month Price"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2501
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2514
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2602
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2527
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2615
 msgid "12 Month Price"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2505
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2518
 msgid "Edit Pro Site Levels"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2506
-msgid "Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for exisiting blogs in that level. When you delete a level, existing blogs in that level will retain the features of all levels below their current level number."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2519
+msgid "Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2512
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2525
 msgid "Enable 1 Month Checkout"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2513
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2526
 msgid "Enable 3 Month Checkout"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2514
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2527
 msgid "Enable 12 Month Checkout"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2567
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2580
 msgid "Delete &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2581
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2594
 msgid "No levels yet."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2590
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2603
 msgid "Save Levels"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2593
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2606
 msgid "Add New Level"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2594
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2607
 msgid "You can add a new Pro Site level here."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2624
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2637
 msgid "Add &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2656
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2669
 msgid "Settings Saved"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2661
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2674
 msgid "Pro Sites Modules and Gateways"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2666
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2679
 msgid "Enable Modules"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2667
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2680
 msgid "Select the modules you would like to use below. You can then configure their options on the settings page."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2671
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2714
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2684
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2728
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:241
 msgid "Enable"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2672
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2685
 msgid "Module Name"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2673
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2716
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2686
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2730
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:372
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:158
 msgid "Description"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2694
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2735
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2708
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2749
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:727
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:796
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:853
@@ -1098,122 +1118,137 @@ msgid "Upgrade"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2694
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2735
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2708
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2749
 msgid "Premium Only &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2709
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2723
 msgid "Choose a Gateway"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2710
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2724
 msgid "Select the gateway you would like to enable below. You can then configure its options on the settings page."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2715
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2729
 msgid "Gateway Name"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2753
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2968
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2767
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2998
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:406
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:192
 msgid "Save Changes"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2788
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2806
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:356
 msgid "Settings Saved!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2801
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2819
 msgid "General Settings"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2805
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2823
 msgid "Rebrand Pro Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2807
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2825
 msgid "Rename \"Pro Sites\" for users to whatever you want like \"Pro\" or \"Plus\"."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2810
-msgid "Show Option On Signup"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2812
-msgid "Display an option on the signup page"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2813
-msgid "You can force and hide the signup option by linking to the signup page like this: "
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2816
-msgid "Signup Message"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2819
-msgid "Optional - HTML allowed - This message is displayed on the signup page if the box is checked above."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2822
-msgid "Checkout Page"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2824
-msgid "You can create a sales message that is shown at the top of the checkout page. (Hint - make it colorful with images and such!)"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2825
-msgid "Edit Checkout Page &raquo;"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2828
-msgid "Pro Site Feature Message"
+msgid "Admin Menu Labels"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2830
+msgid "Not Pro"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2831
-msgid "Required - No HTML - This message is displayed when a feature is accessed on a blog that does not have access to it. \"LEVEL\" will be replaced with the needed level name for the feature."
+msgid "Current Pro"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2834
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2835
 msgid "Hide Admin Bar Menu"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2836
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2837
 msgid "Remove the Pro Sites menu from the admin bar"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2840
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2841
+msgid "Show Option On Signup"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2843
+msgid "Display an option on the signup page"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2844
+msgid "You can force and hide the signup option by linking to the signup page like this: "
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2847
+msgid "Signup Message"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2850
+msgid "Optional - HTML allowed - This message is displayed on the signup page if the box is checked above."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2853
+msgid "Checkout Page"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2855
+msgid "You can create a sales message that is shown at the top of the checkout page. (Hint - make it colorful with images and such!)"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2856
+msgid "Edit Checkout Page &raquo;"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2859
+msgid "Pro Site Feature Message"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2862
+msgid "Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. \"LEVEL\" will be replaced with the needed level name for the feature."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2865
 msgid "Free Trial"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2845
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2870
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:369
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:387
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:405
@@ -1221,224 +1256,234 @@ msgid "Disabled"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2849
-msgid "Free days for all new blogs."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2852
-msgid "Free Trial Level"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2861
-msgid "Select the level given to blogs during their trial period."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2870
-msgid "Email Notifications"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2874
-msgid "Pro Site Signup"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2876
-msgid "The email text sent to your customer to confirm a new Pro Site signup. \"LEVEL\" will be replaced with the blog's level. No HTML allowed."
+msgid "Free days for all new sites."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2877
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2888
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2899
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2910
-msgid "Subject:"
+msgid "Free Trial Level"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2879
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2886
+msgid "Select the level given to sites during their trial period."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2890
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2901
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2912
-msgid "Message:"
+msgid "Free Trial Message"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2885
-msgid "Pro Site Canceled"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2892
+msgid "Required - This message is displayed on the dashboard notifying how many days left in their free trial. \"DAYS\" will be replaced with the number of days left in the trial. \"LEVEL\" will be replaced with the needed level name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2887
-msgid "The email text sent to your customer when they cancel their membership. \"ENDDATE\" will be replaced with the date when their Pro Site access ends. \"LEVEL\" will be replaced with the blog's level. No HTML allowed."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2900
+msgid "Email Notifications"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2896
-msgid "Payment Receipt"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2904
+msgid "Pro Site Signup"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2898
-msgid "The email receipt text sent to your customer on every successful subscription payment. You must include the \"PAYMENTINFO\" code which will be replaced with payment details. No HTML allowed."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2906
+msgid "The email text sent to your customer to confirm a new Pro Site signup. \"LEVEL\" will be replaced with the site's level. No HTML allowed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2907
-msgid "Payment Problem"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2918
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2929
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2940
+msgid "Subject:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2909
-msgid "The email text sent to your customer when a scheduled payment fails. \"LEVEL\" will be replaced with the blog's level. No HTML allowed."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2920
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2931
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2942
+msgid "Message:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2923
-msgid "Currency Settings"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2915
+msgid "Pro Site Canceled"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2923
-msgid "These preferences affect display only. Your payment gateway of choice may not support every currency listed here."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2917
+msgid "The email text sent to your customer when they cancel their membership. \"ENDDATE\" will be replaced with the date when their Pro Site access ends. \"LEVEL\" will be replaced with the site's level. No HTML allowed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2927
-msgid "Currency Symbol"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2926
+msgid "Payment Receipt"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2928
+msgid "The email receipt text sent to your customer on every successful subscription payment. You must include the \"PAYMENTINFO\" code which will be replaced with payment details. No HTML allowed."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2937
+msgid "Payment Problem"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2939
-msgid "Currency Symbol Position"
+msgid "The email text sent to your customer when a scheduled payment fails. \"LEVEL\" will be replaced with the site's level. No HTML allowed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2952
-msgid "Show Decimal in Prices"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2953
+msgid "Currency Settings"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:2955
-msgid "Yes"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2953
+msgid "These preferences affect display only. Your payment gateway of choice may not support every currency listed here."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites.php:2957
+msgid "Currency Symbol"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2969
+msgid "Currency Symbol Position"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2982
+msgid "Show Decimal in Prices"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2985
+msgid "Yes"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:2987
 msgid "No"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3034
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3066
 #, php-format
 msgid "Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href=\"%3$s\">Remove it &raquo;</a>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3045
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3077
 msgid "Monthly"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3047
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3079
 msgid "Every 3 Months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3049
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3081
 msgid "Every 12 Months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3065
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3097
 msgid "Try it out!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3066
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3098
 msgid "You can easily upgrade to a better value plan at any time."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3086
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3108
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3118
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3140
 #, php-format
 msgid "Equivalent to only %s monthly"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3088
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3120
 #, php-format
 msgid "Save %s by paying for 3 months in advance!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3110
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3142
 #, php-format
 msgid "Save %s by paying for a year in advance!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3134
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3166
 msgid "Have a coupon code?"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3136
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3168
 msgid "Enter your code:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3138
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3170
 msgid "Apply &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3147
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3179
 msgid "Dismiss"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3147
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3179
 msgid "No thank you, I will pass for now"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3163
-msgid "You must first login before you can choose a blog to upgrade:"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3195
+msgid "You must first login before you can choose a site to upgrade:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3183
-msgid "Sorry, but you do not have permission to upgrade this blog. Only the blog administrator can upgrade their blog."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3215
+msgid "Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3184
-msgid "Choose a different blog"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3216
+msgid "Choose a different site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3194
-msgid "Please choose a blog to Upgrade or Modify:"
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3226
+msgid "Please choose a site to Upgrade or Modify:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3206
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3238
 #, php-format
 msgid "Upgrade \"%s\""
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3213
-msgid "Sorry, but it appears you are not an administrator for any blogs."
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3245
+msgid "Sorry, but it appears you are not an administrator for any sites."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites.php:3291
+#: Test/wp-content/plugins/pro-sites/pro-sites.php:3319
 msgid "Please install the latest version of <a href=\"http://premium.wpmudev.org/project/update-notifications/\" title=\"Download Now &raquo;\">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href=\"http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/\">More information &raquo;</a>"
 msgstr ""
 
@@ -1488,7 +1533,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:50
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1931
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1972
 msgid "Paypal Express/Pro"
 msgstr ""
 
@@ -1760,7 +1805,7 @@ msgstr ""
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:336
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:383
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1225
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1241
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:388
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:174
 msgid "None"
@@ -1817,7 +1862,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:394
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1236
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1252
 #, php-format
 msgid "Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s</strong>"
 msgstr ""
@@ -1896,547 +1941,558 @@ msgstr ""
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:437
 #, php-format
-msgid "Whoops! There was a problem accessing this blog's subscription information: %s"
+msgid "Whoops! There was a problem accessing this site's subscription information: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:440
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:466
-msgid "This blog is using an older gateway so their information is not accessible."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:445
+#, php-format
+msgid "Last used on %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:492
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:447
+msgid "Profile History:"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:450
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:476
+msgid "This site is using an older gateway so their information is not accessible."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:502
 msgid "Cancelations:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:493
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:503
 msgid "Cancel Subscription Only"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:493
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:501
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:503
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:511
 #, php-format
 msgid "Their access will expire on %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:501
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:511
 #, php-format
 msgid "Cancel Subscription and Refund Full (%s) Last Payment"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:502
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:512
 #, php-format
 msgid "Cancel Subscription and Refund Prorated (%s) Last Payment"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:502
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:512
 msgid "They will immediately have no access"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:504
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:511
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:514
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:521
 msgid "Refunds:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:505
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:512
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:515
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:522
 #, php-format
 msgid "Refund Full (%s) Last Payment"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:505
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:506
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:512
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:513
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:515
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:516
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:522
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:523
 msgid "Their subscription and access will continue"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:506
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:513
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:516
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:523
 #, php-format
 msgid "Refund a Partial %s Amount of Last Payment"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:517
-msgid "Note: This <strong>will not</strong> cancel their PayPal subscription or refund any payments made. You will have to do it from your PayPal account for this blog."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:527
+msgid "Note: This <strong>will not</strong> cancel their PayPal subscription or refund any payments made. You will have to do it from your PayPal account for this site."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:537
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:547
 #, php-format
 msgid "Your subscription has been cancelled by an admin. You should continue to have access until %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:544
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:554
 #, php-format
 msgid "Subscription successfully cancelled by %1$s. They should continue to have access until %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:545
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:555
 #, php-format
 msgid "Subscription successfully cancelled. They should continue to have access until %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:548
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:558
 #, php-format
 msgid "Attempt to Cancel Subscription by %1$s failed with an error: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:549
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:578
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:592
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:621
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:559
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:588
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:602
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:631
 #, php-format
 msgid "Whoops, PayPal returned an error when attempting to cancel the subscription. Nothing was completed: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:559
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:569
 #, php-format
 msgid "Your subscription has been cancelled by an admin. You should continue to have access until %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:567
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:631
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:577
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:641
 msgid "This is a full refund of your last subscription payment."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:569
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:579
 #, php-format
 msgid "Subscription cancelled and full (%1$s) refund of last payment completed by %2$s. They should continue to have access until %3$s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:570
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:580
 #, php-format
 msgid "Subscription cancelled and full (%1$s) refund of last payment were successfully completed. They should continue to have access until %2$s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:573
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:583
 #, php-format
 msgid "Subscription cancelled, but full (%1$s) refund of last payment by %2$s returned an error: %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:574
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:584
 #, php-format
 msgid "Subscription cancelled, but full (%1$s) refund of last payment returned an error: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:577
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:587
 #, php-format
 msgid "Attempt to Cancel Subscription and Refund Full (%1$s) Last Payment by %2$s failed with an error: "
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:591
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:620
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:601
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:630
 #, php-format
 msgid "Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:602
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:612
 msgid "Your subscription has been cancelled by an admin."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:610
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:620
 msgid "This is a prorated refund of the unused portion of your last subscription payment."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:612
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:622
 #, php-format
 msgid "Subscription cancelled and a prorated (%1$s) refund of last payment completed by %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:613
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:623
 #, php-format
 msgid "Subscription cancelled and a prorated (%s) refund of last payment were successfully completed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:616
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:626
 #, php-format
 msgid "Subscription cancelled, but prorated (%1$s) refund of last payment by %2$s returned an error: %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:617
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:627
 #, php-format
 msgid "Subscription cancelled, but prorated (%1$s) refund of last payment returned an error: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:633
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:643
 #, php-format
 msgid "A full (%1$s) refund of last payment completed by %2$s The subscription was not cancelled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:634
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:644
 #, php-format
 msgid "A full (%s) refund of last payment was successfully completed. The subscription was not cancelled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:637
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:647
 #, php-format
 msgid "Attempt to issue a full (%1$s) refund of last payment by %2$s returned an error: %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:638
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:648
 #, php-format
 msgid "Attempt to issue a full (%1$s) refund of last payment returned an error: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:648
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:658
 msgid "This is a full refund of your last payment."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:650
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:660
 #, php-format
 msgid "A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:651
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:661
 #, php-format
 msgid "A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:654
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:664
 #, php-format
 msgid "Attempt to issue a partial (%1$s) refund of last payment by %2$s returned an error: %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:655
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:665
 #, php-format
 msgid "Attempt to issue a partial (%1$s) refund of last payment returned an error: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:681
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:910
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:691
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:923
 msgid "Please choose your desired level and payment plan."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:691
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:737
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:980
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:701
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:747
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:993
 #, php-format
 msgid "%1$s for the first month, then %2$s each month"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:693
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:739
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:982
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:703
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:749
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:995
 #, php-format
 msgid "%1$s %2$s each month"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:700
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:746
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:989
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:710
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:756
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1002
 #, php-format
 msgid "%1$s for the first 3 month period, then %2$s every 3 months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:702
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:748
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:991
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:712
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:758
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1004
 #, php-format
 msgid "%1$s %2$s every 3 months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:709
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:755
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:998
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:719
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:765
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1011
 #, php-format
 msgid "%1$s for the first 12 month period, then %2$s every 12 months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:711
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:757
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1000
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:721
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:767
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1013
 #, php-format
 msgid "%1$s %2$s every 12 months"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:723
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:733
 #, php-format
 msgid "There was a problem setting up the paypal payment:<br />\"<strong>%s</strong>\"<br />Please try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:792
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:802
 #, php-format
 msgid "User modifying subscription via PayPal Express: New subscription created (%1$s), first payment will be made on %2$s - %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:797
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1040
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:807
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1053
 #, php-format
 msgid "Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:799
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:809
 #, php-format
 msgid "User modifying subscription via PayPal Express: Old subscription canceled - %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:824
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:837
 #, php-format
 msgid "Your PayPal subscription modification was successful for %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:828
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1071
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:841
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1087
 msgid "Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:829
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1072
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:842
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1088
 msgid "You can also cancel following <a href=\"https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext\">these steps</a>."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:831
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1074
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:844
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1090
 msgid "Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:832
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1075
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:845
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1091
 msgid "To view your subscriptions, simply go to <a target=\"_blank\" href=\"https://payments.amazon.com/\">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:838
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:898
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:851
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:911
 #, php-format
 msgid "There was a problem setting up the Paypal payment:<br />\"<strong>%s</strong>\"<br />Please try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:839
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:852
 #, php-format
 msgid "User modifying subscription via PayPal Express: PayPal returned an error: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:851
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:864
 #, php-format
 msgid "User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:859
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1094
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:872
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1110
 #, php-format
 msgid "Your %s subscription has been modified. This previous subscription has been canceled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:869
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:882
 #, php-format
 msgid "User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:886
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:899
 msgid "Your PayPal subscription was successful! You should be receiving an email receipt shortly."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:891
-msgid "Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your blog should be upgraded shortly."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:904
+msgid "Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:892
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:905
 #, php-format
 msgid "User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:899
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:912
 #, php-format
 msgid "User creating new subscription via PayPal Express: PayPal returned an error: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:936
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:949
 msgid "Whoops, looks like you may have tried to submit your payment twice. You may have already paid! Check your subscripton info below to confirm:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:939
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:952
 msgid "Please choose a Card Type."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:942
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:955
 msgid "Please enter a valid Credit Card Number."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:945
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:958
 msgid "Please choose an expiration date."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:948
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1349
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1350
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:961
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1365
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1366
 msgid "Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:951
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:964
 msgid "Please enter your First Name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:954
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:967
 msgid "Please enter your Last Name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:957
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:970
 msgid "Please enter your billing Street Address."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:960
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:973
 msgid "Please enter your billing City."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:963
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:976
 msgid "Please enter your billing State/Province."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:966
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:979
 msgid "Please enter your billing Zip/Postal Code."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:969
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:982
 msgid "Please enter your billing Country."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1035
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1048
 #, php-format
 msgid "User modifying subscription via CC: New subscription created (%1$s), first payment will be made on %2$s - %3$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1042
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1055
 #, php-format
 msgid "User modifying subscription via CC: Old subscription canceled - %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1067
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1083
 #, php-format
 msgid "Your Credit Card subscription modification was successful for %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1081
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1097
 #, php-format
 msgid "There was a problem with your Credit Card information:<br />\"<strong>%s</strong>\"<br />Please try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1082
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1098
 #, php-format
 msgid "User modifying subscription via CC: PayPal returned a problem with Credit Card info: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1097
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1113
 #, php-format
 msgid "User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1110
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1126
 #, php-format
 msgid "User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1128
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1144
 msgid "Your Credit Card subscription was successful! You should be receiving an email receipt shortly."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1133
-msgid "Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your blog should be upgraded shortly."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1149
+msgid "Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1134
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1150
 #, php-format
 msgid "User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1140
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1156
 #, php-format
 msgid "There was a problem with your credit card information:<br />\"<strong>%s</strong>\"<br />Please check all fields and try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1146
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1162
 msgid "There was a problem with your credit card information. Please check all fields and try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1154
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1170
 msgid ""
 "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\\n"
 "\\n"
@@ -2445,474 +2501,474 @@ msgid ""
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1178
-msgid "Visit your newly upgraded blog &raquo;"
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1194
+msgid "Visit your newly upgraded site &raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1193
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1196
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1209
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1212
 #, php-format
 msgid "Your %1$s subscription has been canceled. You should continue to have access until %2$s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1203
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1219
 #, php-format
 msgid "Subscription successfully canceled by the user. They should continue to have access until %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1206
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1222
 msgid "There was a problem canceling your subscription, please contact us for help: "
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1219
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1235
 msgid "None yet with this subscription <small>(only initial separate single payment has been made, or you've recently modified your subscription)</small>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1230
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1246
 msgid "Level:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1238
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1254
 msgid "Payment Method: <strong>Your PayPal Account</strong>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1241
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1257
 msgid "Last Payment Date:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1242
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1258
 msgid "Next Payment Date:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1245
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1248
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1261
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1264
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1277
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1280
 msgid "Cancel Your Subscription"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1247
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1263
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1279
 #, php-format
-msgid "If you choose to cancel your subscription this blog should continue to have %1$s features until %2$s."
+msgid "If you choose to cancel your subscription this site should continue to have %1$s features until %2$s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1253
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1269
 msgid "Your subscription has been canceled"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1254
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1270
 #, php-format
-msgid "This blog should continue to have %1$s features until %2$s."
+msgid "This site should continue to have %1$s features until %2$s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1258
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1274
 #, php-format
 msgid "Your subscription is: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1259
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1275
 msgid "Please update your payment information below to resolve this."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1267
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1283
 msgid "There was a problem accessing your subscription information: "
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1274
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1290
 msgid "Change Your Plan or Payment Details"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1275
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1291
 msgid "You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1277
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1293
 msgid "Please choose your desired plan then click the checkout button below."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1286
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1302
 msgid "Checkout With PayPal"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1287
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1303
 msgid "PayPal - The safer, easier way to pay online!"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1307
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1323
 msgid "Or Pay Directly By Credit Card"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1315
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1331
 msgid "Credit Card Info:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1318
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1334
 msgid "Card Type:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1329
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1345
 msgid "Card Number:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1337
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1353
 msgid "Expiration Date:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1346
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1362
 msgid "Card Security Code:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1354
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1370
 msgid "Billing Address:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1356
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1372
 msgid "First Name:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1361
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1377
 msgid "Last Name:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1367
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1383
 msgid "Address:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1373
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1389
 msgid "Address 2:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1377
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1393
 msgid "City:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1380
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1396
 msgid "State/Province:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1383
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1399
 msgid "Postal/Zip Code:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1389
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1405
 msgid "Country:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1403
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1419
 msgid "Subscribe"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1453
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:68
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1469
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:61
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:107
 msgid "There was a problem verifying the IPN string with PayPal. Please try again."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1472
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1488
 #, php-format
 msgid "PayPal IPN \"%s\" received: A reversal has been canceled; for example, when you win a dispute and the funds for the reversal have been returned to you."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1476
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1492
 #, php-format
 msgid "PayPal IPN \"%s\" received: The authorization period for this payment has been reached."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1480
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1496
 #, php-format
 msgid "PayPal IPN \"%s\" received: An authorization for this transaction has been voided."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1484
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1500
 #, php-format
 msgid "PayPal IPN \"%s\" received: The payment has failed. This happens only if the payment was made from your customer's bank account."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1489
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1505
 #, php-format
 msgid "PayPal IPN \"%s\" received: The payment has been partially refunded with %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1494
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1510
 #, php-format
 msgid "PayPal IPN \"%s\" received: The transaction has not terminated, e.g. an authorization may be awaiting completion."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1498
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1514
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:110
 msgid "A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer: "
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1501
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1517
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:113
 msgid "A reversal has occurred on this transaction due to a chargeback by your customer."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1502
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1518
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:114
 msgid "A reversal has occurred on this transaction due to a reimbursement of a chargeback."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1503
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1519
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:115
 msgid "A reversal has occurred on this transaction due to settlement of a chargeback."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1504
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1520
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:116
 msgid "A reversal has occurred on this transaction due to your customer triggering a money-back guarantee."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1505
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1521
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:117
 msgid "A reversal has occurred on this transaction due to a complaint about the transaction from your customer."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1506
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1522
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:118
 msgid "A reversal has occurred on this transaction because you have given the customer a refund."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1507
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1523
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:119
 msgid "A reversal has occurred on this transaction due to an unknown reason."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1510
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1526
 #, php-format
 msgid "PayPal IPN \"%s\" received: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1516
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1532
 #, php-format
 msgid "PayPal IPN \"%s\" received: You refunded the payment with %s."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1521
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1537
 #, php-format
 msgid "PayPal IPN \"%s\" received: You denied the payment when it was marked as pending."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1532
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1548
 #, php-format
 msgid "PayPal IPN \"%s\" received: %s %s payment received, transaction ID %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1550
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1566
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:150
 msgid "The payment is pending because your customer did not include a confirmed shipping address and your Payment Receiving Preferences is set such that you want to manually accept or deny each of these payments. To change your preference, go to the Preferences  section of your Profile."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1551
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1567
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:151
 msgid "The payment is pending because it has been authorized but not settled. You must capture the funds first."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1552
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1568
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:152
 msgid "The payment is pending because it was made by an eCheck that has not yet cleared."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1553
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1569
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:153
 msgid "The payment is pending because you hold a non-U.S. account and do not have a withdrawal mechanism. You must manually accept or deny this payment from your Account Overview."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1554
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1570
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:154
 msgid "You do not have a balance in the currency sent, and you do not have your Payment Receiving Preferences set to automatically convert and accept this payment. You must manually accept or deny this payment."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1555
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1571
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:155
 msgid "The payment is pending because it is part of an order that has been authorized but not settled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1556
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1572
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:156
 msgid "The payment is pending while it is being reviewed by PayPal for risk."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1557
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1573
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:157
 msgid "The payment is pending because it was made to an email address that is not yet registered or confirmed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1558
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1574
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:158
 msgid "The payment is pending because it was made via credit card and you must upgrade your account to Business or Premier status in order to receive the funds. It can also mean that you have reached the monthly limit for transactions on your account."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1559
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1575
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:159
 msgid "The payment is pending because you are not yet verified. You must verify your account before you can accept this payment."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1560
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1576
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:160
 msgid "The payment is pending for an unknown reason. For more information, contact PayPal customer service."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1564
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1580
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:164
 #, php-format
 msgid "PayPal IPN \"%s\" received: Last payment is pending (%s). Reason: %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1574
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1580
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1590
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1596
 #, php-format
 msgid "PayPal subscription IPN \"%s\" received."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1593
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1609
 #, php-format
 msgid "PayPal subscription IPN \"%s\" received. The subscription has been canceled."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1931
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1972
 msgid "Express Checkout is PayPal's premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase. Enabling the optional PayPal Pro allows you to seamlessly accept credit cards on your site, and gives you the most professional look with a widely accepted payment method."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:91
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:84
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:130
 msgid "Last transaction has been reversed. Reason: Payment has been reversed (charge back)"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:100
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:93
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:139
 msgid "Last transaction has been reversed. Reason: Payment has been refunded"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:109
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:102
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:148
 msgid "Last transaction has been reversed. Reason: Payment Denied"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:117
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:110
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:160
 msgid "Customer did not include a confirmed shipping address"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:118
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:111
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:161
 msgid "Funds not captured yet"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:119
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:112
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:162
 msgid "eCheck that has not cleared yet"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:120
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:113
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:163
 msgid "Payment waiting for aproval by service provider"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:121
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:114
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:164
 msgid "Payment waiting for service provider to handle multi-currency process"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:122
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:115
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:165
 msgid "Customer did not register or confirm his/her email yet"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:123
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:116
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:166
 msgid "Waiting for service provider to upgrade the PayPal account"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:124
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:117
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:167
 msgid "Waiting for service provider to verify his/her PayPal account"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:128
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:121
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:171
 msgid "Last transaction is pending. Reason: "
 msgstr ""
@@ -2984,18 +3040,18 @@ msgid "Old PayPal subscription IPN \"%s\" received. The subscription has been ca
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:153
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:156
 msgid "Ads"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:153
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:452
-msgid "Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other blogs."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:156
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:462
+msgid "Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:157
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:160
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:333
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:52
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:88
@@ -3003,7 +3059,7 @@ msgid "Rename Feature"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:160
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:163
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:336
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:55
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:91
@@ -3011,116 +3067,126 @@ msgid "Required - No HTML! - Make this short and sweet."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:163
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:166
 msgid "Add Free Level"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:172
-msgid "Select the minimum level required to not show ads on the blog."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:175
+msgid "Select the minimum level required to not show ads on the site."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:176
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:179
 msgid "Enable Additional Ad-Free Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:177
-msgid "Allow disabling of ads on other blogs"
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:180
+msgid "Allow disabling of ads on other sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:180
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:183
 msgid "Additional Ad-Free Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:187
-msgid "Number of blogs that can have ads disabled in addition to the Pro Site. Each level should have an identical or progressively higher number."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:190
+msgid "Number of sites that can have ads disabled in addition to the Pro Site. Each level should have an identical or progressively higher number."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:192
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:195
 msgid "Ads Message"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:194
-msgid "Required - This message is displayed on the Disable Ads page as an advertisment to upgrade to the next level. \"LEVEL\" will be replaced with the needed level name, and \"NUM\" will be replaced with the number of blogs that can be disabled in the next level."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:198
-msgid "Enable Premium Themes"
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:199
-msgid "Make disabling ads also enable the premium themes"
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:197
+msgid "Required - This message is displayed on the Disable Ads page as an advertisment to upgrade to the next level. \"LEVEL\" will be replaced with the needed level name, and \"NUM\" will be replaced with the number of sites that can be disabled in the next level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:200
-msgid "This overrides any level limits you add to premium themes. You will want to tell users of this in the Ads Message above."
+msgid "Enable Other Modules"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:250
-msgid "Sites Added."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:203
+msgid "Enable all Premium Themes"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:206
+msgid "Enable XML-RPC"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:209
+msgid "Enable Unfiltered HTML"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:211
+msgid "These override any level limits you add in the module. You will want to tell users of this in the Ads Message above."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:260
+msgid "Sites Added."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:270
 msgid "Sites Removed."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:272
-msgid "Are you sure you really want to remove these blogs?"
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:282
+msgid "Are you sure you really want to remove these sites?"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:288
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:298
 msgid "Status"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:293
-msgid "Maximum blogs"
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:303
+msgid "Maximum sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:294
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:304
 msgid "Currently disabling ads on"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:295
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:305
 msgid "Remaining"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:303
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:313
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:717
 msgid "Find Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:303
-msgid "Search for a blog to disable ads on."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:313
+msgid "Search for a site to disable ads on."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:310
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:320
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:724
-msgid "Choose a blog you are a member of:"
+msgid "Choose a site you are a member of:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:314
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:374
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:420
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:324
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:384
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:430
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:728
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:797
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:855
@@ -3128,66 +3194,65 @@ msgid "Site"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:329
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:391
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:339
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:401
 msgid "Ads already disabled"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:344
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:354
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:767
-msgid "Search for a blog:"
+msgid "Search for a site:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:346
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:769
-msgid "Enter the blog domain here. Example - for \"ablog.edublogs.org\" you would search for \"ablog\"."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:356
+msgid "Enter the site domain here. Example - for \"asite.edublogs.org\" you would search for \"asite\"."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:349
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:359
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:772
 msgid "Search"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:358
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:368
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:781
 msgid "Search Results"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:366
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:376
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:789
-msgid "Over 150 blogs were found matching the provided search criteria. If you do not find the blog you are looking for in the selection below please try refining your search."
+msgid "Over 150 sites were found matching the provided search criteria. If you do not find the site you are looking for in the selection below please try refining your search."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:402
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:412
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:833
 msgid "Back"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:405
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:415
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:836
-msgid "No blogs found matching your search criteria."
+msgid "No sites found matching your search criteria."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:414
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:424
 msgid "Currently Disabled Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:419
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:439
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:429
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:449
 msgid "Remove"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:452
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/ads.php:462
 msgid "Advertising"
 msgstr ""
 
@@ -3337,7 +3402,7 @@ msgstr ""
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:380
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:398
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:416
-msgid "One credit allows for one blog to be upgraded for one year."
+msgid "One credit allows for one site to be upgraded for one year."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3406,7 +3471,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:614
-msgid "You must purchase more Pro Site credits in order to upgrade blogs."
+msgid "You must purchase more Pro Site credits in order to upgrade sites."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3474,7 +3539,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:717
-msgid "Search for a blog to apply an upgrade to."
+msgid "Search for a site to apply an upgrade to."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3506,13 +3571,18 @@ msgid "Upgrade Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:769
+msgid "Enter the site domain here. Example - for \"ablog.edublogs.org\" you would search for \"ablog\"."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:847
 msgid "Previously Upgraded Sites"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/bulk-upgrades.php:847
-msgid "These are blogs that you have previously upgraded in the past."
+msgid "These are sites that you have previously upgraded in the past."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3528,7 +3598,7 @@ msgstr ""
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/pay-to-blog.php:80
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/pay-to-blog.php:107
-msgid "Pay To Site"
+msgid "Pay To Blog"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3539,7 +3609,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/pay-to-blog.php:87
-msgid "Required - This message is displayed on the checkout page if the blog is unpaid. HTML Allowed"
+msgid "Required - This message is displayed on the checkout page if the site is unpaid. HTML Allowed"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3559,7 +3629,53 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/pay-to-blog.php:97
-msgid "Required - This message is displayed on front end of the blog if it is unpaid and disabling the front end is enabled. HTML Allowed"
+msgid "Required - This message is displayed on front end of the site if it is unpaid and disabling the front end is enabled. HTML Allowed"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:57
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:132
+msgid "Post/Page Quotas"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:57
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:132
+msgid "Allows you to limit the number of post types for selected Pro Site levels."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:61
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:33
+msgid "Pro Site Level"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:71
+msgid "Select the minimum level required to remove quotas."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:80
+#, php-format
+msgid "To publish more %s, please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:83
+#, php-format
+msgid "%s Quota"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:86
+#, php-format
+msgid "Same as %s"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/posting-quota.php:98
+msgid "Choose the quota and message that is displayed on the add post screen for sites that have used up their quota. \"LEVEL\" will be replaced with the needed level name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3569,14 +3685,14 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:91
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:394
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:393
 #, php-format
 msgid "%s Only"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:202
-msgid "As a Super Admin you can activate any plugins for this blog."
+msgid "As a Super Admin you can activate any plugins for this site."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3624,7 +3740,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-plugins.php:363
-msgid "Select the minimum Pro Site level for premium plugins that you want to enable for blogs of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list."
+msgid "Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3650,13 +3766,8 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:29
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:120
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:123
 msgid "Allows you to provide a premium direct to email support page for selected Pro Site levels."
-msgstr ""
-
-#: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:33
-msgid "Pro Site Level"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3686,7 +3797,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:66
-msgid "Required - This message is displayed on for blogs that don't have permissions. \"LEVEL\" will be replaced with the needed level name."
+msgid "Required - This message is displayed on for sites that don't have permissions. \"LEVEL\" will be replaced with the needed level name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3699,7 +3810,7 @@ msgstr ""
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:88
 #, php-format
 msgid ""
-"%s has submitted a new premium support request for the blog %s (%s).\n"
+"%s has submitted a new premium support request for the site %s (%s).\n"
 "Here is their message:\n"
 "_______________________\n"
 "\n"
@@ -3722,17 +3833,17 @@ msgid "Site Admin: %s\n"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:93
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:96
 msgid "Your message has been sent! Someone will reply to your email shortly."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:98
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:101
 msgid "Your Support Question:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:111
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-support.php:114
 msgid "Submit Request &raquo;"
 msgstr ""
 
@@ -3743,7 +3854,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:84
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:445
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:444
 msgid "Allows you to give access to selected themes to a Pro Site level."
 msgstr ""
 
@@ -3754,7 +3865,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:97
-msgid "Required - No HTML! - This message is displayed when the wrong level blog is previewing a premium theme. \"LEVEL\" will be replaced with the needed level name for that theme."
+msgid "Required - No HTML! - This message is displayed when the wrong level site is previewing a premium theme. \"LEVEL\" will be replaced with the needed level name for that theme."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3765,7 +3876,7 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:147
-msgid "Select the minimum Pro Site level for premium themes that you want to enable for blogs of that level or above. Only <a href=\"themes.php?theme_status=disabled\">disabled network themes</a> are shown in this list. "
+msgid "Select the minimum Pro Site level for premium themes that you want to enable for sites of that level or above. Only <a href=\"themes.php?theme_status=disabled\">disabled network themes</a> are shown in this list. "
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3774,108 +3885,108 @@ msgid "Theme"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:217
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:216
 msgid "You can see your active theme at the top of the screen. Below are the other themes available that are not currently in use. You can see what your site would look like with one of these themes by clicking the Preview link. To change themes, click the Activate link or upgrade to the needed level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:265
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:264
 #, php-format
 msgid "New theme activated. This theme supports widgets, please visit the <a href=\"%s\">widgets settings page</a> to configure them."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:267
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:266
 #, php-format
 msgid "New theme activated. <a href=\"%s\">Visit site</a>"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:289
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:288
 msgid "&laquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:290
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:289
 msgid "&raquo;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:303
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:302
 msgid "Current Theme"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:306
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:305
 msgid "Current theme preview"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:310
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:411
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:309
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:410
 #, php-format
 msgid "%1$s %2$s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:313
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:415
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:312
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:414
 msgid "Tags:"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:320
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:319
 msgid "Available Premium Themes"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:328
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:327
 #, php-format
 msgid "Displaying %s&#8211;%s of %s"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:384
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:383
 #, php-format
 msgid "Preview of &#8220;%s&#8221;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:388
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:387
 #, php-format
 msgid "Activate &#8220;%s&#8221;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:392
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:391
 msgid "Activate"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:399
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:398
 #, php-format
 msgid "Preview &#8220;%s&#8221;"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:399
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:398
 msgid "Preview"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:425
-msgid "There are no premium themes installed at the moment so there is nothing to show you here."
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/premium-themes.php:424
+msgid "There are no premium themes available at the moment so there is nothing to show you here."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:53
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:148
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:149
 msgid "Quota"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:53
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:148
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:149
 msgid "Allows you to give additional upload space to Pro Sites."
 msgstr ""
 
@@ -3885,39 +3996,66 @@ msgid "Quota Amounts"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:64
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:65
 msgid "Each level should have an identical or progressively higher quota."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:69
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:70
 msgid "Quota Message"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:71
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:72
 msgid "Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. \"LEVEL\" will be replaced with the needed level name, and \"SPACE\" will be replaced with the extra upload space in the next level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:74
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:75
 msgid "Out of Space Message"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:76
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:77
 msgid "Required - This message is displayed on the dashboard when out of upload space. \"LEVEL\" will be replaced with the needed level name, and \"SPACE\" will be replaced with the extra upload space in the next level."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:133
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:141
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:134
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:142
 msgid "MB"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:138
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/quota.php:139
 msgid "GB"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:58
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:99
+msgid "Unfilter HTML"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:58
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:99
+msgid "Allows you provide the \"unfiltered_html\" permission to specific user types for selected Pro Site levels."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:71
+msgid "Select the minimum level required to enable unfiltered html."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:75
+msgid "Filtered Message"
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/unfiltered-html.php:77
+msgid "Required - This message is displayed on the post/page screen for sites that don't have unfiltered html permissions upon the saving of a post. \"LEVEL\" will be replaced with the needed level name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
@@ -3955,24 +4093,28 @@ msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
 #: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/write.php:70
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlprc.php:69
-msgid "Required - This message is displayed on the remote publishing settings screen for blogs that don't have permissions. \"LEVEL\" will be replaced with the needed level name."
+msgid "Required - This message is displayed on the post/page screen for sites that don't have permissions. \"LEVEL\" will be replaced with the needed level name."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlprc.php:50
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlprc.php:79
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlrpc.php:60
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlrpc.php:89
 msgid "Restrict XML-RPC"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlprc.php:50
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlprc.php:79
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlrpc.php:60
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlrpc.php:89
 msgid "Allows you to only enable XML-RPC and Atom Publishing for selected Pro Site levels."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU
-#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlprc.php:63
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlrpc.php:73
 msgid "Select the minimum level required to enable remote publishing."
+msgstr ""
+
+#: /Users/aaron2/Documents/WPMU
+#: Test/wp-content/plugins/pro-sites/pro-sites-files/modules/xmlrpc.php:79
+msgid "Required - This message is displayed on the remote publishing settings screen for sites that don't have permissions. \"LEVEL\" will be replaced with the needed level name."
 msgstr ""
 

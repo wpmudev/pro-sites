@@ -194,19 +194,18 @@ class ProSites_Module_PremiumThemes {
 		</div>
 	  <?php
 	}
-
+	
   function page_scripts() {
 		global $current_screen;
-		
+				
 	  if ( current_user_can( 'switch_themes' ) && isset($_GET['action'] ) ) {
 			if ( 'activate' == $_GET['action'] ) {
 				check_admin_referer('switch-theme_' . $_GET['template']);
 				switch_theme($_GET['template'], $_GET['stylesheet']);
-				wp_redirect( admin_url('themes.php?page=premium-themes&activated=true') );
-				exit;
+				$_GET['activated'] = 'true';
 			}
 		}
-
+		
 	  //add scripts and css
 	  add_thickbox();
 	  wp_enqueue_script( 'theme-preview' );
@@ -422,7 +421,7 @@ class ProSites_Module_PremiumThemes {
 	  <?php } // end foreach $table ?>
 	  </table>
 	  <?php } else { ?>
-	  <p><?php _e('There are no premium themes installed at the moment so there is nothing to show you here.', 'psts'); ?></p>
+	  <p><?php _e('There are no premium themes available at the moment so there is nothing to show you here.', 'psts'); ?></p>
 	  <?php } // end if $theme_total?>
 	  <br class="clear" />
 
