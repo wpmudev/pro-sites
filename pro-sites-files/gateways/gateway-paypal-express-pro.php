@@ -779,7 +779,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//check for modifiying
-			if (is_pro_site($blog_id)) {
+			if (is_pro_site($blog_id) && !is_pro_trial($blog_id)) {
 			  $modify = $psts->get_expire($blog_id);
 			  //check for a upgrade and get new first payment date
 			  if ($upgrade = $psts->calc_upgrade($blog_id, $initAmount, $_SESSION['LEVEL'], $_SESSION['PERIOD'])) {
@@ -1025,7 +1025,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 
 					//check for modifiying
-					if (is_pro_site($blog_id)) {
+					if (is_pro_site($blog_id) && !is_pro_trial($blog_id)) {
 					  $modify = $psts->get_expire($blog_id);
 					  //check for a upgrade and get new first payment date
 					  if ($upgrade = $psts->calc_upgrade($blog_id, $initAmount, $_SESSION['LEVEL'], $_SESSION['PERIOD'])) {

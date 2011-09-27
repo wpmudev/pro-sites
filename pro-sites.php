@@ -363,7 +363,12 @@ Many thanks again for being a member!", 'psts'),
 			}
 		}
 	}
-
+	
+	function is_trial($blog_id) {
+		global $wpdb, $blog_id;
+		return (bool)$wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id' AND gateway = 'Trial' AND expire >= '" . time() . "' LIMIT 1");
+	}
+	
 	//run daily via wp_cron
 	function process_stats() {
 	  global $wpdb;
@@ -3291,6 +3296,19 @@ function is_pro_site($blog_id = false, $level = false) {
 function is_pro_user($user_id = false) {
   global $psts;
 	return $psts->is_pro_user($user_id);
+}
+
+/**
+ * Check if a given site is in an active trial
+ *
+ * @since 3.0
+ *
+ * @param int $blog_id required - The ID of the site to check.
+ * @return bool
+ */
+function is_pro_trial($blog_id) {
+	global $psts;
+	return $psts->is_trial( $blog_id );	
 }
 
 //depreciated!
