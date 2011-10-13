@@ -1,0 +1,169 @@
+Plugin Name: Pro Sites (Formerly Supporter)
+Author: Aaron Edwards
+
+Change Log:
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+
+3.0 - 10/12/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- Complete rewrite!
+-
+
+2.2.8 - 4/12/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- is_supporter() improvements to reduce querys
+- Rewritten supporter-write.php module to actually remove permissions
+- Amazon gateway API update for compatibility
+
+2.2.7 - 1/11/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- Fixed an issue in supporter-plugins.php that messed up the settings page
+
+2.2.6 - 1/07/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- Fixed small typo that messed up backwards compatibility with WP 3.0.x
+
+2.2.5 - 1/06/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- WP 3.1 compatibility
+- Filter network plugins from plugin management list
+- Major repackaging/autoupdates will be in upcoming 3.0 release
+
+2.2.4 - 12/06/2010
+----------------------------------------------------------------------
+- Enhancement: compatibility with New Blog Templates plugin
+- Bug fix: 3 month supporters not displayed in signup stats
+- Bug fix: broken menu item
+
+2.2.3 - 11/09/2010
+----------------------------------------------------------------------
+- Fix error with plugin echoing data before display
+
+2.2.2 - 6/18/2010
+----------------------------------------------------------------------
+- Fixed Supporter Plugins bug with auto-activate for new supporters in 3.0
+
+2.2.1 - 6/10/2010
+----------------------------------------------------------------------
+- 3.0 compatibility
+- Fixed BuddyPress module to work with latest BP version (1.2.4)
+- Raised the select limits for price and upload quota fields
+
+2.2 - 3/19/2010
+----------------------------------------------------------------------
+- Added XML-RPC and Atom limiting module (supporter-xmlrpc.php)
+- Fixed CSS issues with field in BP 1.2 theme register pages
+
+2.1 - 1/15/2010
+----------------------------------------------------------------------
+- Add rebranding to Paypal and Amazon button code
+
+2.0.8 - 2/08/2010
+----------------------------------------------------------------------
+- WPMU 2.9.x compatibility
+- Fixed quota bug that displayed supporter quota on site-admin options page
+
+2.0.7 - 1/13/2010
+----------------------------------------------------------------------
+- Fixed major bug in Paypal IPN handling that didn't record signup/modification/cancelation stats
+- Fixed entity bug in premium support
+- Update notification support
+
+2.0.6 - 12/10/2009
+----------------------------------------------------------------------
+- Fixed bug that displayed yearly amount to monthly supporters
+- Added optional Premium Support module to allow for direct email support
+
+2.0.5 - 12/08/2009
+----------------------------------------------------------------------
+- Fixed some issues with money number formats and missing currency symbol on bulk upgrades page
+
+2.0.4 - 11/20/2009
+----------------------------------------------------------------------
+- Fixed bug on premium plugins admin page http://premium.wpmudev.org/forums/topic/supporter-plugin-premium-plugins-options?replies=5#post-20386
+- Added support for signup option on buddypress register page
+
+2.0.3 - 11/06/2009
+----------------------------------------------------------------------
+- Fixed plugins multi-activate error
+- Fixed bug with quotas
+- Added currency symbol changing
+- More paypal currencies
+
+2.0.2 - 11/05/2009
+----------------------------------------------------------------------
+- Fixed supporter widget bug added in 1.6.3: http://premium.wpmudev.org/forums/topic/supporter-20/page/2#post-18643
+- Added ability for site-admins to activate ANY plugins for a blog
+- Added "Supporter (auto-activate)" option for plugins
+- Made the plugins page message editable in settings
+
+2.0.1 - 11/03/2009
+----------------------------------------------------------------------
+- Fixed minor bugs with Premium Plugins module and supporter menu when only 1 optional module is installed
+
+2.0 - 10/28/2009
+----------------------------------------------------------------------
+- Major Upgrade/Rewrite
+-- Added Stat tracking with pretty graphs (2 new global tables for Multi-DB)
+-- Supporter signup option on blog creation (with ability to force via URL variable)
+-- Premium Themes
+-- Premium Plugins (note: not compatable with WPMU Plugin Manager, use one or the other)
+-- BuddyPress feature limiting
+-- Modular payment gateways (code your own!)
+-- Amazon Simple Pay payment gateway
+-- PayPal gateway supports subscription modifications (upgrade/downgrade)
+-- Quota updated to be non-permanent and show supporter message
+
+1.6.3 - 09/28/2009
+----------------------------------------------------------------------
+- Adds affiliate integration
+
+1.6.2 - 09/21/2009
+----------------------------------------------------------------------
+- Time extensions are now more accurate
+
+1.6.1 - 07/25/2009
+----------------------------------------------------------------------
+- Bug Fix
+
+1.6.0 - 07/24/2009
+----------------------------------------------------------------------
+- 2.8 compatibility update
+
+1.5.7 - 04/20/2009
+----------------------------------------------------------------------
+- Fixed supporter widget bug
+
+1.5.6 - 04/13/2009
+----------------------------------------------------------------------
+- Fixed supporter widget bug
+
+1.5.5 - 03/25/2009
+----------------------------------------------------------------------
+- Added supporter widget
+- Removed admin bar menu item
+
+1.5.1 - 03/25/2009
+----------------------------------------------------------------------
+- Updated install.txt
+- Minor bug fixes
+
+1.5.0 - 03/02/2009
+----------------------------------------------------------------------
+- Added site admin check
+- Added "Bulk Upgrades" option
+
+1.0.2 - 02/17/2009
+----------------------------------------------------------------------
+- Fixed bug in supporter-plugins.php (previously supporter_plugins.php).
+- Note that file names have changed.
+
+1.0.1 - 02/05/2009
+----------------------------------------------------------------------
+- Added feature to remove the plugins menu on non-supporter blogs.
+
+1.0.0 - 01/26/2009
+----------------------------------------------------------------------
+- Initial Release.
