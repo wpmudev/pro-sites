@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0 RC 2
+Version: 3.0 RC 3
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-RC-2';
+  var $version = '3.0-RC-3';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -495,7 +495,7 @@ Many thanks again for being a member!", 'psts'),
 		global $psts_plugin_loader;
 
 		//main page
-		$page = add_menu_page( __('Pro Sites', 'psts'), __('Pro Sites', 'psts'), 'manage_network_options', 'psts', array(&$this, 'admin_modify'), $this->plugin_url . 'images/plus.png', 4 );
+		$page = add_menu_page( __('Pro Sites', 'psts'), __('Pro Sites', 'psts'), 'manage_network_options', 'psts', array(&$this, 'admin_modify'), $this->plugin_url . 'images/plus.png' );
 
     do_action('psts_page_after_main');
 
@@ -647,7 +647,7 @@ Many thanks again for being a member!", 'psts'),
 
 		  //check for coupon session variable
 		  if (isset($_SESSION['COUPON_CODE'])) {
-			  if ( $this->check_coupon($_SESSION['COUPON_CODE'], intval(@$_POST['level'])) ) {
+			  if ( $this->check_coupon($_SESSION['COUPON_CODE'], $blog_id, intval(@$_POST['level'])) ) {
 			    $coupon = true;
 			  } else {
 			    if (isset($_POST['level']) && is_numeric($_POST['level'])) {
@@ -661,7 +661,7 @@ Many thanks again for being a member!", 'psts'),
 
 		  if (isset($_POST['coupon-submit'])) {
 		    $code = preg_replace('/[^A-Z0-9_-]/', '', strtoupper($_POST['coupon_code']));
-		    $coupon = $this->check_coupon($code);
+		    $coupon = $this->check_coupon($code, $blog_id);
 		    if ($coupon) {
 		      $_SESSION['COUPON_CODE'] = $code;
 		      $this->log_action( $blog_id, __("User added a valid coupon to their order on the checkout page:", 'psts') . ' ' . $code );
@@ -1073,7 +1073,7 @@ Many thanks again for being a member!", 'psts'),
 
 
   //checks a coupon code for validity. Return boolean
-  function check_coupon($code, $level = false) {
+  function check_coupon($code, $blog_id = false, $level = false) {
     $coupon_code = preg_replace('/[^A-Z0-9_-]/', '', strtoupper($code));
 
     //empty code
@@ -1101,7 +1101,14 @@ Many thanks again for being a member!", 'psts'),
     //check remaining uses
     if ($coupons[$coupon_code]['uses'] && (intval($coupons[$coupon_code]['uses']) - intval($coupons[$coupon_code]['used'])) <= 0)
       return false;
-
+		
+		//check if the blog has used the coupon before
+		if ($blog_id) {
+		$used = get_blog_option($blog_id, 'psts_used_coupons');
+		if (is_array($used) && in_array($coupon_code, $used))
+			return false;
+		}
+		
     //everything passed so it's valid
     return true;
   }
@@ -1129,8 +1136,8 @@ Many thanks again for being a member!", 'psts'),
   }
 
   //record coupon use. Returns boolean successful
-  function use_coupon($code) {
-    if ($this->check_coupon($code)) {
+  function use_coupon($code, $blog_id) {
+    if ($this->check_coupon($code, $blog_id)) {
       $coupons = (array)get_site_option('psts_coupons');
       $coupon_code = preg_replace('/[^A-Z0-9_-]/', '', strtoupper($code));
 
@@ -1139,7 +1146,11 @@ Many thanks again for being a member!", 'psts'),
       update_site_option('psts_coupons', $coupons);
 
       unset($_SESSION['COUPON_CODE']);
-
+			
+			$used = (array)get_blog_option($blog_id, 'psts_used_coupons');
+			$used[] = $coupon_code;
+			update_blog_option($blog_id, 'psts_used_coupons', $used);
+			
       return true;
     } else {
       return false;
@@ -3092,7 +3103,7 @@ Many thanks again for being a member!", 'psts'),
 			if (in_array(1, $periods)) {
 			  $current = ($curr->term == 1 && $curr->level == $level) ? ' opt-current' : '';
 			  $selected = ($sel_period == 1 && $sel_level == $level) ? ' opt-selected' : '';
-     		if (isset($_SESSION['COUPON_CODE']) && $this->check_coupon($_SESSION['COUPON_CODE'], $level) && $coupon_value = $this->coupon_value($_SESSION['COUPON_CODE'], $data['price_1'])) {
+     		if (isset($_SESSION['COUPON_CODE']) && $this->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) && $coupon_value = $this->coupon_value($_SESSION['COUPON_CODE'], $data['price_1'])) {
      			$coupon_price = '<span class="pblg-old-price">'.$this->format_currency(false, $data['price_1']).'</span> <span class="pblg-price">'.$this->format_currency(false, $coupon_value['new_total']).'</span>';
 				} else {
           $coupon_price = '<span class="pblg-price">'. $this->format_currency(false, $data['price_1']) . '</span>';
@@ -3112,7 +3123,7 @@ Many thanks again for being a member!", 'psts'),
    		if (in_array(3, $periods)) {
 			  $current = ($curr->term == 3 && $curr->level == $level) ? ' opt-current' : '';
 			  $selected = ($sel_period == 3 && $sel_level == $level) ? ' opt-selected' : '';
-        if (isset($_SESSION['COUPON_CODE']) && $this->check_coupon($_SESSION['COUPON_CODE'], $level) && $coupon_value = $this->coupon_value($_SESSION['COUPON_CODE'], $data['price_3'])) {
+        if (isset($_SESSION['COUPON_CODE']) && $this->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) && $coupon_value = $this->coupon_value($_SESSION['COUPON_CODE'], $data['price_3'])) {
        		$coupon_price = '<span class="pblg-old-price">'.$this->format_currency(false, $data['price_3']).'</span> <span class="pblg-price">'.$this->format_currency(false, $coupon_value['new_total']).'</span>';
           $price = $coupon_value['new_total'];
 				} else {
@@ -3134,7 +3145,7 @@ Many thanks again for being a member!", 'psts'),
    		if (in_array(12, $periods)) {
 			  $current = ($curr->term == 12 && $curr->level == $level) ? ' opt-current' : '';
 			  $selected = ($sel_period == 12 && $sel_level == $level) ? ' opt-selected' : '';
-        if (isset($_SESSION['COUPON_CODE']) && $this->check_coupon($_SESSION['COUPON_CODE'], $level) && $coupon_value = $this->coupon_value($_SESSION['COUPON_CODE'], $data['price_12'])) {
+        if (isset($_SESSION['COUPON_CODE']) && $this->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) && $coupon_value = $this->coupon_value($_SESSION['COUPON_CODE'], $data['price_12'])) {
        		$coupon_price = '<span class="pblg-old-price">'.$this->format_currency(false, $data['price_12']).'</span> <span class="pblg-price">'.$this->format_currency(false, $coupon_value['new_total']).'</span>';
           $price = $coupon_value['new_total'];
 				} else {
