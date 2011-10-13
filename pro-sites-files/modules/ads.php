@@ -3,7 +3,9 @@
 Plugin Name: Pro Sites (Feature: Ads)
 */
 class ProSites_Module_Ads {
-
+	
+	var $ad_counter;
+	
 	function ProSites_Module_Ads() {
 		$this->__construct();
 	}
@@ -16,6 +18,7 @@ class ProSites_Module_Ads {
 		add_action( 'admin_menu', array(&$this, 'plug_page'), 100 );
 		add_action( 'psts_extend', array(&$this, 'extend'), 10, 2 );
 		add_action( 'psts_withdraw', array(&$this, 'withdraw'), 10, 2 );
+		add_filter( 'the_content', array(&$this, 'advertising_output') );
 
     //update install script if necessary
 		if ($psts->get_setting('ads_version') != $psts->version) {
@@ -133,13 +136,55 @@ class ProSites_Module_Ads {
 	    echo '<div style="background-color: #FFFFE0;border-color: #E6DB55;border-radius: 3px;border-style: solid;border-width: 1px;margin: 10px 0;padding: 0 1em;"><p><strong><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></strong></p></div>';
 		}
 	}
-
+	
+	function advertising_output($content) {
+		global $psts;
+		
+		if ( $this->show_ads() ) {
+			$per_page = $psts->get_setting('ads_count', 3);
+			
+			if ( is_page() ) {
+				if ( $psts->get_setting('ads_before_page') ) {
+					if ( $this->ad_counter < $per_page ) {
+						$content = $psts->get_setting('ads_before_code') . $content;
+						$this->ad_counter++;
+					}
+				}
+				if ( $psts->get_setting('ads_after_page') ) {
+					if ( $this->ad_counter < $per_page ) {
+						$content = $content . $psts->get_setting('ads_after_code');
+						$this->ad_counter++;
+					}
+				}
+			} else {
+				if ( $psts->get_setting('ads_before_post') ) {
+					if ( $this->ad_counter < $per_page ) {
+						$content = $psts->get_setting('ads_before_code') . $content;
+						$this->ad_counter++;
+					}
+				}
+				if ( $psts->get_setting('ads_after_post') ) {
+					if ( $this->ad_counter < $per_page ) {
+						$content = $content . $psts->get_setting('ads_after_code');
+						$this->ad_counter++;
+					}
+				}
+			}
+		}
+		return $content;
+	}
+	
 	function settings_process($settings) {
 	  global $psts;
 
 	  foreach ($_POST['ads_levels'] as $level => $num)
 	  	$psts->update_level_setting($level, 'ads', $num);
-	  	
+	  
+		$settings['ads_before_post'] = isset($settings['ads_before_post']) ? 1 : 0;
+		$settings['ads_after_post'] = isset($settings['ads_after_post']) ? 1 : 0;
+		$settings['ads_before_page'] = isset($settings['ads_before_page']) ? 1 : 0;
+		$settings['ads_after_page'] = isset($settings['ads_after_page']) ? 1 : 0;
+			
 	  $settings['ads_enable_blogs'] = isset($settings['ads_enable_blogs']) ? 1 : 0;
 		
 	  $settings['ads_themes'] = isset($settings['ads_themes']) ? 1 : 0;
@@ -156,12 +201,6 @@ class ProSites_Module_Ads {
 	    <h3 class='hndle'><span><?php _e('Ads', 'psts') ?></span> - <span class="description"><?php _e('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts') ?></span></h3>
 	    <div class="inside">
 				<table class="form-table">
-          <tr valign="top">
-				  <th scope="row"><?php _e('Rename Feature', 'psts') ?></th>
-				  <td>
-				  <input type="text" name="psts[ads_name]" id="ads_name" value="<?php echo esc_attr($psts->get_setting('ads_name')); ?>" size="30" />
-				  <br /><?php _e('Required - No HTML! - Make this short and sweet.', 'psts') ?></td>
-				  </tr>
 					<tr valign="top">
 				  <th scope="row"><?php _e('Add Free Level', 'psts') ?></th>
 				  <td>
@@ -175,9 +214,52 @@ class ProSites_Module_Ads {
 	        <?php _e('Select the minimum level required to not show ads on the site.', 'psts') ?>
 					</td>
 				  </tr>
+					<tr valign="top">
+					<th scope="row"><?php _e('Ad Locations', 'psts') ?></th>
+					<td>
+						<label><input type="checkbox" name="psts[ads_before_post]" value="1"<?php checked($psts->get_setting('ads_before_post')); ?> /> <?php _e('Before Post Content', 'psts'); ?></label><br />
+						<label><input type="checkbox" name="psts[ads_after_post]" value="1"<?php checked($psts->get_setting('ads_after_post')); ?> /> <?php _e('After Post Content', 'psts'); ?></label><br />
+						<label><input type="checkbox" name="psts[ads_before_page]" value="1"<?php checked($psts->get_setting('ads_before_page')); ?> /> <?php _e('Before Page Content', 'psts'); ?></label><br />
+						<label><input type="checkbox" name="psts[ads_after_page]" value="1"<?php checked($psts->get_setting('ads_after_page')); ?> /> <?php _e('After Page Content', 'psts'); ?></label>
+					</td>
+					</tr>
+					<tr valign="top">
+					<th scope="row"><?php _e('Ads Per Page', 'psts') ?></th>
+					<td>
+						<select name="psts[ads_count]">
+						<?php
+						$per_page = $psts->get_setting('ads_count', 3);
+						for ( $counter = 1; $counter <= 10; $counter++ ) {
+							echo '<option value="' . $counter . '"' . ($counter == $per_page ? ' selected' : '') . '>' . number_format_i18n($counter) . '</option>' . "\n";
+						}
+						?>
+						</select>
+						<br /><?php _e('Maximum number of ads to be shown on a single page. For Google Adsense set this to "3".', 'psts') ?>
+					</td>
+					</tr>
+					<tr valign="top">
+					<th scope="row"><?php _e('"Before" Ad Code', 'psts') ?></th>
+					<td>
+						<textarea name="psts[ads_before_code]" type="text" rows="4" wrap="soft" style="width: 95%"/><?php echo esc_textarea($psts->get_setting('ads_before_code')); ?></textarea>
+						<br /><?php _e('Displayed before post and page content.', 'sads') ?>
+					</td>
+					</tr>
+					<tr valign="top">
+					<th scope="row"><?php _e('"After" Ad Code', 'psts') ?></th>
+					<td>
+						<textarea name="psts[ads_after_code]" type="text" rows="4" wrap="soft" style="width: 95%"/><?php echo esc_textarea($psts->get_setting('ads_after_code')); ?></textarea>
+						<br /><?php _e('Displayed before post and page content.', 'sads') ?>
+					</tr>
+					
 				  <tr valign="top">
 				  <th scope="row"><?php _e('Enable Additional Ad-Free Sites', 'psts'); ?></th>
 				  <td><label><input type="checkbox" name="psts[ads_enable_blogs]" value="1"<?php checked($psts->get_setting('ads_enable_blogs')); ?> /> <?php _e('Allow disabling of ads on other sites', 'psts'); ?></label></td>
+				  </tr>
+					<tr valign="top">
+				  <th scope="row"><?php _e('Rename Feature', 'psts') ?></th>
+				  <td>
+				  <input type="text" name="psts[ads_name]" id="ads_name" value="<?php echo esc_attr($psts->get_setting('ads_name')); ?>" size="30" />
+				  <br /><?php _e('Required - No HTML! - Make this short and sweet.', 'psts') ?></td>
 				  </tr>
 					<tr valign="top">
 				  <th scope="row"><?php _e('Additional Ad-Free Sites', 'psts') ?></th>
