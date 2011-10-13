@@ -438,7 +438,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	    }
 			
 			//show past profiles if they exists
-			$profile_history = get_profile_id($blog_id, true);
+			$profile_history = $this->get_profile_id($blog_id, true);
 			if (is_array($profile_history) && count($profile_history)) {
 				$history_lines = array();
 				foreach ($profile_history as $profile) {
@@ -693,6 +693,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 					
 			//prepare vars
+			$discountAmt = false;
       if ($_POST['period'] == 1) {
         $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_1');
     		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
@@ -721,7 +722,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
      			$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s %2$s every 12 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount), $psts->get_setting('pypl_currency'));
 				}
 			}
-
+			$desc = apply_filters('psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $discountAmt, $blog_id);
+			
 	    $resArray = $this->SetExpressCheckout($paymentAmount, $desc, $blog_id);
 	  	if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning')	{
 	  		$token = $resArray["TOKEN"];
@@ -739,6 +741,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     if (isset($_GET['token']) && isset($_GET['PayerID']) && isset($_SESSION['PERIOD']) && isset($_SESSION['LEVEL'])) {
 
       //prepare vars
+			$discountAmt = false;
       if ($_SESSION['PERIOD'] == 1) {
         $paymentAmount = $psts->get_level_setting($_SESSION['LEVEL'], 'price_1');
     		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
@@ -767,7 +770,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
      			$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_SESSION['LEVEL'], 'name') . ': ' . sprintf(__('%1$s %2$s every 12 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount), $psts->get_setting('pypl_currency'));
 				}
 			}
-
+			$desc = apply_filters('psts_pypl_checkout_desc', $desc, $_SESSION['PERIOD'], $_SESSION['LEVEL'], $paymentAmount, $discountAmt, $blog_id);
+			
 			//get coupon payment amount
       if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
 	      $coupon = true;
@@ -985,6 +989,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
       	if (!$psts->errors->get_error_code()) {
 
 					//prepare vars
+					$discountAmt = false;
 		      if ($_POST['period'] == 1) {
 		        $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_1');
 		    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
@@ -1013,7 +1018,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		     			$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s %2$s every 12 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount), $psts->get_setting('pypl_currency'));
 						}
 					}
-
+					$desc = apply_filters('psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $discountAmt, $blog_id);
+					
           //get coupon payment amount
 		      if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
 			      $coupon = true;
@@ -1620,7 +1626,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	  $trans_meta = get_blog_option($blog_id, 'psts_paypal_profile_id');
 
 	  $trans_meta[$profile_id]['profile_id'] = $profile_id;
-	  $trans_meta[$txn_id]['timestamp'] = time();
+	  $trans_meta[$profile_id]['timestamp'] = time();
 	  update_blog_option($blog_id, 'psts_paypal_profile_id', $trans_meta);
 	}
 	
