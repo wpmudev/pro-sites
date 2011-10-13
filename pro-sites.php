@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-RC-1';
+  var $version = '3.0-RC-2';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -1176,7 +1176,7 @@ Many thanks again for being a member!", 'psts'),
 
     //format currency amount according to preference
     if ($amount) {
-
+			
       if ($this->get_setting('curr_symbol_position') == 1 || !$this->get_setting('curr_symbol_position'))
         return $symbol . number_format_i18n($amount, $decimal_place);
       else if ($this->get_setting('curr_symbol_position') == 2)
@@ -1389,7 +1389,7 @@ Many thanks again for being a member!", 'psts'),
 				$days = $_POST['extend_days'];
 				$extend = strtotime("+$months Months $days Days") - time();
 			}
-			$this->extend((int)$_POST['bid'], $extend, false, $_POST['extend_level']);
+			$this->extend((int)$_POST['bid'], $extend, __('Manual', 'psts'), $_POST['extend_level']);
 			echo '<div id="message" class="updated fade"><p>'.__('Site Extended.', 'psts').'</p></div>';
 		}
 
@@ -3313,7 +3313,7 @@ function is_pro_trial($blog_id) {
 
 //depreciated!
 function is_supporter($blog_id = false) {
-	return is_pro_site( $blog_id );
+	return is_pro_site( $blog_id, apply_filters( 'psts_supporter_level', false ) );
 }
 
 //depreciated!
