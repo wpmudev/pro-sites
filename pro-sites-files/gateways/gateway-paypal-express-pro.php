@@ -696,7 +696,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$discountAmt = false;
       if ($_POST['period'] == 1) {
         $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_1');
-    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
+    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
      			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 					$discountAmt = $coupon_value['new_total'];
 					$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first month, then %2$s each month', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -705,7 +705,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
       } else if ($_POST['period'] == 3) {
         $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_3');
-        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
+        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
      			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 					$discountAmt = $coupon_value['new_total'];
 					$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first 3 month period, then %2$s every 3 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -714,7 +714,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 			} else if ($_POST['period'] == 12) {
         $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_12');
-        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
+        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
      			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 					$discountAmt = $coupon_value['new_total'];
 					$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first 12 month period, then %2$s every 12 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -744,7 +744,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$discountAmt = false;
       if ($_SESSION['PERIOD'] == 1) {
         $paymentAmount = $psts->get_level_setting($_SESSION['LEVEL'], 'price_1');
-    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
+    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_SESSION['LEVEL']) ) {
      			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 					$discountAmt = $coupon_value['new_total'];
 					$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_SESSION['LEVEL'], 'name') . ': ' . sprintf(__('%1$s for the first month, then %2$s each month', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -753,7 +753,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
       } else if ($_SESSION['PERIOD'] == 3) {
         $paymentAmount = $psts->get_level_setting($_SESSION['LEVEL'], 'price_3');
-        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
+        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_SESSION['LEVEL']) ) {
      			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 					$discountAmt = $coupon_value['new_total'];
 					$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_SESSION['LEVEL'], 'name') . ': ' . sprintf(__('%1$s for the first 3 month period, then %2$s every 3 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -762,7 +762,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 			} else if ($_SESSION['PERIOD'] == 12) {
         $paymentAmount = $psts->get_level_setting($_SESSION['LEVEL'], 'price_12');
-        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
+        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_SESSION['LEVEL']) ) {
      			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 					$discountAmt = $coupon_value['new_total'];
 					$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_SESSION['LEVEL'], 'name') . ': ' . sprintf(__('%1$s for the first 12 month period, then %2$s every 12 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -773,7 +773,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$desc = apply_filters('psts_pypl_checkout_desc', $desc, $_SESSION['PERIOD'], $_SESSION['LEVEL'], $paymentAmount, $discountAmt, $blog_id);
 			
 			//get coupon payment amount
-      if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
+      if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_SESSION['LEVEL']) ) {
 	      $coupon = true;
 	      $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 				$initAmount = $coupon_value['new_total'];
@@ -829,7 +829,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	        //use coupon
 	        if ($coupon)
-	          $psts->use_coupon($_SESSION['COUPON_CODE']);
+	          $psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
 
           //save new profile_id
           $this->set_profile_id($blog_id, $new_profile_id);
@@ -869,7 +869,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	        //use coupon
 	        if ($coupon)
-	          $psts->use_coupon($_SESSION['COUPON_CODE']);
+	          $psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
 
         	//just in case, try to cancel any old subscription
          	if ($profile_id = $this->get_profile_id($blog_id)) {
@@ -992,7 +992,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$discountAmt = false;
 		      if ($_POST['period'] == 1) {
 		        $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_1');
-		    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
+		    		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
 		     			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 							$discountAmt = $coupon_value['new_total'];
 							$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first month, then %2$s each month', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -1001,7 +1001,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 		      } else if ($_POST['period'] == 3) {
 		        $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_3');
-		        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
+		        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
 		     			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 							$discountAmt = $coupon_value['new_total'];
 							$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first 3 month period, then %2$s every 3 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -1010,7 +1010,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 					} else if ($_POST['period'] == 12) {
 		        $paymentAmount = $psts->get_level_setting($_POST['level'], 'price_12');
-		        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_POST['level']) ) {
+		        if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
 		     			$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 							$discountAmt = $coupon_value['new_total'];
 							$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first 12 month period, then %2$s every 12 months', 'psts'), $psts->format_currency($psts->get_setting('pypl_currency'), $discountAmt), $psts->format_currency($psts->get_setting('pypl_currency'), $paymentAmount));
@@ -1021,7 +1021,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$desc = apply_filters('psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $discountAmt, $blog_id);
 					
           //get coupon payment amount
-		      if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $_SESSION['LEVEL']) ) {
+		      if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_SESSION['LEVEL']) ) {
 			      $coupon = true;
 			      $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 						$initAmount = $coupon_value['new_total'];
@@ -1077,7 +1077,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			        //use coupon
 			        if ($coupon)
-			          $psts->use_coupon($_SESSION['COUPON_CODE']);
+			          $psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
 
 		          //save new profile_id
 		          $this->set_profile_id($blog_id, $new_profile_id);
@@ -1120,7 +1120,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			        //use coupon
 			        if ($coupon)
-			          $psts->use_coupon($_SESSION['COUPON_CODE']);
+			          $psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
 
 	            //now attempt to create the subscription
 	            $resArray = $this->CreateRecurringPaymentsProfileDirect($paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month.$cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email);
@@ -1552,10 +1552,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		      if ($_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout') {
 		        $psts->record_transaction($blog_id, $_POST['txn_id'], $_POST['mc_gross']);
 		        $psts->log_action( $blog_id, sprintf(__('PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts'), $payment_status, $psts->format_currency($_POST['mc_currency'], $_POST['mc_gross']), $_POST['txn_type'], $_POST['txn_id']) . $profile_string );
-            $psts->extend($blog_id, $period, 'PayPal Express/Pro', $level, $_POST['mc_gross']);
-
+            
             //in case of new member send notification
-			    	if (get_blog_option($blog_id, 'psts_waiting_step')) {
+			    	if (get_blog_option($blog_id, 'psts_waiting_step') && $_POST['txn_type'] == 'express_checkout') {
+							$psts->extend($blog_id, $period, 'PayPal Express/Pro', $level, $_POST['mc_gross']);
 			        $psts->email_notification($blog_id, 'success');
 			        $psts->record_stat($blog_id, 'signup');
               update_blog_option($blog_id, 'psts_waiting_step', 0);
@@ -1678,7 +1678,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	function DoExpressCheckoutPayment($token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false) {
     global $psts;
 
-    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $level) ) {
+    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
       $coupon = true;
       $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
     } else {
@@ -1708,7 +1708,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	function CreateRecurringPaymentsProfileExpress($token, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false) {
     global $psts;
     
-    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $level) ) {
+    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
       $coupon = true;
       $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
     } else {
@@ -1742,7 +1742,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	function CreateRecurringPaymentsProfileDirect($paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false) {
     global $psts;
 		
-    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $level) ) {
+    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
       $coupon = true;
       $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
     } else {
@@ -1788,7 +1788,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	function DoDirectPayment($paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false) {
     global $psts;
 
-    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $level) ) {
+    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
       $coupon = true;
       $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
     } else {
