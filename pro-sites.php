@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0 RC 3
+Version: 3.0 RC 4
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-RC-3';
+  var $version = '3.0-RC-4';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -945,7 +945,7 @@ Many thanks again for being a member!", 'psts'),
 			return $level;
 		} else {
 		  unset($this->level[$blog_id]);
-			return false;
+			return 0;
 		}
 	}
 
@@ -1025,17 +1025,17 @@ Many thanks again for being a member!", 'psts'),
 	  do_action('psts_extend', $blog_id, $new_expire, $level);
 
 	  //fire level change
-		if ($old_level) {
-		  if ( $old_level < $level ) {
-		    $this->log_action( $blog_id, sprintf( __('Pro Site level upgraded from "%s" to "%s".', 'psts'), $this->get_level_setting($old_level, 'name'), $this->get_level_setting($level, 'name') ) );
-		    do_action('psts_upgrade', $blog_id, $level, $old_level);
-		  } else if ( $old_level > $level ) {
-		    $this->log_action( $blog_id, sprintf( __('Pro Site level downgraded from "%s" to "%s".', 'psts'), $this->get_level_setting($old_level, 'name'), $this->get_level_setting($level, 'name') ) );
-		    do_action('psts_downgrade', $blog_id, $level, $old_level);
-			} else if ( $old_expire <= time() ) { //count reactivating account as upgrade
-	  		do_action('psts_upgrade', $blog_id, $level, 0);
-	  	}
-	  }
+		if ( $old_expire <= time() ) { //count reactivating account as upgrade
+			do_action('psts_upgrade', $blog_id, $level, 0);
+		} else {
+			if ( $old_level < $level ) {
+				$this->log_action( $blog_id, sprintf( __('Pro Site level upgraded from "%s" to "%s".', 'psts'), $this->get_level_setting($old_level, 'name'), $this->get_level_setting($level, 'name') ) );
+				do_action('psts_upgrade', $blog_id, $level, $old_level);
+			} else if ( $old_level > $level ) {
+				$this->log_action( $blog_id, sprintf( __('Pro Site level downgraded from "%s" to "%s".', 'psts'), $this->get_level_setting($old_level, 'name'), $this->get_level_setting($level, 'name') ) );
+				do_action('psts_downgrade', $blog_id, $level, $old_level);
+			}
+		}
 
 	  //flip flag after action fired
 	  update_blog_option($blog_id, 'psts_withdrawn', 0);
@@ -1086,7 +1086,11 @@ Many thanks again for being a member!", 'psts'),
       return false;
 
     $coupons = (array)get_site_option('psts_coupons');
-
+		
+		//allow plugins to override coupon check by returning a boolean value
+		if ( is_bool( $override = apply_filters('psts_check_coupon', null, $coupon_code, $blog_id, $level, $coupons) ) )
+			return $override;
+		
     //no record for code
     if (!isset($coupons[$coupon_code]) || !is_array($coupons[$coupon_code]))
       return false;
@@ -1109,9 +1113,9 @@ Many thanks again for being a member!", 'psts'),
 		
 		//check if the blog has used the coupon before
 		if ($blog_id) {
-		$used = get_blog_option($blog_id, 'psts_used_coupons');
-		if (is_array($used) && in_array($coupon_code, $used))
-			return false;
+			$used = get_blog_option($blog_id, 'psts_used_coupons');
+			if (is_array($used) && in_array($coupon_code, $used))
+				return false;
 		}
 		
     //everything passed so it's valid
@@ -3349,7 +3353,7 @@ if ( !function_exists( 'wdp_un_check' ) ) {
   add_action( 'admin_notices', 'wdp_un_check', 5 );
   add_action( 'network_admin_notices', 'wdp_un_check', 5 );
   function wdp_un_check() {
-    if ( !class_exists( 'WPMUDEV_Update_Notifications' ) && current_user_can( 'install_plugins' ) )
+    if ( !class_exists( 'WPMUDEV_Update_Notifications' ) && current_user_can( 'update_plugins' ) )
       echo '<div class="error fade"><p>' . __('Please install the latest version of <a href="http://premium.wpmudev.org/project/update-notifications/" title="Download Now &raquo;">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href="http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/">More information &raquo;</a>', 'wpmudev') . '</a></p></div>';
   }
 }
