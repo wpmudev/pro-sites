@@ -1658,7 +1658,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	  $nvpstr = "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
 	  $nvpstr .= "&AMT=" . ($paymentAmount * 2); //enough to authorize first payment and subscription amt
 	  $nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
-	  $nvpstr .= "&L_BILLINGAGREEMENTDESCRIPTION0=".urlencode(html_entity_decode($desc));
+	  $nvpstr .= "&L_BILLINGAGREEMENTDESCRIPTION0=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 	  $nvpstr .= "&LOCALECODE=" . $psts->get_setting('pypl_site');
 	  //$nvpstr .= "&LANDINGPAGE=Billing";
 		$nvpstr .= "&NOSHIPPING=1";
@@ -1701,7 +1701,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
 		$nvpstr .= "&PAYMENTACTION=Sale";
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
-		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc));
+		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 		$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
 
 	  $resArray = $this->api_call("DoExpressCheckoutPayment", $nvpstr);
@@ -1734,7 +1734,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&PROFILESTARTDATE=".(($modify) ? $this->modStartDate($modify) : $this->startDate($frequency));
 		$nvpstr .= "&BILLINGPERIOD=Month";
 		$nvpstr .= "&BILLINGFREQUENCY=$frequency";
-		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc));
+		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 		$nvpstr .= "&MAXFAILEDPAYMENTS=1";
 	  $nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
     
@@ -1767,7 +1767,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&PROFILESTARTDATE=".(($modify) ? $this->modStartDate($modify) : $this->startDate($frequency));
 		$nvpstr .= "&BILLINGPERIOD=Month";
 		$nvpstr .= "&BILLINGFREQUENCY=$frequency";
-		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc));
+		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 		$nvpstr .= "&MAXFAILEDPAYMENTS=1";
 		$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
 		$nvpstr .= "&CREDITCARDTYPE=$cctype";
@@ -1809,7 +1809,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     $nvpstr .= "&IPADDRESS=" . $_SERVER['REMOTE_ADDR'];
     $nvpstr .= "&PAYMENTACTION=Sale";
     $nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
-		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc));
+		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 		$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
 		$nvpstr .= "&CREDITCARDTYPE=$cctype";
 		$nvpstr .= "&ACCT=$acct";
@@ -1852,7 +1852,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	  $nvpstr = "&PROFILEID=" . $profile_id;
 	  $nvpstr .= "&ACTION=$action"; //Should be Cancel, Suspend, Reactivate
-	  $nvpstr .= "&NOTE=".urlencode(html_entity_decode($note));
+	  $nvpstr .= "&NOTE=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 
 	  $resArray = $this->api_call("ManageRecurringPaymentsProfileStatus", $nvpstr);
 
@@ -1861,7 +1861,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	function UpdateRecurringPaymentsProfile($profile_id, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email) {
 
-	    $nvpstr = "&PROFILEID=" . $profile_id;
+	  $nvpstr = "&PROFILEID=" . $profile_id;
 		$nvpstr .= "&CREDITCARDTYPE=$cctype";
 		$nvpstr .= "&ACCT=$acct";
 		$nvpstr .= "&EXPDATE=$expdate";
@@ -1882,21 +1882,21 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 	
 	function RefundTransaction($transaction_id, $partial_amt = false, $note = '') {
-
+		global $psts;
     $nvpstr = "&TRANSACTIONID=" . $transaction_id;
-    
+
     if ($partial_amt) {
       $nvpstr .= "&REFUNDTYPE=Partial";
       $nvpstr .= "&AMT=".urlencode($partial_amt);
-      $nvpstr .= "&CURRENCYCODE=USD";
+      $nvpstr .= "&CURRENCYCODE=". $psts->get_setting('pypl_currency');
     } else {
       $nvpstr .= "&REFUNDTYPE=Full";
     }
-    
+
     if ($note)
       $nvpstr .= "&NOTE=".urlencode($note);
-      
-    $resArray = $this->hash_call("RefundTransaction", $nvpstr);
+
+    $resArray = $this->api_call("RefundTransaction", $nvpstr);
 
 		return $resArray;
 	}

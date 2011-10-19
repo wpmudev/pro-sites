@@ -60,14 +60,19 @@ class ProSites_Module_Writing {
 				  <th scope="row"><?php _e('Limit Posts', 'psts'); ?></th>
 				  <td><label><input type="checkbox" name="psts[publishing_posts]" value="1"<?php checked($psts->get_setting('publishing_posts')); ?> /> <?php _e('Limit', 'psts'); ?></label></td>
 				  </tr>
+					<tr valign="top">
+				  <th scope="row"><?php _e('Posts Restricted Message', 'psts') ?></th>
+				  <td><input type="text" name="psts[publishing_message_posts]" id="publishing_message_posts" value="<?php echo esc_attr($psts->get_setting('publishing_message_posts')); ?>" style="width: 95%" />
+				  <br /><?php _e('Required - This message is displayed on the post screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+				  </tr>
 				  <tr valign="top">
 				  <th scope="row"><?php _e('Limit Pages', 'psts'); ?></th>
 				  <td><label><input type="checkbox" name="psts[publishing_pages]" value="1"<?php checked($psts->get_setting('publishing_pages')); ?> /> <?php _e('Limit', 'psts'); ?></label></td>
 				  </tr>
 	      	<tr valign="top">
-				  <th scope="row"><?php _e('Restricted Message', 'psts') ?></th>
-				  <td><input type="text" name="psts[publishing_message]" id="publishing_message" value="<?php echo esc_attr($psts->get_setting('publishing_message')); ?>" style="width: 95%" />
-				  <br /><?php _e('Required - This message is displayed on the post/page screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+				  <th scope="row"><?php _e('Pages Restricted Message', 'psts') ?></th>
+				  <td><input type="text" name="psts[publishing_message_pages]" id="publishing_message_pages" value="<?php echo esc_attr($psts->get_setting('publishing_message_pages')); ?>" style="width: 95%" />
+				  <br /><?php _e('Required - This message is displayed on the page screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
 				  </tr>
 			  </table>
 		  </div>
@@ -81,8 +86,11 @@ class ProSites_Module_Writing {
     if ( is_pro_site(false, $psts->get_setting('publishing_level', 1)) )
       return;
 
-	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) ) {
-	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('publishing_level', 1), 'name'), $psts->get_setting('publishing_message') );
+	  if ( $psts->get_setting('publishing_posts') && in_array( $current_screen->id, array('edit-post', 'post') ) ) {
+	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('publishing_level', 1), 'name'), $psts->get_setting('publishing_message_posts') );
+	   	echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
+		} else if ( $psts->get_setting('publishing_pages') && in_array( $current_screen->id, array('edit-page', 'page') ) ) {
+	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('publishing_level', 1), 'name'), $psts->get_setting('publishing_message_pages') );
 	   	echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
