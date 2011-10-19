@@ -6,10 +6,32 @@ Change Log:
 ----------------------------------------------------------------------
 
 
-3.0 - 10/12/2011 - Aaron Edwards
+3.0 - 10/20/2011 - Aaron Edwards
 ----------------------------------------------------------------------
 - Complete rewrite!
--
+- Pro Site Levels!!!!!!!! And every optional module has full level support
+- Coupons
+- Permanent Pro Site status switch
+- Premium plugins/themes get removed on downgrades/cancelations
+- Better statistics
+- Better site management
+- More customization/rebranding power
+- Email notifications
+- Every module spruced up and improved
+- Front end checkout
+- A new, incredibly powerful PayPal Express Checkout and Pro gateway:
+		Accept credit cards directly!
+		Allows modifications, level upgrades, payment plan changes, and cancelations by the user.
+		Powerful admin management: Process refunds, cancelations, partial refunds, and keep track of everything for the blog via a detailed audit log.
+- Manual payments gateway
+- Built in Supporter Ads Module
+- Bulk Upgrades Module: 	Allows you to sell Pro Site level upgrades in bulk packages.
+- Limit BuddyPress Features Module: 	Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.
+- Limit Publishing Module: 	Allows you to only enable writing posts and/or pages for selected Pro Site levels.
+- Pay To Blog Module: 	Allows you to completely disable a site both front end and back until paid.
+- Post/Page Quotas Module: 	Allows you to limit the number of post types for selected Pro Site levels.
+- Unfilter HTML Module:  Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.
+- Much more!
 
 2.2.8 - 4/12/2011 - Aaron Edwards
 ----------------------------------------------------------------------

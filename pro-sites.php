@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0 RC 4
+Version: 3.0
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0-RC-4';
+  var $version = '3.0';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -268,7 +268,8 @@ Many thanks again for being a member!", 'psts'),
    		'ps_message' => __('You can send us a priority direct email support request here if you need help with your site.', 'psts'),
    		'ps_notice' => __('To enable premium support, please upgrade to LEVEL &raquo;', 'psts'),
    		'publishing_level' => 1,
-   		'publishing_message' => __('To enable writing posts, please upgrade to LEVEL &raquo;', 'psts'),
+   		'publishing_message_posts' => __('To enable publishing posts, please upgrade to LEVEL &raquo;', 'psts'),
+   		'publishing_message_pages' => __('To enable publishing pages, please upgrade to LEVEL &raquo;', 'psts'),
    		'quota_message' => __('For SPACE of upload space, upgrade to LEVEL!', 'psts'),
    		'quota_out_message' => __('You are out of upload space! Please upgrade to LEVEL to enable SPACE of storage space.', 'psts'),
    		'xmlrpc_level' => 1,
@@ -1025,7 +1026,7 @@ Many thanks again for being a member!", 'psts'),
 	  do_action('psts_extend', $blog_id, $new_expire, $level);
 
 	  //fire level change
-		if ( $old_expire <= time() ) { //count reactivating account as upgrade
+		if ( intval($exists) <= time() ) { //count reactivating account as upgrade
 			do_action('psts_upgrade', $blog_id, $level, 0);
 		} else {
 			if ( $old_level < $level ) {
@@ -1230,7 +1231,7 @@ Many thanks again for being a member!", 'psts'),
   function calc_upgrade($blog_id, $new_amt, $new_level, $new_period) {
 		global $wpdb;
 
-		$old = $wpdb->get_row("SELECT expire, level, period, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+		$old = $wpdb->get_row("SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
 		if (!$old)
 			return false;
 
@@ -1240,7 +1241,7 @@ Many thanks again for being a member!", 'psts'),
 
 	  //some complicated math calculating the prorated amt left and applying it to the price of new plan
 	  $diff = $old->expire - time();
-	  $duration = $old->period * 30.4166 * 24 * 60 * 60; //number of seconds in the period
+	  $duration = $old->term * 30.4166 * 24 * 60 * 60; //number of seconds in the period
 	  $left = $duration - ($duration - $diff);
 	  if ($left <= 0 || empty($old->amount) || $old->amount <= 0)
 	    return false;
@@ -1326,7 +1327,7 @@ Many thanks again for being a member!", 'psts'),
 				<strong><?php _e( "I'm Interested", 'psts' ); ?></strong>
 			</label>
 			<label class="checkbox" for="psts_signed_up_no">
-				<input type="radio" id="psts_signed_up_no" name="psts_signed_up" value="no"<?php echo ($_POST['psts_signed_up']=='no') ? ' checked="checked"' : ''; ?> />
+				<input type="radio" id="psts_signed_up_no" name="psts_signed_up" value="no"<?php echo (isset($_POST['psts_signed_up']) && $_POST['psts_signed_up']=='no') ? ' checked="checked"' : ''; ?> />
 				<strong><?php _e( "Not Now", 'psts' ); ?></strong>
 			</label>
 		</div>
@@ -3040,7 +3041,7 @@ Many thanks again for being a member!", 'psts'),
 		*/
 
 	  echo '<div class="wrap">';
-	  echo "<SCRIPT LANGUAGE='JavaScript'>window.location='".$this->checkout_url($blog_id)."';</script>";
+	  echo "<script type='text/javascript'>window.location='".$this->checkout_url($blog_id)."';</script>";
 	  echo '<a href="'.$this->checkout_url($blog_id).'">Go Here</a>';
 	  echo '</div>'; //div wrap
 	}
