@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0
+Version: 3.0.1
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0';
+  var $version = '3.0.1';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -317,7 +317,7 @@ Many thanks again for being a member!", 'psts'),
     	add_site_option( 'psts_levels', $default_levels );
 
 		//create a checkout page if not existing
-		add_filter( 'init', array(&$this, 'create_checkout_page') );
+		add_action( 'init', array(&$this, 'create_checkout_page') );
 
 		$this->update_setting('version', $this->version);
 	}
@@ -611,7 +611,7 @@ Many thanks again for being a member!", 'psts'),
 	    return;
 
     //check if on checkout page
-	  if (get_queried_object_id() != $this->get_setting('checkout_page'))
+	  if (!$this->get_setting('checkout_page') || get_queried_object_id() != $this->get_setting('checkout_page'))
 	    return;
 
 	  //force ssl on the checkout page if required by gateway
@@ -623,9 +623,11 @@ Many thanks again for being a member!", 'psts'),
 	  //make sure session is started
 	  if (session_id() == "")
 	  	session_start();
-
+		
+		//remove all filters except shortcodes and checkout form
 		remove_all_filters('the_content');
-    add_filter('the_content', array(&$this, 'checkout_output') );
+		add_filter('the_content', 'do_shortcode');
+    add_filter('the_content', array(&$this, 'checkout_output'), 15);
 
     wp_enqueue_script('psts-checkout', $this->plugin_url . '/js/checkout.js', array('jquery'), $this->version );
     if ( !current_theme_supports( 'psts_style' ) )
@@ -1812,7 +1814,7 @@ Many thanks again for being a member!", 'psts'),
     }
 
     ?>
-    <script language="javascript" type="text/javascript">
+    <script type="text/javascript">
     jQuery(document).ready(function($) {
       //set data
       var pro_sites = { label: "<?php echo esc_js(__('Total Pro Sites', 'psts')); ?>", color: 3, data: [<?php echo $pro_sites; ?>] };
@@ -2581,21 +2583,21 @@ Many thanks again for being a member!", 'psts'),
 
 							case 'price_1': ?>
 								<td scope="row">
-                  <?php echo $this->format_currency(); ?><input class="price-1" value="<?php echo ( $level['price_1'] ) ? number_format( (float)$level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text" />
+                  <label><?php echo $this->format_currency(); ?></label><input class="price-1" value="<?php echo ( $level['price_1'] ) ? number_format( (float)$level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text" />
 								</td>
 							<?php
 							break;
 
        				case 'price_3': ?>
         				<td scope="row">
-                  <?php echo $this->format_currency(); ?><input class="price-3" value="<?php echo ( $level['price_3'] ) ? number_format( (float)$level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text" />
+                  <label><?php echo $this->format_currency(); ?></label><input class="price-3" value="<?php echo ( $level['price_3'] ) ? number_format( (float)$level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text" />
 								</td>
 							<?php
 							break;
 
        				case 'price_12': ?>
         				<td scope="row">
-                  <?php echo $this->format_currency(); ?><input class="price-12" value="<?php echo ( $level['price_12'] ) ? number_format( (float)$level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text" />
+                  <label><?php echo $this->format_currency(); ?></label><input class="price-12" value="<?php echo ( $level['price_12'] ) ? number_format( (float)$level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text" />
 								</td>
 							<?php
 							break;
@@ -2603,7 +2605,7 @@ Many thanks again for being a member!", 'psts'),
               case 'edit': ?>
 								<td scope="row">
 								<?php if ( $level_code == $last_level && $level_code != 1 ) { ?>
-         					<input type="submit" id="level-delete" name="delete_level" value="<?php _e('Delete &raquo;', 'psts') ?>" />
+         					<input class="button" type="submit" id="level-delete" name="delete_level" value="<?php _e('Delete &raquo;', 'psts') ?>" />
                 <?php } ?>
 								</td>
 							<?php
@@ -2651,16 +2653,16 @@ Many thanks again for being a member!", 'psts'),
             <input value="" size="50" maxlength="100" name="add_name" type="text" />
           </td>
           <td>
-            <?php echo $this->format_currency(); ?><input class="price-1" value="" size="4" name="add_price_1" type="text" />
+            <label><?php echo $this->format_currency(); ?></label><input class="price-1" value="" size="4" name="add_price_1" type="text" />
           </td>
           <td>
-            <?php echo $this->format_currency(); ?><input class="price-3" value="" size="4" name="add_price_3" type="text" />
+            <label><?php echo $this->format_currency(); ?></label><input class="price-3" value="" size="4" name="add_price_3" type="text" />
           </td>
           <td>
-            <?php echo $this->format_currency(); ?><input class="price-12" value="" size="4" name="add_price_12" type="text" />
+            <label><?php echo $this->format_currency(); ?></label><input class="price-12" value="" size="4" name="add_price_12" type="text" />
           </td>
           <td>
-            <input type="submit" name="add_level" value="<?php _e('Add &raquo;', 'psts') ?>" />
+            <input class="button" type="submit" name="add_level" value="<?php _e('Add &raquo;', 'psts') ?>" />
           </td>
         </tr>
 			</tbody>
@@ -3123,10 +3125,13 @@ Many thanks again for being a member!", 'psts'),
 					$equiv = '<span class="psts-equiv">'.__('Try it out!', 'psts').'</span>
 	                  <span class="psts-equiv">'.__('You can easily upgrade to a better value plan at any time.', 'psts').'</span>';
 				}
-			  $content .= '<td class="level-option" style="width: '.$width.'"><div class="pblg-checkout-opt'.$current.$selected.'">
+				$content .= '<td class="level-option" style="width: '.$width.'"><div class="pblg-checkout-opt'.$current.$selected.'">
 										<input type="hidden" value="'.$level.':1"/>
+										<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-1-'.$level.'" value="'.$level.':1" />
+										<label for="psts-radio-1-'.$level.'">
 										'.$coupon_price.'
-                    '.$equiv.'
+										'.$equiv.'
+										</label>
 										</div></td>';
 			}
 
@@ -3147,8 +3152,11 @@ Many thanks again for being a member!", 'psts'),
 
 				$content .= '<td class="level-option" style="width: '.$width.'"><div class="pblg-checkout-opt'.$current.$selected.'">
 										<input type="hidden" value="'.$level.':3"/>
+										<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-3-'.$level.'" value="'.$level.':3" />
+										<label for="psts-radio-3-'.$level.'">
 										'.$coupon_price.'
 										'.$equiv.'
+										</label>
 										</div></td>';
       }
 
@@ -3168,10 +3176,13 @@ Many thanks again for being a member!", 'psts'),
 					$equiv .= '<span class="psts-equiv">'.sprintf(__('Save %s by paying for a year in advance!', 'psts'), $this->format_currency(false, ($data['price_1']*12) - $price)).'</span>';
 
 				$content .= '<td class="level-option" style="width: '.$width.'"><div class="pblg-checkout-opt'.$current.$selected.'">
-										<input type="hidden" value="'.$level.':12"/>
-										'.$coupon_price.'
-                    '.$equiv.'
-										</div></td>';
+								<input type="hidden" value="'.$level.':12"/>
+								<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-12-'.$level.'" value="'.$level.':12" />
+								<label for="psts-radio-12-'.$level.'">
+								'.$coupon_price.'
+								'.$equiv.'
+								</label>
+								</div></td>';
 			}
 
 			$content .= '</tr>';

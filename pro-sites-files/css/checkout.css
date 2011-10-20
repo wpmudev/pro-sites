@@ -95,6 +95,9 @@ table#psts_checkout_grid {
 }
 #psts_checkout_grid tr td.opt-current {
 }
+#psts_checkout_grid label {
+	cursor: pointer;
+}
 
 #pypl_cancel {
   margin-left: 25px;
@@ -227,4 +230,9 @@ label.cc-image img {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#B5B5B5',GradientType=0 ); /* ie */
   border: 1px solid #CCCCCC;
   color: #000;
+}
+
+/* hides screen reader accessibility fields */
+#psts_checkout_grid .psts-radio {
+	display: none;
 }
