@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.1 - 10/20/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix autoactivation when the plugin in question is active on the main site - Props to asimetrick!
+- Screenreader accessibility for the checkout form grid - Props to KFUK-KFUM!
+- Fix shortcodes on checkout page
+- Fix checkout page generation on first install
 
 3.0 - 10/20/2011 - Aaron Edwards
 ----------------------------------------------------------------------

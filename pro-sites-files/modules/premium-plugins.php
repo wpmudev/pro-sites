@@ -124,7 +124,7 @@ class ProSites_Module_Plugins {
 	  foreach ( (array)$active_plugins as $plugin_file => $plugin_data) {
      	if ( isset($psts_plugins[$plugin_file]['level']) ) {
 	      if ( !in_array($plugin_file, $override_plugins) && !is_pro_site(false, $psts_plugins[$plugin_file]['level']) ) {
-		      deactivate_plugins($plugin_file, true); //silently remove any plugins
+		      deactivate_plugins($plugin_file);
 		      unset($active_plugins[$plugin_file]);
 				}
 	    }
@@ -141,13 +141,13 @@ class ProSites_Module_Plugins {
   	$psts_plugins = (array)$psts->get_setting('pp_plugins');
   	$level_plugins = array();
 		foreach ( $psts_plugins as $plugin_file => $data ) {
-		  if ( !is_plugin_active($plugin_file) && $data['auto'] && is_numeric($data['level']) && $data['level'] > $old_level && $data['level'] <= $new_level )
+			if ( $data['auto'] && is_numeric($data['level']) && $data['level'] > $old_level && $data['level'] <= $new_level )
 		    $level_plugins[] = $plugin_file;
 		}
 		
 	  if ( count($level_plugins) && is_pro_site($blog_id, $new_level) ) {
 	    switch_to_blog($blog_id);
-	    activate_plugins($level_plugins, '', false); //silently activate any plugins
+	    activate_plugins($level_plugins); //activate any plugins
 	    restore_current_blog();
 	  }
 	}
@@ -166,7 +166,7 @@ class ProSites_Module_Plugins {
 
 	  if ( count($level_plugins) ) {
 	    switch_to_blog($blog_id);
-	    deactivate_plugins($level_plugins, true); //silently remove any plugins
+	    deactivate_plugins($level_plugins, true); //silently remove any plugins so that uninstall hooks aren't fired 
 	    restore_current_blog();
 	  }
 	}
@@ -189,7 +189,7 @@ class ProSites_Module_Plugins {
 
 	  if ( count($level_plugins) ) {
 	    switch_to_blog($blog_id);
-	    deactivate_plugins($level_plugins, true); //silently remove any plugins
+	    deactivate_plugins($level_plugins, true); //silently remove any plugins so that uninstall hooks aren't fired 
 	    restore_current_blog();
 	  }
 	}
