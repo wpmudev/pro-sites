@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.1
+Version: 3.0.2
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.1';
+  var $version = '3.0.2';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -205,9 +205,11 @@ class ProSites {
 			'modules_enabled' => array(),
 			'enabled_periods' => array(1,3,12),
 			'hide_adminbar' => 0,
+			'free_name' => __('Free', 'psts'),
+			'free_msg' => __('No thank you, I will continue with a basic site for now', 'psts'),
 			'trial_level' => 1,
 			'trial_days' => get_site_option("supporter_free_days"),
-      'trial_message' => __('You have DAYS days left in your LEVEL free trial. Checkout now to prevent loosing LEVEL features &raquo;', 'psts'),
+      'trial_message' => __('You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts'),
       'feature_message' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
       'active_message' => __('Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts'),
       'success_subject' => __('Thank you for becoming a Pro Site member!', 'psts'),
@@ -692,7 +694,7 @@ Many thanks again for being a member!", 'psts'),
 
 	function check() {
 	  global $blog_id;
-		if ( is_pro_site() ) {
+		if ( is_pro_site($blog_id) ) {
 			do_action('psts_active');
 		} else {
 			do_action('psts_inactive');
@@ -835,7 +837,6 @@ Many thanks again for being a member!", 'psts'),
 				foreach ($this->pro_sites[$blog_id] as $key => $value) {
 					if ($value) return true;
 				}
-				return false;
 			}
 		}
 
@@ -2484,7 +2485,7 @@ Many thanks again for being a member!", 'psts'),
         $error[] = __('You must enter a price for at least one payment period.', 'psts');
 
       if (!$error) {
-        $levels[] = array('name' => trim(wp_filter_nohtml_kses(stripslashes($_POST['add_name']))),
+        $levels[] = array('name' => stripslashes(trim(wp_filter_nohtml_kses($_POST['add_name']))),
 													'price_1' => round(@$_POST['add_price_1'], 2),
 													'price_3' => round(@$_POST['add_price_3'], 2),
 													'price_12' => round(@$_POST['add_price_12'], 2)
@@ -2512,7 +2513,7 @@ Many thanks again for being a member!", 'psts'),
 			$this->update_setting('enabled_periods', $periods);
 
 			foreach ($_POST['name'] as $level => $name) {
-			  $stripped_name = trim(wp_filter_nohtml_kses(stripslashes($name)));
+			  $stripped_name = stripslashes(trim(wp_filter_nohtml_kses($name)));
 			  $name = empty($stripped_name) ? $levels[$level]['name'] : $stripped_name;
         $levels[$level]['name'] = $name;
         $levels[$level]['price_1'] = round(@$_POST['price_1'][$level], 2);
@@ -2865,6 +2866,14 @@ Many thanks again for being a member!", 'psts'),
 	          <?php _e('Remove the Pro Sites menu from the admin bar', 'psts'); ?></label>
 	          </td>
 	          </tr>
+						<tr valign="top">
+	          <th scope="row"><?php _e('Free Level', 'psts') ?></th>
+	          <td>
+							<span class="description"><?php _e('Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts') ?></span><br />
+							<label><input type="text" name="psts[free_name]" value="<?php echo esc_attr($this->get_setting('free_name')); ?>" /> <?php _e('Free Level Name', 'psts'); ?></label><br />
+							<label><input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr($this->get_setting('free_msg')); ?>" /> <?php _e('Free Level Message', 'psts'); ?></label>
+						</td>
+	          </tr>
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Show Option On Signup', 'psts'); ?></th>
 	          <td><label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked($this->get_setting('show_signup')); ?> />
@@ -3070,12 +3079,16 @@ Many thanks again for being a member!", 'psts'),
 			$sel_level = isset($_POST['level']) ? $_POST['level'] : null;
 		}
 
-		if (count($periods) >= 3)
+		if (count($periods) >= 3) {
 		  $width = '23%';
-		else if (count($periods) == 2)
+			$free_width = '95%';
+		} else if (count($periods) == 2) {
 		  $width = '30%';
-		else
+			$free_width = '92.5%';
+		} else {
 		  $width = '40%';
+			$free_width = '85%';
+		}
 
 		/*
 		//show chosen blog
@@ -3108,7 +3121,10 @@ Many thanks again for being a member!", 'psts'),
 			if (in_array(12, $periods))
     		$content .= '<th>'.__('Every 12 Months', 'psts').'</th>';
 			$content .= '</tr>';
-
+		
+		$equiv = '';
+		$coupon_price = '';
+		
 		foreach ($levels as $level => $data) {
       $content .= '<tr class="psts_level level-'.$level.'">
 				<td valign="middle" class="level-name"><h3>'.$data['name'].'</h3></td>';
@@ -3187,7 +3203,16 @@ Many thanks again for being a member!", 'psts'),
 
 			$content .= '</tr>';
 		}
-
+		
+		//show dismiss button link if needed
+    if (get_blog_option($blog_id, 'psts_signed_up') && !apply_filters('psts_prevent_dismiss', false) ) {
+			$content .= '<tr class="psts_level level-free">
+				<td valign="middle" class="level-name"><h3>'.$this->get_setting('free_name', __('Free', 'psts')).'</h3></td>';
+			$content .= '<td class="level-option" colspan="'.count($periods).'">';
+      $content .= '<a class="pblg-checkout-opt" style="width: '.$free_width.'" id="psts-free-option" href="'.get_admin_url($blog_id, 'index.php?psts_dismiss=1').'" title="'.__('Dismiss', 'psts').'">'.$this->get_setting('free_msg', __('No thank you, I will continue with a basic site for now', 'psts')).'</a>';
+      $content .= '</td></tr>';
+    }
+		
   	$content .= '</table>
     						<input type="hidden" id="psts_period" name="period" value="' . $sel_period . '"/>
 			      		<input type="hidden" id="psts_level" name="level" value="' . $sel_level . '"/>';
@@ -3209,13 +3234,6 @@ Many thanks again for being a member!", 'psts'),
 		     </div>';
 			}
 		}
-
-    //show dismiss button link if needed
-    if (get_blog_option($blog_id, 'psts_signed_up') && !apply_filters('psts_prevent_dismiss', false) ) {
-      $content .= '<p style="text-align: center;">';
-      $content .= '<a href="'.get_admin_url($blog_id, 'index.php?psts_dismiss=1').'" title="'.__('Dismiss', 'psts').'">'.__('No thank you, I will pass for now', 'psts').'</a>';
-      $content .= '</p>';
-    }
 
     return $content;
 	}
