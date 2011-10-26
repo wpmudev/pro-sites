@@ -8,7 +8,7 @@ table#psts_checkout_grid {
 	margin: 0;
 }
 
-#psts_checkout_grid div.pblg-checkout-opt {
+#psts_checkout_grid .pblg-checkout-opt {
 	color: #fff;
 	font-weight: normal;
 	cursor: pointer;
@@ -30,7 +30,7 @@ table#psts_checkout_grid {
 	width: 85%;
 }
 
-#psts_checkout_grid div.pblg-checkout-opt:hover {
+#psts_checkout_grid .pblg-checkout-opt:hover {
   border: 1px solid #364D5E;
 	text-shadow: 1px 1px 2px #364D5E;
 	background: #b8cad8;
@@ -98,7 +98,11 @@ table#psts_checkout_grid {
 #psts_checkout_grid label {
 	cursor: pointer;
 }
-
+#psts_checkout_grid #psts-free-option {
+	display: block;
+	width: 95%;
+	text-decoration: none;
+}
 #pypl_cancel {
   margin-left: 25px;
 }

@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.2 - 10/26/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix stripslashes issue on levels page
+- Make free option a configurable button on checkout screen
+- Fixed a nasty rare bug is_pro_site() determination
+
 3.0.1 - 10/20/2011 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix autoactivation when the plugin in question is active on the main site - Props to asimetrick!
