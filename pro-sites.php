@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.2
+Version: 3.0.3
 Author URI: http://premium.wpmudev.org
 Network: true
 WDP ID: 49
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.2';
+  var $version = '3.0.3';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -564,17 +564,12 @@ Many thanks again for being a member!", 'psts'),
 	function checkout_url($blog_id = false) {
 	  global $current_site;
 
-	  $page_id = $this->get_setting('checkout_page');
-	  switch_to_blog($current_site->blog_id);
-	  $url = get_permalink($page_id);
-	  restore_current_blog();
-
+	  $url = $this->get_setting('checkout_url');
+		
 	  //just in case the checkout page was not created do it now
 	  if (!$url) {
-	    $page_id = $this->create_checkout_page();
-	    switch_to_blog($current_site->blog_id);
-	    $url = get_permalink($page_id);
-	    restore_current_blog();
+	    $this->create_checkout_page();
+	    $url = $this->get_setting('checkout_url');
 	  }
 
 		//change to ssl if required
@@ -603,7 +598,10 @@ Many thanks again for being a member!", 'psts'),
 		if ( !$page || $page->post_status == 'trashed' ) {
 	    $id = wp_insert_post( array('post_title' => $this->get_setting('rebrand'), 'post_status' => 'publish', 'post_type' => 'page', 'comment_status' => 'closed', 'ping_status' => 'closed', 'post_content' => stripslashes(get_site_option('supporter_message'))) );
 			$this->update_setting('checkout_page', $id);
-	  }
+			$this->update_setting('checkout_url', get_permalink($id));
+	  } else {
+			$this->update_setting('checkout_url', get_permalink($this->get_setting('checkout_page')));
+		}
 	  restore_current_blog();
 	}
 
@@ -631,9 +629,9 @@ Many thanks again for being a member!", 'psts'),
 		add_filter('the_content', 'do_shortcode');
     add_filter('the_content', array(&$this, 'checkout_output'), 15);
 
-    wp_enqueue_script('psts-checkout', $this->plugin_url . '/js/checkout.js', array('jquery'), $this->version );
+    wp_enqueue_script('psts-checkout', $this->plugin_url . 'js/checkout.js', array('jquery'), $this->version );
     if ( !current_theme_supports( 'psts_style' ) )
-			wp_enqueue_style('psts-checkout', $this->plugin_url . '/css/checkout.css', false, $this->version );
+			wp_enqueue_style('psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
 
 		//setup error var
 		$this->errors = new WP_Error();
@@ -1289,13 +1287,13 @@ Many thanks again for being a member!", 'psts'),
 	}
 
   function scripts_checkout() {
-	  wp_enqueue_script('psts-checkout', $this->plugin_url . '/js/checkout.js', array('jquery'), $this->version );
+	  wp_enqueue_script('psts-checkout', $this->plugin_url . 'js/checkout.js', array('jquery'), $this->version );
 	}
 
 	function scripts_stats() {
-	  wp_enqueue_script('flot', $this->plugin_url . '/js/jquery.flot.min.js', array('jquery'), $this->version );
-	  wp_enqueue_script('flot_pie', $this->plugin_url . '/js/jquery.flot.pie.min.js', array('jquery', 'flot'), $this->version );
-	  wp_enqueue_script('flot_xcanvas', $this->plugin_url . '/js/excanvas.pack.js', array('jquery', 'flot'), $this->version );
+	  wp_enqueue_script('flot', $this->plugin_url . 'js/jquery.flot.min.js', array('jquery'), $this->version );
+	  wp_enqueue_script('flot_pie', $this->plugin_url . 'js/jquery.flot.pie.min.js', array('jquery', 'flot'), $this->version );
+	  wp_enqueue_script('flot_xcanvas', $this->plugin_url . 'js/excanvas.pack.js', array('jquery', 'flot'), $this->version );
 	}
 
   function scripts_coupons() {
@@ -1316,7 +1314,20 @@ Many thanks again for being a member!", 'psts'),
 		$feature_message = str_replace( 'LEVEL', $this->get_level_setting($level, 'name', $this->get_setting('rebrand')), $this->get_setting('feature_message') );
 		echo '<div id="message" class="error"><p><a href="' . $this->checkout_url($blog_id) . '">' . $feature_message . '</a></p></div>';
 	}
-
+	
+	function levels_select($name, $selected) {
+		?>
+		<select name="<?php echo $name; ?>" id="psts-level-select">
+			<?php
+			$levels = (array)get_site_option( 'psts_levels' );
+			foreach ($levels as $level => $value) {
+			?><option value="<?php echo $level; ?>"<?php selected($selected, $level) ?>><?php echo $level . ': ' . esc_attr($value['name']); ?></option><?php
+			}
+			?>
+		</select>
+		<?php
+	}
+	
 	function signup_output() {
 
 	  if ($this->get_setting('show_signup') && !isset($_GET[urlencode($this->get_setting('rebrand'))]) && !isset($_POST['psts_signed_up_override'])) {
@@ -2815,8 +2826,7 @@ Many thanks again for being a member!", 'psts'),
       check_admin_referer('psts_settings');
 			
 			//strip slashes from all inputs
-			if (get_magic_quotes_gpc())
-				$_POST['psts'] = stripslashes_deep($_POST['psts']);
+			$_POST['psts'] = stripslashes_deep($_POST['psts']);
 			
 			$_POST['psts']['hide_adminbar'] = isset($_POST['psts']['hide_adminbar']) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
       $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
@@ -3359,6 +3369,20 @@ function is_pro_user($user_id = false) {
 function is_pro_trial($blog_id) {
 	global $psts;
 	return $psts->is_trial( $blog_id );	
+}
+
+/*
+ * function psts_levels_select
+ * Print an html select field to choose level for an external plugin
+ * 
+ * @param string $name Name of the form field 
+ * @param int $selected the level number to select by default
+ * 
+ * @return echo html select
+ */
+function psts_levels_select($name, $selected) {
+	global $psts;
+	$psts->levels_select($name, $selected);
 }
 
 //depreciated!

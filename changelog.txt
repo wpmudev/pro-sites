@@ -5,6 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.3 - 10/31/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix extra slashes in script and css urls
+- Fix excerpt issues in ads module
+- Fix Quota module post counting issues
+- Fix for checkout link permalink problems on some sites
+
 3.0.2 - 10/26/2011 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix stripslashes issue on levels page

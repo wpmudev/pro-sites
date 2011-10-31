@@ -136,7 +136,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			  <tr>
 				<th scope="row"><?php _e('PayPal API Credentials', 'psts') ?></th>
 				<td>
-					<span class="description"><?php _e('You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_NVPAPIBasics#id084DN0AK0HS">Instructions &raquo;</a>', 'psts') ?></span>
+					<span class="description"><?php _e('You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_ECAPICredentials">Instructions &raquo;</a>', 'psts') ?></span>
 			    <p><label><?php _e('API Username', 'psts') ?><br />
 			    <input value="<?php esc_attr_e($psts->get_setting("pypl_api_user")); ?>" size="30" name="psts[pypl_api_user]" type="text" />
 			    </label></p>
