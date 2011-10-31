@@ -157,6 +157,17 @@ class ProSites_Module_Ads {
 					}
 				}
 			} else {
+				
+				//check if post possibly an excerpt and is too short
+				if (is_home() || is_archive()) {
+					$text = str_replace(']]>', ']]&gt;', $content);
+					$text = strip_tags($text);
+					$excerpt_length = apply_filters('excerpt_length', 55);
+					$words = preg_split("/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
+					if ( count($words) <= $excerpt_length )
+						return $content; //skip
+				}
+				
 				if ( $psts->get_setting('ads_before_post') ) {
 					if ( $this->ad_counter < $per_page ) {
 						$content = $psts->get_setting('ads_before_code') . $content;
