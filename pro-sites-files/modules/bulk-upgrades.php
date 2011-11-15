@@ -642,7 +642,7 @@ class ProSites_Module_BulkUpgrades {
 		<div class="icon32"><img src="<?php echo $psts->plugin_url . 'images/import.png'; ?>" /></div>
 		<h2><?php _e('Bulk Upgrades', 'psts') ?></h2>
 
-    <form method="post" action="">
+    
 		<div class="metabox-holder">
 		<?php
 		if ( !isset($_POST['submit_search']) ) {
@@ -712,6 +712,7 @@ class ProSites_Module_BulkUpgrades {
 	  </div>
 		<?php } ?>
 		
+		<form method="post" action="">
   	<?php if ( $upgrade_credits > 0 ) { ?>
 	    <div class="postbox">
 	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to apply an upgrade to.', 'psts') ?></span></h3>
@@ -903,7 +904,7 @@ class ProSites_Module_BulkUpgrades {
         <?php } ?>
       <?php }
 
-		echo '</div></form></div>';
+		echo '</form></div></div>';
 	}
 }
 

@@ -6,6 +6,7 @@ Description: The ultimate multisite site upgrade plugin, turn regular sites into
 Author: Aaron Edwards (Incsub)
 Version: 3.0.3
 Author URI: http://premium.wpmudev.org
+Text Domain: psts
 Network: true
 WDP ID: 49
 */
