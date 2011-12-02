@@ -49,6 +49,7 @@ class ProSites_Module_PayToBlog {
 			//load template if exists
 			if ( file_exists( WP_CONTENT_DIR . '/ptb-template.php') ) {
 				require_once( WP_CONTENT_DIR . '/ptb-template.php' );
+				exit;
 			} else {
 				$content = $psts->get_setting('ptb_front_msg');
 				if (is_user_logged_in() && current_user_can('edit_pages'))
