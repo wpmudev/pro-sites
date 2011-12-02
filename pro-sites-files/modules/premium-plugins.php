@@ -65,7 +65,7 @@ class ProSites_Module_Plugins {
 		$psts_plugins = (array)$psts->get_setting('pp_plugins');
     $override_plugins = (array)get_option('psts_plugins');
 	  foreach ( (array)$all_plugins as $plugin_file => $plugin_data) {
-	    if ( !in_array($plugin_file, $override_plugins) && isset($psts_plugins[$plugin_file]['level']) && !is_numeric($psts_plugins[$plugin_file]['level']) ) {
+	    if ( !in_array($plugin_file, $override_plugins) && !(isset($psts_plugins[$plugin_file]['level']) && is_numeric($psts_plugins[$plugin_file]['level'])) ) {
 	      unset($all_plugins[$plugin_file]); //remove plugin
 	    }
 	  }
@@ -360,7 +360,7 @@ class ProSites_Module_Plugins {
 	  <div class="wrap">
     <div class="icon32" id="icon-plugins"></div>
     <h2><?php _e('Premium Plugins', 'psts'); ?></h2>
-  	<p><?php _e('Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list.', 'psts'); ?></p>
+  	<p><?php _e('Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list. Note you can also override plugin permissions on a per-site basis on the <a href="sites.php">edit sites</a> page.', 'psts'); ?></p>
 
 		<form method="post" action="">
 		<table class="widefat">

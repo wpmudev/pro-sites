@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.3
+Version: 3.0.4
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Network: true
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.3';
+  var $version = '3.0.4';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -96,7 +96,7 @@ class ProSites {
 
   function localization() {
     // Load up the localization file if we're using WordPress in a different language
-  	// Place it in this plugin's "languages" folder and name it "mp-[value in wp-config].mo"
+  	// Place it in this plugin's "languages" folder and name it "psts-[value in wp-config].mo"
     if ($this->location == 'plugins')
       load_plugin_textdomain( 'psts', false, '/pro-sites/pro-sites-files/languages/' );
     else if ($this->location == 'mu-plugins')
@@ -699,7 +699,7 @@ Many thanks again for being a member!", 'psts'),
 			do_action('psts_inactive');
 
 			//fire hooks on first encounter
-			if (!get_option('psts_withdrawn'))
+			if (get_option('psts_withdrawn') == 0)
 	      $this->withdraw($blog_id);
 		}
 	}
@@ -711,6 +711,8 @@ Many thanks again for being a member!", 'psts'),
 	  if ($action == 'success') {
 
       $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $this->get_setting('success_msg') );
+			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
+			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 
 	    wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('success_subject'), $message );
 
@@ -732,6 +734,8 @@ Many thanks again for being a member!", 'psts'),
 
 	    $message = str_replace( 'PAYMENTINFO', apply_filters('psts_payment_info', $payment_info, $blog_id), $this->get_setting('receipt_msg') );
       $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $message );
+			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
+			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 
 	    wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('receipt_subject'), $message );
 
@@ -744,6 +748,8 @@ Many thanks again for being a member!", 'psts'),
 
 	    $message = str_replace( 'ENDDATE', $end_date, $this->get_setting('canceled_msg') );
 	    $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $message );
+			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
+			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 
 	    wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('canceled_subject'), $message );
 
@@ -752,6 +758,8 @@ Many thanks again for being a member!", 'psts'),
 	  } else if ($action == 'failed') {
 
 	    $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $this->get_setting('failed_msg') );
+			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
+			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 			wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('failed_subject'), $this->get_setting('failed_msg') );
 
 	    $this->log_action( $blog_id, sprintf(__('Payment failed email sent to %s', 'psts'), get_blog_option($blog_id, 'admin_email')) );
@@ -2951,7 +2959,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Pro Site Signup', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr($this->get_setting('success_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -2962,7 +2970,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Pro Site Canceled', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr($this->get_setting('canceled_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -2973,7 +2981,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Payment Receipt', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr($this->get_setting('receipt_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -2984,7 +2992,7 @@ Many thanks again for being a member!", 'psts'),
             <tr>
     				<th scope="row"><?php _e('Payment Problem', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr($this->get_setting('failed_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -3138,7 +3146,9 @@ Many thanks again for being a member!", 'psts'),
 		
 		foreach ($levels as $level => $data) {
       $content .= '<tr class="psts_level level-'.$level.'">
-				<td valign="middle" class="level-name"><h3>'.$data['name'].'</h3></td>';
+				<td valign="middle" class="level-name">';
+			$content .= apply_filters('psts_checkout_grid_levelname', '<h3>'.$data['name'].'</h3>', $level);
+			$content .= '</td>';
 			if (in_array(1, $periods)) {
 			  $current = ($curr->term == 1 && $curr->level == $level) ? ' opt-current' : '';
 			  $selected = ($sel_period == 1 && $sel_level == $level) ? ' opt-selected' : '';

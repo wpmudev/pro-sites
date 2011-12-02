@@ -5,9 +5,14 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.0.4 - 11/05/2011 - Aaron Edwards
+3.0.4 - 12/02/2011 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix nested forms in the Upgrades module checkout screen
+- Fix newly installed plugins showing up: http://premium.wpmudev.org/forums/topic/pro-sites-bug-new-plugins-are-not-hidden-from-subsite-admins
+- Fix unintentional onetime redirect for all free sites to the checkout page
+- Update documentation on premium plugins page to detail the per site overrides feature
+- Add Turkish lira to PayPal gateway
+- Fix css for Unfiltered HTML module message
 
 3.0.3 - 10/31/2011 - Aaron Edwards
 ----------------------------------------------------------------------

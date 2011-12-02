@@ -76,6 +76,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'ES'	=> 'Spain',
 					'SE'	=> 'Sweden',
 					'CH'	=> 'Switzerland',
+					'TR' 	=> 'Turkey',
 					'GB'	=> 'United Kingdom',
 					'US'	=> 'United States'
 	      );
@@ -116,6 +117,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'SGD' => 'SGD - Singapore Dollar',
 					'TWD' => 'TWD - Taiwan New Dollars',
 					'THB' => 'THB - Thai Baht',
+					'TRY' => 'TRY - Turkish lira',
 					'USD' => 'USD - U.S. Dollar'
 	      );
 
@@ -159,6 +161,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			     <li><?php _e('The checkout form will be added to a page on your main site. You may need to adjust your theme stylesheet for it to look nice with your theme.', 'psts') ?></li>
 			     <li><?php _e('Due to PayPal policies, PayPal Express will always be offered in addition to credit card payments.', 'psts') ?></li>
 			     <li><?php _e('Be aware that PayPal Website Payments Pro only supports PayPal accounts in select countries.', 'psts') ?></li>
+					 <li><?php _e('Tip: When testing you will need to setup a preconfigured Website Payments Pro seller account in your sandbox.', 'psts') ?></li>
 			    </ul>
 			    <label><input type="checkbox" name="psts[pypl_enable_pro]" value="1"<?php echo checked($psts->get_setting("pypl_enable_pro"), 1); ?> /> <?php _e('Enable PayPal Pro', 'psts') ?><br />
 			    </label>

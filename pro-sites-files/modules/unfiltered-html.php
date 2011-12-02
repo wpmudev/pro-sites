@@ -90,7 +90,7 @@ class ProSites_Module_UnfilterHtml {
 
 	  if ( in_array( $current_screen->id, array('edit-page', 'page', 'edit-post', 'post') ) && isset( $_GET['message'] ) ) {
 	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('uh_level', 1), 'name'), $psts->get_setting('uh_message') );
-	   	echo '<div class="updated below-h2"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
+	   	echo '<div class="updated fade"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
 }
