@@ -11,7 +11,7 @@ class ProSites_Module_PremiumThemes {
   function __construct() {
     add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 		add_action( 'admin_menu', array(&$this, 'plug_page') );
-		add_action( 'admin_bar_menu', array(&$this, 'add_menu_admin_bar'), 70 );
+		add_action( 'psts_admin_bar', array(&$this, 'add_menu_admin_bar') );
 
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message_output') );
@@ -36,11 +36,11 @@ class ProSites_Module_PremiumThemes {
   function add_menu_admin_bar() {
     global $wp_admin_bar, $psts;
 
-    if ( !is_admin_bar_showing() || !current_user_can('switch_themes') )
+    if ( !current_user_can('switch_themes') )
       return;
         
-    $wp_admin_bar->add_menu( array( 'parent' => 'pro-site', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
-    $wp_admin_bar->add_menu( array( 'parent' => 'themes', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
+    $wp_admin_bar->add_menu( array( 'id' => 'psts-themes', 'parent' => 'pro-site', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
+    $wp_admin_bar->add_menu( array( 'id' => 'psts-themes-sub', 'parent' => 'themes', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
 	}
 
 	function deactivate_theme($blog_id) {
