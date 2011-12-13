@@ -52,7 +52,7 @@ class ProSites_Module_Plugins {
 		if ( !current_user_can('activate_plugins') )
 		  return;
 
-    $wp_admin_bar->add_menu( array( 'parent' => $parent, 'title' => $psts->get_setting('pp_name'), 'href' => admin_url('plugins.php') ) );
+    $wp_admin_bar->add_menu( array( 'id' => 'psts-plugins', 'parent' => $parent, 'title' => $psts->get_setting('pp_name'), 'href' => admin_url('plugins.php') ) );
 	}
 
 	//remove plugins with no user control
