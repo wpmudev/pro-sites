@@ -21,7 +21,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_filter( 'psts_force_ssl', array(&$this, 'force_ssl') );
 		
 		//handle IPN notifications
-		add_filter( 'wp_ajax_nopriv_psts_pypl_ipn', array(&$this, 'ipn_handler') );
+		add_action( 'wp_ajax_nopriv_psts_pypl_ipn', array(&$this, 'ipn_handler') );
 		
 		//plug management page
 		add_action( 'psts_subscription_info', array(&$this, 'subscription_info') );

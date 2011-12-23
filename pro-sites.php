@@ -4,15 +4,16 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.4.1
+Version: 3.0.5
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
+Domain Path: /pro-sites-files/languages/
 Network: true
 WDP ID: 49
 */
 
 /*
-Copyright 2007-2011 Incsub (http://incsub.com)
+Copyright 2007-2012 Incsub (http://incsub.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -30,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.4';
+  var $version = '3.0.5';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -112,7 +113,7 @@ class ProSites {
     if (defined('WP_PLUGIN_URL') && defined('WP_PLUGIN_DIR') && file_exists(WP_PLUGIN_DIR . '/pro-sites/' . basename(__FILE__))) {
       $this->location = 'plugins';
       $this->plugin_dir = WP_PLUGIN_DIR . '/pro-sites/pro-sites-files/';
-      $this->plugin_url = WP_PLUGIN_URL . '/pro-sites/pro-sites-files/';
+      $this->plugin_url = plugins_url( '/pro-sites-files/', __FILE__ );
   	} else if (defined('WPMU_PLUGIN_URL') && defined('WPMU_PLUGIN_DIR') && file_exists(WPMU_PLUGIN_DIR . '/' . basename(__FILE__))) {
       $this->location = 'mu-plugins';
       $this->plugin_dir = WPMU_PLUGIN_DIR . '/pro-sites-files/';
@@ -699,7 +700,7 @@ Many thanks again for being a member!", 'psts'),
 			do_action('psts_inactive');
 
 			//fire hooks on first encounter
-			if (get_option('psts_withdrawn') == 0)
+			if (get_option('psts_withdrawn') === 0)
 	      $this->withdraw($blog_id);
 		}
 	}
@@ -1505,9 +1506,9 @@ Many thanks again for being a member!", 'psts'),
 
         echo '<ul>';
 				if ($expire > 2147483647)
-					echo '<li>'.__('Pro Site priviledges will expire: <strong>Never</strong>', 'psts').'</li>';
+					echo '<li>'.__('Pro Site privileges will expire: <strong>Never</strong>', 'psts').'</li>';
 				else
-        	echo '<li>'.sprintf(__('Pro Site priviledges will expire on: <strong>%s</strong>', 'psts'), date(get_option('date_format'), $expire)).'</li>';
+        	echo '<li>'.sprintf(__('Pro Site privileges will expire on: <strong>%s</strong>', 'psts'), date(get_option('date_format'), $expire)).'</li>';
 
         echo '<li>'.sprintf(__('Level: <strong>%s</strong>', 'psts'), $current_level . ' - ' . @$levels[$current_level]['name']).'</li>';
         if ($result->gateway)
@@ -1520,7 +1521,7 @@ Many thanks again for being a member!", 'psts'),
         echo '<p><strong>'.__('Expired Pro Site', 'psts').'</strong></p>';
 
         echo '<ul>';
-        echo '<li>'.sprintf(__('Pro Site priviledges expired on: <strong>%s</strong>', 'psts'), date(get_option('date_format'), $expire)).'</li>';
+        echo '<li>'.sprintf(__('Pro Site privileges expired on: <strong>%s</strong>', 'psts'), date(get_option('date_format'), $expire)).'</li>';
 
         echo '<li>'.sprintf(__('Previous Level: <strong>%s</strong>', 'psts'), $current_level . ' - ' . @$levels[$current_level]['name']).'</li>';
         if ($result->gateway)
@@ -1575,8 +1576,8 @@ Many thanks again for being a member!", 'psts'),
 	              $log = array_reverse($log, true);
 	              foreach ($log as $timestamp => $memo) {
 	                $class = (isset($class) && $class == 'alternate') ? '' : 'alternate';
-	                echo '<tr class="'.$class.'"><td><strong>' . date( 'Y-m-d g:i:s a', $timestamp ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
-	              }
+	                echo '<tr class="'.$class.'"><td><strong>' . date_i18n( __('Y-m-d g:i:s a', 'psts'), $timestamp ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
+								}
 	            } else {
 	              echo '<tr><td colspan="2">'.__('No history recorded for this site yet.', 'psts').'</td></tr>';
 	            }
@@ -3311,7 +3312,12 @@ Many thanks again for being a member!", 'psts'),
 	          continue;
 
 	        $has_blog = true;
-	        $content .= '<li><a href="' . $this->checkout_url($blog->userblog_id) . '">' . sprintf(__('Upgrade "%s"', 'psts'), $blog->blogname) . '</a> (<em>' . $blog->siteurl . '</em>)</li>';
+					
+					$level = $this->get_level($blog->userblog_id);
+					$level_label = ($level) ? $this->get_level_setting($level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
+					$upgrade_label = is_pro_site($blog->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $blog->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $blog->blogname);
+
+	        $content .= '<li><a href="' . $this->checkout_url($blog->userblog_id) . '">' . $upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $level_label . '</li>';
 	      }
 	      $content .= '</ul>';
 	    }
@@ -3410,6 +3416,12 @@ function is_supporter_user($user_id = '') {
 function supporter_feature_message() {
 	global $psts;
 	$psts->feature_notice();
+}
+
+//depreciated!
+function supporter_get_expire($blog_id = false) {
+	global $psts;
+	return $psts->get_expire($blog_id);
 }
 
 ///////////////////////////////////////////////////////////////////////////
