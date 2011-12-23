@@ -587,4 +587,8 @@ function supporter_hide_ads($blog_id = null) {
 function supporter_ads_check($blog_id = null) {
 	return psts_hide_ads($blog_id);
 }
+
+function supporter_ads() {
+	return true;
+}
 ?>

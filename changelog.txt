@@ -5,6 +5,14 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.5 - 12/23/2011 - Aaron Edwards
+----------------------------------------------------------------------
+- IMPORTANT bug fix for PayPal IPN handling. Required update!
+- Fix unintentional onetime redirect for all free sites to the checkout page, for real this time!
+- Handle SSL properly on checkout page
+- i18n improvements
+- Various small fixes/improvements
+
 3.0.4.1 - 12/12/2011 - Aaron Edwards
 ----------------------------------------------------------------------
 - Minor WP 3.3 compatibility fixes
