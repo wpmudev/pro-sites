@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.5
+Version: 3.0.6
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.5';
+  var $version = '3.0.6';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -1736,8 +1736,10 @@ Many thanks again for being a member!", 'psts'),
     $gates = implode(', ', (array)$gates);
 
     //get monthly stats
+		if (!defined('PSTS_STATS_MONTHS'))
+			define('PSTS_STATS_MONTHS', 12);
     $month_data = array();
-    for ($i = 1; $i <= 12; $i++) {
+    for ($i = 1; $i <= PSTS_STATS_MONTHS; $i++) {
       if ($i == 1) {
         $month_start = date('Y-m-01');
         $month_end = date('Y-m-d', strtotime('+1 month', strtotime($month_start)));
@@ -1806,7 +1808,7 @@ Many thanks again for being a member!", 'psts'),
     $w4 = implode(', ', (array)$w4);
 
     //get daily totals
-    $date = date('Y-m-d', strtotime('-12 months', time()));
+    $date = date('Y-m-d', strtotime('-'.PSTS_STATS_MONTHS.' months', time()));
     $days = $wpdb->get_results("SELECT * FROM {$wpdb->base_prefix}pro_sites_daily_stats WHERE date >= '$date' ORDER BY date", ARRAY_A);
     if ($days) {
       $level_count = array();
@@ -3413,7 +3415,7 @@ function is_supporter_user($user_id = '') {
 }
 
 //depreciated!
-function supporter_feature_message() {
+function supporter_feature_notice() {
 	global $psts;
 	$psts->feature_notice();
 }

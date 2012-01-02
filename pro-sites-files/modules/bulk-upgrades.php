@@ -18,7 +18,7 @@ class ProSites_Module_BulkUpgrades {
 		add_action( 'show_user_profile', array(&$this, 'user_profile_fields') );
 		
 		//handle IPN notifications
-		add_filter( 'wp_ajax_nopriv_psts_bu_ipn', array(&$this, 'ipn_handler') );
+		add_action( 'wp_ajax_nopriv_psts_bu_ipn', array(&$this, 'ipn_handler') );
 	}
 	
 	function plug_page() {
