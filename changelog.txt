@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.6 - 1/02/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Added PSTS_STATS_MONTHS define to change stats months back view (default 12)
+- Bug fix for PayPal Pro CC checkout error message
+- Bug fix for PayPal IPN handling for Bulk Updates
+
 3.0.5 - 12/23/2011 - Aaron Edwards
 ----------------------------------------------------------------------
 - IMPORTANT bug fix for PayPal IPN handling. Required update!

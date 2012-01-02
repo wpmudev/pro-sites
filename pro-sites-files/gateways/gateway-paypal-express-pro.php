@@ -1143,10 +1143,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		              $psts->record_stat($blog_id, 'signup');
 
 		              $psts->email_notification($blog_id, 'success');
-		              
-		              //record last payment
-            			pp_record_transaction($current_user->ID, $result['TRANSACTIONID'], $result['AMT']);
-
+									
+									//record last payment
+									$psts->record_transaction($blog_id, $init_transaction, $result['AMT']);
+	            
 			      			// Added for affiliate system link
 			      			do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level']);
 
