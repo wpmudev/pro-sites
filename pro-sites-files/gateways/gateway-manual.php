@@ -55,7 +55,7 @@ class ProSites_Gateway_Manual {
   }
 
 	function checkout_screen($content, $blog_id) {
-	  global $psts, $current_site, $current_user;
+	  global $psts, $wpdb, $current_site, $current_user;
 
 	  if (!$blog_id)
 	    return $content;
@@ -68,6 +68,41 @@ class ProSites_Gateway_Manual {
 			$content .= '<div id="psts-general-error" class="psts-error">'.$errmsg.'</div>';
 		}
     
+		if (is_pro_site($blog_id)) {
+			
+			$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
+			$old_gateway = $wpdb->get_var("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+			
+			$content .= '<div id="psts_existing_info">';
+			$content .= '<h3>'.__('Your Account Information', 'psts').'</h3><ul>';
+			$content .= '<li>'.__('Level:', 'psts').' <strong>'.$level.'</strong></li>';
+			
+			if ($old_gateway == 'PayPal')
+				$content .= '<li>'.__('Payment Method: <strong>Your PayPal Account</strong>', 'psts').'</li>';
+			else if ($old_gateway == 'Amazon')
+				$content .= '<li>'.__('Payment Method: <strong>Your Amazon Account</strong>', 'psts').'</li>';
+			else if ($psts->get_expire($blog_id) >= 9999999999)
+				$content .= '<li>'.__('Expire Date: <strong>Never</strong>', 'psts').'</li>';
+			else
+				$content .= '<li>'.sprintf(__('Expire Date: <strong>%s</strong>', 'psts'), $end_date).'</li>';
+				
+			$content .= '</ul><br />';
+			if ($old_gateway == 'PayPal' || $old_gateway == 'Amazon') {
+				$content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+				$content .= '<p>'.sprintf(__('If your subscription is still active your next scheduled payment should be %1$s.', 'psts'), $end_date).'</p>';
+				$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+				//show instructions for old gateways
+				if ($old_gateway == 'PayPal') {
+					$content .= '<p><a id="pypl_cancel" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias='.urlencode(get_site_option("supporter_paypal_email")).'" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$psts->plugin_url. 'images/cancel_subscribe_gen.gif" /></a><br /><small>'.__('You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts').'</small></p>';
+				} else if ($old_gateway == 'Amazon') {
+					$content .= '<p>'.__('To cancel your subscription, simply go to <a id="pypl_cancel" target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts').'</p>';
+				}
+			}
+			$content .= '</div>';
+			
+		}
+		
     $content .= '<form action="'.$psts->checkout_url($blog_id).'" method="post">';
     
     //print the checkout grid
