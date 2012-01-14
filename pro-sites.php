@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.6
+Version: 3.0.7
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.6';
+  var $version = '3.0.7';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -731,7 +731,7 @@ Many thanks again for being a member!", 'psts'),
         $payment_info .= sprintf(__('Payment Method: %s', 'psts'), $result->gateway)."\n";
       if ($term)
       	$payment_info .= sprintf(__('Payment Term: %s', 'psts'), $term)."\n";
-      $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $this->format_currency(false, $result->amount))."\n";
+      $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $result->amount . ' ' . $this->get_setting('currency'))."\n";
 
 	    $message = str_replace( 'PAYMENTINFO', apply_filters('psts_payment_info', $payment_info, $blog_id), $this->get_setting('receipt_msg') );
       $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $message );
@@ -3233,7 +3233,7 @@ Many thanks again for being a member!", 'psts'),
 			$content .= '<tr class="psts_level level-free">
 				<td valign="middle" class="level-name"><h3>'.$this->get_setting('free_name', __('Free', 'psts')).'</h3></td>';
 			$content .= '<td class="level-option" colspan="'.count($periods).'">';
-      $content .= '<a class="pblg-checkout-opt" style="width: '.$free_width.'" id="psts-free-option" href="'.get_admin_url($blog_id, 'index.php?psts_dismiss=1').'" title="'.__('Dismiss', 'psts').'">'.$this->get_setting('free_msg', __('No thank you, I will continue with a basic site for now', 'psts')).'</a>';
+      $content .= '<a class="pblg-checkout-opt" style="width: '.$free_width.'" id="psts-free-option" href="'.get_admin_url($blog_id, 'index.php?psts_dismiss=1', 'http').'" title="'.__('Dismiss', 'psts').'">'.$this->get_setting('free_msg', __('No thank you, I will continue with a basic site for now', 'psts')).'</a>';
       $content .= '</td></tr>';
     }
 		

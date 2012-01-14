@@ -5,6 +5,17 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+
+3.0.7 - 1/12/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Add current account information to checkout screen for older supporter users: http://premium.wpmudev.org/forums/topic/subscription-issues-after-upgrade
+- Add Pro badge widget module
+- Fix currency symbol in email receipts
+- Make it harder to get errors on PayPal checkout when refreshing final page
+- Fix unextended site if subscription fails but first payment successful on signup
+- Fix skipped email reciept for CC checkout first payment
+- Fix visit site links on confirmation page when using SSL
+
 3.0.6 - 1/02/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Added PSTS_STATS_MONTHS define to change stats months back view (default 12)

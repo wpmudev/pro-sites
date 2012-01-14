@@ -350,7 +350,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
         if ($last_payment = $psts->last_transaction($blog_id)) {
           $payment_info .= sprintf(__('Payment Date: %s', 'psts'), date(get_blog_option($blog_id, 'date_format')))."\n";
-          $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $psts->format_currency(false, $last_payment['amount']))."\n";
+          $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $last_payment['amount'] . ' ' . $psts->get_setting('currency'))."\n";
           $payment_info .= sprintf(__('Payment Transaction ID: %s', 'psts'), $last_payment['txn_id'])."\n\n";
         }
         $payment_info .= sprintf(__('Next Scheduled Payment Date: %s', 'psts'), $next_billing)."\n";
@@ -853,6 +853,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 					
           unset($_SESSION['COUPON_CODE']);
+					unset($_SESSION['PERIOD']);
+					unset($_SESSION['LEVEL']);
           
 	    	} else {
 	        $psts->errors->add('general', sprintf(__('There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts'), $this->parse_error_string($resArray) ) );
@@ -878,7 +880,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
          	if ($profile_id = $this->get_profile_id($blog_id)) {
 	          $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', sprintf(__('Your %s subscription has been modified. This previous subscription has been canceled.', 'psts'), $psts->get_setting('rebrand')) );
 	        }
-
+					
 	        //create the recurring profile
 	        $resArray = $this->CreateRecurringPaymentsProfileExpress($_GET['token'], $paymentAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL']);
 	      	if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
@@ -888,31 +890,35 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
             $psts->log_action( $blog_id, sprintf(__('User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts'), $desc, $resArray["PROFILEID"]) );
             
-						//now get the details of the transaction to see if initial payment went through already
-	          if ($payment_status == 'Completed' || $payment_status == 'Processed') {
-
-							$psts->extend($blog_id, $_SESSION['PERIOD'], 'PayPal Express/Pro', $_SESSION['LEVEL'], $paymentAmount);
-
-							$psts->record_stat($blog_id, 'signup');
-
-              $psts->email_notification($blog_id, 'success');
-
-							//record last payment
-	            $psts->record_transaction($blog_id, $init_transaction, $amount);
-	            
-	      			// Added for affiliate system link
-	      			do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL']);
-	      			
-	      			$this->complete_message = __('Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts');
-	          } else {
-              update_blog_option($blog_id, 'psts_waiting_step', 1);
-            }
 	      	} else {
-	          $this->complete_message .= __('Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
+	          $this->complete_message = __('Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
 	        	$psts->log_action( $blog_id, sprintf(__('User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts'), $this->parse_error_string($resArray) ) );
           }
+					
+					//now get the details of the transaction to see if initial payment went through already
+					if ($payment_status == 'Completed' || $payment_status == 'Processed') {
 
+						$psts->extend($blog_id, $_SESSION['PERIOD'], 'PayPal Express/Pro', $_SESSION['LEVEL'], $paymentAmount);
+
+						$psts->record_stat($blog_id, 'signup');
+
+						$psts->email_notification($blog_id, 'success');
+
+						//record last payment
+						$psts->record_transaction($blog_id, $init_transaction, $amount);
+						
+						// Added for affiliate system link
+						do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL']);
+						
+						if (empty($this->complete_message))
+							$this->complete_message = __('Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts');
+					} else {
+						update_blog_option($blog_id, 'psts_waiting_step', 1);
+					}
+					
           unset($_SESSION['COUPON_CODE']);
+					unset($_SESSION['PERIOD']);
+					unset($_SESSION['LEVEL']);
 
 	    	} else {
 	        $psts->errors->add('general', sprintf(__('There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts'), $this->parse_error_string($resArray) ) );
@@ -1124,7 +1130,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			        //use coupon
 			        if ($coupon)
 			          $psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
-
+							
 	            //now attempt to create the subscription
 	            $resArray = $this->CreateRecurringPaymentsProfileDirect($paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month.$cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email);
 	          	if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
@@ -1133,32 +1139,34 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	          		$this->set_profile_id($blog_id, $resArray["PROFILEID"]);
 
                 $psts->log_action( $blog_id, sprintf(__('User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts'), $desc, $resArray["PROFILEID"]) );
-
-	              //now get the details of the transaction to see if initial payment went through
-	              $result = $this->GetTransactionDetails($init_transaction);
-	              if ($result['PAYMENTSTATUS'] == 'Completed' || $result['PAYMENTSTATUS'] == 'Processed') {
-
-									$psts->extend($blog_id, $_POST['period'], 'PayPal Express/Pro', $_POST['level'], $paymentAmount);
-
-		              $psts->record_stat($blog_id, 'signup');
-
-		              $psts->email_notification($blog_id, 'success');
-									
-									//record last payment
-									$psts->record_transaction($blog_id, $init_transaction, $result['AMT']);
-	            
-			      			// Added for affiliate system link
-			      			do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level']);
-
-	          			$this->complete_message = __('Your Credit Card subscription was successful! You should be receiving an email receipt shortly.', 'psts');
-	              } else {
-		              update_blog_option($blog_id, 'psts_waiting_step', 1);
-		            }
+	              
 	          	} else {
 	              $this->complete_message = __('Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts') . '<br />"<strong>'.$this->parse_error_string($resArray).'</strong>"';
 	            	$psts->log_action( $blog_id, sprintf(__('User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts'), $this->parse_error_string($resArray) ) );
           		}
+							
+							//now get the details of the transaction to see if initial payment went through
+							$result = $this->GetTransactionDetails($init_transaction);
+							if ($result['PAYMENTSTATUS'] == 'Completed' || $result['PAYMENTSTATUS'] == 'Processed') {
 
+								$psts->extend($blog_id, $_POST['period'], 'PayPal Express/Pro', $_POST['level'], $paymentAmount);
+
+								$psts->record_stat($blog_id, 'signup');
+
+								$psts->email_notification($blog_id, 'success');
+								
+								//record last payment
+								$psts->record_transaction($blog_id, $init_transaction, $result['AMT']);
+						
+								// Added for affiliate system link
+								do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level']);
+								
+								if (empty($this->complete_message))
+									$this->complete_message = __('Your Credit Card subscription was successful! You should be receiving an email receipt shortly.', 'psts');
+							} else {
+								update_blog_option($blog_id, 'psts_waiting_step', 1);
+							}
+							
              	unset($_SESSION['COUPON_CODE']);
              	
 	        	} else {
@@ -1180,7 +1188,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 
 	function checkout_screen($content, $blog_id) {
-	  global $psts, $current_site, $current_user;
+	  global $psts, $wpdb, $current_site, $current_user;
 
 	  if (!$blog_id)
 	    return $content;
@@ -1200,7 +1208,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	  if ($this->complete_message) {
 	    $content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
 	    $content .= '<p>' . $psts->get_setting('pypl_thankyou') . '</p>';
-	    $content .= '<p><a href="' . get_admin_url($blog_id) . '">' . __('Visit your newly upgraded site &raquo;', 'psts') . '</a></p>';
+	    $content .= '<p><a href="' . get_admin_url($blog_id, '', 'http') . '">' . __('Visit your newly upgraded site &raquo;', 'psts') . '</a></p>';
 	    return $content;
 	  }
 		
@@ -1293,7 +1301,41 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
       }
 
       $content .= '</div>';
-    }
+			
+    } else if (is_pro_site($blog_id)) {
+			
+			$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
+			$old_gateway = $wpdb->get_var("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+
+			$content .= '<div id="psts_existing_info">';
+			$content .= '<h3>'.__('Your Subscription Information', 'psts').'</h3><ul>';
+			$content .= '<li>'.__('Level:', 'psts').' <strong>'.$level.'</strong></li>';
+			
+			if ($old_gateway == 'PayPal')
+				$content .= '<li>'.__('Payment Method: <strong>Your PayPal Account</strong>', 'psts').'</li>';
+			else if ($old_gateway == 'Amazon')
+				$content .= '<li>'.__('Payment Method: <strong>Your Amazon Account</strong>', 'psts').'</li>';
+			else if ($psts->get_expire($blog_id) >= 9999999999)
+				$content .= '<li>'.__('Expire Date: <strong>Never</strong>', 'psts').'</li>';
+			else
+				$content .= '<li>'.sprintf(__('Expire Date: <strong>%s</strong>', 'psts'), $end_date).'</li>';
+				
+			$content .= '</ul><br />';
+			if ($old_gateway == 'PayPal' || $old_gateway == 'Amazon') {
+				$content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+				$content .= '<p>'.sprintf(__('If your subscription is still active your next scheduled payment should be %1$s.', 'psts'), $end_date).'</p>';
+				$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+				//show instructions for old gateways
+				if ($old_gateway == 'PayPal') {
+					$content .= '<p><a id="pypl_cancel" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias='.urlencode(get_site_option("supporter_paypal_email")).'" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$psts->plugin_url. 'images/cancel_subscribe_gen.gif" /></a><br /><small>'.__('You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts').'</small></p>';
+				} else if ($old_gateway == 'Amazon') {
+					$content .= '<p>'.__('To cancel your subscription, simply go to <a id="pypl_cancel" target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts').'</p>';
+				}
+			}
+			$content .= '</div>';
+			
+		}
     
     if ($pp_active) {
       $content .= '<h2>' . __('Change Your Plan or Payment Details', 'psts') . '</h2>
@@ -1552,7 +1594,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					// case: successful payment
 
 		      //receipts and record new transaction
-		      if ($_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout') {
+		      if ($_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept') {
 		        $psts->record_transaction($blog_id, $_POST['txn_id'], $_POST['mc_gross']);
 		        $psts->log_action( $blog_id, sprintf(__('PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts'), $payment_status, $psts->format_currency($_POST['mc_currency'], $_POST['mc_gross']), $_POST['txn_type'], $_POST['txn_id']) . $profile_string );
             
