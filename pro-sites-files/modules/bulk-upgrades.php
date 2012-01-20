@@ -17,6 +17,9 @@ class ProSites_Module_BulkUpgrades {
 		add_action( 'edit_user_profile', array(&$this, 'user_profile_fields') );
 		add_action( 'show_user_profile', array(&$this, 'user_profile_fields') );
 		
+		//checkout form message
+		add_filter( 'psts_checkout_grid_before_free', array(&$this, 'checkout_grid_msg'), 10, 4 );
+		
 		//handle IPN notifications
 		add_action( 'wp_ajax_nopriv_psts_bu_ipn', array(&$this, 'ipn_handler') );
 	}
@@ -119,6 +122,8 @@ class ProSites_Module_BulkUpgrades {
 				case 'Completed':
 				case 'Processed':
 					// case: successful payment
+					wp_mail('aaron@incsub.com', "Edublogs Bulk Updates IPN Notice", var_export($_POST, true));
+					
 					list($bid, $uid, $credits, $amount, $currency, $stamp) = explode('_', $_POST['custom']);
 					//supporter_insert_update_transaction($bid, $_POST['txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
 					$this->credit_credits($uid, $credits);
@@ -435,6 +440,14 @@ class ProSites_Module_BulkUpgrades {
         	<input type="text" name="psts[bu_payment_msg]" value="<?php echo esc_attr($psts->get_setting('bu_payment_msg')); ?>" style="width: 95%" />
 	        <br /></td>
 	        </tr>
+					<tr valign="top">
+					<th scope="row"><?php _e('Checkout Form Settings', 'psts') ?></th>
+					<td>
+						<span class="description"><?php _e('Configure how the Bulk Upgrades option is displayed on the main checkout form:', 'psts') ?></span><br />
+						<label><input type="text" name="psts[bu_name]" value="<?php echo esc_attr($psts->get_setting('bu_name')); ?>" /> <?php _e('Name', 'psts'); ?></label><br />
+						<label><input type="text" size="60" name="psts[bu_link_msg]" value="<?php echo esc_attr($psts->get_setting('bu_link_msg')); ?>" /> <?php _e('Link Message', 'psts'); ?></label>
+					</td>
+					</tr>
 		    </table>
 		    <span class="description"><?php _e('Note - You can manually grant Bulk Upgrade credits to users by editing their profile.', 'psts') ?></span>
 		  </div>
@@ -478,7 +491,7 @@ class ProSites_Module_BulkUpgrades {
 				<input type="hidden" name="no_shipping" value="1">
 				<input type="hidden" name="return" value="' . admin_url('admin.php?page=psts-bulk-upgrades&msg=' . urlencode(__('Transaction Complete!', 'psts'))) . '">
 				<input type="hidden" name="cancel_return" value="' . admin_url('admin.php?page=psts-bulk-upgrades&msg=' . urlencode(__('Transaction Cancelled!', 'psts'))) . '">
-    		<input type="hidden" name="notify_url" value="' . network_site_url('admin-ajax.php?action=psts_bu_ipn', 'admin') . '">
+    		<input type="hidden" name="notify_url" value="' . network_site_url('wp-admin/admin-ajax.php?action=psts_bu_ipn', 'admin') . '">
 				<input type="hidden" name="no_note" value="1">
 				<input type="hidden" name="currency_code" value="' . $psts->get_setting('bu_currency') . '">
 				<input type="hidden" name="lc" value="' . $psts->get_setting('bu_site') . '">
@@ -502,7 +515,7 @@ class ProSites_Module_BulkUpgrades {
 				<input type="hidden" name="no_shipping" value="1">
 				<input type="hidden" name="return" value="' . admin_url('admin.php?page=psts-bulk-upgrades&msg=' . urlencode(__('Transaction Complete!', 'psts'))) . '">
 				<input type="hidden" name="cancel_return" value="' . admin_url('admin.php?page=psts-bulk-upgrades&msg=' . urlencode(__('Transaction Cancelled!', 'psts'))) . '">
-				<input type="hidden" name="notify_url" value="' . network_site_url('admin-ajax.php?action=psts_bu_ipn', 'admin') . '">
+				<input type="hidden" name="notify_url" value="' . network_site_url('wp-admin/admin-ajax.php?action=psts_bu_ipn', 'admin') . '">
 				<input type="hidden" name="no_note" value="1">
 				<input type="hidden" name="currency_code" value="' . $psts->get_setting('bu_currency') . '">
 				<input type="hidden" name="lc" value="' . $psts->get_setting('bu_site') . '">
@@ -518,7 +531,19 @@ class ProSites_Module_BulkUpgrades {
 		}
 		return $button;
 	}
-
+	
+	function checkout_grid_msg($content, $blog_id, $periods, $free_width) {
+		global $psts;
+		
+		$content .= '<tr class="psts_level level-bulk">
+			<td valign="middle" class="level-name"><h3>'.$psts->get_setting('bu_name').'</h3></td>';
+		$content .= '<td class="level-option" colspan="'.count($periods).'">';
+		$content .= '<a class="pblg-checkout-opt" style="width: '.$free_width.'" id="psts-bulk-option" href="'.get_admin_url($blog_id, 'admin.php?page=psts-bulk-upgrades', 'http').'">'.$psts->get_setting('bu_link_msg').'</a>';
+		$content .= '</td></tr>';
+		
+		return $content;
+	}
+	
 	//------------------------------------------------------------------------//
 	//---Page Output Functions------------------------------------------------//
 	//------------------------------------------------------------------------//
@@ -719,7 +744,6 @@ class ProSites_Module_BulkUpgrades {
 	      <div class="inside">
           <?php
           $curr_blogs = get_blogs_of_user(get_current_user_id());
-          unset($curr_blogs[$wpdb->blogid]); //remove current blog
 				  if (!isset($_POST['submit_search']) && $curr_blogs) {
 				  ?>
           <h4><?php _e('Choose a site you are a member of:', 'psts'); ?></h4>
@@ -782,7 +806,7 @@ class ProSites_Module_BulkUpgrades {
 		      <h3 class='hndle'><span><?php _e('Search Results', 'psts'); ?></span></h3>
 		      <div class="inside">
            <?php
-						$query = "SELECT b.blog_id, s.expire FROM {$wpdb->blogs} b LEFT JOIN {$wpdb->base_prefix}pro_sites s ON b.blog_id = s.blog_ID WHERE ( b.domain LIKE '%" . $wpdb->escape($_POST['search']) . "%' OR b.path LIKE '%" . $wpdb->escape($_POST['search']) . "%' ) AND b.blog_id != '" . $wpdb->blogid . "' LIMIT 150";
+						$query = "SELECT b.blog_id, s.expire FROM {$wpdb->blogs} b LEFT JOIN {$wpdb->base_prefix}pro_sites s ON b.blog_id = s.blog_ID WHERE ( b.domain LIKE '%" . $wpdb->escape($_POST['search']) . "%' OR b.path LIKE '%" . $wpdb->escape($_POST['search']) . "%' ) LIMIT 150";
 						$blogs = $wpdb->get_results( $query, ARRAY_A );
 						if ( count( $blogs ) > 0 ) {
 							if ( count( $blogs ) >= 150 ) {

@@ -78,8 +78,9 @@ if ((isset($_POST['payment_status']) || isset($_POST['txn_type'])) && isset($_PO
 	$new_status = false;
 
 	$profile_string = (isset($_POST['recurring_payment_id'])) ? ' - ' . $_POST['recurring_payment_id'] : '';
-
-  switch ($_POST['payment_status']) {
+	$payment_status = $_POST['payment_status'];
+	
+  switch ($payment_status) {
 
     case 'Canceled-Reversal':
       $psts->log_action( $blog_id, sprintf(__('Old PayPal IPN "%s" received: A reversal has been canceled; for example, when you win a dispute and the funds for the reversal have been returned to you.', 'psts'), $payment_status) . $profile_string );
@@ -137,9 +138,10 @@ if ((isset($_POST['payment_status']) || isset($_POST['txn_type'])) && isset($_PO
 			// case: successful payment
 
       //receipts and record new transaction
-      if ($_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout') {
+      if ($_POST['txn_type'] == 'subscr_payment' || $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout') {
         $psts->log_action( $blog_id, sprintf(__('Old PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts'), $payment_status, $psts->format_currency($_POST['mc_currency'], $_POST['mc_gross']), $_POST['txn_type'], $_POST['txn_id']) . $profile_string );
         $psts->extend($blog_id, $period, 'PayPal', 1, $_POST['mc_gross']);
+				update_blog_option($blog_id, 'pypl_old_last_info', $_POST);
       }
 
 			break;

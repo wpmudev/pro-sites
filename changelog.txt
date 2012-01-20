@@ -5,6 +5,18 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.8 - 1/22/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix IPN bug in bulk upgrades module
+- Add bulk upgrades link to checkout grid
+- Allow a bulk upgrade of the current site
+- Fix bugs in PayPal backwards compatibility IPN handler - important to manually replace supporter-paypal.php if you are using!
+- Record payment info for old Supporter paypal existing subscriptions
+- Use main site date format for log entries
+- Add additional hooks to the checkout page
+- Fix checkout page title filter for themes that don't properly init the loop in their page template - http://premium.wpmudev.org/forums/topic/redbranding-pro-site-not-complete
+- Fix a rare blank page creation issue when importing xml
+- Make upgrade scripts aware of DO_NOT_UPGRADE_GLOBAL_TABLES define
 
 3.0.7 - 1/12/2012 - Aaron Edwards
 ----------------------------------------------------------------------

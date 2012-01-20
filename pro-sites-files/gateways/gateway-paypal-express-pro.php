@@ -449,8 +449,26 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 				echo __('Profile History:', 'psts') . ' <small>' . implode(', ', $history_lines) . '</small>';
 			}
-    } else {
-      echo '<p>'.__("This site is using an older gateway so their information is not accessible.", 'psts').'</p>';
+    } else if ($old_info = get_blog_option($blog_id, 'pypl_old_last_info')) {
+			
+			if (isset($old_info['payment_date']))
+				$prev_billing = date(get_option('date_format'), strtotime($old_info['payment_date']));
+
+			$profile_id = $old_info['subscr_id'];
+			
+			$supporter_paypal_site = get_site_option( "supporter_paypal_site" );
+      $locale = strtolower(empty($supporter_paypal_site) ? 'US' : $supporter_paypal_site);
+			
+			echo '<ul>';
+			echo '<li>'.__('Old Supporter PayPal Gateway', 'psts').'</li>';
+			echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/'.$locale.'/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
+			echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
+			echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency($old_info['mc_currency'], $old_info['payment_gross'])).'</li>';
+			echo '<li>'.sprintf(__('Last Payment Transaction ID: <strong>%s</strong>', 'psts'), $old_info['txn_id']).'</li>';
+			echo '</ul>';
+			
+		} else {
+      echo '<p>'.__("This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts').'</p>';
 		}
 	}
 
@@ -475,8 +493,24 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	        echo '<p>' . stripslashes($resArray['EMAIL']) . '</p>';
 	      }
 	    }
+		} else if ($old_info = get_blog_option($blog_id, 'pypl_old_last_info')) {
+			
+			echo '<p>';
+			if (isset($old_info['first_name']))
+				echo '<strong>' . stripslashes($old_info['first_name']) . ' ' . stripslashes($old_info['last_name']) . '</strong>';
+			if (isset($old_info['address_street']))
+				echo '<br />' . stripslashes($old_info['address_street']);
+			if (isset($old_info['address_city']))
+				echo '<br />' . stripslashes($old_info['address_city']) . ', ' . stripslashes($old_info['address_state']) . ' ' . stripslashes($old_info['address_zip']) . '<br />' . stripslashes($old_info['address_country_code']);
+			else
+				echo '<br />' . stripslashes($old_info['residence_country']);
+			echo '</p>';
+			
+			if (isset($old_info['payer_email']))
+				echo '<p>' . stripslashes($old_info['payer_email']) . '</p>';
+			
 		} else {
-      echo '<p>'.__("This site is using an older gateway so their information is not accessible.", 'psts').'</p>';
+      echo '<p>'.__("This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts').'</p>';
 		}
 	}
 	

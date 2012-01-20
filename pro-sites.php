@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.7
+Version: 3.0.8
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.7';
+  var $version = '3.0.8';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -178,13 +178,14 @@ class ProSites {
 		  `level_count_10` int(10) NOT NULL DEFAULT 0,
 		  PRIMARY KEY  (`id`)
 		);";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-		dbDelta($table1);
-		dbDelta($table2);
-		dbDelta($table3);
-
+		
+		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($table1);
+			dbDelta($table2);
+			dbDelta($table3);
+		}
+		
     // add stats cron job action only to main site (or it may be running all the time!)
 		switch_to_blog($current_site->blog_id);
 		if ( !wp_next_scheduled('psts_process_stats')) {
@@ -297,7 +298,9 @@ Many thanks again for being a member!", 'psts'),
    		'bu_option_msg' => __('Upgrade CREDITS sites to LEVEL for one year for only PRICE:', 'psts'),
    		'bu_checkout_msg' => __('You can upgrade multiple sites at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your sites via the tool at the bottom of the page, and upgrade them to Pro Site status. Each site is upgraded for one year.', 'psts'),
    		'bu_payment_msg' => __('Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available.', 'psts'),
-   		'ptb_front_disable' => 1,
+   		'bu_name' => __('Bulk Upgrades', 'psts'),
+			'bu_link_msg' => __('Purchase credits to upgrade multiple sites for one discounted price!', 'psts'),
+			'ptb_front_disable' => 1,
    		'ptb_front_msg' => __('This site is temporarily disabled until payment is received. Please check back later.', 'psts'),
    		'ptb_checkout_msg' => __('You must pay to enable your site.', 'psts'),
 			'pq_level' => 1,
@@ -568,12 +571,14 @@ Many thanks again for being a member!", 'psts'),
 
 	  $url = $this->get_setting('checkout_url');
 		
+		/*
 	  //just in case the checkout page was not created do it now
 	  if (!$url) {
 	    $this->create_checkout_page();
 	    $url = $this->get_setting('checkout_url');
 	  }
-
+		*/
+		
 		//change to ssl if required
     if ( apply_filters('psts_force_ssl', false) ) {
       $url = str_replace('http://', 'https://', $url);
@@ -977,7 +982,7 @@ Many thanks again for being a member!", 'psts'),
 	}
 
 	function extend($blog_id, $extend, $gateway = false, $level = 1, $amount = false) {
-		global $wpdb;
+		global $wpdb, $current_site;
 
 		$now = time();
 
@@ -1007,9 +1012,7 @@ Many thanks again for being a member!", 'psts'),
 			$extend = strtotime("+1 year");
 			$extend = $extend - time();
 			$extend = $extend + 3600;
-		} else {
-	    $term = __('Manual', 'psts');
-	  }
+		}
 
 		$new_expire = $old_expire + $extend;
     if ($extend >= 9999999999) {
@@ -1032,7 +1035,7 @@ Many thanks again for being a member!", 'psts'),
 		if ($new_expire >= 9999999999)
 			$this->log_action( $blog_id, __('Pro Site status expiration permanently extended.', 'psts') );
 		else
-			$this->log_action( $blog_id, sprintf( __('Pro Site status expiration extended until %s.', 'psts'), date( get_option('date_format'), $new_expire ) ) );
+			$this->log_action( $blog_id, sprintf( __('Pro Site status expiration extended until %s.', 'psts'), date( get_blog_option($current_site->blog_id, 'date_format'), $new_expire ) ) );
 
 	  do_action('psts_extend', $blog_id, $new_expire, $level);
 
@@ -1268,7 +1271,7 @@ Many thanks again for being a member!", 'psts'),
   function page_title_output($title, $id = null) {
 
     //filter out nav titles
-		if (!in_the_loop())
+		if (!in_the_loop() || get_queried_object_id() != $id)
 		  return $title;
 
     //set blog_id
@@ -1278,8 +1281,10 @@ Many thanks again for being a member!", 'psts'),
 		  $blog_id = intval($_GET['bid']);
     else
     	return $title;
-
-    return sprintf(__('%1$s: %2$s', 'psts'), $title, get_blog_option($blog_id, 'blogname'));
+		
+		$url = str_replace( 'http://', '', get_site_url($blog_id, '', 'http') );
+		
+    return sprintf(__('%1$s: %2$s (%3$s)', 'psts'), $title, get_blog_option($blog_id, 'blogname'), $url);
   }
 
 	function signup_redirect() {
@@ -3112,6 +3117,8 @@ Many thanks again for being a member!", 'psts'),
 			$free_width = '85%';
 		}
 
+		$content = '';
+		
 		/*
 		//show chosen blog
 		$content .= '<div id="psts-chosen-blog">'.sprintf(__('You have chosen to upgrade <strong>%1$s</strong> (%2$s).', 'psts'), get_blog_option($blog_id, 'blogname'), get_blog_option($blog_id, 'siteurl')).'
@@ -3119,9 +3126,7 @@ Many thanks again for being a member!", 'psts'),
 								</div>';
 		*/
 
-		$content = '';
-
-		$content = apply_filters('psts_before_checkout_grid_coupon', $content);
+		$content = apply_filters('psts_before_checkout_grid_coupon', $content, $blog_id);
 
 		//add coupon line
     if ( isset($_SESSION['COUPON_CODE']) ) {
@@ -3131,7 +3136,7 @@ Many thanks again for being a member!", 'psts'),
 			$content .= '<div id="psts-coupon-error" class="psts-error">'.$errmsg.'</div>';
 		}
 
-    $content = apply_filters('psts_before_checkout_grid', $content);
+    $content = apply_filters('psts_before_checkout_grid', $content, $blog_id);
 
     $content .= '<table id="psts_checkout_grid" width="100%">';
     $content .= '<tr class="psts_level_head">
@@ -3150,7 +3155,7 @@ Many thanks again for being a member!", 'psts'),
 		foreach ($levels as $level => $data) {
       $content .= '<tr class="psts_level level-'.$level.'">
 				<td valign="middle" class="level-name">';
-			$content .= apply_filters('psts_checkout_grid_levelname', '<h3>'.$data['name'].'</h3>', $level);
+			$content .= apply_filters('psts_checkout_grid_levelname', '<h3>'.$data['name'].'</h3>', $level, $blog_id);
 			$content .= '</td>';
 			if (in_array(1, $periods)) {
 			  $current = ($curr->term == 1 && $curr->level == $level) ? ' opt-current' : '';
@@ -3228,6 +3233,8 @@ Many thanks again for being a member!", 'psts'),
 			$content .= '</tr>';
 		}
 		
+		$content = apply_filters('psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width);
+		
 		//show dismiss button link if needed
     if (get_blog_option($blog_id, 'psts_signed_up') && !apply_filters('psts_prevent_dismiss', false) ) {
 			$content .= '<tr class="psts_level level-free">
@@ -3236,6 +3243,8 @@ Many thanks again for being a member!", 'psts'),
       $content .= '<a class="pblg-checkout-opt" style="width: '.$free_width.'" id="psts-free-option" href="'.get_admin_url($blog_id, 'index.php?psts_dismiss=1', 'http').'" title="'.__('Dismiss', 'psts').'">'.$this->get_setting('free_msg', __('No thank you, I will continue with a basic site for now', 'psts')).'</a>';
       $content .= '</td></tr>';
     }
+		
+		$content = apply_filters('psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width);
 		
   	$content .= '</table>
     						<input type="hidden" id="psts_period" name="period" value="' . $sel_period . '"/>
