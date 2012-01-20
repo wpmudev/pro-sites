@@ -36,10 +36,11 @@ class ProSites_Module_Ads {
 		  `expire` bigint(20) NOT NULL default '0',
 		  PRIMARY KEY  (`supporter_ads_ID`)
 		);";
-
-   	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-		dbDelta($table1);
+		
+		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($table1);
+		}
 
   	$psts->update_setting('ads_version', $psts->version);
 	}
