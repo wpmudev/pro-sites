@@ -122,8 +122,6 @@ class ProSites_Module_BulkUpgrades {
 				case 'Completed':
 				case 'Processed':
 					// case: successful payment
-					wp_mail('aaron@incsub.com', "Edublogs Bulk Updates IPN Notice", var_export($_POST, true));
-					
 					list($bid, $uid, $credits, $amount, $currency, $stamp) = explode('_', $_POST['custom']);
 					//supporter_insert_update_transaction($bid, $_POST['txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
 					$this->credit_credits($uid, $credits);

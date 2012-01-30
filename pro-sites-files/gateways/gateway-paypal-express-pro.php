@@ -546,7 +546,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	        $refund = $last_payment['amount'];
 	    ?>
 	    <label><input type="radio" name="pypl_mod_action" value="cancel_refund" /> <?php printf(__('Cancel Subscription and Refund Full (%s) Last Payment', 'psts'), $psts->format_currency(false, $last_payment['amount'])); ?> <small>(<?php printf(__('Their access will expire on %s', 'psts'), $end_date); ?>)</small></label><br />
-	    <label><input type="radio" name="pypl_mod_action" value="cancel_refund_pro" /> <?php printf(__('Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts'), $psts->format_currency(false, $refund)); ?> <small>(<?php _e('They will immediately have no access', 'psts'); ?>)</small></label><br />
+	    <label><input type="radio" name="pypl_mod_action" value="cancel_refund_pro" /> <?php printf(__('Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts'), $psts->format_currency(false, $refund)); ?> <small>(<?php printf(__('Their access will expire on %s', 'psts'), $end_date); ?>)</small></label><br />
 
 	    <h4><?php _e('Refunds:', 'psts'); ?></h4>
 	    <label><input type="radio" name="pypl_mod_action" value="refund" /> <?php printf(__('Refund Full (%s) Last Payment', 'psts'), $psts->format_currency(false, $last_payment['amount'])); ?> <small>(<?php _e('Their subscription and access will continue', 'psts'); ?>)</small></label><br />
@@ -568,7 +568,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
   }
 
 	function process_modify($blog_id) {
-    global $psts, $current_user;
+    global $psts, $current_user, $wpdb;
     
 		if ( isset($_POST['pypl_mod_action']) ) {
 		
@@ -639,11 +639,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	            $error_msg = sprintf(__('Whoops, PayPal returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts'), $this->parse_error_string($resArray) );
 	            break;
 	          }
-
-	          $days_left = (($next_payment_timestamp - time()) / 60 / 60 / 24);
-	          $refund = round( ($days_left / ($pypl_data['period'] * 30.4166)) * $last_payment['amount'], 2 );
-	          if ($refund > $last_payment['amount'])
-	            $refund = $last_payment['amount'];
+						
+						$days_left = (($next_payment_timestamp - time()) / 60 / 60 / 24);
+						$period = $wpdb->get_var("SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+						$refund = round( ($days_left / (intval($period) * 30.4166)) * $last_payment['amount'], 2 );
+						if ($refund > $last_payment['amount'])
+							$refund = $last_payment['amount'];
 
 	          if ($profile_id)
 	            $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', __('Your subscription has been cancelled by an admin.', 'psts'));
@@ -692,7 +693,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	          $refund = (round($_POST['refund_amount'], 2) < $last_payment['amount']) ? round($_POST['refund_amount'], 2) : $last_payment['amount'];
 
 	          //refund last transaction
-	          $resArray2 = $this->RefundTransaction($last_payment['txn_id'], false, __('This is a full refund of your last payment.', 'psts'));
+	          $resArray2 = $this->RefundTransaction($last_payment['txn_id'], false, __('This is a partial refund of your last payment.', 'psts'));
 	          if ($resArray2['ACK']=='Success' || $resArray2['ACK']=='SuccessWithWarning') {
 	            $psts->log_action( $blog_id, sprintf(__('A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts'), $psts->format_currency(false, $refund), $current_user->display_name) );
 	            $success_msg = sprintf(__('A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts'), $psts->format_currency(false, $refund) );
@@ -993,7 +994,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
         //check nonce
 		    if (!$this->check_nonce())
-		  		$psts->errors->add('general', __('Whoops, looks like you may have tried to submit your payment twice. You may have already paid! Check your subscripton info below to confirm:', 'psts'));
+		  		$psts->errors->add('general', __('Whoops, looks like you may have tried to submit your payment twice. You may have already paid! Check your subscription info below to confirm:', 'psts'));
 
         if (empty($cc_cardtype))
       		$psts->errors->add('card-type', __('Please choose a Card Type.', 'psts'));
@@ -1596,14 +1597,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					break;
 
 				case 'Reversed':
-					$status = __('A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer: ', 'psts');
+					$status = __('A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance: ', 'psts');
 		      $reverse_reasons = array(
 		        'none' => '',
 		        'chargeback' => __('A reversal has occurred on this transaction due to a chargeback by your customer.', 'psts'),
 		        'chargeback_reimbursement' => __('A reversal has occurred on this transaction due to a reimbursement of a chargeback.', 'psts'),
 		        'chargeback_settlement' => __('A reversal has occurred on this transaction due to settlement of a chargeback.', 'psts'),
 		        'guarantee' => __('A reversal has occurred on this transaction due to your customer triggering a money-back guarantee.', 'psts'),
-		        'buyer-complaint' => __('A reversal has occurred on this transaction due to a complaint about the transaction from your customer.', 'psts'),
+		        'buyer_complaint' => __('A reversal has occurred on this transaction due to a complaint about the transaction from your customer.', 'psts'),
 		        'refund' => __('A reversal has occurred on this transaction because you have given the customer a refund.', 'psts'),
 		        'other' => __('A reversal has occurred on this transaction due to an unknown reason.', 'psts')
 		        );

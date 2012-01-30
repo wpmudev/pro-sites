@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.8
+Version: 3.0.9
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.8';
+  var $version = '3.0.9';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -705,7 +705,7 @@ Many thanks again for being a member!", 'psts'),
 			do_action('psts_inactive');
 
 			//fire hooks on first encounter
-			if (get_option('psts_withdrawn') === 0)
+			if (get_option('psts_withdrawn') === '0')
 	      $this->withdraw($blog_id);
 		}
 	}
@@ -1012,6 +1012,8 @@ Many thanks again for being a member!", 'psts'),
 			$extend = strtotime("+1 year");
 			$extend = $extend - time();
 			$extend = $extend + 3600;
+		} else {
+			$term = false;
 		}
 
 		$new_expire = $old_expire + $extend;
@@ -1022,10 +1024,12 @@ Many thanks again for being a member!", 'psts'),
 
 		$old_level = $this->get_level($blog_id);
 
-		$extra_sql = ($gateway) ? " gateway = '$gateway'," : '';
-		$extra_sql .= ($amount) ? " amount = '$amount'," : '';
+		$extra_sql = ($gateway) ? ", gateway = '$gateway'" : '';
+		$extra_sql .= ($amount) ? ", amount = '$amount'" : '';
+		$extra_sql .= ($term) ? ", term = '$term'" : '';
+		
 		if ($exists)
-	  	$wpdb->query("UPDATE {$wpdb->base_prefix}pro_sites SET expire = '$new_expire', level = '$level',$extra_sql term = '$term' WHERE blog_ID = '$blog_id'");
+	  	$wpdb->query("UPDATE {$wpdb->base_prefix}pro_sites SET expire = '$new_expire', level = '$level'$extra_sql WHERE blog_ID = '$blog_id'");
 		else
 		  $wpdb->query("INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term) VALUES ('$blog_id', '$new_expire', '$level', '$gateway', '$term')");
 
@@ -3274,8 +3278,8 @@ Many thanks again for being a member!", 'psts'),
 	//outputs the checkout form
 	function checkout_output($content) {
 
-		//make sure we are in the loop
-		if (!in_the_loop())
+		//make sure we are in the loop and on current page loop item
+		if (!in_the_loop() || get_queried_object_id() != get_the_ID())
 			return $content;
 
 	  //make sure logged in

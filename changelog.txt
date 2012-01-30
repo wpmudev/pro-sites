@@ -5,6 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.0.9 - 1/30/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix calculation and log/label text of prorated refunds in PayPal gateway
+- Fix duplicate submit error with PayPal Pro and some themes: http://premium.wpmudev.org/forums/topic/paypal-pro-duplicate-payment-error
+- Remove debug code left in bulk upgrades module
+- Fix issue with trial ending not revoking access to premium themes/plugins
+
 3.0.8 - 1/22/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix IPN bug in bulk upgrades module
