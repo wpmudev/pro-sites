@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.0.9
+Version: 3.1 Beta 1
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,13 +31,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.0.9';
+  var $version = '3.1 Beta 1';
   var $location;
   var $language;
   var $plugin_dir = '';
   var $plugin_url = '';
   var $pro_sites = array();
   var $level = array();
+	var $checkout_processed = false;
 
   function ProSites() {
     $this->__construct();
@@ -264,6 +265,7 @@ Many thanks again for being a member!", 'psts'),
 			'pypl_currency' => 'USD',
 			'pypl_status' => 'test',
 			'pypl_enable_pro' => 0,
+			'stripe_ssl' => 0,
 			'mp_name' => __('Manual Payment', 'psts'),
 			'pt_name' => __('Premium Themes', 'psts'),
    		'pt_text' => __('Upgrade to LEVEL to activate this premium theme &raquo;', 'psts'),
@@ -509,7 +511,8 @@ Many thanks again for being a member!", 'psts'),
 
 		//main page
 		$page = add_menu_page( __('Pro Sites', 'psts'), __('Pro Sites', 'psts'), 'manage_network_options', 'psts', array(&$this, 'admin_modify'), $this->plugin_url . 'images/plus.png' );
-
+		$page = add_submenu_page( 'psts', __('Manage Sites', 'psts'), __('Manage Sites', 'psts'), 'manage_network_options', 'psts', array(&$this, 'admin_modify') );
+		
     do_action('psts_page_after_main');
 
 		//stats page
@@ -551,7 +554,7 @@ Many thanks again for being a member!", 'psts'),
 	function add_menu_admin_bar() {
     global $wp_admin_bar, $blog_id;
 
-    if ( !is_admin_bar_showing() || !is_user_logged_in() || $this->get_setting('hide_adminbar') )
+    if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() || $this->get_setting('hide_adminbar') )
         return;
 
 		if ( current_user_can('edit_pages') ) {
@@ -616,7 +619,11 @@ Many thanks again for being a member!", 'psts'),
 	  //don't check on other blogs
 	  if ( !is_main_site() )
 	    return;
-
+		
+		//prevent weird redo when theme has multiple query loops
+		if ($this->checkout_processed)
+			return;
+		
     //check if on checkout page
 	  if (!$this->get_setting('checkout_page') || get_queried_object_id() != $this->get_setting('checkout_page'))
 	    return;
@@ -630,6 +637,9 @@ Many thanks again for being a member!", 'psts'),
 	  //make sure session is started
 	  if (session_id() == "")
 	  	session_start();
+		
+		//passed all checks, flip one time flag
+		$this->checkout_processed = true;
 		
 		//remove all filters except shortcodes and checkout form
 		remove_all_filters('the_content');
@@ -685,7 +695,7 @@ Many thanks again for being a member!", 'psts'),
 		      $this->log_action( $blog_id, __("User attempted to add an invalid coupon to their order on the checkout page:", 'psts') . ' ' . $code );
 		    }
 		  }
-
+					
 			do_action('psts_checkout_page_load', $blog_id); //for gateway plugins to hook into
 		} else {
 			//code for unique coupon links
@@ -837,7 +847,12 @@ Many thanks again for being a member!", 'psts'),
 			$blog_id = $wpdb->blogid;
 		}
     $blog_id = intval($blog_id);
-
+		
+		// Allow plugins to short-circuit
+		$pro = apply_filters( 'is_pro_site', null, $blog_id );
+		if ( !is_null($pro) )
+			return $pro;
+		
 		//check cache first
 		if ( $level ) { //level is passed, check level
 			if ($level == 0) {
@@ -900,7 +915,7 @@ Many thanks again for being a member!", 'psts'),
 		global $wpdb, $current_user, $current_site;
 
 		if ( !$user_id ) {
-			$user_id = $current_user->id;
+			$user_id = $current_user->ID;
 		}
     $user_id = intval($user_id);
 
@@ -1123,11 +1138,11 @@ Many thanks again for being a member!", 'psts'),
       return false;
 
     //if end date and expired
-    if ($coupons[$coupon_code]['end'] && time() > $coupons[$coupon_code]['end'])
+    if (isset($coupons[$coupon_code]['end']) && $coupons[$coupon_code]['end'] && time() > $coupons[$coupon_code]['end'])
       return false;
 
     //check remaining uses
-    if ($coupons[$coupon_code]['uses'] && (intval($coupons[$coupon_code]['uses']) - intval($coupons[$coupon_code]['used'])) <= 0)
+    if (isset($coupons[$coupon_code]['uses']) && $coupons[$coupon_code]['uses'] && (intval($coupons[$coupon_code]['uses']) - intval(@$coupons[$coupon_code]['used'])) <= 0)
       return false;
 		
 		//check if the blog has used the coupon before
@@ -1170,7 +1185,7 @@ Many thanks again for being a member!", 'psts'),
       $coupon_code = preg_replace('/[^A-Z0-9_-]/', '', strtoupper($code));
 
       //increment count
-      $coupons[$coupon_code]['used']++;
+      @$coupons[$coupon_code]['used']++;
       update_site_option('psts_coupons', $coupons);
 
       unset($_SESSION['COUPON_CODE']);
@@ -1403,7 +1418,7 @@ Many thanks again for being a member!", 'psts'),
 			if ( isset($this->column_fields[$blog_id]) ) {
 				echo "<a title='".__('Manage site &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".$this->column_fields[$blog_id]."</a>";
 			} else {
-	      echo "<a title='".__('Extend site &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".__('Extend &raquo;', 'psts')."</a>";
+	      echo "<a title='".__('Manage site &raquo;', 'psts')."' href='" .network_admin_url('settings.php?page=psts&bid='.$blog_id). "'>".__('Manage &raquo;', 'psts')."</a>";
 	    }
 		}
 	}
@@ -1490,10 +1505,10 @@ Many thanks again for being a member!", 'psts'),
     <h2><?php _e('Pro Sites Management', 'psts'); ?></h2>
 
     <?php if ( $blog_id ) { ?>
-    	<h3><?php _e('Modify Site', 'psts') ?>
+    	<h3><?php _e('Manage Site', 'psts') ?>
 			<?php
       if ($name = get_blog_option($blog_id, 'blogname'))
-        echo ': '.$name.' (Site ID: '.$blog_id.')';
+        echo ': '.$name.' (Blog ID: '.$blog_id.')';
 
       echo '</h3>';
 
@@ -1558,7 +1573,7 @@ Many thanks again for being a member!", 'psts'),
 			<?php } ?>
 
       <?php if ( has_action('psts_subscriber_info') ) { ?>
-      <div style="width: 49%;" class="postbox-container">
+      <div style="width: 49%;margin-left: 2%;" class="postbox-container">
         <div class="postbox">
           <h3 class='hndle'><span><?php _e('Subscriber Information', 'psts'); ?></span></h3>
           <div class="inside">
@@ -1649,7 +1664,7 @@ Many thanks again for being a member!", 'psts'),
 	    </div>
 
       <?php if ( is_pro_site($blog_id) || has_action('psts_modify_form') ) { ?>
-	    <div style="width: 49%;" class="postbox-container">
+	    <div style="width: 49%;margin-left: 2%;" class="postbox-container">
 	      <div class="postbox">
 	      <h3 class='hndle'><span><?php _e('Modify Pro Site Status', 'psts') ?></span></h3>
 	      <div class="inside">
@@ -1679,20 +1694,24 @@ Many thanks again for being a member!", 'psts'),
       ?>
       <div class="metabox-holder">
 	      <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Modify a Site', 'psts') ?></span></h3>
+	      <h3 class='hndle'><span><?php _e('Manage a Site', 'psts') ?></span></h3>
 	      <div class="inside">
 	        <form method="get" action="">
 	        <table class="form-table">
 	          <input type="hidden" name="page" value="psts" />
 	          <tr valign="top">
-	          <th scope="row"><?php _e('Site ID', 'psts') ?></th>
-	          <td><input type="text" name="bid" value="" /></tr>
+	          <th scope="row"><?php _e('Blog ID:', 'psts') ?></th>
+	          <td><input type="text" size="17" name="bid" value="" /> <input type="submit" value="<?php _e('Continue &raquo;', 'psts') ?>" /></td></tr>
 	        </table>
-	        <p class="submit">
-	        <input type="submit" value="<?php _e('Continue &raquo;', 'psts') ?>" />
-	        </p>
 	        </form>
-	        <p><?php _e('You can also browse or search for sites to modify on the <a href="sites.php">Sites admin page</a>.', 'psts'); ?></p>
+					<hr />
+					<form method="get" action="http://wpms.local/wp-admin/network/sites.php" name="searchform">
+	        <table class="form-table">
+	          <tr valign="top">
+	          <th scope="row"><?php _e('Or search for a site:', 'psts') ?></th>
+	          <td><input type="text" size="17" value="" name="s"/> <input type="submit" value="<?php _e('Search Sites &raquo;', 'psts') ?>" id="submit_sites" name="submit"/></td></tr>
+	        </table>
+	        </form>
 	      </div>
 	      </div>
       </div>
@@ -3196,7 +3215,7 @@ Many thanks again for being a member!", 'psts'),
 				}
 
 				$equiv = '<span class="psts-equiv">'.sprintf(__('Equivalent to only %s monthly', 'psts'), $this->format_currency(false, $price/3)).'</span>';
-				if (in_array(1, $periods))
+				if (in_array(1, $periods) && (($data['price_1']*3) - $price) > 0)
 					$equiv .= '<span class="psts-equiv">'.sprintf(__('Save %s by paying for 3 months in advance!', 'psts'), $this->format_currency(false, ($data['price_1']*3) - $price)).'</span>';
 
 				$content .= '<td class="level-option" style="width: '.$width.'"><div class="pblg-checkout-opt'.$current.$selected.'">
@@ -3221,7 +3240,7 @@ Many thanks again for being a member!", 'psts'),
 				}
 
 				$equiv = '<span class="psts-equiv">'.sprintf(__('Equivalent to only %s monthly', 'psts'), $this->format_currency(false, $price/12)).'</span>';
-				if (in_array(1, $periods))
+				if (in_array(1, $periods) && (($data['price_1']*12) - $price) > 0)
 					$equiv .= '<span class="psts-equiv">'.sprintf(__('Save %s by paying for a year in advance!', 'psts'), $this->format_currency(false, ($data['price_1']*12) - $price)).'</span>';
 
 				$content .= '<td class="level-option" style="width: '.$width.'"><div class="pblg-checkout-opt'.$current.$selected.'">
@@ -3308,7 +3327,14 @@ Many thanks again for being a member!", 'psts'),
 	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
 	      return $content;
 	    }
-
+			
+			if ($this->get_expire($blog_id) > 2147483647) {
+				$level = $this->get_level_setting($this->get_level($blog_id), 'name');
+				$content = '<p>' . sprintf(__('This site has been permanently given %s status.', 'psts'), $level) . '</p>';
+	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
+	      return $content;
+			}
+			
 			//this is the main hook for gateways to add all their code
       $content = apply_filters('psts_checkout_output', $content, $blog_id);
 

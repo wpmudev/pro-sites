@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+- Pay to Blog skip redirect on bulk upgrades page
+- Fix BuddyPress groups limiting module
+- Add PSTS_QUOTA_ALLOW_OVERRIDE define: http://premium.wpmudev.org/forums/topic/any-way-to-make-pro-sites-ignore-certain-core-subsites#post-179939
+- Remove save text on checkout grid buttons when savings is negative
+- Don't allow checkouts for permanently extended sites to avoid errors
+
 3.0.9 - 1/30/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix calculation and log/label text of prorated refunds in PayPal gateway

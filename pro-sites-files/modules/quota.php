@@ -13,7 +13,8 @@ class ProSites_Module_Quota {
 		add_action( 'psts_settings_process', array(&$this, 'settings_process') );
 		
 		//filter blog and site options
-		add_filter( 'pre_option_blog_upload_space', array(&$this, 'filter') );
+		if ( !defined('PSTS_QUOTA_ALLOW_OVERRIDE') )
+			add_filter( 'pre_option_blog_upload_space', array(&$this, 'filter') );
 		add_filter( 'pre_site_option_blog_upload_space', array(&$this, 'filter') );
 		
 		//add messages

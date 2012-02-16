@@ -11,7 +11,7 @@ class ProSites_Module_BP {
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_filter( 'psts_settings_filter', array(&$this, 'settings_process') );
-		add_filter( 'groups_template_create_group', array(&$this, 'groups_template') );
+		add_filter( 'bp_user_can_create_groups', array(&$this, 'create_groups') );
 		add_filter( 'messages_template_compose', array(&$this, 'messages_template') );
 		add_action( 'wp_head', array(&$this, 'css_output') );
 	}
@@ -48,22 +48,20 @@ class ProSites_Module_BP {
 	  <?php
 	}
 
-	function groups_template($template) {
+	function create_groups($can_create) {
 	  global $bp, $psts;
 
 	  if ( !$psts->get_setting('bp_group') )
-	    return $template;
+	    return $can_create;
 
 	  //don't mess with pro_sites
-	  if ( is_pro_user() )
-	    return $template;
+	  if ( !is_pro_user() )
+	    return $can_create;
 
-	  //hack template steps to hide creation form elements
-	  $bp->action_variables[1] = 'disabled'; //nonsensical value, hide all group steps
-	  $bp->avatar_admin->step = 'crop-image'; //hides submit button
+		$can_create = false;
 	  add_action( 'template_notices', array(&$this, 'message') );
 
-	  return $template;
+	  return $can_create;
 	}
 
 	function messages_template($template) {
@@ -82,8 +80,13 @@ class ProSites_Module_BP {
 	}
 
 	function message() {
-	  global $psts, $blog_id;
-
+	  global $psts;
+		
+		//link to the primary blog
+		$blog_id = get_user_meta(get_current_user_id(), 'primary_blog', true);
+		if (!$blog_id)
+			$blog_id = false;
+		
 		$notice = str_replace( 'LEVEL', $psts->get_level_setting(1, 'name'), $psts->get_setting('bp_notice') );
 	  echo '<div id="message" class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 	}
