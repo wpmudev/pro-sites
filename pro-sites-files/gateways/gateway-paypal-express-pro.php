@@ -994,7 +994,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
         //check nonce
 		    if (!$this->check_nonce())
-		  		$psts->errors->add('general', __('Whoops, looks like you may have tried to submit your payment twice. You may have already paid! Check your subscription info below to confirm:', 'psts'));
+		  		$psts->errors->add('general', __('Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts'));
 
         if (empty($cc_cardtype))
       		$psts->errors->add('card-type', __('Please choose a Card Type.', 'psts'));
