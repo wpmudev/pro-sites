@@ -30,6 +30,9 @@ class ProSites_Module_XMLRPC {
 		if ( !is_pro_site(false, $psts->get_setting('xmlrpc_level', 1)) && !$this->ads_xmlrpc() ) {
 	    add_filter('pre_option_enable_xmlrpc', create_function('','return 0;'));
 			add_filter('pre_option_enable_app', create_function('','return 0;'));
+		} else if ( defined('PSTS_FORCE_XMLRPC_ON') ) {
+			add_filter('pre_option_enable_xmlrpc', create_function('','return 1;'));
+			add_filter('pre_option_enable_app', create_function('','return 1;'));
 		}
 	}
 

@@ -55,7 +55,7 @@ class ProSites_Module_BP {
 	    return $can_create;
 
 	  //don't mess with pro_sites
-	  if ( !is_pro_user() )
+	  if ( is_pro_user() )
 	    return $can_create;
 
 		$can_create = false;

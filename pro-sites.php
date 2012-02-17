@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.1 Beta 1
+Version: 3.1
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.1 Beta 1';
+  var $version = '3.1';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -1364,7 +1364,7 @@ Many thanks again for being a member!", 'psts'),
 	
 	function signup_output() {
 
-	  if ($this->get_setting('show_signup') && !isset($_GET[urlencode($this->get_setting('rebrand'))]) && !isset($_POST['psts_signed_up_override'])) {
+	  if ($this->get_setting('show_signup') && !isset($_GET[sanitize_title($this->get_setting('rebrand'))]) && !isset($_POST['psts_signed_up_override'])) {
 	  ?>
 	  <div class="register-section clear" id="supporter">
 			<label class="label"><?php echo $this->get_setting('rebrand'); ?></label>
@@ -1381,7 +1381,7 @@ Many thanks again for being a member!", 'psts'),
 		</div>
 
 	  <?php
-	  } else if (isset($_GET[urlencode($this->get_setting('rebrand'))]) || isset($_POST['psts_signed_up_override'])) {
+	  } else if (isset($_GET[sanitize_title($this->get_setting('rebrand'))]) || isset($_POST['psts_signed_up_override'])) {
 	    echo '<input type="hidden" name="psts_signed_up" value="yes" />';
 	    echo '<input type="hidden" name="psts_signed_up_override" value="1" />';
 	  }
@@ -1390,7 +1390,7 @@ Many thanks again for being a member!", 'psts'),
 
 	function signup_override() {
 	  //carries the hidden signup field over from user to blog signup
-	  if (isset($_GET[urlencode($this->get_setting('rebrand'))]) || isset($_POST['psts_signed_up_override'])) {
+	  if (isset($_GET[sanitize_title($this->get_setting('rebrand'))]) || isset($_POST['psts_signed_up_override'])) {
 	    echo '<input type="hidden" name="psts_signed_up_override" value="1" />';
 	  }
 	}
@@ -2928,7 +2928,7 @@ Many thanks again for being a member!", 'psts'),
 	          <th scope="row"><?php _e('Show Option On Signup', 'psts'); ?></th>
 	          <td><label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked($this->get_setting('show_signup')); ?> />
 	          <?php _e('Display an option on the signup page', 'psts'); ?></label>
-	          <br /><?php _e('You can force and hide the signup option by linking to the signup page like this: ', 'psts'); ?><em>wp-signup.php?<?php echo urlencode($this->get_setting('rebrand')); ?>=1</em></td>
+	          <br /><?php _e('You can force and hide the signup option by linking to the signup page like this: ', 'psts'); ?><em>wp-signup.php?<?php echo sanitize_title($this->get_setting('rebrand')); ?>=1</em></td>
 	          </tr>
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Signup Message', 'psts') ?></th>
