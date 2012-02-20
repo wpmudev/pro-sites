@@ -922,8 +922,8 @@ Many thanks again for being a member!", 'psts'),
 		if ( is_super_admin($user_id) )
 			return true;
 
-		//very db intensive, so we cache (1 day)
-		$expire_time = time()-86400;
+		//very db intensive, so we cache (1 hour)
+		$expire_time = time()-3600;
 		@list($expire, $is_pro) = get_user_meta($user_id, 'psts_user', true);
 		if ($expire && $expire >= $expire_time) {
 	    return $is_pro;
@@ -1705,7 +1705,7 @@ Many thanks again for being a member!", 'psts'),
 	        </table>
 	        </form>
 					<hr />
-					<form method="get" action="http://wpms.local/wp-admin/network/sites.php" name="searchform">
+					<form method="get" action="sites.php" name="searchform">
 	        <table class="form-table">
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Or search for a site:', 'psts') ?></th>
