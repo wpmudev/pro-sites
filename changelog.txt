@@ -5,9 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.1.1 - 2/17/2012 - Aaron Edwards
+3.1.1 - 2/21/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix post location of find sites form
+- Fix issue with Stripe gateway and manually extended sites
+- Fix bug in pay to blog module (props koff!) http://premium.wpmudev.org/forums/topic/bug-pay-to-blog-may-be-unupdateable
+- Fix issue detecting trial status of sites
 
 3.1 - 2/17/2012 - Aaron Edwards
 ----------------------------------------------------------------------

@@ -74,7 +74,7 @@ class ProSites_Module_PayToBlog {
 	}
 
 	function settings_process($settings) {
-	  $settings['ptb_front_disable'] = isset($settings['ptb_front_disable']) ? 1 : 0;
+	  $settings['ptb_front_disable'] = isset($settings['ptb_front_disable']) ? $settings['ptb_front_disable'] : 0;
 	  return $settings;
 	}
 

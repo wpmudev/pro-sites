@@ -560,7 +560,7 @@ class ProSites_Gateway_Stripe {
 					$args["coupon"] = $cp_code;
 				//add trial days for new signups with expiration in the future (manually extended or from another gateway)
 				if ( is_pro_site($blog_id) && !is_pro_trial($blog_id) && ($new || get_blog_option($blog_id, 'psts_stripe_canceled')) )
-					$args["trial_period_days"] = round( ($psts->get_expire($blog_id) - time()) / 86400 ); //get days left
+					$args["trial_end"] = $psts->get_expire($blog_id);
 					
 				$c->updateSubscription($args);
 				
@@ -702,13 +702,13 @@ class ProSites_Gateway_Stripe {
 			} 
 		}	
 
-    if ($cancel_status == 0 && is_pro_site($blog_id)) {
+    if (!$cancel_status && is_pro_site($blog_id) && !is_pro_trial($blog_id)) {
     	$content .= '<h2>' . __('Change Your Plan or Payment Details', 'psts') . '</h2>
         <p>' . __('You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts') . '</p>';
-    } else if ($cancel_status == 0 && !is_pro_site($blog_id)) {
+    } else if (!is_pro_site($blog_id) || is_pro_trial($blog_id)) {
 			$content .= '<p>' . __('Please choose your desired plan then click the checkout button below.', 'psts') . '</p>';
     } 		
-         
+
     $content .= '<form action="'.$psts->checkout_url($blog_id).'" method="post" autocomplete="off"  id="payment-form">';
 	
     //print the checkout grid
