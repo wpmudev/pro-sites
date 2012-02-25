@@ -5,6 +5,8 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+- Allow for default selected period and level on checkout form via PSTS_DEFAULT_LEVEL, PSTS_DEFAULT_PERIOD defines
+
 3.1.1 - 2/21/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix post location of find sites form

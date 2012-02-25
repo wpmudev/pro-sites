@@ -217,7 +217,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	}
 
 	function settings_process($settings) {
-	  $settings['pypl_enable_pro'] = isset($settings['pypl_enable_pro']) ? 1 : 0;
+	  $settings['pypl_enable_pro'] = isset($settings['pypl_enable_pro']) ? $settings['pypl_enable_pro'] : 0;
 	  return $settings;
 	}
 
