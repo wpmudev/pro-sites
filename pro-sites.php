@@ -3125,8 +3125,8 @@ Many thanks again for being a member!", 'psts'),
 		} else {
 			$curr->term = null;
 			$curr->level = null;
-			$sel_period = isset($_POST['period']) ? $_POST['period'] : null;
-			$sel_level = isset($_POST['level']) ? $_POST['level'] : null;
+			$sel_period = isset($_POST['period']) ? $_POST['period'] : (defined('PSTS_DEFAULT_PERIOD') ? PSTS_DEFAULT_PERIOD : null);
+			$sel_level = isset($_POST['level']) ? $_POST['level'] : (defined('PSTS_DEFAULT_LEVEL') ? PSTS_DEFAULT_LEVEL : null);
 		}
 
 		if (count($periods) >= 3) {
