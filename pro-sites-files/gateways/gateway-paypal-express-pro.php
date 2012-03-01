@@ -402,7 +402,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
 	      if ($last_payment = $psts->last_transaction($blog_id)) {
 	        echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency(false, $last_payment['amount'])).'</li>';
-	        echo '<li>'.sprintf(__('Last Payment Transaction ID: <strong>%s</strong>', 'psts'), $last_payment['txn_id']).'</li>';
+	        echo '<li>'.sprintf(__('Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts'), $last_payment['txn_id'], $last_payment['txn_id']).'</li>';
 	      }
 	      echo '<li>'.sprintf(__('Next Payment Date: <strong>%s</strong>', 'psts'), $next_billing).'</li>';
 	      echo '<li>'.sprintf(__('Payments Made With This Subscription: <strong>%s</strong>', 'psts'), $resArray['NUMCYCLESCOMPLETED']).' *</li>';
@@ -430,7 +430,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
 	      if ($last_payment = $psts->last_transaction($blog_id)) {
 	        echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency(false, $last_payment['amount'])).'</li>';
-	        echo '<li>'.sprintf(__('Last Payment Transaction ID: <strong>%s</strong>', 'psts'), $last_payment['txn_id']).'</li>';
+	        echo '<li>'.sprintf(__('Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts'), $last_payment['txn_id'], $last_payment['txn_id']).'</li>';
 	      }
 	      echo '</ul>';
       } else if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
@@ -464,7 +464,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/'.$locale.'/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
 			echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
 			echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency($old_info['mc_currency'], $old_info['payment_gross'])).'</li>';
-			echo '<li>'.sprintf(__('Last Payment Transaction ID: <strong>%s</strong>', 'psts'), $old_info['txn_id']).'</li>';
+			echo '<li>'.sprintf(__('Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts'), $old_info['txn_id'], $old_info['txn_id']).'</li>';
 			echo '</ul>';
 			
 		} else {
@@ -541,13 +541,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	    <?php if ($last_payment = $psts->last_transaction($blog_id)) {
 	      $days_left = (($next_payment_timestamp - time()) / 60 / 60 / 24);
 	      $period = $wpdb->get_var("SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
-	      $refund = round( ($days_left / (intval($period) * 30.4166)) * $last_payment['amount'], 2 );
+				$refund = (intval($period)) ? round( ($days_left / (intval($period) * 30.4166)) * $last_payment['amount'], 2 ) : 0;
 	      if ($refund > $last_payment['amount'])
 	        $refund = $last_payment['amount'];
 	    ?>
 	    <label><input type="radio" name="pypl_mod_action" value="cancel_refund" /> <?php printf(__('Cancel Subscription and Refund Full (%s) Last Payment', 'psts'), $psts->format_currency(false, $last_payment['amount'])); ?> <small>(<?php printf(__('Their access will expire on %s', 'psts'), $end_date); ?>)</small></label><br />
-	    <label><input type="radio" name="pypl_mod_action" value="cancel_refund_pro" /> <?php printf(__('Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts'), $psts->format_currency(false, $refund)); ?> <small>(<?php printf(__('Their access will expire on %s', 'psts'), $end_date); ?>)</small></label><br />
-
+	    <?php if ($refund) { ?>
+			<label><input type="radio" name="pypl_mod_action" value="cancel_refund_pro" /> <?php printf(__('Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts'), $psts->format_currency(false, $refund)); ?> <small>(<?php printf(__('Their access will expire on %s', 'psts'), $end_date); ?>)</small></label><br />
+			<?php } ?>
+			
 	    <h4><?php _e('Refunds:', 'psts'); ?></h4>
 	    <label><input type="radio" name="pypl_mod_action" value="refund" /> <?php printf(__('Refund Full (%s) Last Payment', 'psts'), $psts->format_currency(false, $last_payment['amount'])); ?> <small>(<?php _e('Their subscription and access will continue', 'psts'); ?>)</small></label><br />
 	    <label><input type="radio" name="pypl_mod_action" value="partial_refund" /> <?php printf(__('Refund a Partial %s Amount of Last Payment', 'psts'), $psts->format_currency().'<input type="text" name="refund_amount" size="4" value="'.$last_payment['amount'].'" />'); ?> <small>(<?php _e('Their subscription and access will continue', 'psts'); ?>)</small></label><br />
@@ -642,7 +644,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						
 						$days_left = (($next_payment_timestamp - time()) / 60 / 60 / 24);
 						$period = $wpdb->get_var("SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
-						$refund = round( ($days_left / (intval($period) * 30.4166)) * $last_payment['amount'], 2 );
+						$refund = (intval($period)) ? round( ($days_left / (intval($period) * 30.4166)) * $last_payment['amount'], 2 ) : 0;
 						if ($refund > $last_payment['amount'])
 							$refund = $last_payment['amount'];
 

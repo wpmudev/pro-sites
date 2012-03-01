@@ -400,7 +400,7 @@ Many thanks again for being a member!", 'psts'),
 	  $term_1_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 1 AND expire > '" . time() . "'");
 	  $term_3_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 3 AND expire > '" . time() . "'");
 	  $term_12_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 12 AND expire > '" . time() . "'");
-	  $term_manual_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 'Manual' AND expire > '" . time() . "'");
+	  $term_manual_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term NOT IN (1,3,12) AND expire > '" . time() . "'");
 
 		//get level counts
     $levels = get_site_option('psts_levels');
@@ -1735,7 +1735,7 @@ Many thanks again for being a member!", 'psts'),
     $term_1_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 1 AND expire > '" . time() . "'");
     $term_3_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 3 AND expire > '" . time() . "'");
     $term_12_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 12 AND expire > '" . time() . "'");
-    $term_manual_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term = 'Manual' AND expire > '" . time() . "'");
+    $term_manual_pro_sites = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE term NOT IN (1,3,12) AND expire > '" . time() . "'");
     $show_term = $term_1_pro_sites + $term_3_pro_sites + $term_12_pro_sites + $term_manual_pro_sites;
     //ratio levels
     if (is_array($levels) && count($levels) > 1) {
