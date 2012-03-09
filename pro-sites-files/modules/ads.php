@@ -253,14 +253,14 @@ class ProSites_Module_Ads {
 					<th scope="row"><?php _e('"Before" Ad Code', 'psts') ?></th>
 					<td>
 						<textarea name="psts[ads_before_code]" type="text" rows="4" wrap="soft" style="width: 95%"/><?php echo esc_textarea($psts->get_setting('ads_before_code')); ?></textarea>
-						<br /><?php _e('Displayed before post and page content.', 'sads') ?>
+						<br /><?php _e('Displayed before post and page content.', 'psts') ?>
 					</td>
 					</tr>
 					<tr valign="top">
 					<th scope="row"><?php _e('"After" Ad Code', 'psts') ?></th>
 					<td>
 						<textarea name="psts[ads_after_code]" type="text" rows="4" wrap="soft" style="width: 95%"/><?php echo esc_textarea($psts->get_setting('ads_after_code')); ?></textarea>
-						<br /><?php _e('Displayed before post and page content.', 'sads') ?>
+						<br /><?php _e('Displayed before post and page content.', 'psts') ?>
 					</tr>
 					
 				  <tr valign="top">

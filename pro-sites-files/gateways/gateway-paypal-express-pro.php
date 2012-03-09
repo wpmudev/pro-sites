@@ -334,7 +334,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	    if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Active') {
 
         if ($resArray['NEXTBILLINGDATE'])
-          $next_billing = date(get_blog_option($blog_id, 'date_format'), strtotime($resArray['NEXTBILLINGDATE']));
+          $next_billing = date_i18n(get_blog_option($blog_id, 'date_format'), strtotime($resArray['NEXTBILLINGDATE']));
         else
           $next_billing = __("None", 'psts');
 
@@ -349,7 +349,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         }
 
         if ($last_payment = $psts->last_transaction($blog_id)) {
-          $payment_info .= sprintf(__('Payment Date: %s', 'psts'), date(get_blog_option($blog_id, 'date_format')))."\n";
+          $payment_info .= sprintf(__('Payment Date: %s', 'psts'), date_i18n(get_blog_option($blog_id, 'date_format')))."\n";
           $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $last_payment['amount'] . ' ' . $psts->get_setting('currency'))."\n";
           $payment_info .= sprintf(__('Payment Transaction ID: %s', 'psts'), $last_payment['txn_id'])."\n\n";
         }
@@ -373,15 +373,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      $active_member = true;
 
 	      if (isset($resArray['LASTPAYMENTDATE'])) {
-	        $prev_billing = date(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
+	        $prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
 	      } else if ($last_payment = $psts->last_transaction($blog_id)) {
-	        $prev_billing = date(get_option('date_format'), $last_payment['timestamp']);
+	        $prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
 	      } else {
 	        $prev_billing = __("None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>", 'psts');
 	      }
 
 	      if (isset($resArray['NEXTBILLINGDATE']))
-	        $next_billing = date(get_option('date_format'), strtotime($resArray['NEXTBILLINGDATE']));
+	        $next_billing = date_i18n(get_option('date_format'), strtotime($resArray['NEXTBILLINGDATE']));
 	      else
 	        $next_billing = __("None", 'psts');
 
@@ -420,9 +420,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
 
 	      if (isset($resArray['LASTPAYMENTDATE'])) {
-	        $prev_billing = date(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
+	        $prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
 	      } else if ($last_payment = $psts->last_transaction($blog_id)) {
-	        $prev_billing = date(get_option('date_format'), $last_payment['timestamp']);
+	        $prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
 	      } else {
 	        $prev_billing = __('None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts');
 	      }
@@ -452,7 +452,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     } else if ($old_info = get_blog_option($blog_id, 'pypl_old_last_info')) {
 			
 			if (isset($old_info['payment_date']))
-				$prev_billing = date(get_option('date_format'), strtotime($old_info['payment_date']));
+				$prev_billing = date_i18n(get_option('date_format'), strtotime($old_info['payment_date']));
 
 			$profile_id = $old_info['subscr_id'];
 			
@@ -580,7 +580,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	    switch ($_POST['pypl_mod_action']) {
 
 	      case 'cancel':
-	        $end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+	        $end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 
 	        if ($profile_id)
 	          $resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', sprintf(__('Your subscription has been cancelled by an admin. You should continue to have access until %s', 'psts'), $end_date));
@@ -601,7 +601,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	      case 'cancel_refund':
 	        if ($last_payment = $psts->last_transaction($blog_id)) {
-	          $end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+	          $end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 	          $refund = $last_payment['amount'];
 
 	          if ($profile_id)
@@ -842,7 +842,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
 	        $new_profile_id = $resArray["PROFILEID"];
 
-	        $end_date = date(get_blog_option($blog_id, 'date_format'), $modify);
+	        $end_date = date_i18n(get_blog_option($blog_id, 'date_format'), $modify);
 	        $psts->log_action( $blog_id, sprintf(__('User modifying subscription via PayPal Express: New subscription created (%1$s), first payment will be made on %2$s - %3$s', 'psts'), $desc, $end_date, $new_profile_id) );
 
 	        //cancel old subscription
@@ -1096,7 +1096,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	          if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
 			        $new_profile_id = $resArray["PROFILEID"];
 
-			        $end_date = date(get_blog_option($blog_id, 'date_format'), $modify);
+			        $end_date = date_i18n(get_blog_option($blog_id, 'date_format'), $modify);
 			        $psts->log_action( $blog_id, sprintf(__('User modifying subscription via CC: New subscription created (%1$s), first payment will be made on %2$s - %3$s', 'psts'), $desc, $end_date, $new_profile_id) );
 
 			        //cancel old subscription
@@ -1254,7 +1254,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     
 			$content .= '<div id="psts_existing_info">';
 			
-			$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
 			
       //cancel subscription
@@ -1282,15 +1282,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
       if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Active') {
 
 				if (isset($resArray['LASTPAYMENTDATE'])) {
-	        $prev_billing = date(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
+	        $prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
 	      } else if ($last_payment = $psts->last_transaction($blog_id)) {
-	        $prev_billing = date(get_option('date_format'), $last_payment['timestamp']);
+	        $prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
 	      } else {
 	        $prev_billing = __("None yet with this subscription <small>(only initial separate single payment has been made, or you've recently modified your subscription)</small>", 'psts');
 	      }
 
         if (isset($resArray['NEXTBILLINGDATE']))
-          $next_billing = date(get_option('date_format'), strtotime($resArray['NEXTBILLINGDATE']));
+          $next_billing = date_i18n(get_option('date_format'), strtotime($resArray['NEXTBILLINGDATE']));
         else
           $next_billing = __("None", 'psts');
 
@@ -1341,7 +1341,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			
     } else if (is_pro_site($blog_id)) {
 			
-			$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
 			$old_gateway = $wpdb->get_var("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
 
@@ -1607,6 +1607,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		        'chargeback_settlement' => __('A reversal has occurred on this transaction due to settlement of a chargeback.', 'psts'),
 		        'guarantee' => __('A reversal has occurred on this transaction due to your customer triggering a money-back guarantee.', 'psts'),
 		        'buyer_complaint' => __('A reversal has occurred on this transaction due to a complaint about the transaction from your customer.', 'psts'),
+						'unauthorized_claim' => __('A reversal has occurred on this transaction due to the customer claiming it as an unauthorized payment.', 'psts'),
 		        'refund' => __('A reversal has occurred on this transaction because you have given the customer a refund.', 'psts'),
 		        'other' => __('A reversal has occurred on this transaction due to an unknown reason.', 'psts')
 		        );

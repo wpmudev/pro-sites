@@ -5,9 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.1.2 - 3/09/2012 - Aaron Edwards
+----------------------------------------------------------------------
 - Allow for default selected period and level on checkout form via PSTS_DEFAULT_LEVEL, PSTS_DEFAULT_PERIOD defines
 - Fix potential divide by zero bug on prorated refund calculation for manually extended paypal gateway blogs
 - Fix Manual stats category counts which were no longer accurate
+- i18n fixes
+- Show an information notice on the levels screen when Stripe gateway is active
 
 3.1.1 - 2/21/2012 - Aaron Edwards
 ----------------------------------------------------------------------

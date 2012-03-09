@@ -32,6 +32,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'wp_ajax_nopriv_psts_stripe_webhook', array(&$this, 'webhook_handler') );
 		
 		//sync levels with Stripe
+		add_action( 'network_admin_notices', array(&$this, 'levels_notice') );
 		add_action( 'update_site_option_psts_levels', array(&$this, 'update_psts_levels'), 10, 3 );
 		add_filter( 'psts_setting_enabled_periods', array(&$this, 'disable_period_3') );
 		
@@ -190,9 +191,9 @@ class ProSites_Gateway_Stripe {
 			
 			$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
 
-			$next_billing = date(get_option('date_format'), $invoice_object->next_payment_attempt);				                        		
+			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);				                        		
 						 
-			$prev_billing = date(get_option('date_format'), $exitsing_invoice_object->data[0]->date);
+			$prev_billing = date_i18n(get_option('date_format'), $exitsing_invoice_object->data[0]->date);
 			
 			$next_amount = $invoice_object->total / 100;
 			
@@ -295,7 +296,7 @@ class ProSites_Gateway_Stripe {
 			
 			switch ($_POST['stripe_mod_action']) {
 				case 'cancel':
-					$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));			
+					$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));			
 				
 					try {
 						$cu = Stripe_Customer::retrieve($customer_id); 
@@ -312,7 +313,7 @@ class ProSites_Gateway_Stripe {
 					break;
 				
 				case 'cancel_refund':
-					$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));			
+					$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));			
 				
 					$cancellation_success = false;
 					try {
@@ -407,6 +408,14 @@ class ProSites_Gateway_Stripe {
 			if ($period == 3) unset($periods[$key]);
 		}
 		return $periods;
+	}
+	
+	function levels_notice() {
+		global $current_screen;
+		if ( $current_screen->id != 'pro-sites_page_psts-levels-network' )
+			return;
+		
+		echo '<div class="updated fade"><p>' . __('Note: Because of limitations with the Stripe gateway, the 3 month payment option has been disabled.', 'psts') . '</p></div>';
 	}
 	
 	function update_psts_levels($option, $new_levels, $old_levels) {
@@ -626,7 +635,7 @@ class ProSites_Gateway_Stripe {
 				$psts->email_notification($blog_id, 'canceled');
 				update_blog_option($blog_id, 'psts_stripe_canceled', 1);
 				
-				$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+				$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 				$psts->log_action( $blog_id, sprintf(__('Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts'), $current_user->display_name, $end_date) );
 				$content .= '<div id="message" class="updated fade"><p>'.sprintf(__('Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts'), $current_site->site_name . ' ' . $psts->get_setting('rebrand'), $end_date).'</p></div>';
 			}
@@ -658,14 +667,14 @@ class ProSites_Gateway_Stripe {
 			$customer_object = Stripe_Customer::retrieve($customer_id);		
 
 			$content .= '<div id="psts_existing_info">';
-			$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');		
 	
 			$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
 
 			$existing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
 			
-			$next_billing = date(get_option('date_format'), $invoice_object->next_payment_attempt);									
+			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);									
 			
 			if ($cancel_status == 1) {
 				$content .= '<h3>'.__('Your subscription has been canceled', 'psts').'</h3>';
@@ -681,7 +690,7 @@ class ProSites_Gateway_Stripe {
 					$content .= '<li>'.__('Payment Method: <strong>'. $customer_object->active_card->type .' Card</strong> ending in <strong>'. $customer_object->active_card->last4 .'</strong>. Expires <strong>'. $customer_object->active_card->exp_month. '/'. $customer_object->active_card->exp_year. '</strong>', 'psts').'</li>'		;
 				
 				if (isset($exitsing_invoice_object->data[0]))
-					$content .= '<li>'.__('Last Payment Date:', 'psts').' <strong>'.date(get_option('date_format'), $existing_invoice_object->data[0]->date).'</strong></li>';
+					$content .= '<li>'.__('Last Payment Date:', 'psts').' <strong>'.date_i18n(get_option('date_format'), $existing_invoice_object->data[0]->date).'</strong></li>';
 				
 				$content .= '<li>'.__('Next Payment Date:', 'psts').' <strong>'.$next_billing.'</strong></li>';		
 				$content .= "</ul>";
@@ -803,7 +812,7 @@ class ProSites_Gateway_Stripe {
 			$blog_id = $this->get_blog_id($customer_id);
 			
 			if ($blog_id) {
-				$date = date(get_option('date_format'), $event_json->created);
+				$date = date_i18n(get_option('date_format'), $event_json->created);
 				
 				$amount = $event_json->data->object->lines->subscriptions[0]->amount / 100;		
 				$amount = $psts->format_currency(false, $amount);
