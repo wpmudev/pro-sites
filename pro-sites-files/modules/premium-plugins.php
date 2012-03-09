@@ -144,7 +144,7 @@ class ProSites_Module_Plugins {
 			if ( $data['auto'] && is_numeric($data['level']) && $data['level'] > $old_level && $data['level'] <= $new_level )
 		    $level_plugins[] = $plugin_file;
 		}
-		var_dump($level_plugins);return;
+
 	  if ( count($level_plugins) && is_pro_site($blog_id, $new_level) ) {
 	    switch_to_blog($blog_id);
 	    activate_plugins($level_plugins); //activate any plugins
@@ -356,8 +356,6 @@ class ProSites_Module_Plugins {
       	echo '<div id="message" class="updated fade"><p>' . __('Settings Saved!', 'psts') . '</p></div>';
       }
     }
-		
-		//$this->auto_activate(1, 1, 0);
 	  ?>
 	  <div class="wrap">
     <div class="icon32" id="icon-plugins"></div>

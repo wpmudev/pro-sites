@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.1.1
+Version: 3.1.2
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.1.1';
+  var $version = '3.1.2';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -214,7 +214,8 @@ class ProSites {
 			'trial_level' => 1,
 			'trial_days' => get_site_option("supporter_free_days"),
       'trial_message' => __('You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts'),
-      'feature_message' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
+			'signup_message' => __('Would you like to upgrade this site to Pro?', 'psts'),
+			'feature_message' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
       'active_message' => __('Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts'),
       'success_subject' => __('Thank you for becoming a Pro Site member!', 'psts'),
       'success_msg' => __("Thank you for becoming a Pro Site member!
@@ -760,7 +761,7 @@ Many thanks again for being a member!", 'psts'),
 	  } else if ($action == 'canceled') {
 
 	    //get end date from expiration
-	    $end_date = date(get_blog_option($blog_id, 'date_format'), $this->get_expire($blog_id));
+	    $end_date = date_i18n(get_blog_option($blog_id, 'date_format'), $this->get_expire($blog_id));
 
 	    $message = str_replace( 'ENDDATE', $end_date, $this->get_setting('canceled_msg') );
 	    $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $message );
@@ -1054,7 +1055,7 @@ Many thanks again for being a member!", 'psts'),
 		if ($new_expire >= 9999999999)
 			$this->log_action( $blog_id, __('Pro Site status expiration permanently extended.', 'psts') );
 		else
-			$this->log_action( $blog_id, sprintf( __('Pro Site status expiration extended until %s.', 'psts'), date( get_blog_option($current_site->blog_id, 'date_format'), $new_expire ) ) );
+			$this->log_action( $blog_id, sprintf( __('Pro Site status expiration extended until %s.', 'psts'), date_i18n( get_blog_option($current_site->blog_id, 'date_format'), $new_expire ) ) );
 
 	  do_action('psts_extend', $blog_id, $new_expire, $level);
 
@@ -1532,7 +1533,7 @@ Many thanks again for being a member!", 'psts'),
 				if ($expire > 2147483647)
 					echo '<li>'.__('Pro Site privileges will expire: <strong>Never</strong>', 'psts').'</li>';
 				else
-        	echo '<li>'.sprintf(__('Pro Site privileges will expire on: <strong>%s</strong>', 'psts'), date(get_option('date_format'), $expire)).'</li>';
+        	echo '<li>'.sprintf(__('Pro Site privileges will expire on: <strong>%s</strong>', 'psts'), date_i18n(get_option('date_format'), $expire)).'</li>';
 
         echo '<li>'.sprintf(__('Level: <strong>%s</strong>', 'psts'), $current_level . ' - ' . @$levels[$current_level]['name']).'</li>';
         if ($result->gateway)
@@ -1545,7 +1546,7 @@ Many thanks again for being a member!", 'psts'),
         echo '<p><strong>'.__('Expired Pro Site', 'psts').'</strong></p>';
 
         echo '<ul>';
-        echo '<li>'.sprintf(__('Pro Site privileges expired on: <strong>%s</strong>', 'psts'), date(get_option('date_format'), $expire)).'</li>';
+        echo '<li>'.sprintf(__('Pro Site privileges expired on: <strong>%s</strong>', 'psts'), date_i18n(get_option('date_format'), $expire)).'</li>';
 
         echo '<li>'.sprintf(__('Previous Level: <strong>%s</strong>', 'psts'), $current_level . ' - ' . @$levels[$current_level]['name']).'</li>';
         if ($result->gateway)
@@ -2940,7 +2941,8 @@ Many thanks again for being a member!", 'psts'),
 	          <th scope="row"><?php _e('Checkout Page', 'psts') ?></th>
 	          <td>
 	          <?php _e('You can create a sales message that is shown at the top of the checkout page. (Hint - make it colorful with images and such!)', 'psts') ?>
-	          <br /><a href="<?php echo get_edit_post_link($this->get_setting('checkout_page')); ?>" title="<?php _e('Edit Checkout Page &raquo;', 'psts'); ?>"><?php _e('Edit Checkout Page &raquo;', 'psts'); ?></a></td>
+	          <br /><a href="<?php echo get_edit_post_link($this->get_setting('checkout_page')); ?>" title="<?php _e('Edit Checkout Page &raquo;', 'psts'); ?>"><?php _e('Edit Checkout Page &raquo;', 'psts'); ?></a><br />
+						<small><?php _e('If for some reason you need to regenerate the checkout page, simply trash the current page above then save this settings form. A new checkout page will be created with a slug and title based on the rebrand option above.', 'psts') ?></small></td>
 	          </tr>
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Pro Site Feature Message', 'psts') ?></th>

@@ -70,7 +70,7 @@ class ProSites_Gateway_Manual {
     
 		if (is_pro_site($blog_id)) {
 			
-			$end_date = date(get_option('date_format'), $psts->get_expire($blog_id));
+			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
 			$old_gateway = $wpdb->get_var("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
 			
