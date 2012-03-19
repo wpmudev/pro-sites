@@ -62,10 +62,6 @@ class ProSites_Module_PayToBlog {
 	function force_redirect($value) {
     global $psts;
 		
-		//skip redirect on bulk upgrades page
-		if ( isset($_GET['page']) && $_GET['page'] == 'psts-bulk-upgrades' )
-			return $value;
-		
 		if ( is_pro_site(false, 1) ) {
 			return 0;
 	  } else {

@@ -1331,7 +1331,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
         if (is_pro_site($blog_id))
 					$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
-        $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($this->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
+        $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
         $pp_active = true;
       } else {
         $content .= '<div class="psts-error">'.__("There was a problem accessing your subscription information: ", 'psts') . $this->parse_error_string($resArray).'</div>';

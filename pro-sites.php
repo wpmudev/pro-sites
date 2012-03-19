@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.1.2
+Version: 3.1.3
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.1.2';
+  var $version = '3.1.3';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -1313,7 +1313,11 @@ Many thanks again for being a member!", 'psts'),
 	  //dismiss redirect if link is clicked or paid
 	  if (isset($_GET['psts_dismiss']) || is_pro_site())
 	    update_option('psts_signed_up', 0);
-
+		
+		//skip redirect on bulk upgrades page
+		if ( isset($_GET['page']) && $_GET['page'] == 'psts-bulk-upgrades' )
+			return true;
+		
 	  //force to checkout page
 	  if (!is_super_admin() && ( ( get_option('psts_signed_up') && current_user_can('edit_pages') ) || apply_filters('psts_force_redirect', false) ) ) {
 	    wp_redirect($this->checkout_url($blog_id));
@@ -3377,7 +3381,7 @@ Many thanks again for being a member!", 'psts'),
 
 	/* exclude option from New Site Template plugin copy */
 	function blog_template_settings( $and ) {
-		$and .= " AND `option_name` != 'psts_signed_up'";
+		$and .= " AND `option_name` != 'psts_signed_up' AND `option_name` != 'psts_action_log' AND `option_name` != 'psts_waiting_step' AND `option_name` != 'psts_payments_log' AND `option_name` != 'psts_used_coupons' AND `option_name` != 'psts_paypal_profile_id' AND `option_name` != 'psts_stripe_canceled'";
 		return $and;
 	}
 }
