@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.1.3 - 3/19/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix small bug with current subscription display
+- Exclude more sensitive options from New Blog Templates plugin
+- Skip all redirects on bulk upgrades page
+
 3.1.2 - 3/09/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Allow for default selected period and level on checkout form via PSTS_DEFAULT_LEVEL, PSTS_DEFAULT_PERIOD defines
