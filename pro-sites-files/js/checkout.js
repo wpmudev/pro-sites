@@ -14,4 +14,10 @@ jQuery(document).ready(function($) {
     $('#psts-coupon-code').show();
     return false;
   });
+	
+	jQuery('#psts-receipt-change a').click(function() {
+    $('#psts-receipt-change').hide();
+    $('#psts-receipt-input').show();
+    return false;
+  });
 });

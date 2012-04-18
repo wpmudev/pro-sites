@@ -5,6 +5,17 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.2 - 4/19/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Add ability for admins or user to resend an email receipt via manage/checkout page
+- Add styled upgrade button to admin bar (replaces old menu item)
+- Add pro status/manage link to admin bar for Super Admins 
+- Fix wrong coupon discount amounts for Stripe checkouts
+- Fix error handling bug for Stripe gateway
+- Adjust response codes returned for non prosites IPNs: http://premium.wpmudev.org/forums/topic/paypal-ipn-problem
+- Add PSTS_CANCEL_LAST define that can be put in wpconfig to show cancel button at bottom of checkout form
+- Add wpcache support for the Supporter Ads module
+
 3.1.3 - 3/19/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix small bug with current subscription display

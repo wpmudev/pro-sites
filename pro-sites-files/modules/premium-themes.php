@@ -11,7 +11,7 @@ class ProSites_Module_PremiumThemes {
   function __construct() {
     add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 		add_action( 'admin_menu', array(&$this, 'plug_page') );
-		add_action( 'psts_admin_bar', array(&$this, 'add_menu_admin_bar') );
+		//add_action( 'psts_admin_bar', array(&$this, 'add_menu_admin_bar') );
 
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message_output') );
@@ -29,8 +29,10 @@ class ProSites_Module_PremiumThemes {
 	  add_action('admin_print_scripts-' . $page, array(&$this, 'page_scripts') );
 
 	  //add it under pro blogs menu also
-	  $page = add_submenu_page('psts-checkout', $psts->get_setting('pt_name'), $psts->get_setting('pt_name'), 'switch_themes', 'premium-themes', array(&$this, 'themes_page') );
-    add_action('admin_print_scripts-' . $page, array(&$this, 'page_scripts') );
+		if ( !defined('PSTS_HIDE_THEMES_MENU') ) {
+			$page = add_submenu_page('psts-checkout', $psts->get_setting('pt_name'), $psts->get_setting('pt_name'), 'switch_themes', 'premium-themes', array(&$this, 'themes_page') );
+			add_action('admin_print_scripts-' . $page, array(&$this, 'page_scripts') );
+		}
 	}
 
   function add_menu_admin_bar() {

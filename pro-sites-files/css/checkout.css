@@ -1,4 +1,5 @@
 /* Default Pro Site Checkout page css */
+#psts-receipt-change small { font-size: 70%; }
 table#psts_checkout_grid {
 	margin-bottom: 5px;
 }
@@ -111,7 +112,7 @@ table#psts_checkout_grid {
 	float: right;
 }
 
-#psts-coupon-msg, #psts-complete-msg {
+#psts-coupon-msg, #psts-complete-msg, .psts-updated {
 	-moz-border-radius: 3px;
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
