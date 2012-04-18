@@ -45,6 +45,18 @@ class ProSites_Module_Ads {
   	$psts->update_setting('ads_version', $psts->version);
 	}
 	
+	function update_cache($blog_id) {
+		global $wpdb;
+		$expirations = $wpdb->get_results("SELECT blog_ID, expire FROM {$wpdb->base_prefix}supporter_ads WHERE supporter_blog_ID = '$blog_id'");
+
+		if (null === $expirations)
+			return;
+
+		foreach ($expirations as $expiration) {
+			wp_cache_set("supporter_ads:{$expiration->blog_ID}:expire", $expiration->expire, 'blog-details');
+		}
+	}
+
 	function plug_page() {
 	  global $psts;
 	  //add it under the pro blogs menu
@@ -57,11 +69,13 @@ class ProSites_Module_Ads {
 		global $wpdb;
 		$max = $this->max_ad_free($blog_id); //only extend the number of blogs for their level
 		$wpdb->query("UPDATE {$wpdb->base_prefix}supporter_ads SET expire = '$new_expire' WHERE supporter_blog_ID = '$blog_id' LIMIT $max");
+		$this->update_cache($blog_id);
 	}
 
 	function withdraw($blog_id, $new_expire) {
 		global $wpdb;
 		$wpdb->query("UPDATE {$wpdb->base_prefix}supporter_ads SET expire = '$new_expire' WHERE supporter_blog_ID = '$blog_id'");
+		$this->update_cache($blog_id);
 	}
 
 	function check($blog_id = null) {
@@ -71,12 +85,18 @@ class ProSites_Module_Ads {
 			$blog_id = $wpdb->blogid;
 		}
 
-		$count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}supporter_ads WHERE blog_ID = '$blog_id' AND expire > '" . time() . "'");
-		if ( $count ) {
-			return true;
-		} else {
-			return false;
+		$expire = wp_cache_get("supporter_ads:$blog_id:expire", 'blog-details');
+
+		if(false === $expire) {
+			$expire = $wpdb->get_var("SELECT expire FROM {$wpdb->base_prefix}supporter_ads WHERE blog_ID = '$blog_id'");
+
+			if(null === $expire) 
+				$expire = -1;
+
+			wp_cache_set("supporter_ads:$blog_id:expire", $expire, 'blog-details');
 		}
+
+		return ($expire > time());
 	}
 
   function show_ads($blog_id = null) {
@@ -351,6 +371,7 @@ class ProSites_Module_Ads {
 				}
 			}
 			$wpdb->query("UPDATE {$wpdb->base_prefix}supporter_ads SET expire = '" . $expire . "' WHERE supporter_blog_ID = '" . $wpdb->blogid . "'");
+			$this->update_cache($wpdb->blogid);
       echo '<div id="message" class="updated fade"><p>'.__('Sites Added.', 'psts').'</p></div>';
 		}
 		
@@ -359,6 +380,7 @@ class ProSites_Module_Ads {
 			foreach ( (array)$_POST['blogs'] as $blog_id => $value ) {
 				if ( $value == '1' ) {
 					$wpdb->query( "DELETE FROM {$wpdb->base_prefix}supporter_ads WHERE blog_ID = '" . $blog_id . "' AND supporter_blog_ID = '" . $wpdb->blogid . "'" );
+					wp_cache_delete("supporter_ads:{$blog_id}:expire", 'blog-details');
 				}
 			}
       echo '<div id="message" class="updated fade"><p>'.__('Sites Removed.', 'psts').'</p></div>';

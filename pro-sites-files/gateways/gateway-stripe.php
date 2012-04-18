@@ -13,7 +13,7 @@ class ProSites_Gateway_Stripe {
 
   function __construct() {  	
 		global $psts;
-		
+
 		//setup the Stripe API
 		require $psts->plugin_dir . "gateways/gateway-stripe-files/lib/Stripe.php";		
 		$stripe_secret_key = $psts->get_setting('stripe_secret_key');	    			
@@ -185,19 +185,30 @@ class ProSites_Gateway_Stripe {
 	
 			echo '<li>'.sprintf(__('Stripe Customer ID: <strong><a href="https://manage.stripe.com/#test/customers/%s" target="_blank">%s</a></strong>', 'psts'), $customer_id, $customer_id).'</li>';
 			
-			$exitsing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
-			
+			try {
+				$exitsing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
+			} catch (Exception $e) {
+				$error = $e->getMessage();
+			}
 			$total = $exitsing_invoice_object->data[0]->total / 100;
 			
-			$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
-
+			try {
+				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
+			} catch (Exception $e) {
+				$error = $e->getMessage();
+			}
+			
 			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);				                        		
 						 
 			$prev_billing = date_i18n(get_option('date_format'), $exitsing_invoice_object->data[0]->date);
 			
 			$next_amount = $invoice_object->total / 100;
 			
-			$customer_object = Stripe_Customer::retrieve($customer_id);				
+			try {
+				$customer_object = Stripe_Customer::retrieve($customer_id);				
+			} catch (Exception $e) {
+				$error = $e->getMessage();
+			}
 			
 			$active_card = $customer_object->active_card->type;	
 			$last4 = $customer_object->active_card->last4;	
@@ -227,16 +238,20 @@ class ProSites_Gateway_Stripe {
     
     $customer_id = $this->get_customer_id($blog_id);
 
-    if ($customer_id) {	
-			$custom_information = Stripe_Customer::retrieve($customer_id);
-
-			echo '<p><strong>' . stripslashes($custom_information->description) . '</strong><br />';
-
-			if (isset($custom_information->active_card)) { //credit card
-				echo stripslashes($custom_information->active_card['name']) . '<br />';
-				echo stripslashes($custom_information->active_card['country']) . '</p>';
-			
-				echo '<p>' . stripslashes($custom_information->email) . '</p>';
+    if ($customer_id) {
+			try {
+				$custom_information = Stripe_Customer::retrieve($customer_id);
+	
+				echo '<p><strong>' . stripslashes($custom_information->description) . '</strong><br />';
+	
+				if (isset($custom_information->active_card)) { //credit card
+					echo stripslashes($custom_information->active_card['name']) . '<br />';
+					echo stripslashes($custom_information->active_card['country']) . '</p>';
+				
+					echo '<p>' . stripslashes($custom_information->email) . '</p>';
+				}
+			} catch (Exception $e) {
+				echo '<p>'.__("Stripe returned an error retrieving the customer:", 'psts') . ' ' . stripslashes($e->getMessage()) . '</p>';
 			}
 		} else {
       echo '<p>'.__("This site is using a different gateway so their information is not accessible.", 'psts').'</p>';
@@ -551,7 +566,7 @@ class ProSites_Gateway_Stripe {
 				
 				//create temporary stripe coupon
 				if ($discountAmt) {
-					$pct = ($discountAmt <= 0) ? 100 : round( ($discountAmt/$paymentAmount) * 100 ); //get whole number percent
+					$pct = ($discountAmt <= 0) ? 100 : 100 - round( ($discountAmt/$paymentAmount) * 100 ); //get whole number percent
 					$cpn = Stripe_Coupon::create( array( "percent_off" => $pct, "duration" => "once", "max_redemptions" => 1 ) );
 					$cp_code = $cpn->id;
 				} else {
@@ -642,7 +657,8 @@ class ProSites_Gateway_Stripe {
 		}	
 		
 		$cancel_status = get_blog_option($blog_id, 'psts_stripe_canceled');
-
+		$cancel_content = '';
+		
     $img_base = $psts->plugin_url. 'images/';
     $pp_active = false;
 
@@ -663,16 +679,23 @@ class ProSites_Gateway_Stripe {
 	  }
 		
     if ($customer_id = $this->get_customer_id($blog_id)) {
-	
-			$customer_object = Stripe_Customer::retrieve($customer_id);		
-
+			
+			try {
+				$customer_object = Stripe_Customer::retrieve($customer_id);		
+			} catch (Exception $e) {
+				$error = $e->getMessage();
+			}
+			
 			$content .= '<div id="psts_existing_info">';
 			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');		
-	
-			$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
-
-			$existing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
+			
+			try {
+				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
+				$existing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
+			} catch (Exception $e) {
+				$error = $e->getMessage();
+			}
 			
 			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);									
 			
@@ -695,15 +718,21 @@ class ProSites_Gateway_Stripe {
 				$content .= '<li>'.__('Next Payment Date:', 'psts').' <strong>'.$next_billing.'</strong></li>';		
 				$content .= "</ul>";
 	
-				$content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+				$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
 			
 				$pp_active = false;
 			
 				if (is_pro_site($blog_id)) {
-					$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
-					$content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
+					$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+					$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
 					$pp_active = true;		
-				 }		
+				}		
+				
+				//print receipt send form
+				$content .= $psts->receipt_form($blog_id);
+				
+				if ( !defined('PSTS_CANCEL_LAST') )
+					$content .= $cancel_content;
 				
 				$content .= "<br>";
 				$content .= '</div>';
@@ -774,7 +803,10 @@ class ProSites_Gateway_Stripe {
 			</div>';
 
     $content .= '</form>';
-
+		
+		if ( defined('PSTS_CANCEL_LAST') )
+			$content .= $cancel_content;
+		
 	  return $content;
 	}
 

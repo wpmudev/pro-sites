@@ -12,10 +12,13 @@ class ProSites_Module_Plugins {
 
   function __construct() {
   	add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
-		add_action( 'admin_menu', array(&$this, 'plug_page') );
-		add_action( 'psts_admin_bar', array(&$this, 'add_menu_admin_bar') );
-		add_action( 'admin_init', array(&$this, 'redirect_plugins_page') );
-
+		
+		if ( !defined('PSTS_HIDE_PLUGINS_MENU') ) {
+			add_action( 'admin_menu', array(&$this, 'plug_page') );
+			//add_action( 'psts_admin_bar', array(&$this, 'add_menu_admin_bar') );
+			add_action( 'admin_init', array(&$this, 'redirect_plugins_page') );
+		}
+		
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message_output') );
 		add_action( 'psts_withdraw', array(&$this, 'deactivate_all') );

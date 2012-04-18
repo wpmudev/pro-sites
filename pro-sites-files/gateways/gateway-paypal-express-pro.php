@@ -433,9 +433,37 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	        echo '<li>'.sprintf(__('Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts'), $last_payment['txn_id'], $last_payment['txn_id']).'</li>';
 	      }
 	      echo '</ul>';
+				
+      } else if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Suspended') {
+
+	      $active_member = true;
+
+	      $end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
+	      echo '<strong>'.__('The Subscription Has Been Suspended in PayPal', 'psts').'</strong>';
+	      echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
+				echo '<ul><li>'.sprintf(__('They should continue to have access until %s.', 'psts'), $end_date).'</li>';
+				echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
+
+	      if (isset($resArray['LASTPAYMENTDATE'])) {
+	        $prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
+	      } else if ($last_payment = $psts->last_transaction($blog_id)) {
+	        $prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
+	      } else {
+	        $prev_billing = __('None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts');
+	      }
+
+	      echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
+	      if ($last_payment = $psts->last_transaction($blog_id)) {
+	        echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency(false, $last_payment['amount'])).'</li>';
+	        echo '<li>'.sprintf(__('Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts'), $last_payment['txn_id'], $last_payment['txn_id']).'</li>';
+	      }
+	      echo '</ul>';
+				
       } else if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
+				
         echo '<p>'.sprintf(__('The Subscription profile status is currently: <strong>%s</strong>', 'psts'), $resArray['STATUS']).'</p>';
         echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
+			
 			} else {
 	      echo '<div id="message" class="error fade"><p>'.sprintf( __("Whoops! There was a problem accessing this site's subscription information: %s", 'psts'), $this->parse_error_string($resArray) ).'</p></div>';
 	    }
@@ -525,7 +553,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     if ($profile_id) {
 			$resArray = $this->GetRecurringPaymentsProfileDetails($profile_id);
 
-	    if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Active') {
+	    if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && ($resArray['STATUS']=='Active' || $resArray['STATUS']=='Suspended')) {
 	      $active_member = true;
 	      $next_payment_timestamp = strtotime($resArray['NEXTBILLINGDATE']);
 	    } else if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Cancelled') {
@@ -1199,7 +1227,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level']);
 								
 								if (empty($this->complete_message))
-									$this->complete_message = __('Your Credit Card subscription was successful! You should be receiving an email receipt shortly.', 'psts');
+									$this->complete_message = sprintf(__('Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts'), get_blog_option($blog_id, 'admin_email'));
 							} else {
 								update_blog_option($blog_id, 'psts_waiting_step', 1);
 							}
@@ -1253,6 +1281,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     if ($profile_id = $this->get_profile_id($blog_id)) {
     
 			$content .= '<div id="psts_existing_info">';
+			$cancel_content = '';
 			
 			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
@@ -1312,31 +1341,38 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         $content .= '<li>'.__('Next Payment Date:', 'psts').' <strong>'.$next_billing.'</strong></li>';
         $content .= '</ul><br />';
 
-        $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+        $cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
         if (is_pro_site($blog_id))
-        	$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
-        $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
+        	$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+        $cancel_content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
 
 				$pp_active = true;
+				
       } else if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Cancelled') {
 
         $content .= '<h3>'.__('Your subscription has been canceled', 'psts').'</h3>';
         $content .= '<p>'.sprintf(__('This site should continue to have %1$s features until %2$s.', 'psts'), $psts->get_setting('rebrand'), $end_date).'</p>';
-
-      } else if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning')) {
+				
+      } else if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
 
         $content .= '<h3>'.sprintf(__('Your subscription is: %s', 'psts'), $resArray['STATUS']).'</h3>';
         $content .= '<p>'.__('Please update your payment information below to resolve this.', 'psts').'</p>';
 
-        $content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+        $cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
         if (is_pro_site($blog_id))
-					$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
-        $content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
+					$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+        $cancel_content .= '<p><a id="pypl_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
         $pp_active = true;
       } else {
         $content .= '<div class="psts-error">'.__("There was a problem accessing your subscription information: ", 'psts') . $this->parse_error_string($resArray).'</div>';
       }
-
+			
+			//print receipt send form
+			$content .= $psts->receipt_form($blog_id);
+			
+			if ( !defined('PSTS_CANCEL_LAST') )
+				$content .= $cancel_content;
+			
       $content .= '</div>';
 			
     } else if (is_pro_site($blog_id)) {
@@ -1360,20 +1396,27 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				
 			$content .= '</ul><br />';
 			if ($old_gateway == 'PayPal' || $old_gateway == 'Amazon') {
-				$content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
-				$content .= '<p>'.sprintf(__('If your subscription is still active your next scheduled payment should be %1$s.', 'psts'), $end_date).'</p>';
-				$content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+				$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+				$cancel_content .= '<p>'.sprintf(__('If your subscription is still active your next scheduled payment should be %1$s.', 'psts'), $end_date).'</p>';
+				$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
 				//show instructions for old gateways
 				if ($old_gateway == 'PayPal') {
-					$content .= '<p><a id="pypl_cancel" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias='.urlencode(get_site_option("supporter_paypal_email")).'" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$psts->plugin_url. 'images/cancel_subscribe_gen.gif" /></a><br /><small>'.__('You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts').'</small></p>';
+					$cancel_content .= '<p><a id="pypl_cancel" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias='.urlencode(get_site_option("supporter_paypal_email")).'" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$psts->plugin_url. 'images/cancel_subscribe_gen.gif" /></a><br /><small>'.__('You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts').'</small></p>';
 				} else if ($old_gateway == 'Amazon') {
-					$content .= '<p>'.__('To cancel your subscription, simply go to <a id="pypl_cancel" target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts').'</p>';
+					$cancel_content .= '<p>'.__('To cancel your subscription, simply go to <a id="pypl_cancel" target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts').'</p>';
 				}
 			}
+			
+			//print receipt send form
+			$content .= $psts->receipt_form($blog_id);
+			
+			if ( !defined('PSTS_CANCEL_LAST') )
+				$content .= $cancel_content;
+			
 			$content .= '</div>';
 			
 		}
-    
+		
     if ($pp_active) {
       $content .= '<h2>' . __('Change Your Plan or Payment Details', 'psts') . '</h2>
           <p>' . __('You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts') . '</p>';
@@ -1510,7 +1553,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
     $content .= '</form>';
-
+		
+		//put cancel button at end
+		if ( defined('PSTS_CANCEL_LAST') )
+			$content .= $cancel_content;
+		
 	  return $content;
 	}
 
@@ -1519,7 +1566,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
     if ( !isset($_POST['rp_invoice_id']) && !isset($_POST['custom']) ) {
 
-		  header("HTTP/1.1 401 Authorization Required");
 			die('Error: Missing POST variables. Identification is not possible.');
 
     } else if ( defined('PSTS_IPN_PASSWORD') && $_POST['inc_pass'] != PSTS_IPN_PASSWORD ) {
@@ -2009,7 +2055,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$response = wp_remote_post($API_Endpoint, $args);
 
 		if (is_wp_error($response) || wp_remote_retrieve_response_code($response) != 200) {
-			trigger_error( 'MarketPress: Problem contacting PayPal API - ' . $response->get_error_message(), E_USER_WARNING );
+			trigger_error( 'Pro Sites: Problem contacting PayPal API - ' . $response->get_error_message(), E_USER_WARNING );
 			return false;
 	  } else {
 	    //convert NVPResponse to an Associative Array
@@ -2030,7 +2076,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		// Redirect to paypal.com here
 		$url = $paypalURL . $token;
-	  //header("Location: ".$payPalURL);
 		wp_redirect($url);
 	  exit;
 	}

@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.1.3
+Version: 3.2
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.1.3';
+  var $version = '3.2';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -60,7 +60,7 @@ class ProSites {
 		//admin page stuff
 		add_action( 'network_admin_menu', array(&$this, 'plug_network_pages') );
 		add_action( 'admin_menu', array(&$this, 'plug_pages') );
-		add_action( 'admin_bar_menu', array(&$this, 'add_menu_admin_bar'), 15);
+		add_action( 'admin_bar_menu', array(&$this, 'add_menu_admin_bar'), 100);
 		add_filter( 'wpmu_blogs_columns', array(&$this, 'add_column') );
 		add_action( 'manage_sites_custom_column', array(&$this, 'add_column_field'), 1, 3 );
 
@@ -209,6 +209,7 @@ class ProSites {
 			'modules_enabled' => array(),
 			'enabled_periods' => array(1,3,12),
 			'hide_adminbar' => 0,
+			'hide_adminbar_super' => 0,
 			'free_name' => __('Free', 'psts'),
 			'free_msg' => __('No thank you, I will continue with a basic site for now', 'psts'),
 			'trial_level' => 1,
@@ -553,23 +554,58 @@ Many thanks again for being a member!", 'psts'),
 	}
 
 	function add_menu_admin_bar() {
-    global $wp_admin_bar, $blog_id;
+    global $wp_admin_bar, $blog_id, $wp_version;
 
-    if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() || $this->get_setting('hide_adminbar') )
+    if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() )
         return;
-
-		if ( current_user_can('edit_pages') ) {
-      $checkout = $this->checkout_url($blog_id);
-		} else {
-      $checkout = $this->checkout_url();
+		
+		//add user admin bar upgrade button
+		if ( !$this->get_setting('hide_adminbar') ) {
+			if ( current_user_can('edit_pages') ) {
+				$checkout = $this->checkout_url($blog_id);
+			} else {
+				$checkout = $this->checkout_url();
+			}
+	
+			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
+			$label = '<span>' . esc_attr($label) . '</span>';
+			
+			
+			$wp_admin_bar->add_menu( array( 'id' => 'pro-site', 'parent' => (version_compare($wp_version, '3.3', '>=') ? 'top-secondary' : false), 'title' => $label, 'href' => $checkout ) );
+			add_action( 'wp_after_admin_bar_render', array(&$this, 'admin_bar_css') );
 		}
-
-		$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
-
-    $wp_admin_bar->add_menu( array( 'id' => 'pro-site' , 'title' => $label, 'href' => $checkout ) );
-    do_action( 'psts_admin_bar', 'pro-site' ); //for modules to add to admin bar. Passes parent id
+		
+		//add superadmin status menu
+		if ( is_super_admin() && !$this->get_setting('hide_adminbar_super') ) {
+			$sup_title = is_pro_site() ? $this->get_level_setting($this->get_level($blog_id), 'name') : false;
+			if (!$sup_title) {
+				$sup_title = (function_exists('psts_hide_ads') && psts_hide_ads($blog_id))
+					? __('Upgraded', 'psts')
+					: __('Free', 'psts')
+				;
+			}
+			$expire = $this->get_expire($blog_id);
+			if ($expire > 2147483647)
+				$expire = __("Permanent", "psts");
+			else
+				$expire = $expire ? date("Y-m-d", $expire) : __("N/A", "psts");
+			$sup_title .= " [{$expire}]";
+			$wp_admin_bar->add_menu(array(
+				'title' => $sup_title,
+				'href' => network_admin_url('admin.php?page=psts&bid=' . $blog_id),
+				'parent' => false,
+				'id' => 'psts-status'
+			));
+		}
 	}
-
+	
+	//styles the upgrade button
+	function admin_bar_css() {
+		?>
+		<style type="text/css">#wpadminbar li#wp-admin-bar-pro-site {float:right;}#wpadminbar li#wp-admin-bar-pro-site a{padding-top:3px !important;height:25px !important;border-right:1px solid #333 !important;}#wpadminbar li#wp-admin-bar-pro-site a span{display:block;color:#fff;font-weight:bold;font-size:11px;margin:0px 1px 0px 1px;padding:0 30px !important;border:1px solid #409ed0 !important;height:18px !important;line-height:18px !important;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;background-image:-moz-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-ms-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #3b85ad ), to( #419ece ) ) !important;background-image:-webkit-linear-gradient( bottom, #419ece, #3b85ad ) !important;background-image:linear-gradient( bottom, #3b85ad, #419ece ) !important;}#wpadminbar li#wp-admin-bar-pro-site a:hover span{background-image:-moz-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-ms-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #0B93C5 ), to( #3b85ad ) ) !important;background-image:-webkit-linear-gradient( bottom, #3b85ad, #0B93C5 ) !important;background-image:linear-gradient( bottom, #0B93C5, #3b85ad ) !important;border:1px solid #3b85ad !important;color:#E8F3F8;}</style>
+		<?php
+	}
+	
 	function checkout_url($blog_id = false) {
 	  global $current_site;
 
@@ -722,18 +758,21 @@ Many thanks again for being a member!", 'psts'),
 	}
 
 	//sends email notification to the user
-	function email_notification($blog_id, $action) {
+	function email_notification($blog_id, $action, $email = false) {
 	  global $wpdb;
-
+		
+		if (!$email)
+			$email = get_blog_option($blog_id, 'admin_email');
+		
 	  if ($action == 'success') {
 
       $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $this->get_setting('success_msg') );
 			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
 			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 
-	    wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('success_subject'), $message );
+	    wp_mail( $email, $this->get_setting('success_subject'), $message );
 
-	    $this->log_action( $blog_id, sprintf(__('Signup success email sent to %s', 'psts'), get_blog_option($blog_id, 'admin_email')) );
+	    $this->log_action( $blog_id, sprintf(__('Signup success email sent to %s', 'psts'), $email) );
 
 	  } else if ($action == 'receipt') {
 			//grab default payment info
@@ -754,9 +793,9 @@ Many thanks again for being a member!", 'psts'),
 			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
 			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 
-	    wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('receipt_subject'), $message );
+	    wp_mail( $email, $this->get_setting('receipt_subject'), $message );
 
-      $this->log_action( $blog_id, sprintf(__('Payment receipt email sent to %s', 'psts'), get_blog_option($blog_id, 'admin_email')) );
+      $this->log_action( $blog_id, sprintf(__('Payment receipt email sent to %s', 'psts'), $email) );
 
 	  } else if ($action == 'canceled') {
 
@@ -768,18 +807,18 @@ Many thanks again for being a member!", 'psts'),
 			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
 			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
 
-	    wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('canceled_subject'), $message );
+	    wp_mail( $email, $this->get_setting('canceled_subject'), $message );
 
-      $this->log_action( $blog_id, sprintf(__('Subscription canceled email sent to %s', 'psts'), get_blog_option($blog_id, 'admin_email')) );
+      $this->log_action( $blog_id, sprintf(__('Subscription canceled email sent to %s', 'psts'), $email) );
 
 	  } else if ($action == 'failed') {
 
 	    $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $this->get_setting('failed_msg') );
 			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
 			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
-			wp_mail( get_blog_option($blog_id, 'admin_email'), $this->get_setting('failed_subject'), $this->get_setting('failed_msg') );
+			wp_mail( $email, $this->get_setting('failed_subject'), $this->get_setting('failed_msg') );
 
-	    $this->log_action( $blog_id, sprintf(__('Payment failed email sent to %s', 'psts'), get_blog_option($blog_id, 'admin_email')) );
+	    $this->log_action( $blog_id, sprintf(__('Payment failed email sent to %s', 'psts'), $email) );
 
 	  }
 	}
@@ -1477,6 +1516,12 @@ Many thanks again for being a member!", 'psts'),
         $this->withdraw((int)$_POST['bid']);
 				echo '<div id="message" class="updated fade"><p>'.__('Pro Site Status Removed.', 'psts').'</p></div>';
 			}
+			
+			if ( isset($_POST['psts_receipt']) ) {
+        $this->email_notification((int)$_POST['bid'], 'receipt', $_POST['receipt_email']);
+				echo '<div id="message" class="updated fade"><p>'.__('Email receipt sent.', 'psts').'</p></div>';
+			}
+
 		}
 
 		//check blog_id
@@ -1682,7 +1727,11 @@ Many thanks again for being a member!", 'psts'),
 					<?php if ( is_pro_site($blog_id) ) { ?>
           <p><label><input type="checkbox" name="psts_remove" value="1" /> <?php _e('Remove Pro status from this site.', 'psts'); ?></label></p>
 	    		<?php } ?>
-
+					
+					<?php if ($last_payment = $this->last_transaction($blog_id)) { ?>
+					<p><label><input type="checkbox" name="psts_receipt" value="1" /> <?php _e('Email a receipt copy for last payment to:', 'psts'); ?> <input type="text" name="receipt_email" value="<?php echo get_blog_option($blog_id, 'admin_email'); ?>" /></label></p>
+					<?php } ?>
+					
 					<p class="submit">
 	        <input type="submit" name="psts_modify" id="psts_modify" value="<?php _e('Modify &raquo;', 'psts') ?>" />
 	        </p>
@@ -2874,6 +2923,7 @@ Many thanks again for being a member!", 'psts'),
 			$_POST['psts'] = stripslashes_deep($_POST['psts']);
 			
 			$_POST['psts']['hide_adminbar'] = isset($_POST['psts']['hide_adminbar']) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
+			$_POST['psts']['hide_adminbar_super'] = isset($_POST['psts']['hide_adminbar_super']) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
       $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
 
       //merge settings
@@ -2909,16 +2959,22 @@ Many thanks again for being a member!", 'psts'),
 	          <br /><?php _e('Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts'); ?></td>
 	          </tr>
 						<tr valign="top">
-	          <th scope="row"><?php _e('Admin Menu Labels', 'psts') ?></th>
+	          <th scope="row"><?php _e('Admin Menu Button Labels', 'psts') ?></th>
 	          <td>
 							<label><input type="text" name="psts[lbl_signup]" value="<?php echo esc_attr($this->get_setting('lbl_signup')); ?>" /> <?php _e('Not Pro', 'psts'); ?></label><br />
 							<label><input type="text" name="psts[lbl_curr]" value="<?php echo esc_attr($this->get_setting('lbl_curr')); ?>" /> <?php _e('Current Pro', 'psts'); ?></label>
 						</td>
 	          </tr>
 						<tr valign="top">
-	          <th scope="row"><?php _e('Hide Admin Bar Menu', 'psts'); ?></th>
+	          <th scope="row"><?php _e('Hide Admin Bar Button', 'psts'); ?></th>
 	          <td><label><input type="checkbox" name="psts[hide_adminbar]" value="1"<?php checked($this->get_setting('hide_adminbar')); ?> />
-	          <?php _e('Remove the Pro Sites menu from the admin bar', 'psts'); ?></label>
+	          <?php _e('Remove the Pro Sites upgrade menu button from the admin bar', 'psts'); ?></label>
+	          </td>
+	          </tr>
+						<tr valign="top">
+	          <th scope="row"><?php _e('Hide Superadmin Admin Bar Pro Status', 'psts'); ?></th>
+	          <td><label><input type="checkbox" name="psts[hide_adminbar_super]" value="1"<?php checked($this->get_setting('hide_adminbar_super')); ?> />
+	          <?php _e('Remove the Super Admin Pro Site status menu from the admin bar', 'psts'); ?></label>
 	          </td>
 	          </tr>
 						<tr valign="top">
@@ -3299,7 +3355,28 @@ Many thanks again for being a member!", 'psts'),
 
     return $content;
 	}
+	
+	function receipt_form($blog_id) {
+		$content = '';
+		if ( !defined('PSTS_DISABLE_RECEIPT_FORM') && $this->last_transaction($blog_id) ) {
+			
+			if ( isset($_POST['psts_receipt']) ) {
+        $this->email_notification($blog_id, 'receipt', $_POST['receipt_email']);
+				$content .= '<div class="psts-updated">'.sprintf(__('Email receipt sent to %s.', 'psts'), esc_html($_POST['receipt_email'])).'</div>';
+			} else {
+				$content .= '<p id="psts-receipt-block">
+					<form action="'.$this->checkout_url($blog_id).'" method="post" autocomplete="off">
+					'.__('Email a receipt copy for your last payment to:', 'psts').' <span id="psts-receipt-change"><strong>' . get_blog_option($blog_id, 'admin_email') . '</strong> <small><a href="#">('.__('change', 'psts').')</a></small></span>
+					<input type="text" id="psts-receipt-input" name="receipt_email" value="' . get_blog_option($blog_id, 'admin_email') . '" style="display: none;" /> 
+					<input type="submit" name="psts_receipt" class="regbutton" value="'.__('Send &raquo;', 'psts').'" />
+					</form></p>';
+			}
 
+		}
+
+    return $content;
+	}
+	
 	//outputs the checkout form
 	function checkout_output($content) {
 
