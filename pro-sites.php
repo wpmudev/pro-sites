@@ -61,6 +61,8 @@ class ProSites {
 		add_action( 'network_admin_menu', array(&$this, 'plug_network_pages') );
 		add_action( 'admin_menu', array(&$this, 'plug_pages') );
 		add_action( 'admin_bar_menu', array(&$this, 'add_menu_admin_bar'), 100);
+		add_action( 'wp_head', array(&$this, 'add_menu_admin_bar_css') );
+		add_action( 'admin_head', array(&$this, 'add_menu_admin_bar_css') );
 		add_filter( 'wpmu_blogs_columns', array(&$this, 'add_column') );
 		add_action( 'manage_sites_custom_column', array(&$this, 'add_column_field'), 1, 3 );
 
@@ -552,7 +554,16 @@ Many thanks again for being a member!", 'psts'),
 			add_menu_page($label, $label, 'edit_pages', 'psts-checkout', array(&$this, 'checkout_redirect_page'), $this->plugin_url . 'images/plus.png', 3);
 		}
 	}
+	
+	function add_menu_admin_bar_css() {
 
+    if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() || $this->get_setting('hide_adminbar') )
+        return;
+		
+		//styles the upgrade button
+		?><style type="text/css">#wpadminbar li#wp-admin-bar-pro-site {float:right;}#wpadminbar li#wp-admin-bar-pro-site a{padding-top:3px !important;height:25px !important;border-right:1px solid #333 !important;}#wpadminbar li#wp-admin-bar-pro-site a span{display:block;color:#fff;font-weight:bold;font-size:11px;margin:0px 1px 0px 1px;padding:0 30px !important;border:1px solid #409ed0 !important;height:18px !important;line-height:18px !important;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;background-image:-moz-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-ms-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #3b85ad ), to( #419ece ) ) !important;background-image:-webkit-linear-gradient( bottom, #419ece, #3b85ad ) !important;background-image:linear-gradient( bottom, #3b85ad, #419ece ) !important;}#wpadminbar li#wp-admin-bar-pro-site a:hover span{background-image:-moz-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-ms-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #0B93C5 ), to( #3b85ad ) ) !important;background-image:-webkit-linear-gradient( bottom, #3b85ad, #0B93C5 ) !important;background-image:linear-gradient( bottom, #0B93C5, #3b85ad ) !important;border:1px solid #3b85ad !important;color:#E8F3F8;}</style><?php
+	}
+	
 	function add_menu_admin_bar() {
     global $wp_admin_bar, $blog_id, $wp_version;
 
@@ -569,10 +580,8 @@ Many thanks again for being a member!", 'psts'),
 	
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
 			$label = '<span>' . esc_attr($label) . '</span>';
-			
-			
+				
 			$wp_admin_bar->add_menu( array( 'id' => 'pro-site', 'parent' => (version_compare($wp_version, '3.3', '>=') ? 'top-secondary' : false), 'title' => $label, 'href' => $checkout ) );
-			add_action( 'wp_after_admin_bar_render', array(&$this, 'admin_bar_css') );
 		}
 		
 		//add superadmin status menu
@@ -597,13 +606,6 @@ Many thanks again for being a member!", 'psts'),
 				'id' => 'psts-status'
 			));
 		}
-	}
-	
-	//styles the upgrade button
-	function admin_bar_css() {
-		?>
-		<style type="text/css">#wpadminbar li#wp-admin-bar-pro-site {float:right;}#wpadminbar li#wp-admin-bar-pro-site a{padding-top:3px !important;height:25px !important;border-right:1px solid #333 !important;}#wpadminbar li#wp-admin-bar-pro-site a span{display:block;color:#fff;font-weight:bold;font-size:11px;margin:0px 1px 0px 1px;padding:0 30px !important;border:1px solid #409ed0 !important;height:18px !important;line-height:18px !important;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;background-image:-moz-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-ms-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #3b85ad ), to( #419ece ) ) !important;background-image:-webkit-linear-gradient( bottom, #419ece, #3b85ad ) !important;background-image:linear-gradient( bottom, #3b85ad, #419ece ) !important;}#wpadminbar li#wp-admin-bar-pro-site a:hover span{background-image:-moz-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-ms-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #0B93C5 ), to( #3b85ad ) ) !important;background-image:-webkit-linear-gradient( bottom, #3b85ad, #0B93C5 ) !important;background-image:linear-gradient( bottom, #0B93C5, #3b85ad ) !important;border:1px solid #3b85ad !important;color:#E8F3F8;}</style>
-		<?php
 	}
 	
 	function checkout_url($blog_id = false) {
