@@ -190,18 +190,13 @@ class ProSites_Gateway_Stripe {
 			} catch (Exception $e) {
 				$error = $e->getMessage();
 			}
-			$total = $exitsing_invoice_object->data[0]->total / 100;
 			
 			try {
 				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
 			} catch (Exception $e) {
 				$error = $e->getMessage();
 			}
-			
-			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);				                        		
-						 
-			$prev_billing = date_i18n(get_option('date_format'), $exitsing_invoice_object->data[0]->date);
-			
+						                        		
 			$next_amount = $invoice_object->total / 100;
 			
 			try {
@@ -210,21 +205,27 @@ class ProSites_Gateway_Stripe {
 				$error = $e->getMessage();
 			}
 			
-			$active_card = $customer_object->active_card->type;	
-			$last4 = $customer_object->active_card->last4;	
-			$exp_year = $customer_object->active_card->exp_year;					
-			$exp_month = $customer_object->active_card->exp_month;					
+			if (isset($customer_object->active_card)) {
+				$active_card = $customer_object->active_card->type;	
+				$last4 = $customer_object->active_card->last4;	
+				$exp_year = $customer_object->active_card->exp_year;					
+				$exp_month = $customer_object->active_card->exp_month;					
+				echo '<li>'.sprintf(__('Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s</strong>', 'psts'), $active_card, $last4, $exp_month.'/'.$exp_year).'</li>';
+			}
 			
-			echo '<li>'.sprintf(__('Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s</strong>', 'psts'), $active_card, $last4, $exp_month.'/'.$exp_year).'</li>';
+			if (isset($exitsing_invoice_object->data[0])) {
+				$prev_billing = date_i18n(get_option('date_format'), $exitsing_invoice_object->data[0]->date);
+				echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
+				$total = $exitsing_invoice_object->data[0]->total / 100;
+				echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency('USD', $total)).'</li>';
+				echo '<li>'.sprintf(__('Last Payment Invoice ID: <strong>%s</strong>', 'psts'), $exitsing_invoice_object->data[0]->id).'</li>';
+			}
 			
-			echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
-
-			echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency('USD', $total)).'</li>';
-			echo '<li>'.sprintf(__('Last Payment Invoice ID: <strong>%s</strong>', 'psts'), $exitsing_invoice_object->data[0]->id).'</li>';
-
-			if (!get_blog_option($blog_id, 'psts_stripe_canceled'))
+			if (isset($invoice_object->next_payment_attempt)) {
+				$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);	
 				echo '<li>'.sprintf(__('Next Payment Date: <strong>%s</strong>', 'psts'), $next_billing).'</li>';
-
+			}
+			
 			echo '</ul>';
 			echo '<small>* ('.__('This does not include the initial payment at signup, or payments before the last payment method/plan change.', 'psts').')</small>';		
 
@@ -692,12 +693,15 @@ class ProSites_Gateway_Stripe {
 			
 			try {
 				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
+			} catch (Exception $e) {
+				$cancel_status = 1;
+			}
+			
+			try {
 				$existing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
 			} catch (Exception $e) {
 				$error = $e->getMessage();
-			}
-			
-			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);									
+			}								
 			
 			if ($cancel_status == 1) {
 				$content .= '<h3>'.__('Your subscription has been canceled', 'psts').'</h3>';
@@ -715,7 +719,9 @@ class ProSites_Gateway_Stripe {
 				if (isset($exitsing_invoice_object->data[0]))
 					$content .= '<li>'.__('Last Payment Date:', 'psts').' <strong>'.date_i18n(get_option('date_format'), $existing_invoice_object->data[0]->date).'</strong></li>';
 				
-				$content .= '<li>'.__('Next Payment Date:', 'psts').' <strong>'.$next_billing.'</strong></li>';		
+				if (isset($invoice_object->next_payment_attempt))
+					$content .= '<li>'.__('Next Payment Date:', 'psts').' <strong>'.date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt).'</strong></li>';		
+				
 				$content .= "</ul>";
 	
 				$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
