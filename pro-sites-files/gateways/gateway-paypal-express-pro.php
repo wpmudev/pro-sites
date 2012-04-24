@@ -907,6 +907,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					 
 	        //show confirmation page
 	        $this->complete_message = sprintf(__('Your PayPal subscription modification was successful for %s.', 'psts'), $desc);
+					
+					//display GA ecommerce in footer
+					$psts->create_ga_ecommerce($blog_id, $_SESSION['PERIOD'], $initAmount, $_SESSION['LEVEL']);
 
 					//show instructions for old gateways
           if ($old_gateway == 'PayPal') {
@@ -973,13 +976,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$psts->record_transaction($blog_id, $init_transaction, $amount);
 						
 						// Added for affiliate system link
-						do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL']);
+						do_action('supporter_payment_processed', $blog_id, $amount, $_SESSION['PERIOD'], $_SESSION['LEVEL']);
 						
 						if (empty($this->complete_message))
 							$this->complete_message = __('Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts');
 					} else {
 						update_blog_option($blog_id, 'psts_waiting_step', 1);
 					}
+					
+					//display GA ecommerce in footer
+					$psts->create_ga_ecommerce($blog_id, $_SESSION['PERIOD'], $amount, $_SESSION['LEVEL']);
 					
           unset($_SESSION['COUPON_CODE']);
 					unset($_SESSION['PERIOD']);
@@ -1161,7 +1167,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					
 			        //show confirmation page
 			        $this->complete_message = sprintf(__('Your Credit Card subscription modification was successful for %s.', 'psts'), $desc);
-
+							
+							//display GA ecommerce in footer
+							$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country);
+							
 							//show instructions for old gateways
 		          if ($old_gateway == 'PayPal') {
 		            $this->complete_message .= '<p><strong>'.__('Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts').'</strong></p>';
@@ -1224,13 +1233,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$psts->record_transaction($blog_id, $init_transaction, $result['AMT']);
 						
 								// Added for affiliate system link
-								do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level']);
+								do_action('supporter_payment_processed', $blog_id, $result['AMT'], $_POST['period'], $_POST['level']);
 								
 								if (empty($this->complete_message))
 									$this->complete_message = sprintf(__('Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts'), get_blog_option($blog_id, 'admin_email'));
 							} else {
 								update_blog_option($blog_id, 'psts_waiting_step', 1);
 							}
+							
+							//display GA ecommerce in footer
+							$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country);
 							
              	unset($_SESSION['COUPON_CODE']);
              	

@@ -5,6 +5,11 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.2.1 - 4/24/2012 - Aaron Edwards
+----------------------------------------------------------------------
+- Add support for Google Analytics Ecommerce Tracking
+- Fix major problems with autoactivation of premium plugins on new sites
+
 3.2 - 4/19/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Add ability for admins or user to resend an email receipt via manage/checkout page
