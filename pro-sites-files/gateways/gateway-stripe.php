@@ -570,8 +570,10 @@ class ProSites_Gateway_Stripe {
 					$pct = ($discountAmt <= 0) ? 100 : 100 - round( ($discountAmt/$paymentAmount) * 100 ); //get whole number percent
 					$cpn = Stripe_Coupon::create( array( "percent_off" => $pct, "duration" => "once", "max_redemptions" => 1 ) );
 					$cp_code = $cpn->id;
+					$initAmount = $discountAmt;
 				} else {
 					$cp_code = false;
+					$initAmount = $paymentAmount;
 				}
 				
 				//assign the new plan to the customer
@@ -607,6 +609,9 @@ class ProSites_Gateway_Stripe {
 				} else {
 					$psts->log_action( $blog_id, sprintf(__('User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts'), $desc, $customer_id) );				
 				}
+				
+				//display GA ecommerce in footer
+				$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level']);
 				
 				update_blog_option($blog_id, 'psts_stripe_canceled', 0);
 									

@@ -131,7 +131,7 @@ class ProSites_Module_PremiumThemes {
         $psts->update_setting('pt_allowed_themes', array(0));
       }
 
-      echo '<div id="message" class="updated fade"><p>Settings Saved!</p></div>';
+      echo '<div id="message" class="updated fade"><p>' . __('Settings Saved!', 'psts') . '</p></div>';
     }
 
     // Site Themes
@@ -191,7 +191,7 @@ class ProSites_Module_PremiumThemes {
 			</tbody>
 		</table>
 
-		<p class="submit"><input type="submit" name="save_themes" value="<?php _e('Save Changes', 'psts') ?>" /></p>
+		<p class="submit"><input type="submit" name="save_themes" class="button-primary" value="<?php _e('Save Changes', 'psts') ?>" /></p>
   	</form>
 		</div>
 	  <?php

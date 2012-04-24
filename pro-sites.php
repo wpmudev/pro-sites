@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.2
+Version: 3.2.1
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.2';
+  var $version = '3.2.1';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -217,6 +217,7 @@ class ProSites {
 			'trial_level' => 1,
 			'trial_days' => get_site_option("supporter_free_days"),
       'trial_message' => __('You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts'),
+			'ga_ecommerce' => 'none',
 			'signup_message' => __('Would you like to upgrade this site to Pro?', 'psts'),
 			'feature_message' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
       'active_message' => __('Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts'),
@@ -1480,7 +1481,79 @@ Many thanks again for being a member!", 'psts'),
 			}
 		}
 	}
+	
+	//returns the js needed to record ecommerce transactions.
+	function create_ga_ecommerce($blog_id, $period, $amount, $level, $city = '', $state = '', $country = '') {
+		global $current_site;
+		
+		$name = $this->get_level_setting($level, 'name');
+		$category = $period.' Month';
+		$sku = 'level'.$level.'_'.$period.'month';
+		$order_id = $blog_id.'_'.time();
+		$store_name = $current_site->site_name . ' ' . $this->get_setting('rebrand');
+		
+		if ($this->get_setting('ga_ecommerce') == 'old') {
 
+			$js = '<script type="text/javascript">
+try{
+	pageTracker._addTrans(
+		"'.$order_id.'",          // order ID - required
+		"'.esc_js($store_name).'",// affiliation or store name
+		"'.$amount.'",            // total - required
+		"",                       // tax
+		"",                       // shipping
+		"'.esc_js($city).'",      // city
+		"'.esc_js($state).'",     // state or province
+		"'.esc_js($country).'"    // country
+	);
+	pageTracker._addItem(
+		"'.$order_id.'",    // order ID - necessary to associate item with transaction
+		"'.$sku.'",         // SKU/code - required
+		"'.esc_js($name).'",// product name
+		"'.$category.'",    // category or variation
+		"'.$amount.'",      // unit price - required
+		"1"                 // quantity - required
+	);
+
+	pageTracker._trackTrans(); //submits transaction to the Analytics servers
+} catch(err) {}
+</script>
+';
+
+	  } else if ($this->get_setting('ga_ecommerce') == 'new') {
+			
+			$js = '<script type="text/javascript">
+_gaq.push(["_addTrans",
+	"'.$order_id.'",          // order ID - required
+	"'.esc_js($store_name).'",// affiliation or store name
+	"'.$amount.'",            // total - required
+	"",                       // tax
+	"",                       // shipping
+	"'.esc_js($city).'",      // city
+	"'.esc_js($state).'",     // state or province
+	"'.esc_js($country).'"    // country
+]);
+_gaq.push(["_addItem",
+	"'.$order_id.'",    // order ID - necessary to associate item with transaction
+	"'.$sku.'",         // SKU/code - required
+	"'.esc_js($name).'",// product name
+	"'.$category.'",    // category
+	"'.$amount.'",      // unit price - required
+	"1"                 // quantity - required
+]);
+_gaq.push(["_trackTrans"]);
+</script>
+';
+		
+		}
+		
+		//add to footer
+		if ( !empty($js) ) {
+		  $function = "echo '$js';";
+      add_action( 'wp_footer', create_function('', $function), 99999 );
+		}
+	}
+	
 	//------------------------------------------------------------------------//
 	//---Page Output Functions------------------------------------------------//
 	//------------------------------------------------------------------------//
@@ -2497,7 +2570,7 @@ Many thanks again for being a member!", 'psts'),
         </table>
 
         <p class="submit">
-          <input type="submit" name="submit_settings" value="<?php _e('Save Coupon', 'psts') ?>" />
+          <input type="submit" name="submit_settings" class="button-primary" value="<?php _e('Save Coupon', 'psts') ?>" />
         </p>
       </div>
     </div>
@@ -2736,7 +2809,7 @@ Many thanks again for being a member!", 'psts'),
 			</tbody>
 		</table>
 		<p class="submit">
-      <input type="submit" name="save_levels" value="<?php _e('Save Levels', 'psts') ?>" />
+      <input type="submit" name="save_levels" class="button-primary" value="<?php _e('Save Levels', 'psts') ?>" />
     </p>
 
 		<h3><?php _e('Add New Level', 'psts') ?></h3>
@@ -2900,7 +2973,7 @@ Many thanks again for being a member!", 'psts'),
       <?php do_action('psts_modules_page'); ?>
 
       <p class="submit">
-        <input type="submit" name="submit_settings" value="<?php _e('Save Changes', 'psts') ?>" />
+        <input type="submit" name="submit_settings" class="button-primary" value="<?php _e('Save Changes', 'psts') ?>" />
       </p>
     </form>
 
@@ -3042,6 +3115,17 @@ Many thanks again for being a member!", 'psts'),
 						<td><input type="text" name="psts[trial_message]" id="trial_message" value="<?php esc_attr_e($this->get_setting('trial_message')); ?>" style="width: 95%" />
 						<br /><?php _e('Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
 						</tr>
+						<tr>
+						<th scope="row"><?php _e('Google Analytics Ecommerce Tracking', 'psts') ?></th>
+						<td>
+						<select name="psts[ga_ecommerce]">
+							<option value="none"<?php selected($this->get_setting('ga_ecommerce'), 'none') ?>><?php _e('None', 'psts') ?></option>
+							<option value="new"<?php selected($this->get_setting('ga_ecommerce'), 'new') ?>><?php _e('Asynchronous Tracking Code', 'psts') ?></option>
+							<option value="old"<?php selected($this->get_setting('ga_ecommerce'), 'old') ?>><?php _e('Old Tracking Code', 'psts') ?></option>
+						</select>
+						<br /><span class="description"><?php _e('If you already use Google Analytics for your website, you can track detailed ecommerce information by enabling this setting. Choose whether you are using the new asynchronous or old tracking code. Before Google Analytics can report ecommerce activity for your website, you must enable ecommerce tracking on the profile settings page for your website. <a href="http://analytics.blogspot.com/2009/05/how-to-use-ecommerce-tracking-in-google.html" target="_blank">More information &raquo;</a>', 'psts') ?></span>
+						</td>
+						</tr>
 	          <?php do_action('psts_general_settings'); ?>
 	        </table>
 	      </div>
@@ -3146,7 +3230,7 @@ Many thanks again for being a member!", 'psts'),
 	      <?php do_action('psts_settings_page'); ?>
 
 	        <p class="submit">
-	        	<input type="submit" name="submit_settings" value="<?php _e('Save Changes', 'psts') ?>" />
+	        	<input type="submit" name="submit_settings" class="button-primary" value="<?php _e('Save Changes', 'psts') ?>" />
 	        </p>
         </form>
       </div>
