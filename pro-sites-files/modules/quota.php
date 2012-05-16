@@ -8,7 +8,7 @@ class ProSites_Module_Quota {
 		$this->__construct();
 	}
 
-  function __construct() {
+	function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'psts_settings_process', array(&$this, 'settings_process') );
 		
@@ -25,14 +25,16 @@ class ProSites_Module_Quota {
 
 	//changed in 2.0 to filter return as to be non-permanent.
 	function filter($space) {
-    global $psts;
+		global $psts;
     
-    //don't filter on network settings page to avoid confusion
-	  if ( is_network_admin() )
-	    return $space;
+		//don't filter on network settings page to avoid confusion
+		if ( is_network_admin() )
+			return $space;
 
 		$quota = $psts->get_level_setting($psts->get_level(), 'quota');
-		if ($quota && is_pro_site(false, $psts->get_level())) {
+		if ( $quota && is_pro_site(false, $psts->get_level()) ) {
+			return $quota;
+		} else if ( function_exists('psts_hide_ads') && psts_hide_ads() && $quota = $psts->get_setting( "quota_upgraded_space" ) ) {
 			return $quota;
 		} else {
 			return $space;
@@ -40,10 +42,15 @@ class ProSites_Module_Quota {
 	}
 
 	function settings_process() {
-	  global $psts;
+		global $psts;
 	  
-	  foreach ($_POST['quota'] as $level => $quota)
-	  	$psts->update_level_setting($level, 'quota', $quota);
+		foreach ($_POST['quota'] as $level => $quota) {
+			if ($level == 0) {
+				$psts->update_setting("quota_upgraded_space", $quota);
+			} else {
+				$psts->update_level_setting($level, 'quota', $quota);
+			}
+		}
 	}
 
 	function settings() {
@@ -57,6 +64,14 @@ class ProSites_Module_Quota {
 			  <tr valign="top">
 			  <th scope="row"><?php _e('Quota Amounts', 'psts') ?></th>
 			  <td><?php
+				if ( function_exists('psts_hide_ads') ) {
+					$level = 0;
+					echo '<label>';
+						$quota = $psts->get_setting( "quota_upgraded_space" );
+						$quota = $quota ? $quota : get_site_option('blog_upload_space');
+						$this->quota_select($level, $quota);
+					echo ' ' . $level . ' - ' . __('Ads Removed (Upgraded)', 'psts') . '</label><br />';
+				}
 				foreach ($levels as $level => $data) {
 					echo '<label>';
 					$quota = isset($data['quota']) ? $data['quota'] : get_site_option('blog_upload_space');
