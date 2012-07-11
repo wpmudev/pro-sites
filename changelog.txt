@@ -5,6 +5,8 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+- Fix hardcoded prefix in is_pro_user() function, props korkmaz
+
 3.2.3 - 5/20/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Allow special quota amounts for Ads removed (upgraded) sites

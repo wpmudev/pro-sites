@@ -974,7 +974,7 @@ Many thanks again for being a member!", 'psts'),
 
 		//TODO - add option to select which user levels from supporter blog will be supporter user. Right now it's all (>= Subscriber)
 		//$results = $wpdb->get_results("SELECT * FROM `$wpdb->usermeta` WHERE `user_id` = $user_id AND `meta_key` LIKE 'wp_%_capabilities' AND `meta_value` LIKE '%administrator%'");
-		$results = $wpdb->get_results("SELECT * FROM `$wpdb->usermeta` WHERE `user_id` = $user_id AND `meta_key` LIKE 'wp_%_capabilities'");
+		$results = $wpdb->get_results("SELECT * FROM `$wpdb->usermeta` WHERE `user_id` = $user_id AND `meta_key` LIKE '{$wpdb->base_prefix}%_capabilities'");
 	  if (!$results) {
 	    //update cache
 	    update_user_meta($user_id, 'psts_user', array(time(), 0));
