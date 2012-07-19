@@ -32,6 +32,9 @@ class ProSites_Gateway_PayPalExpressPro {
 		//filter payment info
 		add_action( 'psts_payment_info', array(&$this, 'payment_info'), 10, 2 );
 		
+		//cancel subscriptions on blog deletion
+		add_action( 'delete_blog', array(&$this, 'cancel_blog_subscription') );
+		
     /* This sets the default prefix to the paypal custom field,
 		 * in case you use the same account for multiple IPN requiring scripts,
 		 * and want to setup your own forwarding script somewhere to pass IPNs to
@@ -1765,7 +1768,26 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 		exit;
 	}
+	
+	function cancel_blog_subscription($blog_id) {
+		global $psts;
+		
+		//check if pro/express user
+    if ($profile_id = $this->get_profile_id($blog_id)) {
+  
+			$resArray = $this->ManageRecurringPaymentsProfileStatus($profile_id, 'Cancel', __('Your subscription was canceled because the blog was deleted.', 'psts'));
 
+			if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
+				 //record stat
+				$psts->record_stat($blog_id, 'cancel');
+				
+				$psts->email_notification($blog_id, 'canceled');
+
+				$psts->log_action( $blog_id, __('Subscription successfully canceled because the blog was deleted.', 'psts') );
+			}
+		}
+	}
+	
 	//record last payment
 	function set_profile_id($blog_id, $profile_id) {
 	  $trans_meta = get_blog_option($blog_id, 'psts_paypal_profile_id');
