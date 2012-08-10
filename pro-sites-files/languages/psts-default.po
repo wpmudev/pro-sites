@@ -1404,7 +1404,7 @@ msgstr ""
 #: /Users/aaron2/Documents/WPMU-Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:914
 #: /Users/aaron2/Documents/WPMU-Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1168
 #: /Users/aaron2/Documents/WPMU-Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:1404
-msgid "You can also cancel following <a href=\"https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext\">these steps</a>."
+msgid "You can also cancel following <a href=\"https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing\">these steps</a>."
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU-Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-manual.php:99
@@ -1564,7 +1564,7 @@ msgid ""
 "%s\r\n"
 "\r\n"
 "You can also cancel following these steps:\r\n"
-"https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext"
+"https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing"
 msgstr ""
 
 #: /Users/aaron2/Documents/WPMU-Test/wp-content/plugins/pro-sites/pro-sites-files/gateways/gateway-paypal-express-pro.php:275

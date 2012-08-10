@@ -273,7 +273,7 @@ Cancel your subscription in your PayPal account:
 %s
 
 You can also cancel following these steps:
-https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext", 'psts'), 'https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode(get_site_option("supporter_paypal_email")));
+https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing", 'psts'), 'https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode(get_site_option("supporter_paypal_email")));
 		} else if ($old_gateway == 'Amazon') {
       $message = __("Thank you for modifying your subscription!
 
@@ -917,7 +917,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					//show instructions for old gateways
           if ($old_gateway == 'PayPal') {
             $this->complete_message .= '<p><strong>'.__('Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts').'</strong></p>';
-						$this->complete_message .= '<p><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias='.urlencode(get_site_option("supporter_paypal_email")).'"><img src="'.$psts->plugin_url. 'images/cancel_subscribe_gen.gif" /></a><br /><small>'.__('You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts').'</small></p>';
+						$this->complete_message .= '<p><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias='.urlencode(get_site_option("supporter_paypal_email")).'"><img src="'.$psts->plugin_url. 'images/cancel_subscribe_gen.gif" /></a><br /><small>'.__('You can also cancel following <a href="https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing">these steps</a>.', 'psts').'</small></p>';
           } else if ($old_gateway == 'Amazon') {
             $this->complete_message .= '<p><strong>'.__('Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts').'</strong></p>';
 						$this->complete_message .= '<p>'.__('To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts').'</p>';

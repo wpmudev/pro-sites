@@ -44,6 +44,9 @@ class ProSites_Gateway_Stripe {
 		
 		//filter payment info
 		add_action( 'psts_payment_info', array(&$this, 'payment_info'), 10, 2 );
+			
+		//cancel subscriptions on blog deletion
+		add_action( 'delete_blog', array(&$this, 'cancel_blog_subscription') );
 		
 		//update install script if necessary
 		if ($psts->get_setting('stripe_version') != $psts->version) {
@@ -896,6 +899,29 @@ class ProSites_Gateway_Stripe {
 			die($message);
 		}
 		
+	}
+	
+	function cancel_blog_subscription($blog_id) {
+		global $psts;
+		
+		$error = '';
+		
+		try {
+			$customer_id = $this->get_customer_id($blog_id);
+			$cu = Stripe_Customer::retrieve($customer_id); 
+			$cu->cancelSubscription();		 		 
+		}
+		catch (Exception $e) {
+			$error = $e->getMessage();
+		}			
+		
+		if ($error == '') {
+			//record stat
+			$psts->record_stat($blog_id, 'cancel');
+			$psts->email_notification($blog_id, 'canceled');
+			update_blog_option($blog_id, 'psts_stripe_canceled', 1);		
+			$psts->log_action( $blog_id, __('Subscription successfully canceled because the blog was deleted.', 'psts') );
+		}
 	}
 	
 }
