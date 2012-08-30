@@ -5,15 +5,16 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-- Fix PayPal instructions external links
 
-3.2.4 - 7/20/2012 - Aaron Edwards
+3.3 - 8/30/2012 - Aaron Edwards
 ----------------------------------------------------------------------
+- Add ability to transfer Pro status from one site to another
+- Add ability to add custom log entries when managing a site
+- Fix bugs with refunding transactions in the Stripe gateway: http://premium.wpmudev.org/forums/topic/pro-sites-stripe-refund-bug
+- Fix PayPal instructions external links
+- Add additional compatibility filter for New Blog Templates plugin
 - Fix hardcoded prefix in is_pro_user() function, props korkmaz
 - Cancel subscriptions when a site/blog is deleted
-
-3.2.3 - 5/20/2012 - Aaron Edwards
-----------------------------------------------------------------------
 - Allow special quota amounts for Ads removed (upgraded) sites
 
 3.2.2 - 5/2/2012 - Aaron Edwards
