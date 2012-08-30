@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.2.2
+Version: 3.3
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.2.2';
+  var $version = '3.3';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -50,7 +50,10 @@ class ProSites {
 
     //install plugin
     register_activation_hook( __FILE__, array($this, 'install') );
-
+		
+		//load dashboard notice
+    include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
+		
     //load plugins
     require_once( $this->plugin_dir . 'plugins-loader.php' );
 
@@ -1559,13 +1562,19 @@ _gaq.push(["_trackTrans"]);
 	//------------------------------------------------------------------------//
 
   function admin_modify() {
-		global $wpdb;
+		global $wpdb, $current_user;
 
 		if ( !is_super_admin() ) {
 			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
 			return;
 		}
-
+		
+		//add manual log entries
+		if ( isset($_POST['log_entry']) ) {
+			$this->log_action( (int)$_GET['bid'], $current_user->display_name . ': "' . strip_tags(stripslashes($_POST['log_entry'])) . '"' );
+			echo '<div id="message" class="updated fade"><p>'.__('Log entry added.', 'psts').'</p></div>';
+		}
+				
     //extend blog
     if ( isset($_POST['psts_extend']) ) {
       check_admin_referer('psts_extend'); //check nonce
@@ -1579,8 +1588,28 @@ _gaq.push(["_trackTrans"]);
 			}
 			$this->extend((int)$_POST['bid'], $extend, __('Manual', 'psts'), $_POST['extend_level']);
 			echo '<div id="message" class="updated fade"><p>'.__('Site Extended.', 'psts').'</p></div>';
+		}		
+			
+		if ( isset($_POST['psts_transfer_pro']) ) {
+			$new_bid = (int)$_POST['new_bid'];
+			$current_bid = (int)$_GET['bid'];
+			if ( !$new_bid ) {
+				echo '<div id="message" class="error"><p>'.__('Please enter the Blog ID of a site to transfer too.', 'psts').'</p></div>';
+			} else if ( is_pro_site($new_bid) ) {
+				echo '<div id="message" class="error"><p>'.__('Could not transfer Pro Status: The chosen site already is a Pro Site. You must remove Pro status and cancel any existing subscriptions tied to that site.', 'psts').'</p></div>';
+			} else {
+				$current_level = $wpdb->get_row("SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$current_bid'");
+				$new_expire = $current_level->expire - time();
+				$this->extend($new_bid, $new_expire, $current_level->gateway, $current_level->level, $current_level->amount);
+				$wpdb->query("UPDATE {$wpdb->base_prefix}pro_sites SET term = '{$current_level->term}' WHERE blog_ID = '$new_bid'");
+				$this->withdraw($current_bid);
+				$this->log_action( $current_bid, sprintf(__('Pro Status transferred by %s to BlogID: %d', 'psts'), $current_user->display_name, $new_bid) );
+				$this->log_action( $new_bid, sprintf(__('Pro Status transferred by %s from BlogID: %d', 'psts'), $current_user->display_name, $current_bid) );
+				do_action('psts_transfer_pro', $current_bid, $new_bid); //for gateways to hook into for api calls, etc.
+				echo '<div id="message" class="updated fade"><p>'.sprintf(__('Pro Status transferred to BlogID: %d', 'psts'), (int)$_POST['new_bid']).'</p></div>';
+			}
 		}
-
+	
 		//remove blog
     if ( isset($_POST['psts_modify']) ) {
       check_admin_referer('psts_modify'); //check nonce
@@ -1598,7 +1627,7 @@ _gaq.push(["_trackTrans"]);
 			}
 
 		}
-
+			
 		//check blog_id
 		if( isset( $_GET['bid'] ) ) {
 			$blog_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}blogs WHERE blog_ID = '" . (int)$_GET['bid'] . "'");
@@ -1616,7 +1645,7 @@ _gaq.push(["_trackTrans"]);
 		<div class="wrap">
 		<script type="text/javascript">
   	  jQuery(document).ready(function () {
-  		  jQuery('input#psts_modify').click(function() {
+  		  jQuery('input.psts_confirm').click(function() {
           var answer = confirm("<?php _e('Are you sure you really want to do this?', 'psts'); ?>")
           if (answer){
               return true;
@@ -1717,7 +1746,7 @@ _gaq.push(["_trackTrans"]);
 	      <h3 class='hndle'><span><?php _e('Account History', 'psts') ?></span></h3>
 	      <div class="inside">
 	        <span class="description"><?php _e('This logs basically every action done in the system regarding the site for an audit trail.', 'psts'); ?></span>
-	        <div style="height:150px;overflow:auto;margin-top:5px;">
+	        <div style="height:150px;overflow:auto;margin-top:5px;margin-bottom:5px;">
 	          <table class="widefat">
 	            <?php
 	            $log = get_blog_option($blog_id, 'psts_action_log');
@@ -1733,6 +1762,9 @@ _gaq.push(["_trackTrans"]);
 							?>
 	          </table>
 	        </div>
+					<form method="post" action="">
+						<input type="text" placeholder="Add a custom log entry..." name="log_entry" style="width:91%;" /> <input type="submit" name="add_log_entry" value="<?php _e('Add &raquo;', 'psts') ?>" style="width:8%;float:right;" />
+					</form>
 	      </div>
 	    </div>
 	  </div>
@@ -1779,10 +1811,17 @@ _gaq.push(["_trackTrans"]);
 		        </select>
 		        <br /><?php _e('Choose what level the site should have access to.', 'psts'); ?></td>
 		        </tr>
+		        <tr valign="top">
+							<td colspan="2" style="text-align:right;"><input class="button-primary" type="submit" name="psts_extend" value="<?php _e('Extend &raquo;', 'psts') ?>" /></td>
+						</tr>
 		      </table>
-		      <p class="submit">
-		      <input type="submit" name="psts_extend" value="<?php _e('Extend &raquo;', 'psts') ?>" />
-		      </p>
+					<hr />
+		      <table class="form-table">
+		        <tr valign="top">
+							<td><label>Transfer Pro status to Blog ID: <input type="text" name="new_bid" size="3" /></label></td>
+							<td style="text-align:right;"><input class="button-primary psts_confirm" type="submit" name="psts_transfer_pro" value="<?php _e('Transfer &raquo;', 'psts') ?>" /></td>
+						</tr>
+		      </table>
 		      </form>
 		    </div>
 			</div>
@@ -1808,7 +1847,7 @@ _gaq.push(["_trackTrans"]);
 					<?php } ?>
 					
 					<p class="submit">
-	        <input type="submit" name="psts_modify" id="psts_modify" value="<?php _e('Modify &raquo;', 'psts') ?>" />
+	        <input type="submit" name="psts_modify" class="button-primary psts_confirm" value="<?php _e('Modify &raquo;', 'psts') ?>" />
 	        </p>
 	        </form>
 	      </div>
@@ -3544,7 +3583,7 @@ _gaq.push(["_trackTrans"]);
 
 	/* exclude option from New Site Template plugin copy */
 	function blog_template_settings( $and ) {
-		$and .= " AND `option_name` != 'psts_signed_up' AND `option_name` != 'psts_action_log' AND `option_name` != 'psts_waiting_step' AND `option_name` != 'psts_payments_log' AND `option_name` != 'psts_used_coupons' AND `option_name` != 'psts_paypal_profile_id' AND `option_name` != 'psts_stripe_canceled'";
+		$and .= " AND `option_name` != 'psts_signed_up' AND `option_name` != 'psts_action_log' AND `option_name` != 'psts_waiting_step' AND `option_name` != 'psts_payments_log' AND `option_name` != 'psts_used_coupons' AND `option_name` != 'psts_paypal_profile_id' AND `option_name` != 'psts_stripe_canceled' AND `option_name` != 'psts_withdrawn'";
 		return $and;
 	}
 }
@@ -3633,16 +3672,4 @@ function supporter_get_expire($blog_id = false) {
 	global $psts;
 	return $psts->get_expire($blog_id);
 }
-
-///////////////////////////////////////////////////////////////////////////
-/* -------------------- Update Notifications Notice -------------------- */
-if ( !function_exists( 'wdp_un_check' ) ) {
-  add_action( 'admin_notices', 'wdp_un_check', 5 );
-  add_action( 'network_admin_notices', 'wdp_un_check', 5 );
-  function wdp_un_check() {
-    if ( !class_exists( 'WPMUDEV_Update_Notifications' ) && current_user_can( 'update_plugins' ) )
-      echo '<div class="error fade"><p>' . __('Please install the latest version of <a href="http://premium.wpmudev.org/project/update-notifications/" title="Download Now &raquo;">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href="http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/">More information &raquo;</a>', 'wpmudev') . '</a></p></div>';
-  }
-}
-/* --------------------------------------------------------------------- */
 ?>

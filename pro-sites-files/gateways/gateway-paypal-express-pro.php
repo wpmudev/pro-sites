@@ -28,6 +28,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_action( 'psts_subscriber_info', array(&$this, 'subscriber_info') );
 		add_action( 'psts_modify_form', array(&$this, 'modify_form') );
 		add_action( 'psts_modify_process', array(&$this, 'process_modify') );
+		add_action( 'psts_transfer_pro', array(&$this, 'process_transfer'), 10, 2 );
 		
 		//filter payment info
 		add_action( 'psts_payment_info', array(&$this, 'payment_info'), 10, 2 );
@@ -746,7 +747,18 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      echo '<div class="error fade"><p>' . $error_msg . '</p></div>';
 		}
 	}
-
+	
+	//handle transferring pro status from one blog to another
+	function process_transfer($from_id, $to_id) {
+		global $psts, $wpdb;
+		
+		$profile_id = $this->get_profile_id($from_id);
+		$current = $wpdb->get_row("SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$to_id'");
+		$custom = PSTS_PYPL_PREFIX . '_' . $to_id . '_' . $current->level . '_' . $current->term . '_' . $current->amount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
+		//update the profile id in paypal so that future payments are applied to the new site
+		$this->UpdateRecurringPaymentsProfile($profile_id, $custom);
+	}
+	
   function process_checkout($blog_id) {
 	  global $current_site, $current_user, $psts, $wpdb;
 
@@ -2022,22 +2034,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function UpdateRecurringPaymentsProfile($profile_id, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email) {
+	function UpdateRecurringPaymentsProfile($profile_id, $custom) {
 
 	  $nvpstr = "&PROFILEID=" . $profile_id;
-		$nvpstr .= "&CREDITCARDTYPE=$cctype";
-		$nvpstr .= "&ACCT=$acct";
-		$nvpstr .= "&EXPDATE=$expdate";
-		$nvpstr .= "&CVV2=$cvv2";
-		$nvpstr .= "&FIRSTNAME=$firstname";
-		$nvpstr .= "&LASTNAME=$lastname";
-		$nvpstr .= "&STREET=$street";
-		$nvpstr .= "&STREET2=$street2";
-		$nvpstr .= "&CITY=$city";
-		$nvpstr .= "&STATE=$state";
-		$nvpstr .= "&ZIP=$zip";
-		$nvpstr .= "&COUNTRYCODE=$countrycode";
-		$nvpstr .= "&EMAIL=$email";
+		$nvpstr .= "&PROFILEREFERENCE=$custom";
 
 	  $resArray = $this->api_call("UpdateRecurringPaymentsProfile", $nvpstr);
 

@@ -41,6 +41,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_subscriber_info', array(&$this, 'subscriber_info') );
 		add_action( 'psts_modify_form', array(&$this, 'modify_form') );
 		add_action( 'psts_modify_process', array(&$this, 'process_modify') );
+		add_action( 'psts_transfer_pro', array(&$this, 'process_transfer'), 10, 2 );
 		
 		//filter payment info
 		add_action( 'psts_payment_info', array(&$this, 'payment_info'), 10, 2 );
@@ -62,7 +63,7 @@ class ProSites_Gateway_Stripe {
 			`customer_id` char(20) NOT NULL,
 			PRIMARY KEY ( `blog_id` ),
 			UNIQUE ( `customer_id` )
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
+		) DEFAULT CHARSET=utf8;";
 		
 		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -346,15 +347,15 @@ class ProSites_Gateway_Stripe {
 					}				 
 					
 					if ($cancellation_success == false) {
-						 $psts->log_action( $blog_id, sprintf(__('Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s', 'psts'), $psts->format_currency(false, $refund), $current_user->display_name, $error_msg));
-						 $error_msg = sprintf(__('Whoops, Stripe returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts'), $error_msg);			
+						$psts->log_action( $blog_id, sprintf(__('Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s', 'psts'), $psts->format_currency(false, $refund), $current_user->display_name, $error_msg));
+						$error_msg = sprintf(__('Whoops, Stripe returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts'), $error_msg);			
 						break;	 
 					}							
 		
 					$refund_success = false;	
 					if ($cancellation_success == true) {
 						try {				
-							$charge_object = Stripe_Charge::all(array("count" => 1, "customer" => $profile));
+							$charge_object = Stripe_Charge::all(array("count" => 1, "customer" => $customer_id));
 							$charge_id = $charge_object->data[0]->id;
 							$ch = Stripe_Charge::retrieve($charge_id); 
 							$ch->refund();					
@@ -378,7 +379,7 @@ class ProSites_Gateway_Stripe {
 				
 				case 'refund':					 
 					try {
-						$charge_object = Stripe_Charge::all(array("count" => 1, "customer" => $profile));
+						$charge_object = Stripe_Charge::all(array("count" => 1, "customer" => $customer_id));
 						$charge_id = $charge_object->data[0]->id;
 						$ch = Stripe_Charge::retrieve($charge_id); 
 						$ch->refund();
@@ -395,13 +396,13 @@ class ProSites_Gateway_Stripe {
 				 
 				case 'partial_refund':					 
 					try {
-						$charge_object = Stripe_Charge::all(array("count" => 1, "customer" => $profile));
+						$charge_object = Stripe_Charge::all(array("count" => 1, "customer" => $customer_id));
 						$charge_id = $charge_object->data[0]->id;						
 						$ch = Stripe_Charge::retrieve($charge_id); 
 						$ch->refund(array("amount" => $refund_amount));								
 						$psts->log_action( $blog_id, sprintf(__('A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts'), $psts->format_currency(false, $refund_value), $current_user->display_name) );
-									$success_msg = sprintf(__('A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts'), $psts->format_currency(false, $refund_value));
-									$psts->record_refund_transaction($blog_id, $charge_id, $refund);											
+						$success_msg = sprintf(__('A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts'), $psts->format_currency(false, $refund_value));
+						$psts->record_refund_transaction($blog_id, $charge_id, $refund);											
 					}	
 					catch (Exception $e) {
 						$error_msg = $e->getMessage();								
@@ -419,6 +420,12 @@ class ProSites_Gateway_Stripe {
 			echo '<div class="updated fade"><p>' . $success_msg . '</p></div>';
 		else if ($error_msg)
 			echo '<div class="error fade"><p>' . $error_msg . '</p></div>';				
+	}
+	
+	//handle transferring pro status from one blog to another
+	function process_transfer($from_id, $to_id) {
+		global $wpdb;
+		$wpdb->query($wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites_stripe_customers SET blog_id = %d WHERE blog_id = %d", $to_id, $from_id) );	
 	}
 	
 	//disables the 3 month option while stripe is active (unsupported)
