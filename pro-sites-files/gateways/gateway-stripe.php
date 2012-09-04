@@ -912,22 +912,23 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 		
 		$error = '';
-		
-		try {
-			$customer_id = $this->get_customer_id($blog_id);
-			$cu = Stripe_Customer::retrieve($customer_id); 
-			$cu->cancelSubscription();		 		 
-		}
-		catch (Exception $e) {
-			$error = $e->getMessage();
-		}			
-		
-		if ($error == '') {
-			//record stat
-			$psts->record_stat($blog_id, 'cancel');
-			$psts->email_notification($blog_id, 'canceled');
-			update_blog_option($blog_id, 'psts_stripe_canceled', 1);		
-			$psts->log_action( $blog_id, __('Subscription successfully canceled because the blog was deleted.', 'psts') );
+		$customer_id = $this->get_customer_id($blog_id);
+		if ($customer_id) {
+			try {
+				$cu = Stripe_Customer::retrieve($customer_id); 
+				$cu->cancelSubscription();		 		 
+			}
+			catch (Exception $e) {
+				$error = $e->getMessage();
+			}			
+			
+			if (empty($error)) {
+				//record stat
+				$psts->record_stat($blog_id, 'cancel');
+				$psts->email_notification($blog_id, 'canceled');
+				update_blog_option($blog_id, 'psts_stripe_canceled', 1);		
+				$psts->log_action( $blog_id, __('Subscription successfully canceled because the blog was deleted.', 'psts') );
+			}
 		}
 	}
 	
