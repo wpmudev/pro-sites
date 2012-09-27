@@ -124,6 +124,7 @@ class ProSites_Module_BulkUpgrades {
 					// case: successful payment
 					list($bid, $uid, $credits, $amount, $currency, $stamp) = explode('_', $_POST['custom']);
 					//supporter_insert_update_transaction($bid, $_POST['txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
+					do_action('supporter_payment_processed', $bid, $amount, 'bulk');
 					$this->credit_credits($uid, $credits);
 					$this->update_note($uid, '');
 					break;
