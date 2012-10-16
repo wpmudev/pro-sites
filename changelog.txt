@@ -4,6 +4,9 @@ Author: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+- Don't show ads in rss feeds
+- Add in hook for affiliate payments on bulk upgrades
+- Add Japan locale to paypal list
 
 3.3.2 - 9/04/2012 - Aaron Edwards
 ----------------------------------------------------------------------

@@ -63,6 +63,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	      $paypal_site = $psts->get_setting('pypl_site');
 	      $sel_locale = empty($paypal_site) ? 'US' : $paypal_site;
 	      $locales = array(
+					'AR'	=> 'Argentina',
 					'AU'	=> 'Australia',
 					'AT'	=> 'Austria',
 					'BE'	=> 'Belgium',
@@ -73,6 +74,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'DE'	=> 'Germany',
 					'HK'	=> 'Hong Kong',
 					'IT'	=> 'Italy',
+					'JP'	=> 'Japan',
 					'MX'	=> 'Mexico',
 					'NL'	=> 'Netherlands',
 					'PL'	=> 'Poland',
@@ -83,7 +85,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'TR' 	=> 'Turkey',
 					'GB'	=> 'United Kingdom',
 					'US'	=> 'United States'
-	      );
+				);
 
 	      foreach ($locales as $k => $v) {
 	          echo '		<option value="' . $k . '"' . selected($k, $sel_locale, false) . '>' . esc_attr($v) . '</option>' . "\n";

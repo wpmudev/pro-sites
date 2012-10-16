@@ -161,7 +161,7 @@ class ProSites_Module_Ads {
 	function advertising_output($content) {
 		global $psts;
 		
-		if ( $this->show_ads() ) {
+		if ( $this->show_ads() && !is_feed() ) {
 			$per_page = $psts->get_setting('ads_count', 3);
 			
 			if ( is_page() ) {
