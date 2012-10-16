@@ -14,8 +14,10 @@ if ((isset($_POST['payment_status']) || isset($_POST['txn_type'])) && isset($_PO
 
 	if (get_site_option( "supporter_paypal_status" ) == 'test') {
 		$domain = 'https://www.sandbox.paypal.com';
+		$host = 'www.sandbox.paypal.com';
 	} else {
 		$domain = 'https://www.paypal.com';
+		$host = 'www.paypal.com';
 	}
 
 	$req = 'cmd=_notify-validate';
@@ -24,9 +26,10 @@ if ((isset($_POST['payment_status']) || isset($_POST['txn_type'])) && isset($_PO
 		$req .= '&' . $k . '=' . urlencode($v);
 	}
 
-	$header = 'POST /cgi-bin/webscr HTTP/1.0' . "\r\n"
+	$header = 'POST /cgi-bin/webscr HTTP/1.1' . "\r\n"
 			. 'Content-Type: application/x-www-form-urlencoded' . "\r\n"
 			. 'Content-Length: ' . strlen($req) . "\r\n"
+			. "Host: $host\r\n"
 			. "\r\n";
 
 	@set_time_limit(60);
