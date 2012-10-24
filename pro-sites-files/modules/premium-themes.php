@@ -8,41 +8,94 @@ class ProSites_Module_PremiumThemes {
 		$this->__construct();
 	}
 
-  function __construct() {
-    add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
-		add_action( 'admin_menu', array(&$this, 'plug_page') );
-		//add_action( 'psts_admin_bar', array(&$this, 'add_menu_admin_bar') );
+	function __construct() {
+		add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
-		add_action( 'admin_notices', array(&$this, 'message_output') );
 		add_action( 'psts_withdraw', array(&$this, 'deactivate_theme') );
 		add_action( 'psts_downgrade', array(&$this, 'deactivate_theme') );
+		
+		add_action( 'admin_print_styles-themes.php', array(&$this, 'themes_styles') );
+		add_action( 'admin_footer-themes.php', array(&$this, 'themes_scripts') );
+		
+		add_action( 'customize_controls_print_footer_scripts', array(&$this, 'customize_controls_print_footer_scripts') );
+		
+		add_filter( 'theme_action_links', array(&$this, 'theme_action_links'), 100, 2);
+		add_filter( 'site_option_allowedthemes', array(&$this, 'site_option_allowedthemes'), 100);
 	}
 	
 	function plug_network_page() {
-	  $page = add_submenu_page( 'psts', __('Pro Sites Premium Themes', 'psts'), __('Premium Themes', 'psts'), 'manage_network_options', 'psts-themes', array(&$this, 'admin_page') );
+		$page = add_submenu_page( 'psts', __('Pro Sites Premium Themes', 'psts'), __('Premium Themes', 'psts'), 'manage_network_options', 'psts-themes', array(&$this, 'admin_page') );
 	}
-
-	function plug_page() {
-    global $submenu, $psts;
-		$page = add_submenu_page('themes.php', $psts->get_setting('pt_name'), $psts->get_setting('pt_name'), 'switch_themes', 'premium-themes', array(&$this, 'themes_page') );
-	  add_action('admin_print_scripts-' . $page, array(&$this, 'page_scripts') );
-
-	  //add it under pro blogs menu also
-		if ( !defined('PSTS_HIDE_THEMES_MENU') ) {
-			$page = add_submenu_page('psts-checkout', $psts->get_setting('pt_name'), $psts->get_setting('pt_name'), 'switch_themes', 'premium-themes', array(&$this, 'themes_page') );
-			add_action('admin_print_scripts-' . $page, array(&$this, 'page_scripts') );
+	
+	function theme_action_links( $actions, $theme ) {
+		global $psts, $blog_id;
+		
+		$ct = wp_get_theme();
+	  
+		$allowed_themes = $psts->get_setting('pt_allowed_themes');
+		if ( $allowed_themes == false )
+			$allowed_themes = array();
+		
+		if ( isset( $allowed_themes[ esc_html( $ct->stylesheet ) ] ) == false )
+			$allowed_themes[ esc_html( $ct->stylesheet ) ] = true;
+		
+		if ( isset( $allowed_themes[ esc_html( $theme[ 'Stylesheet' ] ) ] ) && $allowed_themes[esc_html($theme['Stylesheet'])] &&
+		     !is_pro_site($blog_id, $allowed_themes[ $theme[ 'Stylesheet' ] ]) && !$this->ads_theme() ) {
+			
+			$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name') );
+	  	$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name'), $psts->get_setting('pt_text') );
+			$actions['activate'] = '<a href="' . $psts->checkout_url($blog_id) .  '" class="activatelink nonpsts" data-level="' . $allowed_themes[ $theme[ 'Stylesheet' ] ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
 		}
+		
+		return $actions;
 	}
-
-  function add_menu_admin_bar() {
-    global $wp_admin_bar, $psts;
-
-    if ( !current_user_can('switch_themes') )
-      return;
-        
-    $wp_admin_bar->add_menu( array( 'id' => 'psts-themes', 'parent' => 'pro-site', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
-    $wp_admin_bar->add_menu( array( 'id' => 'psts-themes-sub', 'parent' => 'themes', 'title' => $psts->get_setting('pt_name'), 'href' => admin_url('themes.php?page=premium-themes') ) );
+	
+	function site_option_allowedthemes($themes) {
+		global $psts;
+		
+		$allowed_themes = $psts->get_setting('pt_allowed_themes');
+		if ( $allowed_themes == false )
+			$allowed_themes = array();
+		
+		if (count($allowed_themes) > 0) {
+			if (!is_array($themes)) {
+				$themes = array();
+			}
+			
+			foreach ($allowed_themes as $key => $allowed_theme) {
+				$themes[$key] = $allowed_theme;
+			}
+		}
+		
+		return $themes;
+	}
+	
+	function themes_styles() {
+		echo '<style type="text/css">
+			a.nonpsts {color:red;}
+			div.level-1 a.screenshot {box-shadow: 0 43px 30px -30px #EAFFEF;}
+			div.level-2 a.screenshot {box-shadow: 0 43px 30px -30px #E6FCFF;}
+			div.level-3 a.screenshot {box-shadow: 0 43px 30px -30px #EEEEFF;}
+			div.level-4 a.screenshot {box-shadow: 0 43px 30px -30px #FCFCE9;}
+			div.level-5 a.screenshot {box-shadow: 0 43px 30px -30px #FFECFF;}
+			div.level-6 a.screenshot {box-shadow: 0 43px 30px -30px #DBF0F7;}
+			div.level-7 a.screenshot {box-shadow: 0 43px 30px -30px #FFECEC;}
+		</style>';
+	}
+	
+	function themes_scripts() {
+		?>
+		<script type="text/javascript">
+		jQuery(document).ready(function() {
+			var specialThemes = jQuery("a[data-level]");
+			//alert(test);
+			jQuery.each(specialThemes, function(index, value) { 
+				jQuery(value).parents(".available-theme").addClass("level-"+jQuery(value).attr('data-level'));
+			});
+		});
+		</script>
+		<?php
 	}
 
 	function deactivate_theme($blog_id) {
@@ -71,7 +124,7 @@ class ProSites_Module_PremiumThemes {
 	
 	//for ads module to allow premium themes
 	function ads_theme() {
-    global $psts;
+		global $psts;
     
 		if (function_exists('psts_hide_ads') && $psts->get_setting('ads_themes') && psts_hide_ads())
 	    return true;
@@ -102,14 +155,6 @@ class ProSites_Module_PremiumThemes {
 		  </div>
 		</div>
 	  <?php
-	}
-
-	function message_output() {
-	  global $psts, $current_screen;
-	  
-	  //advertises premium themes on the main themes page.
-	  if ($current_screen->id == 'themes')
-	   	echo '<div class="updated fade"><p style="font-weight:bold;">'.sprintf(__('Be sure to check out our <a title="%s" href="themes.php?page=premium-themes">%s &raquo;</a>', 'psts'), $psts->get_setting('pt_name'), $psts->get_setting('pt_name')).'</a></p></div>';
 	}
 
 	function admin_page() {
@@ -167,7 +212,7 @@ class ProSites_Module_PremiumThemes {
 				$theme_key = esc_html($theme['Stylesheet']);
 				$class = ('alt' == $class) ? '' : 'alt';
 
-		    if( !isset($allowed_themes[$theme_key] ) ) {
+		    if( !isset($allowed_themes[$theme_key] ) || isset($psts_allowed_themes[$theme_key]) ) {
 
   				?>
   				<tr valign="top" class="<?php echo $class; ?>">
@@ -197,249 +242,29 @@ class ProSites_Module_PremiumThemes {
 	  <?php
 	}
 	
-  function page_scripts() {
-		global $current_screen;
-				
-	  if ( current_user_can( 'switch_themes' ) && isset($_GET['action'] ) ) {
-			if ( 'activate' == $_GET['action'] ) {
-				check_admin_referer('switch-theme_' . $_GET['template']);
-				switch_theme($_GET['template'], $_GET['stylesheet']);
-				$_GET['activated'] = 'true';
-			}
-		}
+	function customize_controls_print_footer_scripts() {
+		global $psts, $blog_id;
 		
-	  //add scripts and css
-	  add_thickbox();
-	  wp_enqueue_script( 'theme-preview' );
-	  $css = get_bloginfo('wpurl')."/wp-includes/js/thickbox/thickbox.css";
-		wp_enqueue_style('thickbox_css', $css, false, false, 'screen');
-		wp_print_styles(array('thickbox_css'));
+		$theme = wp_get_theme($_REQUEST['theme']);
 		
-		$help = '<p>' . __('You can see your active theme at the top of the screen. Below are the other themes available that are not currently in use. You can see what your site would look like with one of these themes by clicking the Preview link. To change themes, click the Activate link or upgrade to the needed level.', 'psts') . '</p>';
-		add_contextual_help($current_screen, $help);
-
-		//add per level styles
-	  echo '<style type="text/css">
-						a.nonpsts {color:red;}
-						td.level-1 {background-color: #EAFFEF}
-						td.level-2 {background-color: #E6FCFF}
-						td.level-3 {background-color: #EEEEFF}
-						td.level-4 {background-color: #FCFCE9}
-						td.level-5 {background-color: #FFECFF}
-						td.level-6 {background-color: #DBF0F7}
-						td.level-7 {background-color: #FFECEC}
-					</style>';
-	}
-	
-	function themes_page() {
-		global $psts, $wp_registered_sidebars, $blog_id;
-
-	  $themes = get_themes();
-	  $ct = current_theme_info();
-	  
-	  $allowed_themes = $psts->get_setting('pt_allowed_themes');
-	  if( $allowed_themes == false )
-	  	$allowed_themes = array();
-
-	  if( isset( $allowed_themes[ esc_html( $ct->stylesheet ) ] ) == false )
-	      $allowed_themes[ esc_html( $ct->stylesheet ) ] = true;
-
-	  reset( $themes );
-	  
-	  //remove themes with no permission
-	  foreach( $themes as $key => $theme ) {
-      if ( isset( $allowed_themes[ esc_html( $theme[ 'Stylesheet' ] ) ] ) == false ) {
-  			unset( $themes[ $key ] );
-      } else if ( !$psts->get_level_setting($allowed_themes[esc_html($theme['Stylesheet'])], 'name') ) {
-        unset( $themes[ $key ] );
-			}
-	  }
-	  reset( $themes );
-
-	  $title = $psts->get_setting('pt_name', __('Premium Themes', 'psts'));
-	  $parent_file = 'themes.php?page=premium-themes';
-
-	  ?>
-
-	 <?php if ( isset($_GET['activated']) ) :
-	  		if ( isset($wp_registered_sidebars) && count( (array) $wp_registered_sidebars ) ) { ?>
-	  <div id="message2" class="updated fade"><p><?php printf(__('New theme activated. This theme supports widgets, please visit the <a href="%s">widgets settings page</a> to configure them.'), admin_url('widgets.php') ); ?></p></div><?php
-	  		} else { ?>
-	  <div id="message2" class="updated fade"><p><?php printf(__('New theme activated. <a href="%s">Visit site</a>'), get_bloginfo('url') . '/'); ?></p></div><?php
-	  		}
-	  endif; ?>
-
-	  <?php
-	  unset($themes[$ct->name]);
-
-	  uksort( $themes, "strnatcasecmp" );
-	  $theme_total = count( $themes );
-	  $per_page = 30;
-
-	  if ( isset( $_GET['pagenum'] ) )
-	  	$page = absint( $_GET['pagenum'] );
-
-	  if ( empty($page) )
-	  	$page = 1;
-
-	  $start = $offset = ( $page - 1 ) * $per_page;
-
-	  $page_links = paginate_links( array(
-	  	'base' => add_query_arg( 'pagenum', '%#%' ) . '#themenav',
-	  	'format' => '',
-	  	'prev_text' => __('&laquo;'),
-	  	'next_text' => __('&raquo;'),
-	  	'total' => ceil($theme_total / $per_page),
-	  	'current' => $page
-	  ));
-
-	  $themes = array_slice( $themes, $start, $per_page );
-
-	  ?>
-
-	  <div class="wrap">
-	  <?php screen_icon(); ?>
-	  <h2><?php echo esc_html( $title ); ?></h2>
-
-	  <h3><?php _e('Current Theme'); ?></h3>
-	  <div id="current-theme">
-	  <?php if ( $ct->screenshot ) : ?>
-	  <img src="<?php echo $ct->theme_root_uri . '/' . $ct->stylesheet . '/' . $ct->screenshot; ?>" alt="<?php _e('Current theme preview'); ?>" />
-	  <?php endif; ?>
-	  <h4><?php
-	  	/* translators: 1: theme title, 2: theme version, 3: theme author */
-	  	printf(__('%1$s %2$s'), $ct->title, $ct->version) ; ?></h4>
-	  <p class="theme-description"><?php echo $ct->description; ?></p>
-	  <?php if ( $ct->tags ) : ?>
-	  <p><?php _e('Tags:'); ?> <?php echo join(', ', $ct->tags); ?></p>
-	  <?php endif; ?>
-
-	  </div>
-
-	  <div class="clear"></div>
-
-	  <h3><?php _e('Available Premium Themes', 'psts'); ?></h3>
-
-		<div class="clear"></div>
-
-	  <?php if ( $theme_total ) { ?>
-
-	  <?php if ( $page_links ) : ?>
-	  <div class="tablenav">
-	  <div class="tablenav-pages"><?php $page_links_text = sprintf( '<span class="displaying-num">' . __( 'Displaying %s&#8211;%s of %s' ) . '</span>%s',
-	  	number_format_i18n( $start + 1 ),
-	  	number_format_i18n( min( $page * $per_page, $theme_total ) ),
-	  	number_format_i18n( $theme_total ),
-	  	$page_links
-	  ); echo $page_links_text; ?></div>
-	  </div>
-	  <?php endif; ?>
-
-	  <table id="availablethemes" cellspacing="0" cellpadding="0">
-	  <?php
-	  $style = '';
-
-	  $theme_names = array_keys($themes);
-	  natcasesort($theme_names);
-
-	  $table = array();
-	  $rows = ceil(count($theme_names) / 3);
-	  for ( $row = 1; $row <= $rows; $row++ )
-	  	for ( $col = 1; $col <= 3; $col++ )
-	  		$table[$row][$col] = array_shift($theme_names);
-
-	  foreach ( $table as $row => $cols ) {
-	  ?>
-	  <tr>
-	  <?php
-	  foreach ( $cols as $col => $theme_name ) {
-      //pro blog control
-	  	$level = @$allowed_themes[ esc_html( $themes[$theme_name]['Stylesheet'] ) ];
-
-			$class = array('available-theme');
-	  	if ( $row == 1 ) $class[] = 'top';
-	  	if ( $col == 1 ) $class[] = 'left';
-	  	if ( $row == $rows ) $class[] = 'bottom';
-	  	if ( $col == 3 ) $class[] = 'right';
-	  	
-	  	$class[] = 'level-' . $level;
-	  ?>
-	  	<td class="<?php echo join(' ', $class); ?>">
-	  <?php if ( !empty($theme_name) ) :
-	  	$template = $themes[$theme_name]['Template'];
-	  	$stylesheet = $themes[$theme_name]['Stylesheet'];
-	  	$title = $themes[$theme_name]['Title'];
-	  	$version = $themes[$theme_name]['Version'];
-	  	$description = $themes[$theme_name]['Description'];
-	  	$author = $themes[$theme_name]['Author'];
-	  	$screenshot = $themes[$theme_name]['Screenshot'];
-	  	$stylesheet_dir = $themes[$theme_name]['Stylesheet Dir'];
-	  	$template_dir = $themes[$theme_name]['Template Dir'];
-	  	$parent_theme = $themes[$theme_name]['Parent Theme'];
-	  	$theme_root = $themes[$theme_name]['Theme Root'];
-	    $theme_root_uri = $themes[$theme_name]['Theme Root URI'];
-	  	$preview_link = esc_url(get_option('home') . '/');
-	  	if ( is_ssl() )
-	  		$preview_link = str_replace( 'http://', 'https://', $preview_link );
-	  	$preview_link = htmlspecialchars( add_query_arg( array('preview' => 1, 'template' => $template, 'stylesheet' => $stylesheet, 'TB_iframe' => 'true' ), $preview_link ) );
-	  	$preview_text = esc_attr( sprintf( __('Preview of &#8220;%s&#8221;'), $title ) );
-	  	$tags = $themes[$theme_name]['Tags'];
-	  	$thickbox_class = 'thickbox thickbox-preview';
-	  	$activate_link = wp_nonce_url("themes.php?page=premium-themes&action=activate&amp;template=".urlencode($template)."&amp;stylesheet=".urlencode($stylesheet), 'switch-theme_' . $template);
-	  	$activate_text = esc_attr( sprintf( __('Activate &#8220;%s&#8221;'), $title ) );
-	  	$actions = array();
-
-	  	if ( is_pro_site(false, $level) || $this->ads_theme() ) {
-	      $actions[] = '<a href="' . $activate_link .  '" class="activatelink" title="' . $activate_text . '">' . __('Activate') . '</a>';
-	  	} else {
-	  	  $rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($level, 'name') );
-	  	  $upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($level, 'name'), $psts->get_setting('pt_text') );
-	      $actions[] = '<a href="' . $psts->checkout_url($blog_id) .  '" class="activatelink nonpsts" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';
-			}
+		$allowed_themes = $psts->get_setting('pt_allowed_themes');
+		if ( $allowed_themes == false )
+			$allowed_themes = array();
 			
-	    $actions[] = '<a href="' . $preview_link . '" class="thickbox thickbox-preview" title="' . esc_attr(sprintf(__('Preview &#8220;%s&#8221;'), $theme_name)) . '">' . __('Preview') . '</a>';
-	  	$actions = apply_filters('theme_action_links', $actions, $themes[$theme_name]);
-
-	  	$actions = implode ( ' | ', $actions );
-	  ?>
-	  		<a href="<?php echo $preview_link; ?>" class="<?php echo $thickbox_class; ?> screenshot">
-	  <?php if ( $screenshot ) : ?>
-	  		<img src="<?php echo $theme_root_uri . '/' . $stylesheet . '/' . $screenshot; ?>" alt="" />
-	  <?php endif; ?>
-	  		</a>
-	  <h3><?php
-	  	/* translators: 1: theme title, 2: theme version, 3: theme author */
-	  	printf(__('%1$s %2$s'), $title, $version) ; ?></h3>
-	  <p class="description"><?php echo $description; ?></p>
-	  <span class='action-links'><?php echo $actions ?></span>
-	  <?php if ( $tags ) : ?>
-	  <p><?php _e('Tags:'); ?> <?php echo join(', ', $tags); ?></p>
-	  <?php endif; ?>
-
-	  <?php endif; // end if not empty theme_name ?>
-	  	</td>
-	  <?php } // end foreach $cols ?>
-	  </tr>
-	  <?php } // end foreach $table ?>
-	  </table>
-	  <?php } else { ?>
-	  <p><?php _e('There are no premium themes available at the moment so there is nothing to show you here.', 'psts'); ?></p>
-	  <?php } // end if $theme_total?>
-	  <br class="clear" />
-
-	  <?php if ( $page_links ) : ?>
-	  <div class="tablenav">
-	  <?php echo "<div class='tablenav-pages'>$page_links_text</div>"; ?>
-	  <br class="clear" />
-	  </div>
-	  <?php endif; ?>
-
-	  <br class="clear" />
-	  </div>
-	  </form>
-	  <?php
+		if ( isset( $allowed_themes[ esc_html( $theme[ 'Stylesheet' ] ) ] ) && $allowed_themes[esc_html($theme['Stylesheet'])] &&
+		     !is_pro_site($blog_id, $allowed_themes[ $theme[ 'Stylesheet' ] ]) && !$this->ads_theme() ) {
+			
+			$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name') );
+	  	$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name'), $psts->get_setting('pt_text') );
+			$upgrade_link = '<a href="' . $psts->checkout_url($blog_id) .  '" class="activatelink nonpsts button-primary" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
+			?>
+			<script type="text/javascript">
+				jQuery('#save').remove();
+				jQuery('#customize-header-actions').prepend('<?php echo $upgrade_link; ?>');
+			</script>
+			<?php
+		}
 	}
-	
 }
 
 //register the module
