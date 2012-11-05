@@ -8,6 +8,7 @@ Change Log:
 3.3.3 - 10/24/2012 - Aaron Edwards
 ----------------------------------------------------------------------
 - Merge Premium Themes page into normal themes list
+- New MarketPress Global Products Filter module
 - Don't show ads in rss feeds
 - Add in hook for affiliate payments on bulk upgrades
 - Add Japan locale to paypal list
