@@ -30,5 +30,6 @@ class ProSites_Module_MarketPress_Global {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_MarketPress_Global', __('MarketPress Global Products Filter', 'psts'), __('When enabled, removes non-pro site products from the MarketPress global product lists.', 'psts') );
+if (class_exists('MarketPress'))
+	psts_register_module( 'ProSites_Module_MarketPress_Global', __('MarketPress Global Products Filter', 'psts'), __('When enabled, removes non-pro site products from the MarketPress global product lists.', 'psts') );
 ?>
