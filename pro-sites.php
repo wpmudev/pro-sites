@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.3.2
+Version: 3.3.3
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.3.2';
+  var $version = '3.3.3';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -144,45 +144,45 @@ class ProSites {
 			delete_site_option( "supporter_installed" );
 		}
 
-		$table1 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites` (
-		  `blog_ID` bigint(20) NOT NULL,
-		  `level` int(3) NOT NULL DEFAULT 1,
-		  `expire` bigint(20) NOT NULL,
-		  `gateway` varchar(25) NULL DEFAULT 'PayPal',
-		  `term` varchar(25) NULL DEFAULT NULL,
-		  `amount` varchar(10) NULL DEFAULT NULL,
-		  PRIMARY KEY  (`blog_ID`),
-		  KEY blog_ID  (`blog_ID`, `level`, `expire`)
+		$table1 = "CREATE TABLE {$wpdb->base_prefix}pro_sites (
+		  blog_ID bigint(20) NOT NULL,
+		  level int(3) NOT NULL DEFAULT 1,
+		  expire bigint(20) NOT NULL,
+		  gateway varchar(25) NULL DEFAULT 'PayPal',
+		  term varchar(25) NULL DEFAULT NULL,
+		  amount varchar(10) NULL DEFAULT NULL,
+		  PRIMARY KEY  (blog_ID),
+		  KEY  (blog_ID,level,expire)
 		);";
 
-		$table2 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites_signup_stats` (
-		  `action_ID` bigint(20) unsigned NOT NULL auto_increment,
-		  `blog_ID` bigint(20) NOT NULL,
-		  `action` varchar(20) NOT NULL,
-		  `time_stamp` DATE NOT NULL,
-		  PRIMARY KEY  (`action_ID`)
+		$table2 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_signup_stats (
+		  action_ID bigint(20) unsigned NOT NULL auto_increment,
+		  blog_ID bigint(20) NOT NULL,
+		  action varchar(20) NOT NULL,
+		  time_stamp DATE NOT NULL,
+		  PRIMARY KEY  (action_ID)
 		);";
 
-		$table3 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites_daily_stats` (
-		  `id` bigint(20) unsigned NOT NULL auto_increment,
-		  `date` DATE NOT NULL,
-		  `supporter_count` int(10) NOT NULL DEFAULT 0,
-		  `expired_count` int(10) NOT NULL DEFAULT 0,
-		  `term_count_1` int(10) NOT NULL DEFAULT 0,
-		  `term_count_3` int(10) NOT NULL DEFAULT 0,
-		  `term_count_12` int(10) NOT NULL DEFAULT 0,
-		  `term_count_manual` int(10) NOT NULL DEFAULT 0,
-		  `level_count_1` int(10) NOT NULL DEFAULT 0,
-		  `level_count_2` int(10) NOT NULL DEFAULT 0,
-		  `level_count_3` int(10) NOT NULL DEFAULT 0,
-		  `level_count_4` int(10) NOT NULL DEFAULT 0,
-		  `level_count_5` int(10) NOT NULL DEFAULT 0,
-		  `level_count_6` int(10) NOT NULL DEFAULT 0,
-		  `level_count_7` int(10) NOT NULL DEFAULT 0,
-		  `level_count_8` int(10) NOT NULL DEFAULT 0,
-		  `level_count_9` int(10) NOT NULL DEFAULT 0,
-		  `level_count_10` int(10) NOT NULL DEFAULT 0,
-		  PRIMARY KEY  (`id`)
+		$table3 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_daily_stats (
+		  id bigint(20) unsigned NOT NULL auto_increment,
+		  date DATE NOT NULL,
+		  supporter_count int(10) NOT NULL DEFAULT 0,
+		  expired_count int(10) NOT NULL DEFAULT 0,
+		  term_count_1 int(10) NOT NULL DEFAULT 0,
+		  term_count_3 int(10) NOT NULL DEFAULT 0,
+		  term_count_12 int(10) NOT NULL DEFAULT 0,
+		  term_count_manual int(10) NOT NULL DEFAULT 0,
+		  level_count_1 int(10) NOT NULL DEFAULT 0,
+		  level_count_2 int(10) NOT NULL DEFAULT 0,
+		  level_count_3 int(10) NOT NULL DEFAULT 0,
+		  level_count_4 int(10) NOT NULL DEFAULT 0,
+		  level_count_5 int(10) NOT NULL DEFAULT 0,
+		  level_count_6 int(10) NOT NULL DEFAULT 0,
+		  level_count_7 int(10) NOT NULL DEFAULT 0,
+		  level_count_8 int(10) NOT NULL DEFAULT 0,
+		  level_count_9 int(10) NOT NULL DEFAULT 0,
+		  level_count_10 int(10) NOT NULL DEFAULT 0,
+		  PRIMARY KEY  (id)
 		);";
 		
 		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
@@ -1763,7 +1763,7 @@ _gaq.push(["_trackTrans"]);
 	          </table>
 	        </div>
 					<form method="post" action="">
-						<input type="text" placeholder="Add a custom log entry..." name="log_entry" style="width:91%;" /> <input type="submit" name="add_log_entry" value="<?php _e('Add &raquo;', 'psts') ?>" style="width:8%;float:right;" />
+						<input type="text" placeholder="Add a custom log entry..." name="log_entry" style="width:91%;" /> <input type="submit" class="button-secondary" name="add_log_entry" value="<?php _e('Add &raquo;', 'psts') ?>" style="width:8%;float:right;" />
 					</form>
 	      </div>
 	    </div>
