@@ -180,7 +180,7 @@ class ProSites_Module_PremiumThemes {
     }
 
     // Site Themes
-    $themes = get_themes();
+    $themes = wp_get_themes();
     $psts_allowed_themes = $psts->get_setting('pt_allowed_themes');
     $allowed_themes = get_site_option( "allowedthemes" );
     if( $allowed_themes == false ) {

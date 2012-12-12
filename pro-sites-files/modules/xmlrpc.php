@@ -28,11 +28,9 @@ class ProSites_Module_XMLRPC {
 		global $psts;
 
 		if ( !is_pro_site(false, $psts->get_setting('xmlrpc_level', 1)) && !$this->ads_xmlrpc() ) {
-	    add_filter('pre_option_enable_xmlrpc', create_function('','return 0;'));
-			add_filter('pre_option_enable_app', create_function('','return 0;'));
+	    add_filter('xmlrpc_enabled', '__return_false');
 		} else if ( defined('PSTS_FORCE_XMLRPC_ON') ) {
-			add_filter('pre_option_enable_xmlrpc', create_function('','return 1;'));
-			add_filter('pre_option_enable_app', create_function('','return 1;'));
+			add_filter('xmlrpc_enabled', '__return_true');
 		}
 	}
 
@@ -44,14 +42,7 @@ class ProSites_Module_XMLRPC {
 
 	  if ($current_screen->id == 'options-writing') {
 	    $notice = str_replace( 'LEVEL', $psts->get_level_setting($psts->get_setting('xmlrpc_level', 1), 'name'), $psts->get_setting('xmlrpc_message') );
-	   	$error = '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
-	   	?><script type="text/javascript">
-	  	  jQuery(document).ready(function () {
-	  		  jQuery('#enable_app,#enable_xmlrpc').attr("disabled", true);
-	  		  setTimeout(function() {jQuery("#enable_app").parents(".form-table").before('<?php echo $error; ?>')}, 100);
-	  		});
-	  	</script>
-			<?php
+	   	echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
 	
@@ -60,7 +51,7 @@ class ProSites_Module_XMLRPC {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Restrict XML-RPC', 'psts') ?></span> - <span class="description"><?php _e('Allows you to only enable XML-RPC and Atom Publishing for selected Pro Site levels.', 'psts') ?></span></h3>
+		  <h3 class='hndle'><span><?php _e('Restrict XML-RPC', 'psts') ?></span> - <span class="description"><?php _e('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts') ?></span></h3>
 		  <div class="inside">
 		  <table class="form-table">
 			  <tr valign="top">
@@ -79,7 +70,7 @@ class ProSites_Module_XMLRPC {
 			  <tr valign="top">
 			  <th scope="row"><?php _e('Restricted Message', 'psts') ?></th>
 			  <td><input type="text" name="psts[xmlrpc_message]" id="xmlrpc_message" value="<?php echo esc_attr($psts->get_setting('xmlrpc_message')); ?>" style="width: 95%" />
-			  <br /><?php _e('Required - This message is displayed on the remote publishing settings screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
+			  <br /><?php _e('Required - This message is displayed on the writing settings screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts') ?></td>
 			  </tr>
 		  </table>
 		  </div>
@@ -89,5 +80,5 @@ class ProSites_Module_XMLRPC {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_XMLRPC', __('Restrict XML-RPC', 'psts'), __('Allows you to only enable XML-RPC and Atom Publishing for selected Pro Site levels.', 'psts') );
+psts_register_module( 'ProSites_Module_XMLRPC', __('Restrict XML-RPC', 'psts'), __('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts') );
 ?>
