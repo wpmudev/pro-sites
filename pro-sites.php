@@ -288,7 +288,7 @@ Many thanks again for being a member!", 'psts'),
    		'quota_message' => __('For SPACE of upload space, upgrade to LEVEL!', 'psts'),
    		'quota_out_message' => __('You are out of upload space! Please upgrade to LEVEL to enable SPACE of storage space.', 'psts'),
    		'xmlrpc_level' => 1,
-   		'xmlrpc_message' => __('To enable XML-RPC or Atom remote publishing please upgrade to LEVEL &raquo;', 'psts'),
+   		'xmlrpc_message' => __('To enable XML-RPC remote publishing please upgrade to LEVEL &raquo;', 'psts'),
    		'bp_notice' => __('Upgrade to LEVEL to access this feature &raquo;', 'psts'),
    		'pp_name' => __('Premium Plugins', 'psts'),
    		'ads_name' => __('Disable Ads', 'psts'),
@@ -1014,7 +1014,10 @@ Many thanks again for being a member!", 'psts'),
 		//check cache
 		if ( isset($this->level[$blog_id]) )
 		  return $this->level[$blog_id];
-
+		
+		if (!is_pro_site($blog_id))
+			return 0;
+		
     $sql = "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'";
 
 		$level = $wpdb->get_var($sql);
