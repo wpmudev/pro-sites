@@ -74,26 +74,32 @@ class ProSites_Module_Plugins {
 
 	//plugin activate links
 	function action_links($action_links, $plugin_file, $plugin_data, $context) {
-    global $psts, $blog_id;
-    
-   	if ( is_super_admin() || is_plugin_active( $plugin_file ) )
-	    return $action_links;
+		global $psts, $blog_id;
+
+		if ( is_super_admin() ){
+			return $action_links;
+		}
 
 		$psts_plugins = (array)$psts->get_setting('pp_plugins');
 		$override_plugins = (array)get_option('psts_plugins');
-		
-	  if ($context != 'active') {
-	    if ( isset($psts_plugins[$plugin_file]['level']) && $psts_plugins[$plugin_file]['level'] != 0 ) {
-				if ( is_pro_site(false, $psts_plugins[$plugin_file]['level']) || in_array($plugin_file, $override_plugins) ) {
-	        return $action_links;
-	      } else {
-	        $this->checkbox_rows[] = $plugin_file;
-	        $rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($psts_plugins[$plugin_file]['level'], 'name') );
-	        return array('<a style="color:red;" href="'.$psts->checkout_url($blog_id).'">'.$rebrand.'</a>');
-	      }
-	    }
-	  }
-	  return $action_links;
+
+		if ( isset($psts_plugins[$plugin_file]['level']) && $psts_plugins[$plugin_file]['level'] != 0 ) {
+			$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($psts_plugins[$plugin_file]['level'], 'name') );
+			$color = 'green';
+
+			if ( !is_pro_site(false, $psts_plugins[$plugin_file]['level']) && 
+				 !in_array($plugin_file, $override_plugins) ){
+
+				// plugin disabled, subscription not high enough
+				$color = 'red';
+				$this->checkbox_rows[] = $plugin_file;
+				$action_links = array();
+			}
+
+			$action_links[] = '<a style="color:'.$color.';" href="'.$psts->checkout_url($blog_id).'">'.$rebrand.'</a>';
+		}
+
+		return $action_links;
 	}
 
 	//use jquery to remove associated checkboxes to prevent mass activation (usability, not security)
