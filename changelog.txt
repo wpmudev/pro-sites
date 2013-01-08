@@ -8,6 +8,7 @@ Change Log:
 3.3.4 - 1/8/2013 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix an bug in premium themes module showing themes as network enabled: http://wp.mu/bk
+- Place a label onto premium plugins listed, even if a user is on the pro level: http://wp.mu/bl
 
 3.3.3 - 12/11/2012 - Aaron Edwards
 ----------------------------------------------------------------------
