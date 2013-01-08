@@ -30,6 +30,9 @@ class ProSites_Module_PremiumThemes {
 	
 	function theme_action_links( $actions, $theme ) {
 		global $psts, $blog_id;
+
+		if ( is_network_admin() )
+			return $actions;
 		
 		$ct = wp_get_theme();
 	  
@@ -53,6 +56,9 @@ class ProSites_Module_PremiumThemes {
 	
 	function site_option_allowedthemes($themes) {
 		global $psts;
+
+		if ( is_network_admin() )
+			return $themes;
 		
 		$allowed_themes = $psts->get_setting('pt_allowed_themes');
 		if ( $allowed_themes == false )
@@ -184,7 +190,7 @@ class ProSites_Module_PremiumThemes {
     $psts_allowed_themes = $psts->get_setting('pt_allowed_themes');
     $allowed_themes = get_site_option( "allowedthemes" );
     if( $allowed_themes == false ) {
-    	$allowed_themes = array_keys( $themes );
+    	$allowed_themes = array();
     }
 		$levels = (array)get_site_option('psts_levels');
 	  ?>
@@ -212,7 +218,7 @@ class ProSites_Module_PremiumThemes {
 				$theme_key = esc_html($theme['Stylesheet']);
 				$class = ('alt' == $class) ? '' : 'alt';
 
-		    if( !isset($allowed_themes[$theme_key] ) || isset($psts_allowed_themes[$theme_key]) ) {
+		    if( !isset($allowed_themes[$theme_key]) ) {
 
   				?>
   				<tr valign="top" class="<?php echo $class; ?>">
