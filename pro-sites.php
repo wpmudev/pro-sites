@@ -765,68 +765,90 @@ Many thanks again for being a member!", 'psts'),
 
 	//sends email notification to the user
 	function email_notification($blog_id, $action, $email = false) {
-	  global $wpdb;
-		
+		global $wpdb;
+
 		if (!$email)
 			$email = get_blog_option($blog_id, 'admin_email');
-		
-	  if ($action == 'success') {
 
-      $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $this->get_setting('success_msg') );
-			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
-			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
+		// used in all emails
+		$search_replace=array(
+			'LEVEL'=> $this->get_level_setting($this->get_level($blog_id), 'name'), 
+			'SITEURL'=> get_site_url( $blog_id ), 
+			'SITENAME'=> get_blog_option($blog_id, 'blogname')
+		);
 
-	    wp_mail( $email, $this->get_setting('success_subject'), $message );
+		switch($action){
 
-	    $this->log_action( $blog_id, sprintf(__('Signup success email sent to %s', 'psts'), $email) );
+			case 'success':
+				$e = array(
+					'msg'=> $this->get_setting('success_msg'),
+					'subject'=> $this->get_setting('success_subject')
+				);
 
-	  } else if ($action == 'receipt') {
-			//grab default payment info
-      $result = $wpdb->get_row("SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
-      if ($result->term == 1 || $result->term == 3 || $result->term == 12)
-        $term = sprintf(__('Every %s Month(s)', 'psts'), $result->term);
-      else
-        $term = $result->term;
+				$e = str_replace(array_keys($search_replace), $search_replace, $e);
+				wp_mail( $email, $e['subject'], $e['msg'] );
 
-      if ($result->gateway)
-        $payment_info .= sprintf(__('Payment Method: %s', 'psts'), $result->gateway)."\n";
-      if ($term)
-      	$payment_info .= sprintf(__('Payment Term: %s', 'psts'), $term)."\n";
-      $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $result->amount . ' ' . $this->get_setting('currency'))."\n";
+				$this->log_action( $blog_id, sprintf(__('Signup success email sent to %s', 'psts'), $email) );
+			break;
 
-	    $message = str_replace( 'PAYMENTINFO', apply_filters('psts_payment_info', $payment_info, $blog_id), $this->get_setting('receipt_msg') );
-      $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $message );
-			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
-			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
+			case 'receipt':
+				//grab default payment info
+				$result = $wpdb->get_row("SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+				if ($result->term == 1 || $result->term == 3 || $result->term == 12)
+					$term = sprintf(__('Every %s Month(s)', 'psts'), $result->term);
+				else
+					$term = $result->term;
+				
 
-	    wp_mail( $email, $this->get_setting('receipt_subject'), $message );
+				if ($result->gateway)
+					$payment_info .= sprintf(__('Payment Method: %s', 'psts'), $result->gateway)."\n";
+				
+				if ($term)
+					$payment_info .= sprintf(__('Payment Term: %s', 'psts'), $term)."\n";
+				
+				$payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $result->amount . ' ' . $this->get_setting('currency'))."\n";
 
-      $this->log_action( $blog_id, sprintf(__('Payment receipt email sent to %s', 'psts'), $email) );
+				$search_replace['PAYMENTINFO'] = apply_filters('psts_payment_info', $payment_info, $blog_id);
 
-	  } else if ($action == 'canceled') {
+				$e = array(
+					'msg'=> $this->get_setting('receipt_msg'),
+					'subject'=> $this->get_setting('receipt_subject')
+				);
 
-	    //get end date from expiration
-	    $end_date = date_i18n(get_blog_option($blog_id, 'date_format'), $this->get_expire($blog_id));
+				$e = str_replace(array_keys($search_replace), $search_replace, $e);
+				wp_mail( $email, $e['subject'], $e['msg'] );
 
-	    $message = str_replace( 'ENDDATE', $end_date, $this->get_setting('canceled_msg') );
-	    $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $message );
-			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
-			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
+				$this->log_action( $blog_id, sprintf(__('Payment receipt email sent to %s', 'psts'), $email) );
+			break;
 
-	    wp_mail( $email, $this->get_setting('canceled_subject'), $message );
+			case 'canceled':
+				//get end date from expiration
+				$end_date = date_i18n(get_blog_option($blog_id, 'date_format'), $this->get_expire($blog_id));
 
-      $this->log_action( $blog_id, sprintf(__('Subscription canceled email sent to %s', 'psts'), $email) );
+				$search_replace['ENDDATE'] = $end_date;
+				$e = array(
+					'msg'=> $this->get_setting('canceled_msg'),
+					'subject'=> $this->get_setting('canceled_subject')
+				);
 
-	  } else if ($action == 'failed') {
+				$e = str_replace(array_keys($search_replace), $search_replace, $e);
+				wp_mail( $email, $e['subject'], $e['msg'] );
 
-	    $message = str_replace( 'LEVEL', $this->get_level_setting($this->get_level($blog_id), 'name'), $this->get_setting('failed_msg') );
-			$message = str_replace( 'SITEURL', get_site_url( $blog_id ), $message );
-			$message = str_replace( 'SITENAME', get_blog_option($blog_id, 'blogname'), $message );
-			wp_mail( $email, $this->get_setting('failed_subject'), $this->get_setting('failed_msg') );
+				$this->log_action( $blog_id, sprintf(__('Subscription canceled email sent to %s', 'psts'), $email) );
+			break;
 
-	    $this->log_action( $blog_id, sprintf(__('Payment failed email sent to %s', 'psts'), $email) );
+			case 'failed':
+				$e = array(
+					'msg'=> $this->get_setting('failed_msg'),
+					'subject'=> $this->get_setting('failed_subject')
+				);
 
-	  }
+				$e = str_replace(array_keys($search_replace), $search_replace, $e);
+				wp_mail( $email, $e['subject'], $e['msg'] );
+
+				$this->log_action( $blog_id, sprintf(__('Payment failed email sent to %s', 'psts'), $email) );
+			break;
+		}
 	}
 
   //log blog actions for an audit trail
@@ -3594,7 +3616,6 @@ _gaq.push(["_trackTrans"]);
 //load the class
 global $psts;
 $psts = new ProSites();
-
 
 /* --------------------------------------------------------------------- */
 /* ---------------------------- Functions ------------------------------ */
