@@ -687,7 +687,8 @@ Many thanks again for being a member!", 'psts'),
 		//remove all filters except shortcodes and checkout form
 		remove_all_filters('the_content');
 		add_filter('the_content', 'do_shortcode');
-    add_filter('the_content', array(&$this, 'checkout_output'), 15);
+		add_filter('the_content', array(&$this, 'checkout_output'), 15);
+
 
     wp_enqueue_script('psts-checkout', $this->plugin_url . 'js/checkout.js', array('jquery'), $this->version );
     if ( !current_theme_supports( 'psts_style' ) )
@@ -3541,13 +3542,19 @@ _gaq.push(["_trackTrans"]);
 	    return $content;
 	  }
 
-    //set blog_id
-		if (isset($_POST['bid']))
-		  $blog_id = intval($_POST['bid']);
-		else if (isset($_GET['bid']))
-		  $blog_id = intval($_GET['bid']);
-    else
-		  $blog_id = false;
+		$blogs = get_blogs_of_user(get_current_user_id());
+
+		//set blog_id
+		if (isset($_POST['bid'])){
+			$blog_id = intval($_POST['bid']);
+		}else if (isset($_GET['bid'])){
+			$blog_id = intval($_GET['bid']);
+		}else if (count($blogs)==1){
+			$all_blog_ids = array_keys($blogs);
+			$blog_id = intval($all_blog_ids[0]);
+		}else{
+			$blog_id = false;
+		}
 
 	  if ($blog_id) {
 
@@ -3572,10 +3579,10 @@ _gaq.push(["_trackTrans"]);
       $content = apply_filters('psts_checkout_output', $content, $blog_id);
 
 	  } else { //blogid not set
-	    $blogs = get_blogs_of_user(get_current_user_id());
 	    if ($blogs) {
 	      $content .= '<h3>' . __('Please choose a site to Upgrade or Modify:', 'psts') . '</h3>';
 	      $content .= '<ul>';
+
 	      foreach ($blogs as $blog) {
 
 	        //check for permission
