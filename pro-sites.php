@@ -658,24 +658,30 @@ Many thanks again for being a member!", 'psts'),
 	  restore_current_blog();
 	}
 
-	function checkout_page_load() {
-	  //don't check on other blogs
-	  if ( !is_main_site() )
-	    return;
-		
+	function checkout_page_load($query){
+
+		//don't check on other blogs
+		if ( !is_main_site() )
+			return;
+
 		//prevent weird redo when theme has multiple query loops
 		if ($this->checkout_processed)
 			return;
-		
-    //check if on checkout page
-	  if (!$this->get_setting('checkout_page') || get_queried_object_id() != $this->get_setting('checkout_page'))
-	    return;
 
-	  //force ssl on the checkout page if required by gateway
-	  if ( apply_filters('psts_force_ssl', false) && !is_ssl() ) {
+		
+		// using get_queried_object_id() causes child forums in bbpress to give 404 results.
+		$queried_object_id = intval(isset($query->queried_object_id) ? $query->queried_object_id : 0);
+
+		//check if on checkout page
+		if (!$this->get_setting('checkout_page') || $queried_object_id != $this->get_setting('checkout_page')){
+			return;
+		}
+
+		//force ssl on the checkout page if required by gateway
+		if ( apply_filters('psts_force_ssl', false) && !is_ssl() ) {
 			wp_redirect('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 			exit();
-	  }
+		}
 
 	  //make sure session is started
 	  if (session_id() == "")
