@@ -199,7 +199,7 @@ label.cc-image img {
     color: #373737;
 }
 
-#psts-cc-checkout input[type="text"], #psts-cc-checkout input[type="password"], #psts-cc-checkout select {
+#psts-cc-checkout input[type="text"], #psts-cc-checkout input[type="email"], #psts-cc-checkout input[type="password"], #psts-cc-checkout select {
   background: none repeat scroll 0 0 #F9F9F9;
   border: 1px solid #CCCCCC;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1) inset;
