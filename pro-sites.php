@@ -3548,19 +3548,35 @@ _gaq.push(["_trackTrans"]);
 	    return $content;
 	  }
 
-		$blogs = get_blogs_of_user(get_current_user_id());
+
 
 		//set blog_id
 		if (isset($_POST['bid'])){
 			$blog_id = intval($_POST['bid']);
 		}else if (isset($_GET['bid'])){
 			$blog_id = intval($_GET['bid']);
-		}else if (count($blogs)==1){
-			$all_blog_ids = array_keys($blogs);
-			$blog_id = intval($all_blog_ids[0]);
 		}else{
 			$blog_id = false;
+
+			$blogs = array();
+			foreach(get_blogs_of_user(get_current_user_id()) as $id => $obj){
+				// permission?
+				switch_to_blog($id);
+				$permission = current_user_can('edit_pages');
+				restore_current_blog();
+				if($permission){
+					$blogs[$id] = $obj;
+				}
+			}
+
+			// user has edit permission for one blog, load checkout page
+			if(count($blogs)==1){
+				$all_blog_ids = array_keys($blogs);
+				$blog_id = intval($all_blog_ids[0]);
+			}
 		}
+
+
 
 	  if ($blog_id) {
 
@@ -3590,13 +3606,6 @@ _gaq.push(["_trackTrans"]);
 	      $content .= '<ul>';
 
 	      foreach ($blogs as $blog) {
-
-	        //check for permission
-	        switch_to_blog($blog->userblog_id);
-	        $permission = current_user_can('edit_pages');
-	        restore_current_blog();
-	        if (!$permission)
-	          continue;
 
 	        $has_blog = true;
 					
