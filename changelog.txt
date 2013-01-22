@@ -5,6 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.3.5 - 1/8/2013 - Aaron Edwards
+----------------------------------------------------------------------
+- Prevent 404 results for bbpress child forums
+- Check user has edit permissions for one blog before loading checkout.
+- If a user has one blog, load checkout page for that blog instead of asking them to select their blog from a list.
+- Search and replace email notification subjects as well as body.
+
 3.3.4 - 1/8/2013 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix an bug in premium themes module showing themes as network enabled: http://wp.mu/bk
