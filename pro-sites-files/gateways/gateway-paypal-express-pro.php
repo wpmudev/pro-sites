@@ -70,6 +70,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'BR'	=> 'Brazil',
 					'CA'	=> 'Canada',
 					'CN'	=> 'China',
+          'FI'	=> 'Finland',
 					'FR'	=> 'France',
 					'DE'	=> 'Germany',
 					'HK'	=> 'Hong Kong',
