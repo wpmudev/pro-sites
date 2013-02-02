@@ -1037,7 +1037,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
       //process form
       if (isset($_POST['cc_form'])) {
-				do_action('psts_cc_form_before_process', &$this, $psts, $blog_id);
+				do_action('psts_cc_form_before_process', $this, $psts, $blog_id);
 
 				//clean up $_POST
 				$cc_cardtype = isset($_POST['cc_card-type']) ? $_POST['cc_card-type'] : '';
