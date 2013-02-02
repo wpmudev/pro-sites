@@ -40,10 +40,8 @@ class ProSites {
   var $level = array();
 	var $checkout_processed = false;
 
-  function ProSites() {
-    $this->__construct();
-  }
-
+	var $tcpdf = array(); //Array for PDF settings
+	
   function __construct() {
     //setup our variables
     $this->init_vars();
@@ -565,7 +563,9 @@ Many thanks again for being a member!", 'psts'),
         return;
 		
 		//styles the upgrade button
-		?><style type="text/css">#wpadminbar li#wp-admin-bar-pro-site {float:right;}#wpadminbar li#wp-admin-bar-pro-site a{padding-top:3px !important;height:25px !important;border-right:1px solid #333 !important;}#wpadminbar li#wp-admin-bar-pro-site a span{display:block;color:#fff;font-weight:bold;font-size:11px;margin:0px 1px 0px 1px;padding:0 30px !important;border:1px solid #409ed0 !important;height:18px !important;line-height:18px !important;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;background-image:-moz-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-ms-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #3b85ad ), to( #419ece ) ) !important;background-image:-webkit-linear-gradient( bottom, #419ece, #3b85ad ) !important;background-image:linear-gradient( bottom, #3b85ad, #419ece ) !important;}#wpadminbar li#wp-admin-bar-pro-site a:hover span{background-image:-moz-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-ms-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #0B93C5 ), to( #3b85ad ) ) !important;background-image:-webkit-linear-gradient( bottom, #3b85ad, #0B93C5 ) !important;background-image:linear-gradient( bottom, #0B93C5, #3b85ad ) !important;border:1px solid #3b85ad !important;color:#E8F3F8;}</style><?php
+		?>
+		<style type="text/css">#wpadminbar li#wp-admin-bar-pro-site {float:right;}#wpadminbar li#wp-admin-bar-pro-site a{padding-top:3px !important;height:25px !important;border-right:1px solid #333 !important;}#wpadminbar li#wp-admin-bar-pro-site a span{display:block;color:#fff;font-weight:bold;font-size:11px;margin:0px 1px 0px 1px;padding:0 30px !important;border:1px solid #409ed0 !important;height:18px !important;line-height:18px !important;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;background-image:-moz-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-ms-linear-gradient( bottom, #3b85ad, #419ece ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #3b85ad ), to( #419ece ) ) !important;background-image:-webkit-linear-gradient( bottom, #419ece, #3b85ad ) !important;background-image:linear-gradient( bottom, #3b85ad, #419ece ) !important;}#wpadminbar li#wp-admin-bar-pro-site a:hover span{background-image:-moz-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-ms-linear-gradient( bottom, #0B93C5, #3b85ad ) !important;background-image:-webkit-gradient( linear, left bottom, left top, from( #0B93C5 ), to( #3b85ad ) ) !important;background-image:-webkit-linear-gradient( bottom, #3b85ad, #0B93C5 ) !important;background-image:linear-gradient( bottom, #0B93C5, #3b85ad ) !important;border:1px solid #3b85ad !important;color:#E8F3F8;}</style>
+		<?php
 	}
 	
 	function add_menu_admin_bar() {
@@ -821,9 +821,9 @@ Many thanks again for being a member!", 'psts'),
 					'msg'=> $this->get_setting('receipt_msg'),
 					'subject'=> $this->get_setting('receipt_subject')
 				);
-
 				$e = str_replace(array_keys($search_replace), $search_replace, $e);
-				wp_mail( $email, $e['subject'], $e['msg'] );
+
+				wp_mail( $email, $e['subject'], $e['msg'], '', $this->pdf_receipt($e['msg']) );
 
 				$this->log_action( $blog_id, sprintf(__('Payment receipt email sent to %s', 'psts'), $email) );
 			break;
@@ -1310,7 +1310,7 @@ Many thanks again for being a member!", 'psts'),
     if ($amount) {
 			
       if ($this->get_setting('curr_symbol_position') == 1 || !$this->get_setting('curr_symbol_position'))
-        return $symbol . number_format_i18n($amount, $decimal_place);
+        return $symbol . @number_format_i18n($amount, $decimal_place);
       else if ($this->get_setting('curr_symbol_position') == 2)
         return $symbol . ' ' . number_format_i18n($amount, $decimal_place);
       else if ($this->get_setting('curr_symbol_position') == 3)
@@ -2441,8 +2441,8 @@ _gaq.push(["_trackTrans"]);
 			</thead>
 			<tbody id="the-list">
 			<?php
+			$bgcolor = isset($class) ? $class : '';
 			if ( is_array($coupon_list) && count($coupon_list) ) {
-				$bgcolor = isset($class) ? $class : '';
 				foreach ($coupon_list as $coupon_code => $coupon) {
 					$class = (isset($class) && 'alternate' == $class) ? '' : 'alternate';
 
@@ -3232,6 +3232,8 @@ _gaq.push(["_trackTrans"]);
     				<th scope="row"><?php _e('Payment Receipt', 'psts'); ?></th>
     				<td>
     				<span class="description"><?php _e('The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
+            <label><?php _e('Header Image URL:', 'psts'); ?><br />
+            <input class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr($this->get_setting('receipt_image')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr($this->get_setting('receipt_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -3342,7 +3344,7 @@ _gaq.push(["_trackTrans"]);
 			$sel_period = isset($_POST['period']) ? $_POST['period'] : $curr->term;
 			$sel_level = isset($_POST['level']) ? $_POST['level'] : $curr->level;
 		} else {
-			$curr->term = null;
+			@$curr->term = null;
 			$curr->level = null;
 			$sel_period = isset($_POST['period']) ? $_POST['period'] : (defined('PSTS_DEFAULT_PERIOD') ? PSTS_DEFAULT_PERIOD : null);
 			$sel_level = isset($_POST['level']) ? $_POST['level'] : (defined('PSTS_DEFAULT_LEVEL') ? PSTS_DEFAULT_LEVEL : null);
@@ -3632,7 +3634,98 @@ _gaq.push(["_trackTrans"]);
 	function blog_template_settings( $and ) {
 		$and .= " AND `option_name` != 'psts_signed_up' AND `option_name` != 'psts_action_log' AND `option_name` != 'psts_waiting_step' AND `option_name` != 'psts_payments_log' AND `option_name` != 'psts_used_coupons' AND `option_name` != 'psts_paypal_profile_id' AND `option_name` != 'psts_stripe_canceled' AND `option_name` != 'psts_withdrawn'";
 		return $and;
+	}	
+	
+	function pdf_receipt($payment_info = '' ) {
+
+		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php');
+		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php');
+
+		//Make directory for receipt cache
+		if(! is_dir(K_PATH_CACHE)) mkdir(K_PATH_CACHE, 0755, true);
+		if(! is_writable(K_PATH_CACHE) ) chmod(K_PATH_CACHE, 0755);
+
+		//Clean out old cache files
+		foreach(glob(K_PATH_CACHE . '*.pdf') as $fname){
+			$age = time() - filemtime($fname);
+			if(($age > 12 * 60 * 60) &&  (basename($fname) != 'index.php')) { //Don't erase our blocking index.php file
+				unlink($fname); // more than 12 hours old;
+			}
+		}
+
+		// create new PDF document
+		$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+		// set document information
+		$pdf->SetCreator(PDF_CREATOR);
+		$pdf->SetAuthor('WPMU DEV');
+		$pdf->SetTitle('Receipt');
+		$pdf->SetSubject($subject);
+		$pdf->SetKeywords('');
+
+		// remove default header/footer
+		$pdf->setPrintHeader(false);
+		$pdf->setPrintFooter(false);
+
+		// set default monospaced font
+		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+		//set margins
+		$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+		$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+		//set auto page breaks
+		$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+		//set image scale factor
+		$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+		//set some language-dependent strings
+		$pdf->setLanguageArray($l);
+
+		// ---------------------------------------------------------
+
+		// set font
+		$pdf->SetFont('helvetica', '', 14);
+
+		// add a page
+		$pdf->AddPage();
+
+		$html = '';
+	
+		$img = $this->get_setting('receipt_image');
+		
+		if(! empty($img) ) {
+			$html .= '
+			<div><img  src="' . $img . '" /><div>
+			';
+		}
+
+		$html .= make_clickable( wpautop($payment_info) );
+
+		// output the HTML content
+		$pdf->writeHTML( $html , true, false, true, false, '');
+
+		// ---------------------------------------------------------
+
+		global $blog_id;
+		
+		$sitename = sanitize_title(get_blog_option($blog_id, 'blogname') );
+
+		$uid = uniqid("{$sitename}-{$blog_id}-");
+
+		$fname = K_PATH_CACHE . "{$uid}.pdf";
+
+		//Close and output PDF document
+		$pdf->Output($fname, 'F');
+		$attachments[] = $fname;
+		return $attachments;
+
 	}
+
+	
+	
 }
 
 //load the class
