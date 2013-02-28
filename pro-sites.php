@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Pro Sites (Formerly Supporter)
-Plugin URI: http://premium.wpmudev.org/project/pro-sites
+Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.3.4
+Version: 3.3.5
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -13,7 +13,7 @@ WDP ID: 49
 */
 
 /*
-Copyright 2007-2012 Incsub (http://incsub.com)
+Copyright 2007-2013 Incsub (http://incsub.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.3.4';
+  var $version = '3.3.5';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -2941,8 +2941,8 @@ _gaq.push(["_trackTrans"]);
       //check nonce
       check_admin_referer('psts_modules');
 
-      $this->update_setting('modules_enabled', $_POST['allowed_modules']);
-      $this->update_setting('gateways_enabled', $_POST['allowed_gateways']);
+      $this->update_setting('modules_enabled', @$_POST['allowed_modules']);
+      $this->update_setting('gateways_enabled', @$_POST['allowed_gateways']);
 
       do_action('psts_modules_save');
 
