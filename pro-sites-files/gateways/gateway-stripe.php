@@ -21,7 +21,7 @@ class ProSites_Gateway_Stripe {
   
 	    //settings
 		add_action( 'psts_gateway_settings', array(&$this, 'settings') );
-		add_filter( 'psts_settings_filter', array(&$this, 'settings_process') );
+		add_action( 'psts_settings_process', array(&$this, 'settings_process') );
 		
 		//checkout stuff
 		add_action( 'psts_checkout_page_load', array(&$this, 'process_checkout') );
@@ -32,9 +32,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'wp_ajax_nopriv_psts_stripe_webhook', array(&$this, 'webhook_handler') );
 		
 		//sync levels with Stripe
-		add_action( 'network_admin_notices', array(&$this, 'levels_notice') );
 		add_action( 'update_site_option_psts_levels', array(&$this, 'update_psts_levels'), 10, 3 );
-		add_filter( 'psts_setting_enabled_periods', array(&$this, 'disable_period_3') );
 		
 		//plug management page
 		add_action( 'psts_subscription_info', array(&$this, 'subscription_info') );
@@ -59,10 +57,10 @@ class ProSites_Gateway_Stripe {
 		global $wpdb, $psts;
 		
 		$table1 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites_stripe_customers` (
-		  `blog_id` bigint(20) NOT NULL,
-			`customer_id` char(20) NOT NULL,
-			PRIMARY KEY ( `blog_id` ),
-			UNIQUE ( `customer_id` )
+		  blog_id bigint(20) NOT NULL,
+			customer_id char(20) NOT NULL,
+			PRIMARY KEY  (blog_id),
+			UNIQUE  (customer_id)
 		) DEFAULT CHARSET=utf8;";
 		
 		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
@@ -118,8 +116,8 @@ class ProSites_Gateway_Stripe {
     <?php 
 	}
 	
-	function settings_process($settings) {
-	  return $settings;
+	function settings_process() {
+		$this->update_psts_levels( 'psts_levels', get_site_option('psts_levels'), get_site_option('psts_levels') );
 	}
 
 	//filters the ssl on checkout page
@@ -428,22 +426,6 @@ class ProSites_Gateway_Stripe {
 		$wpdb->query($wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites_stripe_customers SET blog_id = %d WHERE blog_id = %d", $to_id, $from_id) );	
 	}
 	
-	//disables the 3 month option while stripe is active (unsupported)
-	function disable_period_3($periods) {
-		foreach ($periods as $key => $period) {
-			if ($period == 3) unset($periods[$key]);
-		}
-		return $periods;
-	}
-	
-	function levels_notice() {
-		global $current_screen;
-		if ( $current_screen->id != 'pro-sites_page_psts-levels-network' )
-			return;
-		
-		echo '<div class="updated fade"><p>' . __('Note: Because of limitations with the Stripe gateway, the 3 month payment option has been disabled.', 'psts') . '</p></div>';
-	}
-	
 	function update_psts_levels($option, $new_levels, $old_levels) {
 	  global $psts;								
 		
@@ -454,6 +436,9 @@ class ProSites_Gateway_Stripe {
 			$stripe_plan_id = $level_id . "_1";
 			$this->delete_plan($stripe_plan_id);
 			
+			$stripe_plan_id = $level_id . "_3";
+			$this->delete_plan($stripe_plan_id);
+			
 			$stripe_plan_id = $level_id . "_12";
 			$this->delete_plan($stripe_plan_id);
 		}
@@ -462,18 +447,24 @@ class ProSites_Gateway_Stripe {
 		$periods = (array)$psts->get_setting('enabled_periods');
 		foreach ($new_levels as $level_id => $level) {		
 			$level_name = $level['name'];
-			$price_1 = $level['price_1'];										
+			$price_1 = $level['price_1'];	
+			$price_3 = $level['price_3'];										
 			$price_12 = $level['price_12'];															
 			
 			$stripe_plan_id = $level_id . "_1";
 			$this->delete_plan($stripe_plan_id);
 			if ( in_array(1, $periods) )
-				$this->add_plan($stripe_plan_id, 'month', $level_name.': Monthly', $price_1);
+				$this->add_plan($stripe_plan_id, 'month', 1, $level_name.': Monthly', $price_1);
 			
+			$stripe_plan_id = $level_id . "_3";
+			$this->delete_plan($stripe_plan_id);
+			if ( in_array(3, $periods) )
+				$this->add_plan($stripe_plan_id, 'month', 3, $level_name.': Monthly', $price_1);
+				
 			$stripe_plan_id = $level_id . "_12";
 			$this->delete_plan($stripe_plan_id);
 			if ( in_array(12, $periods) )
-				$this->add_plan($stripe_plan_id, 'year', $level_name.': Yearly', $price_12);
+				$this->add_plan($stripe_plan_id, 'year', 1, $level_name.': Yearly', $price_12);
 		}				
 	}
 	
@@ -486,11 +477,12 @@ class ProSites_Gateway_Stripe {
 		}																		
 	}
 	
-	function add_plan($stripe_plan_id, $int, $name, $level_price)	{
+	function add_plan($stripe_plan_id, $int, $int_count, $name, $level_price)	{
 		try {
 			Stripe_Plan::create(array( 
 						 "amount" => round($level_price * 100),
-						 "interval" => $int, 
+						 "interval" => $int,
+						 "interval_count" => $int_count,
 						 "name" => "$name", 
 						 "currency" => "usd", 
 						 "id" => "$stripe_plan_id"));							
@@ -859,6 +851,7 @@ class ProSites_Gateway_Stripe {
 				
 			// retrieve the request's body and parse it as JSON
 			$body = @file_get_contents('php://input');
+
 			$event_json = json_decode($body);
 			$customer_id = $event_json->data->object->customer;
 			
@@ -868,7 +861,7 @@ class ProSites_Gateway_Stripe {
 				$date = date_i18n(get_option('date_format'), $event_json->created);
 				
 				$amount = $event_json->data->object->lines->subscriptions[0]->amount / 100;		
-				$amount = $psts->format_currency(false, $amount);
+				$amount_formatted = $psts->format_currency(false, $amount);
 				
 				if (isset($event_json->data->object->lines->subscriptions[0]->plan->id)) {
 					$plan = $event_json->data->object->lines->subscriptions[0]->plan->id;	
@@ -878,12 +871,12 @@ class ProSites_Gateway_Stripe {
 				$charge_id = isset($event_json->data->object->charge) ? $event_json->data->object->charge : $event_json->data->object->id;
 				
 				$event_type = $event_json->type;
-									
+		
 				if ($event_type == 'invoice.payment_succeeded') {
-					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount, $date, $charge_id) );	   
+					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );	   
 					$psts->extend($blog_id, $period, 'Stripe', $level, $amount);		  
 				} else if ($event_type == 'invoice.payment_failed') {	   
-					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment has failed. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount, $date, $charge_id) );	   
+					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment has failed. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );	   
 					$psts->email_notification($blog_id, 'failed');
 				} else if ($event_type == 'charge.disputed') {
 					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The customer disputed a charge with their bank (chargeback), Charge ID "%s"', 'psts'), $event_type, $charge_id) );
