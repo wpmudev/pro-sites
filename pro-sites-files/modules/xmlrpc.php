@@ -51,7 +51,7 @@ class ProSites_Module_XMLRPC {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Restrict XML-RPC', 'psts') ?></span> - <span class="description"><?php _e('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Restrict XML-RPC', 'psts') ?></span> - <span class="description"><?php _e('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts') ?></span></h3>
 		  <div class="inside">
 		  <table class="form-table">
 			  <tr valign="top">

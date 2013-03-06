@@ -76,7 +76,7 @@ class ProSites_Gateway_Stripe {
 	  global $psts;
 	  ?>
 		<div class="postbox">
-			<h3 class='hndle'><span><?php _e('Stripe', 'psts') ?></span> - <span class="description"><?php _e('Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts'); ?></span></h3>
+			<h3 class="hndle" style="cursor:auto;"><span><?php _e('Stripe', 'psts') ?></span> - <span class="description"><?php _e('Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts'); ?></span></h3>
 			<div class="inside">
 				<p class="description"><?php _e("Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club cards directly on your site. You don't need a merchant account or gateway. Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account. Credit cards go directly to Stripe's secure environment, and never hit your servers so you can avoid most PCI requirements.", 'psts'); ?> <a href="https://stripe.com/" target="_blank"><?php _e('More Info &raquo;', 'psts') ?></a></p>
 				<p><?php printf(__('To use Stripe you must <a href="https://manage.stripe.com/#account/webhooks" target="_blank">enter this webook url</a> (<strong>%s</strong>) in your account.', 'psts'), network_site_url('wp-admin/admin-ajax.php?action=psts_stripe_webhook', 'admin')); ?></p>

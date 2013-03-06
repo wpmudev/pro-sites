@@ -54,7 +54,7 @@ class ProSites_Module_PostingQuota {
   	global $psts;
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Post/Page Quotas', 'psts') ?></span> - <span class="description"><?php _e('Allows you to limit the number of post types for selected Pro Site levels.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Post/Page Quotas', 'psts') ?></span> - <span class="description"><?php _e('Allows you to limit the number of post types for selected Pro Site levels.', 'psts') ?></span></h3>
 		  <div class="inside">
 			  <table class="form-table">
           <tr valign="top">

@@ -40,7 +40,7 @@ class ProSites_Module_Writing {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Limit Publishing', 'psts') ?></span> - <span class="description"><?php _e('Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Limit Publishing', 'psts') ?></span> - <span class="description"><?php _e('Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts') ?></span></h3>
 		  <div class="inside">
 			  <table class="form-table">
           <tr valign="top">

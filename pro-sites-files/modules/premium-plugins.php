@@ -332,7 +332,7 @@ class ProSites_Module_Plugins {
   	global $psts;
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Premium Plugins', 'psts') ?></span> - <span class="description"><?php _e('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Premium Plugins', 'psts') ?></span> - <span class="description"><?php _e('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts') ?></span></h3>
 		  <div class="inside">
 			  <table class="form-table">
       		<tr valign="top">

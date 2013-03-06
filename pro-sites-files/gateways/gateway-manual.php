@@ -20,7 +20,7 @@ class ProSites_Gateway_Manual {
 	  global $psts;
 		?>
 		<div class="postbox">
-	  <h3 class='hndle'><span><?php _e('Manual Payments', 'psts') ?></span> - <span class="description"><?php _e('Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts'); ?></span></h3>
+	  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Manual Payments', 'psts') ?></span> - <span class="description"><?php _e('Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts'); ?></span></h3>
     <div class="inside">
       <table class="form-table">
 			  <tr>

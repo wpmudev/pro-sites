@@ -78,7 +78,7 @@ class ProSites_Module_PayToBlog {
   	global $psts;
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Pay To Blog', 'psts') ?></span> - <span class="description"><?php _e('Allows you to completely disable a site both front end and back until paid.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Pay To Blog', 'psts') ?></span> - <span class="description"><?php _e('Allows you to completely disable a site both front end and back until paid.', 'psts') ?></span></h3>
 		  <div class="inside">
 			  <table class="form-table">
 					<tr valign="top">
