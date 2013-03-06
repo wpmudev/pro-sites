@@ -91,12 +91,18 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
 	/**
 	 * cache directory for temporary files (full path)
 	 */
-	define ('K_PATH_CACHE', K_PATH_MAIN.'cache/');
+	
+	/**
+	* For WPMUDEV. Move cache up into a safe download directory
+	*/
+	$kpmc = dirname(dirname(dirname(dirname(plugin_dir_path(__FILE__)))))  .  '/download-temp/receipts/';
+	define ('K_PATH_CACHE', $kpmc);
 
 	/**
 	 * cache directory for temporary files (url path)
 	 */
-	define ('K_PATH_URL_CACHE', K_PATH_URL.'cache/');
+	$kpuc = dirname(dirname(dirname(dirname(plugin_dir_url(__FILE__)))))  .  '/download-temp/receipts/';
+	define ('K_PATH_URL_CACHE', $kpuc);
 
 	/**
 	 *images directory
