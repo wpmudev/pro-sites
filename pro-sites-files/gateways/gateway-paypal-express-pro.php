@@ -51,7 +51,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	  global $psts;
 		?>
 		<div class="postbox">
-	  <h3 class='hndle'><span><?php _e('Paypal Express/Pro', 'psts') ?></span> - <span class="description"><?php _e('Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts'); ?></span></h3>
+	  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Paypal Express/Pro', 'psts') ?></span> - <span class="description"><?php _e('Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts'); ?></span></h3>
     <div class="inside">
         <p><?php _e('Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info &raquo;</a>', 'psts'); ?></p>
         <p><?php printf(__('To use PayPal Express Checkout or Pro you must <a href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_admin_IPNSetup#id089EG030E5Z" target="_blank">manually turn on IPN notifications</a> and enter your IPN url (<strong>%s</strong>) in your PayPal profile (you must also do this in your sandbox account when testing).', 'psts'), network_site_url('wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin')); ?></p>

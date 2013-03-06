@@ -26,7 +26,7 @@ class ProSites_Module_BP {
     global $psts;
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Limit BuddyPress Features', 'psts') ?></span> - <span class="description"><?php _e('Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Limit BuddyPress Features', 'psts') ?></span> - <span class="description"><?php _e('Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts') ?></span></h3>
 		  <div class="inside">
 			  <table class="form-table">
 				  <tr valign="top">

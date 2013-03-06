@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.3.5
+Version: 3.4
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.3.5';
+  var $version = '3.4';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -257,6 +257,16 @@ If you ever have any billing questions please contact us:
 http://mysite.com/contact/
 
 Thanks again for being a valued member!", 'psts'),
+			'expired_subject' => __('Your Pro Site status has expired', 'psts'),
+      'expired_msg' => __("Unfortunately the Pro status for your site SITENAME (SITEURL) has lapsed.
+
+You can renew your Pro Site status here:
+CHECKOUTURL
+
+If you're having billing problems please contact us for help:
+http://mysite.com/contact/
+
+Looking forward to having you back as a valued member!", 'psts'),
       'failed_subject' => __('Your Pro Site subscription payment failed', 'psts'),
       'failed_msg' => __("It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.
 
@@ -765,8 +775,13 @@ Many thanks again for being a member!", 'psts'),
 			do_action('psts_inactive');
 
 			//fire hooks on first encounter
-			if (get_option('psts_withdrawn') === '0')
+			if (get_option('psts_withdrawn') === '0') {
 	      $this->withdraw($blog_id);
+				
+				//send email
+				if ( !defined('PSTS_NO_EXPIRE_EMAIL') )
+					$this->email_notification($blog_id, 'expired');
+			}
 		}
 	}
 
@@ -781,7 +796,8 @@ Many thanks again for being a member!", 'psts'),
 		$search_replace=array(
 			'LEVEL'=> $this->get_level_setting($this->get_level($blog_id), 'name'), 
 			'SITEURL'=> get_site_url( $blog_id ), 
-			'SITENAME'=> get_blog_option($blog_id, 'blogname')
+			'SITENAME'=> get_blog_option($blog_id, 'blogname'), 
+			'CHECKOUTURL'=> $this->checkout_url($blog_id)
 		);
 
 		switch($action){
@@ -843,7 +859,19 @@ Many thanks again for being a member!", 'psts'),
 
 				$this->log_action( $blog_id, sprintf(__('Subscription canceled email sent to %s', 'psts'), $email) );
 			break;
+			
+			case 'expired':
+				$e = array(
+					'msg'=> $this->get_setting('expired_msg'),
+					'subject'=> $this->get_setting('expired_subject')
+				);
 
+				$e = str_replace(array_keys($search_replace), $search_replace, $e);
+				wp_mail( $email, $e['subject'], $e['msg'] );
+
+				$this->log_action( $blog_id, sprintf(__('Expired email sent to %s', 'psts'), $email) );
+			break;
+		
 			case 'failed':
 				$e = array(
 					'msg'=> $this->get_setting('failed_msg'),
@@ -1185,7 +1213,6 @@ Many thanks again for being a member!", 'psts'),
 	  //force to checkout screen next login
 	  if ($new_expire <= time())
 	  	update_blog_option($blog_id, 'psts_signed_up', 1);
-
 	}
 
 
@@ -1750,7 +1777,7 @@ _gaq.push(["_trackTrans"]);
       <?php if ( has_action('psts_subscription_info') ) { ?>
 			<div style="width: 49%;" class="postbox-container">
         <div class="postbox">
-          <h3 class='hndle'><span><?php _e('Subscription Information', 'psts'); ?></span></h3>
+          <h3 class="hndle" style="cursor:auto;"><span><?php _e('Subscription Information', 'psts'); ?></span></h3>
           <div class="inside">
           <?php do_action('psts_subscription_info', $blog_id); ?>
           </div>
@@ -1761,7 +1788,7 @@ _gaq.push(["_trackTrans"]);
       <?php if ( has_action('psts_subscriber_info') ) { ?>
       <div style="width: 49%;margin-left: 2%;" class="postbox-container">
         <div class="postbox">
-          <h3 class='hndle'><span><?php _e('Subscriber Information', 'psts'); ?></span></h3>
+          <h3 class="hndle" style="cursor:auto;"><span><?php _e('Subscriber Information', 'psts'); ?></span></h3>
           <div class="inside">
         	<?php do_action('psts_subscriber_info', $blog_id); ?>
           </div>
@@ -1775,7 +1802,7 @@ _gaq.push(["_trackTrans"]);
 
 	  <div id="poststuff" class="metabox-holder">
 	    <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Account History', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Account History', 'psts') ?></span></h3>
 	      <div class="inside">
 	        <span class="description"><?php _e('This logs basically every action done in the system regarding the site for an audit trail.', 'psts'); ?></span>
 	        <div style="height:150px;overflow:auto;margin-top:5px;margin-bottom:5px;">
@@ -1806,7 +1833,7 @@ _gaq.push(["_trackTrans"]);
 
       <div style="width: 49%;" class="postbox-container">
       <div class="postbox">
-		    <h3 class='hndle'><span><?php _e('Manually Extend Pro Site Status', 'psts') ?></span></h3>
+		    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Manually Extend Pro Site Status', 'psts') ?></span></h3>
 		    <div class="inside">
 		      <span class="description"><?php _e('Please note that these changes will not adjust the payment dates or level for any existing subscription.', 'psts'); ?></span>
 		      <form method="post" action="">
@@ -1862,7 +1889,7 @@ _gaq.push(["_trackTrans"]);
       <?php if ( is_pro_site($blog_id) || has_action('psts_modify_form') ) { ?>
 	    <div style="width: 49%;margin-left: 2%;" class="postbox-container">
 	      <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Modify Pro Site Status', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Modify Pro Site Status', 'psts') ?></span></h3>
 	      <div class="inside">
 	        <form method="post" action="">
 	        <?php wp_nonce_field('psts_modify') ?>
@@ -1894,14 +1921,14 @@ _gaq.push(["_trackTrans"]);
       ?>
       <div class="metabox-holder">
 	      <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Manage a Site', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Manage a Site', 'psts') ?></span></h3>
 	      <div class="inside">
 	        <form method="get" action="">
 	        <table class="form-table">
 	          <input type="hidden" name="page" value="psts" />
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Blog ID:', 'psts') ?></th>
-	          <td><input type="text" size="17" name="bid" value="" /> <input type="submit" value="<?php _e('Continue &raquo;', 'psts') ?>" /></td></tr>
+	          <td><input type="text" size="17" name="bid" value="" /> <input class="button-secondary" type="submit" value="<?php _e('Continue &raquo;', 'psts') ?>" /></td></tr>
 	        </table>
 	        </form>
 					<hr />
@@ -1909,7 +1936,7 @@ _gaq.push(["_trackTrans"]);
 	        <table class="form-table">
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Or search for a site:', 'psts') ?></th>
-	          <td><input type="text" size="17" value="" name="s"/> <input type="submit" value="<?php _e('Search Sites &raquo;', 'psts') ?>" id="submit_sites" name="submit"/></td></tr>
+	          <td><input type="text" size="17" value="" name="s"/> <input class="button-secondary" type="submit" value="<?php _e('Search Sites &raquo;', 'psts') ?>" id="submit_sites" name="submit"/></td></tr>
 	        </table>
 	        </form>
 	      </div>
@@ -2242,21 +2269,21 @@ _gaq.push(["_trackTrans"]);
     <div class="metabox-holder">
 
     <div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Monthly Activity Summary', 'psts') ?></span></h3>
+	    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Monthly Activity Summary', 'psts') ?></span></h3>
 	    <div class="inside">
 	      <div id="monthly_signup_stats" style="margin:20px;height:300px"><?php _e('No data available yet', 'psts') ?></div>
 	    </div>
     </div>
 
     <div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Weekly Activity Summary', 'psts') ?></span></h3>
+	    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Weekly Activity Summary', 'psts') ?></span></h3>
 	    <div class="inside">
 	      <div id="weekly_signup_stats" style="margin:20px;height:300px"><?php _e('No data available yet', 'psts') ?></div>
 	    </div>
     </div>
 
     <div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Ratios', 'psts') ?></span></h3>
+	    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Ratios', 'psts') ?></span></h3>
 	    <div class="inside">
 
 	      <div style="width:40%;height:300px;float:left;margin-bottom:25px;">
@@ -2274,14 +2301,14 @@ _gaq.push(["_trackTrans"]);
     </div>
 
     <div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Pro Sites History', 'psts') ?></span></h3>
+	    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Pro Sites History', 'psts') ?></span></h3>
 	    <div class="inside">
 	      <div id="daily_stats" style="margin:20px;height:300px"><?php _e('No data available yet', 'psts') ?></div>
 	    </div>
     </div>
 
     <div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Pro Sites Term History', 'psts') ?></span></h3>
+	    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Pro Sites Term History', 'psts') ?></span></h3>
 	    <div class="inside">
 	      <div id="daily_term_stats" style="margin:20px;height:300px;"><?php _e('No data available yet', 'psts') ?></div>
 	      <h4 style="margin-left:10%;"><?php _e('Current Terms', 'psts') ?></h4>
@@ -2557,7 +2584,7 @@ _gaq.push(["_trackTrans"]);
 		<div id="poststuff" class="metabox-holder">
 
 		<div class="postbox">
-      <h3 class='hndle'><span>
+      <h3 class="hndle" style="cursor:auto;"><span>
       <?php
       if ( isset($_GET['code']) || $error ) {
         _e('Edit Coupon', 'psts');
@@ -3096,7 +3123,7 @@ _gaq.push(["_trackTrans"]);
       <?php wp_nonce_field('psts_settings') ?>
 
       <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('General Settings', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('General Settings', 'psts') ?></span></h3>
 	      <div class="inside">
 	      	<table class="form-table">
 	          <tr valign="top">
@@ -3203,13 +3230,13 @@ _gaq.push(["_trackTrans"]);
       </div>
 
       <div class="postbox">
-        <h3 class='hndle'><span><?php _e('Email Notifications', 'psts') ?></span></h3>
+        <h3 class="hndle" style="cursor:auto;"><span><?php _e('Email Notifications', 'psts') ?></span></h3>
         <div class="inside">
           <table class="form-table">
             <tr>
     				<th scope="row"><?php _e('Pro Site Signup', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr($this->get_setting('success_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -3220,7 +3247,7 @@ _gaq.push(["_trackTrans"]);
             <tr>
     				<th scope="row"><?php _e('Pro Site Canceled', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr($this->get_setting('canceled_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -3231,20 +3258,30 @@ _gaq.push(["_trackTrans"]);
             <tr>
     				<th scope="row"><?php _e('Payment Receipt', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
-            <label><?php _e('Header Image URL:', 'psts'); ?><br />
-            <input class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr($this->get_setting('receipt_image')); ?>" maxlength="150" style="width: 95%" /></label><br />
+    				<span class="description"><?php _e('The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr($this->get_setting('receipt_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
-            <textarea class="pp_emails_txt" name="psts[receipt_msg]" style="width: 95%"><?php echo esc_textarea($this->get_setting('receipt_msg')); ?></textarea>
-            </label>
+            <textarea class="pp_emails_txt" name="psts[receipt_msg]" style="width: 95%"><?php echo esc_textarea($this->get_setting('receipt_msg')); ?></textarea></label><br />
+						<label><?php _e('Header Image URL (for PDF attachment):', 'psts'); ?><br />
+            <input class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr($this->get_setting('receipt_image')); ?>" maxlength="150" style="width: 65%" /></label>
             </td>
+            </tr>
+            <tr>
+    				<th scope="row"><?php _e('Expiration Email', 'psts'); ?></th>
+    				<td>
+    				<span class="description"><?php _e('This email is sent when Pro Site status expires and Pro features are removed from a site. "CHECKOUTURL" will be replaced with the url to upgrade the site. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
+            <label><?php _e('Subject:', 'psts'); ?><br />
+            <input class="pp_emails_sub" name="psts[expired_subject]" value="<?php echo esc_attr($this->get_setting('expired_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
+            <label><?php _e('Message:', 'psts'); ?><br />
+            <textarea class="pp_emails_txt" name="psts[expired_msg]" style="width: 95%"><?php echo esc_textarea($this->get_setting('expired_msg')); ?></textarea>
+						</label>
+						</td>
             </tr>
             <tr>
     				<th scope="row"><?php _e('Payment Problem', 'psts'); ?></th>
     				<td>
-    				<span class="description"><?php _e('The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
+    				<span class="description"><?php _e('The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts') ?></span><br />
             <label><?php _e('Subject:', 'psts'); ?><br />
             <input class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr($this->get_setting('failed_subject')); ?>" maxlength="150" style="width: 95%" /></label><br />
             <label><?php _e('Message:', 'psts'); ?><br />
@@ -3258,7 +3295,7 @@ _gaq.push(["_trackTrans"]);
       </div>
 
       <div class="postbox">
-        <h3 class='hndle'><span><?php _e('Currency Settings', 'psts') ?></span> - <span class="description"><?php _e('These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts') ?></span></h3>
+        <h3 class="hndle" style="cursor:auto;"><span><?php _e('Currency Settings', 'psts') ?></span> - <span class="description"><?php _e('These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts') ?></span></h3>
         <div class="inside">
           <table class="form-table">
     				<tr valign="top">
@@ -3657,10 +3694,8 @@ _gaq.push(["_trackTrans"]);
 		$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 		// set document information
-		$pdf->SetCreator(PDF_CREATOR);
-		$pdf->SetAuthor('WPMU DEV');
-		$pdf->SetTitle('Receipt');
-		$pdf->SetSubject($subject);
+		$pdf->SetCreator('Pro Sites');
+		$pdf->SetTitle( __('Payment Receipt', 'psts') );
 		$pdf->SetKeywords('');
 
 		// remove default header/footer
@@ -3698,7 +3733,7 @@ _gaq.push(["_trackTrans"]);
 		
 		if(! empty($img) ) {
 			$html .= '
-			<div><img  src="' . $img . '" /><div>
+			<div><img src="' . $img . '" /><div>
 			';
 		}
 
@@ -3724,8 +3759,6 @@ _gaq.push(["_trackTrans"]);
 
 	}
 
-	
-	
 }
 
 //load the class

@@ -22,7 +22,7 @@ class ProSites_Module_ProWidget {
 		$images = $psts->get_setting( 'widget_imgs', array() );
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Pro Widget', 'psts') ?></span> - <span class="description"><?php _e('Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Pro Widget', 'psts') ?></span> - <span class="description"><?php _e('Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts') ?></span></h3>
 		  <div class="inside">
 				<span class="description"><?php _e('Enter a url to the badge image file for each corresponding level. It is recommended to use an image with a maximum width of 160px to be compatible with most theme sidebars.', 'psts') ?></span>
 			  <table class="form-table">

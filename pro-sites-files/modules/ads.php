@@ -230,7 +230,7 @@ class ProSites_Module_Ads {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-	    <h3 class='hndle'><span><?php _e('Ads', 'psts') ?></span> - <span class="description"><?php _e('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts') ?></span></h3>
+	    <h3 class="hndle" style="cursor:auto;"><span><?php _e('Ads', 'psts') ?></span> - <span class="description"><?php _e('Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts') ?></span></h3>
 	    <div class="inside">
 				<table class="form-table">
 					<tr valign="top">
@@ -411,7 +411,7 @@ class ProSites_Module_Ads {
 		<div class="metabox-holder">
     
 	    <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Status', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Status', 'psts') ?></span></h3>
 	      <div class="inside">
     			<?php $this->message(); ?>
 					<p>
@@ -426,7 +426,7 @@ class ProSites_Module_Ads {
 	    
 	    <?php if ( $ad_free_blogs_remaining > 0 && is_pro_site() ) { ?>
 	    <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to disable ads on.', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to disable ads on.', 'psts') ?></span></h3>
 	      <div class="inside">
           <?php
           $curr_blogs = get_blogs_of_user(get_current_user_id());
@@ -481,7 +481,7 @@ class ProSites_Module_Ads {
 			<?php if ( isset($_POST['submit_search']) && is_pro_site() ) { ?>
 			
 			  <div class="postbox">
-		      <h3 class='hndle'><span><?php _e('Search Results', 'psts'); ?></span></h3>
+		      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Search Results', 'psts'); ?></span></h3>
 		      <div class="inside">
            <?php
 						$query = "SELECT blog_id, domain, path FROM {$wpdb->blogs} WHERE ( domain LIKE '%" . $wpdb->escape($_POST['search']) . "%' OR path LIKE '%" . $wpdb->escape($_POST['search']) . "%' ) AND blog_id != '" . $wpdb->blogid . "' LIMIT 150";
@@ -537,7 +537,7 @@ class ProSites_Module_Ads {
 			
 	      <?php if ( $ad_free_blogs_current > 0 && is_pro_site() ) { ?>
 		    <div class="postbox">
-		      <h3 class='hndle'><span><?php _e('Currently Disabled Sites', 'psts'); ?></span></h3>
+		      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Currently Disabled Sites', 'psts'); ?></span></h3>
 		      <div class="inside">
 					 <p>
 					 <table cellpadding='3' cellspacing='3' width='100%' class='widefat'>

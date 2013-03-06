@@ -58,7 +58,7 @@ class ProSites_Module_Quota {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-		  <h3 class='hndle'><span><?php _e('Upload Quota', 'psts') ?></span> - <span class="description"><?php _e('Allows you to give additional upload space to Pro Sites.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Upload Quota', 'psts') ?></span> - <span class="description"><?php _e('Allows you to give additional upload space to Pro Sites.', 'psts') ?></span></h3>
 		  <div class="inside">
 		  <table class="form-table">
 			  <tr valign="top">
@@ -121,7 +121,10 @@ class ProSites_Module_Quota {
 
 	function message() {
 	  global $psts, $blog_id;
-	  if( current_user_can('edit_pages') ) {
+	  if ( current_user_can('edit_pages') ) {
+			//if override is set don't show this message
+			if ( !defined('PSTS_QUOTA_ALLOW_OVERRIDE') && get_option('blog_upload_space') ) return;
+			
 			$level = $psts->get_level() + 1;
 			if ($name = $psts->get_level_setting($level, 'name')) { //only show if there is a higher level
         $space = $this->display_space($psts->get_level_setting($level, 'quota'));

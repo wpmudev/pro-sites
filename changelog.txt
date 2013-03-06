@@ -6,15 +6,18 @@ Change Log:
 ----------------------------------------------------------------------
 
 
-3.3.5 - 1/8/2013 - Aaron Edwards
+3.4 - 3/5/2013 - Aaron Edwards
 ----------------------------------------------------------------------
 - Add in PDF receipt attachments to emails with custom logo support
+- Add new email that is sent on pro site expiration
 - Prevent 404 results for bbpress child forums
 - Check user has edit permissions for one blog before loading checkout.
 - If a user has one blog, load checkout page for that blog instead of asking them to select their blog from a list.
 - Search and replace email notification subjects as well as body.
 - Allow newly supported quarterly plans with Stripe
 - Sync Levels with Stripe Plans on switch from test to live (avoid errors when switching to live)
+- Don't show upload quota upgrade message if the site has been given an individual quota override
+- Some style updates
 
 3.3.4 - 1/8/2013 - Aaron Edwards
 ----------------------------------------------------------------------

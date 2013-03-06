@@ -239,7 +239,7 @@ class ProSites_Module_BulkUpgrades {
 		$levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-      <h3 class='hndle'><span><?php _e('Bulk Upgrades', 'psts') ?></span> - <span class="description"><?php _e('Allows you to sell Pro Site level upgrades in bulk packages.', 'psts') ?></span></h3>
+      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Bulk Upgrades', 'psts') ?></span> - <span class="description"><?php _e('Allows you to sell Pro Site level upgrades in bulk packages.', 'psts') ?></span></h3>
       <div class="inside">
 				<?php if (get_site_option("supporter_bulk_upgrades_paypal_payment_type") == 'recurring') { ?>
 				<p><?php _e('Important - If you were previously using Bulk Upgrades and subscriptions with Supporter 2.x, you must copy and overwrite the <em>/pro-sites/pro-sites-files/gateways/backwards-compatibility/<strong>supporter-bulk-upgrades-paypal.php</strong></em> file to the webroot of this site to prevent problems with payments from existing subscriptions being applied.', 'psts') ?></p>
@@ -676,7 +676,7 @@ class ProSites_Module_BulkUpgrades {
 		}
 		?>
 		<div class="postbox">
-      <h3 class='hndle'><span><?php _e('Your Credits', 'psts') ?></span></h3>
+      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Your Credits', 'psts') ?></span></h3>
       <div class="inside">
 			<p>
      	<?php
@@ -698,7 +698,7 @@ class ProSites_Module_BulkUpgrades {
 		
 		<?php if ( !isset($_POST['submit_search']) ) { ?>
     <div class="postbox">
-      <h3 class='hndle'><span><?php _e('Purchase Bulk Upgrades', 'psts') ?></span></h3>
+      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Purchase Bulk Upgrades', 'psts') ?></span></h3>
       <div class="inside">
 			<?php
 			echo '<table width="100%">';
@@ -739,7 +739,7 @@ class ProSites_Module_BulkUpgrades {
 		<form method="post" action="">
   	<?php if ( $upgrade_credits > 0 ) { ?>
 	    <div class="postbox">
-	      <h3 class='hndle'><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to apply an upgrade to.', 'psts') ?></span></h3>
+	      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Find Sites', 'psts') ?></span> - <span class="description"><?php _e('Search for a site to apply an upgrade to.', 'psts') ?></span></h3>
 	      <div class="inside">
           <?php
           $curr_blogs = get_blogs_of_user(get_current_user_id());
@@ -802,7 +802,7 @@ class ProSites_Module_BulkUpgrades {
 			<?php if ( isset($_POST['submit_search']) ) { ?>
 
 			  <div class="postbox">
-		      <h3 class='hndle'><span><?php _e('Search Results', 'psts'); ?></span></h3>
+		      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Search Results', 'psts'); ?></span></h3>
 		      <div class="inside">
            <?php
 						$query = "SELECT b.blog_id, s.expire FROM {$wpdb->blogs} b LEFT JOIN {$wpdb->base_prefix}pro_sites s ON b.blog_id = s.blog_ID WHERE ( b.domain LIKE '%" . $wpdb->escape($_POST['search']) . "%' OR b.path LIKE '%" . $wpdb->escape($_POST['search']) . "%' ) LIMIT 150";
@@ -868,7 +868,7 @@ class ProSites_Module_BulkUpgrades {
 				$blogs = get_user_meta($user_ID, 'psts_upgraded', true);
 				if ( is_array($blogs) && count($blogs) ) { ?>
 		    <div class="postbox">
-		      <h3 class='hndle'><span><?php _e('Previously Upgraded Sites', 'psts'); ?></span> - <span class="description"><?php _e('These are sites that you have previously upgraded in the past.', 'psts'); ?></span></h3>
+		      <h3 class="hndle" style="cursor:auto;"><span><?php _e('Previously Upgraded Sites', 'psts'); ?></span> - <span class="description"><?php _e('These are sites that you have previously upgraded in the past.', 'psts'); ?></span></h3>
 		      <div class="inside">
 					 <p>
 					 <table cellpadding='3' cellspacing='3' width='100%' class='widefat'>
