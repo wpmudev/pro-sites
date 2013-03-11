@@ -43,7 +43,10 @@ class ProSites_Gateway_Stripe {
 		
 		//filter payment info
 		add_action( 'psts_payment_info', array(&$this, 'payment_info'), 10, 2 );
-			
+		
+		//return next payment date for emails
+		add_filter( 'psts_next_payment', array(&$this, 'next_payment') );
+		
 		//cancel subscriptions on blog deletion
 		add_action( 'delete_blog', array(&$this, 'cancel_blog_subscription') );
 		
@@ -260,6 +263,34 @@ class ProSites_Gateway_Stripe {
       echo '<p>'.__("This site is using a different gateway so their information is not accessible.", 'psts').'</p>';
 		}
 	}
+	
+	//return timestamp of next payment if subscription active, else return false
+	function next_payment($blog_id) {
+  	global $psts;
+		
+		$next_billing = false;
+    $customer_id = $this->get_customer_id($blog_id); 
+    if ($customer_id) {
+			
+			if (get_blog_option($blog_id, 'psts_stripe_canceled')) {
+				return false;
+			}
+	
+			try {
+				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
+			} catch (Exception $e) {
+				$error = $e->getMessage();
+			}
+						                        		
+			$next_amount = $invoice_object->total / 100;
+			
+			if (isset($invoice_object->next_payment_attempt)) {
+				$next_billing = $invoice_object->next_payment_attempt;
+			}
+			
+		}
+    return $next_billing;
+  }
 	
   function modify_form($blog_id) {  
 		global $psts, $wpdb;

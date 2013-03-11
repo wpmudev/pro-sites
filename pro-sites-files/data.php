@@ -505,6 +505,7 @@ $this->currencies = array(
   "TRL"=> array("Turkey, Liras", "20a4"),
   "TVD"=> array("Tuvalu, Dollars", "24"),
   "UAH"=> array("Ukraine, Hryvnia", "20b4"),
+	"AED"=> array("United Arab Emirates, dirhams", "64, 68"),
   "GBP"=> array("United Kingdom, Pounds", "a3"),
   "USD"=> array("United States of America, Dollars", "24"),
   "UYU"=> array("Uruguay, Pesos", "24, 55"),
