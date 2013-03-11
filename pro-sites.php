@@ -1101,7 +1101,12 @@ Many thanks again for being a member!", 'psts'),
 			return false;
 		}
 	}
-
+	
+	//gateways hook into this and return false with no sub, or a timestamp
+	function get_next_payment_date($blog_id) {
+		return apply_filters( 'psts_next_payment', false );
+	}
+	
 	function extend($blog_id, $extend, $gateway = false, $level = 1, $amount = false) {
 		global $wpdb, $current_site;
 

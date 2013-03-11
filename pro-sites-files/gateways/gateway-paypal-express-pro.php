@@ -33,6 +33,9 @@ class ProSites_Gateway_PayPalExpressPro {
 		//filter payment info
 		add_action( 'psts_payment_info', array(&$this, 'payment_info'), 10, 2 );
 		
+		//return next payment date for emails
+		add_filter( 'psts_next_payment', array(&$this, 'next_payment') );
+		
 		//cancel subscriptions on blog deletion
 		add_action( 'delete_blog', array(&$this, 'cancel_blog_subscription') );
 		
@@ -340,7 +343,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	    if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Active') {
 
-        if ($resArray['NEXTBILLINGDATE'])
+        if (isset($resArray['NEXTBILLINGDATE']))
           $next_billing = date_i18n(get_blog_option($blog_id, 'date_format'), strtotime($resArray['NEXTBILLINGDATE']));
         else
           $next_billing = __("None", 'psts');
@@ -548,6 +551,23 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
       echo '<p>'.__("This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts').'</p>';
 		}
 	}
+	
+	//return timestamp of next payment if subscription active, else return false
+	function next_payment($blog_id) {
+  	global $psts;
+		
+		$next_billing = false;
+    $profile_id = $this->get_profile_id($blog_id);
+    if ($profile_id) {
+			$resArray = $this->GetRecurringPaymentsProfileDetails($profile_id);
+	    if (($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') && $resArray['STATUS']=='Active') {
+
+        if (!empty($resArray['NEXTBILLINGDATE']))
+          $next_billing = strtotime($resArray['NEXTBILLINGDATE']);
+      }
+    }
+    return $next_billing;
+  }
 	
   function modify_form($blog_id) {
     global $psts, $wpdb;
