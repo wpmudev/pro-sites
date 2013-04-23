@@ -382,7 +382,7 @@ Many thanks again for being a member!", 'psts'),
 	function trial_notice() {
 		global $wpdb, $blog_id;
 		if ( !is_main_site() && current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
-			$expire = $wpdb->get_var("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id' AND gateway = 'Trial' AND expire >= '" . time() . "' LIMIT 1");
+			$expire = $wpdb->get_var( $wpdb->prepare("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time()) );
 			if ($expire) {
 				$days = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
 				$notice = str_replace( 'LEVEL', $this->get_level_setting($this->get_setting('trial_level', 1), 'name'), $this->get_setting('trial_message') );
@@ -397,7 +397,7 @@ Many thanks again for being a member!", 'psts'),
 	
 	function is_trial($blog_id) {
 		global $wpdb;
-		return $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id' AND gateway = 'Trial' AND expire >= '" . time() . "' LIMIT 1");
+		return $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
 	}
 	
 	//run daily via wp_cron
@@ -425,15 +425,16 @@ Many thanks again for being a member!", 'psts'),
 			foreach ($levels as $level => $data) {
 				//if last level include all previous ones greater than that level, in case a level was deleted
 				if (count($levels) == $level)
-					$level_count[$level] = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE level >= $level AND expire > '" . time() . "'");
+					$level_count[$level] = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE level >= %d AND expire > %s", $level, time() ) );
 				else
-          $level_count[$level] = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE level = $level AND expire > '" . time() . "'");
+          $level_count[$level] = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE level = %d AND expire > %s", $level, time() ) );
 			}
 		} else {
 			$level_count[1] = $active_pro_sites;
 		}
 
-	  $wpdb->query( "INSERT INTO {$wpdb->base_prefix}pro_sites_daily_stats ( date, supporter_count, expired_count, term_count_1, term_count_3, term_count_12, term_count_manual, level_count_1, level_count_2, level_count_3, level_count_4, level_count_5, level_count_6, level_count_7, level_count_8, level_count_9, level_count_10 ) VALUES ( '$date', $active_pro_sites, $expired_pro_sites, $term_1_pro_sites, $term_3_pro_sites, $term_12_pro_sites, $term_manual_pro_sites, {$level_count[1]}, {$level_count[2]}, {$level_count[3]}, {$level_count[4]}, {$level_count[5]}, {$level_count[6]}, {$level_count[7]}, {$level_count[8]}, {$level_count[9]}, {$level_count[10]} )" );
+	  $wpdb->query( "INSERT INTO {$wpdb->base_prefix}pro_sites_daily_stats ( date, supporter_count, expired_count, term_count_1, term_count_3, term_count_12, term_count_manual, level_count_1, level_count_2, level_count_3, level_count_4, level_count_5, level_count_6, level_count_7, level_count_8, level_count_9, level_count_10 )
+									 VALUES ( '$date', $active_pro_sites, $expired_pro_sites, $term_1_pro_sites, $term_3_pro_sites, $term_12_pro_sites, $term_manual_pro_sites, {$level_count[1]}, {$level_count[2]}, {$level_count[3]}, {$level_count[4]}, {$level_count[5]}, {$level_count[6]}, {$level_count[7]}, {$level_count[8]}, {$level_count[9]}, {$level_count[10]} )" );
 	}
 
 	/*
@@ -816,7 +817,7 @@ Many thanks again for being a member!", 'psts'),
 
 			case 'receipt':
 				//grab default payment info
-				$result = $wpdb->get_row("SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+				$result = $wpdb->get_row( $wpdb->prepare("SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id) );
 				if ($result->term == 1 || $result->term == 3 || $result->term == 12)
 					$term = sprintf(__('Every %s Month(s)', 'psts'), $result->term);
 				else
@@ -976,7 +977,7 @@ Many thanks again for being a member!", 'psts'),
 			return true;
 	  } else { //finally go to DB
 			$now = time();
-   		$data = $wpdb->get_row("SELECT expire, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+   		$data = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 			if (is_object($data)) {
 				if ($level) {
 					if ( $data->expire && $data->expire > $now && $level <= $data->level ) {
@@ -1045,9 +1046,9 @@ Many thanks again for being a member!", 'psts'),
 		  $tmp = explode('_', $row->meta_key);
 		  //skip main blog
 		  if ($tmp[1] != $current_site->blogid)
-	      $blog_ids[] = $tmp[1];
+	      $blog_ids[] = intval($tmp[1]);
 	  }
-	  $blog_ids = implode(',',$blog_ids);
+	  $blog_ids = implode(',', $blog_ids);
 
 	  $count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE expire > '" . time() . "' AND blog_ID IN ($blog_ids)");
 	  if ($count) {
@@ -1075,7 +1076,7 @@ Many thanks again for being a member!", 'psts'),
 		if (!is_pro_site($blog_id))
 			return 0;
 		
-    $sql = "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'";
+    $sql = $wpdb->prepare( "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id );
 
 		$level = $wpdb->get_var($sql);
 		if ($level) {
@@ -1094,7 +1095,7 @@ Many thanks again for being a member!", 'psts'),
 			$blog_id = $wpdb->blogid;
 		}
 
-		$expire = $wpdb->get_var("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+		$expire = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 		if ($expire) {
 			return $expire;
 		} else {
@@ -1150,14 +1151,14 @@ Many thanks again for being a member!", 'psts'),
 
 		$old_level = $this->get_level($blog_id);
 
-		$extra_sql = ($gateway) ? ", gateway = '$gateway'" : '';
-		$extra_sql .= ($amount) ? ", amount = '$amount'" : '';
-		$extra_sql .= ($term) ? ", term = '$term'" : '';
+		$extra_sql = ($gateway) ? $wpdb->prepare(", gateway = %s", $gateway) : '';
+		$extra_sql .= ($amount) ? $wpdb->prepare(", amount = %s", $amount) : '';
+		$extra_sql .= ($term) ? $wpdb->prepare(", term = %s", $term) : '';
 		
 		if ($exists)
-	  	$wpdb->query("UPDATE {$wpdb->base_prefix}pro_sites SET expire = '$new_expire', level = '$level'$extra_sql WHERE blog_ID = '$blog_id'");
+	  	$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %d, level = %d{$extra_sql} WHERE blog_ID = %d", $new_expire, $level, $blog_id) );
 		else
-		  $wpdb->query("INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term) VALUES ('$blog_id', '$new_expire', '$level', '$gateway', '$term')");
+		  $wpdb->query( $wpdb->prepare("INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term) VALUES (%d, %d, %d, %s, %s)", $blog_id, $new_expire, $level, $gateway, $term) );
 
 		unset($this->pro_sites[$blog_id]); //clear cache
 		unset($this->level[$blog_id]); //clear cache
@@ -1204,7 +1205,7 @@ Many thanks again for being a member!", 'psts'),
 		} else {
       $new_expire = time() - 1;
 		}
-	  $wpdb->query("UPDATE {$wpdb->base_prefix}pro_sites SET expire = '$new_expire' WHERE blog_ID = '$blog_id'");
+	  $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %d WHERE blog_ID = %d", $new_expire, $blog_id) );
 
     unset($this->pro_sites[$blog_id]); //clear cache
 
@@ -1374,7 +1375,7 @@ Many thanks again for being a member!", 'psts'),
   function calc_upgrade($blog_id, $new_amt, $new_level, $new_period) {
 		global $wpdb;
 
-		$old = $wpdb->get_row("SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+		$old = $wpdb->get_row( $wpdb->prepare("SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id) );
 		if (!$old)
 			return false;
 
@@ -1694,7 +1695,7 @@ _gaq.push(["_trackTrans"]);
 			
 		//check blog_id
 		if( isset( $_GET['bid'] ) ) {
-			$blog_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}blogs WHERE blog_ID = '" . (int)$_GET['bid'] . "'");
+			$blog_count = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->base_prefix}blogs WHERE blog_ID = %d", (int)$_GET['bid']) );
 			if ( !$blog_count ) {
 				echo '<div id="message" class="updated fade"><p>'.__('Invalid blog ID. Please try again.', 'psts').'</p></div>';
     		$blog_id = false;
@@ -3380,7 +3381,7 @@ _gaq.push(["_trackTrans"]);
     	$levels = array_reverse($levels, true);
 
     $periods = (array)$this->get_setting('enabled_periods');
-    $curr = $wpdb->get_row("SELECT term, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'");
+    $curr = $wpdb->get_row( $wpdb->prepare("SELECT term, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id) );
     if ($curr) {
 			$curr->term = ($curr->term && !is_numeric($curr->term)) ? $periods[0] : $curr->term; //if term not numeric
 			$sel_period = isset($_POST['period']) ? $_POST['period'] : $curr->term;

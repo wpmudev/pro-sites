@@ -363,10 +363,10 @@ class ProSites_Module_Ads {
 			$blogs = $_POST['blogs'];
 			foreach ( $blogs as $blog_id => $value) {
 				if ( $ad_free_blogs_remaining > 0 && $value == '1' ) {
-					$existing_check = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->base_prefix}supporter_ads WHERE supporter_blog_ID = '" . $wpdb->blogid . "' AND blog_ID = '" . $blog_id . "'");
+					$existing_check = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->base_prefix}supporter_ads WHERE supporter_blog_ID = %d AND blog_ID = %d", $wpdb->blogid, $blog_id) );
 					if ( $existing_check < 1 ) {
 						$ad_free_blogs_remaining--;
-						$wpdb->query( "INSERT INTO {$wpdb->base_prefix}supporter_ads (blog_ID, supporter_blog_ID) VALUES ( '" . $blog_id . "', '" . $wpdb->blogid . "' )" );
+						$wpdb->query( $wpdb->prepare("INSERT INTO {$wpdb->base_prefix}supporter_ads (blog_ID, supporter_blog_ID) VALUES ( %s, %s )", $blog_id, $wpdb->blogid) );
 					}
 				}
 			}
@@ -379,7 +379,7 @@ class ProSites_Module_Ads {
 		if (isset($_POST['submit_remove'])) {
 			foreach ( (array)$_POST['blogs'] as $blog_id => $value ) {
 				if ( $value == '1' ) {
-					$wpdb->query( "DELETE FROM {$wpdb->base_prefix}supporter_ads WHERE blog_ID = '" . $blog_id . "' AND supporter_blog_ID = '" . $wpdb->blogid . "'" );
+					$wpdb->query( $wpdb->prepare("DELETE FROM {$wpdb->base_prefix}supporter_ads WHERE blog_ID = %d AND supporter_blog_ID = %d", $blog_id, $wpdb->blogid) );
 					wp_cache_delete("supporter_ads:{$blog_id}:expire", 'blog-details');
 				}
 			}
@@ -445,7 +445,7 @@ class ProSites_Module_Ads {
 						foreach ($curr_blogs as $blog_id => $blog) {
 	       			//=========================================================//
 							echo "<tr class='" . $class . "'>";
-							$existing_check = $wpdb->get_var("SELECT COUNT(*) FROM " . $wpdb->base_prefix . "supporter_ads WHERE supporter_blog_ID = '" . $wpdb->blogid . "' AND blog_ID = '" . $blog_id . "'");
+							$existing_check = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM " . $wpdb->base_prefix . "supporter_ads WHERE supporter_blog_ID = %d AND blog_ID = %d", $wpdb->blogid $blog_id) );
 							if ( $existing_check > 0 ) {
 								echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_$blog_id' value='1' type='checkbox' disabled='disabled'></center></td>";
 							} else {
