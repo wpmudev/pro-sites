@@ -68,7 +68,7 @@ class ProSites_Gateway_Manual {
 			$content .= '<div id="psts-general-error" class="psts-error">'.$errmsg.'</div>';
 		}
     
-		if (is_pro_site($blog_id)) {
+		if ( is_pro_site($blog_id) ) {
 			
 			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
