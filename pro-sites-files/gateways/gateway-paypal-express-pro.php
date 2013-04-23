@@ -77,6 +77,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'FR'	=> 'France',
 					'DE'	=> 'Germany',
 					'HK'	=> 'Hong Kong',
+          'IL'	=> 'Israel',
 					'IT'	=> 'Italy',
 					'JP'	=> 'Japan',
 					'MX'	=> 'Mexico',
@@ -148,7 +149,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			  <tr>
 				<th scope="row"><?php _e('PayPal API Credentials', 'psts') ?></th>
 				<td>
-					<span class="description"><?php _e('You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_ECAPICredentials">Instructions &raquo;</a>', 'psts') ?></span>
+					<span class="description"><?php _e('You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECAPICredentials">Instructions &raquo;</a>', 'psts') ?></span>
 			    <p><label><?php _e('API Username', 'psts') ?><br />
 			    <input value="<?php esc_attr_e($psts->get_setting("pypl_api_user")); ?>" size="30" name="psts[pypl_api_user]" type="text" />
 			    </label></p>
@@ -359,7 +360,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         }
 
         if ($last_payment = $psts->last_transaction($blog_id)) {
-          $payment_info .= sprintf(__('Payment Date: %s', 'psts'), date_i18n(get_blog_option($blog_id, 'date_format')))."\n";
+          $payment_info .= sprintf(__('Payment Date: %s', 'psts'), date_i18n(get_blog_option($blog_id, 'date_format'), $last_payment['timestamp']))."\n";
           $payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $last_payment['amount'] . ' ' . $psts->get_setting('currency'))."\n";
           $payment_info .= sprintf(__('Payment Transaction ID: %s', 'psts'), $last_payment['txn_id'])."\n\n";
         }

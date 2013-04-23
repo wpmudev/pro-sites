@@ -1,6 +1,6 @@
 <?php
 
-class Stripe_Token extends Stripe_ApiResource
+class Stripe_Transfer extends Stripe_ApiResource
 {
   public static function constructFrom($values, $apiKey=null)
   {
@@ -14,9 +14,9 @@ class Stripe_Token extends Stripe_ApiResource
     return self::_scopedRetrieve($class, $id, $apiKey);
   }
 
-  public static function create($params=null, $apiKey=null)
+  public static function all($params=null, $apiKey=null)
   {
     $class = get_class();
-    return self::_scopedCreate($class, $params, $apiKey);
+    return self::_scopedAll($class, $params, $apiKey);
   }
 }
