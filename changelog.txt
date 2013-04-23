@@ -5,6 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.4.1 - 3/18/2013 - Aaron Edwards
+----------------------------------------------------------------------
+- Update Stripe API files for better cross-compatibility with other plugins http://wp.mu/1r6
+- Fix payment date on email receipts to show actual date, not date of email
+- Add Israel locale to paypal gateway
+- Execute shortcodes in manual gateway instructions output
+- SQL hardening
 
 3.4 - 3/5/2013 - Aaron Edwards
 ----------------------------------------------------------------------

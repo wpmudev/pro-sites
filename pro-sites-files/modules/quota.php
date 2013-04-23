@@ -3,7 +3,9 @@
 Pro Sites (Module: Upload Quota)
 */
 class ProSites_Module_Quota {
-
+	
+	public $checkout_name, $checkout_desc;
+	
 	function ProSites_Module_Quota() {
 		$this->__construct();
 	}
@@ -21,8 +23,26 @@ class ProSites_Module_Quota {
 		add_action( 'activity_box_end', array(&$this, 'message') , 11);
 		add_action( 'pre-upload-ui', array(&$this, 'message') , 11);
 		add_action( 'admin_notices', array(&$this, 'out_message') );
+		
+		//add checkout grid text
+		$this->checkout_name = __('Upload Space', 'psts'); //can only i18n in _construct()
+		$this->checkout_desc = __('Get additional upload space for your images, media, and other files.', 'psts'); //can only i18n in _construct()
+		add_filter( 'psts_checkout_item-ProSites_Module_Quota', array(&$this, 'checkout_output'), 10, 2 ); //note the classname is part of the filter
 	}
-
+	
+	//get's passed a given level, return string for custom text, or bool for checkmark
+	function checkout_output($null, $level) {
+		global $psts;
+    
+		//for free level use core function
+		if (0 == $level)
+			return $this->display_space(get_space_allowed());
+		
+		//pro level, get setting
+		$quota = $psts->get_level_setting($level, 'quota');
+		return $this->display_space($space);
+	}
+	
 	//changed in 2.0 to filter return as to be non-permanent.
 	function filter($space) {
 		global $psts;

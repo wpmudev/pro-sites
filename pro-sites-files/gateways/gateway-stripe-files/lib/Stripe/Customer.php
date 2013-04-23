@@ -5,7 +5,7 @@ class Stripe_Customer extends Stripe_ApiResource
   public static function constructFrom($values, $apiKey=null)
   {
     $class = get_class();
-    return self::_scopedConstructFrom($class, $values, $apiKey);
+    return self::scopedConstructFrom($class, $values, $apiKey);
   }
 
   public static function retrieve($id, $apiKey=null)
@@ -90,5 +90,13 @@ class Stripe_Customer extends Stripe_ApiResource
     list($response, $apiKey) = $requestor->request('delete', $url, $params);
     $this->refreshFrom(array('subscription' => $response), $apiKey, true);
     return $this->subscription;
+  }
+
+  public function deleteDiscount()
+  {
+    $requestor = new Stripe_ApiRequestor($this->_apiKey);
+    $url = $this->instanceUrl() . '/discount';
+    list($response, $apiKey) = $requestor->request('delete', $url);
+    $this->refreshFrom(array('discount' => null), $apiKey, true);
   }
 }

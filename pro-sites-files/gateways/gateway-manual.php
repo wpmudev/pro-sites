@@ -110,7 +110,7 @@ class ProSites_Gateway_Manual {
     
     $content .= '<div id="psts-paypal-checkout">
 			<h2>' . $psts->get_setting('mp_name') . '</h2>
-			' . $psts->get_setting('mp_instructions') . '
+			' . do_shortcode( $psts->get_setting('mp_instructions') ) . '
 			</div>';
 
     $content .= '</form>';
