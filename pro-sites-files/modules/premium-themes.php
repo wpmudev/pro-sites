@@ -40,6 +40,12 @@ class ProSites_Module_PremiumThemes {
 		if ( $allowed_themes == false )
 			$allowed_themes = array();
 		
+		//if wp per site option overrides pro sites
+		$override_themes = get_option('allowedthemes');
+		if ( is_array($override_themes) && isset( $override_themes[ $theme[ 'Stylesheet' ] ] ) )
+			return $actions;
+		
+		//add currently activated theme to allowed list
 		if ( isset( $allowed_themes[ esc_html( $ct->stylesheet ) ] ) == false )
 			$allowed_themes[ esc_html( $ct->stylesheet ) ] = true;
 		

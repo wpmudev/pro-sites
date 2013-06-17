@@ -445,16 +445,16 @@ class ProSites_Module_Ads {
 						foreach ($curr_blogs as $blog_id => $blog) {
 	       			//=========================================================//
 							echo "<tr class='" . $class . "'>";
-							$existing_check = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM " . $wpdb->base_prefix . "supporter_ads WHERE supporter_blog_ID = %d AND blog_ID = %d", $wpdb->blogid $blog_id) );
+							$existing_check = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM " . $wpdb->base_prefix . "supporter_ads WHERE supporter_blog_ID = %d AND blog_ID = %d", $wpdb->blogid, $blog_id) );
 							if ( $existing_check > 0 ) {
 								echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_$blog_id' value='1' type='checkbox' disabled='disabled'></center></td>";
 							} else {
 								echo "<td valign='top'><center><input name='blogs[$blog_id]' id='blog_$blog_id' value='1' type='checkbox'></center></td>";
 							}
 							if ( $existing_check > 0 ) {
-								echo "<td valign='top' style='color:#666666;'><strong>" . $blog->blogname . " (<em>" . $blog->domain . "</em>): " . __('Ads already disabled', 'psts') . "</strong></td>";
+								echo "<td valign='top' style='color:#666666;'><strong>" . esc_html($blog->blogname) . " (<em>" . $blog->domain . "</em>): " . __('Ads already disabled', 'psts') . "</strong></td>";
 							} else {
-								echo "<td valign='top'><label for='blog_$blog_id'><strong>" . $blog->blogname . " (<em>" . $blog->domain . "</em>)</strong></label></td>";
+								echo "<td valign='top'><label for='blog_$blog_id'><strong>" . esc_html($blog->blogname) . " (<em>" . $blog->domain . "</em>)</strong></label></td>";
 							}
 							echo "</tr>";
 							$class = ('alternate' == $class) ? '' : 'alternate';

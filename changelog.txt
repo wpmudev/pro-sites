@@ -9,9 +9,13 @@ Change Log:
 ----------------------------------------------------------------------
 - Fix major problem with Stripe gateway webhooks
 - Update Stripe API files for better cross-compatibility with other plugins http://wp.mu/1r6
+- Add support for CAD and GBP to Stripe gateway
 - Fix payment date on email receipts to show actual date, not date of email
-- Add Israel locale to paypal gateway
+- Fix bug in Premium Themes module that didn't allow overriding access to pro only themes per site
+- Add Israel & New Zealand locales to paypal gateway
+- Attempt to fix expire email getting randomly sent for permanently extended sites
 - Execute shortcodes in manual gateway instructions output
+- Add PSTS_DISABLE_UPGRADE define for those with db issues (settings corruption/duplication)
 - SQL/XSS hardening
 
 3.4 - 3/5/2013 - Aaron Edwards

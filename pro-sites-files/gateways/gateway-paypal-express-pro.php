@@ -82,6 +82,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					'JP'	=> 'Japan',
 					'MX'	=> 'Mexico',
 					'NL'	=> 'Netherlands',
+          'NZ'	=> 'New Zealand',
 					'PL'	=> 'Poland',
 					'SG'	=> 'Singapore',
 					'ES'	=> 'Spain',
