@@ -89,7 +89,7 @@ class ProSites {
 		add_filter( 'blog_template_exclude_settings', array(&$this, 'blog_template_settings') ); // exclude pro site setting from blog template copies
 
 		//update install script if necessary
-		if ($this->get_setting('version') != $this->version) {
+		if ( !defined('PSTS_DISABLE_UPGRADE') && $this->get_setting('version') != $this->version ) {
 			$this->install();
 		}
 
@@ -133,7 +133,7 @@ class ProSites {
 
 	function install() {
 		global $wpdb, $current_site;
-
+		
 		//rename tables if upgrading from old supporter
 		if (get_site_option("supporter_installed") == "yes") {
 			$wpdb->query("RENAME TABLE `{$wpdb->base_prefix}supporters` TO `{$wpdb->base_prefix}pro_sites`");
@@ -780,7 +780,7 @@ Many thanks again for being a member!", 'psts'),
 	      $this->withdraw($blog_id);
 				
 				//send email
-				if ( !defined('PSTS_NO_EXPIRE_EMAIL') )
+				if ( !defined('PSTS_NO_EXPIRE_EMAIL') && '9999999999' != $this->get_expire($blog_id) )
 					$this->email_notification($blog_id, 'expired');
 			}
 		}
