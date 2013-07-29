@@ -164,9 +164,9 @@ class ProSites_Gateway_PayPalExpressPro {
 			  </tr>
 			  <th scope="row"><?php _e('Enable PayPal Pro', 'psts') ?></th>
 				<td>
-					<span class="description"><?php _e('PayPal Website Payments Pro allows you to seemlessly accept credit cards on your site, and gives you the most professional look with a widely accepted payment method. There are a few requirements you must meet to use PayPal Website Payments Pro:', 'psts') ?></span>
+					<span class="description"><?php _e('PayPal Website Payments Pro 3.0 allows you to seemlessly accept credit cards on your site, and gives you the most professional look with a widely accepted payment method. There are a few requirements you must meet to use PayPal Website Payments Pro:', 'psts') ?></span>
 			    <ul style="list-style:disc outside none;margin-left:25px;">
-			     <li><?php _e('You must signup (and pay the monthly fees) for <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_wp-pro-overview-outside" target="_blank">PayPal Website Payments Pro</a>.', 'psts') ?></li>
+			     <li><?php _e('You must signup (and pay the monthly fees) for <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_wp-pro-overview-outside" target="_blank">PayPal Website Payments Pro</a>. Note this uses the older Website Payments Pro 3.0 API, you will have to contact PayPal and have them manually setup or create a new account that supports Website Payments Pro 3.0', 'psts') ?></li>
 			     <li><?php _e('You must signup (and pay the monthly fees) for the <a href="https://www.paypal.com/cgi-bin/webscr?cmd=xpt/Marketing/general/ProRecurringPayments-outside" target="_blank">PayPal Website Payments Pro Recurring Payments addon</a>.', 'psts') ?></li>
 			     <li><?php _e('You must have an SSL certificate setup for your main blog/site where the checkout form will be displayed.', 'psts') ?></li>
 			     <li><?php _e('You additionaly must be <a href="https://www.paypal.com/pcicompliance" target="_blank">PCI compliant</a>, which means your server must meet security requirements for collecting and transmitting payment data.', 'psts') ?></li>
