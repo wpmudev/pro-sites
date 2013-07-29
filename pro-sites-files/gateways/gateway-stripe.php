@@ -913,11 +913,11 @@ class ProSites_Gateway_Stripe {
 			if ($blog_id) {
 				$date = date_i18n(get_option('date_format'), $event_json->created);
 				
-				$amount = $event_json->data->object->lines->subscriptions[0]->amount / 100;
+				$amount = $event_json->data->object->lines->data[0]->amount / 100;
 				$amount_formatted = $psts->format_currency(false, $amount);
 				
-				if (isset($event_json->data->object->lines->subscriptions[0]->plan->id)) {
-					$plan = $event_json->data->object->lines->subscriptions[0]->plan->id;	
+				if (isset($event_json->data->object->lines->data[0]->plan->id)) {
+					$plan = $event_json->data->object->lines->data[0]->plan->id;	
 					@list($level, $period) = explode('_', $plan);
 				}
 				
