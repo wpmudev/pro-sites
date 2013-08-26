@@ -5,7 +5,7 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.4.1 - 8/23/2013 - Aaron Edwards
+3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix major problem with Stripe gateway webhooks
 - Update Stripe API files for better cross-compatibility with other plugins http://wp.mu/1r6
