@@ -215,20 +215,6 @@ class ProSites_Gateway_PayPalExpressPro {
 			    </p>
 			  </td>
 			  </tr>
-				<tr valign="top">
-				<th scope="row"><?php _e('PayPal Trial', 'psts') ?></th>
-				<td>
-					<span class="description"><?php _e('Number of days user have before actually being charged.', 'psts'); ?></span><br/>
-					<select name="psts[pypl_trial]">
-					<?php
-					$trial_days = $psts->get_setting('pypl_trial');
-					for ( $counter = 0; $counter <=  365; $counter++) {
-					  echo '<option value="' . $counter . '"' . ($counter == $trial_days ? ' selected' : '') . '>' . (($counter) ? $counter : __('Disabled', 'psts')) . '</option>' . "\n";
-					}
-					?>
-					</select>
-				</td>
-				</tr>
 			  <tr valign="top">
 			  <th scope="row"><?php _e('Thank You Message', 'psts') ?></th>
 			  <td>
@@ -1946,7 +1932,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     } else {
 			$coupon = false;
 		}
-		$trial = $psts->get_setting('pypl_trial');
 
     $nvpstr = "&TOKEN=" . $token;
     $nvpstr .= "&AMT=$paymentAmount";
@@ -1958,12 +1943,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
   		$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
   		$nvpstr .= "&TRIALAMT=".round($coupon_value['new_total'], 2);
     }
-	  elseif($trial > 0) {
-	  	$nvpstr .= "&TRIALBILLINGPERIOD=Day";
-	  	$nvpstr .= "&TRIALBILLINGFREQUENCY=".$trial;
-	  	$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
-	  	$nvpstr .= "&TRIALAMT=0";
-	  }
 
 	  $nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
 		$nvpstr .= "&PROFILESTARTDATE=".(($modify) ? $this->modStartDate($modify) : $this->startDate($frequency));
@@ -1988,8 +1967,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$coupon = false;
 		}
 
-		$trial = $psts->get_setting('pypl_trial');
-
     $nvpstr = "&AMT=$paymentAmount";
 
     //handle discounts
@@ -1999,12 +1976,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
   		$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
   		$nvpstr .= "&TRIALAMT=".round($coupon_value['new_total'], 2);
     }
-	  elseif($trial > 0) {
-	  	$nvpstr .= "&TRIALBILLINGPERIOD=Day";
-	  	$nvpstr .= "&TRIALBILLINGFREQUENCY=".$trial;
-	  	$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
-	  	$nvpstr .= "&TRIALAMT=0";
-	  }
 
 	  $nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
 		$nvpstr .= "&PROFILESTARTDATE=".(($modify) ? $this->modStartDate($modify) : $this->startDate($frequency));
