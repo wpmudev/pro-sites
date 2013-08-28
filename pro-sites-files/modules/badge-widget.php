@@ -36,6 +36,11 @@ class ProSites_Module_ProWidget {
 					<?php
 					}
 					?>
+					<tr valign="top">
+					<th scope="row"><?php _e('Link URL (optional)', 'psts'); ?></th>
+					<td><span class="description"><?php _e('If you would like the badge to link somewhere (like a page describing Pro Sites) enter the url here.', 'psts') ?></span><br>
+					<input type="text" name="psts[widget_imgs][link]" value="<?php echo isset($images['link']) ? esc_url($images['link']) : ''; ?>" style="width: 95%" /></td>
+					</tr>
 			  </table>
 		  </div>
 		</div>
@@ -60,15 +65,17 @@ class ProSites_Pro_Widget extends WP_Widget {
 		$images = $psts->get_setting( 'widget_imgs', array() );
 		
 		//if image not set
-		if ( !isset($images[$level]) || empty($images[$level]) )
-			return;
+		//if ( !isset($images[$level]) || empty($images[$level]) )
+		//	return;
 		
 		extract($args);
 
 		echo $before_widget;
 		?>
 		<center>
-			<img src="<?php echo esc_url($images[$level]); ?>" alt="<?php printf(__('A proud %s site.', 'psts'), esc_attr($level_name)); ?>" />
+		<?php if (!empty($images['link'])) echo '<a href="' . esc_url($images['link']) . '">'; ?>
+			<img src="<?php echo esc_url($images[$level]); ?>" alt="<?php printf(__('A proud %s site.', 'psts'), esc_attr($level_name)); ?>" border="0" />
+		<?php if (!empty($images['link'])) echo '</a>'; ?>
 		</center>
 		<?php
 		echo $after_widget;
