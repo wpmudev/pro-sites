@@ -796,7 +796,7 @@ Many thanks again for being a member!", 'psts'),
 		// used in all emails
 		$search_replace=array(
 			'LEVEL'=> $this->get_level_setting($this->get_level($blog_id), 'name'), 
-			'SITEURL'=> get_site_url( $blog_id ), 
+			'SITEURL'=> get_home_url( $blog_id ), 
 			'SITENAME'=> get_blog_option($blog_id, 'blogname'), 
 			'CHECKOUTURL'=> $this->checkout_url($blog_id)
 		);
@@ -1414,7 +1414,7 @@ Many thanks again for being a member!", 'psts'),
     else
     	return $title;
 		
-		$url = str_replace( 'http://', '', get_site_url($blog_id, '', 'http') );
+		$url = str_replace( 'http://', '', get_home_url($blog_id, '', 'http') );
 		
     return sprintf(__('%1$s: %2$s (%3$s)', 'psts'), $title, get_blog_option($blog_id, 'blogname'), $url);
   }
