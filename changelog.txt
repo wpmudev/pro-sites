@@ -6,6 +6,7 @@ Change Log:
 ----------------------------------------------------------------------
 
 - Ability to add a link to badge widgets & display text when no image entered in settings
+- Change site_url() to home_url() where appropriate
 
 3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
