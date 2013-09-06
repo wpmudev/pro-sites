@@ -510,7 +510,7 @@ class ProSites_Gateway_Stripe {
 			$stripe_plan_id = $level_id . "_3";
 			$this->delete_plan($stripe_plan_id);
 			if ( in_array(3, $periods) )
-				$this->add_plan($stripe_plan_id, 'month', 3, $level_name.': Monthly', $price_3);
+				$this->add_plan($stripe_plan_id, 'month', 3, $level_name.': Quarterly', $price_3);
 				
 			$stripe_plan_id = $level_id . "_12";
 			$this->delete_plan($stripe_plan_id);
