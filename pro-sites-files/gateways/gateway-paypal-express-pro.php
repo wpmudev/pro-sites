@@ -936,7 +936,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	        if ( $_SESSION['LEVEL'] > ($old_level = $psts->get_level($blog_id)) ) {
             $expire_sql = $upgrade ? " expire = '$upgrade'," : '';
 						$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET$expire_sql level = %d, term = %d WHERE blog_ID = %d", $_SESSION['LEVEL'], $_SESSION['PERIOD'], $blog_id) );
-            unset($psts->level[$blog_id]); //clear cache
+            unset($psts->pro_sites[$blog_id]); //clear local cache
+						wp_cache_delete( 'is_pro_site_'.$blog_id, 'psts' ); //clear object cache
+						unset($psts->level[$blog_id]); //clear cache
+						wp_cache_delete( 'level_'.$blog_id, 'psts' ); //clear object cache
+						
           	$psts->log_action( $blog_id, sprintf( __('Pro Site level upgraded from "%s" to "%s".', 'psts'), $psts->get_level_setting($old_level, 'name'), $psts->get_level_setting($_SESSION['LEVEL'], 'name') ) );
 		    		do_action('psts_upgrade', $blog_id, $_SESSION['LEVEL'], $old_level);
 						$psts->record_stat( $blog_id, 'upgrade' );
@@ -1197,7 +1201,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			        if ( $_POST['level'] > ($old_level = $psts->get_level($blog_id)) ) {
                 $expire_sql = $upgrade ? " expire = '$upgrade'," : '';
 								$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET$expire_sql level = %d, term = %d WHERE blog_ID = %d", $_POST['level'], $_POST['period'], $blog_id) );
-	            	unset($psts->level[$blog_id]); //clear cache
+	            	unset($psts->pro_sites[$blog_id]); //clear local cache
+								wp_cache_delete( 'is_pro_site_'.$blog_id, 'psts' ); //clear object cache
+								unset($psts->level[$blog_id]); //clear cache
+								wp_cache_delete( 'level_'.$blog_id, 'psts' ); //clear object cache
+								
 	            	$psts->log_action( $blog_id, sprintf( __('Pro Site level upgraded from "%s" to "%s".', 'psts'), $psts->get_level_setting($old_level, 'name'), $psts->get_level_setting($_POST['level'], 'name') ) );
 		    				do_action('psts_upgrade', $blog_id, $_POST['level'], $old_level);
 								$psts->record_stat( $blog_id, 'upgrade' );

@@ -927,7 +927,8 @@ class ProSites_Gateway_Stripe {
 		
 				if ($event_type == 'invoice.payment_succeeded') {
 					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );
-					$psts->extend($blog_id, $period, 'Stripe', $level, $amount);		  
+					$psts->extend($blog_id, $period, 'Stripe', $level, $amount);
+					$psts->email_notification($blog_id, 'receipt');
 				} else if ($event_type == 'invoice.payment_failed') {	   
 					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment has failed. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );
 					$psts->email_notification($blog_id, 'failed');
