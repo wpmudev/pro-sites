@@ -961,13 +961,22 @@ Many thanks again for being a member!", 'psts'),
 		if ( $level ) { //level is passed, check level
 			if ($level == 0) {
 				return true;
-			} else if ( isset( $this->pro_sites[$blog_id][$level] ) && is_bool( $this->pro_sites[$blog_id][$level] ) ) {
+			} else if ( isset( $this->pro_sites[$blog_id][$level] ) && is_bool( $this->pro_sites[$blog_id][$level] ) ) { //check local cache
 				return $this->pro_sites[$blog_id][$level];
+			} else if ( $pro_site = wp_cache_get( 'is_pro_site_'.$blog_id, 'psts' ) ) { //check object cache
+				if ( isset( $pro_site[$level] ) && is_bool( $pro_site[$level] ) )
+					return $pro_site[$level];
 			}
 		} else { //any level will do
-      if ( isset( $this->pro_sites[$blog_id] ) && is_array( $this->pro_sites[$blog_id] ) ) {
+      if ( isset( $this->pro_sites[$blog_id] ) && is_array( $this->pro_sites[$blog_id] ) ) { //check local cache for any level
 				foreach ($this->pro_sites[$blog_id] as $key => $value) {
 					if ($value) return true;
+				}
+			} else if ( $pro_site = wp_cache_get( 'is_pro_site_'.$blog_id, 'psts' ) ) { //check object cache
+				if ( is_array( $pro_site ) ) {
+					foreach ($pro_site as $key => $value) {
+						if ($value) return true;
+					}
 				}
 			}
 		}
@@ -982,29 +991,39 @@ Many thanks again for being a member!", 'psts'),
 				if ($level) {
 					if ( $data->expire && $data->expire > $now && $level <= $data->level ) {
 	        	for ($i = 1; $i <= $data->level; $i++)
-			        $this->pro_sites[$blog_id][$i] = true; //update cache
+			        $this->pro_sites[$blog_id][$i] = true; //update local cache
+							
+						wp_cache_set( 'is_pro_site_'.$blog_id, $this->pro_sites[$blog_id], 'psts' ); //set object cache
 						return true;
 					} else {
 					  $levels = (array)get_site_option('psts_levels');
 	        	for ($i = $level; $i <= count($levels); $i++)
-			        $this->pro_sites[$blog_id][$i] = false; //update cache
+			        $this->pro_sites[$blog_id][$i] = false; //update local cache
+							
+						wp_cache_set( 'is_pro_site_'.$blog_id, $this->pro_sites[$blog_id], 'psts' ); //set object cache
 						return false;
 					}
 				} else { //any level will do
 	        if ( $data->expire && $data->expire > $now ) {
 	        	for ($i = 1; $i <= $data->level; $i++)
-			        $this->pro_sites[$blog_id][$i] = true; //update cache
+			        $this->pro_sites[$blog_id][$i] = true; //update local cache
+							
+						wp_cache_set( 'is_pro_site_'.$blog_id, $this->pro_sites[$blog_id], 'psts' ); //set object cache
 						return true;
 					} else {
 	        	for ($i = 1; $i <= $data->level; $i++)
-			        $this->pro_sites[$blog_id][$i] = false; //update cache
+			        $this->pro_sites[$blog_id][$i] = false; //update local cache
+							
+						wp_cache_set( 'is_pro_site_'.$blog_id, $this->pro_sites[$blog_id], 'psts' ); //set object cache
 						return false;
 					}
 				}
 			} else {
 				if ($wpdb->result) { //only cache if there was not a db error
 					for ($i = 1; $i <= $level; $i++)
-						$this->pro_sites[$blog_id][$i] = false; //update cache
+						$this->pro_sites[$blog_id][$i] = false; //update local cache
+						
+					wp_cache_set( 'is_pro_site_'.$blog_id, $this->pro_sites[$blog_id], 'psts' ); //set object cache
 				}
 				return false;
 			}
@@ -1074,6 +1093,8 @@ Many thanks again for being a member!", 'psts'),
 		//check cache
 		if ( isset($this->level[$blog_id]) )
 		  return $this->level[$blog_id];
+		else if ( false !== ( $level = wp_cache_get( 'level_'.$blog_id, 'psts' ) ) ) //try local cache (could be 0)
+			return $level;
 		
 		if (!is_pro_site($blog_id))
 			return 0;
@@ -1082,10 +1103,12 @@ Many thanks again for being a member!", 'psts'),
 
 		$level = $wpdb->get_var($sql);
 		if ($level) {
-		  $this->level[$blog_id] = $level;
+		  $this->level[$blog_id] = $level; //update local cache
+			wp_cache_set( 'level_'.$blog_id, $level, 'psts' ); //update object cache
 			return $level;
 		} else {
-		  unset($this->level[$blog_id]);
+		  unset($this->level[$blog_id]); //clear local cache
+			wp_cache_delete( 'level_'.$blog_id, 'psts' ); //clear object cache
 			return 0;
 		}
 	}
@@ -1162,9 +1185,11 @@ Many thanks again for being a member!", 'psts'),
 		else
 		  $wpdb->query( $wpdb->prepare("INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term) VALUES (%d, %d, %d, %s, %s)", $blog_id, $new_expire, $level, $gateway, $term) );
 
-		unset($this->pro_sites[$blog_id]); //clear cache
+		unset($this->pro_sites[$blog_id]); //clear local cache
+		wp_cache_delete( 'is_pro_site_'.$blog_id, 'psts' ); //clear object cache
 		unset($this->level[$blog_id]); //clear cache
-
+		wp_cache_delete( 'level_'.$blog_id, 'psts' ); //clear object cache
+		
 		if ($new_expire >= 9999999999)
 			$this->log_action( $blog_id, __('Pro Site status expiration permanently extended.', 'psts') );
 		else
@@ -1210,6 +1235,7 @@ Many thanks again for being a member!", 'psts'),
 	  $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %d WHERE blog_ID = %d", $new_expire, $blog_id) );
 
     unset($this->pro_sites[$blog_id]); //clear cache
+		wp_cache_delete( 'is_pro_site_'.$blog_id, 'psts' ); //clear object cache
 
     $this->log_action( $blog_id, __('Pro Site status has been withdrawn.', 'psts') );
 
