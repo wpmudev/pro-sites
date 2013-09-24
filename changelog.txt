@@ -5,7 +5,6 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-
 - Ability to add a link to badge widgets & display text when no image entered in settings
 - Change site_url() to home_url() where appropriate
 - Fix Stripe level label for Quarterly
