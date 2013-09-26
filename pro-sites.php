@@ -570,7 +570,7 @@ Many thanks again for being a member!", 'psts'),
 	
 	function add_menu_admin_bar_css() {
 
-    if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() || $this->get_setting('hide_adminbar') )
+    if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() || !current_user_can('edit_pages') || $this->get_setting('hide_adminbar') )
         return;
 		
 		//styles the upgrade button
@@ -586,12 +586,8 @@ Many thanks again for being a member!", 'psts'),
         return;
 		
 		//add user admin bar upgrade button
-		if ( !$this->get_setting('hide_adminbar') ) {
-			if ( current_user_can('edit_pages') ) {
-				$checkout = $this->checkout_url($blog_id);
-			} else {
-				$checkout = $this->checkout_url();
-			}
+		if ( current_user_can('edit_pages') && !$this->get_setting('hide_adminbar') ) {
+			$checkout = $this->checkout_url($blog_id);
 	
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
 			$label = '<span>' . esc_attr($label) . '</span>';

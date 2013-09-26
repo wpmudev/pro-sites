@@ -9,7 +9,8 @@ Change Log:
 - Ability to add a link to badge widgets & display text when no image entered in settings
 - Change site_url() to home_url() where appropriate
 - Fix Stripe level label for Quarterly
-- Add persistent object cache support 
+- Add persistent object cache support
+- Don't show upgrade button to those who can't upgrade the site
 
 3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
