@@ -11,6 +11,8 @@ Change Log:
 - Fix Stripe level label for Quarterly
 - Add persistent object cache support
 - Don't show upgrade button to those who can't upgrade the site
+- Added Russian Rubles to paypal currencies and locale
+- Improve directions in Premium Plugins module
 
 3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
