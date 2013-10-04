@@ -80,7 +80,7 @@ class ProSites_Module_Quota {
 		<div class="postbox">
 		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Upload Quota', 'psts') ?></span> - <span class="description"><?php _e('Allows you to give additional upload space to Pro Sites.', 'psts') ?></span></h3>
 		  <div class="inside">
-		  <table class="form-table">
+			<table class="form-table">
 			  <tr valign="top">
 			  <th scope="row"><?php _e('Quota Amounts', 'psts') ?></th>
 			  <td><?php
@@ -113,6 +113,7 @@ class ProSites_Module_Quota {
 			  <br /><?php _e('Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts') ?></td>
 			  </tr>
 		  </table>
+		  <span class="description"><?php _e('NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts') ?> <pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span>
 		  </div>
 		</div>
 	  <?php
