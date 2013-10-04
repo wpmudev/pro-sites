@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: Aaron Edwards (Incsub)
-Version: 3.4.1
+Version: 3.5 beta
 Author URI: http://premium.wpmudev.org
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.4.1';
+  var $version = '3.5 beta';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -283,6 +283,8 @@ Many thanks again for being a member!", 'psts'),
 			'pypl_enable_pro' => 0,
 			'stripe_ssl' => 0,
 			'mp_name' => __('Manual Payment', 'psts'),
+			'mp_show_form' => 0,
+			'mp_email' => get_site_option("admin_email"),
 			'pt_name' => __('Premium Themes', 'psts'),
    		'pt_text' => __('Upgrade to LEVEL to activate this premium theme &raquo;', 'psts'),
    		'ps_level' => 1,
@@ -1016,6 +1018,8 @@ Many thanks again for being a member!", 'psts'),
 				}
 			} else {
 				if ($wpdb->result) { //only cache if there was not a db error
+					
+					if (!$level) $level = 5;//if level false give an arbitrary level count
 					for ($i = 1; $i <= $level; $i++)
 						$this->pro_sites[$blog_id][$i] = false; //update local cache
 						
@@ -1488,17 +1492,18 @@ Many thanks again for being a member!", 'psts'),
 		echo '<div id="message" class="error"><p><a href="' . $this->checkout_url($blog_id) . '">' . $feature_message . '</a></p></div>';
 	}
 	
-	function levels_select($name, $selected) {
-		?>
-		<select name="<?php echo $name; ?>" id="psts-level-select">
-			<?php
-			$levels = (array)get_site_option( 'psts_levels' );
-			foreach ($levels as $level => $value) {
-			?><option value="<?php echo $level; ?>"<?php selected($selected, $level) ?>><?php echo $level . ': ' . esc_attr($value['name']); ?></option><?php
-			}
-			?>
-		</select>
-		<?php
+	function levels_select($name, $selected, $echo = true) {
+		$html = '<select name="'.esc_attr($name).'" id="psts-level-select">';
+		$levels = (array)get_site_option( 'psts_levels' );
+		foreach ($levels as $level => $value) {
+			$html .= '<option value="' . $level . '"' . selected($selected, $level, false) . '>' . $level . ': ' . esc_attr($value['name']) . '</option>';
+		}
+		$html = '</select>';
+		
+		if ($echo)
+			echo $echo;
+		else
+			return $echo;
 	}
 	
 	function signup_output() {
@@ -3003,7 +3008,7 @@ _gaq.push(["_trackTrans"]);
 
       do_action('psts_modules_save');
 
-      echo '<div class="updated fade"><p>'.__('Settings Saved', 'psts').'</p></div>';
+      echo '<div class="updated fade"><p>'.__('Modules/Gateways Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts').'</p></div>';
 		}
 		?>
 		<div class="wrap">
@@ -3848,7 +3853,7 @@ function is_pro_trial($blog_id) {
  * 
  * @return echo html select
  */
-function psts_levels_select($name, $selected) {
+function psts_levels_select($name, $selected, $echo = true) {
 	global $psts;
 	$psts->levels_select($name, $selected);
 }

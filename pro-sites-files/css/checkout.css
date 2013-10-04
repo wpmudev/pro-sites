@@ -241,3 +241,10 @@ label.cc-image img {
 #psts_checkout_grid .psts-radio {
 	display: none;
 }
+
+#psts-manual-textarea {
+	width: 100%;
+}
+#psts-manual-submit {
+	float: right;
+}
