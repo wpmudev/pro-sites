@@ -63,7 +63,7 @@ class ProSites_Gateway_Stripe {
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
 			PRIMARY KEY  (blog_id),
-			UNIQUE  (customer_id)
+			UNIQUE KEY (customer_id)
 		) DEFAULT CHARSET=utf8;";
 		
 		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
@@ -608,6 +608,15 @@ class ProSites_Gateway_Stripe {
 					} else {
 						$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s %2$s each month', 'psts'), $psts->format_currency($currency, $paymentAmount), $currency);
 					}
+				} else if ($_POST['period'] == 3) {
+					$paymentAmount = $psts->get_level_setting($_POST['level'], 'price_3');
+					if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
+						$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
+						$discountAmt = $coupon_value['new_total'];
+						$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first 3 month period, then %2$s every 3 months', 'psts'), $psts->format_currency($currency, $discountAmt), $psts->format_currency($currency, $paymentAmount));
+					} else {
+						$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s %2$s every 3 months', 'psts'), $psts->format_currency($currency, $paymentAmount), $currency);
+					}
 				} else if ($_POST['period'] == 12) {
 					$paymentAmount = $psts->get_level_setting($_POST['level'], 'price_12');
 					if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level']) ) {
@@ -901,29 +910,33 @@ class ProSites_Gateway_Stripe {
 	function webhook_handler() {
 		global $wpdb, $psts;
 		try {
-				
 			// retrieve the request's body and parse it as JSON
 			$body = @file_get_contents('php://input');
-
+			
 			$event_json = json_decode($body);
 			$customer_id = $event_json->data->object->customer;
-			
 			$blog_id = $this->get_blog_id($customer_id);
 			
 			if ($blog_id) {
 				$date = date_i18n(get_option('date_format'), $event_json->created);
 				
-				$amount = $event_json->data->object->lines->data[0]->amount / 100;
-				$amount_formatted = $psts->format_currency(false, $amount);
-				
-				if (isset($event_json->data->object->lines->data[0]->plan->id)) {
-					$plan = $event_json->data->object->lines->data[0]->plan->id;	
-					@list($level, $period) = explode('_', $plan);
+				/* Some times there are multiple line items. We want to grab the "subscription"
+					line item and NOT the prorated credit line item. */
+				$line_data = new StdClass();
+				foreach ( $event_json->data->object->lines->data as $line ) {
+					if ( $line->type == 'subscription' ) {
+						$line_data = $line;
+						break;
+					}
 				}
 				
+				$amount = $line_data->amount / 100;
+				$amount_formatted = $psts->format_currency(false, $amount);				
+				$plan = $line_data->plan->id;	
 				$charge_id = isset($event_json->data->object->charge) ? $event_json->data->object->charge : $event_json->data->object->id;
-				
 				$event_type = $event_json->type;
+				
+				@list($level, $period) = explode('_', $plan);
 		
 				if ($event_type == 'invoice.payment_succeeded') {
 					$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );
