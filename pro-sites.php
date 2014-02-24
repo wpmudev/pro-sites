@@ -1498,12 +1498,12 @@ Many thanks again for being a member!", 'psts'),
 		foreach ($levels as $level => $value) {
 			$html .= '<option value="' . $level . '"' . selected($selected, $level, false) . '>' . $level . ': ' . esc_attr($value['name']) . '</option>';
 		}
-		$html = '</select>';
+		$html .= '</select>';
 		
 		if ($echo)
-			echo $echo;
+			echo $html;
 		else
-			return $echo;
+			return $html;
 	}
 	
 	function signup_output() {
@@ -3855,7 +3855,7 @@ function is_pro_trial($blog_id) {
  */
 function psts_levels_select($name, $selected, $echo = true) {
 	global $psts;
-	$psts->levels_select($name, $selected);
+	$psts->levels_select($name, $selected, $echo);
 }
 
 //depreciated!
