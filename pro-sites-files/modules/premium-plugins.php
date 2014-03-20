@@ -3,12 +3,11 @@
 Pro Sites (Module: Premium Plugins)
 */
 class ProSites_Module_Plugins {
+  
+  static $user_label;
+  static $user_description;
 
 	var $checkbox_rows = array();
-	
-	function ProSites_Module_Plugins() {
-		$this->__construct();
-	}
 
   function __construct() {
   	add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
@@ -37,6 +36,9 @@ class ProSites_Module_Plugins {
 
 		add_filter( 'plugin_row_meta' , array( &$this, 'remove_plugin_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'remove_plugin_update_row' ) );
+    
+    self::$user_label       = __('Premium Plugins', 'psts');
+    self::$user_description = __('Include premium plugins', 'psts');
 	}
 
   function plug_network_page() {
@@ -414,6 +416,13 @@ class ProSites_Module_Plugins {
 		</div>
 	  <?php
 	}
+
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

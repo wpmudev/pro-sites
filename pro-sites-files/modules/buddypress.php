@@ -3,10 +3,9 @@
 Plugin Name: Pro Sites (Feature: Limit BuddyPress)
 */
 class ProSites_Module_BP {
-
-	function ProSites_Module_BP() {
-		$this->__construct();
-	}
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
@@ -14,6 +13,9 @@ class ProSites_Module_BP {
 		add_filter( 'bp_user_can_create_groups', array(&$this, 'create_groups') );
 		add_filter( 'messages_template_compose', array(&$this, 'messages_template') );
 		add_action( 'wp_head', array(&$this, 'css_output') );
+    
+    self::$user_label       = __('Buddy Press', 'psts');
+    self::$user_description = __('Limited group creation and messaging', 'psts');
 	}
 
 	function settings_process($settings) {
@@ -98,6 +100,13 @@ class ProSites_Module_BP {
 	  <?php
 
 	}
+  
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

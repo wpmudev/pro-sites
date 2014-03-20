@@ -3,12 +3,11 @@
 Pro Sites (Module: Upload Quota)
 */
 class ProSites_Module_Quota {
+  
+  static $user_label;
+  static $user_description;
 	
 	public $checkout_name, $checkout_desc;
-	
-	function ProSites_Module_Quota() {
-		$this->__construct();
-	}
 
 	function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
@@ -23,6 +22,9 @@ class ProSites_Module_Quota {
 		add_action( 'activity_box_end', array(&$this, 'message') , 11);
 		add_action( 'pre-upload-ui', array(&$this, 'message') , 11);
 		add_action( 'admin_notices', array(&$this, 'out_message') );
+    
+    self::$user_label       = __('Quota', 'psts');
+    self::$user_description = __('Upload quota', 'psts');
 		
 		//add checkout grid text
 		$this->checkout_name = __('Upload Space', 'psts'); //can only i18n in _construct()
@@ -84,7 +86,7 @@ class ProSites_Module_Quota {
 			  <tr valign="top">
 			  <th scope="row"><?php _e('Quota Amounts', 'psts') ?></th>
 			  <td><?php
-				if ( function_exists('psts_hide_ads') ) {
+				if ( function_exists('psts_ads_upgrade_active') && psts_ads_upgrade_active() ) {
 					$level = 0;
 					echo '<label>';
 						$quota = $psts->get_setting( "quota_upgraded_space" );
@@ -183,6 +185,13 @@ class ProSites_Module_Quota {
 		}
 		return $space;
 	}
+  
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

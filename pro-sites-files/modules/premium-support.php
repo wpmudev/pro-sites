@@ -3,14 +3,16 @@
 Plugin Name: Pro Sites (Feature: Premium Support)
 */
 class ProSites_Module_Support {
-
-	function ProSites_Module_Support() {
-		$this->__construct();
-	}
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_menu', array(&$this, 'plug_page'), 99);
+    
+    self::$user_label       = __('Premium Support', 'psts');
+    self::$user_description = __('Include Premium direct to email support', 'psts');
 	}
 
 	function plug_page() {
@@ -117,6 +119,13 @@ class ProSites_Module_Support {
 	  </div>
 	  <?php
 	}
+  
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

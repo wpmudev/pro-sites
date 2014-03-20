@@ -23,9 +23,13 @@ function stripeResponseHandler(status, response) {
 
 jQuery(document).ready(function($) {
 	$("#payment-form").submit(function(event) {
+		event.preventDefault();
 		
-		//skip checks for adding a coupon
-		if ( $('#coupon_code').val() ) {
+		//skip checks for adding a coupon OR if using saved credit card info
+		if ( $('#coupon_code').val() || $('#wp_password').val() ) {
+			// disable the submit button to prevent repeated clicks
+			$('#cc_checkout').attr("disabled", "disabled").hide();
+			$('#stripe_processing').show();
 			return true;
 		}
 		
@@ -38,15 +42,15 @@ jQuery(document).ready(function($) {
 			$("#psts-processcard-error").append('<div class="psts-error">' + stripe.name + '</div>');
 			is_error = true;
 		}
-		if ( !Stripe.validateCardNumber( $('#cc_number').val() )) {
+		if ( !Stripe.card.validateCardNumber( $('#cc_number').val() )) {
 			$("#psts-processcard-error").append('<div class="psts-error">' + stripe.number + '</div>');
 			is_error = true;
 		}
-		if ( !Stripe.validateExpiry( $('#cc_month').val(), $('#cc_year').val() ) ) {
+		if ( !Stripe.card.validateExpiry( $('#cc_month').val(), $('#cc_year').val() ) ) {
 			$("#psts-processcard-error").append('<div class="psts-error">' + stripe.expiration + '</div>');
 			is_error = true;
 		}
-		if ( !Stripe.validateCVC($('#cc_cvv2').val())) {
+		if ( !Stripe.card.validateCVC($('#cc_cvv2').val())) {
 			$("#psts-processcard-error").append('<div class="psts-error">' + stripe.cvv2 + '</div>');
 			is_error = true;
 		}
@@ -59,12 +63,11 @@ jQuery(document).ready(function($) {
 	
 		// createToken returns immediately - the supplied callback submits the form if there are no errors
 		Stripe.createToken({
-			name: $('#cc_name').val(),
-			number: $('#cc_number').val(),
-			cvc: $('#cc_cvv2').val(),
-			exp_month: $('#cc_month').val(),
-			exp_year: $('#cc_year').val()
+			"name" : $('#cc_name').val(),
+			"number" : $('#cc_number').val(),
+			"cvc" : $('#cc_cvv2').val(),
+			"exp_month" : $('#cc_month').val(),
+			"exp_year" : $('#cc_year').val()
 			}, stripeResponseHandler);
-			return false; // submit from callback
 	});
 });

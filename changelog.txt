@@ -14,6 +14,14 @@ Change Log:
 - Don't show upgrade button to those who can't upgrade the site
 - Added Russian Rubles to paypal currencies and locale
 - Improve directions in Premium Plugins module
+- WP 3.8 support in Premium Themes
+- New: Allow changing which site the checkout page is on via PSTS_CHECKOUT_SITE define
+- New: Setting to turn off upgrade menu item
+- Fix: Upload Quota ad-free level showing when not active in ads module
+- Fix: Major bug with levels drop down used in other plugins
+- New: Add admin bar upgrade button for Bulk Upgrades module
+- New: Filters to override ads conditionals
+- Fix: Check class_exists on Stripe API class
 
 3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
