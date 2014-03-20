@@ -4,10 +4,6 @@ For handling modules and gateways
 */
 class ProSites_PluginLoader {
 
-	function ProSites_PluginLoader() {
-		$this->__construct();
-	}
-
   function __construct() {
     //load modules
 		add_action( 'plugins_loaded', array(&$this, 'load_modules') );

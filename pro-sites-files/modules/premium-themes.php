@@ -3,10 +3,9 @@
 Pro Sites (Module: Premium Themes)
 */
 class ProSites_Module_PremiumThemes {
-
-	function ProSites_Module_PremiumThemes() {
-		$this->__construct();
-	}
+  
+  static $user_label;
+  static $user_description;
 
 	function __construct() {
 		add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
@@ -20,8 +19,13 @@ class ProSites_Module_PremiumThemes {
 		
 		add_action( 'customize_controls_print_footer_scripts', array(&$this, 'customize_controls_print_footer_scripts') );
 		
-		add_filter( 'theme_action_links', array(&$this, 'theme_action_links'), 100, 2);
+		add_filter( 'theme_action_links', array(&$this, 'theme_action_links'), 100, 2); // WP <= 3.7
+		add_filter( 'wp_prepare_themes_for_js', array(&$this, 'theme_action_links_js'), 100); //WP >= 3.8
+		
 		add_filter( 'site_option_allowedthemes', array(&$this, 'site_option_allowedthemes'), 100);
+    
+    self::$user_label       = __('Premium Themes', 'psts');
+    self::$user_description = __('Includes access to premium themes', 'psts');
 	}
 	
 	function plug_network_page() {
@@ -56,7 +60,7 @@ class ProSites_Module_PremiumThemes {
 	  	$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name'), $psts->get_setting('pt_text') );
 			$actions['activate'] = '<a href="' . $psts->checkout_url($blog_id) .  '" class="activatelink nonpsts" data-level="' . $allowed_themes[ $theme[ 'Stylesheet' ] ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
 		}
-		
+
 		return $actions;
 	}
 	
@@ -96,12 +100,49 @@ class ProSites_Module_PremiumThemes {
 		</style>';
 	}
 	
+	//this is for WP3.8 and greater
+	function theme_action_links_js( $prepared_themes ) {
+		global $psts, $blog_id;
+	  
+		$allowed_themes = $psts->get_setting('pt_allowed_themes');
+		if ( $allowed_themes == false )
+			$allowed_themes = array();
+		
+		$override_themes = get_option('allowedthemes');
+		if ( $override_themes == false )
+			$override_themes = array();
+			
+		foreach ($prepared_themes as $slug => $theme) {
+			
+			//if wp per site option overrides pro sites
+			if ( isset( $override_themes[ $slug ] ) )
+				continue;
+			
+			//skip currently activated theme
+			if ( $theme['active'] )
+				continue;
+			
+			if ( isset( $allowed_themes[ $slug ] ) && $allowed_themes[ $slug ] &&
+					 !is_pro_site($blog_id, $allowed_themes[ $slug ]) && !$this->ads_theme() ) {
+				
+				$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($allowed_themes[ $slug ], 'name') );
+				$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $slug ], 'name'), $psts->get_setting('pt_text') );
+				//This is SUPER hacky due to no hooks. We utilize the lack of esc_attr() in themes.php to insert create 2 hidden <a> tags with our custom one in the middle!
+				$prepared_themes[$slug]['actions']['activate'] = '#" style="display:none;">';		
+				$prepared_themes[$slug]['actions']['activate'] .= '<a href="' . $psts->checkout_url($blog_id) .  '" class="button button-secondary activate nonpsts" style="color:red;" data-level="' . $allowed_themes[ $slug ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';		
+				$prepared_themes[$slug]['actions']['activate'] .= '<a style="display:none;';		
+			}
+			
+		}
+
+		return $prepared_themes;
+	}
+	
 	function themes_scripts() {
 		?>
 		<script type="text/javascript">
 		jQuery(document).ready(function() {
 			var specialThemes = jQuery("a[data-level]");
-			//alert(test);
 			jQuery.each(specialThemes, function(index, value) { 
 				jQuery(value).parents(".available-theme").addClass("level-"+jQuery(value).attr('data-level'));
 			});
@@ -268,7 +309,7 @@ class ProSites_Module_PremiumThemes {
 			
 			$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name') );
 	  	$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name'), $psts->get_setting('pt_text') );
-			$upgrade_link = '<a href="' . $psts->checkout_url($blog_id) .  '" class="activatelink nonpsts button-primary" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
+			$upgrade_link = '<a href="' . $psts->checkout_url($blog_id) .  '" target="_parent" class="activatelink nonpsts button-primary" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
 			?>
 			<script type="text/javascript">
 				jQuery('#save').remove();
@@ -277,8 +318,14 @@ class ProSites_Module_PremiumThemes {
 			<?php
 		}
 	}
+
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module
 psts_register_module( 'ProSites_Module_PremiumThemes', __('Premium Themes', 'psts'), __('Allows you to give access to selected themes to a Pro Site level.', 'psts') );
-?>

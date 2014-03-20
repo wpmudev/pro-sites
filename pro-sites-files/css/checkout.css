@@ -92,6 +92,15 @@ table#psts_checkout_grid {
   margin-top: 5px;
 }
 
+#psts_checkout_grid div.pblg-checkout-opt span.psts-setup-fee {
+	font-size: 13px;
+	font-weight: normal;
+	letter-spacing: normal;
+	line-height: 14px;
+	display: block;
+	padding-bottom: 5px;
+}
+
 #psts_checkout_grid tr td.opt-selected {
 }
 #psts_checkout_grid tr td.opt-current {
@@ -162,6 +171,19 @@ table#psts_checkout_grid {
 	margin: 5px 0px 10px;
 	font-size: 80%;
 }
+
+.psts-warning {
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid #e8d004;
+	background-color: #fcf5b9;
+	padding: 5px 10px;
+	margin: 5px 0px 10px;
+	font-size: 80%;
+}
+
 
 #psts_checkout_grid tr td {
 	vertical-align: middle;

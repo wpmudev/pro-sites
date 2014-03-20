@@ -3,13 +3,15 @@
 Plugin Name: Pro Sites (Feature: Pro Widget)
 */
 class ProSites_Module_ProWidget {
-
-	function ProSites_Module_ProWidget() {
-		$this->__construct();
-	}
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
+    
+    self::$user_label       = __('Pro Widget', 'psts');
+    self::$user_description = __('Brag about your Pro Level with a widget', 'psts');
 		
 		if (is_pro_site()) {
 			add_action( 'widgets_init', create_function('', 'return register_widget("ProSites_Pro_Widget");') );
@@ -46,6 +48,12 @@ class ProSites_Module_ProWidget {
 		</div>
 	  <?php
 	}
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 
 }
 
