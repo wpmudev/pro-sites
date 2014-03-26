@@ -341,9 +341,7 @@ class ProSites_Gateway_2Checkout {
 			}
 
 			//show sub detail
-			$resArray         = Twocheckout_Sale::retrieve( array(
-					'sale_id' => $profile_id
-			), 'array' );
+			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 
 			$lineitem = $active_recurring[0];
@@ -560,9 +558,7 @@ class ProSites_Gateway_2Checkout {
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
-			$resArray         = Twocheckout_Sale::retrieve( array(
-					'sale_id' => $profile_id
-			), 'array' );
+			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 			$lineitem         = $active_recurring[0];
 
@@ -648,6 +644,7 @@ class ProSites_Gateway_2Checkout {
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
+
 			$resArray = $this->GetRecurringPaymentsProfileDetails( $profile_id );
 
 			//get user details
@@ -695,9 +692,9 @@ class ProSites_Gateway_2Checkout {
 	/**** 2Checkout API methods *****/
 
 	function GetRecurringPaymentsProfileDetails( $profile_id ) {
-		$params            = array();
-		$params['sale_id'] = $profile_id;
-		return $this->api_call( 'https://www.2checkout.com/api/sales/detail_sale', $params );
+		return Twocheckout_Sale::retrieve( array(
+				'sale_id' => $profile_id
+		), 'array' );
 	}
 
 	function ManageRecurringPaymentsProfileStatus( $profile_id ) {
