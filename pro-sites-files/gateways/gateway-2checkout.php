@@ -556,27 +556,27 @@ class ProSites_Gateway_2Checkout {
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
-			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$resArray         = $this->tcheckout_get_profile_detail( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 			$lineitem         = $active_recurring[0];
 			if ( is_null( $lineitem ) ) {
 				//case cancel
 				$canceled_member = true;
 
-				$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
-				echo '<strong>'.__('The Subscription Has Been Cancelled in 2Checkout', 'psts').'</strong>';
-				echo '<ul><li>'.sprintf(__('They should continue to have access until %s.', 'psts'), $end_date).'</li>';
+				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+				echo '<strong>' . __( 'The Subscription Has Been Cancelled in 2Checkout', 'psts' ) . '</strong>';
+				echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
 
-				if ($last_payment = $psts->last_transaction($blog_id)) {
-					$prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
+				if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+					$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
 				} else {
-					$prev_billing = __('None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts');
+					$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
 				}
 
-				echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
-				if ($last_payment = $psts->last_transaction($blog_id)) {
-					echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency(false, $last_payment['amount'])).'</li>';
-					echo '<li>'.sprintf(__('Last Payment Transaction ID: <strong>%s</strong>', 'psts'), $last_payment['txn_id'], $last_payment['txn_id']).'</li>';
+				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
+				if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+					echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+					echo '<li>' . sprintf( __( 'Last Payment Transaction ID: <strong>%s</strong>', 'psts' ), $last_payment['txn_id'], $last_payment['txn_id'] ) . '</li>';
 				}
 				echo '</ul>';
 			} else {
@@ -665,7 +665,7 @@ class ProSites_Gateway_2Checkout {
 
 		if ( $profile_id ) {
 
-			$resArray = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 
 			//get user details
 			if ( ( $resArray['response_code'] == 'OK' ) ) {
@@ -704,7 +704,7 @@ class ProSites_Gateway_2Checkout {
 
 		$profile_id = $this->get_profile_id( $blog_id );
 		if ( $profile_id ) {
-			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$resArray         = $this->tcheckout_get_profile_detail( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 			$lineitem         = $active_recurring[0];
 
@@ -738,18 +738,16 @@ class ProSites_Gateway_2Checkout {
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
-			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$resArray         = $this->tcheckout_get_profile_detail( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 			$lineitem         = $active_recurring[0];
-
 			if ( ( $resArray['response_code'] == 'OK' ) && $lineitem['status'] == 'active' ) {
 				$active_member          = true;
 				$next_payment_timestamp = strtotime( $lineitem['date_next'] );
-			} else if ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) {
+			} else if ( $resArray['response_code'] == 'OK' && empty( $lineitem ) ) {
 				$canceled_member = true;
 			}
 		}
-
 		$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
 
 		if ( $active_member ) {
@@ -869,7 +867,7 @@ class ProSites_Gateway_2Checkout {
 					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
 
 						//get next payment date
-						$resArray = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+						$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 						if ( $resArray['response_code'] == 'OK' ) {
 							$active_recurring       = $this->get_recurring_lineitems( $resArray );
 							$lineitem               = $active_recurring[0];
@@ -914,9 +912,8 @@ class ProSites_Gateway_2Checkout {
 				case 'refund':
 					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
 						$refund = $last_payment['amount'];
-
 						//refund last transaction
-						$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], false, __( 'This is a full refund of your last subscription payment.', 'psts' ) );
+						$resArray2 = $this->tcheckout_refund($last_payment['txn_id'],false,__( 'This is a full refund of your last subscription payment.', 'psts' ));
 						if ( $resArray2['response_code'] == 'OK' ) {
 							$psts->log_action( $blog_id, sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
 							$success_msg = sprintf( __( 'A full (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
@@ -955,13 +952,6 @@ class ProSites_Gateway_2Checkout {
 	}
 
 	/**** 2Checkout API methods *****/
-
-	function GetRecurringPaymentsProfileDetails( $profile_id ) {
-		return Twocheckout_Sale::retrieve( array(
-				'sale_id' => $profile_id
-		), 'array' );
-	}
-
 	function tcheckout_get_profile_detail( $profile_id ) {
 		return Twocheckout_Sale::retrieve( array(
 				'sale_id' => $profile_id
@@ -970,18 +960,39 @@ class ProSites_Gateway_2Checkout {
 
 	function tcheckout_cancel_subscription( $profile_id ) {
 		//check does this has cancel or not
-		$result          = $this->tcheckout_get_profile_detail( $profile_id );
-		$active_recuring = $this->get_recurring_lineitems( $result );
-		if ( empty( $active_recuring ) ) {
-			//this mean all has been cancel
-			return false;
+		if ( ! $this->tcheckout_is_subscription_cancel( $profile_id ) ) {
+			$result = Twocheckout_Sale::stop( array(
+					'sale_id' => $profile_id
+			), 'array' );
+			return $result;
 		}
-		$result = Twocheckout_Sale::stop( array(
-				'sale_id' => $profile_id
-		), 'array' );
-		return $result;
+
+		return false;
 	}
 
+	function tcheckout_is_subscription_cancel( $profile_id ) {
+		$result    = $this->tcheckout_get_profile_detail( $profile_id );
+		$lineitems = Twocheckout_Util::get_recurring_lineitems( $result );
+
+		if ( $result['response_code'] == 'OK' && empty( $lineitems ) )
+			return true;
+		return false;
+	}
+
+	function tcheckout_refund( $transaction_id, $partial_amt = false, $note ) {
+		$params = array(
+				'invoice_id' => $transaction_id,
+				'comment'    => $note,
+				'category'   => 5
+		);
+		if ( $partial_amt ) {
+			$params['amount']   = $partial_amt;
+			$params['category'] = 5;
+			$params['currency'] = 'vendor';
+		}
+
+		return Twocheckout_Sale::refund( $params, 'array' );
+	}
 
 	function ManageRecurringPaymentsProfileStatus( $profile_id ) {
 		$params            = array();
