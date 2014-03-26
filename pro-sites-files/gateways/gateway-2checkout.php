@@ -36,9 +36,9 @@ class ProSites_Gateway_2Checkout {
 		//add_action( 'wp_ajax_nopriv_psts_2co_webhook', array( &$this, 'webhook_handler' ) );
 
 		//plug management page
-		//add_action('psts_modify_form', array(&$this, 'modify_form'));
-		//add_action('psts_modify_process', array(&$this, 'process_modify'));
-		//add_action('psts_transfer_pro', array(&$this, 'process_transfer'), 10, 2);
+		add_action( 'psts_modify_form', array( &$this, 'modify_form' ) );
+		add_action( 'psts_modify_process', array( &$this, 'process_modify' ) );
+		add_action( 'psts_transfer_pro', array( &$this, 'process_transfer' ), 10, 2 );
 
 		//filter payment info
 		add_action( 'psts_payment_info', array( &$this, 'payment_info' ), 10, 2 );
@@ -326,9 +326,7 @@ class ProSites_Gateway_2Checkout {
 
 			//cancel subscription
 			if ( isset( $_GET['action'] ) && $_GET['action'] == 'cancel' && wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
-
-				$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
-
+				$resArray = $this->tcheckout_cancel_subscription( $profile_id );
 				if ( $resArray['response_code'] == 'OK' ) {
 					$content .= '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $current_site->site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
 					//record stat
@@ -341,7 +339,7 @@ class ProSites_Gateway_2Checkout {
 			}
 
 			//show sub detail
-			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$resArray         = $this->tcheckout_get_profile_detail( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 
 			$lineitem = $active_recurring[0];
@@ -561,77 +559,101 @@ class ProSites_Gateway_2Checkout {
 			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 			$lineitem         = $active_recurring[0];
-
-			if ( ( $resArray['response_code'] == 'OK' ) && $lineitem['status'] == 'active' ) {
-
-				if ( isset( $lineitem['date_placed'] ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-				} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
-				} else {
-					$prev_billing = __( "None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>", 'psts' );
-				}
-
-				if ( isset( $lineitem['date_next'] ) ) {
-					$next_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_next'] ) );
-				} else {
-					$next_billing = __( "None", 'psts' );
-				}
-				echo '<ul>';
-				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
-
-				if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
-					echo '<li>' . sprintf( __( 'Last Payment Transaction ID: %s', 'psts' ), $last_payment['txn_id'] ) . '</li>';
-				}
-				echo '<li>' . sprintf( __( 'Next Payment Date: <strong>%s</strong>', 'psts' ), $next_billing ) . '</li>';
-				//no need to have a * on this since 2checkout count the payment at init
-				echo '<li>' . sprintf( __( 'Payments Made With This Subscription: <strong>%s</strong>', 'psts' ), $lineitem['installment'] ) . ' </li>';
-				echo '</ul>';
-
-			} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) ) {
+			if ( is_null( $lineitem ) ) {
+				//case cancel
 				$canceled_member = true;
-				$end_date        = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-				echo '<strong>' . __( 'The Subscription Has Been Cancelled with 2Checkout', 'psts' ) . '</strong>';
-				echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
 
-				if ( isset( $lineitem['date_placed'] ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-				} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+				$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
+				echo '<strong>'.__('The Subscription Has Been Cancelled in 2Checkout', 'psts').'</strong>';
+				echo '<ul><li>'.sprintf(__('They should continue to have access until %s.', 'psts'), $end_date).'</li>';
+				
+				if (isset($resArray['LASTPAYMENTDATE'])) {
+					$prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
+				} else if ($last_payment = $psts->last_transaction($blog_id)) {
+					$prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
 				} else {
-					$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
+					$prev_billing = __('None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts');
 				}
 
-				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
-
-				if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
-				}
-				echo '</ul>';
-
-			} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'declined' ) ) {
-
-				$active_member = true;
-				$end_date      = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-				echo '<strong>' . __( 'The Subscription Has Been Suspended', 'psts' ) . '</strong>';
-				echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
-
-				if ( isset( $lineitem['date_placed'] ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-				} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
-				} else {
-					$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
-				}
-
-				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
-				if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+				echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
+				if ($last_payment = $psts->last_transaction($blog_id)) {
+					echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency(false, $last_payment['amount'])).'</li>';
+					echo '<li>'.sprintf(__('Last Payment Transaction ID: <strong>%s</strong>', 'psts'), $last_payment['txn_id'], $last_payment['txn_id']).'</li>';
 				}
 				echo '</ul>';
 			} else {
-				echo '<div id="message" class="error fade"><p>' . sprintf( __( "Whoops! There was a problem accessing this site's subscription information: %s", 'psts' ), $resArray2['errors'][0]['message'] ) . '</p></div>';
+
+				if ( ( $resArray['response_code'] == 'OK' ) && $lineitem['status'] == 'active' ) {
+
+					if ( isset( $lineitem['date_placed'] ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
+					} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+					} else {
+						$prev_billing = __( "None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>", 'psts' );
+					}
+
+					if ( isset( $lineitem['date_next'] ) ) {
+						$next_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_next'] ) );
+					} else {
+						$next_billing = __( "None", 'psts' );
+					}
+					echo '<ul>';
+					echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
+
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+						echo '<li>' . sprintf( __( 'Last Payment Transaction ID: %s', 'psts' ), $last_payment['txn_id'] ) . '</li>';
+					}
+					echo '<li>' . sprintf( __( 'Next Payment Date: <strong>%s</strong>', 'psts' ), $next_billing ) . '</li>';
+					//no need to have a * on this since 2checkout count the payment at init
+					echo '<li>' . sprintf( __( 'Payments Made With This Subscription: <strong>%s</strong>', 'psts' ), $lineitem['installment'] ) . ' </li>';
+					echo '</ul>';
+
+				} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) ) {
+					$canceled_member = true;
+					$end_date        = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+					echo '<strong>' . __( 'The Subscription Has Been Cancelled with 2Checkout', 'psts' ) . '</strong>';
+					echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
+
+					if ( isset( $lineitem['date_placed'] ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
+					} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+					} else {
+						$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
+					}
+
+					echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
+
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+					}
+					echo '</ul>';
+
+				} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'declined' ) ) {
+
+					$active_member = true;
+					$end_date      = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+					echo '<strong>' . __( 'The Subscription Has Been Suspended', 'psts' ) . '</strong>';
+					echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
+
+					if ( isset( $lineitem['date_placed'] ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
+					} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+					} else {
+						$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
+					}
+
+					echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+					}
+					echo '</ul>';
+				} else {
+					echo '<div id="message" class="error fade"><p>' . sprintf( __( "Whoops! There was a problem accessing this site's subscription information: %s", 'psts' ), $resArray2['errors'][0]['message'] ) . '</p></div>';
+				}
 			}
 		} else {
 			echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
@@ -657,6 +679,26 @@ class ProSites_Gateway_2Checkout {
 		} else {
 			echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
 		}
+	}
+
+	//handle transferring pro status from one blog to another
+	function process_transfer( $from_id, $to_id ) {
+		global $psts, $wpdb;
+
+		$profile_id = $this->get_profile_id( $from_id );
+		$current    = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$to_id'" );
+		$custom     = PSTS_PYPL_PREFIX . '_' . $to_id . '_' . $current->level . '_' . $current->term . '_' . $current->amount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
+
+		//update the profile id in paypal so that future payments are applied to the new site
+		$this->UpdateRecurringPaymentsProfile( $profile_id, $custom );
+
+		//move profileid to new blog
+		$this->set_profile_id( $to_id, $profile_id );
+
+		//delete the old profilid
+		$trans_meta = get_blog_option( $from_id, 'psts_paypal_profile_id' );
+		unset( $trans_meta[$profile_id] );
+		update_blog_option( $from_id, 'psts_paypal_profile_id', $trans_meta );
 	}
 
 	function payment_info( $payment_info, $blog_id ) {
@@ -689,6 +731,231 @@ class ProSites_Gateway_2Checkout {
 		return $payment_info;
 	}
 
+	function modify_form( $blog_id ) {
+		global $psts, $wpdb;
+		$active_member   = false;
+		$canceled_member = false;
+
+		//get subscription info
+		$profile_id = $this->get_profile_id( $blog_id );
+
+		if ( $profile_id ) {
+			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$active_recurring = $this->get_recurring_lineitems( $resArray );
+			$lineitem         = $active_recurring[0];
+
+			if ( ( $resArray['response_code'] == 'OK' ) && $lineitem['status'] == 'active' ) {
+				$active_member          = true;
+				$next_payment_timestamp = strtotime( $lineitem['date_next'] );
+			} else if ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) {
+				$canceled_member = true;
+			}
+		}
+
+		$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+
+		if ( $active_member ) {
+			?>
+			<h4><?php _e( 'Cancelations:', 'psts' ); ?></h4>
+			<label><input type="radio" name="twocheckout_mod_action" value="cancel" /> <?php _e( 'Cancel Subscription Only', 'psts' ); ?>
+				<small>(<?php printf( __( 'Their access will expire on %s', 'psts' ), $end_date ); ?>)</small>
+			</label><br />
+			<?php if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+				$days_left = ( ( $next_payment_timestamp - time() ) / 60 / 60 / 24 );
+				$period    = $wpdb->get_var( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
+				$refund    = ( intval( $period ) ) ? round( ( $days_left / ( intval( $period ) * 30.4166 ) ) * $last_payment['amount'], 2 ) : 0;
+				if ( $refund > $last_payment['amount'] ) {
+					$refund = $last_payment['amount'];
+				}
+				?>
+				<label><input type="radio" name="twocheckout_mod_action" value="cancel_refund" /> <?php printf( __( 'Cancel Subscription and Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
+					<small>(<?php printf( __( 'Their access will expire on %s', 'psts' ), $end_date ); ?>)</small>
+				</label><br />
+				<?php if ( $refund ) { ?>
+					<label><input type="radio" name="twocheckout_mod_action" value="cancel_refund_pro" /> <?php printf( __( 'Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts' ), $psts->format_currency( false, $refund ) ); ?>
+						<small>(<?php printf( __( 'Their access will expire on %s', 'psts' ), $end_date ); ?>)</small>
+					</label><br />
+				<?php } ?>
+
+				<h4><?php _e( 'Refunds:', 'psts' ); ?></h4>
+				<label><input type="radio" name="twocheckout_mod_action" value="refund" /> <?php printf( __( 'Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
+					<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
+				</label><br />
+				<label><input type="radio" name="twocheckout_mod_action" value="partial_refund" /> <?php printf( __( 'Refund a Partial %s Amount of Last Payment', 'psts' ), $psts->format_currency() . '<input type="text" name="refund_amount" size="4" value="' . $last_payment['amount'] . '" />' ); ?>
+					<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
+				</label><br />
+
+			<?php
+			}
+		} else if ( $canceled_member && ( $last_payment = $psts->last_transaction( $blog_id ) ) ) {
+			?>
+			<h4><?php _e( 'Refunds:', 'psts' ); ?></h4>
+			<label><input type="radio" name="twocheckout_mod_action" value="refund" /> <?php printf( __( 'Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
+				<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
+			</label><br />
+			<label><input type="radio" name="twocheckout_mod_action" value="partial_refund" /> <?php printf( __( 'Refund a Partial %s Amount of Last Payment', 'psts' ), $psts->format_currency() . '<input type="text" name="refund_amount" size="4" value="' . $last_payment['amount'] . '" />' ); ?>
+				<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
+			</label><br />
+		<?php
+		} else {
+			?>
+		<?php
+		}
+	}
+
+	function process_modify( $blog_id ) {
+		global $psts, $current_user, $wpdb;
+
+		if ( isset( $_POST['twocheckout_mod_action'] ) ) {
+
+			$profile_id = $this->get_profile_id( $blog_id );
+
+
+			//handle different cases
+			switch ( $_POST['twocheckout_mod_action'] ) {
+
+				case 'cancel':
+					$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+
+					if ( $profile_id ) {
+						$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
+					}
+
+					if ( $resArray['response_code'] == 'OK' ) {
+
+						//record stat
+						$psts->record_stat( $blog_id, 'cancel' );
+
+						$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
+						$success_msg = sprintf( __( 'Subscription successfully cancelled. They should continue to have access until %s.', 'psts' ), $end_date );
+
+					} else {
+						$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription by %1$s failed with an error: %2$s', 'psts' ), $current_user->display_name, $resArray['errors'][0]['message'] ) );
+						$error_msg = sprintf( __( 'Whoops, 2Checkout returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray['errors'][0]['message'] );
+					}
+					break;
+
+				case 'cancel_refund':
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+						$refund   = $last_payment['amount'];
+
+						if ( $profile_id ) {
+							$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
+						}
+
+						if ( $resArray['response_code'] == 'OK' ) {
+
+							//record stat
+							$psts->record_stat( $blog_id, 'cancel' );
+
+							//refund last transaction
+							$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], false, __( 'This is a full refund of your last subscription payment.', 'psts' ) );
+
+							if ( $resArray2['response_code'] == 'OK' ) {
+								$psts->log_action( $blog_id, sprintf( __( 'Subscription cancelled and full (%1$s) refund of last payment completed by %2$s. They should continue to have access until %3$s.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $end_date ) );
+								$success_msg = sprintf( __( 'Subscription cancelled and full (%1$s) refund of last payment were successfully completed. They should continue to have access until %2$s.', 'psts' ), $psts->format_currency( false, $refund ), $end_date );
+								$psts->record_refund_transaction( $blog_id, $last_payment['txn_id'], $refund );
+							} else {
+								$psts->log_action( $blog_id, sprintf( __( 'Subscription cancelled, but full (%1$s) refund of last payment by %2$s returned an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
+								$error_msg = sprintf( __( 'Subscription cancelled, but full (%1$s) refund of last payment returned an error: %2$s', 'psts' ), $psts->format_currency( false, $refund ), $resArray2['errors'][0]['message'] );
+							}
+						} else {
+							$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription and Refund Full (%1$s) Last Payment by %2$s failed with an error: ', 'psts' ), $psts->format_currency( false, $refund ), $resArray2['errors'][0]['message'] ) );
+							$error_msg = sprintf( __( 'Whoops, 2Checkout returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
+						}
+					}
+					break;
+
+				case 'cancel_refund_pro':
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+
+						//get next payment date
+						$resArray = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+						if ( $resArray['response_code'] == 'OK' ) {
+							$active_recurring       = $this->get_recurring_lineitems( $resArray );
+							$lineitem               = $active_recurring[0];
+							$next_payment_timestamp = strtotime( $lineitem['date_next'] );
+						} else {
+							$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
+							$error_msg = sprintf( __( 'Whoops, PayPal returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
+							break;
+						}
+
+						$days_left = ( ( $next_payment_timestamp - time() ) / 60 / 60 / 24 );
+						$period    = $wpdb->get_var( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
+						$refund    = ( intval( $period ) ) ? round( ( $days_left / ( intval( $period ) * 30.4166 ) ) * $last_payment['amount'], 2 ) : 0;
+						if ( $refund > $last_payment['amount'] ) {
+							$refund = $last_payment['amount'];
+						}
+						if ( $profile_id )
+							$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
+
+						if ( $resArray['response_code'] == 'OK' ) {
+
+							//record stat
+							$psts->record_stat( $blog_id, 'cancel' );
+
+							//refund last transaction
+							$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], $refund, __( 'This is a prorated refund of the unused portion of your last subscription payment.', 'psts' ) );
+							if ( $resArray2['response_code'] == 'OK' ) {
+								$psts->log_action( $blog_id, sprintf( __( 'Subscription cancelled and a prorated (%1$s) refund of last payment completed by %2$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
+								$success_msg = sprintf( __( 'Subscription cancelled and a prorated (%s) refund of last payment were successfully completed.', 'psts' ), $psts->format_currency( false, $refund ) );
+								$psts->record_refund_transaction( $blog_id, $last_payment['txn_id'], $refund );
+							} else {
+								$psts->log_action( $blog_id, sprintf( __( 'Subscription cancelled, but prorated (%1$s) refund of last payment by %2$s returned an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
+								$error_msg = sprintf( __( 'Subscription cancelled, but prorated (%1$s) refund of last payment returned an error: %2$s', 'psts' ), $psts->format_currency( false, $refund ), $resArray2['errors'][0]['message'] );
+							}
+						} else {
+							$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
+							$error_msg = sprintf( __( 'Whoops, PayPal returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
+						}
+					}
+					break;
+
+				case 'refund':
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						$refund = $last_payment['amount'];
+
+						//refund last transaction
+						$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], false, __( 'This is a full refund of your last subscription payment.', 'psts' ) );
+						if ( $resArray2['response_code'] == 'OK' ) {
+							$psts->log_action( $blog_id, sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
+							$success_msg = sprintf( __( 'A full (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
+							$psts->record_refund_transaction( $blog_id, $last_payment['txn_id'], $refund );
+						} else {
+							$psts->log_action( $blog_id, sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s returned an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
+							$error_msg = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment returned an error: %2$s', 'psts' ), $psts->format_currency( false, $refund ), $resArray2['errors'][0]['message'] );
+						}
+					}
+					break;
+
+				case 'partial_refund':
+					if ( ( $last_payment = $psts->last_transaction( $blog_id ) ) && round( $_POST['refund_amount'], 2 ) ) {
+						$refund = round( $_POST['refund_amount'], 2 );
+
+						//refund last transaction
+						$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], $refund, __( 'This is a partial refund of your last payment.', 'psts' ) );
+						if ( $resArray2['response_code'] == 'OK' ) {
+							$psts->log_action( $blog_id, sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
+							$success_msg = sprintf( __( 'A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
+							$psts->record_refund_transaction( $blog_id, $last_payment['txn_id'], $refund );
+						} else {
+							$psts->log_action( $blog_id, sprintf( __( 'Attempt to issue a partial (%1$s) refund of last payment by %2$s returned an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
+							$error_msg = sprintf( __( 'Attempt to issue a partial (%1$s) refund of last payment returned an error: %2$s', 'psts' ), $psts->format_currency( false, $refund ), $resArray2['errors'][0]['message'] );
+						}
+					}
+					break;
+			}
+
+			//display resulting message
+			if ( $success_msg )
+				echo '<div class="updated fade"><p>' . $success_msg . '</p></div>';
+			else if ( $error_msg )
+				echo '<div class="error fade"><p>' . $error_msg . '</p></div>';
+		}
+	}
+
 	/**** 2Checkout API methods *****/
 
 	function GetRecurringPaymentsProfileDetails( $profile_id ) {
@@ -696,6 +963,27 @@ class ProSites_Gateway_2Checkout {
 				'sale_id' => $profile_id
 		), 'array' );
 	}
+
+	function tcheckout_get_profile_detail( $profile_id ) {
+		return Twocheckout_Sale::retrieve( array(
+				'sale_id' => $profile_id
+		), 'array' );
+	}
+
+	function tcheckout_cancel_subscription( $profile_id ) {
+		//check does this has cancel or not
+		$result          = $this->tcheckout_get_profile_detail( $profile_id );
+		$active_recuring = $this->get_recurring_lineitems( $result );
+		if ( empty( $active_recuring ) ) {
+			//this mean all has been cancel
+			return false;
+		}
+		$result = Twocheckout_Sale::stop( array(
+				'sale_id' => $profile_id
+		), 'array' );
+		return $result;
+	}
+
 
 	function ManageRecurringPaymentsProfileStatus( $profile_id ) {
 		$params            = array();
