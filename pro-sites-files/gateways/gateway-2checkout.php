@@ -566,10 +566,8 @@ class ProSites_Gateway_2Checkout {
 				$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 				echo '<strong>'.__('The Subscription Has Been Cancelled in 2Checkout', 'psts').'</strong>';
 				echo '<ul><li>'.sprintf(__('They should continue to have access until %s.', 'psts'), $end_date).'</li>';
-				
-				if (isset($resArray['LASTPAYMENTDATE'])) {
-					$prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
-				} else if ($last_payment = $psts->last_transaction($blog_id)) {
+
+				if ($last_payment = $psts->last_transaction($blog_id)) {
 					$prev_billing = date_i18n(get_option('date_format'), $last_payment['timestamp']);
 				} else {
 					$prev_billing = __('None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts');
