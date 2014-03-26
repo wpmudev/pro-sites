@@ -16,6 +16,9 @@ class ProSites_Gateway_2Checkout {
 
 		require $psts->plugin_dir . "gateways/gateway-2checkout-files/Twocheckout.php";
 
+		//active 2checkout account,default is a nerver reach
+		Twocheckout::setCredentials( $psts->get_setting( '2co_api_username' ), $psts->get_setting( '2co_api_password' ) );
+
 		//settings
 		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
 		//add_action('psts_settings_process', array(&$this, 'settings_process'));
@@ -192,8 +195,8 @@ class ProSites_Gateway_2Checkout {
 			$content .= '<input type="hidden" name="currency" value="' . $psts->get_setting( '2co_currency' ) . '"/>';
 			$content .= '<input type="hidden" name="x_receipt_link_url" value="' . 'http://premium.wpmudev.org/2checkout-debug.php' . '"/>';
 			$content .= '<input type="hidden" name="merchant_order_id" value="' . $blog_id . '"/>';
-			$content .= '<input type="hidden" name="period" value="' . $_POST['period'] . '"/>';
-			$content .= '<input type="hidden" name="level" value="' . $_POST['level'] . '"/>';
+			$content .= '<input type="hidden" name="period" value="' . esc_attr( $_POST['period'] ) . '"/>';
+			$content .= '<input type="hidden" name="level" value="' . esc_attr( $_POST['level'] ) . '"/>';
 			$content .= '<input type="hidden" name="2co_cart_type" value="ProSites"/>';
 			$content .= '<input type="hidden" name="demo" value="' . $psts->get_setting( '2co_checkout_mode' ) . '"/>';
 			//
@@ -242,7 +245,6 @@ class ProSites_Gateway_2Checkout {
 					$content .= '<input type="hidden" name="li_1_name" value="' . $_SESSION['COUPON_CODE'] . '"/>';
 					$content .= '<input type="hidden" name="li_1_price" value="' . $coupon_value . '"/>';
 				}
-				$desc = $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s every 12 months', 'psts' ), $psts->format_currency( $psts->get_setting( 'twocheckout_currency' ), $paymentAmount ), $psts->get_setting( 'twocheckout_currency' ) );
 			}
 			$content .= '<input type="submit" value="Click here if you are not redirected automatically" />';
 			$content .= '</form>';
@@ -268,7 +270,7 @@ class ProSites_Gateway_2Checkout {
 					$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
 					//redirect immediatly to remove a bunch of sensitive data on url
 					//because we redirect,the completemessage will lost effect,use SESSION instead
-					$this->complete_message          = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
+					//$this->complete_message          = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
 					$_SERVER['2co_complete_message'] = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
 					echo '<script type="text/javascript">location.href="' . $psts->checkout_url( $blog_id ) . '"</script>';
 				} else {
@@ -296,9 +298,6 @@ class ProSites_Gateway_2Checkout {
 
 		$img_base           = $psts->plugin_url . 'images/';
 		$twocheckout_active = false;
-
-		//active 2checkout account
-		Twocheckout::setCredentials( $psts->get_setting( '2co_api_username' ), $psts->get_setting( '2co_api_password' ) );
 
 		//hide top part of content if its a pro blog
 		if ( is_pro_site( $blog_id ) || $psts->errors->get_error_message( 'coupon' ) )
@@ -367,7 +366,7 @@ class ProSites_Gateway_2Checkout {
 				if ( is_pro_site( $blog_id ) ) {
 					$content .= '<li>' . __( 'Level:', 'psts' ) . ' <strong>' . $level . '</strong></li>';
 				}
-
+				$content .= '<li>' . __( 'Payment Method:', 'psts' ) . ' <strong>2Checkout via ' . ucwords( str_replace( '_', ' ', $lineitem['method'] ) ) . '</strong>';
 				$content .= '<li>' . __( 'Last Payment Date:', 'psts' ) . ' <strong>' . $prev_billing . '</strong></li>';
 				$content .= '<li>' . __( 'Next Payment Date:', 'psts' ) . ' <strong>' . $next_billing . '</strong></li>';
 				$content .= '</ul><br />';
@@ -561,13 +560,13 @@ class ProSites_Gateway_2Checkout {
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
-			$resArray         = $this->GetRecurringPaymentsProfileDetails( $profile_id );
+			$resArray         = Twocheckout_Sale::retrieve( array(
+					'sale_id' => $profile_id
+			), 'array' );
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
 			$lineitem         = $active_recurring[0];
 
-			if ( ( $resArray['response_code'] == 'OK' ) ) {
-
-				$active_member = true;
+			if ( ( $resArray['response_code'] == 'OK' ) && $lineitem['status'] == 'active' ) {
 
 				if ( isset( $lineitem['date_placed'] ) ) {
 					$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
@@ -582,9 +581,6 @@ class ProSites_Gateway_2Checkout {
 				} else {
 					$next_billing = __( "None", 'psts' );
 				}
-
-				$next_payment_timestamp = strtotime( $lineitem['date_next'] );
-
 				echo '<ul>';
 				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
 
@@ -593,7 +589,8 @@ class ProSites_Gateway_2Checkout {
 					echo '<li>' . sprintf( __( 'Last Payment Transaction ID: %s', 'psts' ), $last_payment['txn_id'] ) . '</li>';
 				}
 				echo '<li>' . sprintf( __( 'Next Payment Date: <strong>%s</strong>', 'psts' ), $next_billing ) . '</li>';
-				echo '<li>' . sprintf( __( 'Payments Made With This Subscription: <strong>%s</strong>', 'psts' ), $lineitem['installment'] ) . ' *</li>';
+				//no need to have a * on this since 2checkout count the payment at init
+				echo '<li>' . sprintf( __( 'Payments Made With This Subscription: <strong>%s</strong>', 'psts' ), $lineitem['installment'] ) . ' </li>';
 				echo '</ul>';
 
 			} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) ) {
@@ -750,11 +747,14 @@ class ProSites_Gateway_2Checkout {
 
 			while ( isset( $invoice['lineitems'][$i] ) ) {
 				if ( $invoice['lineitems'][$i]['billing']['recurring_status'] == "active" ) {
+
 					$lineitemData[$i] = array( 'lineitem_id' => $invoice['lineitems'][$i]['billing']['lineitem_id'],
 																		 'status'      => $invoice['lineitems'][$i]['billing']['recurring_status'],
 																		 'installment' => $invoice['lineitems'][$i]['installment'],
 																		 'date_placed' => $invoice['date_placed'],
-																		 'date_next'   => $invoice['lineitems'][$i]['billing']['date_next'] );
+																		 'date_next'   => $invoice['lineitems'][$i]['billing']['date_next'],
+																		 'method'      => $invoice['lineitems'][$i]['billing']['bill_method']
+					);
 				}
 				$i ++;
 			};
