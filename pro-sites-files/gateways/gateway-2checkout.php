@@ -174,12 +174,22 @@ class ProSites_Gateway_2Checkout {
 	<?php
 	}
 
-	function process_checkout( $blog_id ) {
+	/**
+	 * @param $blog_id
+	 *   This function will handler
+	 *   Checkout process
+	 *   -With Coupon
+	 *   -Without Coupon
+	 *   -Recurring
+	 *   -One time
+	 *   -DownGrade level
+	 *   -UpGrade level
+	 *   -Manual extends subscription time
+	 */
+	public function process_checkout( $blog_id ) {
 		global $current_site, $current_user, $psts, $wpdb;
-		//add scripts
-		add_action( 'wp_head', array( &$this, 'checkout_js' ) );
-		wp_enqueue_script( array( 'jquery' ) );
 		if ( isset( $_POST['2co_checkout_button'] ) ) {
+			//validate
 			if ( ! $this->check_nonce() )
 				$psts->errors->add( 'general', __( 'Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ) );
 
@@ -188,98 +198,297 @@ class ProSites_Gateway_2Checkout {
 				return;
 			}
 
+			add_action( 'wp_head', array( &$this, 'checkout_js' ) );
+			wp_enqueue_script( array( 'jquery' ) );
+
 			//prepare vars
-			$content = '<form id="2checkout" action="https://www.2checkout.com/checkout/spurchase" method="post">';
-			$content .= '<input type="hidden" name="sid" value="' . $psts->get_setting( '2co_acc_number' ) . '"/>';
-			$content .= '<input type="hidden" name="mode" value="2CO"/>';
-			$content .= '<input type="hidden" name="currency" value="' . $psts->get_setting( '2co_currency' ) . '"/>';
-			$content .= '<input type="hidden" name="x_receipt_link_url" value="' . 'http://premium.wpmudev.org/2checkout-debug.php' . '"/>';
-			$content .= '<input type="hidden" name="merchant_order_id" value="' . $blog_id . '"/>';
-			$content .= '<input type="hidden" name="period" value="' . esc_attr( $_POST['period'] ) . '"/>';
-			$content .= '<input type="hidden" name="level" value="' . esc_attr( $_POST['level'] ) . '"/>';
-			$content .= '<input type="hidden" name="2co_cart_type" value="ProSites"/>';
-			$content .= '<input type="hidden" name="demo" value="' . $psts->get_setting( '2co_checkout_mode' ) . '"/>';
-			//
-			if ( $_POST['period'] == 1 ) {
-				$paymentAmount = sprintf( "%01.2f", $psts->get_level_setting( $_POST['level'], 'price_1' ) );
-				$content .= '<input type="hidden" name="li_0_type" value="product"/>';
-				$content .= '<input type="hidden" name="li_0_name" value="' . $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . '"/>';
-				$content .= '<input type="hidden" name="li_0_price" value="' . $paymentAmount . '"/>';
-				$content .= '<input type="hidden" name="li_0_recurrence" value="1 Month"/>';
-				$content .= '<input type="hidden" name="li_0_duration" value="Forever"/>';
+			$amount_off     = false;
+			$payment_amount = $init_amount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
+			$trial_days     = $psts->get_setting( 'trial_days', 0 );
+			$cp_code        = false;
+			$is_trial       = $psts->is_trial_allowed( $blog_id );
+			$setup_fee      = (float) $psts->get_setting( 'setup_fee', 0 );
+			$has_coupon     = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'] ) ) ? true : false;
+			$has_setup_fee  = $psts->has_setup_fee( $blog_id, $_POST['level'] );
+			$recurring      = $psts->get_setting( 'recurring_subscriptions', 1 );
+			$params         = array(
+					'sid'                => $psts->get_setting( '2co_acc_number' ),
+					'currency'           => $psts->get_setting( '2co_currency', 'USD' ),
+					'x_receipt_link_url' => 'http://premium.wpmudev.org/2checkout-debug.php',
+					'mode'               => '2CO',
+					'merchant_order_id'  => $blog_id,
+					'period'             => esc_attr( $_POST['period'] ),
+					'level'              => esc_attr( $_POST['level'] ),
+					'2co_cart_type'      => 'ProSites',
+					'demo'               => $psts->get_setting( '2co_checkout_mode' )
+			);
 
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'] ) ) {
-					$updated_amount = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
-					$coupon_value   = $paymentAmount - $updated_amount['new_total'];
-					$content .= '<input type="hidden" name="li_1_type" value="coupon"/>';
-					$content .= '<input type="hidden" name="li_1_name" value="' . $_SESSION['COUPON_CODE'] . '"/>';
-					$content .= '<input type="hidden" name="li_1_price" value="' . $coupon_value . '"/>';
-				}
-			} else if ( $_POST['period'] == 3 ) {
-				$paymentAmount = sprintf( "%01.2f", $psts->get_level_setting( $_POST['level'], 'price_3' ) );
-				$content .= '<input type="hidden" name="li_0_type" value="product"/>';
-				$content .= '<input type="hidden" name="li_0_name" value="' . $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . '"/>';
-				$content .= '<input type="hidden" name="li_0_price" value="' . $paymentAmount . '"/>';
-				$content .= '<input type="hidden" name="li_0_recurrence" value="3 Month"/>';
-				$content .= '<input type="hidden" name="li_0_duration" value="Forever"/>';
+			//build products params
+			$addition_params = array(
+					'li_0_type'  => 'product',
+					'li_0_name'  => $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ),
+					'li_0_price' => $init_amount,
+			);
 
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'] ) ) {
-					$updated_amount = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
-					$coupon_value   = $paymentAmount - $updated_amount['new_total'];
-					$content .= '<input type="hidden" name="li_1_type" value="coupon"/>';
-					$content .= '<input type="hidden" name="li_1_name" value="' . $_SESSION['COUPON_CODE'] . '"/>';
-					$content .= '<input type="hidden" name="li_1_price" value="' . $coupon_value . '"/>';
-				}
-			} else if ( $_POST['period'] == 12 ) {
-				$paymentAmount = sprintf( "%01.2f", $psts->get_level_setting( $_POST['level'], 'price_12' ) );
-				$content .= '<input type="hidden" name="li_0_type" value="product"/>';
-				$content .= '<input type="hidden" name="li_0_name" value="' . $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . '"/>';
-				$content .= '<input type="hidden" name="li_0_price" value="' . $paymentAmount . '"/>';
-				$content .= '<input type="hidden" name="li_0_recurrence" value="12 Month"/>';
-				$content .= '<input type="hidden" name="li_0_duration" value="Forever"/>';
+			//if have setup fee
+			if ( $has_setup_fee )
+				$addition_params['li_0_startup_fee'] = $setup_fee;
 
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'] ) ) {
-					$updated_amount = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
-					$coupon_value   = $paymentAmount - $updated_amount['new_total'];
-					$content .= '<input type="hidden" name="li_1_type" value="coupon"/>';
-					$content .= '<input type="hidden" name="li_1_name" value="' . $_SESSION['COUPON_CODE'] . '"/>';
-					$content .= '<input type="hidden" name="li_1_price" value="' . $coupon_value . '"/>';
-				}
+			//if have trial time
+			if ( $is_trial ) {
+				$init_amount = $init_amount - $payment_amount;
 			}
-			$content .= '<input type="submit" value="Click here if you are not redirected automatically" />';
-			$content .= '</form>';
-			$content .= '<script type="text/javascript">document.getElementById("2checkout").submit();</script>';
-			echo $content;
+
+			//case have coupon
+			if ( $has_coupon ) {
+				$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $payment_amount );
+				$amount_off   = ( $payment_amount - $coupon_value['new_total'] );
+				$init_amount -= $amount_off;
+
+				$addition_params = array_merge( $addition_params, array(
+						'li_1_type'  => 'coupon',
+						'li_1_name'  => $_SESSION['COUPON_CODE'],
+						'li_1_price' => $amount_off
+				) );
+				//update new price
+				$addition_params['li_0_price'] = $init_amount;
+			}
+
+			if ( $recurring ) {
+				$addition_params = array_merge( $addition_params, array(
+						'li_0_recurrence' => esc_attr( $_POST['period'] ) . ' Month',
+						'li_0_duration'   => 'Forever'
+				) );
+			}
+			//check if this is downgrade,require no money
+			$cur_level = $psts->get_level( $blog_id );
+			if ( $cur_level > $_POST['level'] ) {
+				/**
+				 * Case downgrade
+				 * If period is same,so it is simple.When the current level expire,we will downgrade the leve.
+				 * For cost for first period of new level will be nearly free.
+				 */
+				$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+				if ( $old->term == $_POST['period'] ) {
+					$addition_params = array_merge( $addition_params, array_merge( array(
+							'li_2_type'  => 'coupon',
+							'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
+							'li_2_price' => $init_amount - 0.01
+					) ) );
+				} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
+					/**
+					 * This case is when the new period smaller than current or larger
+					 * 2checkout not support for update customer infomation,
+					 * and the only way is using the checkout.Some issue will happend
+					 * Example current is 3 months,but user want to downgrade to 1 month.The point is if we subscription for client now,it will
+					 * make client need to pay for 3 months before the old expire end. So for this case,we only cancel the subscription,
+					 * and send the checkout url when this subscrition expire via email.*
+					 */
+					$psts->update_setting( '2co_recuring_next_plan', array(
+							'action' => 'downgrade',
+							'level'  => $_POST['level'],
+							'type'   => 'email'
+					) );
+					$this->complete_message = __( 'Your 2Checkout subscription modification was not done automatic! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
+				}
+
+
+				/*$addition_params = array_merge( $addition_params, array_merge( array(
+						'li_0_startup_fee' => $addition_params['li_0_startup_fee'] - ($init_amount)
+				) ) );*/
+				/**/
+			} elseif ( $cur_level < $_POST['level'] ) {
+				/**
+				 * Case upgrade
+				 */
+				//get the unuse balance
+				$balance_left    = $this->cal_unused_balance( $blog_id );
+				$addition_params = array_merge( $addition_params, array_merge( array(
+						'li_2_type'  => 'coupon',
+						'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
+						'li_2_price' => $balance_left
+				) ) );
+			}
+			//create form
+			$params = array_merge( $params, $addition_params );
+
+			//all set,now generate the form and submit
+			Twocheckout_Charge::form( $params, 'auto' );
 		} elseif ( isset( $_REQUEST['credit_card_processed'] ) && strtolower( $_REQUEST['credit_card_processed'] ) == 'y' ) {
 			$check = Twocheckout_Return::check( $_REQUEST, $psts->get_setting( '2co_secret_word' ), 'array' );
 			if ( $check['response_code'] == 'Success' ) {
 				if ( ! $this->check_profile_id_exist( $blog_id, $_REQUEST['order_number'] ) ) {
-					$hashTotal = $_REQUEST['total'];
-					$desc      = $_GET['li_0_name'];
+					//profile not exist
+					//do the check
+					//get current level
+					$cur_level = $psts->get_level( $blog_id );
+					$modify    = false;
+					if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+						$modify = true;
+						if ( $cur_level != 0 && ( $cur_level == $_REQUEST['level'] ) )
+							$modify = false;
+					}
+					//now go
+					if ( $modify ) {
+						//this case user is modify the subscription,we will need to check upgrade or downgrade,and refund the diff
 
-					$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
-					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via 2Checkout: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
-					$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
-					$psts->email_notification( $blog_id, 'success' );
-
-					//record last payment
-					$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
-					// Added for affiliate system link
-					do_action( 'supporter_payment_processed', $blog_id, $hashTotal, $_REQUEST['period'], $_REQUEST['level'] );
-
-					$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
-					//redirect immediatly to remove a bunch of sensitive data on url
-					//because we redirect,the completemessage will lost effect,use SESSION instead
-					//$this->complete_message          = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-					$_SERVER['2co_complete_message'] = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-					echo '<script type="text/javascript">location.href="' . $psts->checkout_url( $blog_id ) . '"</script>';
+						$scenario = '';
+						if ( $cur_level < $_REQUEST['level'] )
+							$scenario = 'upgrade';
+						elseif ( $cur_level > $_REQUEST['level'] )
+							$scenario = 'downgrade';
+						$this->tcheckout_modify_subscription( $blog_id, $scenario );
+					} elseif ( $modify == false && ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) ) {
+						//site is in subscription,but user extend to longer
+						//$this->tcheckout_modify_subscription( $blog_id, 'extend' );
+					} else {
+						$this->tcheckout_hander_new_subscription( $blog_id );
+					}
 				} else {
-					_e( 'Your transaction has exist!', 'ptst' );
-					echo '<script type="text/javascript">location.href="' . $psts->checkout_url( $blog_id ) . '"</script>';
-					exit;
+					$psts->errors->add( 'general', __( 'Your transaction has already settled!', 'psts' ) );
 				}
+			} else {
+				$psts->errors->add( 'general', __( 'There was a problem validating the 2Checkout payment:<br /><strong>MD5 Hash did not match!</strong><br />Please contact the seller directly for assistance.', 'psts' ) );
 			}
 		}
+	}
+
+	function cal_unused_balance( $blog_id ) {
+		global $psts, $wpdb;
+		$old       = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		$duration  = $old->term * 30.4166 * 24 * 60 * 60;
+		$time_left = $duration - ( $duration - ( $old->expire - time() ) );
+		//get balance left
+		$balance_left = ( $time_left * $old->amount ) / $duration;
+		return round( $balance_left, 2 );
+	}
+
+	function tcheckout_modify_subscription( $blog_id, $scenario ) {
+		global $psts;
+		switch ( $scenario ) {
+			case 'new':
+				$hashTotal = $_REQUEST['total'];
+				$desc      = $_GET['li_0_name'];
+				$hashOrder = $_REQUEST['order_number'];
+
+				$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
+				$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via 2Checkout: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
+				$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
+				$psts->email_notification( $blog_id, 'success' );
+
+				//record last payment
+				$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
+				// Added for affiliate system link
+				do_action( 'supporter_payment_processed', $blog_id, $hashTotal, $_REQUEST['period'], $_REQUEST['level'] );
+
+				$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
+				//redirect immediatly to remove a bunch of sensitive data on url
+				//because we redirect,the completemessage will lost effect,use SESSION instead
+				$this->complete_message = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
+				break;
+			case 'extend':
+				global $psts;
+				//first need to cancel old subscription
+				//find last
+				$profile_id = $this->get_profile_id( $blog_id );
+				//cancel subscription on this
+				if ( $profile_id ) {
+					$this->tcheckout_cancel_subscription( $profile_id );
+				}
+
+				//do normal like new subscription
+				$this->tcheckout_hander_new_subscription( $blog_id );
+				break;
+			case 'upgrade':
+				/**
+				 * Cancel old subscription
+				 * Extends supscription and log
+				 */
+				$hashTotal = $_REQUEST['total'];
+				$desc      = $_GET['li_0_name'];
+				$hashOrder = $_REQUEST['order_number'];
+				//cancel old subscription
+				$profile_id = $this->get_profile_id( $blog_id );
+				if ( $profile_id ) {
+					if ( ! $psts->is_blog_canceled( $blog_id ) ) {
+						$this->tcheckout_cancel_subscription( $profile_id );
+						$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via 2Checkout: Old subscription canceled - %s', 'psts' ), $profile_id ) );
+					}
+				}
+				//extend
+				$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
+				$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via 2Checkout: New subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
+				$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
+				//record last payment
+				$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
+				$psts->record_stat( $blog_id, 'upgrade' );
+				// Added for affiliate system link
+				do_action( 'supporter_payment_processed', $blog_id, $hashTotal, $_REQUEST['period'], $_REQUEST['level'] );
+
+				$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
+				//redirect immediatly to remove a bunch of sensitive data on url
+				//because we redirect,the completemessage will lost effect,use SESSION instead
+				$this->complete_message = __( 'Your 2Checkout subscription modification was successful! You should be receiving an email receipt shortly.', 'psts' );
+				break;
+			case 'downgrade':
+				/**
+				 * Downgrade payment
+				 * Cancel old subscription
+				 * Plan for next action
+				 */
+				$hashTotal = $_REQUEST['total'];
+				$desc      = $_GET['li_0_name'];
+				$hashOrder = $_REQUEST['order_number'];
+				//cancel old subscription
+				$profile_id = $this->get_profile_id( $blog_id );
+				if ( $profile_id ) {
+					if ( ! $psts->is_blog_canceled( $blog_id ) ) {
+						$this->tcheckout_cancel_subscription( $profile_id );
+						$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via 2Checkout: Old subscription canceled - %s', 'psts' ), $profile_id ) );
+					}
+				}
+				//log
+				$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
+				$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via 2Checkout: New subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
+				$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
+				$psts->record_stat( $blog_id, 'downgrade' );
+				// Added for affiliate system link
+				do_action( 'supporter_payment_processed', $blog_id, $hashTotal, $_REQUEST['period'], $_REQUEST['level'] );
+
+				$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
+				//redirect immediatly to remove a bunch of sensitive data on url
+				//because we redirect,the completemessage will lost effect,use SESSION instead
+				$this->complete_message = __( 'Your 2Checkout subscription modification was successful! You should be receiving an email receipt shortly.', 'psts' );
+				//save the action so next payment,we will down the level
+				$psts->update_setting( '2co_recuring_next_plan', array(
+						'action' => 'downgrade',
+						'level'  => $_REQUEST['level'],
+						'type'   => 'auto'
+				) );
+				break;
+		}
+	}
+
+	function tcheckout_hander_new_subscription( $blog_id ) {
+		global $psts;
+
+		$hashTotal = $_REQUEST['total'];
+		$desc      = $_GET['li_0_name'];
+		$hashOrder = $_REQUEST['order_number'];
+		$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
+		$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via 2Checkout: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
+		$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
+		$psts->email_notification( $blog_id, 'success' );
+
+		//record last payment
+		$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
+		// Added for affiliate system link
+		do_action( 'supporter_payment_processed', $blog_id, $hashTotal, $_REQUEST['period'], $_REQUEST['level'] );
+
+		$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
+		//redirect immediatly to remove a bunch of sensitive data on url
+		//because we redirect,the completemessage will lost effect,use SESSION instead
+		$this->complete_message = __( 'Your 2Checkout subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
 	}
 
 	function checkout_js() {
@@ -308,12 +517,11 @@ class ProSites_Gateway_2Checkout {
 		}
 
 		//display the complete message if having
-		if ( isset( $_SESSION['2co_complete_message'] ) && ! empty( $_SESSION['2co_complete_message'] ) ) {
-			$content = '<div id="psts-complete-msg">' . $_SESSION['2co_complete_message'] . '</div>';
+		if ( $this->complete_message ) {
+			$content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
 			$content .= '<p>' . $psts->get_setting( '2co_thankyou' ) . '</p>';
 			$content .= '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
 			//remove session
-			unset( $_SESSION['2co_complete_message'] );
 			return $content;
 		}
 
@@ -495,7 +703,7 @@ class ProSites_Gateway_2Checkout {
 		return '<input type="hidden" name="_psts_nonce" value="' . $nonce . '" />';
 	}
 
-	//check the nonce
+//check the nonce
 	function check_nonce() {
 		$user  = wp_get_current_user();
 		$uid   = (int) $user->ID;
@@ -511,7 +719,7 @@ class ProSites_Gateway_2Checkout {
 		}
 	}
 
-	//record last payment
+//record last payment
 	function set_profile_id( $blog_id, $profile_id ) {
 		$trans_meta = get_blog_option( $blog_id, 'psts_2co_profile_id' );
 
@@ -679,7 +887,7 @@ class ProSites_Gateway_2Checkout {
 		}
 	}
 
-	//handle transferring pro status from one blog to another
+//handle transferring pro status from one blog to another
 	function process_transfer( $from_id, $to_id ) {
 		global $psts, $wpdb;
 
@@ -913,7 +1121,7 @@ class ProSites_Gateway_2Checkout {
 					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
 						$refund = $last_payment['amount'];
 						//refund last transaction
-						$resArray2 = $this->tcheckout_refund($last_payment['txn_id'],false,__( 'This is a full refund of your last subscription payment.', 'psts' ));
+						$resArray2 = $this->tcheckout_refund( $last_payment['txn_id'], false, __( 'This is a full refund of your last subscription payment.', 'psts' ) );
 						if ( $resArray2['response_code'] == 'OK' ) {
 							$psts->log_action( $blog_id, sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
 							$success_msg = sprintf( __( 'A full (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
@@ -987,7 +1195,6 @@ class ProSites_Gateway_2Checkout {
 		);
 		if ( $partial_amt ) {
 			$params['amount']   = $partial_amt;
-			$params['category'] = 5;
 			$params['currency'] = 'vendor';
 		}
 
