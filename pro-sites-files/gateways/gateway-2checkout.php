@@ -282,21 +282,15 @@ class ProSites_Gateway_2Checkout {
 					 * and the only way is using the checkout.Some issue will happend
 					 * Example current is 3 months,but user want to downgrade to 1 month.The point is if we subscription for client now,it will
 					 * make client need to pay for 3 months before the old expire end. So for this case,we only cancel the subscription,
-					 * and send the checkout url when this subscrition expire via email.*
+					 * and send the checkout url when this subscrition expire via email.
 					 */
-					$psts->update_setting( '2co_recuring_next_plan', array(
+					update_option( 'psts_2co_recuring_next_plan', array(
 							'action' => 'downgrade',
 							'level'  => $_POST['level'],
 							'type'   => 'email'
 					) );
-					$this->complete_message = __( 'Your 2Checkout subscription modification was not done automatic! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
+					$this->complete_message = __( 'Your 2Checkout subscription modification was not done automate! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
 				}
-
-
-				/*$addition_params = array_merge( $addition_params, array_merge( array(
-						'li_0_startup_fee' => $addition_params['li_0_startup_fee'] - ($init_amount)
-				) ) );*/
-				/**/
 			} elseif ( $cur_level < $_POST['level'] ) {
 				/**
 				 * Case upgrade
@@ -460,7 +454,7 @@ class ProSites_Gateway_2Checkout {
 				//because we redirect,the completemessage will lost effect,use SESSION instead
 				$this->complete_message = __( 'Your 2Checkout subscription modification was successful! You should be receiving an email receipt shortly.', 'psts' );
 				//save the action so next payment,we will down the level
-				$psts->update_setting( '2co_recuring_next_plan', array(
+				update_option( 'psts_2co_recuring_next_plan', array(
 						'action' => 'downgrade',
 						'level'  => $_REQUEST['level'],
 						'type'   => 'auto'
@@ -573,6 +567,11 @@ class ProSites_Gateway_2Checkout {
 				$content .= '<li>' . __( 'Payment Method:', 'psts' ) . ' <strong>2Checkout via ' . ucwords( str_replace( '_', ' ', $lineitem['method'] ) ) . '</strong>';
 				$content .= '<li>' . __( 'Last Payment Date:', 'psts' ) . ' <strong>' . $prev_billing . '</strong></li>';
 				$content .= '<li>' . __( 'Next Payment Date:', 'psts' ) . ' <strong>' . $next_billing . '</strong></li>';
+				if ( get_option( 'psts_2co_recuring_next_plan' ) ) {
+					$plan = get_option( 'psts_2co_recuring_next_plan' );
+					$content .= '<li>' . sprintf( __( 'Your new level %1$s will be start at %2$s:', 'psts' ), $plan['level'], $next_billing ) . '</li>';
+				}
+
 				$content .= '</ul><br />';
 
 				$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
@@ -1022,7 +1021,7 @@ class ProSites_Gateway_2Checkout {
 					$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
 
 					if ( $profile_id ) {
-						$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
+						$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 					}
 
 					if ( $resArray['response_code'] == 'OK' ) {
@@ -1045,7 +1044,7 @@ class ProSites_Gateway_2Checkout {
 						$refund   = $last_payment['amount'];
 
 						if ( $profile_id ) {
-							$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
+							$resArray = $this->get_profile_id( $profile_id );
 						}
 
 						if ( $resArray['response_code'] == 'OK' ) {
@@ -1054,7 +1053,7 @@ class ProSites_Gateway_2Checkout {
 							$psts->record_stat( $blog_id, 'cancel' );
 
 							//refund last transaction
-							$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], false, __( 'This is a full refund of your last subscription payment.', 'psts' ) );
+							$resArray2 = $this->tcheckout_refund( $last_payment['txn_id'], false, __( 'This is a full refund of your last subscription payment.', 'psts' ) );
 
 							if ( $resArray2['response_code'] == 'OK' ) {
 								$psts->log_action( $blog_id, sprintf( __( 'Subscription cancelled and full (%1$s) refund of last payment completed by %2$s. They should continue to have access until %3$s.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $end_date ) );
@@ -1073,7 +1072,6 @@ class ProSites_Gateway_2Checkout {
 
 				case 'cancel_refund_pro':
 					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-
 						//get next payment date
 						$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 						if ( $resArray['response_code'] == 'OK' ) {
@@ -1082,10 +1080,9 @@ class ProSites_Gateway_2Checkout {
 							$next_payment_timestamp = strtotime( $lineitem['date_next'] );
 						} else {
 							$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
-							$error_msg = sprintf( __( 'Whoops, PayPal returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
+							$error_msg = sprintf( __( 'Whoops, 2Checkout returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
 							break;
 						}
-
 						$days_left = ( ( $next_payment_timestamp - time() ) / 60 / 60 / 24 );
 						$period    = $wpdb->get_var( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
 						$refund    = ( intval( $period ) ) ? round( ( $days_left / ( intval( $period ) * 30.4166 ) ) * $last_payment['amount'], 2 ) : 0;
@@ -1093,7 +1090,7 @@ class ProSites_Gateway_2Checkout {
 							$refund = $last_payment['amount'];
 						}
 						if ( $profile_id )
-							$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id );
+							$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 
 						if ( $resArray['response_code'] == 'OK' ) {
 
@@ -1101,7 +1098,7 @@ class ProSites_Gateway_2Checkout {
 							$psts->record_stat( $blog_id, 'cancel' );
 
 							//refund last transaction
-							$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], $refund, __( 'This is a prorated refund of the unused portion of your last subscription payment.', 'psts' ) );
+							$resArray2 = $this->tcheckout_refund( $last_payment['txn_id'], $refund, __( 'This is a prorated refund of the unused portion of your last subscription payment.', 'psts' ) );
 							if ( $resArray2['response_code'] == 'OK' ) {
 								$psts->log_action( $blog_id, sprintf( __( 'Subscription cancelled and a prorated (%1$s) refund of last payment completed by %2$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
 								$success_msg = sprintf( __( 'Subscription cancelled and a prorated (%s) refund of last payment were successfully completed.', 'psts' ), $psts->format_currency( false, $refund ) );
@@ -1112,7 +1109,7 @@ class ProSites_Gateway_2Checkout {
 							}
 						} else {
 							$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by %2$s failed with an error: %3$s', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name, $resArray2['errors'][0]['message'] ) );
-							$error_msg = sprintf( __( 'Whoops, PayPal returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
+							$error_msg = sprintf( __( 'Whoops, 2Checkout returned an error when attempting to cancel the subscription. Nothing was completed: %s', 'psts' ), $resArray2['errors'][0]['message'] );
 						}
 					}
 					break;
@@ -1138,7 +1135,7 @@ class ProSites_Gateway_2Checkout {
 						$refund = round( $_POST['refund_amount'], 2 );
 
 						//refund last transaction
-						$resArray2 = $this->RefundTransaction( $last_payment['txn_id'], $refund, __( 'This is a partial refund of your last payment.', 'psts' ) );
+						$resArray2 = $this->tcheckout_refund( $last_payment['txn_id'], $refund, __( 'This is a partial refund of your last payment.', 'psts' ) );
 						if ( $resArray2['response_code'] == 'OK' ) {
 							$psts->log_action( $blog_id, sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
 							$success_msg = sprintf( __( 'A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
