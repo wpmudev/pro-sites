@@ -892,18 +892,14 @@ class ProSites_Gateway_2Checkout {
 
 		$profile_id = $this->get_profile_id( $from_id );
 		$current    = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$to_id'" );
-		$custom     = PSTS_PYPL_PREFIX . '_' . $to_id . '_' . $current->level . '_' . $current->term . '_' . $current->amount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-
-		//update the profile id in paypal so that future payments are applied to the new site
-		$this->UpdateRecurringPaymentsProfile( $profile_id, $custom );
 
 		//move profileid to new blog
 		$this->set_profile_id( $to_id, $profile_id );
 
 		//delete the old profilid
-		$trans_meta = get_blog_option( $from_id, 'psts_paypal_profile_id' );
+		$trans_meta = get_blog_option( $from_id, 'psts_2co_profile_id' );
 		unset( $trans_meta[$profile_id] );
-		update_blog_option( $from_id, 'psts_paypal_profile_id', $trans_meta );
+		update_blog_option( $from_id, 'psts_2co_profile_id', $trans_meta );
 	}
 
 	function payment_info( $payment_info, $blog_id ) {
