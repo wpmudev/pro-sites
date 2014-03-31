@@ -44,7 +44,7 @@ class ProSites_Gateway_2Checkout {
 		add_action( 'psts_payment_info', array( &$this, 'payment_info' ), 10, 2 );
 
 		//cancel subscriptions on blog deletion
-		add_action('delete_blog', array(&$this, 'cancel_blog_subscription'));
+		add_action( 'delete_blog', array( &$this, 'cancel_blog_subscription' ) );
 	}
 
 	function settings() {
@@ -250,8 +250,6 @@ class ProSites_Gateway_2Checkout {
 						'li_1_name'  => $_SESSION['COUPON_CODE'],
 						'li_1_price' => $amount_off
 				) );
-				//update new price
-				$addition_params['li_0_price'] = $init_amount;
 			}
 
 			if ( $recurring ) {
@@ -262,52 +260,54 @@ class ProSites_Gateway_2Checkout {
 			}
 			//check if this is downgrade,require no money
 			$cur_level = $psts->get_level( $blog_id );
-			if ( $cur_level > $_POST['level'] ) {
-				/**
-				 * Case downgrade
-				 * If period is same,so it is simple.When the current level expire,we will downgrade the leve.
-				 * For cost for first period of new level will be nearly free.
-				 */
-				$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
-				if ( $old->term == $_POST['period'] ) {
+			if ( $cur_level > 0 ) {
+				if ( $cur_level > $_POST['level'] ) {
+					/**
+					 * Case downgrade
+					 * If period is same,so it is simple.When the current level expire,we will downgrade the leve.
+					 * For cost for first period of new level will be nearly free.
+					 */
+					$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+					if ( $old->term == $_POST['period'] ) {
+						$addition_params = array_merge( $addition_params, array_merge( array(
+								'li_2_type'  => 'coupon',
+								'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
+								'li_2_price' => $init_amount - 0.01
+						) ) );
+					} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
+						/**
+						 * This case is when the new period smaller than current or larger
+						 * 2checkout not support for update customer infomation,
+						 * and the only way is using the checkout.Some issue will happend
+						 * Example current is 3 months,but user want to downgrade to 1 month.The point is if we subscription for client now,it will
+						 * make client need to pay for 3 months before the old expire end. So for this case,we only cancel the subscription,
+						 * and send the checkout url when this subscrition expire via email.
+						 */
+						update_option( 'psts_2co_recuring_next_plan', array(
+								'action' => 'downgrade',
+								'level'  => $_POST['level'],
+								'type'   => 'email'
+						) );
+						$this->complete_message = __( 'Your 2Checkout subscription modification was not done automate! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
+					}
+				} elseif ( $cur_level < $_POST['level'] ) {
+					/**
+					 * Case upgrade
+					 */
+					//get the unuse balance
+					$balance_left    = $this->cal_unused_balance( $blog_id );
 					$addition_params = array_merge( $addition_params, array_merge( array(
 							'li_2_type'  => 'coupon',
-							'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
-							'li_2_price' => $init_amount - 0.01
+							'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
+							'li_2_price' => $balance_left
 					) ) );
-				} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
-					/**
-					 * This case is when the new period smaller than current or larger
-					 * 2checkout not support for update customer infomation,
-					 * and the only way is using the checkout.Some issue will happend
-					 * Example current is 3 months,but user want to downgrade to 1 month.The point is if we subscription for client now,it will
-					 * make client need to pay for 3 months before the old expire end. So for this case,we only cancel the subscription,
-					 * and send the checkout url when this subscrition expire via email.
-					 */
-					update_option( 'psts_2co_recuring_next_plan', array(
-							'action' => 'downgrade',
-							'level'  => $_POST['level'],
-							'type'   => 'email'
-					) );
-					$this->complete_message = __( 'Your 2Checkout subscription modification was not done automate! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
 				}
-			} elseif ( $cur_level < $_POST['level'] ) {
-				/**
-				 * Case upgrade
-				 */
-				//get the unuse balance
-				$balance_left    = $this->cal_unused_balance( $blog_id );
-				$addition_params = array_merge( $addition_params, array_merge( array(
-						'li_2_type'  => 'coupon',
-						'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
-						'li_2_price' => $balance_left
-				) ) );
 			}
 			//create form
 			$params = array_merge( $params, $addition_params );
 
 			//all set,now generate the form and submit
-			Twocheckout_Charge::form( $params, 'auto' );
+			Twocheckout_Charge::form( $params, 'checkout' );
 		} elseif ( isset( $_REQUEST['credit_card_processed'] ) && strtolower( $_REQUEST['credit_card_processed'] ) == 'y' ) {
 			$check = Twocheckout_Return::check( $_REQUEST, $psts->get_setting( '2co_secret_word' ), 'array' );
 			if ( $check['response_code'] == 'Success' ) {
@@ -1152,21 +1152,21 @@ class ProSites_Gateway_2Checkout {
 		}
 	}
 
-	function cancel_blog_subscription($blog_id){
+	function cancel_blog_subscription( $blog_id ) {
 		global $psts;
 
 		//check if pro/express user
-		if ($profile_id = $this->get_profile_id($blog_id)) {
+		if ( $profile_id = $this->get_profile_id( $blog_id ) ) {
 
-			$resArray = $this->tcheckout_get_profile_detail($profile_id);
+			$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 
-			if ($resArray['response_code']=='OK') {
+			if ( $resArray['response_code'] == 'OK' ) {
 				//record stat
-				$psts->record_stat($blog_id, 'cancel');
+				$psts->record_stat( $blog_id, 'cancel' );
 
-				$psts->email_notification($blog_id, 'canceled');
+				$psts->email_notification( $blog_id, 'canceled' );
 
-				$psts->log_action( $blog_id, __('Subscription successfully canceled because the blog was deleted.', 'psts') );
+				$psts->log_action( $blog_id, __( 'Subscription successfully canceled because the blog was deleted.', 'psts' ) );
 			}
 		}
 	}
