@@ -33,7 +33,7 @@ class ProSites_Gateway_2Checkout {
 		add_action( 'psts_subscriber_info', array( &$this, 'subscriber_info' ) );
 
 		//handle webhook notifications
-		//add_action( 'wp_ajax_nopriv_psts_2co_webhook', array( &$this, 'webhook_handler' ) );
+		add_action( 'wp_ajax_nopriv_psts_2co_webhook', array( &$this, 'webhook_handler' ) );
 
 		//plug management page
 		add_action( 'psts_modify_form', array( &$this, 'modify_form' ) );
@@ -44,7 +44,7 @@ class ProSites_Gateway_2Checkout {
 		add_action( 'psts_payment_info', array( &$this, 'payment_info' ), 10, 2 );
 
 		//cancel subscriptions on blog deletion
-		//add_action('delete_blog', array(&$this, 'cancel_blog_subscription'));
+		add_action('delete_blog', array(&$this, 'cancel_blog_subscription'));
 	}
 
 	function settings() {
@@ -1149,6 +1149,25 @@ class ProSites_Gateway_2Checkout {
 				echo '<div class="updated fade"><p>' . $success_msg . '</p></div>';
 			else if ( $error_msg )
 				echo '<div class="error fade"><p>' . $error_msg . '</p></div>';
+		}
+	}
+
+	function cancel_blog_subscription($blog_id){
+		global $psts;
+
+		//check if pro/express user
+		if ($profile_id = $this->get_profile_id($blog_id)) {
+
+			$resArray = $this->tcheckout_get_profile_detail($profile_id);
+
+			if ($resArray['response_code']=='OK') {
+				//record stat
+				$psts->record_stat($blog_id, 'cancel');
+
+				$psts->email_notification($blog_id, 'canceled');
+
+				$psts->log_action( $blog_id, __('Subscription successfully canceled because the blog was deleted.', 'psts') );
+			}
 		}
 	}
 
