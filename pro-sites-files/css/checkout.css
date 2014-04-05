@@ -1,0 +1,243 @@
+/* Default Pro Site Checkout page css */
+#psts-receipt-change small { font-size: 70%; }
+table#psts_checkout_grid {
+	margin-bottom: 5px;
+}
+#psts_checkout_grid tr td.level-option {
+	text-align: center;
+	padding: 2px;
+	margin: 0;
+}
+
+#psts_checkout_grid .pblg-checkout-opt {
+	color: #fff;
+	font-weight: normal;
+	cursor: pointer;
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	padding: 10px;
+	border: 1px solid #364D5E;
+	text-shadow: 1px 1px 2px #222;
+	background: #b8cad8;
+	background: -moz-linear-gradient(top, #b8cad8 1%, #5d7a93 3%, #5d7a93 36%, #4f687c 56%, #234966 99%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(2%,#b8cad8), color-stop(4%,#5d7a93), color-stop(36%,#5d7a93), color-stop(56%,#4f687c), color-stop(99%,#234966));
+	background: -webkit-linear-gradient(top, #b8cad8 1%,#5d7a93 3%,#5d7a93 36%,#4f687c 56%,#234966 99%);
+	background: -o-linear-gradient(top, #b8cad8 1%,#5d7a93 3%,#5d7a93 36%,#4f687c 56%,#234966 99%);
+	background: -ms-linear-gradient(top, #b8cad8 1%,#5d7a93 3%,#5d7a93 36%,#4f687c 56%,#234966 99%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b8cad8', endColorstr='#234966',GradientType=0 );
+	background: linear-gradient(top, #b8cad8 1%,#5d7a93 3%,#5d7a93 36%,#4f687c 56%,#234966 99%);
+	width: 85%;
+}
+
+#psts_checkout_grid .pblg-checkout-opt:hover {
+  border: 1px solid #364D5E;
+	text-shadow: 1px 1px 2px #364D5E;
+	background: #b8cad8;
+	background: -moz-linear-gradient(top, #b8cad8 1%, #8099ad 5%, #8099ad 36%, #678093 56%, #4e6d84 99%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#b8cad8), color-stop(5%,#8099ad), color-stop(36%,#8099ad), color-stop(56%,#678093), color-stop(99%,#4e6d84));
+	background: -webkit-linear-gradient(top, #b8cad8 1%,#8099ad 5%,#8099ad 36%,#678093 56%,#4e6d84 99%);
+	background: -o-linear-gradient(top, #b8cad8 1%,#8099ad 5%,#8099ad 36%,#678093 56%,#4e6d84 99%);
+	background: -ms-linear-gradient(top, #b8cad8 1%,#8099ad 5%,#8099ad 36%,#678093 56%,#4e6d84 99%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b8cad8', endColorstr='#4e6d84',GradientType=0 );
+	background: linear-gradient(top, #b8cad8 1%,#8099ad 5%,#8099ad 36%,#678093 56%,#4e6d84 99%);
+}
+
+#psts_checkout_grid div.opt-current {
+  border: 1px solid #723400;
+	text-shadow: 1px 1px 2px #364D5E;
+	background: #FEBF01;
+	background: -moz-linear-gradient(top, #FEBF01 1%, #E87502 3%, #E87502 36%, #E87802 56%, #C05C02 99%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#FEBF01), color-stop(5%,#E87502), color-stop(36%,#E87502), color-stop(56%,#E87802), color-stop(99%,#C05C02));
+	background: -webkit-linear-gradient(top, #FEBF01 1%,#E87502 5%,#E87502 36%,#E87802 56%,#C05C02 99%);
+	background: -o-linear-gradient(top, #FEBF01 1%,#E87502 5%,#E87502 36%,#E87802 56%,#C05C02 99%);
+	background: -ms-linear-gradient(top, #FEBF01 1%,#E87502 5%,#E87502 36%,#E87802 56%,#C05C02 99%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#FEBF01', endColorstr='#C05C02',GradientType=0 );
+	background: linear-gradient(top, #FEBF01 1%,#E87502 5%,#E87502 36%,#E87802 56%,#C05C02 99%);
+}
+
+#psts_checkout_grid div.opt-selected, #psts_checkout_grid div.opt-selected:hover, #psts_checkout_grid div.opt-current:hover {
+	border: 1px solid #8a1616;
+	background: #db909f;
+	background: -moz-linear-gradient(top, #db909f 1%, #a90329 3%, #8f0222 44%, #5b081a 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(4%,#db909f), color-stop(8%,#a90329), color-stop(44%,#8f0222), color-stop(100%,#5b081a));
+	background: -webkit-linear-gradient(top, #db909f 4%,#a90329 8%,#8f0222 44%,#5b081a 100%);
+	background: -o-linear-gradient(top, #db909f 4%,#a90329 8%,#8f0222 44%,#5b081a 100%);
+	background: -ms-linear-gradient(top, #db909f 4%,#a90329 8%,#8f0222 44%,#5b081a 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#db909f', endColorstr='#5b081a',GradientType=0 );
+	background: linear-gradient(top, #db909f 4%,#a90329 8%,#8f0222 44%,#5b081a 100%);
+}
+
+
+#psts_checkout_grid div.pblg-checkout-opt span.pblg-price {
+	font-size: 22px;
+	line-height: 22px;
+}
+
+#psts_checkout_grid div.pblg-checkout-opt span.pblg-old-price {
+	font-size: 16px;
+	line-height: 22px;
+	text-decoration: line-through;
+}
+
+#psts_checkout_grid div.pblg-checkout-opt span.psts-equiv {
+  font-size: 12px;
+  font-weight: normal;
+  letter-spacing: normal;
+  line-height: 14px;
+  display: block;
+  border-top: 1px dashed #ccc;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+#psts_checkout_grid tr td.opt-selected {
+}
+#psts_checkout_grid tr td.opt-current {
+}
+#psts_checkout_grid label {
+	cursor: pointer;
+}
+#psts_checkout_grid #psts-free-option, #psts_checkout_grid #psts-bulk-option {
+	display: block;
+	width: 95%;
+	text-decoration: none;
+}
+#pypl_cancel {
+  margin-left: 25px;
+}
+
+#psts-coupon-block {
+	float: right;
+}
+
+#psts-coupon-msg, #psts-complete-msg, .psts-updated {
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid #00B600;
+	background-color: #B8FFB9;
+	padding: 5px 10px;
+	margin: 5px 0px 10px;
+	font-size: 80%;
+}
+
+#psts-complete-msg {
+	font-size: 100%;
+	padding: 5px 20px;
+}
+
+#psts-chosen-blog {
+	-moz-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid #F6C600;
+	background-color: #FFFFC4;
+	padding: 5px 20px;
+	margin: 5px 0px 10px;
+	font-size: 110%;
+	text-align: center;
+}
+
+#psts-change-blog {
+	font-size: 60%;
+	float: right;
+}
+#psts-chosen-blog br {
+ clear: both;
+}
+
+
+.psts-error {
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid #FF0000;
+	background-color: #FFBCBC;
+	padding: 5px 10px;
+	margin: 5px 0px 10px;
+	font-size: 80%;
+}
+
+#psts_checkout_grid tr td {
+	vertical-align: middle;
+}
+
+#psts-paypal-checkout {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+#psts-paypal-checkout input {
+	margin-left: 25px;
+}
+
+#psts-cc-checkout tr td.pypl_label {
+	text-align: right;
+}
+
+label.cc-image {
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
+label.cc-image img {
+	vertical-align: middle;
+	padding-left: 5px;
+}
+
+#psts-cc-checkout input, #psts-cc-checkout select {
+	margin: 0;
+	color: #888888;
+}
+
+#psts-cc-checkout input:focus, #psts-cc-checkout select:focus{
+    color: #373737;
+}
+
+#psts-cc-checkout input[type="text"], #psts-cc-checkout input[type="email"], #psts-cc-checkout input[type="password"], #psts-cc-checkout select {
+  background: none repeat scroll 0 0 #F9F9F9;
+  border: 1px solid #CCCCCC;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1) inset;
+  padding: 2px;
+  font-size: 16px;
+}
+
+#cc_checkout {
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	padding: 8px 12px;
+	border: 1px solid #ddd;
+	color: #444444 !important;
+	cursor: pointer;
+	display: inline-block;
+	font: bold 14px/100% Arial,Helvetica,sans-serif;
+	outline: medium none;
+	overflow: visible;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 1px 1px 0 #FFFFFF;
+	background: #eeeeee; /* old browsers */
+	background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* ie */
+  float: right;
+}
+#cc_checkout:hover {
+  background: -moz-linear-gradient(top, #eeeeee 0%, #B5B5B5 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#B5B5B5)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#B5B5B5',GradientType=0 ); /* ie */
+  border: 1px solid #CCCCCC;
+  color: #000;
+}
+
+/* hides screen reader accessibility fields */
+#psts_checkout_grid .psts-radio {
+	display: none;
+}
