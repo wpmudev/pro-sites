@@ -22,6 +22,7 @@ Change Log:
 - New: Add admin bar upgrade button for Bulk Upgrades module
 - New: Filters to override ads conditionals
 - Fix: Check class_exists on Stripe API class
+- New: BuddyPress feature to hide non-pro blogs from activity streams
 
 3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
