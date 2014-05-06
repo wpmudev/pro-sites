@@ -1572,7 +1572,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     } else if (!$psts->get_setting('pypl_enable_pro')) {
 			$content .= '<p>' . __('Please choose your desired plan then click the checkout button below.', 'psts') . '</p>';
 		}
-    
+    $button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
+    $button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
     $content .= '<form action="'.$psts->checkout_url($blog_id).'" method="post" autocomplete="off">';
     
     //print the checkout grid
@@ -1580,7 +1581,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
     
     $content .= '<div id="psts-paypal-checkout">
 			<h2>' . __('Checkout With PayPal', 'psts') . '</h2>
-			<input type="image" src="https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=' . get_locale() . '" border="0" name="pypl_checkout" alt="' . __('PayPal - The safer, easier way to pay online!', 'psts') . '">
+			<input type="image" src="'.$button_url.'" border="0" name="pypl_checkout" alt="' . __('PayPal - The safer, easier way to pay online!', 'psts') . '">
 			</div>';
 
 	if ($psts->get_setting('pypl_enable_pro')) {
