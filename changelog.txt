@@ -4,7 +4,7 @@ Author: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
-
+- Added checkout permission settings to select user roles
 - Added all 139 currencies to Stripe payment gateway
 - Rewrote the Manual Payments Gateway to support form submission and email to admin
 - Ability to add a link to badge widgets & display text when no image entered in settings
