@@ -96,7 +96,7 @@ class ProSites_Gateway_Stripe {
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
 			PRIMARY KEY  (blog_id),
-			UNIQUE KEY (customer_id)
+			UNIQUE KEY ix_customer_id (customer_id)
 		) DEFAULT CHARSET=utf8;";
 		
 		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') || (defined('DO_NOT_UPGRADE_GLOBAL_TABLES') && !DO_NOT_UPGRADE_GLOBAL_TABLES) ) {
@@ -882,15 +882,17 @@ class ProSites_Gateway_Stripe {
 					elseif ( isset($c->subscription->status) && $c->subscription->status == 'trialing' )
 						$args['trial_end'] = $psts->get_expire($blog_id);
 					
-					if ( is_pro_site($blog_id) && !is_pro_trial($blog_id) && $new )
-						$args["trial_end"] = $psts->get_expire($blog_id);
-					//add trial days for new customers that are upgrading (if applicable)
-					elseif ( ($trial_days > 0 && !is_pro_site($blog_id)) || ($trial_days > 0 && is_pro_site($blog_id) && is_pro_trial($blog_id)) )
-						$args['trial_end'] = strtotime('+ ' . $trial_days . ' days');
-					//customer is upgrading from an existing trial - carry over expiration date
-					elseif ( isset($c->subscription->status) && $c->subscription->status == 'trialing' )
-						$args['trial_end'] = $psts->get_expire($blog_id);
-
+					/***** DETERMINE TRIAL END (IF APPLICABLE) *****/
+					
+					if ( $psts->is_trial_allowed($blog_id) ) {
+						if ( !$psts->is_existing($blog_id) ) {
+							//customer is new - add trial days
+							$args['trial_end'] = strtotime('+ ' . $trial_days . ' days');					
+						} elseif ( is_pro_trial($blog_id) && $psts->get_expire($blog_id) > time() ) {
+							//customer's trial is still valid - carry over existing expiration date
+							$args['trial_end'] = $psts->get_expire($blog_id);
+						}
+                                        }
 	
 					if ( $has_setup_fee ) {  //add the setup fee onto the next invoice
 						try {
@@ -1313,6 +1315,9 @@ class ProSites_Gateway_Stripe {
 		
 		$psts->extend($blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring);
 		
+		//send receipt email - this needs to be done AFTER extend is called
+		$psts->email_notification($blog_id, 'receipt');
+		
 		update_blog_option($blog_id, 'psts_stripe_last_webhook_extend', time());
 		
 		return true;
@@ -1353,7 +1358,7 @@ class ProSites_Gateway_Stripe {
 									$plan = $line->plan->id;
 									$is_trial = ( empty($line->amount) ) ? true : false;
 									$plan_end = $line->period->end;
-									$plan_amount = ($line->amount / 100);
+									$plan_amount = $is_trial ? ($line->plan->amount / 100) : ($line->amount / 100);
 								break;
 							}
 						}
@@ -1386,7 +1391,6 @@ class ProSites_Gateway_Stripe {
 					case 'invoice.payment_succeeded' :
 						$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );
 						$this->maybe_extend($blog_id, $period, $gateway, $level, $plan_amount, $plan_end, true);						
-						$psts->email_notification($blog_id, 'receipt');
 					break;
 					
 					case 'customer.subscription.created' :
