@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5 beta
+Version: 3.4.3.7
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -15,7 +15,7 @@ WDP ID: 49
 /*
 Copyright 2007-2014 Incsub (http://incsub.com)
 Author - Aaron Edwards
-Contributors - Jonathan Cowher, Carlos Vences, Andrew Billits
+Contributors - Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.5 beta';
+  var $version = '3.4.3.7';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -416,7 +416,16 @@ Many thanks again for being a member!", 'psts'),
 	function trial_notice() {
 		global $wpdb, $blog_id;
 		if ( !is_main_site() && current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
-			$expire = $wpdb->get_var( $wpdb->prepare("SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time()) );
+			$expire = $wpdb->get_var($wpdb->prepare("
+				SELECT expire
+				FROM {$wpdb->base_prefix}pro_sites
+				WHERE blog_ID = %d
+					AND gateway = 'Trial'
+					AND expire >= %s
+					AND (term = '' OR term IS NULL)
+				LIMIT 1", $blog_id, time()
+			));
+			
 			if ($expire) {
 				$days = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
 				$notice = str_replace( 'LEVEL', $this->get_level_setting($this->get_setting('trial_level', 1), 'name'), $this->get_setting('trial_message') );
@@ -874,9 +883,10 @@ Many thanks again for being a member!", 'psts'),
 			'SITENAME'=> get_blog_option($blog_id, 'blogname'), 
 			'CHECKOUTURL'=> $this->checkout_url($blog_id)
 		);
+		// send emails as html (fixes some formatting issues with currencies)
+		$mail_headers = array('Content-Type: text/html');
 
 		switch($action){
-
 			case 'success':
 				$e = array(
 					'msg'=> $this->get_setting('success_msg'),
@@ -884,7 +894,7 @@ Many thanks again for being a member!", 'psts'),
 				);
 
 				$e = str_replace(array_keys($search_replace), $search_replace, $e);
-				wp_mail( $email, $e['subject'], $e['msg'] );
+				wp_mail( $email, $e['subject'], nl2br($e['msg']), implode("\r\n", $mail_headers) );
 
 				$this->log_action( $blog_id, sprintf(__('Signup success email sent to %s', 'psts'), $email) );
 			break;
@@ -905,7 +915,13 @@ Many thanks again for being a member!", 'psts'),
 				if ($term)
 					$payment_info .= sprintf(__('Payment Term: %s', 'psts'), $term)."\n";
 				
-				$payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $result->amount . ' ' . $this->get_setting('currency'))."\n";
+				$payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $this->format_currency(false, $result->amount) . ' ' . $this->get_setting('currency'))."\n";
+				
+				if ( $result->gateway == 'Trial' ) {
+					$trial_info = "\n" . __('*** PLEASE NOTE ***', 'psts') . "\n";
+					$trial_info .= sprintf(__('You will not be charged for your subscription until your trial ends on %s. If applicable, this does not apply to setup fees and other upfront costs.', 'psts'), date_i18n(get_option('date_format'), $result->expire));
+					$payment_info .= apply_filters('psts_trial_info', $trial_info, $blog_id);
+				}
 
 				$search_replace['PAYMENTINFO'] = apply_filters('psts_payment_info', $payment_info, $blog_id);
 
@@ -915,7 +931,7 @@ Many thanks again for being a member!", 'psts'),
 				);
 				$e = str_replace(array_keys($search_replace), $search_replace, $e);
 
-				wp_mail( $email, $e['subject'], $e['msg'], '', $this->pdf_receipt($e['msg']) );
+				wp_mail( $email, $e['subject'], nl2br($e['msg']), implode("\r\n", $mail_headers), $this->pdf_receipt($e['msg']) );
 
 				$this->log_action( $blog_id, sprintf(__('Payment receipt email sent to %s', 'psts'), $email) );
 			break;
@@ -931,7 +947,7 @@ Many thanks again for being a member!", 'psts'),
 				);
 
 				$e = str_replace(array_keys($search_replace), $search_replace, $e);
-				wp_mail( $email, $e['subject'], $e['msg'] );
+				wp_mail( $email, $e['subject'], nl2br($e['msg']), implode("\r\n", $mail_headers) );
 
 				$this->log_action( $blog_id, sprintf(__('Subscription canceled email sent to %s', 'psts'), $email) );
 			break;
@@ -943,7 +959,7 @@ Many thanks again for being a member!", 'psts'),
 				);
 
 				$e = str_replace(array_keys($search_replace), $search_replace, $e);
-				wp_mail( $email, $e['subject'], $e['msg'] );
+				wp_mail( $email, $e['subject'], nl2br($e['msg']), implode("\r\n", $mail_headers) );
 
 				$this->log_action( $blog_id, sprintf(__('Expired email sent to %s', 'psts'), $email) );
 			break;
@@ -955,7 +971,7 @@ Many thanks again for being a member!", 'psts'),
 				);
 
 				$e = str_replace(array_keys($search_replace), $search_replace, $e);
-				wp_mail( $email, $e['subject'], $e['msg'] );
+				wp_mail( $email, $e['subject'], nl2br($e['msg']), implode("\r\n", $mail_headers) );
 
 				$this->log_action( $blog_id, sprintf(__('Payment failed email sent to %s', 'psts'), $email) );
 			break;
@@ -3446,9 +3462,14 @@ _gaq.push(["_trackTrans"]);
 						<td><select name="psts[trial_days]">
 						<?php
 						$trial_days = $this->get_setting('trial_days');
-						for ( $counter = 0; $counter <=  365; $counter++) {
-						  echo '<option value="' . $counter . '"' . ($counter == $trial_days ? ' selected' : '') . '>' . (($counter) ? $counter : __('Disabled', 'psts')) . '</option>' . "\n";
+						$trial_days_options = '';
+						
+						for ( $counter = 0; $counter <= 365; $counter++) {
+						  $trial_days_options .= '<option value="' . $counter . '"' . ($counter == $trial_days ? ' selected' : '') . '>' . (($counter) ? $counter : __('Disabled', 'psts')) . '</option>' . "\n";
 						}
+						
+						//allow plugins to modify the trial days options (some people want to display as years, more than one year, etc)
+						echo apply_filters('psts_trial_days_options', $trial_days_options);
 						?>
 						</select>
 						<?php _e('Free days for all new sites.', 'psts'); ?></td>
@@ -3893,7 +3914,7 @@ _gaq.push(["_trackTrans"]);
 
     return $content;
 	}
-	
+
 	function is_trial_allowed( $blog_id ) {
 		$trial_days = $this->get_setting('trial_days', 0);
 		

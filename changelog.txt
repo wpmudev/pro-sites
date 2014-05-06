@@ -4,25 +4,70 @@ Author: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
-- Added checkout permission settings to select user roles
-- Added all 139 currencies to Stripe payment gateway
-- Rewrote the Manual Payments Gateway to support form submission and email to admin
-- Ability to add a link to badge widgets & display text when no image entered in settings
-- Change site_url() to home_url() where appropriate
-- Fix Stripe level label for Quarterly
-- Add persistent object cache support
-- Don't show upgrade button to those who can't upgrade the site
-- Added Russian Rubles to paypal currencies and locale
+3.4.3.7 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
+----------------------------------------------------------------------
+- Update: merge tag to trunk
+- Added: checkout user role selection setting
+- Addes: persistent object cache support
+- Added: Russian Rubles to paypal currencies and locale
 - Improve directions in Premium Plugins module
-- WP 3.8 support in Premium Themes
 - New: Allow changing which site the checkout page is on via PSTS_CHECKOUT_SITE define
-- New: Setting to turn off upgrade menu item
 - Fix: Upload Quota ad-free level showing when not active in ads module
-- Fix: Major bug with levels drop down used in other plugins
 - New: Add admin bar upgrade button for Bulk Upgrades module
 - New: Filters to override ads conditionals
 - Fix: Check class_exists on Stripe API class
 - New: BuddyPress feature to hide non-pro blogs from activity streams
+
+3.4.3.6 - 4/1/2014 - Jonathan Cowher
+----------------------------------------------------------------------
+- Fixed: multiple customer_id index issue in "pro_sites_stripe_customers" table http://wp.mu/945
+- Fixed: "free trial" nag message still displays after upgrading
+- Fixed: payment amount would be blank in payment receipt emails
+- Added: additional language to email receipts when customer is in trial status - added "psts_trial_info" filter for editing this text
+- Added: receipt emails, etc now send in HTML format
+- Added "psts_trial_days_options" filter http://wp.mu/92a
+
+3.4.3.5 - 3/20/2014 - Aaron Edwards, Hoang Ngo
+----------------------------------------------------------------------
+- Fix: PayPal sandbox errors due to them dropping support for HTTP1.0
+- Fix: Notice caused by custom translation file code.
+- Fix: Removed legacy language support for /mu-plugins/ installation, use WP core WP_LANGUAGE_DIR/plugins/psts-LOCALE.mo
+
+3.4.3.4 - 3/20/2014 - Jonathan Cowher
+----------------------------------------------------------------------
+- Fixed unclosed <div> in Stripe gateway
+- Added in all 139 currencies that Stripe supports
+
+3.4.3.3 - 2/24/2014 - Jonathan Cowher, Aaron Edwards
+----------------------------------------------------------------------
+- Bug fixes for Stripe gateway
+
+3.4.3.2 - 2/24/2014 - Aaron Edwards, Ignacio
+----------------------------------------------------------------------
+- New: Setting to turn off upgrade menu item
+- Fix: Major bug with levels drop down used in other plugins
+
+3.4.3.1 - 2/18/2014 - Jonathan Cowher, Aaron Edwards
+----------------------------------------------------------------------
+- Use built in menu icon
+- Additional fixes for Stripe gateway and free trials
+
+3.4.3 - 2/11/2014 - Jonathan Cowher
+----------------------------------------------------------------------
+- New: Stripe plans are now cached locally for improved page load speeds
+- New: Display an admin message when Stripe API keys have not been set in settings
+- New: Translations can now be loaded from WP_LANG_DIR/pro-sites/psts-{your locale}.mo
+- Fixed: Stripe gateway and free trials bug http://wp.mu/8sh
+- Fixed: Stripe gateway bug where subscriptions sometimes end before Stripe sends auto-renew webhooks http://wp.mu/8or
+- Fixed: A bunch of Strict-standards warnings
+
+3.4.2 - 12/19/2013 - Aaron Edwards
+----------------------------------------------------------------------
+- Major Stripe gateway bug fixes
+- Change site_url() to home_url() where appropriate
+- Fix Stripe level label for Quarterly
+- Don't show upgrade button to those who can't upgrade the site
+- WP 3.8 support in Premium Themes
 
 3.4.1 - 8/26/2013 - Aaron Edwards
 ----------------------------------------------------------------------
