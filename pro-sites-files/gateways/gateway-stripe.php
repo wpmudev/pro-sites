@@ -200,7 +200,7 @@ class ProSites_Gateway_Stripe {
 							);
 	
 							foreach ($currencies as $k => $v) {
-									echo '		<option value="' . $k . '"' . ($k == $sel_currency ? ' selected' : '') . '>' . wp_specialchars($v, true) . '</option>' . "\n";
+									echo '		<option value="' . $k . '"' . ($k == $sel_currency ? ' selected' : '') . '>' . esc_html ($v, true) . '</option>' . "\n";
 							}
 							?>
 							</select>

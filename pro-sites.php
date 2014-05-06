@@ -3443,7 +3443,7 @@ _gaq.push(["_trackTrans"]);
                         if( in_array( $role_key, $checkout_roles ) || $checkout_roles == 'not set' ) {
                             $checked =  'checked="checked"';
                         }
-                        if ( $role['capabilities']['manage_options'] || $role['capabilities']['edit_pages'] ){ ?>
+                        if ( !empty ( $role['capabilities']['manage_options'] ) || !empty( $role['capabilities']['edit_pages'] ) ){ ?>
                           <label> <input type="checkbox" name="psts[checkout_roles][]" value="<?php echo $role_key; ?>" <?php  echo $checked; ?>/><?php echo $role['name']; ?></label> <?php
                         }
                     }
