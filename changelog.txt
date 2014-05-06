@@ -7,8 +7,9 @@ Change Log:
 3.4.3.7 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
 ----------------------------------------------------------------------
 - Update: merge tag to trunk
-- Added: checkout user role selection setting
-- Addes: persistent object cache support
+- Fixed: Updated wp_specialchars to esc_html
+- Added: Checkout user role selection setting
+- Addes: Persistent object cache support
 - Added: Russian Rubles to paypal currencies and locale
 - Improve directions in Premium Plugins module
 - New: Allow changing which site the checkout page is on via PSTS_CHECKOUT_SITE define
