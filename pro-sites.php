@@ -603,7 +603,15 @@ Many thanks again for being a member!", 'psts'),
 	}
 
 	function plug_pages() {
-		if ( ! is_main_site() && ! $this->get_setting('hide_adminmenu', 0) ) {
+
+                //get allowed roles for checkout
+                $checkout_roles = $this->get_setting( 'checkout_roles' );
+
+                //check If user is allowed
+                $current_user_id = get_current_user_id();
+                $permission = $this->check_user_role( $current_user_id, $checkout_roles );
+
+                if ( ! is_main_site() && ! $this->get_setting('hide_adminmenu', 0) && $permission ) {
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
 			add_menu_page($label, $label, 'edit_pages', 'psts-checkout', array(&$this, 'checkout_redirect_page'), 'dashicons-plus', 3.12);
 		}
@@ -3287,44 +3295,45 @@ _gaq.push(["_trackTrans"]);
 	}
 
   function admin_settings() {
-		global $wpdb, $current_site;
+        global $wpdb, $current_site;
 
-		if ( !is_super_admin() ) {
-			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
-			return;
-		}
+        if ( !is_super_admin() ) {
+                echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
+                return;
+        }
 
-    //process form
-	  if ( isset( $_POST['submit_settings'] ) ) {
+        //process form
+        if ( isset( $_POST['submit_settings'] ) ) {
 	    //check nonce
-      check_admin_referer('psts_settings');
+            check_admin_referer('psts_settings');
 			
-			//strip slashes from all inputs
-			$_POST['psts'] = stripslashes_deep($_POST['psts']);
-			
-			$_POST['psts']['hide_adminmenu'] = isset($_POST['psts']['hide_adminmenu']) ? $_POST['psts']['hide_adminmenu'] : 0; //handle checkbox
-			$_POST['psts']['hide_adminbar'] = isset($_POST['psts']['hide_adminbar']) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
-			$_POST['psts']['hide_adminbar_super'] = isset($_POST['psts']['hide_adminbar_super']) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
-      $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
-      $_POST['psts']['apply_setup_fee_upgrade'] = isset($_POST['psts']['apply_setup_fee_upgrade']) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox
+            //strip slashes from all inputs
+            $_POST['psts'] = stripslashes_deep($_POST['psts']);
 
-      //merge settings
-      $old_settings = get_site_option('psts_settings');
-      $settings = array_merge($old_settings, apply_filters('psts_settings_filter', $_POST['psts']));
-      update_site_option('psts_settings', $settings);
+            $_POST['psts']['hide_adminmenu'] = isset($_POST['psts']['hide_adminmenu']) ? $_POST['psts']['hide_adminmenu'] : 0; //handle checkbox
+            $_POST['psts']['hide_adminbar'] = isset($_POST['psts']['hide_adminbar']) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
+            $_POST['psts']['hide_adminbar_super'] = isset($_POST['psts']['hide_adminbar_super']) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
+            $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
+            $_POST['psts']['apply_setup_fee_upgrade'] = isset($_POST['psts']['apply_setup_fee_upgrade']) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox
+            $_POST['psts']['checkout_roles'] = isset($_POST['psts']['checkout_roles']) ? $_POST['psts']['checkout_roles'] : ''; //handle checkbox
 
-			do_action('psts_settings_process');
-			do_action('supporter_settings_process'); //depreciated
+            //merge settings
+            $old_settings = get_site_option('psts_settings');
+            $settings = array_merge($old_settings, apply_filters('psts_settings_filter', $_POST['psts']));
+            update_site_option('psts_settings', $settings);
 
-      //create a checkout page if not existing
-      $this->create_checkout_page();
+            do_action('psts_settings_process');
+            do_action('supporter_settings_process'); //depreciated
 
-			echo '<div id="message" class="updated fade"><p>'.__('Settings Saved!', 'psts').'</p></div>';
-		}
-		$levels = (array)get_site_option( 'psts_levels' );
-		
-		//allow overriding and changing the root site to put the checkout page on
-		$checkout_site = defined( 'PSTS_CHECKOUT_SITE') ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+            //create a checkout page if not existing
+            $this->create_checkout_page();
+
+            echo '<div id="message" class="updated fade"><p>'.__('Settings Saved!', 'psts').'</p></div>';
+        }
+        $levels = (array)get_site_option( 'psts_levels' );
+
+        //allow overriding and changing the root site to put the checkout page on
+        $checkout_site = defined( 'PSTS_CHECKOUT_SITE') ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
 		
 	  //insert new page if not existing
 	  switch_to_blog( $checkout_site );
@@ -3405,6 +3414,26 @@ _gaq.push(["_trackTrans"]);
 					<?php } ?>
 						<br />
 						<small><?php _e('If for some reason you need to regenerate the checkout page, simply trash the current page above then save this settings form. A new checkout page will be created with a slug and title based on the rebrand option above.', 'psts') ?></small></td>
+	          </tr>
+                  <tr valign="top">
+	          <th scope="row"><?php _e('Checkout Permissions', 'psts') ?></th>
+	          <td><?php
+
+                    $roles = get_editable_roles();
+                    $checkout_roles =  (array) $this->get_setting( 'checkout_roles', 'not set' );
+                    foreach ( $roles as $role_key => $role ){
+                        $checked = '';
+                        //Default keep all appicable roles checked
+                        if( in_array( $role_key, $checkout_roles ) || $checkout_roles == 'not set' ) {
+                            $checked =  'checked="checked"';
+                        }
+                        if ( $role['capabilities']['manage_options'] || $role['capabilities']['edit_pages'] ){ ?>
+                          <label> <input type="checkbox" name="psts[checkout_roles][]" value="<?php echo $role_key; ?>" <?php  echo $checked; ?>/><?php echo $role['name']; ?></label> <?php
+                        }
+                    }
+
+                    ?>
+                  </td>
 	          </tr>
 	          <tr valign="top">
 	          <th scope="row"><?php _e('Pro Site Feature Message', 'psts') ?></th>
@@ -3595,8 +3624,8 @@ _gaq.push(["_trackTrans"]);
 	}
 
 	function checkout_redirect_page() {
-		//This page should never be shown
-		global $blog_id;
+            //This page should never be shown
+            global $blog_id;
 
 		/*
 		if( !current_user_can('edit_pages') ) {
@@ -3604,11 +3633,11 @@ _gaq.push(["_trackTrans"]);
 			return;
 		}
 		*/
-
-	  echo '<div class="wrap">';
-	  echo "<script type='text/javascript'>window.location='".$this->checkout_url($blog_id)."';</script>";
-	  echo '<a href="'.$this->checkout_url($blog_id).'">Go Here</a>';
-	  echo '</div>'; //div wrap
+            
+            echo '<div class="wrap">';
+            echo "<script type='text/javascript'>window.location='".$this->checkout_url($blog_id)."';</script>";
+            echo '<a href="'.$this->checkout_url($blog_id).'">Go Here</a>';
+            echo '</div>'; //div wrap
 	}
 
 	function checkout_grid($blog_id) {
@@ -3909,98 +3938,99 @@ _gaq.push(["_trackTrans"]);
 	}
 				
 	//outputs the checkout form
-	function checkout_output($content) {
+	function checkout_output( $content ) {
 
-		//make sure we are in the loop and on current page loop item
-		if (!in_the_loop() || get_queried_object_id() != get_the_ID())
-			return $content;
+            //make sure we are in the loop and on current page loop item
+            if ( !in_the_loop() || get_queried_object_id() != get_the_ID() )
+                return $content;
 
-	  //make sure logged in
-	  if (!is_user_logged_in()) {
-	    $content .= '<p>' . __('You must first login before you can choose a site to upgrade:', 'psts') . '</p>';
-	    $content .= wp_login_form( array('echo' => false) );
-	    return $content;
-	  }
+            //make sure logged in
+            if ( !is_user_logged_in() ) {
+                $content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
+                $content .= wp_login_form( array( 'echo' => false ) );
+                return $content;
+            }
+            $current_user_id = get_current_user_id();
+            //get allowed roles for checkout
+            $checkout_roles = $this->get_setting( 'checkout_roles' );
 
+            //set blog_id
+            if ( isset( $_POST['bid'] ) ) {
+                $blog_id = intval( $_POST['bid'] );
+            } else if ( isset( $_GET['bid'] ) ) {
+                $blog_id = intval( $_GET['bid'] );
+            } else {
+                $blog_id = false;
 
+                $blogs = array();
 
-		//set blog_id
-		if (isset($_POST['bid'])){
-			$blog_id = intval($_POST['bid']);
-		}else if (isset($_GET['bid'])){
-			$blog_id = intval($_GET['bid']);
-		}else{
-			$blog_id = false;
+                foreach ( get_blogs_of_user( $current_user_id ) as $id => $obj ) {
+                    // permission?
+                    switch_to_blog( $id );
 
-			$blogs = array();
-			foreach(get_blogs_of_user(get_current_user_id()) as $id => $obj){
-				// permission?
-				switch_to_blog($id);
-				$permission = current_user_can('edit_pages');
-				restore_current_blog();
-				if($permission){
-					$blogs[$id] = $obj;
-				}
-			}
+                    $permission = $this->check_user_role( $current_user_id, $checkout_roles );
 
-			// user has edit permission for one blog, load checkout page
-			if(count($blogs)==1){
-				$all_blog_ids = array_keys($blogs);
-				$blog_id = intval($all_blog_ids[0]);
-			}
-		}
+                    restore_current_blog();
+                    if ( $permission ) {
+                        $blogs[$id] = $obj;
+                    }
+                }
 
-	  if ($blog_id) {
+                // user has edit permission for one blog, load checkout page
+                if ( count( $blogs ) == 1 ) {
+                    $all_blog_ids = array_keys( $blogs );
+                    $blog_id = intval( $all_blog_ids[0] );
+                }
+            }
+            if ( $blog_id ) {
 
-	    //check for admin permissions for this blog
-	    switch_to_blog($blog_id);
-	    $permission = current_user_can('edit_pages');
-	    restore_current_blog();
-	    if (!$permission) {
-	      $content = '<p>' . __('Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts') . '</p>';
-	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
-	      return $content;
-	    }
-			
-			if ($this->get_expire($blog_id) > 2147483647) {
-				$level = $this->get_level_setting($this->get_level($blog_id), 'name');
-				$content = '<p>' . sprintf(__('This site has been permanently given %s status.', 'psts'), $level) . '</p>';
-	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
-	      return $content;
-			}
-			
-			//this is the main hook for gateways to add all their code
-      $content = apply_filters('psts_checkout_output', $content, $blog_id);
+                //check for admin permissions for this blog
+                switch_to_blog( $blog_id );
 
-	  } else { //blogid not set
-	    if ($blogs) {
-	      $content .= '<h3>' . __('Please choose a site to Upgrade or Modify:', 'psts') . '</h3>';
-	      $content .= '<ul>';
+                $permission = $this->check_user_role( $current_user_id, $checkout_roles );
+                restore_current_blog();
+                if ( !$permission ) {
+                    $content = '<p>' . __( 'Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts' ) . '</p>';
+                    $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
+                    return $content;
+                }
 
-	      foreach ($blogs as $blog) {
+                if ( $this->get_expire( $blog_id ) > 2147483647 ) {
+                    $level = $this->get_level_setting( $this->get_level( $blog_id ), 'name' );
+                    $content = '<p>' . sprintf( __( 'This site has been permanently given %s status.', 'psts' ), $level ) . '</p>';
+                    $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
+                    return $content;
+                }
 
-	        $has_blog = true;
-					
-					$level = $this->get_level($blog->userblog_id);
-					$level_label = ($level) ? $this->get_level_setting($level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
-					$upgrade_label = is_pro_site($blog->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $blog->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $blog->blogname);
+                //this is the main hook for gateways to add all their code
+                $content = apply_filters( 'psts_checkout_output', $content, $blog_id );
+            } else { //blogid not set
+                if ( $blogs ) {
+                    $content .= '<h3>' . __( 'Please choose a site to Upgrade or Modify:', 'psts' ) . '</h3>';
+                    $content .= '<ul>';
 
-	        $content .= '<li><a href="' . $this->checkout_url($blog->userblog_id) . '">' . $upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $level_label . '</li>';
-	      }
-	      $content .= '</ul>';
-	    }
+                    foreach ( $blogs as $blog ) {
 
-	    //show message if no valid blogs
-	    if (!$has_blog)
-	      $content .= '<strong>' . __('Sorry, but it appears you are not an administrator for any sites.', 'psts') . '</strong>';
+                        $has_blog = true;
 
-	  }
+                        $level = $this->get_level( $blog->userblog_id );
+                        $level_label = ($level) ? $this->get_level_setting( $level, 'name' ) : sprintf( __( 'Not %s', 'psts' ), $this->get_setting( 'rebrand' ) );
+                        $upgrade_label = is_pro_site( $blog->userblog_id ) ? sprintf( __( 'Modify "%s"', 'psts' ), $blog->blogname ) : sprintf( __( 'Upgrade "%s"', 'psts' ), $blog->blogname );
 
-		return '<div id="psts-checkout-output">' . $content . '</div>'; //div wrap
-	}
+                        $content .= '<li><a href="' . $this->checkout_url( $blog->userblog_id ) . '">' . $upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $level_label . '</li>';
+                    }
+                    $content .= '</ul>';
+                }
 
+                //show message if no valid blogs
+                if ( !$has_blog )
+                    $content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
+            }
 
-	/* exclude option from New Site Template plugin copy */
+            return '<div id="psts-checkout-output">' . $content . '</div>'; //div wrap
+        }
+
+    /* exclude option from New Site Template plugin copy */
 	function blog_template_settings( $and ) {
 		$and .= " AND `option_name` != 'psts_signed_up' AND `option_name` != 'psts_action_log' AND `option_name` != 'psts_waiting_step' AND `option_name` != 'psts_payments_log' AND `option_name` != 'psts_used_coupons' AND `option_name` != 'psts_paypal_profile_id' AND `option_name` != 'psts_stripe_canceled' AND `option_name` != 'psts_withdrawn'";
 		return $and;
@@ -4117,6 +4147,34 @@ _gaq.push(["_trackTrans"]);
     }
     include_once $this->plugin_dir . 'lib/psts_pricing_table_admin.php';
     echo apply_filters('psts_checkout_page_settings_output', new ProSites_Pricing_Table_Admin() );
+  }
+  /**
+   * Checks is a user has specified role
+   * @param type $user_id
+   * @param type $role
+   */
+  function check_user_role( $user_id, $roles ){
+
+    if ( is_numeric( $user_id ) )
+        $user = get_userdata( $user_id );
+    else
+        $user = wp_get_current_user();
+
+    if ( empty( $user ) )
+	return false;
+
+    if( !$roles ){
+        return false;
+    }
+    if ( is_array( $roles ) ){
+        foreach ( $roles as $role ){
+            if( in_array ( $role, (array) $user->roles ) ){
+                return true;
+            }
+        }
+    }else{
+        return in_array( $roles, (array) $user->roles );
+    }
   }
 
 }
