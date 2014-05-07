@@ -415,7 +415,14 @@ Many thanks again for being a member!", 'psts'),
 
 	function trial_notice() {
 		global $wpdb, $blog_id;
-		if ( !is_main_site() && current_user_can('edit_pages') && $this->get_setting('trial_days') ) {
+                //get allowed roles for checkout
+                $checkout_roles = $this->get_setting( 'checkout_roles' );
+
+                //check If user is allowed
+                $current_user_id = get_current_user_id();
+                $permission = $this->check_user_role( $current_user_id, $checkout_roles );
+
+		if ( !is_main_site() && $permission && $this->get_setting('trial_days') ) {
 			$expire = $wpdb->get_var($wpdb->prepare("
 				SELECT expire
 				FROM {$wpdb->base_prefix}pro_sites
