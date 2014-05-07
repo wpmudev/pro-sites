@@ -4217,6 +4217,13 @@ _gaq.push(["_trackTrans"]);
    */
   function enable_network_used_space_check(){
 
+      //Check if quota module is enabled
+      $modules_enabled = $this->get_setting('modules_enabled');
+
+      if( !in_array( 'ProSites_Module_Quota', $modules_enabled ) ){
+          return;
+      }
+
       $enable = apply_filters( 'psts_enable_used_space_check', true );
       if( $enable ){
           update_site_option( 'upload_space_check_disabled', '0');
