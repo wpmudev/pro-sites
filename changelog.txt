@@ -6,6 +6,7 @@ Change Log:
 ----------------------------------------------------------------------
 3.4.3.7 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
 ----------------------------------------------------------------------
+- New:    Sort theme list as per levels
 - Fixed:  Checkout url ( displayed if quota is exceeded ) on media page
 - New:    Force Network Used space check if quota is enabled, can be overridden using filter 'psts_enable_used_space_check'
 - Added:  filter 'psts_pypl_checkout_image_url' for Paypal
