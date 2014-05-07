@@ -649,9 +649,15 @@ Many thanks again for being a member!", 'psts'),
 
     if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() )
         return;
-		
+		//get allowed roles for checkout
+                $checkout_roles = $this->get_setting( 'checkout_roles' );
+
+                //check If user is allowed
+                $current_user_id = get_current_user_id();
+                $permission = $this->check_user_role( $current_user_id, $checkout_roles );
+
 		//add user admin bar upgrade button
-		if ( current_user_can('edit_pages') && !$this->get_setting('hide_adminbar') ) {
+		if ( $permission && !$this->get_setting('hide_adminbar') ) {
 			$checkout = $this->checkout_url($blog_id);
 	
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
