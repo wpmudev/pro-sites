@@ -3347,6 +3347,7 @@ _gaq.push(["_trackTrans"]);
             $_POST['psts']['show_signup'] = isset($_POST['psts']['show_signup']) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
             $_POST['psts']['apply_setup_fee_upgrade'] = isset($_POST['psts']['apply_setup_fee_upgrade']) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox
             $_POST['psts']['checkout_roles'] = isset($_POST['psts']['checkout_roles']) ? $_POST['psts']['checkout_roles'] : ''; //handle checkbox
+            $_POST['psts']['pt_sortthemes'] = isset($_POST['psts']['pt_sortthemes']) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox
 
             //merge settings
             $old_settings = get_site_option('psts_settings');
