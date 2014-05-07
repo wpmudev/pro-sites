@@ -88,6 +88,8 @@ class ProSites {
 		add_filter( 'add_signup_meta', array(&$this, 'signup_save') );
 		add_filter( 'bp_signup_usermeta', array(&$this, 'signup_save') );
 
+                //Force Used Space Check in network if quota is enabled
+                add_action('psts_modules_save', array( $this, 'enable_network_used_space_check' ) );
 
 		add_action( 'psts_process_stats', array(&$this, 'process_stats') ); //cronjob hook
 		add_filter( 'blog_template_exclude_settings', array(&$this, 'blog_template_settings') ); // exclude pro site setting from blog template copies
@@ -4209,6 +4211,16 @@ _gaq.push(["_trackTrans"]);
     }else{
         return in_array( $roles, (array) $user->roles );
     }
+  }
+  /**
+   * Enables the Network Used space check if quota module is enabled
+   */
+  function enable_network_used_space_check(){
+
+      $enable = apply_filters( 'psts_enable_used_space_check', true );
+      if( $enable ){
+          update_site_option( 'upload_space_check_disabled', '0');
+      }
   }
 
 }

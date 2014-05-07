@@ -65,7 +65,7 @@ class ProSites_Module_Quota {
 
 	function settings_process() {
 		global $psts;
-	  
+
 		foreach ($_POST['quota'] as $level => $quota) {
 			if ($level == 0) {
 				$psts->update_setting("quota_upgraded_space", $quota);
@@ -159,7 +159,7 @@ class ProSites_Module_Quota {
 	}
 
 	function out_message() {
-	  global $psts;
+	  global $psts, $blog_id;
 	  if( current_user_can('edit_pages') && !is_upload_space_available() ) {
 			$level = $psts->get_level() + 1;
 			if ($name = $psts->get_level_setting($level, 'name')) { //only show if there is a higher level
