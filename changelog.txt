@@ -4,6 +4,9 @@ Author: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+
+- Allow disabling plugins page with PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE define
+
 3.4.3.7 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
 ----------------------------------------------------------------------
 - New:    Sort theme list as per levels

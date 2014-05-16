@@ -24,7 +24,8 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_downgrade', array(&$this, 'deactivate'), 10, 3 );
 		add_action( 'wpmu_new_blog', array(&$this, 'new_blog'), 50 ); //auto activation hook
 		
-		add_filter( 'site_option_menu_items', array(&$this, 'enable_plugins_page') );
+		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE') )
+			add_filter( 'site_option_menu_items', array(&$this, 'enable_plugins_page') );
 		
 		add_filter( 'all_plugins', array(&$this, 'remove_plugins') );
 		add_filter( 'plugin_action_links', array(&$this, 'action_links'), 10, 4);
