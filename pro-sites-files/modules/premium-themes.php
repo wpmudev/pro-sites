@@ -131,23 +131,10 @@ class ProSites_Module_PremiumThemes {
 				$prepared_themes[$slug]['actions']['activate'] = '#" style="display:none;">';		
 				$prepared_themes[$slug]['actions']['activate'] .= '<a href="' . $psts->checkout_url($blog_id) .  '" class="button button-secondary activate nonpsts" style="color:red;" data-level="' . $allowed_themes[ $slug ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';		
 				$prepared_themes[$slug]['actions']['activate'] .= '<a style="display:none;';
-                                $prepared_themes[$slug]['psts_order'] = $allowed_themes[ $slug ];
-			}else{
-                            $prepared_themes[$slug]['psts_order'] = '0';
                         }
 			
 		}
-                //Sort themes asper their pro status and alphabetically
-                $sort_themes = $psts->get_setting('pt_sortthemes');
 
-                if( $sort_themes ){
-                    $sort = array();
-                    foreach( $prepared_themes as $theme_slug => $v ) {
-                        $sort['psts_order'][ $theme_slug ] = isset( $v['psts_order'] ) ? $v['psts_order'] : 0;
-                        $sort['id'][$theme_slug] = $v['id'];
-                    }
-                    array_multisort($sort['psts_order'], SORT_ASC, $sort['id'], SORT_ASC,$prepared_themes);
-                }
 		return $prepared_themes;
 	}
 	
@@ -200,11 +187,6 @@ class ProSites_Module_PremiumThemes {
 	
 	function settings() {
 	  global $psts;
-          $pt_sortthemes = $psts->get_setting('pt_sortthemes');
-          $checked = '';
-          if( $pt_sortthemes ){
-              $checked = 'checked="checked"';
-          }
                 ?>
 		<div class="postbox">
 		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Premium Themes', 'psts') ?></span> - <span class="description"><?php _e('Allows you to give access to selected themes to a Pro Site level.', 'psts') ?></span></h3>
@@ -221,15 +203,6 @@ class ProSites_Module_PremiumThemes {
 				  <td>
 				  <input type="text" name="psts[pt_text]" value="<?php echo esc_attr($psts->get_setting('pt_text', __('Upgrade to LEVEL to activate this premium theme &raquo;', 'psts'))); ?>" style="width: 95%" />
 				  <br /><?php _e('Required - No HTML! - This message is displayed when the wrong level site is previewing a premium theme. "LEVEL" will be replaced with the needed level name for that theme.', 'psts') ?></td>
-				  </tr>
-                                  <tr valign="top">
-                                    <th scope="row"><?php _e( 'Sort Themes', 'psts') ?></th>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" name="psts[pt_sortthemes]" value="1" <?php echo $checked; ?> />
-                                            <?php _e('Sort themes according to level'); ?>
-                                        </label>
-                                    </td>
 				  </tr>
 			  </table>
 		  </div>

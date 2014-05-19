@@ -2051,7 +2051,7 @@ _gaq.push(["_trackTrans"]);
 	          </table>
 	        </div>
 					<form method="post" action="">
-						<input type="text" placeholder="Add a custom log entry..." name="log_entry" style="width:91%;" /> <input type="submit" class="button-secondary" name="add_log_entry" value="<?php _e('Add &raquo;', 'psts') ?>" style="width:8%;float:right;" />
+						<input type="text" placeholder="<?php _e( 'Add a custom log entry...', 'psts'); ?>" name="log_entry" style="width:91%;" /> <input type="submit" class="button-secondary" name="add_log_entry" value="<?php _e('Add &raquo;', 'psts') ?>" style="width:8%;float:right;" />
 					</form>
 	      </div>
 	    </div>
@@ -2106,7 +2106,7 @@ _gaq.push(["_trackTrans"]);
 					<hr />
 		      <table class="form-table">
 		        <tr valign="top">
-							<td><label>Transfer Pro status to Blog ID: <input type="text" name="new_bid" size="3" /></label></td>
+							<td><label><?php _e('Transfer Pro status to Blog ID:', 'psts'); ?> <input type="text" name="new_bid" size="3" /></label></td>
 							<td style="text-align:right;"><input class="button-primary psts_confirm" type="submit" name="psts_transfer_pro" value="<?php _e('Transfer &raquo;', 'psts') ?>" /></td>
 						</tr>
 		      </table>

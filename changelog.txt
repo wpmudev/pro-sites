@@ -9,11 +9,10 @@ Change Log:
 
 3.4.3.7 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
 ----------------------------------------------------------------------
-- New:    Sort theme list as per levels
+- Fixed:  Translatable strings
 - Fixed:  Checkout url ( displayed if quota is exceeded ) on media page
 - New:    Force Network Used space check if quota is enabled, can be overridden using filter 'psts_enable_used_space_check'
-- Added:  filter 'psts_pypl_checkout_image_url' for Paypal
-- Update: merge tag to trunk
+- Added:  Filter 'psts_pypl_checkout_image_url' for Paypal
 - Fixed:  Updated wp_specialchars to esc_html
 - Added:  Checkout user role selection setting
 - Addes:  Persistent object cache support
