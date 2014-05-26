@@ -3452,10 +3452,10 @@ _gaq.push(["_trackTrans"]);
 	          <td><?php
 
                     $roles = get_editable_roles();
-                    $checkout_roles =  (array) $this->get_setting( 'checkout_roles', 'not set' );
+                    $checkout_roles =  $this->get_setting( 'checkout_roles', 'not set' );
                     foreach ( $roles as $role_key => $role ){
                         $checked = '';
-                        //Default keep all appicable roles checked
+                        //Default keep all applicable roles checked
                         if( in_array( $role_key, $checkout_roles ) || $checkout_roles == 'not set' ) {
                             $checked =  'checked="checked"';
                         }
@@ -4063,7 +4063,6 @@ _gaq.push(["_trackTrans"]);
                 if ( !$has_blog )
                     $content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
             }
-
             return '<div id="psts-checkout-output">' . $content . '</div>'; //div wrap
         }
 
