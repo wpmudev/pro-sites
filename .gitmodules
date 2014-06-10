@@ -1,4 +1,4 @@
-[submodule "pro-sites/pro-sites-files/dash-notice"]
-	path = pro-sites/pro-sites-files/dash-notice
+[submodule "pro-sites-files/dash-notice"]
+	path = pro-sites-files/dash-notice
 	url = git@bitbucket.org:incsub/wpmudev-dashboard-notification.git
 	branch = master
