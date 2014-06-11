@@ -5,8 +5,6 @@ Plugin Name: Pro Sites (Feature: Ads)
 class ProSites_Module_Ads {
 	
 	var $ad_counter;
-  static $user_label;
-  static $user_description;
 
   function __construct() {
     global $psts;
@@ -17,9 +15,6 @@ class ProSites_Module_Ads {
 		add_action( 'psts_extend', array(&$this, 'extend'), 10, 2 );
 		add_action( 'psts_withdraw', array(&$this, 'withdraw'), 10, 2 );
 		add_filter( 'the_content', array(&$this, 'advertising_output') );
-    
-    self::$user_label       = __('Ads', 'psts');
-    self::$user_description = __('Advertising module', 'psts');
 
     //update install script if necessary
 		if ($psts->get_setting('ads_version') != $psts->version) {
@@ -107,11 +102,6 @@ class ProSites_Module_Ads {
 			$blog_id = $wpdb->blogid;
 		}
 		
-		$show_ads = apply_filters( 'psts_show_ads', null, $blog_id );
-		if ( !is_null($show_ads) ) {
-			return $show_ads;
-		}
-		
 		if ( is_main_site($blog_id) ) {
 			return false;
 		} else {
@@ -129,11 +119,6 @@ class ProSites_Module_Ads {
 		if ( empty( $blog_id ) ) {
 			$blog_id = $wpdb->blogid;
 		}
-		
-		$hide_ads = apply_filters( 'psts_hide_ads', null, $blog_id );
-    if ( !is_null($hide_ads) ) {
-      return $hide_ads;
-    }
 
 		if ( is_main_site($blog_id) ) {
 			return true;
@@ -218,7 +203,6 @@ class ProSites_Module_Ads {
 	}
 	
 	function settings_process($settings) {
-		if ( !array_key_exists('ads_levels', $_POST) ) return $settings;
 	  global $psts;
 
 	  foreach ($_POST['ads_levels'] as $level => $num)
@@ -584,13 +568,6 @@ class ProSites_Module_Ads {
 
 		echo '</div></form></div>';
 	}
-	
-  public static function is_included ( $level_id ) {
-    switch ( $level_id ) {
-      default:
-        return FALSE;
-    }
-  }
 }
 
 //register the module
@@ -612,16 +589,6 @@ function psts_hide_ads($blog_id = null) {
 
 	if ( isset($ProSites_Module_Ads) && is_object($ProSites_Module_Ads) )
 	  return $ProSites_Module_Ads->hide_ads($blog_id);
-	else
-	  return false;
-}
-
-//use to detmine if ads module is enabled
-function psts_ads_upgrade_active() {
- 	global $ProSites_Module_Ads, $psts;
-
-	if ( isset($ProSites_Module_Ads) && is_object($ProSites_Module_Ads) )
-	  return (bool)$psts->get_setting('ads_enable_blogs');
 	else
 	  return false;
 }

@@ -3,18 +3,12 @@
 Plugin Name: Pro Sites (Feature: Unfilter HTML)
 */
 class ProSites_Module_UnfilterHtml {
-  
-  static $user_label;
-  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message') );
 		add_filter( 'user_has_cap', array(&$this, 'unfilter_check'), 100, 3 );
 		add_filter( 'map_meta_cap', array(&$this, 'unfilter_caps'), 10, 4 );
-    
-    self::$user_label       = __('Unfiltered HTML', 'psts');
-    self::$user_description = __('Can use the unfiltered html permission', 'psts');
 		
 		define('DISALLOW_UNFILTERED_HTML', false);
 	}
@@ -95,13 +89,6 @@ class ProSites_Module_UnfilterHtml {
 	   	echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
-  
-  public static function is_included ( $level_id ) {
-    switch ( $level_id ) {
-      default:
-        return FALSE;
-    }
-  }
 }
 
 //register the module

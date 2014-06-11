@@ -3,12 +3,9 @@
 Pro Sites (Module: Premium Plugins)
 */
 class ProSites_Module_Plugins {
-  
-  static $user_label;
-  static $user_description;
 
 	var $checkbox_rows = array();
-
+	
   function __construct() {
   	add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 		
@@ -24,8 +21,7 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_downgrade', array(&$this, 'deactivate'), 10, 3 );
 		add_action( 'wpmu_new_blog', array(&$this, 'new_blog'), 50 ); //auto activation hook
 		
-		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE') )
-			add_filter( 'site_option_menu_items', array(&$this, 'enable_plugins_page') );
+		add_filter( 'site_option_menu_items', array(&$this, 'enable_plugins_page') );
 		
 		add_filter( 'all_plugins', array(&$this, 'remove_plugins') );
 		add_filter( 'plugin_action_links', array(&$this, 'action_links'), 10, 4);
@@ -37,9 +33,6 @@ class ProSites_Module_Plugins {
 
 		add_filter( 'plugin_row_meta' , array( &$this, 'remove_plugin_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'remove_plugin_update_row' ) );
-    
-    self::$user_label       = __('Premium Plugins', 'psts');
-    self::$user_description = __('Include premium plugins', 'psts');
 	}
 
   function plug_network_page() {
@@ -369,7 +362,7 @@ class ProSites_Module_Plugins {
 	  <div class="wrap">
     <div class="icon32" id="icon-plugins"></div>
     <h2><?php _e('Premium Plugins', 'psts'); ?></h2>
-  	<p><?php _e('Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Selecting "None" will make the plugin unavailable to all but Super Admins. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list. Note you can also override plugin permissions on a per-site basis on the <a href="sites.php">edit sites</a> page.', 'psts'); ?></p>
+  	<p><?php _e('Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list. Note you can also override plugin permissions on a per-site basis on the <a href="sites.php">edit sites</a> page.', 'psts'); ?></p>
 
 		<form method="post" action="">
 		<table class="widefat">
@@ -417,13 +410,6 @@ class ProSites_Module_Plugins {
 		</div>
 	  <?php
 	}
-
-  public static function is_included ( $level_id ) {
-    switch ( $level_id ) {
-      default:
-        return FALSE;
-    }
-  }
 }
 
 //register the module

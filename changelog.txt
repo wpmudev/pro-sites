@@ -5,27 +5,6 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-- Allow disabling plugins page with PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE define
-
-3.4.3.7 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
-----------------------------------------------------------------------
-- Fixed:  Plugin Path variable
-- Fixed:  Translatable strings
-- Fixed:  Checkout url ( displayed if quota is exceeded ) on media page
-- New:    Force Network Used space check if quota is enabled, can be overridden using filter 'psts_enable_used_space_check'
-- Added:  Filter 'psts_pypl_checkout_image_url' for Paypal
-- Fixed:  Updated wp_specialchars to esc_html
-- Added:  Checkout user role selection setting
-- Addes:  Persistent object cache support
-- Added:  Russian Rubles to paypal currencies and locale
-- Improve directions in Premium Plugins module
-- New: Allow changing which site the checkout page is on via PSTS_CHECKOUT_SITE define
-- Fix: Upload Quota ad-free level showing when not active in ads module
-- New: Add admin bar upgrade button for Bulk Upgrades module
-- New: Filters to override ads conditionals
-- Fix: Check class_exists on Stripe API class
-- New: BuddyPress feature to hide non-pro blogs from activity streams
-
 3.4.3.6 - 4/1/2014 - Jonathan Cowher
 ----------------------------------------------------------------------
 - Fixed: multiple customer_id index issue in "pro_sites_stripe_customers" table http://wp.mu/945

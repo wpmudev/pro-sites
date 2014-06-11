@@ -3,16 +3,10 @@
 Plugin Name: Pro Sites (Feature: Premium Support)
 */
 class ProSites_Module_Support {
-  
-  static $user_label;
-  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_menu', array(&$this, 'plug_page'), 99);
-    
-    self::$user_label       = __('Premium Support', 'psts');
-    self::$user_description = __('Include Premium direct to email support', 'psts');
 	}
 
 	function plug_page() {
@@ -88,7 +82,7 @@ class ProSites_Module_Support {
 	    $message_headers = "MIME-Version: 1.0\n" . "From: \"{$current_user->display_name}\" <{$current_user->user_email}>\n" . "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"\n";
 	    $subject = sprintf(__('Premium Support Request: %s', 'psts'), get_bloginfo('url'));
 	    $message = sprintf(__("%s has submitted a new premium support request for the site %s (%s).\nHere is their message:\n_______________________\n\n%s\n\n_______________________\nYou can reply to this email directly.", 'psts'), $current_user->display_name, get_bloginfo('name'), get_bloginfo('url'), $message);
-	    $message .= sprintf(__("Site Address: %s\n", 'psts'), home_url());
+	    $message .= sprintf(__("Site Address: %s\n", 'psts'), site_url());
 	    $message .= sprintf(__("Site Admin: %s\n", 'psts'), admin_url());
 			
 			remove_filter('wp_mail_from', 'bp_core_email_from_address_filter');
@@ -119,13 +113,6 @@ class ProSites_Module_Support {
 	  </div>
 	  <?php
 	}
-  
-  public static function is_included ( $level_id ) {
-    switch ( $level_id ) {
-      default:
-        return FALSE;
-    }
-  }
 }
 
 //register the module

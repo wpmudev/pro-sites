@@ -3,9 +3,6 @@
 Plugin Name: Pro Sites (Feature: Posting Quota)
 */
 class ProSites_Module_PostingQuota {
-  
-  static $user_label;
-  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
@@ -13,9 +10,6 @@ class ProSites_Module_PostingQuota {
 		
 		add_action( 'admin_notices', array(&$this, 'message') );
 		add_filter( 'user_has_cap', array(&$this, 'write_filter'), 10, 3 );
-    
-    self::$user_label       = __('Posting Quotas', 'psts');
-    self::$user_description = __('Limited post types', 'psts');
 	}
 
 	function write_filter($allcaps, $caps, $args) {
@@ -128,13 +122,6 @@ class ProSites_Module_PostingQuota {
 			}
 		}
 	}
-  
-  public static function is_included ( $level_id ) {
-    switch ( $level_id ) {
-      default:
-        return FALSE;
-    }
-  }
 }
 
 //register the module
