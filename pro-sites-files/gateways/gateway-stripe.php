@@ -7,169 +7,29 @@ class ProSites_Gateway_Stripe {
 
 	var $complete_message = false;
 	var $stripe_plans = array();
-	var $currencies = array(
-		"AED" => 'AED: United Arab Emirates Dirham',
-		"AFN" => 'AFN: Afghan Afghani*',
-		"ALL" => 'ALL: Albanian Lek',
-		"AMD" => 'AMD: Armenian Dram',
-		"ANG" => 'ANG: Netherlands Antillean Gulden',
-		"AOA" => 'AOA: Angolan Kwanza*',
-		"ARS" => 'ARS: Argentine Peso*',
-		"AUD" => 'AUD: Australian Dollar*',
-		"AWG" => 'AWG: Aruban Florin',
-		"AZN" => 'AZN: Azerbaijani Manat',
-		"BAM" => 'BAM: Bosnia & Herzegovina Convertible Mark',
-		"BBD" => 'BBD: Barbadian Dollar',
-		"BDT" => 'BDT: Bangladeshi Taka',
-		"BGN" => 'BGN: Bulgarian Lev',
-		"BIF" => 'BIF: Burundian Franc',
-		"BMD" => 'BMD: Bermudian Dollar',
-		"BND" => 'BND: Brunei Dollar',
-		"BOB" => 'BOB: Bolivian Boliviano*',
-		"BRL" => 'BRL: Brazilian Real*',
-		"BSD" => 'BSD: Bahamian Dollar',
-		"BWP" => 'BWP: Botswana Pula',
-		"BZD" => 'BZD: Belize Dollar',
-		"CAD" => 'CAD: Canadian Dollar*',
-		"CDF" => 'CDF: Congolese Franc',
-		"CHF" => 'CHF: Swiss Franc',
-		"CLP" => 'CLP: Chilean Peso*',
-		"CNY" => 'CNY: Chinese Renminbi Yuan',
-		"COP" => 'COP: Colombian Peso*',
-		"CRC" => 'CRC: Costa Rican Colón*',
-		"CVE" => 'CVE: Cape Verdean Escudo*',
-		"CZK" => 'CZK: Czech Koruna*',
-		"DJF" => 'DJF: Djiboutian Franc*',
-		"DKK" => 'DKK: Danish Krone',
-		"DOP" => 'DOP: Dominican Peso',
-		"DZD" => 'DZD: Algerian Dinar',
-		"EEK" => 'EEK: Estonian Kroon*',
-		"EGP" => 'EGP: Egyptian Pound',
-		"ETB" => 'ETB: Ethiopian Birr',
-		"EUR" => 'EUR: Euro',
-		"FJD" => 'FJD: Fijian Dollar',
-		"FKP" => 'FKP: Falkland Islands Pound*',
-		"GBP" => 'GBP: British Pound',
-		"GEL" => 'GEL: Georgian Lari',
-		"GIP" => 'GIP: Gibraltar Pound',
-		"GMD" => 'GMD: Gambian Dalasi',
-		"GNF" => 'GNF: Guinean Franc*',
-		"GTQ" => 'GTQ: Guatemalan Quetzal*',
-		"GYD" => 'GYD: Guyanese Dollar',
-		"HKD" => 'HKD: Hong Kong Dollar',
-		"HNL" => 'HNL: Honduran Lempira*',
-		"HRK" => 'HRK: Croatian Kuna',
-		"HTG" => 'HTG: Haitian Gourde',
-		"HUF" => 'HUF: Hungarian Forint',
-		"IDR" => 'IDR: Indonesian Rupiah',
-		"ILS" => 'ILS: Israeli New Sheqel',
-		"INR" => 'INR: Indian Rupee*',
-		"ISK" => 'ISK: Icelandic Króna',
-		"JMD" => 'JMD: Jamaican Dollar',
-		"JPY" => 'JPY: Japanese Yen',
-		"KES" => 'KES: Kenyan Shilling',
-		"KGS" => 'KGS: Kyrgyzstani Som',
-		"KHR" => 'KHR: Cambodian Riel',
-		"KMF" => 'KMF: Comorian Franc',
-		"KRW" => 'KRW: South Korean Won',
-		"KYD" => 'KYD: Cayman Islands Dollar',
-		"KZT" => 'KZT: Kazakhstani Tenge',
-		"LAK" => 'LAK: Lao Kip*',
-		"LBP" => 'LBP: Lebanese Pound',
-		"LKR" => 'LKR: Sri Lankan Rupee',
-		"LRD" => 'LRD: Liberian Dollar',
-		"LSL" => 'LSL: Lesotho Loti',
-		"LTL" => 'LTL: Lithuanian Litas',
-		"LVL" => 'LVL: Latvian Lats',
-		"MAD" => 'MAD: Moroccan Dirham',
-		"MDL" => 'MDL: Moldovan Leu',
-		"MGA" => 'MGA: Malagasy Ariary',
-		"MKD" => 'MKD: Macedonian Denar',
-		"MNT" => 'MNT: Mongolian Tögrög',
-		"MOP" => 'MOP: Macanese Pataca',
-		"MRO" => 'MRO: Mauritanian Ouguiya',
-		"MUR" => 'MUR: Mauritian Rupee*',
-		"MVR" => 'MVR: Maldivian Rufiyaa',
-		"MWK" => 'MWK: Malawian Kwacha',
-		"MXN" => 'MXN: Mexican Peso*',
-		"MYR" => 'MYR: Malaysian Ringgit',
-		"MZN" => 'MZN: Mozambican Metical',
-		"NAD" => 'NAD: Namibian Dollar',
-		"NGN" => 'NGN: Nigerian Naira',
-		"NIO" => 'NIO: Nicaraguan Córdoba*',
-		"NOK" => 'NOK: Norwegian Krone',
-		"NPR" => 'NPR: Nepalese Rupee',
-		"NZD" => 'NZD: New Zealand Dollar',
-		"PAB" => 'PAB: Panamanian Balboa*',
-		"PEN" => 'PEN: Peruvian Nuevo Sol*',
-		"PGK" => 'PGK: Papua New Guinean Kina',
-		"PHP" => 'PHP: Philippine Peso',
-		"PKR" => 'PKR: Pakistani Rupee',
-		"PLN" => 'PLN: Polish Złoty',
-		"PYG" => 'PYG: Paraguayan Guaraní*',
-		"QAR" => 'QAR: Qatari Riyal',
-		"RON" => 'RON: Romanian Leu',
-		"RSD" => 'RSD: Serbian Dinar',
-		"RUB" => 'RUB: Russian Ruble',
-		"RWF" => 'RWF: Rwandan Franc',
-		"SAR" => 'SAR: Saudi Riyal',
-		"SBD" => 'SBD: Solomon Islands Dollar',
-		"SCR" => 'SCR: Seychellois Rupee',
-		"SEK" => 'SEK: Swedish Krona',
-		"SGD" => 'SGD: Singapore Dollar',
-		"SHP" => 'SHP: Saint Helenian Pound*',
-		"SLL" => 'SLL: Sierra Leonean Leone',
-		"SOS" => 'SOS: Somali Shilling',
-		"SRD" => 'SRD: Surinamese Dollar*',
-		"STD" => 'STD: São Tomé and Príncipe Dobra',
-		"SVC" => 'SVC: Salvadoran Colón*',
-		"SZL" => 'SZL: Swazi Lilangeni',
-		"THB" => 'THB: Thai Baht',
-		"TJS" => 'TJS: Tajikistani Somoni',
-		"TOP" => 'TOP: Tongan Paʻanga',
-		"TRY" => 'TRY: Turkish Lira',
-		"TTD" => 'TTD: Trinidad and Tobago Dollar',
-		"TWD" => 'TWD: New Taiwan Dollar',
-		"TZS" => 'TZS: Tanzanian Shilling',
-		"UAH" => 'UAH: Ukrainian Hryvnia',
-		"UGX" => 'UGX: Ugandan Shilling',
-		"USD" => 'USD: United States Dollar',
-		"UYI" => 'UYI: Uruguayan Peso*',
-		"UZS" => 'UZS: Uzbekistani Som',
-		"VEF" => 'VEF: Venezuelan Bolívar*',
-		"VND" => 'VND: Vietnamese Đồng',
-		"VUV" => 'VUV: Vanuatu Vatu',
-		"WST" => 'WST: Samoan Tala',
-		"XAF" => 'XAF: Central African Cfa Franc',
-		"XCD" => 'XCD: East Caribbean Dollar',
-		"XOF" => 'XOF: West African Cfa Franc*',
-		"XPF" => 'XPF: Cfp Franc*',
-		"YER" => 'YER: Yemeni Rial',
-		"ZAR" => 'ZAR: South African Rand',
-		"ZMW" => 'ZMW: Zambian Kwacha',
-	);
+	
+	function ProSites_Gateway_Stripe() {
+		$this->__construct();		
+	}
 
   function __construct() {  	
 		global $psts;
 
-		if ( !class_exists('Stripe') )
-			require $psts->plugin_dir . "gateways/gateway-stripe-files/lib/Stripe.php";
-		
 		//setup the Stripe API
-		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
-		$stripe_publishable_key = $psts->get_setting('stripe_publishable_key');
-		
-		//make sure everyone is using the same API version. we can update this if/when necessary. NOTE this doesn't affect webhooks.
-		Stripe::setApiVersion('2013-08-13');	
-		
-		if ( empty($stripe_secret_key) || empty($stripe_publishable_key) ) {
-			add_action('network_admin_notices', array(&$this, 'api_keys_admin_notice'));
-		} else {
-			Stripe::setApiKey($stripe_secret_key);
+		if ( ! class_exists('Stripe') ) {
+			require_once( $psts->plugin_dir . "gateways/gateway-stripe-files/lib/Stripe.php" );
 		}
-
+		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
+		Stripe::setApiKey($stripe_secret_key);
+		Stripe::setApiVersion('2013-08-13');	//make sure everyone is using the same API version. we can update this if/when necessary.
+  
+		if ( !is_admin() ) {
+	  	add_action('wp_enqueue_scripts', array(&$this, 'do_scripts'));
+  	}
+			
 	  //settings
-		add_action('psts_gateway_settings', array(&$this, 'settings'));
+		add_action( 'psts_gateway_settings', array(&$this, 'settings') );
+		add_action( 'psts_settings_process', array(&$this, 'settings_process') );
 		
 		//checkout stuff
 		add_action( 'psts_checkout_page_load', array(&$this, 'process_checkout') );
@@ -202,19 +62,31 @@ class ProSites_Gateway_Stripe {
 		//display admin notices
 		add_action( 'admin_notices', array(&$this, 'admin_notices') );
 		
-		//get all stripe plans
-		$this->get_stripe_plans();
-		
 		//update install script if necessary
-		if ( $psts->get_setting('stripe_version') != $psts->version ) {
+		if ($psts->get_setting('stripe_version') != $psts->version) {
 			$this->install();
 		}
 	}
-	
-	function api_keys_admin_notice() {
-		?>
-		<div class="error"><p><?php _e('<strong>Important Pro Sites Message:</strong> You haven\'t entered your Pro Sites Stripe API keys yet. Stripe will not function correctly without these keys.', 'psts'); ?></p></div>
-		<?php
+
+	function do_scripts() {
+		global $psts;
+		
+		if ( get_the_ID() != $psts->get_setting('checkout_page') )
+			return;
+		
+		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
+		$stripe_publishable_key = $psts->get_setting('stripe_publishable_key');
+		
+		wp_enqueue_script('jquery');
+		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array('jquery') );	
+		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'gateways/gateway-stripe-files/stripe_token.js', array('js-stripe', 'jquery') );
+		wp_localize_script( 'stripe-token', 'stripe', array('publisher_key' => $stripe_publishable_key,
+																												'name' =>__('Please enter the full Cardholder Name.', 'psts'),
+																												'number' => __('Please enter a valid Credit Card Number.', 'psts'),
+																												'expiration' => __('Please choose a valid expiration date.', 'psts'),
+																												'cvv2' => __('Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts')
+																												) );			
+		add_action('wp_head', array(&$this, 'checkout_js'));		
 	}
 	
 	function install() {
@@ -227,7 +99,7 @@ class ProSites_Gateway_Stripe {
 			UNIQUE KEY ix_customer_id (customer_id)
 		) DEFAULT CHARSET=utf8;";
 		
-		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') ) {
+		if ( !defined('DO_NOT_UPGRADE_GLOBAL_TABLES') || (defined('DO_NOT_UPGRADE_GLOBAL_TABLES') && !DO_NOT_UPGRADE_GLOBAL_TABLES) ) {
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($table1);
 		}
@@ -235,10 +107,10 @@ class ProSites_Gateway_Stripe {
 		if ( $stripe_secret_key = $psts->get_setting('stripe_secret_key') ) {
 			$psts->update_setting('stripe_version', $psts->version);
 			
-			if ( !$psts->get_setting('stripe_plan_ids_updated', false) ) {
-				$this->update_plan_ids_v2();
+			if ( $psts->get_setting('stripe_plan_ids_updated', false) ) {
+				$this->update_psts_levels( 'psts_levels', get_site_option('psts_levels'), get_site_option('psts_levels') );
 			} else {
-				$this->update_psts_levels('psts_levels', get_site_option('psts_levels'), get_site_option('psts_levels'));
+				$this->update_plan_ids_v2();
 			}
 		}
 	}
@@ -251,10 +123,12 @@ class ProSites_Gateway_Stripe {
 			echo '<div class="updated"><p><strong>' . __('There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts') . '</strong></p></div>';
 		}
 	}
-	
+		
 	//update plan ids from old "level_period" convention to new "domain_level_period" convention
 	function update_plan_ids_v2() {
 		global $psts;
+		
+		$this->get_stripe_plans();
 		
 		$levels = (array)get_site_option( 'psts_levels' );
 		$periods = array(1, 3, 12);
@@ -317,9 +191,16 @@ class ProSites_Gateway_Stripe {
 							<select name="psts[stripe_currency]">
 							<?php
 							$sel_currency = $psts->get_setting("stripe_currency", 'USD');
+							$currencies = array(
+								"AUD" => 'AUD - Australian Dollar',
+								"CAD" => 'CAD - Canadian Dollar',
+								"EUR" => 'EUR - Euro',
+								"GBP" => 'GBP - Pounds Sterling',
+								"USD" => 'USD - U.S. Dollar',
+							);
 	
-							foreach ( $this->currencies as $k => $v ) {
-									echo '		<option value="' . $k . '"' . ($k == $sel_currency ? ' selected' : '') . '>' . wp_specialchars($v, true) . '</option>' . "\n";
+							foreach ($currencies as $k => $v) {
+									echo '		<option value="' . $k . '"' . ($k == $sel_currency ? ' selected' : '') . '>' . esc_html ($v, true) . '</option>' . "\n";
 							}
 							?>
 							</select>
@@ -675,24 +556,9 @@ class ProSites_Gateway_Stripe {
 	}
 	
 	//get all plans from Stripe
-	function get_stripe_plans( $count = 100, $offset = 0, $skip_cache = false ) {
-		global $psts;
+	function get_stripe_plans( $count = 100, $offset = 0 ) {
+		if ( wp_cache_get('stripe_plans_cached', 'psts')) return $this->stripe_plans;
 		
-		if ( !$skip_cache ) {
-			//Try to get from object cache first. If not in object cache try to get from database
-			if ( !empty($this->stripe_plans) ) {
-				return $this->stripe_plans;
-			}
-			
-			$plans = get_site_option('psts_stripe_plans');
-			
-			if ( !empty($plans) ) {
-				$this->stripe_plans = $plans;
-				return $plans;
-			}
-		}
-		
-		//Nothing cached. Fetch from Stripe
 		try {
 			$plans = Stripe_Plan::all(array('count' => $count, 'offset' => $offset));
 		} catch( Exception $e ) {
@@ -706,22 +572,18 @@ class ProSites_Gateway_Stripe {
 			$this->stripe_plans = array_merge($data, $this->stripe_plans);
 			
 			if ( $newoffset < $plans->count ) {
-				$this->get_stripe_plans($count, $newoffset, true);
+				$this->get_stripe_plans($count, $newoffset);
 				return;
 			}
 		}
 		
-		if ( empty($this->stripe_plans) ) {
-			// no plans exists on Stripe - let's resync with what we have saved in psts_levels
-			$this->update_psts_levels('', get_site_option('psts_levels'), get_site_option('psts_levels'));
-		} else {
-			// cache the plans locally
-			update_site_option('psts_stripe_plans', $this->stripe_plans);
-		}
+		wp_cache_set('stripe_plans_cached', true, 'psts');
 	}
 	
 	//check if plan exists on stripe
 	function plan_exists( $plan_id ) {
+		$this->get_stripe_plans();
+		
 		foreach ( $this->stripe_plans as $plan ) {
 			if ( $plan_id == $plan->id ) {
 				return true;
@@ -733,6 +595,8 @@ class ProSites_Gateway_Stripe {
 	
 	//get a plan details from Stripe
 	function get_plan_details( $plan_id ) {
+		$this->get_stripe_plans();
+		
 		foreach ( $this->stripe_plans as $plan ) {
 			if ( $plan_id == $plan->id ) {
 				return $plan;
@@ -748,16 +612,13 @@ class ProSites_Gateway_Stripe {
 	}
 	
 	//get a plan id based upon a given level and period
-	function get_plan_id( $level, $period ) {
+	function get_plan_id($level, $period) {
 		return $this->get_plan_uid() . '_' . $level . '_' . $period;
+		//return $level . '_' . $period;
 	}
 	
-	function update_psts_levels( $option, $new_levels, $old_levels ) {
+	function update_psts_levels($option, $new_levels, $old_levels) {
 	  global $psts;
-	  
-	  if ( !empty($option) ) {
-		  delete_site_option('psts_stripe_plans');
-	  }
 	  
 		//deleting
 		if (count($old_levels) > count($new_levels)) {
@@ -771,7 +632,7 @@ class ProSites_Gateway_Stripe {
 			
 			return; // no further processing required
 		}
-
+		
 		//update levels
 		$periods = (array)$psts->get_setting('enabled_periods');
 		foreach ($new_levels as $level_id => $level) {
@@ -786,7 +647,7 @@ class ProSites_Gateway_Stripe {
 				3 => array(
 					'int' => 'month',
 					'int_count' => 3,
-					'desc' => 'Quarterly',
+					'desc' => 'Monthly',
 					'price' => $level['price_3'],
 				),
 				12 => array(
@@ -822,6 +683,8 @@ class ProSites_Gateway_Stripe {
 	
 	//retrieve a plan from Stripe
 	function retrieve_plan( $plan_id ) {
+		$this->get_stripe_plans();
+		
 		foreach ( $this->stripe_plans as $plan ) {
 			if ( $plan['id'] == $plan_id ) {
 				return $plan;
@@ -841,7 +704,7 @@ class ProSites_Gateway_Stripe {
 	}
 	
 	//delete a plan from Stripe
-	function delete_plan( $stripe_plan_id, $retry = true )	{
+	function delete_plan($stripe_plan_id, $retry = true)	{
 		try {
 			$plan = $this->retrieve_plan($stripe_plan_id); 
 			$plan->delete();
@@ -850,23 +713,22 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 	
-	function add_plan( $stripe_plan_id, $int, $int_count, $name, $level_price )	{
+	function add_plan($stripe_plan_id, $int, $int_count, $name, $level_price)	{
 		global $psts;
 		try {
 			Stripe_Plan::create(array( 
-				"amount" => round($level_price * 100),
-				"interval" => $int,
-				"interval_count" => $int_count,
-				"name" => "$name", 
-				"currency" => $psts->get_setting("stripe_currency", 'USD'), 
-				"id" => "$stripe_plan_id"
-			));
+						 "amount" => round($level_price * 100),
+						 "interval" => $int,
+						 "interval_count" => $int_count,
+						 "name" => "$name", 
+						 "currency" => $psts->get_setting("stripe_currency", 'USD'), 
+						 "id" => "$stripe_plan_id"));
 		} catch (Exception $e) {
 			//oh well
 		}
 	}
 	
-  function process_checkout( $blog_id ) {
+  function process_checkout($blog_id) {
 		global $current_site, $current_user, $psts, $wpdb;
 
     if (isset($_POST['cc_checkout']) && empty($_POST['coupon_code'])) {
@@ -940,11 +802,8 @@ class ProSites_Gateway_Stripe {
 				$cp_code = false;
 				$setup_fee = (float) $psts->get_setting('setup_fee', 0);
 				$has_coupon = (isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $_POST['level'])) ? true : false;
-				//$has_setup_fee = $psts->has_setup_fee($blog_id, $_POST['level']);
-				//$recurring = $psts->get_setting('recurring_subscriptions', 1);
-				//!TODO uncomment out above lines - temporary fix
-				$has_setup_fee = false;
-				$recurring = true;
+				$has_setup_fee = $psts->has_setup_fee($blog_id, $_POST['level']);
+				$recurring = $psts->get_setting('recurring_subscriptions', 1);
 				
 				if ( $has_setup_fee ) {
 					$initAmount = $setup_fee + $paymentAmount;
@@ -961,8 +820,7 @@ class ProSites_Gateway_Stripe {
 							$cpn = Stripe_Coupon::create(array(
 								'amount_off' => ($amount_off * 100),
 								'duration' => 'once',
-								'max_redemptions' => 1,
-								'currency' => $currency,
+								'max_redemptions' => 1
 							));
 						} catch(Exception $e) {
 							$psts->errors->add('general', __('Temporary Stripe coupon could not be generated correctly. Please try again.', 'psts'));
@@ -979,6 +837,7 @@ class ProSites_Gateway_Stripe {
 							$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for the first %2$s month period, then %3$s every %4$s months', 'psts'), $psts->format_currency($currency, $initAmount), $_POST['period'], $psts->format_currency($currency, $paymentAmount), $_POST['period']);
 						}
 					} else {
+						$initAmount = $psts->calc_upgrade_cost($blog_id, $_POST['level'], $initAmount);
 						if ( $_POST['period'] == 1 ) {
 							$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for 1 month', 'psts'), $psts->format_currency($currency, $initAmount));					
 						} else {
@@ -992,6 +851,7 @@ class ProSites_Gateway_Stripe {
 						$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s %2$s every %3$s months', 'psts'), $psts->format_currency($currency, $paymentAmount), $currency, $_POST['period']);
 					}
 				} else {
+					$paymentAmount = $psts->calc_upgrade_cost($blog_id, $_POST['level'], $_POST['period'], $paymentAmount);
 					if ( $_POST['period'] == 1 ) {
 						$desc = $current_site->site_name . ' ' . $psts->get_level_setting($_POST['level'], 'name') . ': ' . sprintf(__('%1$s for 1 month', 'psts'), $psts->format_currency($currency, $paymentAmount));					
 					} else {
@@ -1012,6 +872,15 @@ class ProSites_Gateway_Stripe {
 					if ($cp_code)
 						$args["coupon"] = $cp_code;
 						
+					//add trial days for new signups with expiration in the future (manually extended or from another gateway)
+					if ( is_pro_site($blog_id) && !is_pro_trial($blog_id) && ($new || $psts->is_blog_canceled($blog_id)) )
+						$args["trial_end"] = $psts->get_expire($blog_id);
+					//add trial days for new customers that are upgrading (if applicable)
+					elseif ( ($trial_days > 0 && !is_pro_site($blog_id) && !$psts->is_blog_canceled($blog_id)) || ($trial_days > 0 && is_pro_site($blog_id) && is_pro_trial($blog_id) && !$psts->is_blog_canceled($blog_id)) )
+						$args['trial_end'] = strtotime('+ ' . $trial_days . ' days');
+					//customer is upgrading from an existing trial - carry over expiration date
+					elseif ( isset($c->subscription->status) && $c->subscription->status == 'trialing' )
+						$args['trial_end'] = $psts->get_expire($blog_id);
 					
 					/***** DETERMINE TRIAL END (IF APPLICABLE) *****/
 					
@@ -1023,8 +892,8 @@ class ProSites_Gateway_Stripe {
 							//customer's trial is still valid - carry over existing expiration date
 							$args['trial_end'] = $psts->get_expire($blog_id);
 						}
-					}
-					
+                                        }
+	
 					if ( $has_setup_fee ) {  //add the setup fee onto the next invoice
 						try {
 							Stripe_InvoiceItem::create(array(
@@ -1052,6 +921,8 @@ class ProSites_Gateway_Stripe {
 					}
 				} else {  //do not create the subscription, just charge credit card for 1 term
 					try {
+						$initAmount = $psts->calc_upgrade_cost($blog_id, $_POST['level'], $_POST['period'], $initAmount);
+
 						Stripe_Charge::create(array(
 							'customer' => $customer_id,
 							'amount' => ($initAmount * 100),
@@ -1062,7 +933,9 @@ class ProSites_Gateway_Stripe {
 						if ( $current_plan = $this->get_current_plan($blog_id) )
 							list($current_plan_level, $current_plan_period) = explode('_', $current_plan);
 						
-						$psts->extend($blog_id, $_POST['period'], 'Stripe', $_POST['level']);
+						$old_expire = $psts->get_expire($blog_id);
+						$new_expire = ($old_expire && $old_expire > time()) ? $old_expire : false;
+						$psts->extend($blog_id, $_POST['period'], 'Stripe', $_POST['level'], $psts->get_level_setting($_SESSION['LEVEL'], 'price_' . $_SESSION['PERIOD']), $new_expire, false);
 						$psts->email_notification($blog_id, 'receipt');
 						
 						if ( isset($current_plan_level) ) {
@@ -1074,8 +947,12 @@ class ProSites_Gateway_Stripe {
 						} else {
 							$psts->record_stat($blog_id, 'signup');
 						}
+					} catch (Stripe_CardError $e) {
+						$body = $e->getJsonBody();
+						$err = $body['error'];
+						$psts->errors->add('general', $e['message']);
 					} catch (Exception $e) {
-						$psts->errors->add('general', __('There was an error processing your payment. Please try again.', 'psts'));
+						$psts->errors->add('general', __('An unknown error occurred while processing your payment. Please try again.', 'psts'));
 					}
 				} 
 				
@@ -1095,14 +972,14 @@ class ProSites_Gateway_Stripe {
 					$psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
 				}
 				
-				if ( !$psts->is_existing($blog_id) ) {
+				if ( $new || $psts->is_blog_canceled($blog_id) ) {
 					// Added for affiliate system link
 					$psts->log_action($blog_id, sprintf(__('User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts'), $desc, $customer_id));					
 					do_action('supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level']);
 				} else {
 					$psts->log_action($blog_id, sprintf(__('User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts'), $desc, $customer_id));					
 				}
-								
+				
 				//display GA ecommerce in footer
 				$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level']);
 
@@ -1132,20 +1009,6 @@ class ProSites_Gateway_Stripe {
 	  if (!$blog_id)
 	    return $content;
 
-	  //add scripts
-	  add_action( 'wp_head', array(&$this, 'checkout_js') );
-
-		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
-		$stripe_publishable_key = $psts->get_setting('stripe_publishable_key');
-		
-		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array('jquery') );	
-		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'gateways/gateway-stripe-files/stripe_token.js', array('js-stripe', 'jquery') );
-		wp_localize_script( 'stripe-token', 'stripe', array('publisher_key' => $stripe_publishable_key,
-																												'name' =>__('Please enter the full Cardholder Name.', 'psts'),
-																												'number' => __('Please enter a valid Credit Card Number.', 'psts'),
-																												'expiration' => __('Please choose a valid expiration date.', 'psts'),
-																												'cvv2' => __('Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts')
-																												) );			
 		//cancel subscription
 		if (isset($_GET['action']) && $_GET['action']=='cancel' && wp_verify_nonce($_GET['_wpnonce'], 'psts-cancel')) {		
 			$error = '';
@@ -1211,11 +1074,14 @@ class ProSites_Gateway_Stripe {
 			$content .= '<div id="psts_existing_info">';
 			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 			$level = $psts->get_level_setting($psts->get_level($blog_id), 'name');
+			$is_recurring = false;
 			
 			try {
 				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
 			} catch (Exception $e) {
-				$cancel_status = 1;
+				$is_recurring = $psts->is_blog_recurring($blog_id);				
+				if ( $is_recurring )
+					$cancel_status = 1;
 			}
 			
 			try {
@@ -1250,31 +1116,37 @@ class ProSites_Gateway_Stripe {
 				
 				if (isset($existing_invoice_object->data[0]) && $customer_object->subscription->status != 'trialing')
 					$content .= '<li>'.__('Last Payment Date:', 'psts').' <strong>'.date_i18n(get_option('date_format'), $existing_invoice_object->data[0]->date).'</strong></li>';
-				
+
 				if (isset($invoice_object->next_payment_attempt))
 					$content .= '<li>'.__('Next Payment Date:', 'psts').' <strong>'.date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt).'</strong></li>';		
 				
+				if ( !$is_recurring )
+					$content .= '<li>'.__('Subscription Expires On:', 'psts').' <strong>'.$end_date.'</strong></li>';
+					
 				$content .= "</ul>";
-	
-				$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
-			
+				
 				$pp_active = false;
-			
-				if (is_pro_site($blog_id)) {
-					$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
-					$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
-					$pp_active = true;		
-				}		
+				
+				if ( $is_recurring ) {
+					$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
+				
+					if (is_pro_site($blog_id)) {
+						$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
+						$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
+						$pp_active = true;		
+					}		
+				}
 				
 				//print receipt send form
 				$content .= $psts->receipt_form($blog_id);
 				
-				if ( !defined('PSTS_CANCEL_LAST') )
+				if ( !defined('PSTS_CANCEL_LAST') || (defined('PSTS_CANCEL_LAST') && !PSTS_CANCEL_LAST) )
 					$content .= $cancel_content;
-			}
-			
-			$content .= "<br>";
-			$content .= '</div>';
+				
+				$content .= "<br>";
+				$content .= '</div>';
+				
+			} 
 		}	
 
     if (!$cancel_status && is_pro_site($blog_id) && !is_pro_trial($blog_id)) {
@@ -1290,7 +1162,7 @@ class ProSites_Gateway_Stripe {
     $content .= $psts->checkout_grid($blog_id);
     
     //if existing customer, offer ability to checkout using saved credit card info
-    /*if ( isset($customer_object) ) {
+    if ( isset($customer_object) ) {
     	$card_object = $this->get_default_card($customer_object);
 	    $content .= '
 	    		<div id="psts-stripe-checkout-existing">
@@ -1306,8 +1178,7 @@ class ProSites_Gateway_Stripe {
 							</tr>
 						</table>
 					</div>';
-    }*/
-    // !TODO uncomment above block - temporary fix
+    }
 			 
     $content .= '<div id="psts-stripe-checkout">
 			<h2>' . __('Checkout With a Credit Card:', 'psts') . '</h2>';
@@ -1363,7 +1234,7 @@ class ProSites_Gateway_Stripe {
 
     $content .= '</form>';
 		
-		if ( defined('PSTS_CANCEL_LAST') )
+		if ( !defined('PSTS_CANCEL_LAST') || (defined('PSTS_CANCEL_LAST') && !PSTS_CANCEL_LAST) )
 			$content .= $cancel_content;
 		
 	  return $content;
@@ -1421,9 +1292,9 @@ class ProSites_Gateway_Stripe {
 	 * @return bool
 	 */
 	 
-	function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false ) {
+	function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false, $is_recurring = true ) {
 		global $psts;
-		
+
 		$current_plan = $this->get_current_plan($blog_id);
 		$new_plan = ($level . '_' . $period);
 		
@@ -1442,11 +1313,7 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 		
-		if ( !empty($expire) ) {
-			$psts->extend($blog_id, $period, $gateway, $level, $amount, $expire);
-		} else {
-			$psts->extend($blog_id, $period, $gateway, $level, $amount);
-		}
+		$psts->extend($blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring);
 		
 		//send receipt email - this needs to be done AFTER extend is called
 		$psts->email_notification($blog_id, 'receipt');
@@ -1483,8 +1350,7 @@ class ProSites_Gateway_Stripe {
 				switch ( $event_type ) {
 					case 'invoice.payment_succeeded' :
 					case 'invoice.payment_failed' :
-						$invoice_lines = is_array($event_json->data->object->lines->data) ? $event_json->data->object->lines->data : $event_json->data->object->lines->subscriptions;
-						foreach ( $invoice_lines as $line ) {
+						foreach ( (array) $event_json->data->object->lines->data as $line ) {
 							$amount += ($line->amount / 100);
 							
 							switch ( $line->type ) {

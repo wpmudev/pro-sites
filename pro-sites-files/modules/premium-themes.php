@@ -103,35 +103,35 @@ class ProSites_Module_PremiumThemes {
 	//this is for WP3.8 and greater
 	function theme_action_links_js( $prepared_themes ) {
 		global $psts, $blog_id;
-	  
+
 		$allowed_themes = $psts->get_setting('pt_allowed_themes');
 		if ( $allowed_themes == false )
 			$allowed_themes = array();
-		
+
 		$override_themes = get_option('allowedthemes');
 		if ( $override_themes == false )
 			$override_themes = array();
-			
+
 		foreach ($prepared_themes as $slug => $theme) {
-			
+
 			//if wp per site option overrides pro sites
 			if ( isset( $override_themes[ $slug ] ) )
 				continue;
-			
+
 			//skip currently activated theme
 			if ( $theme['active'] )
 				continue;
-			
+
 			if ( isset( $allowed_themes[ $slug ] ) && $allowed_themes[ $slug ] &&
 					 !is_pro_site($blog_id, $allowed_themes[ $slug ]) && !$this->ads_theme() ) {
-				
+
 				$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($allowed_themes[ $slug ], 'name') );
 				$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $slug ], 'name'), $psts->get_setting('pt_text') );
 				//This is SUPER hacky due to no hooks. We utilize the lack of esc_attr() in themes.php to insert create 2 hidden <a> tags with our custom one in the middle!
 				$prepared_themes[$slug]['actions']['activate'] = '#" style="display:none;">';		
 				$prepared_themes[$slug]['actions']['activate'] .= '<a href="' . $psts->checkout_url($blog_id) .  '" class="button button-secondary activate nonpsts" style="color:red;" data-level="' . $allowed_themes[ $slug ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';		
-				$prepared_themes[$slug]['actions']['activate'] .= '<a style="display:none;';		
-			}
+				$prepared_themes[$slug]['actions']['activate'] .= '<a style="display:none;';
+                        }
 			
 		}
 
@@ -187,7 +187,7 @@ class ProSites_Module_PremiumThemes {
 	
 	function settings() {
 	  global $psts;
-		?>
+                ?>
 		<div class="postbox">
 		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Premium Themes', 'psts') ?></span> - <span class="description"><?php _e('Allows you to give access to selected themes to a Pro Site level.', 'psts') ?></span></h3>
 		  <div class="inside">

@@ -3,11 +3,17 @@
 Plugin Name: Pro Sites (Feature: MarketPress Global Products Filter)
 */
 class ProSites_Module_MarketPress_Global {
+  
+  static $user_label;
+  static $user_description;
 	
 	var $pro_sites = false;
-	
+
   function __construct() {
 		add_filter( 'mp_list_global_products_results', array(&$this, 'filter') );
+    
+    self::$user_label       = __('Market Press', 'psts');
+    self::$user_description = __('Display on MarketPress global product list', 'psts');
 	}
 	
 	function filter($results) {
@@ -22,6 +28,13 @@ class ProSites_Module_MarketPress_Global {
 		}
 		return $results;
 	}
+  
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 	
 }
 

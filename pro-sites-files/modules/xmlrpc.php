@@ -3,11 +3,17 @@
 Plugin Name: Pro Sites (Feature: Restrict XML-RPC & Atom Publishing)
 */
 class ProSites_Module_XMLRPC {
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_filter( 'init', array(&$this, 'xmlrpc_check') );
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message') );
+    
+    self::$user_label       = __('XML RPC', 'psts');
+    self::$user_description = __('Can use XML RPC calls', 'psts');
 	}
 	
 	//for ads module to allow remote publishing
@@ -73,6 +79,13 @@ class ProSites_Module_XMLRPC {
 		</div>
 	  <?php
 	}
+
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

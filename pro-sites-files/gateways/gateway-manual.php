@@ -4,12 +4,19 @@ Pro Sites (Gateway: Manual Payments Gateway)
 */
 class ProSites_Gateway_Manual {
 	
+	var $complete_message = false;
+	
+	function ProSites_Gateway_Manual() {
+		$this->__construct();
+	}
+
   function __construct() {
     //settings
 		add_action( 'psts_gateway_settings', array(&$this, 'settings') );
 		
 		//checkout stuff
 		add_filter( 'psts_checkout_output', array(&$this, 'checkout_screen'), 10, 2 );
+		add_action( 'psts_checkout_page_load', array(&$this, 'process_checkout') );
 	}
 
 	function settings() {
@@ -35,6 +42,20 @@ class ProSites_Gateway_Manual {
 			    <textarea name="psts[mp_instructions]" type="text" rows="4" wrap="soft" id="mp_instructions" style="width: 95%"/><?php echo esc_textarea($psts->get_setting('mp_instructions')); ?></textarea>
 			  </td>
 			  </tr>
+				<tr valign="top">
+				<th scope="row"><?php _e('Show Submission Form', 'psts') ?></th>
+				<td>
+					<span class="description"><?php _e('Shows a submission form where the user can select the desired level and enter open-ended text according to your instructions. Example if you instruct users to pay via wire, they could then submit the level they desire and confirmation number. The form submission will come to the network admin email address.', 'psts'); ?></span><br/>
+					<label><input type="radio" name="psts[mp_show_form] value="1"<?php checked($psts->get_setting('mp_show_form', 0), 1); ?>> <?php _e('Yes', 'psts') ?></label>&nbsp;&nbsp;
+					<label><input type="radio" name="psts[mp_show_form] value="0"<?php checked($psts->get_setting('mp_show_form', 0), 0); ?>> <?php _e('No', 'psts') ?></label>
+				</td>
+				</tr>
+				<tr valign="top">
+				  <th scope="row"><?php _e('Submission Form Email', 'psts') ?></th>
+				  <td>
+				  <input type="text" name="psts[mp_email]" id="mp_email" value="<?php echo esc_attr($psts->get_setting('mp_email', get_site_option("admin_email"))); ?>" size="40" />
+				  <br /><span class="description"><?php _e('The email address to send manual payment form submissions to.', 'psts') ?></span></td>
+				  </tr>
 			 </table>
 		  </div>
 		</div>
@@ -49,7 +70,35 @@ class ProSites_Gateway_Manual {
 
     return $payment_info;
   }
+	
+	function process_checkout($blog_id) {
+		global $psts, $current_user;
+		
+		//check for level
+		if (empty($_POST['level']) || empty($_POST['period'])) {
+			$psts->errors->add('general', __('Please choose your desired level and payment plan.', 'psts'));
+			return;
+		}
+		
+		$subject = __('Pro Sites Manual Payment Submission', 'psts');
+		$message = sprintf(__('The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts'), $current_user->user_login) . "\n\n";
+		$message .= __('Level: ', 'psts') . intval($_POST['level']) . ' - ' . $psts->get_level_setting(intval($_POST['level']), 'name') . "\n";
+		$message .= __('Period: ', 'psts') . sprintf( __('Every %d Months', 'psts'), intval($_POST['period']) ) . "\n";
+		$message .= sprintf(__("User Email: %s", 'psts'), $current_user->user_email) . "\n";
+		$message .= sprintf(__("Site Address: %s", 'psts'), get_home_url($blog_id)) . "\n";
+		$message .= sprintf(__("Manage Site: %s", 'psts'), network_admin_url('admin.php?page=psts&bid=' . $blog_id)) . "\n\n";
+		
+		if (!empty($_POST['psts_mp_text'])) {
+			$message .= __('User-Entered Comments:', 'psts')."\n";
+			$message .= wp_specialchars_decode(stripslashes(wp_filter_nohtml_kses($_POST['psts_mp_text'])), ENT_QUOTES);
+		}
 
+		wp_mail($psts->get_setting('mp_email', get_site_option("admin_email")), $subject, $message);
+		
+		//send email with text and desired level/plan
+		$this->complete_message = __('Thank you, we have been notified of your request.', 'psts');	
+	}
+	
 	function checkout_screen($content, $blog_id) {
 	  global $psts, $wpdb, $current_site, $current_user;
 
@@ -64,6 +113,12 @@ class ProSites_Gateway_Manual {
 			$content .= '<div id="psts-general-error" class="psts-error">'.$errmsg.'</div>';
 		}
     
+		//if transaction was successful display a complete message and skip the rest
+	  if ($this->complete_message) {
+	    $content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
+	    return $content;
+	  }
+		
 		if ( is_pro_site($blog_id) ) {
 			
 			$end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
@@ -104,12 +159,17 @@ class ProSites_Gateway_Manual {
     //print the checkout grid
     $content .= $psts->checkout_grid($blog_id);
     
-    $content .= '<div id="psts-paypal-checkout">
-			<h2>' . $psts->get_setting('mp_name') . '</h2>
-			' . do_shortcode( $psts->get_setting('mp_instructions') ) . '
-			</div>';
-
-    $content .= '</form>';
+    $content .= '<div id="psts-manual-checkout"><h2>' . $psts->get_setting('mp_name') . '</h2>';
+		
+		$content .= '<div id="psts-manual-instructions">' . do_shortcode( $psts->get_setting('mp_instructions') ) . '</div>';
+		
+		if ( $psts->get_setting('mp_show_form') ) {
+			$prefill = isset($_POST['psts_mp_text']) ? esc_textarea(stripslashes($_POST['psts_mp_text'])) : '';
+			$content .= '<textarea id="psts-manual-textarea" name="psts_mp_text">' . $prefill . '</textarea>';
+			$content .= '<p><input id="psts-manual-submit" type="submit" name="psts_mp_submit" value="' . esc_attr__('Submit', 'psts') . '"></p>';
+		}
+		
+    $content .= '</div></form>';
 
 	  return $content;
 	}

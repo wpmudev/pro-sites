@@ -3,12 +3,18 @@
 Plugin Name: Pro Sites (Feature: Limit Writing)
 */
 class ProSites_Module_Writing {
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_filter( 'psts_settings_filter', array(&$this, 'settings_process') );
 		add_action( 'admin_notices', array(&$this, 'message') );
 		add_filter( 'user_has_cap', array(&$this, 'write_filter'), 10, 3 );
+    
+    self::$user_label       = __('Limit Publishing', 'psts');
+    self::$user_description = __('Limited post and pages content creation', 'psts');
 	}
 
 	function write_filter($allcaps, $caps, $args) {
@@ -90,6 +96,13 @@ class ProSites_Module_Writing {
 	   	echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">' . $notice . '</a></p></div>';
 		}
 	}
+  
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

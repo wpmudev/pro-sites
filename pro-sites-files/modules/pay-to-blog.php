@@ -3,6 +3,9 @@
 Plugin Name: Pro Sites (Feature: Pay To Blog)
 */
 class ProSites_Module_PayToBlog {
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
@@ -11,6 +14,9 @@ class ProSites_Module_PayToBlog {
 		add_filter( 'psts_prevent_dismiss', create_function(null, 'return true;') );
 		add_filter( 'psts_force_redirect', array(&$this, 'force_redirect') );
 		add_filter( 'pre_option_psts_signed_up', array(&$this, 'force_redirect') );
+    
+    self::$user_label       = __('Pay to Blog', 'psts');
+    self::$user_description = __('Site disabled until payment is cleared', 'psts');
 		
 		//checkout message, show before gateways
 		add_filter( 'psts_checkout_output', array(&$this, 'checkout_screen'), 9, 2 );
@@ -98,6 +104,13 @@ class ProSites_Module_PayToBlog {
 		</div>
 	  <?php
 	}
+
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module

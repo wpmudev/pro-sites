@@ -3,6 +3,9 @@
 Plugin Name: Pro Sites (Feature: Bulk Upgrades)
 */
 class ProSites_Module_BulkUpgrades {
+  
+  static $user_label;
+  static $user_description;
 
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
@@ -18,6 +21,25 @@ class ProSites_Module_BulkUpgrades {
 		
 		//handle IPN notifications
 		add_action( 'wp_ajax_nopriv_psts_bu_ipn', array(&$this, 'ipn_handler') );
+		
+		add_action( 'admin_bar_menu', array(&$this, 'add_menu_admin_bar'), 100 );
+    
+    self::$user_label       = __('Bulk Upgrades', 'psts');
+    self::$user_description = __('Can upgrade in bulk packages', 'psts');
+ 	}
+
+	function add_menu_admin_bar() {
+		global $wp_admin_bar, $blog_id, $wp_version, $psts;
+	
+		if ( is_main_site() || !is_admin_bar_showing() || !is_user_logged_in() )
+				return;
+	
+		//add user admin bar upgrade button
+		if ( !$psts->get_setting('hide_adminbar') ) {
+			if ( current_user_can('manage_options') ) {
+				$wp_admin_bar->add_menu( array( 'id' => 'pro-site-bulk-upgrade', 'parent' => 'pro-site', 'title' => __('Bulk Upgrades', 'psts'), 'href' => admin_url( 'admin.php?page=psts-bulk-upgrades' ) ) );
+			}
+		}
 	}
 	
 	function plug_page() {
@@ -925,6 +947,13 @@ class ProSites_Module_BulkUpgrades {
 
 		echo '</form></div></div>';
 	}
+
+  public static function is_included ( $level_id ) {
+    switch ( $level_id ) {
+      default:
+        return FALSE;
+    }
+  }
 }
 
 //register the module
