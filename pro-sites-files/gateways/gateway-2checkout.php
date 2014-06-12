@@ -11,10 +11,6 @@ class ProSites_Gateway_2Checkout {
 		global $psts;
 
 		require $psts->plugin_dir . "gateways/gateway-2checkout-files/Twocheckout.php";
-
-		//active 2checkout account,default is a nerver reach
-		Twocheckout::setCredentials( $psts->get_setting( '2co_api_username' ), $psts->get_setting( '2co_api_password' ) );
-
 		//settings
 		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
 		//add_action('psts_settings_process', array(&$this, 'settings_process'));
@@ -52,7 +48,8 @@ class ProSites_Gateway_2Checkout {
 
 			<div class="inside">
 				<p class="description"><?php _e( "Accept Credit Cards, PayPal, and Debit Cards", 'psts' ); ?>
-					<a href="https://www.2checkout.com" target="_blank"><?php _e( 'More Info &raquo;', 'psts' ) ?></a></p>
+					<a href="https://www.2checkout.com" target="_blank"><?php _e( 'More Info &raquo;', 'psts' ) ?></a>
+				</p>
 
 				<table class="form-table">
 					<tr>
@@ -69,31 +66,31 @@ class ProSites_Gateway_2Checkout {
 							<select name="psts[2co_currency]">
 								<?php
 								$sel_currency = $psts->get_setting( "2co_currency", 'USD' );
-								$currencies = array(
-										"AED" => 'AED: United Arab Emirates Dirham',
-										"ARS" => 'ARS: Argentine Peso*',
-										"AUD" => 'AUD: Australian Dollar*',
-										"BRL" => 'BRL: Brazilian Real*',
-										"CAD" => 'CAD: Canadian Dollar*',
-										"CHF" => 'CHF: Swiss Franc',
-										"DKK" => 'DKK: Danish Krone',
-										"EUR" => 'EUR: Euro',
-										"GBP" => 'GBP: British Pound',
-										"HKD" => 'HKD: Hong Kong Dollar',
-										"INR" => 'INR: Indian Rupee*',
-										"JPY" => 'JPY: Japanese Yen',
-										"LTL" => 'LTL: Lithuanian Litas',
-										"MXN" => 'MXN: Mexican Peso*',
-										"MYR" => 'MYR: Malaysian Ringgit',
-										"NOK" => 'NOK: Norwegian Krone',
-										"NZD" => 'NZD: New Zealand Dollar',
-										"PHP" => 'PHP: Philippine Peso',
-										"RON" => 'RON: Romanian Leu',
-										"RUB" => 'RUB: Russian Ruble',
-										"SEK" => 'SEK: Swedish Krona',
-										"SGD" => 'SGD: Singapore Dollar',
-										"TRY" => 'TRY: Turkish Lira',
-										"USD" => 'USD: United States Dollar',
+								$currencies   = array(
+									"AED" => 'AED: United Arab Emirates Dirham',
+									"ARS" => 'ARS: Argentine Peso*',
+									"AUD" => 'AUD: Australian Dollar*',
+									"BRL" => 'BRL: Brazilian Real*',
+									"CAD" => 'CAD: Canadian Dollar*',
+									"CHF" => 'CHF: Swiss Franc',
+									"DKK" => 'DKK: Danish Krone',
+									"EUR" => 'EUR: Euro',
+									"GBP" => 'GBP: British Pound',
+									"HKD" => 'HKD: Hong Kong Dollar',
+									"INR" => 'INR: Indian Rupee*',
+									"JPY" => 'JPY: Japanese Yen',
+									"LTL" => 'LTL: Lithuanian Litas',
+									"MXN" => 'MXN: Mexican Peso*',
+									"MYR" => 'MYR: Malaysian Ringgit',
+									"NOK" => 'NOK: Norwegian Krone',
+									"NZD" => 'NZD: New Zealand Dollar',
+									"PHP" => 'PHP: Philippine Peso',
+									"RON" => 'RON: Romanian Leu',
+									"RUB" => 'RUB: Russian Ruble',
+									"SEK" => 'SEK: Swedish Krona',
+									"SGD" => 'SGD: Singapore Dollar',
+									"TRY" => 'TRY: Turkish Lira',
+									"USD" => 'USD: United States Dollar',
 								);
 
 								foreach ( $currencies as $k => $v ) {
@@ -109,22 +106,22 @@ class ProSites_Gateway_2Checkout {
 							<select name="psts[2co_language]">
 								<?php
 								$sel_language = $psts->get_setting( "2co_language", 'en' );
-								$languages = array(
-										"zh"    => "Chinese",
-										"da"    => "Danish",
-										"nl"    => "Dutch",
-										"fr"    => "French",
-										"gr"    => "German",
-										"el"    => "Greek",
-										"it"    => "Italian",
-										"jp"    => "Japanese",
-										"no"    => "Norwegian",
-										"pt"    => "Portuguese",
-										"sl"    => "Slovenian",
-										"es_ib" => "Spanish (European)",
-										"es_la" => "Spanish (Latin)",
-										"sv"    => "Swedish",
-										"en"    => "English"
+								$languages    = array(
+									"zh"    => "Chinese",
+									"da"    => "Danish",
+									"nl"    => "Dutch",
+									"fr"    => "French",
+									"gr"    => "German",
+									"el"    => "Greek",
+									"it"    => "Italian",
+									"jp"    => "Japanese",
+									"no"    => "Norwegian",
+									"pt"    => "Portuguese",
+									"sl"    => "Slovenian",
+									"es_ib" => "Spanish (European)",
+									"es_la" => "Spanish (Latin)",
+									"sv"    => "Swedish",
+									"en"    => "English"
 								);
 								foreach ( $languages as $k => $v ) {
 									echo '		<option value="' . $k . '"' . ( $k == $sel_language ? ' selected' : '' ) . '>' . esc_html( $v ) . '</option>' . "\n";
@@ -137,31 +134,31 @@ class ProSites_Gateway_2Checkout {
 						<th scope="row"><?php _e( '2Checkout API Credentials', 'psts' ) ?></th>
 						<td>
 							<p>
-								<label><?php _e( 'Account Number', 'psts' ) ?></label><br />
+								<label><?php _e( 'Account Number', 'psts' ) ?></label><br/>
 								<input type="text" name="psts[2co_acc_number]" value="<?php esc_attr_e( $psts->get_setting( "2co_acc_number" ) ); ?>">
 							</p>
 
 							<p>
-								<label><?php _e( 'Username', 'psts' ) ?></label><br />
+								<label><?php _e( 'Username', 'psts' ) ?></label><br/>
 								<input type="text" name="psts[2co_api_username]" value="<?php esc_attr_e( $psts->get_setting( "2co_api_username" ) ); ?>">
 							</p>
 
 							<p>
-								<label><?php _e( 'Password', 'psts' ) ?></label><br />
+								<label><?php _e( 'Password', 'psts' ) ?></label><br/>
 								<input type="password" name="psts[2co_api_password]" value="<?php esc_attr_e( $psts->get_setting( "2co_api_password" ) ); ?>">
 							</p>
 
 							<p>
-								<label><?php _e( 'Secret Word', 'psts' ) ?></label><br />
+								<label><?php _e( 'Secret Word', 'psts' ) ?></label><br/>
 								<input type="text" name="psts[2co_secret_word]" value="<?php esc_attr_e( $psts->get_setting( "2co_secret_word" ) ); ?>">
 							</p>
-						<td />
+						<td/>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Thank You Message', 'psts' ) ?></th>
 						<td>
-							<textarea name="psts[2co_thankyou]" type="text" rows="4" wrap="soft" id="2co_thankyou" style="width: 95%" /><?php echo esc_textarea( $psts->get_setting( '2co_thankyou' ) ); ?></textarea>
-							<br /><?php _e( 'Displayed on the page after successful checkout with this gateway. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ?>
+							<textarea name="psts[2co_thankyou]" type="text" rows="4" wrap="soft" id="2co_thankyou" style="width: 95%"/><?php echo esc_textarea( $psts->get_setting( '2co_thankyou' ) ); ?></textarea>
+							<br/><?php _e( 'Displayed on the page after successful checkout with this gateway. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ?>
 						</td>
 					</tr>
 				</table>
@@ -186,11 +183,13 @@ class ProSites_Gateway_2Checkout {
 		global $current_site, $current_user, $psts, $wpdb;
 		if ( isset( $_POST['2co_checkout_button'] ) ) {
 			//validate
-			if ( ! $this->check_nonce() )
+			if ( ! $this->check_nonce() ) {
 				$psts->errors->add( 'general', __( 'Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ) );
+			}
 
 			if ( empty( $_POST['period'] ) || empty( $_POST['level'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+
 				return;
 			}
 
@@ -208,27 +207,28 @@ class ProSites_Gateway_2Checkout {
 			$has_setup_fee  = $psts->has_setup_fee( $blog_id, $_POST['level'] );
 			$recurring      = $psts->get_setting( 'recurring_subscriptions', 1 );
 			$params         = array(
-					'sid'                => $psts->get_setting( '2co_acc_number' ),
-					'currency'           => $psts->get_setting( '2co_currency', 'USD' ),
-					'x_receipt_link_url' => 'http://premium.wpmudev.org/2checkout-debug.php',
-					'mode'               => '2CO',
-					'merchant_order_id'  => $blog_id,
-					'period'             => esc_attr( $_POST['period'] ),
-					'level'              => esc_attr( $_POST['level'] ),
-					'2co_cart_type'      => 'ProSites',
-					'demo'               => $psts->get_setting( '2co_checkout_mode' )
+				'sid'                => $psts->get_setting( '2co_acc_number' ),
+				'currency'           => $psts->get_setting( '2co_currency', 'USD' ),
+				'x_receipt_link_url' => $psts->checkout_url( $_GET['bid'] ),
+				'mode'               => '2CO',
+				'merchant_order_id'  => $blog_id,
+				'period'             => esc_attr( $_POST['period'] ),
+				'level'              => esc_attr( $_POST['level'] ),
+				'2co_cart_type'      => 'ProSites',
+				'demo'               => $psts->get_setting( '2co_checkout_mode' )
 			);
 
 			//build products params
 			$addition_params = array(
-					'li_0_type'  => 'product',
-					'li_0_name'  => $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ),
-					'li_0_price' => $init_amount,
+				'li_0_type'  => 'product',
+				'li_0_name'  => $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ),
+				'li_0_price' => $init_amount,
 			);
 
 			//if have setup fee
-			if ( $has_setup_fee )
+			if ( $has_setup_fee ) {
 				$addition_params['li_0_startup_fee'] = $setup_fee;
+			}
 
 			//if have trial time
 			if ( $is_trial ) {
@@ -242,18 +242,19 @@ class ProSites_Gateway_2Checkout {
 				$init_amount -= $amount_off;
 
 				$addition_params = array_merge( $addition_params, array(
-						'li_1_type'  => 'coupon',
-						'li_1_name'  => $_SESSION['COUPON_CODE'],
-						'li_1_price' => $amount_off
+					'li_1_type'  => 'coupon',
+					'li_1_name'  => $_SESSION['COUPON_CODE'],
+					'li_1_price' => $amount_off
 				) );
 			}
 
 			if ( $recurring ) {
 				$addition_params = array_merge( $addition_params, array(
-						'li_0_recurrence' => esc_attr( $_POST['period'] ) . ' Month',
-						'li_0_duration'   => 'Forever'
+					'li_0_recurrence' => esc_attr( $_POST['period'] ) . ' Month',
+					'li_0_duration'   => 'Forever'
 				) );
 			}
+
 			//check if this is downgrade,require no money
 			$cur_level = $psts->get_level( $blog_id );
 			if ( $cur_level > 0 ) {
@@ -266,9 +267,9 @@ class ProSites_Gateway_2Checkout {
 					$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 					if ( $old->term == $_POST['period'] ) {
 						$addition_params = array_merge( $addition_params, array_merge( array(
-								'li_2_type'  => 'coupon',
-								'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
-								'li_2_price' => $init_amount - 0.01
+							'li_2_type'  => 'coupon',
+							'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
+							'li_2_price' => $init_amount - 0.01
 						) ) );
 					} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
 						/**
@@ -280,9 +281,9 @@ class ProSites_Gateway_2Checkout {
 						 * and send the checkout url when this subscrition expire via email.
 						 */
 						update_option( 'psts_2co_recuring_next_plan', array(
-								'action' => 'downgrade',
-								'level'  => $_POST['level'],
-								'type'   => 'email'
+							'action' => 'downgrade',
+							'level'  => $_POST['level'],
+							'type'   => 'email'
 						) );
 						$this->complete_message = __( 'Your 2Checkout subscription modification was not done automate! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
 					}
@@ -293,17 +294,18 @@ class ProSites_Gateway_2Checkout {
 					//get the unuse balance
 					$balance_left    = $this->cal_unused_balance( $blog_id );
 					$addition_params = array_merge( $addition_params, array_merge( array(
-							'li_2_type'  => 'coupon',
-							'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
-							'li_2_price' => $balance_left
+						'li_2_type'  => 'coupon',
+						'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
+						'li_2_price' => $balance_left
 					) ) );
 				}
 			}
 			//create form
 			$params = array_merge( $params, $addition_params );
-
+			$this->set_gateway_param();
 			//all set,now generate the form and submit
-			Twocheckout_Charge::form( $params, 'checkout' );
+			Twocheckout_Charge::redirect( $params, 'checkout' );
+			exit;
 		} elseif ( isset( $_REQUEST['credit_card_processed'] ) && strtolower( $_REQUEST['credit_card_processed'] ) == 'y' ) {
 			$check = Twocheckout_Return::check( $_REQUEST, $psts->get_setting( '2co_secret_word' ), 'array' );
 			if ( $check['response_code'] == 'Success' ) {
@@ -315,18 +317,20 @@ class ProSites_Gateway_2Checkout {
 					$modify    = false;
 					if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
 						$modify = true;
-						if ( $cur_level != 0 && ( $cur_level == $_REQUEST['level'] ) )
+						if ( $cur_level != 0 && ( $cur_level == $_REQUEST['level'] ) ) {
 							$modify = false;
+						}
 					}
 					//now go
 					if ( $modify ) {
 						//this case user is modify the subscription,we will need to check upgrade or downgrade,and refund the diff
 
 						$scenario = '';
-						if ( $cur_level < $_REQUEST['level'] )
+						if ( $cur_level < $_REQUEST['level'] ) {
 							$scenario = 'upgrade';
-						elseif ( $cur_level > $_REQUEST['level'] )
+						} elseif ( $cur_level > $_REQUEST['level'] ) {
 							$scenario = 'downgrade';
+						}
 						$this->tcheckout_modify_subscription( $blog_id, $scenario );
 					} elseif ( $modify == false && ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) ) {
 						//site is in subscription,but user extend to longer
@@ -343,6 +347,28 @@ class ProSites_Gateway_2Checkout {
 		}
 	}
 
+	function webhook_handler() {
+		if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'psts_2co_webhook' ) {
+			global $psts;
+			if ( Twocheckout_Notification::check( $_REQUEST, $psts->get_setting( '2co_secret_word' ) ) ) {
+				$blog_id = $_POST['vendor_order_id'];
+				switch ( $_POST['message_type'] ) {
+					case 'RECURRING_INSTALLMENT_SUCCESS':
+						$this->tcheckout_modify_subscription( $blog_id, 'renew' );
+						break;
+					case 'RECURRING_INSTALLMENT_FAILED':
+						//faild buill, send email
+						$this->tcheckout_modify_subscription( $blog_id, 'renew_fail' );
+						break;
+					case 'RECURRING_STOPPED':
+						$this->tcheckout_modify_subscription( $blog_id, 'stopped' );
+						break;
+				}
+			}
+		}
+		wp_mail( 'hoang@createdn.com', 'debug', var_export( $_REQUEST, true ) );
+	}
+
 	function cal_unused_balance( $blog_id ) {
 		global $psts, $wpdb;
 		$old       = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
@@ -350,6 +376,11 @@ class ProSites_Gateway_2Checkout {
 		$time_left = $duration - ( $duration - ( $old->expire - time() ) );
 		//get balance left
 		$balance_left = ( $time_left * $old->amount ) / $duration;
+
+		if ( $balance_left > $old->amount ) {
+			$balance_left = $old->amount;
+		}
+
 		return round( $balance_left, 2 );
 	}
 
@@ -451,10 +482,36 @@ class ProSites_Gateway_2Checkout {
 				$this->complete_message = __( 'Your 2Checkout subscription modification was successful! You should be receiving an email receipt shortly.', 'psts' );
 				//save the action so next payment,we will down the level
 				update_option( 'psts_2co_recuring_next_plan', array(
-						'action' => 'downgrade',
-						'level'  => $_REQUEST['level'],
-						'type'   => 'auto'
+					'action' => 'downgrade',
+					'level'  => $_REQUEST['level'],
+					'type'   => 'auto'
 				) );
+				break;
+			case 'renew':
+				$hashTotal = $_REQUEST['item_list_amount_1'];
+				$desc      = $_GET['li_0_name'];
+				$hashOrder = $_REQUEST['invoice_id'];
+
+				$psts->log_action( $blog_id, sprintf( __( '2Checkout IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $_POST['message_description'], $_POST['cust_currency'], $hashTotal, $hashOrder ) );
+				//just renew, so the period and level same
+				$psts->email_notification( $blog_id, 'receipt' );
+
+				//record last payment
+				$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
+				// Added for affiliate system link
+				do_action( 'supporter_payment_processed', $blog_id, $hashTotal, $_REQUEST['period'], $_REQUEST['level'] );
+
+				$psts->create_ga_ecommerce( $blog_id, $_REQUEST['period'], $hashTotal, $_REQUEST['level'] );
+				break;
+			case 'renew_fail':
+				$psts->log_action( $blog_id, sprintf( __( '2Checkout IPN "%s" received: The payment has failed. This happens only if the payment was made from your customer\'s bank account.', 'psts' ), $_POST['message_description'] ) );
+				$psts->email_notification( $blog_id, 'failed' );
+				break;
+			case 'stopped':
+				$period = $_REQUEST['item_recurrence_1'];
+				$period = reset( explode( ' ', $period ) );
+				$psts->log_action( $blog_id, sprintf( __( '2Checkout IPN "%s" received: The recurring has stopped.', 'psts' ), $_POST['message_description'] ) );
+				$psts->withdraw( $blog_id, $period );
 				break;
 		}
 	}
@@ -492,15 +549,17 @@ class ProSites_Gateway_2Checkout {
 
 	function checkout_screen( $content, $blog_id ) {
 		global $psts, $wpdb, $current_site, $current_user;
-		if ( ! $blog_id )
+		if ( ! $blog_id ) {
 			return $content;
+		}
 
 		$img_base           = $psts->plugin_url . 'images/';
 		$twocheckout_active = false;
 
 		//hide top part of content if its a pro blog
-		if ( is_pro_site( $blog_id ) || $psts->errors->get_error_message( 'coupon' ) )
+		if ( is_pro_site( $blog_id ) || $psts->errors->get_error_message( 'coupon' ) ) {
 			$content = '';
+		}
 
 		if ( $errmsg = $psts->errors->get_error_message( 'general' ) ) {
 			$content = '<div id="psts-general-error" class="psts-error">' . $errmsg . '</div>'; //hide top part of content if theres an error
@@ -511,6 +570,7 @@ class ProSites_Gateway_2Checkout {
 			$content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
 			$content .= '<p>' . $psts->get_setting( '2co_thankyou' ) . '</p>';
 			$content .= '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
+
 			//remove session
 			return $content;
 		}
@@ -545,10 +605,12 @@ class ProSites_Gateway_2Checkout {
 			if ( ( $resArray['response_code'] == 'OK' && isset( $lineitem ) ) ) {
 				if ( isset( $lineitem['date_placed'] ) ) {
 					$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-				} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-					$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
 				} else {
-					$prev_billing = __( "None yet with this subscription <small>(only initial separate single payment has been made, or you've recently modified your subscription)</small>", 'psts' );
+					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+					} else {
+						$prev_billing = __( "None yet with this subscription <small>(only initial separate single payment has been made, or you've recently modified your subscription)</small>", 'psts' );
+					}
 				}
 
 				if ( isset( $lineitem['date_next'] ) ) {
@@ -578,83 +640,96 @@ class ProSites_Gateway_2Checkout {
 
 				$twocheckout_active = true;
 
-			} else if ( ( $resArray['response_code'] == 'OK' && ! isset( $lineitem ) ) ) {
-				$content .= '<h3>' . __( 'Your subscription has been canceled', 'psts' ) . '</h3>';
-				$content .= '<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p>';
+			} else {
+				if ( ( $resArray['response_code'] == 'OK' && ! isset( $lineitem ) ) ) {
+					$content .= '<h3>' . __( 'Your subscription has been canceled', 'psts' ) . '</h3>';
+					$content .= '<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p>';
 
-			} else if ( $resArray['response_code'] == 'OK' || $resArray['status'] == 'declined' ) {
-				$content .= '<h3>' . sprintf( __( 'Your subscription is: %s', 'psts' ), $resArray['status'] ) . '</h3>';
-				$content .= '<p>' . __( 'Please update your payment information below to resolve this.', 'psts' ) . '</p>';
-				$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
+				} else {
+					if ( $resArray['response_code'] == 'OK' || $resArray['status'] == 'declined' ) {
+						$content .= '<h3>' . sprintf( __( 'Your subscription is: %s', 'psts' ), $resArray['status'] ) . '</h3>';
+						$content .= '<p>' . __( 'Please update your payment information below to resolve this.', 'psts' ) . '</p>';
+						$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
 
-				if ( is_pro_site( $blog_id ) ) {
+						if ( is_pro_site( $blog_id ) ) {
+							$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+						}
+
+						$cancel_content .= '<p><a id="twocheckout_cancel" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . __( 'Cancel Your Subscription', 'psts' ) . '"><img src="' . $img_base . 'cancel_subscribe_gen.gif" /></a></p>';
+						$twocheckout_active = true;
+
+					} else {
+						$content .= '<div class="psts-error">' . __( "There was a problem accessing your subscription information: ", 'psts' ) . $resArray2['errors'][0]['message'] . '</div>';
+					}
+				}
+			}
+
+			//print receipt send form
+			$content .= $psts->receipt_form( $blog_id );
+
+			if ( ! defined( 'PSTS_CANCEL_LAST' ) ) {
+				$content .= $cancel_content;
+			}
+
+			$content .= '</div>';
+
+		} else {
+			if ( is_pro_site( $blog_id ) ) {
+
+				$end_date    = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+				$level       = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
+				$old_gateway = $wpdb->get_var( "SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
+
+				$content .= '<div id="psts_existing_info">';
+				$content .= '<h3>' . __( 'Your Subscription Information', 'psts' ) . '</h3><ul>';
+				$content .= '<li>' . __( 'Level:', 'psts' ) . ' <strong>' . $level . '</strong></li>';
+
+				if ( $old_gateway == 'PayPal' ) {
+					$content .= '<li>' . __( 'Payment Method: <strong>Your PayPal Account</strong>', 'psts' ) . '</li>';
+				} else {
+					if ( $old_gateway == 'Amazon' ) {
+						$content .= '<li>' . __( 'Payment Method: <strong>Your Amazon Account</strong>', 'psts' ) . '</li>';
+					} else {
+						if ( $psts->get_expire( $blog_id ) >= 9999999999 ) {
+							$content .= '<li>' . __( 'Expire Date: <strong>Never</strong>', 'psts' ) . '</li>';
+						} else {
+							$content .= '<li>' . sprintf( __( 'Expire Date: <strong>%s</strong>', 'psts' ), $end_date ) . '</li>';
+						}
+					}
+				}
+
+				$content .= '</ul><br />';
+				$cancel_content = '';
+				if ( $old_gateway == 'PayPal' || $old_gateway == 'Amazon' ) {
+					$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
+					$cancel_content .= '<p>' . sprintf( __( 'If your subscription is still active your next scheduled payment should be %1$s.', 'psts' ), $end_date ) . '</p>';
+					$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+					//show instructions for old gateways
+					if ( $old_gateway == 'PayPal' ) {
+						$cancel_content .= '<p><a id="twocheckout_cancel" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) . '" title="' . __( 'Cancel Your Subscription', 'psts' ) . '"><img src="' . $psts->plugin_url . 'images/cancel_subscribe_gen.gif" /></a><br /><small>' . __( 'You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts' ) . '</small></p>';
+					} else {
+						if ( $old_gateway == 'Amazon' ) {
+							$cancel_content .= '<p>' . __( 'To cancel your subscription, simply go to <a id="twocheckout_cancel" target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
+						}
+					}
+				}
+
+				if ( $old_gateway == '2Checkout' ) {
+					$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
+					$cancel_content .= '<p>' . sprintf( __( 'If your subscription is still active your next scheduled payment should be %1$s.', 'psts' ), $end_date ) . '</p>';
 					$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				}
 
-				$cancel_content .= '<p><a id="twocheckout_cancel" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . __( 'Cancel Your Subscription', 'psts' ) . '"><img src="' . $img_base . 'cancel_subscribe_gen.gif" /></a></p>';
-				$twocheckout_active = true;
+				//print receipt send form
+				$content .= $psts->receipt_form( $blog_id );
 
-			} else {
-				$content .= '<div class="psts-error">' . __( "There was a problem accessing your subscription information: ", 'psts' ) . $resArray2['errors'][0]['message'] . '</div>';
-			}
-
-			//print receipt send form
-			$content .= $psts->receipt_form( $blog_id );
-
-			if ( ! defined( 'PSTS_CANCEL_LAST' ) ) {
-				$content .= $cancel_content;
-			}
-
-			$content .= '</div>';
-
-		} else if ( is_pro_site( $blog_id ) ) {
-
-			$end_date    = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-			$level       = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
-			$old_gateway = $wpdb->get_var( "SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
-
-			$content .= '<div id="psts_existing_info">';
-			$content .= '<h3>' . __( 'Your Subscription Information', 'psts' ) . '</h3><ul>';
-			$content .= '<li>' . __( 'Level:', 'psts' ) . ' <strong>' . $level . '</strong></li>';
-
-			if ( $old_gateway == 'PayPal' )
-				$content .= '<li>' . __( 'Payment Method: <strong>Your PayPal Account</strong>', 'psts' ) . '</li>';
-			else if ( $old_gateway == 'Amazon' )
-				$content .= '<li>' . __( 'Payment Method: <strong>Your Amazon Account</strong>', 'psts' ) . '</li>';
-			else if ( $psts->get_expire( $blog_id ) >= 9999999999 )
-				$content .= '<li>' . __( 'Expire Date: <strong>Never</strong>', 'psts' ) . '</li>';
-			else
-				$content .= '<li>' . sprintf( __( 'Expire Date: <strong>%s</strong>', 'psts' ), $end_date ) . '</li>';
-
-			$content .= '</ul><br />';
-			$cancel_content = '';
-			if ( $old_gateway == 'PayPal' || $old_gateway == 'Amazon' ) {
-				$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
-				$cancel_content .= '<p>' . sprintf( __( 'If your subscription is still active your next scheduled payment should be %1$s.', 'psts' ), $end_date ) . '</p>';
-				$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-				//show instructions for old gateways
-				if ( $old_gateway == 'PayPal' ) {
-					$cancel_content .= '<p><a id="twocheckout_cancel" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) . '" title="' . __( 'Cancel Your Subscription', 'psts' ) . '"><img src="' . $psts->plugin_url . 'images/cancel_subscribe_gen.gif" /></a><br /><small>' . __( 'You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts' ) . '</small></p>';
-				} else if ( $old_gateway == 'Amazon' ) {
-					$cancel_content .= '<p>' . __( 'To cancel your subscription, simply go to <a id="twocheckout_cancel" target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
+				if ( ! defined( 'PSTS_CANCEL_LAST' ) ) {
+					$content .= $cancel_content;
 				}
+
+				$content .= '</div>';
+
 			}
-
-			if ( $old_gateway == '2Checkout' ) {
-				$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
-				$cancel_content .= '<p>' . sprintf( __( 'If your subscription is still active your next scheduled payment should be %1$s.', 'psts' ), $end_date ) . '</p>';
-				$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-			}
-
-			//print receipt send form
-			$content .= $psts->receipt_form( $blog_id );
-
-			if ( ! defined( 'PSTS_CANCEL_LAST' ) ) {
-				$content .= $cancel_content;
-			}
-
-			$content .= '</div>';
-
 		}
 		if ( $twocheckout_active ) {
 			$content .= '<h2>' . __( 'Change Your Plan or Payment Details', 'psts' ) . '</h2>
@@ -665,8 +740,9 @@ class ProSites_Gateway_2Checkout {
 		//build the checkout form
 		$content .= $this->build_checkout_form_html( $blog_id );
 		//put cancel button at end
-		if ( defined( 'PSTS_CANCEL_LAST' ) )
+		if ( defined( 'PSTS_CANCEL_LAST' ) ) {
 			$content .= $cancel_content;
+		}
 
 		return $content;
 	}
@@ -679,6 +755,7 @@ class ProSites_Gateway_2Checkout {
 		$html .= $this->nonce_field();
 		$html .= '<input type="submit" id="cc_checkout" name="2co_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button"/>';
 		$html .= '</form>';
+
 		return $html;
 	}
 
@@ -695,6 +772,7 @@ class ProSites_Gateway_2Checkout {
 		$uid   = (int) $user->ID;
 		$nonce = wp_hash( wp_rand() . 'pstsnonce' . $uid, 'nonce' );
 		update_user_meta( $uid, '_psts_nonce', $nonce );
+
 		return '<input type="hidden" name="_psts_nonce" value="' . $nonce . '" />';
 	}
 
@@ -703,11 +781,13 @@ class ProSites_Gateway_2Checkout {
 		$user  = wp_get_current_user();
 		$uid   = (int) $user->ID;
 		$nonce = get_user_meta( $uid, '_psts_nonce', true );
-		if ( ! $nonce )
+		if ( ! $nonce ) {
 			return false;
+		}
 
 		if ( $_POST['_psts_nonce'] == $nonce ) {
 			delete_user_meta( $uid, '_psts_nonce' );
+
 			return true;
 		} else {
 			return false;
@@ -718,8 +798,8 @@ class ProSites_Gateway_2Checkout {
 	function set_profile_id( $blog_id, $profile_id ) {
 		$trans_meta = get_blog_option( $blog_id, 'psts_2co_profile_id' );
 
-		$trans_meta[$profile_id]['profile_id'] = $profile_id;
-		$trans_meta[$profile_id]['timestamp']  = time();
+		$trans_meta[ $profile_id ]['profile_id'] = $profile_id;
+		$trans_meta[ $profile_id ]['timestamp']  = time();
 		update_blog_option( $blog_id, 'psts_2co_profile_id', $trans_meta );
 	}
 
@@ -734,6 +814,7 @@ class ProSites_Gateway_2Checkout {
 				}
 			}
 		}
+
 		return $is_exist;
 	}
 
@@ -746,10 +827,12 @@ class ProSites_Gateway_2Checkout {
 			} else {
 				return $last['profile_id'];
 			}
-		} else if ( ! empty( $trans_meta ) ) {
-			return $trans_meta;
 		} else {
-			return false;
+			if ( ! empty( $trans_meta ) ) {
+				return $trans_meta;
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -759,9 +842,11 @@ class ProSites_Gateway_2Checkout {
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
-			$resArray         = $this->tcheckout_get_profile_detail( $profile_id );
+			$resArray = $this->tcheckout_get_profile_detail( $profile_id );
+
 			$active_recurring = $this->get_recurring_lineitems( $resArray );
-			$lineitem         = $active_recurring[0];
+
+			$lineitem = $active_recurring[0];
 			if ( is_null( $lineitem ) ) {
 				//case cancel
 				$canceled_member = true;
@@ -788,10 +873,12 @@ class ProSites_Gateway_2Checkout {
 
 					if ( isset( $lineitem['date_placed'] ) ) {
 						$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-					} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
 					} else {
-						$prev_billing = __( "None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>", 'psts' );
+						if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+							$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+						} else {
+							$prev_billing = __( "None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>", 'psts' );
+						}
 					}
 
 					if ( isset( $lineitem['date_next'] ) ) {
@@ -811,49 +898,57 @@ class ProSites_Gateway_2Checkout {
 					echo '<li>' . sprintf( __( 'Payments Made With This Subscription: <strong>%s</strong>', 'psts' ), $lineitem['installment'] ) . ' </li>';
 					echo '</ul>';
 
-				} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) ) {
-					$canceled_member = true;
-					$end_date        = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-					echo '<strong>' . __( 'The Subscription Has Been Cancelled with 2Checkout', 'psts' ) . '</strong>';
-					echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
-
-					if ( isset( $lineitem['date_placed'] ) ) {
-						$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-					} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
-					} else {
-						$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
-					}
-
-					echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
-
-					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-						echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
-					}
-					echo '</ul>';
-
-				} else if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'declined' ) ) {
-
-					$active_member = true;
-					$end_date      = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-					echo '<strong>' . __( 'The Subscription Has Been Suspended', 'psts' ) . '</strong>';
-					echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
-
-					if ( isset( $lineitem['date_placed'] ) ) {
-						$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
-					} else if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-						$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
-					} else {
-						$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
-					}
-
-					echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
-					if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
-						echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
-					}
-					echo '</ul>';
 				} else {
-					echo '<div id="message" class="error fade"><p>' . sprintf( __( "Whoops! There was a problem accessing this site's subscription information: %s", 'psts' ), $resArray2['errors'][0]['message'] ) . '</p></div>';
+					if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'stopped' ) ) {
+						$canceled_member = true;
+						$end_date        = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+						echo '<strong>' . __( 'The Subscription Has Been Cancelled with 2Checkout', 'psts' ) . '</strong>';
+						echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
+
+						if ( isset( $lineitem['date_placed'] ) ) {
+							$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
+						} else {
+							if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+								$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+							} else {
+								$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
+							}
+						}
+
+						echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
+
+						if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+							echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+						}
+						echo '</ul>';
+
+					} else {
+						if ( ( $resArray['response_code'] == 'OK' && $lineitem['status'] == 'declined' ) ) {
+
+							$active_member = true;
+							$end_date      = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+							echo '<strong>' . __( 'The Subscription Has Been Suspended', 'psts' ) . '</strong>';
+							echo '<ul><li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
+
+							if ( isset( $lineitem['date_placed'] ) ) {
+								$prev_billing = date_i18n( get_option( 'date_format' ), strtotime( $lineitem['date_placed'] ) );
+							} else {
+								if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+									$prev_billing = date_i18n( get_option( 'date_format' ), $last_payment['timestamp'] );
+								} else {
+									$prev_billing = __( 'None yet with this subscription <small>(only initial separate single payment has been made, or they recently modified their subscription)</small>', 'psts' );
+								}
+							}
+
+							echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
+							if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
+								echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ) . '</li>';
+							}
+							echo '</ul>';
+						} else {
+							echo '<div id="message" class="error fade"><p>' . sprintf( __( "Whoops! There was a problem accessing this site's subscription information: %s", 'psts' ), $resArray2['errors'][0]['message'] ) . '</p></div>';
+						}
+					}
 				}
 			}
 		} else {
@@ -894,7 +989,7 @@ class ProSites_Gateway_2Checkout {
 
 		//delete the old profilid
 		$trans_meta = get_blog_option( $from_id, 'psts_2co_profile_id' );
-		unset( $trans_meta[$profile_id] );
+		unset( $trans_meta[ $profile_id ] );
 		update_blog_option( $from_id, 'psts_2co_profile_id', $trans_meta );
 	}
 
@@ -925,6 +1020,7 @@ class ProSites_Gateway_2Checkout {
 				$payment_info .= sprintf( __( 'Next Scheduled Payment Date: %s', 'psts' ), $next_billing ) . "\n";
 			}
 		}
+
 		return $payment_info;
 	}
 
@@ -943,8 +1039,10 @@ class ProSites_Gateway_2Checkout {
 			if ( ( $resArray['response_code'] == 'OK' ) && $lineitem['status'] == 'active' ) {
 				$active_member          = true;
 				$next_payment_timestamp = strtotime( $lineitem['date_next'] );
-			} else if ( $resArray['response_code'] == 'OK' && empty( $lineitem ) ) {
-				$canceled_member = true;
+			} else {
+				if ( $resArray['response_code'] == 'OK' && empty( $lineitem ) ) {
+					$canceled_member = true;
+				}
 			}
 		}
 		$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
@@ -952,9 +1050,9 @@ class ProSites_Gateway_2Checkout {
 		if ( $active_member ) {
 			?>
 			<h4><?php _e( 'Cancelations:', 'psts' ); ?></h4>
-			<label><input type="radio" name="twocheckout_mod_action" value="cancel" /> <?php _e( 'Cancel Subscription Only', 'psts' ); ?>
+			<label><input type="radio" name="twocheckout_mod_action" value="cancel"/> <?php _e( 'Cancel Subscription Only', 'psts' ); ?>
 				<small>(<?php printf( __( 'Their access will expire on %s', 'psts' ), $end_date ); ?>)</small>
-			</label><br />
+			</label><br/>
 			<?php if ( $last_payment = $psts->last_transaction( $blog_id ) ) {
 				$days_left = ( ( $next_payment_timestamp - time() ) / 60 / 60 / 24 );
 				$period    = $wpdb->get_var( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
@@ -963,38 +1061,40 @@ class ProSites_Gateway_2Checkout {
 					$refund = $last_payment['amount'];
 				}
 				?>
-				<label><input type="radio" name="twocheckout_mod_action" value="cancel_refund" /> <?php printf( __( 'Cancel Subscription and Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
+				<label><input type="radio" name="twocheckout_mod_action" value="cancel_refund"/> <?php printf( __( 'Cancel Subscription and Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
 					<small>(<?php printf( __( 'Their access will expire on %s', 'psts' ), $end_date ); ?>)</small>
-				</label><br />
+				</label><br/>
 				<?php if ( $refund ) { ?>
-					<label><input type="radio" name="twocheckout_mod_action" value="cancel_refund_pro" /> <?php printf( __( 'Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts' ), $psts->format_currency( false, $refund ) ); ?>
+					<label><input type="radio" name="twocheckout_mod_action" value="cancel_refund_pro"/> <?php printf( __( 'Cancel Subscription and Refund Prorated (%s) Last Payment', 'psts' ), $psts->format_currency( false, $refund ) ); ?>
 						<small>(<?php printf( __( 'Their access will expire on %s', 'psts' ), $end_date ); ?>)</small>
-					</label><br />
+					</label><br/>
 				<?php } ?>
 
 				<h4><?php _e( 'Refunds:', 'psts' ); ?></h4>
-				<label><input type="radio" name="twocheckout_mod_action" value="refund" /> <?php printf( __( 'Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
+				<label><input type="radio" name="twocheckout_mod_action" value="refund"/> <?php printf( __( 'Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
 					<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
-				</label><br />
-				<label><input type="radio" name="twocheckout_mod_action" value="partial_refund" /> <?php printf( __( 'Refund a Partial %s Amount of Last Payment', 'psts' ), $psts->format_currency() . '<input type="text" name="refund_amount" size="4" value="' . $last_payment['amount'] . '" />' ); ?>
+				</label><br/>
+				<label><input type="radio" name="twocheckout_mod_action" value="partial_refund"/> <?php printf( __( 'Refund a Partial %s Amount of Last Payment', 'psts' ), $psts->format_currency() . '<input type="text" name="refund_amount" size="4" value="' . $last_payment['amount'] . '" />' ); ?>
 					<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
-				</label><br />
+				</label><br/>
 
 			<?php
 			}
-		} else if ( $canceled_member && ( $last_payment = $psts->last_transaction( $blog_id ) ) ) {
-			?>
-			<h4><?php _e( 'Refunds:', 'psts' ); ?></h4>
-			<label><input type="radio" name="twocheckout_mod_action" value="refund" /> <?php printf( __( 'Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
-				<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
-			</label><br />
-			<label><input type="radio" name="twocheckout_mod_action" value="partial_refund" /> <?php printf( __( 'Refund a Partial %s Amount of Last Payment', 'psts' ), $psts->format_currency() . '<input type="text" name="refund_amount" size="4" value="' . $last_payment['amount'] . '" />' ); ?>
-				<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
-			</label><br />
-		<?php
 		} else {
-			?>
-		<?php
+			if ( $canceled_member && ( $last_payment = $psts->last_transaction( $blog_id ) ) ) {
+				?>
+				<h4><?php _e( 'Refunds:', 'psts' ); ?></h4>
+				<label><input type="radio" name="twocheckout_mod_action" value="refund"/> <?php printf( __( 'Refund Full (%s) Last Payment', 'psts' ), $psts->format_currency( false, $last_payment['amount'] ) ); ?>
+					<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
+				</label><br/>
+				<label><input type="radio" name="twocheckout_mod_action" value="partial_refund"/> <?php printf( __( 'Refund a Partial %s Amount of Last Payment', 'psts' ), $psts->format_currency() . '<input type="text" name="refund_amount" size="4" value="' . $last_payment['amount'] . '" />' ); ?>
+					<small>(<?php _e( 'Their subscription and access will continue', 'psts' ); ?>)</small>
+				</label><br/>
+			<?php
+			} else {
+				?>
+			<?php
+			}
 		}
 	}
 
@@ -1017,7 +1117,7 @@ class ProSites_Gateway_2Checkout {
 					}
 
 					if ( $resArray['response_code'] == 'OK' ) {
-
+						$this->tcheckout_cancel_subscription( $profile_id );
 						//record stat
 						$psts->record_stat( $blog_id, 'cancel' );
 
@@ -1036,11 +1136,11 @@ class ProSites_Gateway_2Checkout {
 						$refund   = $last_payment['amount'];
 
 						if ( $profile_id ) {
-							$resArray = $this->get_profile_id( $profile_id );
+							$resArray = $this->tcheckout_get_profile_detail( $profile_id );
 						}
 
 						if ( $resArray['response_code'] == 'OK' ) {
-
+							$this->tcheckout_cancel_subscription( $profile_id );
 							//record stat
 							$psts->record_stat( $blog_id, 'cancel' );
 
@@ -1081,11 +1181,12 @@ class ProSites_Gateway_2Checkout {
 						if ( $refund > $last_payment['amount'] ) {
 							$refund = $last_payment['amount'];
 						}
-						if ( $profile_id )
+						if ( $profile_id ) {
 							$resArray = $this->tcheckout_get_profile_detail( $profile_id );
+						}
 
 						if ( $resArray['response_code'] == 'OK' ) {
-
+							$this->tcheckout_cancel_subscription( $profile_id );
 							//record stat
 							$psts->record_stat( $blog_id, 'cancel' );
 
@@ -1141,10 +1242,13 @@ class ProSites_Gateway_2Checkout {
 			}
 
 			//display resulting message
-			if ( $success_msg )
+			if ( $success_msg ) {
 				echo '<div class="updated fade"><p>' . $success_msg . '</p></div>';
-			else if ( $error_msg )
-				echo '<div class="error fade"><p>' . $error_msg . '</p></div>';
+			} else {
+				if ( $error_msg ) {
+					echo '<div class="error fade"><p>' . $error_msg . '</p></div>';
+				}
+			}
 		}
 	}
 
@@ -1167,19 +1271,34 @@ class ProSites_Gateway_2Checkout {
 		}
 	}
 
+	function set_gateway_param() {
+		global $psts;
+		Twocheckout::$sid = $psts->get_setting( '2co_acc_number' );
+		Twocheckout::username( $psts->get_setting( '2co_api_username' ) );
+		Twocheckout::password( $psts->get_setting( '2co_api_password' ) );
+		if ( $psts->get_setting( '2co_checkout_mode' ) == 'Y' ) {
+			Twocheckout::$baseUrl = 'https://sandbox.2checkout.com';
+		}
+	}
+
 	/**** 2Checkout API methods *****/
-	function tcheckout_get_profile_detail( $profile_id ) {
+	function tcheckout_get_profile_detail( $profile_id, $invoice_id = '' ) {
+		$this->set_gateway_param();
+
 		return Twocheckout_Sale::retrieve( array(
-				'sale_id' => $profile_id
+			'sale_id'    => $profile_id,
+			'invoice_id' => $invoice_id
 		), 'array' );
 	}
 
 	function tcheckout_cancel_subscription( $profile_id ) {
+		$this->set_gateway_param();
 		//check does this has cancel or not
 		if ( ! $this->tcheckout_is_subscription_cancel( $profile_id ) ) {
 			$result = Twocheckout_Sale::stop( array(
-					'sale_id' => $profile_id
+				'sale_id' => $profile_id
 			), 'array' );
+
 			return $result;
 		}
 
@@ -1187,27 +1306,46 @@ class ProSites_Gateway_2Checkout {
 	}
 
 	function tcheckout_is_subscription_cancel( $profile_id ) {
+		$this->set_gateway_param();
 		$result    = $this->tcheckout_get_profile_detail( $profile_id );
-		$lineitems = Twocheckout_Util::get_recurring_lineitems( $result );
+		$lineitems = Twocheckout_Util::getRecurringLineitems( $result );
 
-		if ( $result['response_code'] == 'OK' && empty( $lineitems ) )
+		if ( $result['response_code'] == 'OK' && empty( $lineitems ) ) {
 			return true;
+		}
+
 		return false;
 	}
 
 	function tcheckout_refund( $transaction_id, $partial_amt = false, $note ) {
+		$this->set_gateway_param();
 		$params = array(
-				'invoice_id' => $transaction_id,
-				'comment'    => $note,
-				'category'   => 5
+			'invoice_id' => $transaction_id,
+			'comment'    => $note,
+			'category'   => 5
 		);
 		if ( $partial_amt ) {
 			$params['amount']   = $partial_amt;
 			$params['currency'] = 'vendor';
 		}
+		$result = false;
+		try {
+			$result = Twocheckout_Sale::refund( $params, 'array' );
+		} catch ( Exception $e ) {
+			//
+			$result = array(
+				'response_code' => 'FAIL',
+				'errors'        => array(
+					array(
+						'message' => $e->getMessage()
+					)
+				)
+			);
+		}
 
-		return Twocheckout_Sale::refund( $params, 'array' );
+		return $result;
 	}
+
 
 	function ManageRecurringPaymentsProfileStatus( $profile_id ) {
 		$params            = array();
@@ -1220,6 +1358,7 @@ class ProSites_Gateway_2Checkout {
 				$result = $this->api_call( 'https://www.2checkout.com/api/sales/stop_lineitem_recurring', $params );
 			}
 		}
+
 		return $result;
 	}
 
@@ -1245,24 +1384,29 @@ class ProSites_Gateway_2Checkout {
 		$i           = 0;
 		$invoiceData = array();
 
-		while ( isset( $saleDetail['sale']['invoices'][$i] ) ) {
-			$invoiceData[$i] = $saleDetail['sale']['invoices'][$i];
+		while ( isset( $saleDetail['sale']['invoices'][ $i ] ) ) {
+			$invoiceData[ $i ] = $saleDetail['sale']['invoices'][ $i ];
 			$i ++;
 		}
 		if ( count( $invoiceData ) ) {
 			$invoice      = max( $invoiceData );
 			$i            = 0;
 			$lineitemData = array();
+			while ( isset( $invoice['lineitems'][ $i ] ) ) {
+				//dev only, on dev, the recuring status = null
+				global $psts;
+				if ( $psts->get_setting( '2co_checkout_mode' ) == 'Y' ) {
+					$invoice['lineitems'][ $i ]['billing']['recurring_status'] = 'active';
+				}
+				if ( $invoice['lineitems'][ $i ]['billing']['recurring_status'] == "active" ) {
 
-			while ( isset( $invoice['lineitems'][$i] ) ) {
-				if ( $invoice['lineitems'][$i]['billing']['recurring_status'] == "active" ) {
-
-					$lineitemData[$i] = array( 'lineitem_id' => $invoice['lineitems'][$i]['billing']['lineitem_id'],
-																		 'status'      => $invoice['lineitems'][$i]['billing']['recurring_status'],
-																		 'installment' => $invoice['lineitems'][$i]['installment'],
-																		 'date_placed' => $invoice['date_placed'],
-																		 'date_next'   => $invoice['lineitems'][$i]['billing']['date_next'],
-																		 'method'      => $invoice['lineitems'][$i]['billing']['bill_method']
+					$lineitemData[ $i ] = array(
+						'lineitem_id' => $invoice['lineitems'][ $i ]['billing']['lineitem_id'],
+						'status'      => $invoice['lineitems'][ $i ]['billing']['recurring_status'],
+						'installment' => $invoice['lineitems'][ $i ]['installment'],
+						'date_placed' => $invoice['date_placed'],
+						'date_next'   => $invoice['lineitems'][ $i ]['billing']['date_next'],
+						'method'      => $invoice['lineitems'][ $i ]['billing']['bill_method']
 					);
 				}
 				$i ++;
@@ -1280,8 +1424,8 @@ class ProSites_Gateway_2Checkout {
 
 		$args            = array();
 		$args['headers'] = array(
-				'Authorization' => 'Basic ' . base64_encode( $psts->get_setting( 'twocheckout_api_user' ) . ':' . $psts->get_setting( 'twocheckout_api_pass' ) ),
-				'Accept'        => 'application/json',
+			'Authorization' => 'Basic ' . base64_encode( $psts->get_setting( 'twocheckout_api_user' ) . ':' . $psts->get_setting( 'twocheckout_api_pass' ) ),
+			'Accept'        => 'application/json',
 		);
 
 		$args['user-agent'] = "ProSites | 2CO Payment plugin/0.1";
@@ -1300,6 +1444,7 @@ class ProSites_Gateway_2Checkout {
 
 	function startDate( $frequency ) {
 		$result = strtotime( "+$frequency month" );
+
 		return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $result ) );
 	}
 

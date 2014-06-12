@@ -1,74 +1,71 @@
 <?php
 
-class Twocheckout_Util
-{
+class Twocheckout_Util extends Twocheckout {
 
-    static function return_resp($contents, $format) {
-        switch ($format) {
-            case "array":
-                $arrayObject = self::objectToArray($contents);
-                self::checkError($arrayObject);
-                return $arrayObject;
-                break;
-            case "force_json":
-                $arrayObject = self::objectToJson($contents);
-                return $arrayObject;
-                break;
-            default:
-                $arrayObject = self::objectToArray($contents);
-                self::checkError($arrayObject);
-                $jsonData = json_encode($contents);
-                return json_decode($jsonData);
-        }
-    }
+	static function returnResponse( $contents, $format = null ) {
+		$format = $format == null ? Twocheckout::$format : $format;
+		switch ( $format ) {
+			case "array":
+				$response = self::objectToArray( $contents );
+				self::checkError( $response );
+				break;
+			case "force_json":
+				$response = self::objectToJson( $contents );
+				break;
+			default:
+				$response = self::objectToArray( $contents );
+				self::checkError( $response );
+				$response = json_encode( $contents );
+				$response = json_decode( $response );
+		}
 
-    public static function objectToArray($object)
-    {
-        $object = json_decode($object, true);
-        $array=array();
-        foreach($object as $member=>$data)
-        {
-            $array[$member]=$data;
-        }
-        return $array;
-    }
+		return $response;
+	}
 
-    public static function objectToJson($object)
-    {
-        return json_encode($object);
-    }
+	public static function objectToArray( $object ) {
+		$object = json_decode( $object, true );
+		$array  = array();
+		foreach ( $object as $member => $data ) {
+			$array[ $member ] = $data;
+		}
 
-    public static function get_recurring_lineitems($saleDetail) {
-        $i = 0;
-        $invoiceData = array();
+		return $array;
+	}
 
-        while (isset($saleDetail['sale']['invoices'][$i])) {
-            $invoiceData[$i] = $saleDetail['sale']['invoices'][$i];
-            $i++;
-        }
+	public static function objectToJson( $object ) {
+		return json_encode( $object );
+	}
 
-        $invoice = max($invoiceData);
-        $i = 0;
-        $lineitemData = array();
+	public static function getRecurringLineitems( $saleDetail ) {
+		$i           = 0;
+		$invoiceData = array();
 
-        while (isset($invoice['lineitems'][$i])) {
-            if ($invoice['lineitems'][$i]['billing']['recurring_status'] == "active") {
-                $lineitemData[$i] = $invoice['lineitems'][$i]['billing']['lineitem_id'];
-            }
-            $i++;
-        };
+		while ( isset( $saleDetail['sale']['invoices'][ $i ] ) ) {
+			$invoiceData[ $i ] = $saleDetail['sale']['invoices'][ $i ];
+			$i ++;
+		}
 
-        return $lineitemData;
+		$invoice      = max( $invoiceData );
+		$i            = 0;
+		$lineitemData = array();
 
-    }
+		while ( isset( $invoice['lineitems'][ $i ] ) ) {
+			if ( $invoice['lineitems'][ $i ]['billing']['recurring_status'] == "active" ) {
+				$lineitemData[ $i ] = $invoice['lineitems'][ $i ]['billing']['lineitem_id'];
+			}
+			$i ++;
+		};
 
-    public static function checkError($contents)
-    {
-        if (isset($contents['errors'])) {
-            throw new Twocheckout_Error($contents['errors'][0]['message']);
-        } elseif (isset($contents['exception'])) {
-            throw new Twocheckout_Error($contents['exception']['errorMsg'], $contents['exception']['errorCode']);
-        }
-    }
+		return $lineitemData;
+
+	}
+
+	public static function checkError( $contents ) {
+		if ( isset( $contents['errors'] ) ) {
+			throw new Twocheckout_Error( $contents['errors'][0]['message'] );
+		} elseif ( isset( $contents['exception'] ) ) {
+			throw new Twocheckout_Error( $contents['exception']['errorMsg'], $contents['exception']['errorCode'] );
+		}
+	}
 
 }
