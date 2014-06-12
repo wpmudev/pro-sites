@@ -392,7 +392,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				$payment_info = sprintf( __( 'Subscription Description: %s', 'psts' ), stripslashes( $resArray['DESC'] ) ) . "\n\n";
 
-				if ( $resArray['ACCT'] ) { //credit card
+				if ( isset( $resArray['ACCT'] ) ) { //credit card
 					$month = substr( $resArray['EXPDATE'], 0, 2 );
 					$year  = substr( $resArray['EXPDATE'], 2, 4 );
 					$payment_info .= sprintf( __( 'Payment Method: %1$s Card ending in %2$s. Expires %3$s', 'psts' ), $resArray['CREDITCARDTYPE'], $resArray['ACCT'], $month . '/' . $year ) . "\n";
@@ -1913,8 +1913,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	function ipn_handler() {
 		global $psts, $wpdb;
-		error_log('ipn');
-		error_log( json_encode($_POST) );
 		if ( ! isset( $_POST['rp_invoice_id'] ) && ! isset( $_POST['custom'] ) ) {
 
 			die( 'Error: Missing POST variables. Identification is not possible.' );
@@ -1929,9 +1927,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			//if not using an IPN forwarder check the request
 			if ( ! defined( 'PSTS_IPN_PASSWORD' ) ) {
 				if ( $psts->get_setting( 'pypl_status' ) == 'live' ) {
-					$domain = 'https://www.paypal.com/cgi-bin/webscr';
+					$paypal_domain = 'https://www.paypal.com/cgi-bin/webscr';
 				} else {
-					$domain = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+					$paypal_domain = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
 				}
 
 				$req = 'cmd=_notify-validate';
@@ -1949,7 +1947,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$args['httpversion'] = '1.1';
 
 				//use built in WP http class to work with most server setups
-				$response = wp_remote_post( $domain, $args );
+				$response = wp_remote_post( $paypal_domain, $args );
 
 				//check results
 				if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) != 200 || $response['body'] != 'VERIFIED' ) {
@@ -2035,7 +2033,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
 					$blog_id     = $psts->activate_user_blog( $domain );
 					//receipts and record new transaction
-					if ( ! $is_trialing && $recurring ) {
+					if ( ! $is_trialing && $recurring && !empty($blog_id ) ) {
 						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
 							$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ), $_POST['txn_type'], $_POST['txn_id'] ) . $profile_string );
@@ -2237,13 +2235,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 		$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 		if ( $blog_id ) {
-			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
+			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
 		} else {
-			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
+			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
 		}
 		$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
 		$resArray = $this->api_call( "DoExpressCheckoutPayment", $nvpstr );
-
 		return $resArray;
 	}
 
@@ -2302,7 +2299,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
 		}
 		$resArray = $this->api_call( "CreateRecurringPaymentsProfile", $nvpstr );
-
 		return $resArray;
 	}
 

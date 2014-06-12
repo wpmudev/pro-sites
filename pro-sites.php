@@ -4782,7 +4782,7 @@ function admin_levels() {
 	}
 
 	function activate_user_blog( $domain = false, $trial = true, $period = false, $level = false ) {
-		global $psts, $wpdb;
+		global $psts, $wpdb, $path;
 
 		$trial_days  = $psts->get_setting( 'trial_days', 0 );
 		if ( ! $domain ) {
@@ -4793,7 +4793,14 @@ function admin_levels() {
 		$signup         = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
 		$activation_key = ! empty( $signup->activation_key ) ? $signup->activation_key : '';
 		if ( ! $activation_key || $signup->active ) {
-			return false;
+			//get blog id
+			$fields = array(
+				'domain' => $domain,
+				'path'   => '/'
+			);
+			$blog   = get_blog_details( $fields );
+
+			return ! empty( $blog->blog_id ) ? $blog->blog_id : false;
 		}
 		$result = wpmu_activate_signup( $activation_key );
 
