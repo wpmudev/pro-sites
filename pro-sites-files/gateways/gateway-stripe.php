@@ -7,25 +7,21 @@ class ProSites_Gateway_Stripe {
 
 	var $complete_message = false;
 	var $stripe_plans = array();
-	
-	function ProSites_Gateway_Stripe() {
-		$this->__construct();		
-	}
 
-  function __construct() {  	
+	function __construct() {
 		global $psts;
 
 		//setup the Stripe API
-		if ( ! class_exists('Stripe') ) {
+		if ( ! class_exists( 'Stripe' ) ) {
 			require_once( $psts->plugin_dir . "gateways/gateway-stripe-files/lib/Stripe.php" );
 		}
-		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
-		Stripe::setApiKey($stripe_secret_key);
-		Stripe::setApiVersion('2013-08-13');	//make sure everyone is using the same API version. we can update this if/when necessary.
-  
-		if ( !is_admin() ) {
-	  	add_action('wp_enqueue_scripts', array(&$this, 'do_scripts'));
-  	}
+		$stripe_secret_key = $psts->get_setting( 'stripe_secret_key' );
+		Stripe::setApiKey( $stripe_secret_key );
+		Stripe::setApiVersion( '2013-08-13' ); //make sure everyone is using the same API version. we can update this if/when necessary.
+
+		if ( ! is_admin() ) {
+			add_action( 'wp_enqueue_scripts', array( &$this, 'do_scripts' ) );
+		}
 			
 	  //settings
 		add_action( 'psts_gateway_settings', array(&$this, 'settings') );

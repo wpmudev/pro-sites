@@ -3,40 +3,40 @@
 class Twocheckout_Coupon extends Twocheckout
 {
 
-    public static function create($params=array())
+    public static function create($params=array(), $format='json')
     {
         $request = new Twocheckout_Api_Requester();
-        $urlSuffix = '/api/products/create_coupon';
-        $result = $request->doCall($urlSuffix, $params);
-        return Twocheckout_Util::returnResponse($result);
+        $urlSuffix = 'products/create_coupon';
+        $result = $request->do_call($urlSuffix, $params);
+        return Twocheckout_Util::return_resp($result, $format);
     }
 
-    public static function retrieve($params=array())
+    public static function retrieve($params=array(), $format='json')
     {
         $request = new Twocheckout_Api_Requester();
         if(array_key_exists("coupon_code",$params)) {
-            $urlSuffix = '/api/products/detail_coupon';
+            $urlSuffix = 'products/detail_coupon';
         } else {
-            $urlSuffix = '/api/products/list_coupons';
+            $urlSuffix = 'products/list_coupons';
         }
-        $result = $request->doCall($urlSuffix, $params);
-        return Twocheckout_Util::returnResponse($result);
+        $result = $request->do_call($urlSuffix, $params);
+        return Twocheckout_Util::return_resp($result, $format);
     }
 
-    public static function update($params=array())
+    public static function update($params=array(), $format='json')
     {
         $request = new Twocheckout_Api_Requester();
-        $urlSuffix = '/api/products/update_coupon';
-        $result = $request->doCall($urlSuffix, $params);
-        return Twocheckout_Util::returnResponse($result);
+        $urlSuffix = 'products/update_coupon';
+        $result = $request->do_call($urlSuffix, $params);
+        return Twocheckout_Util::return_resp($result, $format);
     }
 
-    public static function delete($params=array())
+    public static function delete($params=array(), $format='json')
     {
         $request = new Twocheckout_Api_Requester();
-        $urlSuffix = '/api/products/delete_coupon';
-        $result = $request->doCall($urlSuffix, $params);
-        return Twocheckout_Util::returnResponse($result);
+        $urlSuffix = 'products/delete_coupon';
+        $result = $request->do_call($urlSuffix, $params);
+        return Twocheckout_Util::return_resp($result, $format);
     }
 
 }

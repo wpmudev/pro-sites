@@ -3,21 +3,21 @@
 class Twocheckout_Payment extends Twocheckout
 {
 
-    public static function retrieve()
+    public static function retrieve($format='json')
     {
         $request = new Twocheckout_Api_Requester();
-        $urlSuffix = '/api/acct/list_payments';
-        $result = $request->doCall($urlSuffix);
-        $response = Twocheckout_Util::returnResponse($result);
+        $urlSuffix = 'acct/list_payments';
+        $result = $request->do_call($urlSuffix);
+        $response = Twocheckout_Util::return_resp($result, $format);
         return $response;
     }
 
-    public static function pending()
+        public static function pending($format='json')
     {
         $request = new Twocheckout_Api_Requester();
-        $urlSuffix = '/api/acct/detail_pending_payment';
-        $result = $request->doCall($urlSuffix);
-        $response = Twocheckout_Util::returnResponse($result);
+        $urlSuffix = 'acct/detail_pending_payment';
+        $result = $request->do_call($urlSuffix);
+        $response = Twocheckout_Util::return_resp($result, $format);
         return $response;
     }
 

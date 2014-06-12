@@ -5,27 +5,23 @@ Pro Sites (Gateway: Manual Payments Gateway)
 class ProSites_Gateway_Manual {
 	
 	var $complete_message = false;
-	
-	function ProSites_Gateway_Manual() {
-		$this->__construct();
-	}
 
-  function __construct() {
-    //settings
-		add_action( 'psts_gateway_settings', array(&$this, 'settings') );
-		
+	function __construct() {
+		//settings
+		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
+
 		//checkout stuff
-		add_filter( 'psts_checkout_output', array(&$this, 'checkout_screen'), 10, 2 );
-		add_action( 'psts_checkout_page_load', array(&$this, 'process_checkout') );
+		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 2 );
+		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ) );
 	}
 
 	function settings() {
-	  global $psts;
-		?>
-		<div class="postbox">
-	  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Manual Payments', 'psts') ?></span> - <span class="description"><?php _e('Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts'); ?></span></h3>
-    <div class="inside">
-      <table class="form-table">
+        global $psts;
+        ?>
+        <div class="postbox">
+                    <h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Manual Payments', 'psts' ) ?></span> - <span class="description"><?php _e( 'Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts' ); ?></span></h3>
+                    <div class="inside">
+                        <table class="form-table">
 			  <tr>
 				<th scope="row"><?php _e('Method Name', 'psts') ?></th>
 				<td>

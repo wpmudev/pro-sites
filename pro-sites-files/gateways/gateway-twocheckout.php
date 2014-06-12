@@ -6,10 +6,6 @@ class ProSites_Gateway_Twocheckout {
 
     var $complete_message = false;
 
-    function ProSites_Gateway_Twocheckout() {
-        $this->__construct();
-    }
-
     function __construct() {
 	    //settings
         add_action( 'psts_gateway_settings', array(&$this, 'settings') );

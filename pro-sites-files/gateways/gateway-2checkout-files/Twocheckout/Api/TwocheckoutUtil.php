@@ -1,25 +1,25 @@
 <?php
 
-class Twocheckout_Util extends Twocheckout
+class Twocheckout_Util
 {
 
-    static function returnResponse($contents, $format=null) {
-        $format = $format == null ? Twocheckout::$format : $format;
+    static function return_resp($contents, $format) {
         switch ($format) {
             case "array":
-                $response = self::objectToArray($contents);
-                self::checkError($response);
+                $arrayObject = self::objectToArray($contents);
+                self::checkError($arrayObject);
+                return $arrayObject;
                 break;
             case "force_json":
-                $response = self::objectToJson($contents);
+                $arrayObject = self::objectToJson($contents);
+                return $arrayObject;
                 break;
             default:
-                $response = self::objectToArray($contents);
-                self::checkError($response);
-                $response = json_encode($contents);
-                $response = json_decode($response);
+                $arrayObject = self::objectToArray($contents);
+                self::checkError($arrayObject);
+                $jsonData = json_encode($contents);
+                return json_decode($jsonData);
         }
-        return $response;
     }
 
     public static function objectToArray($object)
@@ -38,7 +38,7 @@ class Twocheckout_Util extends Twocheckout
         return json_encode($object);
     }
 
-    public static function getRecurringLineitems($saleDetail) {
+    public static function get_recurring_lineitems($saleDetail) {
         $i = 0;
         $invoiceData = array();
 
