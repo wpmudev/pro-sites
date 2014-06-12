@@ -2031,7 +2031,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					// case: successful payment
 					$is_trialing = ( isset( $_POST['period_type'] ) && trim( $_POST['period_type'] ) == 'Trial' ) ? true : false;
 					$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
-					$blog_id     = $psts->activate_user_blog( $domain );
+					$blog_id     = $psts->activate_user_blog( $domain, false, $period, $level );
 					//receipts and record new transaction
 					if ( ! $is_trialing && $recurring && !empty($blog_id ) ) {
 						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
