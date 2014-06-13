@@ -1012,7 +1012,13 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
-	//check if blog has been canceled before
+	/**
+	 * Check if given blog has been canceled
+	 *
+	 * @since 3.4.3.7
+	 * @param int $blog_id
+	 * @return bool
+	 */
 	function is_blog_canceled( $blog_id ) {
 		global $wpdb;
 
@@ -1947,10 +1953,10 @@ Many thanks again for being a member!", 'psts' ),
 	function css_pricing() {
 		echo "<style type='text/css'>
   .column-psts_co_visible {
-     width:6%; 
+     width:6%;
   }
   .column-psts_co_has_thick {
-     width:10%; 
+     width:10%;
   }
   .column-psts_co_included,
   .column-psts_co_name {
@@ -4407,6 +4413,15 @@ function admin_levels() {
 		return $content;
 	}
 
+	/**
+	 * Checks if a given blog is allowed trial status
+	 *
+	 * @since 3.4.4
+	 *
+	 * @param int $blog_id
+	 * @return bool
+	 */
+
 	function is_trial_allowed( $blog_id ) {
 		$trial_days = $this->get_setting( 'trial_days', 0 );
 
@@ -4424,7 +4439,22 @@ function admin_levels() {
 
 		return true;
 	}
+	/**
+	 * Checks if a given blog ID is in the pro sites table
+	 *
+	 * @since 3.4.4
+	 * @param int $blog_id
+	 * @return bool
+	 */
+	function is_existing( $blog_id ) {
+		global $wpdb;
 
+		return (bool) $wpdb->get_var( $wpdb->prepare( "
+			SELECT COUNT(*)
+			FROM {$wpdb->base_prefix}pro_sites
+			WHERE blog_ID = %d
+		", $blog_id ) );
+	}
 	function receipt_form( $blog_id, $domain = false ) {
 		$content          = '';
 		$last_transaction = ! empty( $blog_id ) ? $this->last_transaction( $blog_id ) : $this->last_transaction( '', $domain );
@@ -4915,7 +4945,7 @@ define ( "YEARLY", 12 );
 function is_pro_site( $blog_id = false, $level = false ) {
 	global $psts;
 
-	return $psts->is_pro_site( $blog_id, $level );
+	return empty( $blog_id ) ? false : $psts->is_pro_site( $blog_id, $level );
 }
 
 /**
@@ -4951,10 +4981,10 @@ function is_pro_trial( $blog_id ) {
 /*
  * function psts_levels_select
  * Print an html select field to choose level for an external plugin
- * 
- * @param string $name Name of the form field 
+ *
+ * @param string $name Name of the form field
  * @param int $selected the level number to select by default
- * 
+ *
  * @return echo html select
  */
 function psts_levels_select( $name, $selected, $echo = true ) {
