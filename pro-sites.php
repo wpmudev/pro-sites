@@ -841,7 +841,7 @@ Many thanks again for being a member!", 'psts' ),
 
 	function redirect_checkout() {
 		global $blog_id;
-		wp_redirect( $this->checkout_url( $blog_id ) );
+//		wp_redirect( $this->checkout_url( $blog_id ) );
 	}
 
 	//creates the checkout page on install and updates
@@ -1603,11 +1603,11 @@ Many thanks again for being a member!", 'psts' ),
 	 * @param $code, Coupo Code
 	 * @param bool $blog_id, Blog Id for which coupon is being used
 	 * @param bool $level, Site Level
-	 * @param bool $domain,Domain name for which user ois signing up, Used in case of pay before blog creation
+	 * @param string $domain,Domain name for which user ois signing up, Used in case of pay before blog creation
 	 *
 	 * @return bool
 	 */
-	function check_coupon( $code, $blog_id = false, $level = false, $domain = false ) {
+	function check_coupon( $code, $blog_id = false, $level = false, $domain = '' ) {
 		global $wpdb;
 		$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
 
@@ -1895,7 +1895,10 @@ Many thanks again for being a member!", 'psts' ),
 
 	function signup_redirect() {
 		global $blog_id;
-
+		//If doing ajax, exit
+		if( defined( 'DOING_AJAX' ) && DOING_AJAX === true ) {
+			return;
+		}
 		//dismiss redirect if link is clicked or paid
 		if ( isset( $_GET['psts_dismiss'] ) || is_pro_site() ) {
 			update_option( 'psts_signed_up', 0 );
@@ -2074,15 +2077,30 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
-	//returns the js needed to record ecommerce transactions.
-	function create_ga_ecommerce( $blog_id, $period, $amount, $level, $city = '', $state = '', $country = '' ) {
+	/**
+	 * returns the js needed to record ecommerce transactions.
+	 * @param $blog_id
+	 * @param $period
+	 * @param $amount
+	 * @param $level
+	 * @param string $city
+	 * @param string $state
+	 * @param string $country
+	 * @param string $site_name
+	 * @param string $domain
+	 */
+	function create_ga_ecommerce( $blog_id, $period, $amount, $level, $city = '', $state = '', $country = '', $site_name = '', $domain = '' ) {
 		global $current_site;
 
-		$name       = $this->get_level_setting( $level, 'name' );
-		$category   = $period . ' Month';
-		$sku        = 'level' . $level . '_' . $period . 'month';
-		$order_id   = $blog_id . '_' . time();
-		$store_name = $current_site->site_name . ' ' . $this->get_setting( 'rebrand' );
+		$name     = $this->get_level_setting( $level, 'name' );
+		$category = $period . ' Month';
+		$sku      = 'level' . $level . '_' . $period . 'month';
+		if ( ! empty( $blog_id ) ) {
+			$order_id = $blog_id . '_' . time();
+		} else {
+			$order_id = $domain . '_' . time();
+		}
+		$store_name = $site_name . ' ' . $this->get_setting( 'rebrand' );
 
 		if ( $this->get_setting( 'ga_ecommerce' ) == 'old' ) {
 
@@ -2522,7 +2540,7 @@ _gaq.push(["_trackTrans"]);
 
 function admin_stats() {
 	global $wpdb;
-	$term_manual = '';
+	$term_manual = $daily_stats_levels = '';
 	if ( ! is_super_admin() ) {
 		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 		return;
@@ -4854,7 +4872,7 @@ function admin_levels() {
 
 		//Set Trial
 		if ( $trial ) {
-			$psts->extend( $result['blog_id'], $period, 'Trial', $_SESSION['LEVEL'], '', strtotime( '+ ' . $trial_days . ' days' ) );
+			$psts->extend( $result['blog_id'], $period, 'Trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
 		}
 
 		// Unset Domain name from session if its still there
@@ -4870,12 +4888,12 @@ function admin_levels() {
 	/**
 	 * Fetches signup meta for a domain
 	 *
-	 * @param bool $domain
+	 * @param string $domain
 	 *
 	 * @return mixed|string, meta value from signup table if there is a associated domain
 	 */
 
-	function get_signup_meta( $domain = false ) {
+	function get_signup_meta( $domain = '' ) {
 		if ( ! $domain ) {
 			return false;
 		}
@@ -4892,14 +4910,14 @@ function admin_levels() {
 	/**
 	 * Updates signup meta for a domain
 	 *
-	 * @param bool $signup_meta
+	 * @param array $signup_meta
 	 *
-	 * @param bool $domain
+	 * @param string $domain
 	 *
 	 * @return mixed|string, meta value from signup table if there is a associated domain
 	 */
 
-	function update_signup_meta( $signup_meta = false, $domain = false ) {
+	function update_signup_meta( $signup_meta = array(), $domain = '' ) {
 		if ( ! $signup_meta || ! $domain ) {
 			return false;
 		}
