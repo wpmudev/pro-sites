@@ -1404,7 +1404,6 @@ class ProSites_Gateway_Stripe {
 			if ( ! isset( $event_json->data->object->customer ) ) {
 				return false;
 			}
-			error_log( json_encode( $event_json ) . '/n' );
 			$customer_id = $event_json->data->object->customer;
 			$blog_id     = $this->get_blog_id( $customer_id );
 			if ( ! empty ( $blog_id ) ) {
@@ -1500,11 +1499,8 @@ class ProSites_Gateway_Stripe {
 					$psts->update_signup_meta( $signup_meta, $domain );
 				}
 
-
-				
 				switch ( $event_type ) {
 					case 'invoice.payment_succeeded' :
-						error_log( 'Plan End' . $plan_end );
 						$psts->log_action( $blog_id, sprintf(__('Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts'), $event_type, $amount_formatted, $date, $charge_id) );
 						$this->maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end, true);
 					break;
