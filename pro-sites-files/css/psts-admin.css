@@ -1,0 +1,86 @@
+/** Help Text Style **/
+.psts-help-text-wrapper {
+    display: none;
+    left: 0;
+    position: absolute;
+    top: 16px;
+    width: 200px;
+    z-index: 9999;
+}
+.psts-help-text {
+    background: none repeat scroll 0 0 #464646;
+    border-radius: 3px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    font-size: 11px;
+    margin-top: 10px;
+    max-width: 150px;
+    padding: 0.5em;
+    text-align: center;
+}
+/** Arrow **/
+.psts-help-arrow-wrapper {
+    border: 6px solid transparent;
+    height: 0;
+    margin: 0 0 0 73px;
+    position: absolute;
+    width: 0;
+}
+.psts-help-arrow {
+    border: 7px solid transparent;
+    border-bottom-color: #464646;
+    margin-left: -6px;
+    margin-top: -9px;
+    height: 0;
+    position: absolute;
+    width: 0;
+}
+/** Help Tip **/
+.help_tip {
+    margin-left: 4px;
+    position: absolute;
+    top: 3px;
+}
+/** Coupons Table **/
+#add_coupon {
+    border-collapse: separate;
+    border-spacing: 10px 5px;
+}
+#add_coupon th, #add_coupon td {
+    vertical-align: top;
+}
+#add_coupon th input, #add_coupon td input {
+    height: 28px;
+}
+#add_coupon th {
+    position: relative;
+    text-align: left;
+}
+input[name="uses"] {
+    width: 100px;
+}
+.coupon-code .psts-help-text-wrapper {
+    left: 14px;
+}
+.coupon-period .psts-help-text-wrapper {
+    left: -26px;
+}
+.expire-date .psts-help-text-wrapper {
+    left: 4px;
+}
+/** Allowed Users Help text **/
+.allowed-users .psts-help-text-wrapper {
+    left: 16px;
+}
+/** Chosen Style **/
+#add_coupon  .chosen-container-multi .chosen-choices li.search-field input[type="text"] {
+    height: 24px;
+    width: auto !important;
+}
+.chosen-container-multi {
+    max-width: 180px;
+    width: auto !important;
+}
+#add_coupon .chosen-container-single .chosen-single span {
+    margin: 0;
+}

@@ -119,7 +119,8 @@ class ProSites {
 		//Redirect to checkout page after signup
 		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
 		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
-
+		//Register styles
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );
 
 		//update install script if necessary
 		if ( ( ! defined( 'PSTS_DISABLE_UPGRADE' ) || ( defined( 'PSTS_DISABLE_UPGRADE' ) && ! PSTS_DISABLE_UPGRADE ) ) && $this->get_setting( 'version' ) != $this->version ) {
@@ -627,66 +628,55 @@ Many thanks again for being a member!", 'psts' ),
 		global $psts_plugin_loader;
 
 		//main page
-		$page = add_menu_page( __( 'Pro Sites', 'psts' ), __( 'Pro Sites', 'psts' ), 'manage_network_options', 'psts', array(
-				&$this,
-				'admin_modify'
-			), 'dashicons-plus' );
-		$page = add_submenu_page( 'psts', __( 'Manage Sites', 'psts' ), __( 'Manage Sites', 'psts' ), 'manage_network_options', 'psts', array(
-				&$this,
-				'admin_modify'
-			) );
+		$psts_main_page = add_menu_page( __( 'Pro Sites', 'psts' ), __( 'Pro Sites', 'psts' ), 'manage_network_options', 'psts', array( &$this, 'admin_modify' ), 'dashicons-plus' );
+		$psts_manage_sites_page = add_submenu_page( 'psts', __( 'Manage Sites', 'psts' ), __( 'Manage Sites', 'psts' ), 'manage_network_options', 'psts', array( &$this, 'admin_modify' ) );
 
 		do_action( 'psts_page_after_main' );
 
 		//stats page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Statistics', 'psts' ), __( 'Statistics', 'psts' ), 'manage_network_options', 'psts-stats', array(
-				&$this,
-				'admin_stats'
-			) );
-		add_action( 'admin_print_scripts-' . $page, array( &$this, 'scripts_stats' ) );
+		$psts_stats_page = add_submenu_page( 'psts', __( 'Pro Sites Statistics', 'psts' ), __( 'Statistics', 'psts' ), 'manage_network_options', 'psts-stats', array( &$this, 'admin_stats' ) );
+
 
 		do_action( 'psts_page_after_stats' );
 
 		//coupons page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons', array(
-				&$this,
-				'admin_coupons'
-			) );
-		add_action( 'admin_print_scripts-' . $page, array( &$this, 'scripts_coupons' ) );
-		add_action( 'admin_print_styles-' . $page, array( &$this, 'css_coupons' ) );
+		$psts_coupons_page = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons', array( &$this, 'admin_coupons' ) );
 
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array(
-				&$this,
-				'admin_levels'
-			) );
+		$psts_levels_page = add_submenu_page( 'psts', __( 'Pro Sites Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array( &$this, 'admin_levels' ) );
 
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules/Gateways', 'psts' ), 'manage_network_options', 'psts-modules', array(
-				&$this,
-				'admin_modules'
-			) );
+		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules/Gateways', 'psts' ), 'manage_network_options', 'psts-modules', array( &$this, 'admin_modules' ) );
 
 		do_action( 'psts_page_after_modules' );
 
 		//settings page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
-				&$this,
-				'admin_settings'
-			) );
+		$psts_settings_page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array( &$this, 'admin_settings' ) );
 
 		do_action( 'psts_page_after_settings' );
 
 		//checkout page settings
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
-				&$this,
-				'pricing_table_settings'
-			) );
-		add_action( 'admin_print_styles-' . $page, array( &$this, 'css_pricing' ) );
+		$psts_pricing_page = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array( &$this, 'pricing_table_settings' ) );
+
+		//register plugin style
+		add_action( 'admin_print_styles-' . $psts_main_page, array( &$this, 'load_psts_style' ) );
+
+		//Load style and js for cooupons only
+		add_action( 'admin_print_scripts-' . $psts_coupons_page, array( &$this, 'scripts_coupons' ) );
+		add_action( 'admin_print_styles-' . $psts_coupons_page, array( &$this, 'css_coupons' ) );
+
+		//Load Stats page js
+		add_action( 'admin_print_scripts-' . $psts_stats_page, array( &$this, 'scripts_stats' ) );
+
+		//Load pricing table style and scripts
+		add_action( 'admin_print_styles-' . $psts_pricing_page, array( &$this, 'css_pricing' ) );
+
+		//Add PSTS Style to settings page
+		add_action( 'load-' . $psts_settings_page, array( &$this, 'load_psts_style' ) );
 
 		do_action( 'psts_after_checkout_page_settings' );
 
@@ -1697,6 +1687,7 @@ Many thanks again for being a member!", 'psts' ),
 
 	//record coupon use. Returns boolean successful
 	function use_coupon( $code, $blog_id, $domain = false ) {
+		global $wpdb;
 		if ( $this->check_coupon( $code, $blog_id, '', $domain ) ) {
 			$coupons     = (array) get_site_option( 'psts_coupons' );
 			$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
@@ -1948,38 +1939,75 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
-	//enqeue datepicker css on coupons screen
+	/**
+	 * Enqeue datepicker css on coupons screen
+	 *
+	 */
 	function css_coupons() {
+		$this->load_psts_style();
+		wp_enqueue_style( 'chosen' );
+		wp_enqueue_script( 'chosen' );
 		wp_enqueue_style( 'jquery-datepicker-css', $this->plugin_url . 'datepicker/css/ui-lightness/datepicker.css', false, $this->version );
 	}
 
-	function css_pricing() {
-		echo "<style type='text/css'>
-  .column-psts_co_visible {
-     width:6%;
-  }
-  .column-psts_co_has_thick {
-     width:10%;
-  }
-  .column-psts_co_included,
-  .column-psts_co_name {
-    width:15%;
-  }
-  .submit.alignright {
-    padding:0;
-    float:right;
-  }
-  .ui-sortable > tr {
-    cursor:move;
-  }
-</style>
-    ";
+	/**
+	 * Register PSTS Style
+	 */
+	function register_psts_style() {
+		wp_register_style( 'psts-style', $this->plugin_url . 'css/psts-admin.css' );
+
+		//Check if chosen css is already registered
+		if ( !wp_style_is ( 'chosen', 'registered' ) ) {
+			wp_register_style( 'chosen', $this->plugin_url . 'css/chosen/chosen.min.css' );
+		}
+
+		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
+			'wp-color-picker',
+			'jquery'
+		), $this->version );
+		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
+			'wp-color-picker',
+			'jquery'
+		), $this->version );
+		//Check if chosen js is already registered
+		if ( !wp_script_is ( 'chosen', 'registered' ) ) {
+			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js' );
+		}
+	}
+
+	/**
+	 * Enqueue the main style and js
+	 */
+	function load_psts_style() {
+		wp_enqueue_style( 'psts-style' );
+		wp_enqueue_script( 'psts-js' );
+	}
+	function css_pricing() { ?>
+		<style type='text/css'>
+			.column-psts_co_visible {
+				width: 6%;
+			}
+
+			.column-psts_co_has_thick {
+				width: 10%;
+			}
+
+			.column-psts_co_included,
+			.column-psts_co_name {
+				width: 15%;
+			}
+
+			.submit.alignright {
+				padding: 0;
+				float: right;
+			}
+
+			.ui-sortable > tr {
+				cursor: move;
+			}
+		</style> <?php
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'psts_colorpicker', $this->plugin_url . 'js/psts-admin.js', array(
-				'wp-color-picker',
-				'jquery',
-				'jquery'
-			), $this->version );
+		$this->load_psts_style();
 		wp_enqueue_script( 'psts-checkout-settings-actions', $this->plugin_url . 'js/psts_pricing_table_admin.js', array( 'jquery-ui-sortable' ), $this->version );
 	}
 
@@ -2078,7 +2106,7 @@ Many thanks again for being a member!", 'psts' ),
 	}
 
 	/**
-	 * returns the js needed to record ecommerce transactions.
+	 * Returns the js needed to record ecommerce transactions.
 	 * @param $blog_id
 	 * @param $period
 	 * @param $amount
@@ -3022,7 +3050,8 @@ if ( $active_pro_sites ) {
 			if ( $coupons[ $new_coupon_code ]['discount_type'] != 'amt' && $coupons[ $new_coupon_code ]['discount_type'] != 'pct' ) {
 				$error[] = __( 'Please choose a valid Discount Type', 'psts' );
 			}
-
+			//Coupon Valid for Period
+			$coupons[ $new_coupon_code ]['valid_for_period'] = $_POST['valid_for_period'];
 			$coupons[ $new_coupon_code ]['start'] = strtotime( $_POST['start'] );
 			if ( $coupons[ $new_coupon_code ]['start'] === false ) {
 				$error[] = __( 'Please enter a valid Start Date', 'psts' );
@@ -3047,9 +3076,7 @@ if ( $active_pro_sites ) {
 		}
 
 		//if editing a coupon
-		if ( isset( $_GET['code'] ) ) {
-			$new_coupon_code = $_GET['code'];
-		}
+		$new_coupon_code = isset ( $_GET['code'] ) ? $_GET['code'] : '';
 
 		$apage = isset( $_GET['apage'] ) ? intval( $_GET['apage'] ) : 1;
 		$num   = isset( $_GET['num'] ) ? intval( $_GET['num'] ) : 20;
@@ -3094,6 +3121,7 @@ if ( $active_pro_sites ) {
 			'start'     => __( 'Start Date', 'psts' ),
 			'end'       => __( 'Expire Date', 'psts' ),
 			'level'     => __( 'Level', 'psts' ),
+			'period'    => __( 'Period', 'psts' ),
 			'used'      => __( 'Used', 'psts' ),
 			'remaining' => __( 'Remaining Uses', 'psts' ),
 			'edit'      => __( 'Edit', 'psts' )
@@ -3248,45 +3276,46 @@ if ( $active_pro_sites ) {
       } else {
 	      _e( 'Add Coupon', 'psts' );
       }
+      $periods = $this->get_setting( 'enabled_periods', 0 );
       ?></span></h3>
 
 				<div class="inside">
 					<?php
+					$discount         = '';
+					$discount_type    = '';
+					$start            = date( 'Y-m-d' );
+					$end              = '';
+					$uses             = '';
+					$valid_for_period = '';
 					//setup defaults
 					if ( isset( $new_coupon_code ) && isset( $coupons[ $new_coupon_code ] ) ) {
-						$discount      = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
-						$discount_type = $coupons[ $new_coupon_code ]['discount_type'];
-						$start         = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
-						$end           = ( $coupons[ $new_coupon_code ]['end'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['end'] ) : '';
-						$uses          = $coupons[ $new_coupon_code ]['uses'];
-					} else {
-						$new_coupon_code = '';
-						$discount        = '';
-						$discount_type   = '';
-						$start           = date( 'Y-m-d' );
-						$end             = '';
-						$uses            = '';
+						$discount         = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
+						$discount_type    = $coupons[ $new_coupon_code ]['discount_type'];
+						$start            = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
+						$end              = ( $coupons[ $new_coupon_code ]['end'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['end'] ) : '';
+						$uses             = $coupons[ $new_coupon_code ]['uses'];
+						$valid_for_period = isset( $coupons[ $new_coupon_code ]['valid_for_period'] ) ? $coupons[ $new_coupon_code ]['valid_for_period'] : '';
 					}
 					?>
 					<table id="add_coupon">
 						<thead>
 						<tr>
-							<th>
-								<?php _e( 'Coupon Code', 'psts' ) ?><br/>
-								<small style="font-weight: normal;"><?php _e( 'Letters and Numbers only', 'psts' ) ?></small>
+							<th class="coupon-code">
+								<?php echo __( 'Coupon Code', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Letters and numbers only', 'psts' ) . '</div></div>'; ?>
 							</th>
 							<th><?php _e( 'Discount', 'psts' ) ?></th>
 							<th><?php _e( 'Start Date', 'psts' ) ?></th>
-							<th>
-								<?php _e( 'Expire Date', 'psts' ) ?><br/>
-								<small style="font-weight: normal;"><?php _e( 'No end if blank', 'psts' ) ?></small>
+							<th class="expire-date">
+								<?php echo __( 'Expire Date', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'No end if left blank', 'psts' ) . '</div></div>'; ?>
 							</th>
 							<th>
 								<?php _e( 'Level', 'psts' ) ?>
 							</th>
-							<th>
-								<?php _e( 'Allowed Uses', 'psts' ) ?><br/>
-								<small style="font-weight: normal;"><?php _e( 'Unlimited if blank', 'psts' ) ?></small>
+							<th class="allowed-users">
+								<?php echo __( 'Allowed Uses', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Unlimited if blank', 'psts' ) . '</div></div>'; ?>
+							</th>
+							<th class="coupon-period">
+								<?php echo __( 'Period', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Allows you to limit the availability of coupon for selected subscription period.', 'psts' ) . '</div></div>'; ?>
 							</th>
 						</tr>
 						</thead>
@@ -3297,7 +3326,7 @@ if ( $active_pro_sites ) {
 							</td>
 							<td>
 								<input value="<?php echo $discount; ?>" size="3" name="discount" type="text"/>
-								<select name="discount_type">
+								<select name="discount_type" class="chosen">
 									<option value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $this->format_currency(); ?></option>
 									<option value="pct"<?php selected( $discount_type, 'pct' ) ?>>%</option>
 								</select>
@@ -3309,7 +3338,7 @@ if ( $active_pro_sites ) {
 								<input value="<?php echo $end; ?>" class="pickdate" size="11" name="end" type="text"/>
 							</td>
 							<td>
-								<select name="level">
+								<select name="level" class="chosen">
 									<option value="0"><?php _e( 'Any Level', 'psts' ) ?></option>
 									<?php
 									foreach ( $levels as $key => $value ) {
@@ -3321,7 +3350,22 @@ if ( $active_pro_sites ) {
 							</td>
 							<td>
 								<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
-							</td>
+							</td><?php
+							if ( ! empty( $periods ) ) {
+								?>
+								<td>
+								<select name="valid_for_period[]" multiple class="psts-period chosen" data-placeholder="Select Period">
+									<option value="0"><?php _e( 'Any Period', 'psts' ) ?></option>
+									<?php
+									foreach ( $periods as $period ) {
+										$text = $period == 1 ? 'month' : 'months';
+										?>
+										<option value="<?php echo $period; ?>"<?php  echo in_array( $period, $valid_for_period ) ? 'selected' : ''; ?>><?php echo $period . ' ' .$text; ?></option><?php
+									}
+									?>
+								</select>
+								</td><?php
+							}?>
 						</tr>
 						</tbody>
 					</table>
