@@ -21,6 +21,11 @@ jQuery(document).ready(function($){
     }). mouseleave( function() {
         jQuery(this).parent().find('.psts-help-text-wrapper'). fadeOut(50);
     });
-    jQuery('.chosen').chosen().change(function(){ jQuery(this).trigger('chosen:updated') });;
+    //If chosen function exists and there is any select with class chosen
+    if ( jQuery.isFunction(jQuery.fn.chosen) && jQuery('.chosen').length ) {
+        jQuery('.chosen').chosen().change(function () {
+            jQuery(this).trigger('chosen:updated')
+        });
+    }
 	
 });

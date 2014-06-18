@@ -89,6 +89,7 @@ class ProSites {
 				&$this,
 				'signup_redirect'
 			), 100 ); //delay to make sure it is last hook to admin_init
+
 		//trials
 		add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
@@ -110,8 +111,10 @@ class ProSites {
 				&$this,
 				'blog_template_settings'
 			) ); // exclude pro site setting from blog template copies
+
 		//Disable activation emails
 		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ) );
+
 		//Disable Blog Activation Email, as of Pay before blog creation
 		add_filter( 'wpmu_signup_blog_notification_email', array( $this, 'disable_user_activation_mail' ) );
 		add_filter( 'bp_registration_needs_activation', array( $this, 'disable_user_activation_mail' ) );
@@ -119,8 +122,12 @@ class ProSites {
 		//Redirect to checkout page after signup
 		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
 		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
+
 		//Register styles
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );
+
+		//Display the asterisk detail in sites screen
+		add_action ( 'in_admin_footer', array ( $this, 'psts_note' ) );
 
 		//update install script if necessary
 		if ( ( ! defined( 'PSTS_DISABLE_UPGRADE' ) || ( defined( 'PSTS_DISABLE_UPGRADE' ) && ! PSTS_DISABLE_UPGRADE ) ) && $this->get_setting( 'version' ) != $this->version ) {
@@ -2125,13 +2132,26 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
+	/**
+	 * Get Blog Level
+	 * @param $blog_id
+	 */
 	function column_field_cache( $blog_id ) {
 		global $wpdb;
 
 		if ( ! isset( $this->column_fields[ $blog_id ] ) ) {
 			$psts = $wpdb->get_results( "SELECT blog_ID, level FROM {$wpdb->base_prefix}pro_sites WHERE expire > '" . time() . "'" );
 			foreach ( $psts as $row ) {
-				$level                                = $row->level . ': ' . $this->get_level_setting( $row->level, 'name' );
+				$level_name =  $this->get_level_setting( $row->level, 'name' );
+				// If level exits show level details
+				if ( !empty  ( $level_name ) ) {
+					$level = $row->level . ': ' . $this->get_level_setting( $row->level, 'name' );
+				}else {
+					//Otherwise get the level below it and show it's name with some indication
+					$levels    = ( array ) get_site_option( 'psts_levels' );
+					$max_level = max( array_keys( $levels ) );
+					$level = $max_level . ': ' . $this->get_level_setting( $max_level, 'name' ) . '<sup>&#42;</sup>';
+				}
 				$this->column_fields[ $row->blog_ID ] = $level;
 			}
 		}
@@ -3650,7 +3670,8 @@ function admin_levels() {
 							case 'edit':
 								?>
 								<td scope="row">
-									<?php if ( $level_code == $last_level && $level_code != 1 ) { ?>
+									<?php if ( $level_code == $last_level && $level_code != 1 ) {
+										//Display delete option for last level only ?>
 										<input class="button" type="submit" id="level-delete" name="delete_level" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
 									<?php } ?>
 								</td>
@@ -5010,6 +5031,18 @@ function admin_levels() {
 		);
 
 		return $updated;
+	}
+
+	/**
+	 * Add Custom messages in admin footer
+	 *
+	 */
+	function psts_note () {
+		global $current_screen;
+		//Add for sites screen
+		if ( is_main_network() && 'sites-network' == $current_screen->base ){ ?>
+			<p><strong>&#42 </strong> => <?php _e ( "The original Level doesn't exists, it might have been removed.", 'psts'); ?></p><?php
+		}
 	}
 }
 
