@@ -5037,11 +5037,12 @@ function admin_levels() {
 	 * Add Custom messages in admin footer
 	 *
 	 */
-	function psts_note () {
+	function psts_note() {
 		global $current_screen;
 		//Add for sites screen
-		if ( is_main_network() && 'sites-network' == $current_screen->base ){ ?>
-			<p><strong>&#42 </strong> => <?php _e ( "The original Level doesn't exists, it might have been removed.", 'psts'); ?></p><?php
+		if ( is_main_network() && 'sites-network' == $current_screen->base ) {
+			?>
+			<p><strong>&#42 </strong> => <?php _e( "The original Level doesn't exists, it might have been removed.", 'psts' ); ?></p><?php
 		}
 	}
 }
