@@ -817,7 +817,7 @@ class ProSites_Gateway_Stripe {
 			  $trial_days    = $psts->get_setting( 'trial_days', 0 );
 			  $cp_code       = false;
 			  $setup_fee     = (float) $psts->get_setting( 'setup_fee', 0 );
-			  $has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $domain ) ) ? true : false;
+			  $has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
 			  $has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
 			  $recurring     = $psts->get_setting( 'recurring_subscriptions', 1 );
 

@@ -54,8 +54,8 @@ class ProSites_Gateway_PayPalExpressPro {
 
 	function do_scripts() {
 		global $psts;
-
-		if ( get_the_ID() != $psts->get_setting( 'checkout_page' ) ) {
+		/** get_the_ID() gives a notice on wordpress files as get_post() returns null, a ticket is on the way */
+		if ( !is_page() || get_the_ID() != $psts->get_setting( 'checkout_page' ) ) {
 			return;
 		}
 
@@ -892,7 +892,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
 			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
-			$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'] ) ) ? true : false;
+			$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'] ) ) ? true : false;
 
 			if ( $has_setup_fee ) {
 				$initAmount += $setup_fee;

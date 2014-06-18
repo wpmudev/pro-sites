@@ -152,7 +152,7 @@ class ProSites_Pricing_Table {
     $recurring = $psts->get_setting('recurring_subscriptions', true);
     $upgrade_price = ($recurring) ? $level_prices[$period] :  $psts->calc_upgrade_cost($this->blog_id, $level, $period, $level_prices[$period]);
     
-    if ( isset ( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon ( $_SESSION['COUPON_CODE'], $this->blog_id, $level ) && $coupon_value = $psts->coupon_value ( $_SESSION['COUPON_CODE'], $level_prices [$period] ) ) {
+    if ( isset ( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon ( $_SESSION['COUPON_CODE'], $this->blog_id, $level, $period ) && $coupon_value = $psts->coupon_value ( $_SESSION['COUPON_CODE'], $level_prices [$period] ) ) {
       $level_discount_price = $psts->format_currency ( false, $coupon_value ['new_total'] );
       $discount_price_level = '<del>' . $level_price . '</del><strong class="coupon">' . $level_discount_price . '</strong>';
     } elseif ( $upgrade_price != $level_prices[$period] ) {
