@@ -84,3 +84,27 @@ input[name="uses"] {
 #add_coupon .chosen-container-single .chosen-single span {
     margin: 0;
 }
+/** Settings Page **/
+.post-page-quota .help_tip {
+    top: 21px;
+}
+.post-page-quota .psts-help-text-wrapper {
+    top: 36px;
+}
+.post-page-quota td, .post-page-quota th {
+    position: relative;
+}
+.post-page-quota .pro-site-level .psts-help-text-wrapper {
+    left: 37px;
+}
+.post-page-quota td.upgrade-message .psts-help-text-wrapper {
+    left: 62px;
+}
+/* Post throttling */
+.plan-th-limits {
+    margin: 10px 0;
+}
+.plan-th-limits .chosen-container {
+    min-width: 93px;
+    width: auto !important;
+}

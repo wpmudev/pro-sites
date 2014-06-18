@@ -6,6 +6,7 @@ Change Log:
 ----------------------------------------------------------------------
 3.5 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
 ----------------------------------------------------------------------
+- New:   Post Throttling Module
 - New:   Limit Coupons availability to selected period
 - New:   Filter 'psts_pypl_checkout_image_url' for Paypal
 - New:   Checkout user role selection setting

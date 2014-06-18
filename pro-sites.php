@@ -683,7 +683,7 @@ Many thanks again for being a member!", 'psts' ),
 		add_action( 'admin_print_styles-' . $psts_pricing_page, array( &$this, 'css_pricing' ) );
 
 		//Add PSTS Style to settings page
-		add_action( 'load-' . $psts_settings_page, array( &$this, 'load_psts_style' ) );
+		add_action( 'admin_print_styles-' . $psts_settings_page, array( &$this, 'load_settings_style' ) );
 
 		do_action( 'psts_after_checkout_page_settings' );
 
@@ -1984,8 +1984,7 @@ Many thanks again for being a member!", 'psts' ),
 	 */
 	function css_coupons() {
 		$this->load_psts_style();
-		wp_enqueue_style( 'chosen' );
-		wp_enqueue_script( 'chosen' );
+		$this->load_chosen();
 		wp_enqueue_style( 'jquery-datepicker-css', $this->plugin_url . 'datepicker/css/ui-lightness/datepicker.css', false, $this->version );
 	}
 
@@ -2017,9 +2016,21 @@ Many thanks again for being a member!", 'psts' ),
 	/**
 	 * Enqueue the main style and js
 	 */
-	function load_psts_style() {
+	function load_psts_style( ) {
 		wp_enqueue_style( 'psts-style' );
 		wp_enqueue_script( 'psts-js' );
+	}
+
+	/**
+	 * Loads the Chosen Style and script
+	 */
+	function load_chosen(){
+		wp_enqueue_style( 'chosen' );
+		wp_enqueue_script( 'chosen' );
+	}
+	function load_settings_style () {
+		$this->load_psts_style();
+		$this->load_chosen();
 	}
 	function css_pricing() { ?>
 		<style type='text/css'>
@@ -2046,7 +2057,7 @@ Many thanks again for being a member!", 'psts' ),
 			}
 		</style> <?php
 		wp_enqueue_style( 'wp-color-picker' );
-		$this->load_psts_style();
+		$this->load_psts_style( false );
 		wp_enqueue_script( 'psts-checkout-settings-actions', $this->plugin_url . 'js/psts_pricing_table_admin.js', array( 'jquery-ui-sortable' ), $this->version );
 	}
 
@@ -5042,7 +5053,7 @@ function admin_levels() {
 		//Add for sites screen
 		if ( is_main_network() && 'sites-network' == $current_screen->base ) {
 			?>
-			<p><strong>&#42 </strong> => <?php _e( "The original Level doesn't exists, it might have been removed.", 'psts' ); ?></p><?php
+			<p><strong>&#42 </strong> => <?php _e( "The original Level doesn't exist, it might have been removed.", 'psts' ); ?></p><?php
 		}
 	}
 }

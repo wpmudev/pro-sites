@@ -66,7 +66,7 @@ class ProSites_Gateway_Stripe {
 	function do_scripts() {
 		global $psts;
 		
-		if ( get_the_ID() != $psts->get_setting('checkout_page') )
+		if ( !is_page() || get_the_ID() != $psts->get_setting('checkout_page') )
 			return;
 		
 		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
