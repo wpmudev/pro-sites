@@ -407,7 +407,12 @@ Many thanks again for being a member!", 'psts' ),
 	function get_setting( $key, $default = null ) {
 		$settings = get_site_option( 'psts_settings' );
 		$setting  = isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
-
+		/**
+		 * Filter the specific setting, $key parameter value
+		 *
+		 * @param array $setting
+		 * @param mixed $default, null The default value for $key setting if there is no value returned
+		 */
 		return apply_filters( "psts_setting_$key", $setting, $default );
 	}
 
@@ -821,8 +826,11 @@ Many thanks again for being a member!", 'psts' ),
           $url = $this->get_setting('checkout_url');
           }
          */
-
-		//change to ssl if required
+		/**
+		 * Filter the force SSl option
+		 *
+		 * @param bool, default is set to false
+		 */
 		if ( apply_filters( 'psts_force_ssl', false ) ) {
 			$url = str_replace( 'http://', 'https://', $url );
 		}

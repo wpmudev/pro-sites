@@ -5,6 +5,8 @@
  *
  * @category ProSites
  * @package Module
+ *
+ * @since 3.5
  */
 class ProSites_Module_PostThrottling {
 
@@ -31,6 +33,10 @@ class ProSites_Module_PostThrottling {
 		// filters
 		add_filter( 'psts_settings_filter', array( $this, 'saveModuleSettings' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
+
+		//Admin Notice If limit exceeded
+		add_action( 'admin_notices', array( &$this, 'message' ) );
+
 	}
 
 	/**
@@ -384,6 +390,59 @@ class ProSites_Module_PostThrottling {
 				</tr><?php
 			} ?><?php
 		}
+	}
+
+	/**
+	 * Displays a admin notice if Post throttling limit has been exceeded for the site
+	 */
+	function message() {
+		global $psts, $current_screen, $post_type, $blog_id, $typenow;
+		/** Checks If current post type is being limited or not */
+		if ( ! in_array( $typenow, self::_getThrottlingTypes() ) ) {
+			return;
+		}
+
+		if ( in_array( $current_screen->id, array( 'edit-post', 'post', 'edit-page', 'page' ) ) ) {
+			$exceeded  = false;
+			$level     = $psts->get_level();
+			$throttles = self::_getThrottles();
+			$frees     = $psts->get_setting( self::OPTION_FREE_PLAN_LIMITS );
+			foreach ( self::_getThrottlingPeriods() as $key => $info ) {
+				$limit = false;
+				if ( $level > 0 ) {
+					$limit = (int) $psts->get_level_setting( $level, $key );
+				} else {
+					$limit = isset( $frees[ $key ] ) ? $frees[ $key ] : 0;
+				}
+				if ( empty( $limit ) || 'unlimited' == $limit ) {
+					continue;
+				}
+
+				$remaining = $limit - count( $throttles[ $key ]['ids'] );
+				if ( $remaining <= 0 ) {
+					$remaining = 0;
+					$exceeded  = true;
+					$period = $key;
+					$post_back_time = human_time_diff( time(), $throttles[ $key ]['expired'] );
+				}
+			}
+			if ( $exceeded ) {
+				$period_human_form = 'throttling_hour' == $key ? __( 'hourly', 'psts' ) : __( 'daily', 'psts' );
+				$upgrade_message = is_super_admin( $blog_id ) ? 'you can <a href="' . $psts->checkout_url( $blog_id ) . '">'. __( 'upgrade', 'psts') . '</a> to continue posting. Contact site admin for more details' : __( 'Contact site admin for more details' );
+				$notice = sprintf( __( 'You have reached the %s publishing limit, you can post again after %s, or %s.'), $period_human_form, $post_back_time, $upgrade_message );
+				/**
+				 * Filter the Post Throttling limit message, display on admin screen if site posting limit is exceeded
+				 *
+				 * @since 3.5
+				 *
+				 * @param string $notice The message to be displayed
+				 * @param string $period_human_form  type of limit exceeded
+				 */
+				$notice = apply_filters( 'psts_throttling_limit_exceeded', $notice, $period_human_form );
+				echo '<div class="error"><p>' . $notice . '</p></div>';
+			}
+		}
+
 	}
 
 }

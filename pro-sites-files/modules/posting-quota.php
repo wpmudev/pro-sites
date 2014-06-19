@@ -45,7 +45,7 @@ class ProSites_Module_PostingQuota {
 			$caps = array();
 			foreach ( $settings['pq_quotas'] as $post_type => $vars ) {
 				$pt_obj = get_post_type_object( $post_type );
-				//check if 
+				//check if
 				if ( isset( $caps[ $pt_obj->cap->publish_posts ] ) ) {
 					$settings['pq_quotas'][ $post_type ]['quota'] = $caps[ $pt_obj->cap->publish_posts ];
 				} else {
