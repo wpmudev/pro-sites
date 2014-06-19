@@ -21,20 +21,16 @@ class ProSites_Module_PostingQuota {
 	}
 
 	function write_filter( $allcaps, $caps, $args ) {
-		global $psts;
+		global $psts, $typenow;
 
 		if ( ! is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
 			$quota_settings = $psts->get_setting( "pq_quotas" );
-			if ( is_array( $quota_settings ) ) {
-				foreach ( $quota_settings as $post_type => $settings ) {
-					if ( is_numeric( @$settings['quota'] ) && wp_count_posts( $post_type )->publish >= @$settings['quota'] ) {
-						$pt_obj = get_post_type_object( $post_type );
-						unset( $allcaps[ $pt_obj->cap->publish_posts ] );
-					}
-				}
+			$settings       = isset ( $quota_settings[ $typenow ] ) ? $quota_settings[ $typenow ] : '';
+			if ( is_numeric( @$settings['quota'] ) && wp_count_posts( $typenow )->publish >= @$settings['quota'] ) {
+				$pt_obj = get_post_type_object( $typenow );
+				unset( $allcaps[ $pt_obj->cap->publish_posts ] );
 			}
 		}
-
 		return $allcaps;
 	}
 
@@ -133,14 +129,15 @@ class ProSites_Module_PostingQuota {
 		if ( is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
 			return;
 		}
-
-		if ( in_array( $current_screen->id, array( 'edit-post', 'post', 'edit-page', 'page' ) ) ) {
-			$quota_settings = $psts->get_setting( "pq_quotas" );
-			if ( is_array( $quota_settings ) ) {
-				if ( isset( $quota_settings[ $post_type ] ) ) {
-					if ( is_numeric( @$quota_settings[ $post_type ]['quota'] ) && wp_count_posts( $post_type )->publish >= @$quota_settings[ $post_type ]['quota'] ) {
-						$notice = str_replace( 'LEVEL', $psts->get_level_setting( $psts->get_setting( 'pq_level', 1 ), 'name' ), @$quota_settings[ $post_type ]['message'] );
-						echo '<div class="error"><p><a href="' . $psts->checkout_url( $blog_id ) . '">' . $notice . '</a></p></div>';
+		$quota_settings = $psts->get_setting( "pq_quotas" );
+		if ( isset ( $quota_settings[ $post_type ] ) ) {
+			if ( in_array( $current_screen->id, array( $post_type, 'edit-'.$post_type ) ) ) {
+				if ( is_array( $quota_settings ) ) {
+					if ( isset( $quota_settings[ $post_type ] ) ) {
+						if ( is_numeric( @$quota_settings[ $post_type ]['quota'] ) && wp_count_posts( $post_type )->publish >= @$quota_settings[ $post_type ]['quota'] ) {
+							$notice = str_replace( 'LEVEL', $psts->get_level_setting( $psts->get_setting( 'pq_level', 1 ), 'name' ), @$quota_settings[ $post_type ]['message'] );
+							echo '<div class="error"><p><a href="' . $psts->checkout_url( $blog_id ) . '">' . $notice . '</a></p></div>';
+						}
 					}
 				}
 			}

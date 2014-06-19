@@ -18,7 +18,8 @@ Change Log:
 - New:   Add admin bar upgrade button for Bulk Upgrades module
 - New:   Filters to override ads conditionals
 - New:   BuddyPress feature to hide non-pro blogs from activity streams
-- Fixed: Updated wp_specialchars to esc_html
+- Fixed: Posting quota limit issue for Custom posts
+- Fixed: Warnings and notices
 - Fixed: Upload Quota ad-free level showing when not active in ads module
 - Fixed: Check class_exists on Stripe API class
 - Fixed: Plugin Path variable

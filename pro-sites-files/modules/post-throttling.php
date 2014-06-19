@@ -396,13 +396,13 @@ class ProSites_Module_PostThrottling {
 	 * Displays a admin notice if Post throttling limit has been exceeded for the site
 	 */
 	function message() {
-		global $psts, $current_screen, $post_type, $blog_id, $typenow;
+		global $psts, $current_screen, $post_type, $blog_id;
 		/** Checks If current post type is being limited or not */
-		if ( ! in_array( $typenow, self::_getThrottlingTypes() ) ) {
+		if ( ! in_array( $post_type, self::_getThrottlingTypes() ) ) {
 			return;
 		}
 
-		if ( in_array( $current_screen->id, array( 'edit-post', 'post', 'edit-page', 'page' ) ) ) {
+		if ( in_array( $current_screen->id, array( $post_type, 'edit-'.$post_type ) ) ) {
 			$exceeded  = false;
 			$level     = $psts->get_level();
 			$throttles = self::_getThrottles();
@@ -429,7 +429,7 @@ class ProSites_Module_PostThrottling {
 			if ( $exceeded ) {
 				$period_human_form = 'throttling_hour' == $key ? __( 'hourly', 'psts' ) : __( 'daily', 'psts' );
 				$upgrade_message = is_super_admin( $blog_id ) ? 'you can <a href="' . $psts->checkout_url( $blog_id ) . '">'. __( 'upgrade', 'psts') . '</a> to continue posting. Contact site admin for more details' : __( 'Contact site admin for more details' );
-				$notice = sprintf( __( 'You have reached the %s publishing limit, you can post again after %s, or %s.'), $period_human_form, $post_back_time, $upgrade_message );
+				$notice = sprintf( __( 'You have reached the %s publishing limit, you can publish again after %s, or %s.'), $period_human_form, $post_back_time, $upgrade_message );
 				/**
 				 * Filter the Post Throttling limit message, display on admin screen if site posting limit is exceeded
 				 *
