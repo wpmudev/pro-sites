@@ -13,11 +13,10 @@ class ProSites_Gateway_2Checkout {
 		require $psts->plugin_dir . "gateways/gateway-2checkout-files/Twocheckout.php";
 		//settings
 		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
-		//add_action('psts_settings_process', array(&$this, 'settings_process'));
 
 		//checkout stuff
-		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ) );
-		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 2 );
+		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
+		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );
 		add_filter( 'psts_force_ssl', array( &$this, 'force_ssl' ) );
 
 		//plug management page
@@ -179,8 +178,13 @@ class ProSites_Gateway_2Checkout {
 	 *   -UpGrade level
 	 *   -Manual extends subscription time
 	 */
-	public function process_checkout( $blog_id ) {
+	public function process_checkout( $blog_id, $domain = false ) {
 		global $current_site, $current_user, $psts, $wpdb;
+		$site_name = $current_site->site_name;
+		if ( !empty( $domain ) ){
+			//Get blog name from signup as per WP Signup or BP Signup
+			$site_name = $domain;
+		}
 		if ( isset( $_POST['2co_checkout_button'] ) ) {
 			//validate
 			if ( ! $this->check_nonce() ) {
@@ -209,7 +213,7 @@ class ProSites_Gateway_2Checkout {
 			$params         = array(
 				'sid'                => $psts->get_setting( '2co_acc_number' ),
 				'currency'           => $psts->get_setting( '2co_currency', 'USD' ),
-				'x_receipt_link_url' => $psts->checkout_url( $_GET['bid'] ),
+				'x_receipt_link_url' => $psts->checkout_url( $blog_id, $domain ),
 				'mode'               => '2CO',
 				'merchant_order_id'  => $blog_id,
 				'period'             => esc_attr( $_POST['period'] ),
@@ -221,7 +225,7 @@ class ProSites_Gateway_2Checkout {
 			//build products params
 			$addition_params = array(
 				'li_0_type'  => 'product',
-				'li_0_name'  => $current_site->site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ),
+				'li_0_name'  => $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ),
 				'li_0_price' => $init_amount,
 			);
 
@@ -256,48 +260,51 @@ class ProSites_Gateway_2Checkout {
 			}
 
 			//check if this is downgrade,require no money
-			$cur_level = $psts->get_level( $blog_id );
-			if ( $cur_level > 0 ) {
-				if ( $cur_level > $_POST['level'] ) {
-					/**
-					 * Case downgrade
-					 * If period is same,so it is simple.When the current level expire,we will downgrade the leve.
-					 * For cost for first period of new level will be nearly free.
-					 */
-					$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
-					if ( $old->term == $_POST['period'] ) {
+			if ( !empty ( $blog_id ) ) {
+				$cur_level = $psts->get_level( $blog_id );
+				//To Do: Update downgrade logic, to avoid free subscription for next period if downgraded at the end of subscription
+				if ( $cur_level > 0 ) {
+					if ( $cur_level > $_POST['level'] ) {
+						/**
+						 * Case downgrade
+						 * If period is same,so it is simple.When the current level expire,we will downgrade the leve.
+						 * For cost for first period of new level will be nearly free.
+						 */
+						$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+						if ( $old->term == $_POST['period'] ) {
+							$addition_params = array_merge( $addition_params, array_merge( array(
+								'li_2_type'  => 'coupon',
+								'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
+								'li_2_price' => $init_amount - 0.01
+							) ) );
+						} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
+							/**
+							 * This case is when the new period smaller than current or larger
+							 * 2checkout not support for update customer infomation,
+							 * and the only way is using the checkout.Some issue will happend
+							 * Example current is 3 months,but user want to downgrade to 1 month.The point is if we subscription for client now,it will
+							 * make client need to pay for 3 months before the old expire end. So for this case,we only cancel the subscription,
+							 * and send the checkout url when this subscrition expire via email.
+							 */
+							update_option( 'psts_2co_recuring_next_plan', array(
+								'action' => 'downgrade',
+								'level'  => $_POST['level'],
+								'type'   => 'email'
+							) );
+							$this->complete_message = __( 'Your 2Checkout subscription modification was not done automate! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
+						}
+					} elseif ( $cur_level < $_POST['level'] ) {
+						/**
+						 * Case upgrade
+						 */
+						//get the unuse balance
+						$balance_left    = $this->cal_unused_balance( $blog_id );
 						$addition_params = array_merge( $addition_params, array_merge( array(
 							'li_2_type'  => 'coupon',
-							'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
-							'li_2_price' => $init_amount - 0.01
+							'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
+							'li_2_price' => $balance_left
 						) ) );
-					} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
-						/**
-						 * This case is when the new period smaller than current or larger
-						 * 2checkout not support for update customer infomation,
-						 * and the only way is using the checkout.Some issue will happend
-						 * Example current is 3 months,but user want to downgrade to 1 month.The point is if we subscription for client now,it will
-						 * make client need to pay for 3 months before the old expire end. So for this case,we only cancel the subscription,
-						 * and send the checkout url when this subscrition expire via email.
-						 */
-						update_option( 'psts_2co_recuring_next_plan', array(
-							'action' => 'downgrade',
-							'level'  => $_POST['level'],
-							'type'   => 'email'
-						) );
-						$this->complete_message = __( 'Your 2Checkout subscription modification was not done automate! You will recive an email about the new upgrade when current subsciprion expire.', 'psts' );
 					}
-				} elseif ( $cur_level < $_POST['level'] ) {
-					/**
-					 * Case upgrade
-					 */
-					//get the unuse balance
-					$balance_left    = $this->cal_unused_balance( $blog_id );
-					$addition_params = array_merge( $addition_params, array_merge( array(
-						'li_2_type'  => 'coupon',
-						'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
-						'li_2_price' => $balance_left
-					) ) );
 				}
 			}
 			//create form
@@ -309,6 +316,8 @@ class ProSites_Gateway_2Checkout {
 		} elseif ( isset( $_REQUEST['credit_card_processed'] ) && strtolower( $_REQUEST['credit_card_processed'] ) == 'y' ) {
 			$check = Twocheckout_Return::check( $_REQUEST, $psts->get_setting( '2co_secret_word' ), 'array' );
 			if ( $check['response_code'] == 'Success' ) {
+				//Activate the blog
+				$blog_id = $psts->activate_user_blog( $domain );
 				if ( ! $this->check_profile_id_exist( $blog_id, $_REQUEST['order_number'] ) ) {
 					//profile not exist
 					//do the check
@@ -366,7 +375,6 @@ class ProSites_Gateway_2Checkout {
 				}
 			}
 		}
-		wp_mail( 'hoang@createdn.com', 'debug', var_export( $_REQUEST, true ) );
 	}
 
 	function cal_unused_balance( $blog_id ) {
@@ -547,9 +555,17 @@ class ProSites_Gateway_2Checkout {
 			});</script><?php
 	}
 
-	function checkout_screen( $content, $blog_id ) {
+	/**
+	 * Displays the checkout screen
+	 * @param $content
+	 * @param $blog_id
+	 * @param string $domain
+	 *
+	 * @return string
+	 */
+	function checkout_screen( $content, $blog_id, $domain = '' ) {
 		global $psts, $wpdb, $current_site, $current_user;
-		if ( ! $blog_id ) {
+		if ( ! $blog_id && !$domain ) {
 			return $content;
 		}
 
@@ -738,7 +754,7 @@ class ProSites_Gateway_2Checkout {
 			$content .= '<p>' . __( 'Please choose your desired plan then click the checkout button below.', 'psts' ) . '</p>';
 		}
 		//build the checkout form
-		$content .= $this->build_checkout_form_html( $blog_id );
+		$content .= $this->build_checkout_form_html( $blog_id, $domain );
 		//put cancel button at end
 		if ( defined( 'PSTS_CANCEL_LAST' ) ) {
 			$content .= $cancel_content;
@@ -747,13 +763,13 @@ class ProSites_Gateway_2Checkout {
 		return $content;
 	}
 
-	function build_checkout_form_html( $blog_id ) {
+	function build_checkout_form_html( $blog_id, $domain = false ) {
 		global $psts;
-		$html = '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off"  id="payment-form">';
+		$html = '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
 		//checkout grid
 		$html .= $psts->checkout_grid( $blog_id );
 		$html .= $this->nonce_field();
-		$html .= '<input type="submit" id="cc_checkout" name="2co_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button"/>';
+		$html .= '<input type="submit" id="cc_checkout" name="2co_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="2co_checkout_buttonsubmit-button"/>';
 		$html .= '</form>';
 
 		return $html;
@@ -1454,4 +1470,4 @@ class ProSites_Gateway_2Checkout {
 }
 
 //register the gateway
-psts_register_gateway( 'ProSites_Gateway_2Checkout', __( '2Checkout', 'psts' ), __( 'Description update later', 'psts' ) );
+psts_register_gateway( 'ProSites_Gateway_2Checkout', __( '2Checkout', 'psts' ), __( 'Online payment processing service that helps you accept credit cards, PayPal and debit cards', 'psts' ) );

@@ -10,47 +10,26 @@ class ProSites_Module_PostingQuota {
 	static $user_description;
 
 	function __construct() {
+		/**
+		 * Settings Page
+		 */
 		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
-
+		/**
+		 * Add warning
+		 */
 		add_action( 'admin_notices', array( &$this, 'message' ) );
-		add_filter( 'user_has_cap', array( &$this, 'write_filter' ), 10, 3 );
+		/**
+		 * Check limit before publishing
+		 */
+		add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
+		/**
+		 * Remove publish option if limit reached
+		 *
+		 */
+		add_action( 'post_submitbox_misc_actions', array( $this, 'remove_publish_option' ) );
 
 		self::$user_label       = __( 'Posting Quotas', 'psts' );
 		self::$user_description = __( 'Limited post types', 'psts' );
-	}
-
-	function write_filter( $allcaps, $caps, $args ) {
-		global $psts, $typenow;
-
-		if ( ! is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
-			$quota_settings = $psts->get_setting( "pq_quotas" );
-			$settings       = isset ( $quota_settings[ $typenow ] ) ? $quota_settings[ $typenow ] : '';
-			if ( is_numeric( @$settings['quota'] ) && wp_count_posts( $typenow )->publish >= @$settings['quota'] ) {
-				$pt_obj = get_post_type_object( $typenow );
-				unset( $allcaps[ $pt_obj->cap->publish_posts ] );
-			}
-		}
-		return $allcaps;
-	}
-
-	function settings_process( $settings ) {
-		global $psts;
-
-		if ( is_array( $settings['pq_quotas'] ) ) {
-			$caps = array();
-			foreach ( $settings['pq_quotas'] as $post_type => $vars ) {
-				$pt_obj = get_post_type_object( $post_type );
-				//check if
-				if ( isset( $caps[ $pt_obj->cap->publish_posts ] ) ) {
-					$settings['pq_quotas'][ $post_type ]['quota'] = $caps[ $pt_obj->cap->publish_posts ];
-				} else {
-					$caps[ $pt_obj->cap->publish_posts ] = @$vars['quota'];
-				}
-			}
-		}
-
-		return $settings;
 	}
 
 	function settings() {
@@ -80,31 +59,29 @@ class ProSites_Module_PostingQuota {
 					<?php
 					$quota_settings = $psts->get_setting( "pq_quotas" );
 					$post_types     = get_post_types( array( 'show_ui' => true ), 'objects', 'and' );
-					$caps           = array();
+					$user           = get_user_by( 'id', get_current_user_id() );
 					foreach ( $post_types as $post_type ) {
+						//Check publish permissions for user
+						if ( ! current_user_can( $post_type->cap->publish_posts ) ) {
+							continue;
+						}
 						$quota     = isset( $quota_settings[ $post_type->name ]['quota'] ) ? $quota_settings[ $post_type->name ]['quota'] : 'unlimited';
-						$quota_msg = isset( $quota_settings[ $post_type->name ]['message'] ) ? $quota_settings[ $post_type->name ]['message'] : sprintf( __( 'To publish more %s, please upgrade to LEVEL &raquo;', 'psts' ), $post_type->label );
+						$quota_msg = isset( $quota_settings[ $post_type->name ]['message'] ) ? $quota_settings[ $post_type->name ]['message'] : sprintf( __( "You've reached the publishing limit, To publish more %s, please upgrade to LEVEL &raquo;", 'psts' ), $post_type->label );
 						?>
 						<tr valign="top">
 							<th scope="row"><?php printf( __( '%s Quota', 'psts' ), $post_type->label ); ?></th>
 						</tr>
 						<tr>
-							<td><?php printf( __( 'Post Limit', 'psts' ), $post_type->label ); ?></td>
+							<td><?php printf( __( 'Publish Limit', 'psts' ), $post_type->label ); ?></td>
 							<td>
-								<?php if ( isset( $caps[ $post_type->cap->publish_posts ] ) ) { ?>
-									<select disabled="disabled" class="chosen">
-										<option><?php printf( __( 'Same as %s', 'psts' ), $caps[ $post_type->cap->publish_posts ] ); ?></option>
-									</select>
-								<?php } else { ?>
-									<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen">
-										<option value="unlimited"<?php selected( $quota, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
-										<?php
-										for ( $counter = 1; $counter <= 1000; $counter ++ ) {
-											echo '<option value="' . $counter . '"' . ( $counter == $quota ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-										}
-										?>
-									</select>
-								<?php } ?>
+								<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen">
+									<option value="unlimited"<?php selected( $quota, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
+									<?php
+									for ( $counter = 1; $counter <= 1000; $counter ++ ) {
+										echo '<option value="' . $counter . '"' . ( $counter == $quota ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+									}
+									?>
+								</select>
 							</td>
 						</tr>
 						<tr>
@@ -113,8 +90,7 @@ class ProSites_Module_PostingQuota {
 								<input type="text" name="psts[pq_quotas][<?php echo $post_type->name; ?>][message]" value="<?php echo esc_attr( $quota_msg ); ?>" style="width: 90%"/>
 							</td>
 						</tr>
-						<?php
-						$caps[ $post_type->cap->publish_posts ] = $post_type->label;
+					<?php
 					}
 					?>
 				</table>
@@ -131,7 +107,7 @@ class ProSites_Module_PostingQuota {
 		}
 		$quota_settings = $psts->get_setting( "pq_quotas" );
 		if ( isset ( $quota_settings[ $post_type ] ) ) {
-			if ( in_array( $current_screen->id, array( $post_type, 'edit-'.$post_type ) ) ) {
+			if ( in_array( $current_screen->id, array( $post_type, 'edit-' . $post_type ) ) ) {
 				if ( is_array( $quota_settings ) ) {
 					if ( isset( $quota_settings[ $post_type ] ) ) {
 						if ( is_numeric( @$quota_settings[ $post_type ]['quota'] ) && wp_count_posts( $post_type )->publish >= @$quota_settings[ $post_type ]['quota'] ) {
@@ -148,6 +124,86 @@ class ProSites_Module_PostingQuota {
 		switch ( $level_id ) {
 			default:
 				return false;
+		}
+	}
+
+	/**
+	 * Checks if a post could be published.
+	 *
+	 * @access public
+	 * @global ProSites $psts The instance of ProSites plugin.
+	 *
+	 * @param array $data The array of post data to save.
+	 * @param array $postarr The income array of post data.
+	 */
+	public function checkPostStatusBeforeSave( $data, $postarr ) {
+		global $psts;
+
+		//Check level settings
+		if ( is_pro_site(false, $psts->get_setting('pq_level', 1)) ) {
+			return;
+		}
+
+		if ( ! isset( $postarr['ID'] ) || $data['post_status'] != 'publish' ) {
+			return $data;
+		}
+
+		$quota_settings = $psts->get_setting( "pq_quotas" );
+		//Return if post does not exists, if there is no limit set for post type or if quota value is unlimited
+		if ( ! ( $post = get_post( $postarr['ID'] ) ) || ! isset ( $quota_settings[ $post->post_type ] ) || 'unlimited' == $quota_settings[ $post->post_type ]['quota'] ) {
+			return $data;
+		}
+		$limit = $quota_settings[ $post->post_type ]['quota'];
+		if ( 0 >= $limit - wp_count_posts( $post->post_type )->publish ) {
+			$data['post_status'] = $post->post_status != 'auto-draft' ? 'draft' : $post->post_status;
+		}
+		return $data;
+	}
+
+	/**
+	 * Renders limits in the "Publish" meta box.
+	 *
+	 * @access public
+	 * @global ProSites $psts The instance of ProSites plugin.
+	 * @global string $typenow The current post type.
+	 */
+	public function remove_publish_option() {
+		global $psts, $typenow;
+
+		$quota_settings = $psts->get_setting( 'pq_quotas' );
+		/**
+		 * Return if no limit is set for the post type or if its unlimited
+		 */
+		if ( ! isset( $quota_settings[ $typenow ] ) || 'unlimited' == $quota_settings[ $typenow ]['quota'] ) {
+			return;
+		}
+		//Check level settings
+		if ( is_pro_site(false, $psts->get_setting('pq_level', 1)) ) {
+			return;
+		}
+
+		$exceeded  = false;
+		$limit = $quota_settings[$typenow]['quota'];
+		if ( is_numeric( $quota_settings[ $typenow ]['quota'] ) && wp_count_posts( $typenow )->publish >= $quota_settings[ $typenow ]['quota'] ) {
+			$exceeded = true;
+		}
+		if ( $exceeded && get_post()->post_status != 'publish' ) {
+			?>
+			<style type="text/css">
+				#publish {
+					display: none;
+				}
+
+				#psts-upgrade {
+					margin-top: 4px;
+					display: block;
+					text-align: center;
+				}
+			</style>
+
+			<div class="misc-pub-section">
+			<a id="psts-upgrade" class="button button-primary button-large" href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
+			</div><?php
 		}
 	}
 }

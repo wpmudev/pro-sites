@@ -19,6 +19,9 @@ class ProSites_Module_PostThrottling {
 	const PERIOD_DAILY = 'throttling_day';
 	const PERIOD_HOURLY = 'throttling_hour';
 
+	static $user_label;
+	static $user_description;
+
 	/**
 	 * Constructor.
 	 *
@@ -36,7 +39,8 @@ class ProSites_Module_PostThrottling {
 
 		//Admin Notice If limit exceeded
 		add_action( 'admin_notices', array( &$this, 'message' ) );
-
+		self::$user_label       = __( 'Post Throttling', 'psts' );
+		self::$user_description = __( 'Limit Post publishing rate.', 'psts' );
 	}
 
 	/**

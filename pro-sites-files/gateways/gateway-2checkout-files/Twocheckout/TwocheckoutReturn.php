@@ -6,7 +6,8 @@ class Twocheckout_Return extends Twocheckout {
 		$hashSecretWord = $secretWord;
 		$hashSid        = $params['sid'];
 		$hashTotal      = $params['total'];
-		$hashOrder      = $params['order_number'];
+		//Two checkout uses order number as 1 in test orders for generating hash
+		$hashOrder      = 'Y' == $params ['demo'] ? 1 : $params['order_number'];
 		$StringToHash   = strtoupper( md5( $hashSecretWord . $hashSid . $hashOrder . $hashTotal ) );
 		if ( $StringToHash != $params['key'] ) {
 			$result = Twocheckout_Message::message( 'Fail', 'Hash Mismatch' );

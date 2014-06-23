@@ -1640,7 +1640,7 @@ Many thanks again for being a member!", 'psts' ),
 		 * @param int, $blog_id
 		 * @param int, $level Pro Level
 		 * @param int, $period
-		 * @param string, $domain, availabel at the time of signup
+		 * @param string, $domain, available at the time of signup
 		 *
 		 */
 		if ( is_bool( $override = apply_filters( 'psts_check_coupon', null, $coupon_code, $blog_id, $level, $coupons, $period, $domain ) ) ) {
@@ -3911,7 +3911,6 @@ function admin_levels() {
 		if ( isset( $_POST['submit_settings'] ) ) {
 			//check nonce
 			check_admin_referer( 'psts_settings' );
-
 			//strip slashes from all inputs
 			$_POST['psts'] = stripslashes_deep( $_POST['psts'] );
 

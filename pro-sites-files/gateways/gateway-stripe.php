@@ -1187,7 +1187,7 @@ class ProSites_Gateway_Stripe {
 			$content .= '<p>' . __( 'Please choose your desired plan then click the checkout button below.', 'psts' ) . '</p>';
 		}
 
-		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off"  id="payment-form">';
+		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
 
 		//print the checkout grid
 		$content .= $psts->checkout_grid( $blog_id );
