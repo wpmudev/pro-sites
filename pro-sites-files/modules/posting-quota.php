@@ -140,7 +140,7 @@ class ProSites_Module_PostingQuota {
 		global $psts;
 
 		//Check level settings
-		if ( is_pro_site(false, $psts->get_setting('pq_level', 1)) ) {
+		if ( is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
 			return;
 		}
 
@@ -157,6 +157,7 @@ class ProSites_Module_PostingQuota {
 		if ( 0 >= $limit - wp_count_posts( $post->post_type )->publish ) {
 			$data['post_status'] = $post->post_status != 'auto-draft' ? 'draft' : $post->post_status;
 		}
+
 		return $data;
 	}
 
@@ -178,12 +179,12 @@ class ProSites_Module_PostingQuota {
 			return;
 		}
 		//Check level settings
-		if ( is_pro_site(false, $psts->get_setting('pq_level', 1)) ) {
+		if ( is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
 			return;
 		}
 
-		$exceeded  = false;
-		$limit = $quota_settings[$typenow]['quota'];
+		$exceeded = false;
+		$limit    = $quota_settings[ $typenow ]['quota'];
 		if ( is_numeric( $quota_settings[ $typenow ]['quota'] ) && wp_count_posts( $typenow )->publish >= $quota_settings[ $typenow ]['quota'] ) {
 			$exceeded = true;
 		}

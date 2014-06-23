@@ -207,31 +207,39 @@ class ProSites_Module_PostThrottling {
 			} else {
 				$limit = isset( $frees[ $key ] ) ? $frees[ $key ] : 0;
 			}
-			if ( empty( $limit )  || 'unlimited' == $limit) {
+			if ( empty( $limit ) || 'unlimited' == $limit ) {
 				continue;
 			}
 
 			$remaining = $limit - count( $throttles[ $key ]['ids'] );
 			if ( $remaining <= 0 ) {
-				$remaining     = 0;
-				$exceeded = true;
+				$remaining = 0;
+				$exceeded  = true;
 			} ?>
 			<div class="misc-pub-section">
-				<code style="float: right"><?php echo human_time_diff( time(), $throttles[ $key ]['expired'] ); ?></code>
-				<?php echo $info['label']; ?> : <strong style="color: <?php echo $remaining == 0 ? 'red' : 'green'; ?>">
-					<code><?php echo $remaining; ?> / <?php echo $limit; ?></code>
-				</strong>
+			<code style="float: right"><?php echo human_time_diff( time(), $throttles[ $key ]['expired'] ); ?></code>
+			<?php echo $info['label']; ?> : <strong style="color: <?php echo $remaining == 0 ? 'red' : 'green'; ?>">
+				<code><?php echo $remaining; ?> / <?php echo $limit; ?></code>
+			</strong>
 			</div><?php
 		}
 
-		if ( $exceeded && get_post()->post_status != 'publish' ) { ?>
+		if ( $exceeded && get_post()->post_status != 'publish' ) {
+			?>
 			<style type="text/css">
-				#publish { display: none; }
-				#psts-upgrade { margin-top: 4px; display: block; text-align: center; }
+				#publish {
+					display: none;
+				}
+
+				#psts-upgrade {
+					margin-top: 4px;
+					display: block;
+					text-align: center;
+				}
 			</style>
 
 			<div class="misc-pub-section">
-				<a id="psts-upgrade" class="button button-primary button-large" href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
+			<a id="psts-upgrade" class="button button-primary button-large" href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
 			</div><?php
 		}
 	}
@@ -323,10 +331,10 @@ class ProSites_Module_PostThrottling {
 				if ( $type != 'attachment' ) {
 					?>
 					<div>
-						<label>
-							<input type="checkbox" name="throttling_types[]" value="<?php echo esc_attr( $type ); ?>" <?php echo checked( in_array( $type, $types ) ); ?>>
-							<?php echo esc_html( $object->label ); ?>
-						</label>
+					<label>
+						<input type="checkbox" name="throttling_types[]" value="<?php echo esc_attr( $type ); ?>" <?php echo checked( in_array( $type, $types ) ); ?>>
+						<?php echo esc_html( $object->label ); ?>
+					</label>
 					</div><?php
 				}
 			}?>
@@ -354,43 +362,43 @@ class ProSites_Module_PostThrottling {
 				<th scope="row"><?php echo $info['label']; ?></th>
 			</tr>
 			<tr>
-				<td><strong><?php _e('Level', 'psts'); ?></strong></td>
-				<td><strong><?php _e('Limit', 'psts'); ?></strong></td>
+				<td><strong><?php _e( 'Level', 'psts' ); ?></strong></td>
+				<td><strong><?php _e( 'Limit', 'psts' ); ?></strong></td>
 			</tr>
 			<tr>
-				<td>0 - <?php echo $free; ?></td>
-				<td>
-					<!--				Free Plan-->
-					<div class="plan-th-limits">
-						<select name="<?php echo $key . '[0]'; ?>" class="chosen">
-							<?php $free_value = isset( $limits[ $key ] ) ? intval( $limits[ $key ] ) : 0; ?>
-							<option value="unlimited"<?php selected( $free_value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
-							<?php
-							for ( $counter = 1; $counter <= 1000; $counter ++ ) {
-								echo '<option value="' . $counter . '"' . ( $counter == $free_value ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-							}
-							?>
-						</select>
-					</div>
-				</td>
+			<td>0 - <?php echo $free; ?></td>
+			<td>
+				<!--				Free Plan-->
+				<div class="plan-th-limits">
+					<select name="<?php echo $key . '[0]'; ?>" class="chosen">
+						<?php $free_value = isset( $limits[ $key ] ) ? intval( $limits[ $key ] ) : 0; ?>
+						<option value="unlimited"<?php selected( $free_value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
+						<?php
+						for ( $counter = 1; $counter <= 1000; $counter ++ ) {
+							echo '<option value="' . $counter . '"' . ( $counter == $free_value ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+						}
+						?>
+					</select>
+				</div>
+			</td>
 			</tr><?php
 
 			foreach ( $levels as $level => $data ) {
 				$value = isset( $data[ $key ] ) ? intval( $data[ $key ] ) : 0; ?>
 				<tr>
-					<td><?php echo $level; ?> - <?php echo $data['name']; ?></td>
-					<td>
-						<div class="plan-th-limits">
-							<select name="<?php echo $key . '[' . $level. ']'; ?>" class="chosen">
-								<option value="unlimited"<?php selected( $value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
-								<?php
-								for ( $counter = 1; $counter <= 1000; $counter ++ ) {
-									echo '<option value="' . $counter . '"' . ( $counter == $value ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-								}
-								?>
-							</select>
-						</div>
-					</td>
+				<td><?php echo $level; ?> - <?php echo $data['name']; ?></td>
+				<td>
+					<div class="plan-th-limits">
+						<select name="<?php echo $key . '[' . $level . ']'; ?>" class="chosen">
+							<option value="unlimited"<?php selected( $value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
+							<?php
+							for ( $counter = 1; $counter <= 1000; $counter ++ ) {
+								echo '<option value="' . $counter . '"' . ( $counter == $value ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+							}
+							?>
+						</select>
+					</div>
+				</td>
 				</tr><?php
 			} ?><?php
 		}
@@ -406,7 +414,7 @@ class ProSites_Module_PostThrottling {
 			return;
 		}
 
-		if ( in_array( $current_screen->id, array( $post_type, 'edit-'.$post_type ) ) ) {
+		if ( in_array( $current_screen->id, array( $post_type, 'edit-' . $post_type ) ) ) {
 			$exceeded  = false;
 			$level     = $psts->get_level();
 			$throttles = self::_getThrottles();
@@ -424,23 +432,23 @@ class ProSites_Module_PostThrottling {
 
 				$remaining = $limit - count( $throttles[ $key ]['ids'] );
 				if ( $remaining <= 0 ) {
-					$remaining = 0;
-					$exceeded  = true;
-					$period = $key;
+					$remaining      = 0;
+					$exceeded       = true;
+					$period         = $key;
 					$post_back_time = human_time_diff( time(), $throttles[ $key ]['expired'] );
 				}
 			}
 			if ( $exceeded ) {
 				$period_human_form = 'throttling_hour' == $key ? __( 'hourly', 'psts' ) : __( 'daily', 'psts' );
-				$upgrade_message = is_super_admin( $blog_id ) ? 'you can <a href="' . $psts->checkout_url( $blog_id ) . '">'. __( 'upgrade', 'psts') . '</a> to continue posting. Contact site admin for more details' : __( 'Contact site admin for more details' );
-				$notice = sprintf( __( 'You have reached the %s publishing limit, you can publish again after %s, or %s.'), $period_human_form, $post_back_time, $upgrade_message );
+				$upgrade_message   = is_super_admin( $blog_id ) ? 'you can <a href="' . $psts->checkout_url( $blog_id ) . '">' . __( 'upgrade', 'psts' ) . '</a> to continue posting. Contact site admin for more details' : __( 'Contact site admin for more details' );
+				$notice            = sprintf( __( 'You have reached the %s publishing limit, you can publish again after %s, or %s.' ), $period_human_form, $post_back_time, $upgrade_message );
 				/**
 				 * Filter the Post Throttling limit message, display on admin screen if site posting limit is exceeded
 				 *
 				 * @since 3.5
 				 *
 				 * @param string $notice The message to be displayed
-				 * @param string $period_human_form  type of limit exceeded
+				 * @param string $period_human_form type of limit exceeded
 				 */
 				$notice = apply_filters( 'psts_throttling_limit_exceeded', $notice, $period_human_form );
 				echo '<div class="error"><p>' . $notice . '</p></div>';
