@@ -643,62 +643,62 @@ Many thanks again for being a member!", 'psts' ),
 
 		//main page
 		$psts_main_page         = add_menu_page( __( 'Pro Sites', 'psts' ), __( 'Pro Sites', 'psts' ), 'manage_network_options', 'psts', array(
-				&$this,
-				'admin_modify'
-			), 'dashicons-plus' );
+			&$this,
+			'admin_modify'
+		), 'dashicons-plus' );
 		$psts_manage_sites_page = add_submenu_page( 'psts', __( 'Manage Sites', 'psts' ), __( 'Manage Sites', 'psts' ), 'manage_network_options', 'psts', array(
-				&$this,
-				'admin_modify'
-			) );
+			&$this,
+			'admin_modify'
+		) );
 
 		do_action( 'psts_page_after_main' );
 
 		//stats page
 		$psts_stats_page = add_submenu_page( 'psts', __( 'Pro Sites Statistics', 'psts' ), __( 'Statistics', 'psts' ), 'manage_network_options', 'psts-stats', array(
-				&$this,
-				'admin_stats'
-			) );
+			&$this,
+			'admin_stats'
+		) );
 
 
 		do_action( 'psts_page_after_stats' );
 
 		//coupons page
 		$psts_coupons_page = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons', array(
-				&$this,
-				'admin_coupons'
-			) );
+			&$this,
+			'admin_coupons'
+		) );
 
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
 		$psts_levels_page = add_submenu_page( 'psts', __( 'Pro Sites Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array(
-				&$this,
-				'admin_levels'
-			) );
+			&$this,
+			'admin_levels'
+		) );
 
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
 		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules/Gateways', 'psts' ), 'manage_network_options', 'psts-modules', array(
-				&$this,
-				'admin_modules'
-			) );
+			&$this,
+			'admin_modules'
+		) );
 
 		do_action( 'psts_page_after_modules' );
 
 		//settings page
 		$psts_settings_page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
-				&$this,
-				'admin_settings'
-			) );
+			&$this,
+			'admin_settings'
+		) );
 
 		do_action( 'psts_page_after_settings' );
 
 		//checkout page settings
 		$psts_pricing_page = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
-				&$this,
-				'pricing_table_settings'
-			) );
+			&$this,
+			'pricing_table_settings'
+		) );
 
 		//register plugin style
 		add_action( 'admin_print_styles-' . $psts_main_page, array( &$this, 'load_psts_style' ) );
@@ -4079,11 +4079,12 @@ function admin_levels() {
 						<td><?php
 
 							$roles          = get_editable_roles();
-							$checkout_roles = (array) $this->get_setting( 'checkout_roles', 'not_set' );
+							$checkout_roles = $this->get_setting( 'checkout_roles', 'not_set' );
+
 							foreach ( $roles as $role_key => $role ) {
 								$checked = '';
-								//Default keep all appicable roles checked
-								if ( in_array( $role_key, $checkout_roles ) || $checkout_roles == 'not_set' ) {
+								//Default keep all applicable roles checked
+								if ( ( is_array( $checkout_roles ) && in_array( $role_key, $checkout_roles ) ) || $checkout_roles == 'not_set' ) {
 									$checked = 'checked="checked"';
 								}
 								if ( ! empty ( $role['capabilities']['manage_options'] ) || ! empty( $role['capabilities']['edit_pages'] ) ) {
@@ -4939,9 +4940,18 @@ function admin_levels() {
 		global $psts;
 		//If pay before blog is disabled, allow blog activation through email
 		$show_signup = $psts->get_setting( 'show_signup' );
+
 		if ( 1 != $show_signup ) {
 			return true;
 		}
+
+		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
+		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
+		) {
+			//No post details to check
+			return;
+		}
+
 		/* Wordpress do not provide option to filter confirm_blog_signup, we have disabled activation email */
 		ob_start();
 
@@ -4963,17 +4973,21 @@ function admin_levels() {
 
 		//If pay before blog is disabled, allow blog activation through email
 		$show_signup = $psts->get_setting( 'show_signup' );
+
 		if ( 1 != $show_signup ) {
 			return;
 		}
-		/* Remove confirmation text between filter and action, this could be removed if confirm_blog_signup gets a filter */
-		ob_get_clean();
+
 		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
 		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
 		) {
 			//No post details to check
 			return;
 		}
+
+		/* Remove confirmation text between filter and action, this could be removed if confirm_blog_signup gets a filter */
+		ob_get_clean();
+
 		$blogname  = ! empty( $_POST['blogname'] ) ? $_POST['blogname'] : ( ! empty( $_POST['signup_blog_url'] ) ? $_POST['signup_blog_url'] : '' );
 		$blogtitle = ! empty( $_POST['blog_title'] ) ? $_POST['blog_title'] : ( ! empty( $_POST['signup_blog_title'] ) ? $_POST['signup_blog_title'] : '' );
 

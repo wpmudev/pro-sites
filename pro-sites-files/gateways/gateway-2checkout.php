@@ -181,7 +181,7 @@ class ProSites_Gateway_2Checkout {
 	public function process_checkout( $blog_id, $domain = false ) {
 		global $current_site, $current_user, $psts, $wpdb;
 		$site_name = $current_site->site_name;
-		if ( !empty( $domain ) ){
+		if ( ! empty( $domain ) ) {
 			//Get blog name from signup as per WP Signup or BP Signup
 			$site_name = $domain;
 		}
@@ -260,7 +260,7 @@ class ProSites_Gateway_2Checkout {
 			}
 
 			//check if this is downgrade,require no money
-			if ( !empty ( $blog_id ) ) {
+			if ( ! empty ( $blog_id ) ) {
 				$cur_level = $psts->get_level( $blog_id );
 				//To Do: Update downgrade logic, to avoid free subscription for next period if downgraded at the end of subscription
 				if ( $cur_level > 0 ) {
@@ -557,6 +557,7 @@ class ProSites_Gateway_2Checkout {
 
 	/**
 	 * Displays the checkout screen
+	 *
 	 * @param $content
 	 * @param $blog_id
 	 * @param string $domain
@@ -565,7 +566,7 @@ class ProSites_Gateway_2Checkout {
 	 */
 	function checkout_screen( $content, $blog_id, $domain = '' ) {
 		global $psts, $wpdb, $current_site, $current_user;
-		if ( ! $blog_id && !$domain ) {
+		if ( ! $blog_id && ! $domain ) {
 			return $content;
 		}
 
