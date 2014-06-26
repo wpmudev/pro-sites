@@ -79,7 +79,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
 						<td><select name="psts[pypl_site]">
-								cd                    <?php
+							<?php
 								$paypal_site = $psts->get_setting( 'pypl_site' );
 								$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
 								$locales     = array(
@@ -872,18 +872,20 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		global $current_site, $current_user, $psts, $wpdb;
 
 		//If free level is selected, activate a trial
-		if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
+		if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
+			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
 
-			$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
+				$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
 
-			$esc_domain = esc_url( $domain );
+				$esc_domain = esc_url( $domain );
 
-			//Set complete message
-			$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
+				//Set complete message
+				$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
 
-			return;
+				return;
+			}
+
 		}
-
 		//prepare vars
 		$currency    = $psts->get_setting( "pypl_currency", 'USD' );
 		$discountAmt = false;

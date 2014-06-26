@@ -4936,7 +4936,7 @@ function admin_levels() {
 	function enable_network_used_space_check() {
 
 		//Check if quota module is enabled
-		$modules_enabled = $this->get_setting( 'modules_enabled' );
+		$modules_enabled = $this->get_setting( 'modules_enabled', array() );
 
 		if ( ! in_array( 'ProSites_Module_Quota', $modules_enabled ) ) {
 			return;

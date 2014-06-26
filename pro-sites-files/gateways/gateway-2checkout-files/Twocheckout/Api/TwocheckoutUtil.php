@@ -61,10 +61,16 @@ class Twocheckout_Util extends Twocheckout {
 	}
 
 	public static function checkError( $contents ) {
-		if ( isset( $contents['errors'] ) ) {
-			throw new Twocheckout_Error( $contents['errors'][0]['message'] );
-		} elseif ( isset( $contents['exception'] ) ) {
-			throw new Twocheckout_Error( $contents['exception']['errorMsg'], $contents['exception']['errorCode'] );
+		//Handle exception
+		try {
+			if ( isset( $contents['errors'] ) ) {
+				throw new Twocheckout_Error( $contents['errors'][0]['message'] );
+			} elseif ( isset( $contents['exception'] ) ) {
+				throw new Twocheckout_Error( $contents['exception']['errorMsg'], $contents['exception']['errorCode'] );
+			}
+		}
+		catch ( Exception $e ) {
+			echo $e->getMessage();
 		}
 	}
 

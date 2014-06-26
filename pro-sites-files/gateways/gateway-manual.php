@@ -50,10 +50,15 @@ class ProSites_Gateway_Manual {
 						<th scope="row"><?php _e( 'Show Submission Form', 'psts' ) ?></th>
 						<td>
 							<span class="description"><?php _e( 'Shows a submission form where the user can select the desired level and enter open-ended text according to your instructions. Example if you instruct users to pay via wire, they could then submit the level they desire and confirmation number. The form submission will come to the network admin email address.', 'psts' ); ?></span><br/>
-							<label><input type="radio" name="psts[mp_show_form]" value="1"<?php checked( $show_form, 1 ); ?>
-									> <?php _e( 'Yes', 'psts' ) ?></label>&nbsp;&nbsp;
-							<label><input type="radio" name="psts[mp_show_form]" value="0"<?php checked( $show_form, 0 ); ?>
-									> <?php _e( 'No', 'psts' ) ?></label>
+							<label>
+								<input type="radio" name="psts[mp_show_form]" value="1"<?php checked( $show_form, 1 ); ?>>
+								<?php _e( 'Yes', 'psts' ) ?>
+							</label>&nbsp;&nbsp;
+
+							<label>
+								<input type="radio" name="psts[mp_show_form]" value="0"<?php checked( $show_form, 0 ); ?>>
+								<?php _e( 'No', 'psts' ) ?>
+							</label>
 						</td>
 					</tr>
 					<tr valign="top">

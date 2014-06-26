@@ -667,7 +667,7 @@ class ProSites_Gateway_Stripe {
 				3  => array(
 					'int'       => 'month',
 					'int_count' => 3,
-					'desc'      => 'Monthly',
+					'desc'      => 'Quarterly',
 					'price'     => $level['price_3'],
 				),
 				12 => array(

@@ -1308,18 +1308,18 @@ class ProSites_Gateway_2Checkout {
 		Twocheckout::username( $psts->get_setting( '2co_api_username' ) );
 		Twocheckout::password( $psts->get_setting( '2co_api_password' ) );
 		if ( $psts->get_setting( '2co_checkout_mode' ) == 'Y' ) {
-			Twocheckout::$baseUrl = 'https://sandbox.2checkout.com';
+			Twocheckout::sandbox(true);
 		}
 	}
 
 	/**** 2Checkout API methods *****/
 	function tcheckout_get_profile_detail( $profile_id, $invoice_id = '' ) {
 		$this->set_gateway_param();
-
-		return Twocheckout_Sale::retrieve( array(
+		$args = array(
 			'sale_id'    => $profile_id,
 			'invoice_id' => $invoice_id
-		), 'array' );
+		);
+		return Twocheckout_Sale::retrieve( $args, 'array' );
 	}
 
 	function tcheckout_cancel_subscription( $profile_id ) {
@@ -1445,7 +1445,7 @@ class ProSites_Gateway_2Checkout {
 
 			return $lineitemData;
 		} else {
-			echo 'Something go wrong with the connection to 2checkout';
+			echo ' No payment details were found for the site.';
 		}
 
 	}
