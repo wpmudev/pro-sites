@@ -185,14 +185,27 @@ class ProSites_Gateway_2Checkout {
 			//Get blog name from signup as per WP Signup or BP Signup
 			$site_name = $domain;
 		}
+		//Processing User submitted form
 		if ( isset( $_POST['2co_checkout_button'] ) ) {
 			//validate
 			if ( ! $this->check_nonce() ) {
 				$psts->errors->add( 'general', __( 'Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ) );
 			}
 
-			if ( empty( $_POST['period'] ) || empty( $_POST['level'] ) ) {
+			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+
+				return;
+			}
+
+			//If free level is selected, activate a trial
+			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
+				$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
+
+				$esc_domain = esc_url( $domain );
+
+				//Set complete message
+				$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
 
 				return;
 			}
@@ -314,6 +327,7 @@ class ProSites_Gateway_2Checkout {
 			Twocheckout_Charge::redirect( $params, 'checkout' );
 			exit;
 		} elseif ( isset( $_REQUEST['credit_card_processed'] ) && strtolower( $_REQUEST['credit_card_processed'] ) == 'y' ) {
+			//Processing 2checkout response after user returns from 2checkout site
 			$check = Twocheckout_Return::check( $_REQUEST, $psts->get_setting( '2co_secret_word' ), 'array' );
 			if ( $check['response_code'] == 'Success' ) {
 				//Activate the blog
@@ -764,11 +778,11 @@ class ProSites_Gateway_2Checkout {
 		return $content;
 	}
 
-	function build_checkout_form_html( $blog_id, $domain = false ) {
+	function build_checkout_form_html( $blog_id, $domain = '' ) {
 		global $psts;
 		$html = '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
 		//checkout grid
-		$html .= $psts->checkout_grid( $blog_id );
+		$html .= $psts->checkout_grid( $blog_id, $domain );
 		$html .= $this->nonce_field();
 		$html .= '<input type="submit" id="cc_checkout" name="2co_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="2co_checkout_buttonsubmit-button"/>';
 		$html .= '</form>';

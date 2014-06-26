@@ -1968,7 +1968,7 @@ Many thanks again for being a member!", 'psts' ),
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX === true ) {
 			return;
 		}
-		//dismiss redirect if link is clicked or paid
+		//dismiss redirect if free site option is chosen or paid
 		if ( isset( $_GET['psts_dismiss'] ) || is_pro_site() ) {
 			update_option( 'psts_signed_up', 0 );
 		}
@@ -4045,12 +4045,9 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Show Option On Signup', 'psts' ); ?></th>
+						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow checkout On Signup', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Enables the user to checkout after signing up, If user opts for Pro Site, blog setup takes place only after the user have made the payment.', 'psts' ) . '</div></div>'; ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked( $this->get_setting( 'show_signup' ) ); ?> />
-								<?php _e( 'Display an option on the signup page', 'psts' ); ?></label>
-							<br/><?php _e( 'You can force and hide the signup option by linking to the signup page like this: ', 'psts' ); ?>
-							<em>wp-signup.php?<?php echo sanitize_title( $this->get_setting( 'rebrand' ) ); ?>=1</em>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -4317,7 +4314,7 @@ function admin_levels() {
 		echo '</div>'; //div wrap
 	}
 
-	function checkout_grid( $blog_id ) {
+	function checkout_grid( $blog_id, $domain = '' ) {
 		global $psts;
 		$use_plans_table    = $psts->get_setting( 'plans_table_enabled' ) ? $psts->get_setting( 'plans_table_enabled' ) : 'disabled';
 		$show_pricing_table = $psts->get_setting( 'comparison_table_enabled' ) ? $psts->get_setting( 'comparison_table_enabled' ) : $psts->get_setting( 'co_pricing' );
@@ -4541,13 +4538,28 @@ function admin_levels() {
 		}
 
 		$content = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
+		// Displays a option for free level, member can continue trial without being redirected to checkout page every time
 
-		//show dismiss button link if needed
-		if ( get_blog_option( $blog_id, 'psts_signed_up' ) && ! apply_filters( 'psts_prevent_dismiss', false ) ) {
+		if ( ! $this->prevent_dismiss() && ( ! empty ( $domain ) || get_blog_option( $blog_id, 'psts_signed_up' ) ) ) {
+
 			$content .= '<tr class="psts_level level-free">
 				<td valign="middle" class="level-name"><h3>' . $this->get_setting( 'free_name', __( 'Free', 'psts' ) ) . '</h3></td>';
 			$content .= '<td class="level-option" colspan="' . count( $periods ) . '">';
-			$content .= '<a class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-free-option" href="' . get_admin_url( $blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $this->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+
+			if ( is_user_logged_in() && empty ( $domain ) ) {
+
+				$content .= '<a class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-free-option" href="' . get_admin_url( $blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $this->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+
+			} else {
+
+				//Checkout With free trial blog
+				$content .= '<div class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-free-option">
+								<input type="hidden" value="0:0"/>
+								<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-0-0" value="0:0" />
+								<label for="psts-radio-0-0">' . $this->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</label>
+							</div>';
+
+			}
 			$content .= '</td></tr>';
 		}
 
@@ -5056,6 +5068,8 @@ function admin_levels() {
 		//Set Trial
 		if ( $trial ) {
 			$psts->extend( $result['blog_id'], $period, 'Trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
+			//Redirect to checkout on next signup
+			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 		}
 
 		// Unset Domain name from session if its still there
@@ -5131,6 +5145,15 @@ function admin_levels() {
 			<p><strong>&#42 </strong>
 			=> <?php _e( "The original Level doesn't exist, it might have been removed.", 'psts' ); ?></p><?php
 		}
+	}
+
+	/**
+	 * Allows to disable the free level option
+	 *
+	 * @param bool , default false
+	 */
+	function prevent_dismiss() {
+		return apply_filters( 'psts_prevent_dismiss', false );
 	}
 }
 

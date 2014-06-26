@@ -100,6 +100,16 @@ input[name="uses"] {
 .post-page-quota td.upgrade-message .psts-help-text-wrapper {
     left: 62px;
 }
+.pay-for-signup {
+    position: relative;
+}
+.pay-for-signup .help_tip {
+    top:22px;
+}
+.pay-for-signup .psts-help-text-wrapper {
+    left: 92px;
+    top: 37px;
+}
 /* Post throttling */
 .plan-th-limits {
     margin: 10px 0;

@@ -14,7 +14,7 @@ class ProSites_Gateway_Manual {
 
 		//checkout stuff
 		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );
-		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ) );
+		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
 	}
 
 	function settings() {
@@ -51,9 +51,9 @@ class ProSites_Gateway_Manual {
 						<td>
 							<span class="description"><?php _e( 'Shows a submission form where the user can select the desired level and enter open-ended text according to your instructions. Example if you instruct users to pay via wire, they could then submit the level they desire and confirmation number. The form submission will come to the network admin email address.', 'psts' ); ?></span><br/>
 							<label><input type="radio" name="psts[mp_show_form]" value="1"<?php checked( $show_form, 1 ); ?>
-								> <?php _e( 'Yes', 'psts' ) ?></label>&nbsp;&nbsp;
+									> <?php _e( 'Yes', 'psts' ) ?></label>&nbsp;&nbsp;
 							<label><input type="radio" name="psts[mp_show_form]" value="0"<?php checked( $show_form, 0 ); ?>
-								> <?php _e( 'No', 'psts' ) ?></label>
+									> <?php _e( 'No', 'psts' ) ?></label>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -78,14 +78,22 @@ class ProSites_Gateway_Manual {
 		return $payment_info;
 	}
 
-	function process_checkout( $blog_id ) {
+	function process_checkout( $blog_id, $domain = '' ) {
 		global $psts, $current_user;
 
+		//Check if form was submitted
+		if ( ! isset ( $_POST['psts_mp_submit'] ) ) {
+			return;
+		}
 		//check for level
-		if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
+		if ( ! isset( $_POST['level'] ) || ! isset( $_POST['period'] ) ) {
 			$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
 
 			return;
+		}
+		//Activate Trial Blog for any selected level or period
+		if ( empty( $blog_id ) ) {
+			$blog_id = $psts->activate_user_blog( $domain, 'trial' );
 		}
 
 		$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
@@ -103,8 +111,17 @@ class ProSites_Gateway_Manual {
 
 		wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
 
-		//send email with text and desired level/plan
-		$this->complete_message = __( 'Thank you, we have been notified of your request.', 'psts' );
+		//Complete Message displayed on checkout screen for manual payment
+		if ( ! empty ( $domain ) && 0 != $_POST['level'] ) {
+			//If user has selected a paid level
+			$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $domain . '">' . $domain . '</a>, we have been notified of your payment request.', 'psts' );
+		} elseif ( ! empty ( $domain ) && 0 == $_POST['level'] ) {
+			//If user has selected a free blog signup
+			$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $domain . '">' . $domain . '</a>', 'psts' );
+		} else {
+			//If user is paying for a existing blog
+			$this->complete_message = __( 'Thank you, we have been notified of your request.', 'psts' );
+		}
 	}
 
 	/**
@@ -119,7 +136,7 @@ class ProSites_Gateway_Manual {
 	function checkout_screen( $content, $blog_id, $domain = '' ) {
 		global $psts, $wpdb, $current_site, $current_user;
 
-		if ( ! $blog_id && !$domain ) {
+		if ( ! $blog_id && ! $domain ) {
 			return $content;
 		}
 
@@ -178,7 +195,7 @@ class ProSites_Gateway_Manual {
 		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post">';
 
 		//print the checkout grid
-		$content .= $psts->checkout_grid( $blog_id );
+		$content .= $psts->checkout_grid( $blog_id, $domain );
 
 		$content .= '<div id="psts-manual-checkout"><h2>' . $psts->get_setting( 'mp_name' ) . '</h2>';
 
@@ -187,9 +204,8 @@ class ProSites_Gateway_Manual {
 		if ( $psts->get_setting( 'mp_show_form' ) ) {
 			$prefill = isset( $_POST['psts_mp_text'] ) ? esc_textarea( stripslashes( $_POST['psts_mp_text'] ) ) : '';
 			$content .= '<textarea id="psts-manual-textarea" name="psts_mp_text">' . $prefill . '</textarea>';
-			$content .= '<p><input id="psts-manual-submit" type="submit" name="psts_mp_submit" value="' . esc_attr__( 'Submit', 'psts' ) . '"></p>';
 		}
-
+		$content .= '<p><input id="psts-manual-submit" type="submit" name="psts_mp_submit" value="' . esc_attr__( 'Submit', 'psts' ) . '"></p>';
 		$content .= '</div></form>';
 
 		return $content;
