@@ -22,16 +22,23 @@ function stripeResponseHandler(status, response) {
 }
 
 jQuery(document).ready(function($) {
-	$("#payment-form").submit(function(event) {
-		event.preventDefault();
-		
-		//skip checks for adding a coupon OR if using saved credit card info
-		if ( $('#coupon_code').val() || $('#wp_password').val() ) {
-			// disable the submit button to prevent repeated clicks
-			$('#cc_checkout').attr("disabled", "disabled").hide();
-			$('#stripe_processing').show();
-			return true;
-		}
+    $("#payment-form").submit(function (event) {
+
+        //Check if free option is selected, skip card details
+        if (jQuery('#psts-radio-0-0').length > 0 && jQuery('#psts-radio-0-0').parent().hasClass('opt-selected')) {
+            console.log('do not loop over');
+            return true;
+        }
+
+        event.preventDefault();
+
+        //skip checks for adding a coupon OR if using saved credit card info
+        if ($('#coupon_code').val() || $('#wp_password').val()) {
+            // disable the submit button to prevent repeated clicks
+            $('#cc_checkout').attr("disabled", "disabled").hide();
+            $('#stripe_processing').show();
+            return true;
+        }
 		
 		//clear errors
 		$("#psts-processcard-error").empty();

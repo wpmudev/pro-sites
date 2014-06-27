@@ -79,7 +79,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
 						<td><select name="psts[pypl_site]">
-							<?php
+								<?php
 								$paypal_site = $psts->get_setting( 'pypl_site' );
 								$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
 								$locales     = array(
@@ -965,7 +965,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				return;
 			}
 			if ( $is_trial ) {
-				$resArray = $this->SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id );
+				$resArray = $this->SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $domain );
 			} else {
 				if ( ! empty( $blog_id ) ) {
 					$resArray = $this->SetExpressCheckout( $initAmount, $desc, $blog_id );
@@ -974,7 +974,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 
 			}
-
 			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 				$token              = $resArray["TOKEN"];
 				$_SESSION['TOKEN']  = $token;
@@ -1188,10 +1187,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 					//now get the details of the transaction to see if initial payment went through already
 					if ( $is_trial || $payment_status == 'Completed' || $payment_status == 'Processed' ) {
+
+						//If we have domain details, activate the blog, It will be extended later in the same code block
 						if ( ! empty( $domain ) ) {
-							//Activate the blog
 							$blog_id = $psts->activate_user_blog( $domain );
 						}
+
+						//If we have blog id, Extend the blog expiry
 						if ( $blog_id ) {
 							if ( $is_trial ) {
 								$psts->extend( $blog_id, $_SESSION['PERIOD'], 'Trial', $_SESSION['LEVEL'], '', strtotime( '+ ' . $trial_days . ' days' ) );
@@ -1468,8 +1470,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 							}
 
-							if ( $init_transaction ) {
+							if ( $init_transaction && ! empty( $blog_id ) ) {
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
+							} elseif ( $init_transaction && ! empty ( $domain ) ) {
+								$psts->log_action( '', sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
 							}
 
 							//use coupon
@@ -1479,6 +1483,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//now attempt to create the subscription
 							$resArray = $this->CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
+
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$blog_id = $psts->activate_user_blog( $domain, true, $_POST['period'], $_POST['level'] );
 
@@ -1487,7 +1492,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									$this->set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $_SESSION['LEVEL'] . '_' . $_SESSION['PERIOD'] . '_' . $initAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
+									$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
 									$this->UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -1507,7 +1512,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$psts->email_notification( $blog_id, 'success' );
 								$psts->record_stat( $blog_id, 'signup' );
 							}
-
 							//now get the details of the transaction to see if initial payment went through
 							if ( $init_transaction ) {
 								$result = $this->GetTransactionDetails( $init_transaction );
@@ -2350,6 +2354,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		//handle free trials
 		if ( $has_trial ) {
+
 			$nvpstr .= "&TRIALBILLINGPERIOD=Day";
 			$nvpstr .= "&TRIALBILLINGFREQUENCY=" . $trial_days;
 			$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";

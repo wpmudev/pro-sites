@@ -113,11 +113,20 @@ class ProSites {
 		) ); // exclude pro site setting from blog template copies
 
 		//Disable activation emails
-		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ) );
+		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
 
 		//Disable Blog Activation Email, as of Pay before blog creation
-		add_filter( 'wpmu_signup_blog_notification_email', array( $this, 'disable_user_activation_mail' ) );
-		add_filter( 'bp_registration_needs_activation', array( $this, 'disable_user_activation_mail' ) );
+		add_filter( 'wpmu_signup_blog_notification', array( $this, 'disable_user_activation_mail' ), 10 );
+
+		//Buddypress Activation emails
+		//If pay before blog is disabled, allow blog activation through email
+		$show_signup = $this->get_setting( 'show_signup' );
+
+		if ( 1 == $show_signup ) {
+			remove_filter( 'wpmu_signup_blog_notification', 'bp_core_activation_signup_blog_notification', 1, 7 );
+		}
+		add_filter( 'bp_registration_needs_activation', array( $this, 'disable_user_activation_mail' ), 10 );
+		add_filter( 'bp_core_signup_send_activation_key', array( $this, 'disable_user_activation_mail' ), 10 );
 
 		//Redirect to checkout page after signup
 		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
@@ -504,7 +513,7 @@ Many thanks again for being a member!", 'psts' ),
 	function is_trial( $blog_id ) {
 		global $wpdb;
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
+		return empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
 	}
 
 	//run daily via wp_cron
@@ -972,8 +981,7 @@ Many thanks again for being a member!", 'psts' ),
 			add_filter( 'the_title', array( &$this, 'page_title_output' ), 99, 2 );
 			add_filter( 'bp_page_title', array( &$this, 'page_title_output' ), 99, 2 );
 
-			global $psts;
-			$use_pricing_table = $psts->get_setting( 'comparison_table_enabled' ) ? $psts->get_setting( 'comparison_table_enabled' ) : $psts->get_setting( 'co_pricing' );
+			$use_pricing_table = $this->get_setting( 'comparison_table_enabled' ) ? $this->get_setting( 'comparison_table_enabled' ) : $this->get_setting( 'co_pricing' );
 			if ( $use_pricing_table === "enabled" ) {
 				add_filter( 'psts_checkout_screen_before_grid', array( &$this, 'checkout_trial_msg' ), 10, 2 );
 			}
@@ -1218,22 +1226,12 @@ Many thanks again for being a member!", 'psts' ),
 			//save
 			update_blog_option( $blog_id, 'psts_action_log', $log );
 		} else {
-			global $wpdb;
-			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
 
-			$signup_meta                                  = maybe_unserialize( $signup->meta );
+			$signup_meta                                  = $this->get_signup_meta( $domain );
 			$signup_meta['psts_action_log'][ $timestamp ] = $note;
 
 			//Update signup meta
-			$wpdb->update(
-				$wpdb->signups,
-				array(
-					'meta' => serialize( $signup_meta ), // string
-				),
-				array(
-					'domain' => $domain
-				)
-			);
+			$this->update_signup_meta( $signup_meta, $domain );
 		}
 	}
 
@@ -1265,7 +1263,6 @@ Many thanks again for being a member!", 'psts' ),
 
 	//get last transaction details
 	function last_transaction( $blog_id, $domain = false ) {
-		global $psts;
 		if ( ! $blog_id && ! $domain ) {
 			return false;
 		}
@@ -1273,7 +1270,7 @@ Many thanks again for being a member!", 'psts' ),
 		if ( $blog_id ) {
 			$trans_meta = get_blog_option( $blog_id, 'psts_payments_log' );
 		} else {
-			$signup_meta = $psts->get_signup_meta( $domain );
+			$signup_meta = $this->get_signup_meta( $domain );
 			$trans_meta  = isset( $signup_meta['psts_payment_log'] ) ? $signup_meta['psts_payment_log'] : '';
 		}
 
@@ -4315,9 +4312,12 @@ function admin_levels() {
 	}
 
 	function checkout_grid( $blog_id, $domain = '' ) {
-		global $psts;
-		$use_plans_table    = $psts->get_setting( 'plans_table_enabled' ) ? $psts->get_setting( 'plans_table_enabled' ) : 'disabled';
-		$show_pricing_table = $psts->get_setting( 'comparison_table_enabled' ) ? $psts->get_setting( 'comparison_table_enabled' ) : $psts->get_setting( 'co_pricing' );
+
+		global $wpdb;
+		$curr = '';
+
+		$use_plans_table    = $this->get_setting( 'plans_table_enabled' ) ? $this->get_setting( 'plans_table_enabled' ) : 'disabled';
+		$show_pricing_table = $this->get_setting( 'comparison_table_enabled' ) ? $this->get_setting( 'comparison_table_enabled' ) : $this->get_setting( 'co_pricing' );
 		$content            = "";
 		include_once $this->plugin_dir . 'lib/psts_pricing_table.php';
 		$pricing_table = ProSites_Pricing_Table::getInstance( array(
@@ -4333,7 +4333,6 @@ function admin_levels() {
 
 			return apply_filters( 'psts_checkout_grid_output', $content );
 		}
-		global $wpdb;
 
 		$levels    = (array) get_site_option( 'psts_levels' );
 		$recurring = $this->get_setting( 'recurring_subscriptions', 1 );
@@ -4353,7 +4352,10 @@ function admin_levels() {
 		}
 
 		$periods = (array) $this->get_setting( 'enabled_periods' );
-		$curr    = $wpdb->get_row( $wpdb->prepare( "SELECT term, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		if ( ! empty( $blog_id ) ) {
+			$curr = $wpdb->get_row( $wpdb->prepare( "SELECT term, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		}
+
 		if ( $curr ) {
 			$curr->term = ( $curr->term && ! is_numeric( $curr->term ) ) ? $periods[0] : $curr->term; //if term not numeric
 			$sel_period = isset( $_POST['period'] ) ? $_POST['period'] : $curr->term;
@@ -4884,7 +4886,7 @@ function admin_levels() {
 			return;
 		}
 
-		global $wpdb, $psts, $psts_modules;
+		global $wpdb, $psts_modules;
 
 		if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == 'post' ) {
 			check_admin_referer( 'psts_checkout_settings' );
@@ -4899,10 +4901,12 @@ function admin_levels() {
 	}
 
 	/**
-	 * Checks is a user has specified role
+	 * Checks if a particular user role is allowed to perform Pro Sites management
 	 *
-	 * @param type $user_id
-	 * @param type $role
+	 * @param $user_id
+	 * @param $roles
+	 *
+	 * @return bool
 	 */
 	function check_user_role( $user_id, $roles ) {
 
@@ -4931,7 +4935,7 @@ function admin_levels() {
 	}
 
 	/**
-	 * Enables the Network Used space check if quota module is enabled
+	 * Enables the Network Used space check for multisite, if quota module is enabled
 	 */
 	function enable_network_used_space_check() {
 
@@ -4948,20 +4952,23 @@ function admin_levels() {
 		}
 	}
 
+	/**
+	 * Disables the blog activation email if Forced checkout on signup is selected
+	 * @return bool
+	 */
 	function disable_user_activation_mail() {
-		global $psts;
+
 		//If pay before blog is disabled, allow blog activation through email
-		$show_signup = $psts->get_setting( 'show_signup' );
+		$show_signup = $this->get_setting( 'show_signup' );
 
 		if ( 1 != $show_signup ) {
 			return true;
 		}
-
 		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
 		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
 		) {
 			//No post details to check
-			return;
+			return true;
 		}
 
 		/* Wordpress do not provide option to filter confirm_blog_signup, we have disabled activation email */
@@ -4981,10 +4988,10 @@ function admin_levels() {
 	 * @param type $meta
 	 */
 	function signup_redirect_checkout() {
-		global $wpdb, $psts;
+		global $wpdb;
 
 		//If pay before blog is disabled, allow blog activation through email
-		$show_signup = $psts->get_setting( 'show_signup' );
+		$show_signup = $this->get_setting( 'show_signup' );
 
 		if ( 1 != $show_signup ) {
 			return;
@@ -5024,10 +5031,20 @@ function admin_levels() {
 
 	}
 
+	/**
+	 * Activates the user blog if a domain is specified and if the blog is not already active
+	 *
+	 * @param bool $domain
+	 * @param bool $trial
+	 * @param bool $period
+	 * @param bool $level
+	 *
+	 * @return bool
+	 */
 	function activate_user_blog( $domain = false, $trial = true, $period = false, $level = false ) {
-		global $psts, $wpdb, $path;
+		global $wpdb, $path;
 
-		$trial_days = $psts->get_setting( 'trial_days', 0 );
+		$trial_days = $this->get_setting( 'trial_days', 0 );
 		if ( ! $domain ) {
 			return false;
 		}
@@ -5067,7 +5084,7 @@ function admin_levels() {
 
 		//Set Trial
 		if ( $trial ) {
-			$psts->extend( $result['blog_id'], $period, 'Trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
+			$this->extend( $result['blog_id'], $period, 'Trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
 			//Redirect to checkout on next signup
 			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 		}

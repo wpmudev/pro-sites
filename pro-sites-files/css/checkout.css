@@ -270,3 +270,9 @@ label.cc-image img {
 #psts-manual-submit {
 	float: right;
 }
+/** Stripe Checkout  **/
+#psts-stripe-checkout img.accepted-cards {
+    margin-top: 5px;
+    max-height: 32px;
+    width: auto;
+}

@@ -77,9 +77,9 @@ class ProSites_Gateway_Stripe {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array( 'jquery' ) );
 		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'gateways/gateway-stripe-files/stripe_token.js', array(
-				'js-stripe',
-				'jquery'
-			) );
+			'js-stripe',
+			'jquery'
+		) );
 		wp_localize_script( 'stripe-token', 'stripe', array(
 			'publisher_key' => $stripe_publishable_key,
 			'name'          => __( 'Please enter the full Cardholder Name.', 'psts' ),
@@ -760,17 +760,18 @@ class ProSites_Gateway_Stripe {
 		}
 
 		//If free level is selected, activate a trial
-		if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
-			$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
+		if ( isset ( $_POST['level'] ) && isset ( $_POST['period'] ) ) {
+			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
+				$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
 
-			$esc_domain = esc_url( $domain );
+				$esc_domain = esc_url( $domain );
 
-			//Set complete message
-			$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
+				//Set complete message
+				$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
 
-			return;
+				return;
+			}
 		}
-
 		if ( isset( $_POST['cc_checkout'] ) && empty( $_POST['coupon_code'] ) ) {
 
 			//check for level
@@ -1035,6 +1036,9 @@ class ProSites_Gateway_Stripe {
 				}
 
 				if ( $new || $psts->is_blog_canceled( $blog_id ) ) {
+					//Activate trial Blog
+					$psts->activate_user_blog( $domain, true );
+
 					// Added for affiliate system link
 					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer_id ), $domain );
 					do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level'] );
@@ -1133,7 +1137,15 @@ class ProSites_Gateway_Stripe {
 		if ( $this->complete_message ) {
 			$content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
 			$content .= '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
-			$content .= '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
+
+			//If Checking out on signup, there wouldn't be a blogid probably
+			if ( ! empty ( $domain ) ) {
+				//Hardcoded, TODO: Search for alternative
+				$admin_url = is_ssl() ? trailingslashit( "https://$domain" ) . 'wp-admin/' : trailingslashit( "http://$domain" ) . 'wp-admin/';
+				$content .= '<p><a href="' . $admin_url . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
+			} else {
+				$content .= '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
+			}
 
 			return $content;
 		}
@@ -1233,10 +1245,14 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 		if ( ! $cancel_status && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+
 			$content .= '<h2>' . __( 'Change Your Plan or Payment Details', 'psts' ) . '</h2>
-        <p>' . __( 'You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts' ) . '</p>';
+                <p>' . __( 'You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts' ) . '</p>';
+
 		} else if ( ! is_pro_site( $blog_id ) || is_pro_trial( $blog_id ) || $domain ) {
+
 			$content .= '<p>' . __( 'Please choose your desired plan then click the checkout button below.', 'psts' ) . '</p>';
+
 		}
 
 		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
@@ -1264,63 +1280,62 @@ class ProSites_Gateway_Stripe {
 		}
 
 		$content .= '<div id="psts-stripe-checkout">
-			<h2>' . __( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
+						<h2>' . __( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
 
 		$content .= '<div id="psts-processcard-error"></div>';
 
 		$content .= '
 				<table id="psts-cc-table">
-				<tbody>
-				<!-- Credit Card Type -->
-				<tr>
-				<td class="pypl_label" align="right">' . __( 'Cardholder Name:', 'psts' ) . '&nbsp;</td><td>';
-		if ( $errmsg = $psts->errors->get_error_message( 'name' ) ) {
-			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-		}
-		$content .= '<input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" /> </td>
-				</tr>
-					<tr>
-					<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
-					<td>';
+					<tbody>
+						<!-- Credit Card Number -->
+						<tr>
+							<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
+							<td>';
 		if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
 			$content .= '<div class="psts-error">' . $errmsg . '</div>';
 		}
-		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br /><img src="' . $img_base . 'stripe-cards.png" />
-					</td>
-					</tr>
+		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br /><img class="accepted-cards" src="' . $img_base . 'stripe-cards.png" />
+							</td>
+						</tr>
 
-					<tr>
-					<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
-					<td valign="middle">';
+						<tr>
+							<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
+							<td valign="middle">';
 		if ( $errmsg = $psts->errors->get_error_message( 'expiration' ) ) {
 			$content .= '<div class="psts-error">' . $errmsg . '</div>';
 		}
 		$content .= '<select id="cc_month" class="card-expiry-month">' . $this->month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . $this->year_dropdown() . '</select>
-					</td>
-					</tr>
+							</td>
+						</tr>
 
-					<!-- Card Security Code -->
-					<tr>
-						<td class="pypl_label" align="right"><nobr>' . __( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
-						<td valign="middle">';
+						<!-- Card Security Code -->
+						<tr>
+							<td class="pypl_label" align="right"><nobr>' . __( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
+							<td valign="middle">';
 		if ( $errmsg = $psts->errors->get_error_message( 'cvv2' ) ) {
 			$content .= '<div class="psts-error">' . $errmsg . '</div>';
 		}
 		$content .= '<label><input id="cc_cvv2" size="5" maxlength="4" type="password" class="cctext card-cvc" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
-						<img src="' . $img_base . 'buy-cvv.gif" height="27" width="42" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" /></label>
-						</td>
-					</tr>
-				
-
+												<img src="' . $img_base . 'buy-cvv.gif" height="27" width="42" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" /></label>
+							</td>
+						</tr>
+						<tr>
+							<td class="pypl_label" align="right">' . __( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>' .
+		            '<td>';
+		if ( $errmsg = $psts->errors->get_error_message( 'name' ) ) {
+			$content .= '<div class="psts-error">' . $errmsg . '</div>';
+		}
+		$content .= '<input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" />
+							</td>
+						</tr>
+					</tbody>
 				</table>
-				</tbody></table>
 				<input type="hidden" name="cc_checkout" value="1" />';
 
-		$content .= '
-			<p>
-				<input type="submit" id="cc_checkout" name="stripe_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button"/>
-				<span id="stripe_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
-			</p>
+		$content .= '<p>
+						<input type="submit" id="cc_checkout" name="stripe_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button"/>
+						<span id="stripe_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
+					</p>
 			</div>';
 
 		$content .= '</form>';
