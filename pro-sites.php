@@ -3405,21 +3405,21 @@ if ( $active_pro_sites ) {
 						<thead>
 						<tr>
 							<th class="coupon-code">
-								<?php echo __( 'Coupon Code', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Letters and numbers only', 'psts' ) . '</div></div>'; ?>
+								<?php echo __( 'Coupon Code', 'psts' ) .  $this->help_text( __( 'Letters and numbers only', 'psts' ) ); ?>
 							</th>
 							<th><?php _e( 'Discount', 'psts' ) ?></th>
 							<th><?php _e( 'Start Date', 'psts' ) ?></th>
 							<th class="expire-date">
-								<?php echo __( 'Expire Date', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'No end if left blank', 'psts' ) . '</div></div>'; ?>
+								<?php echo __( 'Expire Date', 'psts' ) . $this->help_text( __( 'No end if left blank', 'psts' ) ); ?>
 							</th>
 							<th>
 								<?php _e( 'Level', 'psts' ) ?>
 							</th>
 							<th class="allowed-users">
-								<?php echo __( 'Allowed Uses', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Unlimited if blank', 'psts' ) . '</div></div>'; ?>
+								<?php echo __( 'Allowed Uses', 'psts' ) . $this->help_text( __( 'Unlimited if blank', 'psts' ) ); ?>
 							</th>
 							<th class="coupon-period">
-								<?php echo __( 'Period', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Allows you to limit the availability of coupon for selected subscription period.', 'psts' ) . '</div></div>'; ?>
+								<?php echo __( 'Period', 'psts' ) . $this->help_text ( __( 'Allows you to limit the availability of coupon for selected subscription period.', 'psts' ) ); ?>
 							</th>
 						</tr>
 						</thead>
@@ -3993,18 +3993,21 @@ function admin_levels() {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Rebrand Pro Sites', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-rebrand-pro"><?php echo __( 'Rebrand Pro Sites', 'psts' ) . $this->help_text( __( 'Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[rebrand]" value="<?php echo esc_attr( $this->get_setting( 'rebrand' ) ); ?>"/>
-							<br/><?php _e( 'Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts' ); ?>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Admin Menu Button Labels', 'psts' ) ?></th>
 						<td>
-							<label><input type="text" name="psts[lbl_signup]" value="<?php echo esc_attr( $this->get_setting( 'lbl_signup' ) ); ?>"/> <?php _e( 'Not Pro', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-notpro"><?php _e( 'Not Pro', 'psts' ); ?></span>
+								<input type="text" name="psts[lbl_signup]" value="<?php echo esc_attr( $this->get_setting( 'lbl_signup' ) ); ?>"/>
 							</label><br/>
-							<label><input type="text" name="psts[lbl_curr]" value="<?php echo esc_attr( $this->get_setting( 'lbl_curr' ) ); ?>"/> <?php _e( 'Current Pro', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-currentpro"><?php _e( 'Current Pro', 'psts' ); ?></span>
+								<input type="text" name="psts[lbl_curr]" value="<?php echo esc_attr( $this->get_setting( 'lbl_curr' ) ); ?>"/>
 							</label>
 						</td>
 					</tr>
@@ -4024,7 +4027,7 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Hide Superadmin Admin Bar Pro Status', 'psts' ); ?></th>
+						<th scope="row"><?php _e( 'Hide Pro Status for Superadmin', 'psts' ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[hide_adminbar_super]" value="1"<?php checked( $this->get_setting( 'hide_adminbar_super' ) ); ?> />
 								<?php _e( 'Remove the Super Admin Pro Site status menu from the admin bar', 'psts' ); ?>
@@ -4032,40 +4035,38 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Level', 'psts' ) ?></th>
+						<th scope="row" class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . $this->help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ?></span><br/>
-							<label><input type="text" name="psts[free_name]" value="<?php echo esc_attr( $this->get_setting( 'free_name' ) ); ?>"/> <?php _e( 'Free Level Name', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-name"><?php _e( 'Name', 'psts' ); ?></span>
+								<input type="text" name="psts[free_name]" value="<?php echo esc_attr( $this->get_setting( 'free_name' ) ); ?>"/>
 							</label><br/>
-							<label><input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr( $this->get_setting( 'free_msg' ) ); ?>"/> <?php _e( 'Free Level Message', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-message"><?php _e( 'Message', 'psts' ); ?></span>
+								<input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr( $this->get_setting( 'free_msg' ) ); ?>"/>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow checkout On Signup', 'psts' ) . '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Enables the user to checkout after signing up, If user opts for Pro Site, blog setup takes place only after the user have made the payment.', 'psts' ) . '</div></div>'; ?></th>
+						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow checkout on Signup', 'psts' ) . $this->help_text( __( 'Enables the user to checkout after signing up, If user opts for Pro Site, blog setup takes place only after the user have made the payment.', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked( $this->get_setting( 'show_signup' ) ); ?> />
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Signup Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . $this->help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
 						<td>
 							<textarea name="psts[signup_message]" rows="3" wrap="soft" id="signup_message" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'signup_message' ) ); ?></textarea>
-							<br/><?php _e( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ?>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Checkout Page', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-checkout-page"><?php echo __( 'Checkout Page', 'psts' ) . $this->help_text( __( 'If checkout page is not found, a new checkout page is generated upon saving the settings. The slug and title is based on the rebrand option above.', 'psts' ) ); ?></th>
 						<td>
-							<?php _e( 'You can create a sales message that is shown at the top of the checkout page. (Hint - make it colorful with images and such!)', 'psts' ) ?>
-							<br/>
 							<?php if ( empty( $checkout_link ) ) { ?>
 								<?php _e( 'There was a problem finding the Checkout Page. Please follow the directions below to regenerate it:', 'psts' ); ?>
 							<?php } else { ?>
 								<a href="<?php echo $checkout_link; ?>" title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a>
 							<?php } ?>
-							<br/>
-							<small><?php _e( 'If for some reason you need to regenerate the checkout page, simply trash the current page above then save this settings form. A new checkout page will be created with a slug and title based on the rebrand option above.', 'psts' ) ?></small>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -4093,14 +4094,13 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Pro Site Feature Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-feature-message"><?php echo __( 'Pro Site Feature Message', 'psts' ) . $this->help_text( __( 'Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts' ) ); ?></th>
 						<td>
 							<input name="psts[feature_message]" type="text" id="feature_message" value="<?php echo esc_attr( $this->get_setting( 'feature_message' ) ); ?>" style="width: 95%"/>
-							<br/><?php _e( 'Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts' ) ?>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Trial', 'psts' ) ?></th>
+						<th scope="row" class="psts-free-trial psts-help-div"><?php echo __( 'Free Trial', 'psts' ) . $this->help_text( __( 'Free days for all new sites', 'psts' ) ); ?></th>
 						<td><select name="psts[trial_days]">
 								<?php
 								$trial_days         = $this->get_setting( 'trial_days' );
@@ -4114,36 +4114,33 @@ function admin_levels() {
 								echo apply_filters( 'psts_trial_days_options', $trial_days_options );
 								?>
 							</select>
-							<?php _e( 'Free days for all new sites.', 'psts' ); ?></td>
+						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Trial Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . $this->help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[trial_message]" id="trial_message" value="<?php esc_attr_e( $this->get_setting( 'trial_message' ) ); ?>" style="width: 95%"/>
-							<br/><?php _e( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ?>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Cancellation Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-cancellation psts-help-div"><?php echo __( 'Cancellation Message', 'psts' ) . $this->help_text( __( 'This message is displayed on the checkout screen notifying FREE TRIAL and NEW customers of your cancellation policy. "DAYS" will be replaced with the number of "Cancellation Days" set above.', 'psts' ) ); ?></th>
 						<td>
 							<textarea style="width:95%" wrap="soft" rows="3" name="psts[cancel_message]"><?php echo $this->get_setting( 'cancel_message', __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ) ); ?></textarea><br/>
-							<span class="description"><?php _e( 'This message is displayed on the checkout screen notifying FREE TRIAL and NEW customers of your cancellation policy. "DAYS" will be replaced with the number of "Cancellation Days" set above.', 'psts' ); ?></span>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Setup Fee', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . $this->help_text( __( 'If "Apply setup fee to upgrades" is left unchecked then only <strong>free sites</strong> will be charged a setup fee. Otherwise, all levels will be charged a setup fee upon upgrading to a higher level.', 'psts' ) ); ?></th>
 						<td>
 							<label><?php echo $this->format_currency(); ?></label><input type="text" name="psts[setup_fee]" size="4" value="<?php echo ( $setup_fee = $this->get_setting( 'setup_fee', false ) ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
-							&nbsp;
+							&nbsp;<br /><br />
 							<label for="psts-apply-setup-fee-upgrade">
 								<input type="checkbox" name="psts[apply_setup_fee_upgrade]" id="psts-apply-setup-fee-upgrade" value="1" <?php checked( $this->get_setting( 'apply_setup_fee_upgrade', 0 ), 1 ); ?> />
 								<label for="psts-apply-setup-fee-upgrade"><?php _e( 'Apply setup fee to upgrades', 'psts' ); ?></label>
 							</label>
-							<br/><span class="description"><?php _e( 'If "Apply setup fee to upgrades" is left unchecked then only <strong>free sites</strong> will be charged a setup fee. Otherwise, all levels will be charged a setup fee upon upgrading to a higher level.', 'psts' ); ?></span>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Recurring Subscriptions', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-recurring"><?php echo __( 'Recurring Subscriptions', 'psts' ) . $this->help_text( __( 'Disabling recurring subscriptions will force users to have to manually re-subscribe after their term has expired.', 'psts' ) ); ?></th>
 						<td>
 							<label for="psts-recurring-subscriptions-on" style="margin-right:10px">
 								<input type="radio" name="psts[recurring_subscriptions]" id="psts-recurring-subscriptions-on" value="1" <?php checked( $this->get_setting( 'recurring_subscriptions', 1 ), 1 ); ?> /> <?php _e( 'Enable', 'psts' ); ?>
@@ -4151,7 +4148,6 @@ function admin_levels() {
 							<label for="psts-subscriptions-off">
 								<input type="radio" name="psts[recurring_subscriptions]" id="psts-recurring-subscriptions-off" value="0" <?php checked( $this->get_setting( 'recurring_subscriptions', 1 ), 0 ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
 							</label>
-							<br/><span class="description"><?php _e( 'Disabling recurring subscriptions will force users to have to manually re-subscribe after their term has expired.', 'psts' ); ?></span>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -4170,15 +4166,17 @@ function admin_levels() {
 			</div>
 		</div>
 
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Email Notifications', 'psts' ) ?></span></h3>
+		<div class="postbox psts-email-notifications">
+			<h3 class="hndle" style="cursor:auto;">
+				<span><?php _e( 'Email Notifications', 'psts' ) ?></span> -
+				<span class="description" style="font-size: 12px; font-weight: normal;"><?php _e ('"LEVEL", "SITENAME", "SITEURL" and "CHECKOUTURL" will be replaced with their associated values. No HTML allowed.', 'psts'); ?></span>
+			</h3>
 
 			<div class="inside">
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php _e( 'Pro Site Signup', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-pro-signup"><?php echo __( 'Pro Site Signup', 'psts' ) . $this->help_text( __( 'Pro Site signup confirmation email sent to user', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr( $this->get_setting( 'success_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
@@ -4187,9 +4185,8 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Pro Site Canceled', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-pro-site-cancelled"><?php echo __( 'Pro Site Canceled', 'psts' ) . $this->help_text( __( 'Membership cancellation email sent to user, "ENDDATE" will be replaced with the date when their Pro Site access ends.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr( $this->get_setting( 'canceled_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
@@ -4198,9 +4195,8 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Payment Receipt', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-payment-reciept"><?php echo __( 'Payment Receipt', 'psts' ) . $this-> help_text( __( 'Payment confirmation receipt. You must include the "PAYMENTINFO" code which will be replaced with payment details.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr( $this->get_setting( 'receipt_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
@@ -4210,9 +4206,8 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Expiration Email', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-expiration-mail"><?php echo __( 'Expiration Email', 'psts' ) . $this->help_text( __( 'Pro Site expiration email sent to user. "CHECKOUTURL" will be replaced with the url to upgrade the site.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'This email is sent when Pro Site status expires and Pro features are removed from a site. "CHECKOUTURL" will be replaced with the url to upgrade the site. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_sub" name="psts[expired_subject]" value="<?php echo esc_attr( $this->get_setting( 'expired_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
@@ -4221,9 +4216,8 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Payment Problem', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-payment-problem"><?php echo __( 'Payment Problem', 'psts' ) . $this->help_text( __( 'The email text sent to your customer when a scheduled payment fails.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr( $this->get_setting( 'failed_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
@@ -5172,6 +5166,14 @@ function admin_levels() {
 	function prevent_dismiss() {
 		return apply_filters( 'psts_prevent_dismiss', false );
 	}
+
+	function help_text( $message = '' ) {
+		if( empty( $message ) ){
+			return false;
+		}
+		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+	}
+
 }
 
 //End of class

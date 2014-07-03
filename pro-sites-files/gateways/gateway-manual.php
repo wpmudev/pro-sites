@@ -30,9 +30,9 @@ class ProSites_Gateway_Manual {
 			<div class="inside">
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php _e( 'Method Name', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-method-name"><?php echo __( 'Method Name', 'psts' ) . $psts->help_text ( __( 'Enter a public name for this payment method that is displayed to users - No HTML', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'Enter a public name for this payment method that is displayed to users - No HTML', 'psts' ) ?></span>
+							<span class="description"><?php  ?></span>
 
 							<p>
 								<input value="<?php echo esc_attr( $psts->get_setting( "mp_name" ) ); ?>" size="100" name="psts[mp_name]" type="text"/>
@@ -40,16 +40,14 @@ class ProSites_Gateway_Manual {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'User Instructions', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-user-instruction"><?php echo __( 'User Instructions', 'psts' ) . $psts->help_text( __( 'Manual payment instructions to display on the checkout screen - HTML allowed', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'These are the manual payment instructions to display on the payments screen - HTML allowed', 'psts' ) ?></span>
 							<textarea name="psts[mp_instructions]" type="text" rows="4" wrap="soft" id="mp_instructions" style="width: 95%"/><?php echo esc_textarea( $psts->get_setting( 'mp_instructions' ) ); ?></textarea>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Show Submission Form', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-show-submission"><?php echo __( 'Show Submission Form', 'psts' ) . $psts->help_text( __( 'Displays a textarea to allow user to enter payment details. The form submission will come to the network admin email address.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'Shows a submission form where the user can select the desired level and enter open-ended text according to your instructions. Example if you instruct users to pay via wire, they could then submit the level they desire and confirmation number. The form submission will come to the network admin email address.', 'psts' ); ?></span><br/>
 							<label>
 								<input type="radio" name="psts[mp_show_form]" value="1"<?php checked( $show_form, 1 ); ?>>
 								<?php _e( 'Yes', 'psts' ) ?>
@@ -62,10 +60,9 @@ class ProSites_Gateway_Manual {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Submission Form Email', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-submission-form-email"><?php echo __( 'Submission Form Email', 'psts' ) . $psts->help_text( __( 'The email address to send manual payment form submissions to.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[mp_email]" id="mp_email" value="<?php echo esc_attr( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ) ); ?>" size="40"/>
-							<br/><span class="description"><?php _e( 'The email address to send manual payment form submissions to.', 'psts' ) ?></span>
 						</td>
 					</tr>
 				</table>

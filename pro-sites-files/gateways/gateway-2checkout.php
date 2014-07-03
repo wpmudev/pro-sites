@@ -154,10 +154,9 @@ class ProSites_Gateway_2Checkout {
 						<td/>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Thank You Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-thankyou-checkout"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text(  __( 'Displayed on checkout page after successful payment. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
 						<td>
 							<textarea name="psts[2co_thankyou]" type="text" rows="4" wrap="soft" id="2co_thankyou" style="width: 95%"/><?php echo esc_textarea( $psts->get_setting( '2co_thankyou' ) ); ?></textarea>
-							<br/><?php _e( 'Displayed on the page after successful checkout with this gateway. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ?>
 						</td>
 					</tr>
 				</table>

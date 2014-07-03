@@ -1,10 +1,14 @@
 /** Help Text Style **/
+/** Firefox input height settings **/
+.pro-sites_page_psts-settings input {
+    line-height: 1.5;
+}
 .psts-help-text-wrapper {
     display: none;
     left: 0;
     position: absolute;
     top: 16px;
-    width: 200px;
+    min-width: 150px;
     z-index: 9999;
 }
 .psts-help-text {
@@ -14,7 +18,7 @@
     color: #fff;
     font-size: 11px;
     margin-top: 10px;
-    max-width: 150px;
+    max-width: 300px;
     padding: 0.5em;
     text-align: center;
 }
@@ -85,6 +89,9 @@ input[name="uses"] {
     margin: 0;
 }
 /** Settings Page **/
+.psts-help-div {
+    position: relative;
+}
 .post-page-quota .help_tip {
     top: 21px;
 }
@@ -107,8 +114,224 @@ input[name="uses"] {
     top:22px;
 }
 .pay-for-signup .psts-help-text-wrapper {
-    left: 92px;
+    left: 77px;
     top: 37px;
+}
+.psts-free-trial .help_tip {
+    top: 21px;
+}
+.psts-free-trial .psts-help-text-wrapper {
+    left: -6px;
+    top: 35px;
+}
+.psts-cancellation .help_tip,
+.psts-trial-message .help_tip {
+    top: 23px;
+}
+.psts-trial-message .psts-help-text-wrapper {
+    left: 30px;
+    top: 38px;
+}
+.psts-cancellation .psts-help-text-wrapper {
+    left: 51px;
+    top: 40px;
+}
+.psts-rebrand-pro .help_tip {
+    top: 22px;
+}
+.psts-rebrand-pro .psts-help-text-wrapper {
+    left: 51px;
+    top: 36px;
+}
+.psts-free-level .help_tip {
+    top: 21px;
+}
+.psts-free-level .psts-help-text-wrapper {
+    left: 0;
+    top: 38px;
+    width: 150px;
+}
+.psts-signup-message .help_tip {
+    top: 23px;
+}
+.psts-signup-message .psts-help-text-wrapper {
+    left: 40px;
+    top: 40px;
+}
+.psts-checkout-page .help_tip, .psts-feature-message .help_tip {
+    top: 23px;
+}
+.psts-checkout-page .psts-help-text-wrapper {
+    left: 21px;
+    top:  37px;
+}
+.psts-checkout-page .psts-help-arrow-wrapper, .psts-pro-signup .psts-help-arrow-wrapper {
+    margin: 0 0 0 83px;
+}
+.psts-feature-message .psts-help-text-wrapper {
+    left: 74px;
+    top: 39px;
+}
+.psts-feature-message .psts-help-text,
+.psts-trial-message .psts-help-text,
+.psts-cancellation .psts-help-text,
+.pay-for-signup .psts-help-text {
+   width: 200px;
+}
+.psts-feature-message .psts-help-arrow-wrapper,
+.psts-trial-message .psts-help-arrow-wrapper,
+.pay-for-signup .psts-help-arrow-wrapper,
+.psts-cancellation .psts-help-arrow-wrapper {
+    margin: 0 0 0 100px;
+}
+.psts-setup-fee .help_tip, .psts-recurring .help_tip {
+    top: 22px;
+}
+.psts-setup-fee .psts-help-text-wrapper {
+    left: -2px;
+    top: 37px;
+    width: 150px;
+}
+.psts-recurring .psts-help-text-wrapper {
+    left: 92px;
+    top: 36px;
+}
+
+.psts-label.psts-label-message,
+.psts-label.psts-label-name {
+    display: inline-block;
+    width: 60px;
+}
+
+.psts-label.psts-label-notpro,
+.psts-label.psts-label-currentpro {
+    display: inline-block;
+    width: 80px;
+}
+.psts-email-notifications .help_tip {
+    top: 22px;
+}
+.psts-pro-signup .psts-help-text-wrapper {
+    left: 23px;
+    top: 36px;
+}
+.psts-pro-site-cancelled .psts-help-text-wrapper {
+    left: 7px;
+    top: 37px;
+    width: 250px;
+}
+.psts-pro-site-cancelled .psts-help-arrow-wrapper {
+    margin: 0 0 0 115px;
+}
+.psts-payment-reciept .psts-help-text-wrapper {
+    left: -1px;
+    top: 37px;
+    width: 250px;
+}
+.psts-payment-reciept .psts-help-arrow-wrapper {
+    margin: 0 0 0 120px;
+}
+.psts-expiration-mail .psts-help-text-wrapper {
+    left: 41px;
+    top: 38px;
+}
+.psts-payment-problem .psts-help-text-wrapper {
+    left: 52px;
+    top: 38px;
+}
+/* Paypal */
+.psts-paypal-header .help_tip {
+    right: 45px;
+    top: 23px;
+}
+.psts-paypal-header .psts-help-text-wrapper {
+    left: 77px;
+    top: 38px;
+}
+.psts-paypal-header-border .help_tip {
+    right: 0;
+    top:22px;
+}
+.psts-paypal-header-border .psts-help-text-wrapper {
+    left: 122px;
+    top: 36px;
+}
+.psts-paypal-header-background .help_tip {
+    right: 5px;
+    top: 22px;
+}
+.psts-paypal-header-background .psts-help-text-wrapper {
+    left: 117px;
+    top: 36px;
+}
+.psts-paypal-background .help_tip {
+    right: 20px;
+    top: 23px;
+}
+.psts-paypal-background .psts-help-text-wrapper {
+    left: 102px;
+    top: 38px;
+}
+.psts-paypal-thank-you .help_tip {
+    right: 55px;
+    top: 23px;
+}
+.psts-paypal-thank-you .psts-help-text-wrapper {
+    left: 67px;
+    top: 38px;
+}
+/** Stripe  **/
+.psts-stripe-currency .help_tip {
+    top: 23px;
+}
+.psts-stripe-currency .psts-help-text-wrapper {
+    left: 36px;
+    top: 38px;
+}
+.psts-stripe-thankyou .help_tip {
+    top: 24px;
+}
+.psts-stripe-thankyou .psts-help-text-wrapper {
+    left: 64px;
+    top: 37px;
+}
+/** Manual Payment **/
+.psts-method-name .help_tip,
+.psts-show-submission .help_tip,
+.psts-user-instruction .help_tip,
+.psts-submission-form-email .help_tip {
+    top: 23px;
+}
+.psts-method-name .psts-help-text-wrapper {
+    left: 15px;
+    top: 41px;
+}
+.psts-method-name .psts-help-arrow-wrapper {
+    margin :0 0 0 87px;
+}
+.psts-user-instruction .psts-help-text-wrapper {
+    left: 48px;
+    top: 39px;
+}
+.psts-show-submission .help_tip {
+    left: 158px;
+    top: 23px;
+}
+.psts-show-submission .psts-help-text-wrapper {
+    left: 90px;
+    top: 40px;
+}
+.psts-submission-form-email .psts-help-text-wrapper {
+    left: 90px;
+    top: 40px;
+}
+/* Two checkout */
+.psts-thankyou-checkout .help_tip {
+    top: 23px;
+}
+.psts-thankyou-checkout .psts-help-text-wrapper {
+    left: 63px;
+    top: 40px;
 }
 /* Post throttling */
 .plan-th-limits {

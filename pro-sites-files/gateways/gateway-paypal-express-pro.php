@@ -204,50 +204,41 @@ class ProSites_Gateway_PayPalExpressPro {
 					</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'PayPal Header Image (optional)', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-paypal-header"><?php echo __( 'PayPal Header Image (optional)', 'psts' ) . $psts->help_text( __( 'https url of an 750 x 90 image displayed at the top left of the payment page. If a image is not specified, the business name is displayed.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'URL for an image you want to appear at the top left of the payment page. The image has a maximum size of 750 pixels wide by 90 pixels high. PayPal recommends that you provide an image that is stored on a secure (https) server. If you do not specify an image, the business name is displayed.', 'psts' ) ?></span>
-
 							<p>
 								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_img" ) ); ?>" size="40" name="psts[pypl_header_img]" type="text"/>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'PayPal Header Border Color (optional)', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-paypal-header-border"><?php echo __( 'PayPal Header Border Color (optional)', 'psts' ) . $psts->help_text(  __( '6 character hex color for border around the header of the payment page.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'Sets the border color around the header of the payment page. The border is a 2-pixel perimeter around the header space, which is 750 pixels wide by 90 pixels high. By default, the color is black. The value should be a 6 digit hex color.', 'psts' ) ?></span>
-
 							<p>
 								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_border" ) ); ?>" size="6" maxlength="6" name="psts[pypl_header_border]" type="text"/>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'PayPal Header Background Color (optional)', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-paypal-header-background"><?php echo __( 'PayPal Header Background Color (optional)', 'psts' ) . $psts->help_text( __( '6 character hex color for header background of the payment page.', 'psts' ) ); ?></th>
 						<td>
-							<span class="description"><?php _e( 'Sets the background color for the header of the payment page. By default, the color is white. The value should be a 6 digit hex color.', 'psts' ) ?></span>
-
 							<p>
 								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_back" ) ); ?>" size="6" maxlength="6" name="psts[pypl_header_back]" type="text"/>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'PayPal Page Background Color (optional)', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-paypal-background"><?php echo __( 'PayPal Page Background Color (optional)', 'psts' ) . $psts->help_text( __( '6 character hex color for payment page background. Darker colors may not be allowed by PayPal.', 'psts' ) ) ?></th>
 						<td>
-							<span class="description"><?php _e( 'Sets the background color for the payment page. Darker colors may not be allowed by PayPal. By default, the color is white. The value should be a 6 digit hex color.', 'psts' ) ?></span>
-
 							<p>
 								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_page_back" ) ); ?>" size="6" maxlength="6" name="psts[pypl_page_back]" type="text"/>
 							</p>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Thank You Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-paypal-thank-you"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text( __( 'Displayed on the page after successful checkout. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
 						<td>
 							<textarea name="psts[pypl_thankyou]" type="text" rows="4" wrap="soft" id="pypl_thankyou" style="width: 95%"/><?php echo esc_textarea( $psts->get_setting( 'pypl_thankyou' ) ); ?></textarea>
-							<br/><?php _e( 'Displayed on the page after successful checkout with this gateway. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ?>
 						</td>
 					</tr>
 				</table>
