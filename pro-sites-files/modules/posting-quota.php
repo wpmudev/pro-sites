@@ -43,7 +43,7 @@ class ProSites_Module_PostingQuota {
 			<div class="inside">
 				<table class="form-table post-page-quota">
 					<tr valign="top">
-						<th scope="row" class="pro-site-level"><?php echo __( 'Pro Site Level', 'psts' ) . $this->help_text( __( 'Select the minimum level required to remove quotas', 'psts' ) ); ?></th>
+						<th scope="row" class="pro-site-level psts-quota-prosite-level"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to remove quotas', 'psts' ) ); ?></th>
 						<td>
 							<select name="psts[pq_level]" class="chosen">
 								<?php

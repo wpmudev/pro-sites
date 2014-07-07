@@ -3,14 +3,16 @@
 .pro-sites_page_psts-settings input {
     line-height: 1.5;
 }
+
 .psts-help-text-wrapper {
     display: none;
     left: 0;
     position: absolute;
-    top: 16px;
+    top: 38px;
     min-width: 150px;
     z-index: 9999;
 }
+
 .psts-help-text {
     background: none repeat scroll 0 0 #464646;
     border-radius: 3px;
@@ -22,6 +24,7 @@
     padding: 0.5em;
     text-align: center;
 }
+
 /** Arrow **/
 .psts-help-arrow-wrapper {
     border: 6px solid transparent;
@@ -30,6 +33,7 @@
     position: absolute;
     width: 0;
 }
+
 .psts-help-arrow {
     border: 7px solid transparent;
     border-bottom-color: #464646;
@@ -39,159 +43,194 @@
     position: absolute;
     width: 0;
 }
+
 /** Help Tip **/
 .help_tip {
     margin-left: 4px;
     position: absolute;
-    top: 3px;
+    top: 22px;
 }
+
 /** Coupons Table **/
 #add_coupon {
     border-collapse: separate;
     border-spacing: 10px 5px;
 }
+
 #add_coupon th, #add_coupon td {
     vertical-align: top;
 }
+
 #add_coupon th input, #add_coupon td input {
     height: 28px;
 }
+
 #add_coupon th {
     position: relative;
     text-align: left;
 }
+
 input[name="uses"] {
     width: 100px;
 }
+
+.coupon-code .help_tip,
+.expire-date .help_tip,
+.allowed-users .help_tip,
+.coupon-period .help_tip {
+    top: 3px;
+}
+
 .coupon-code .psts-help-text-wrapper {
-    left: 14px;
+    left: 18px;
+    top: 16px;
 }
+
 .coupon-period .psts-help-text-wrapper {
-    left: -26px;
+    left: -47px;
+    top: 16px;
 }
+
 .expire-date .psts-help-text-wrapper {
-    left: 4px;
+    left: 8px;
+    top: 16px;
 }
+
 /** Allowed Users Help text **/
 .allowed-users .psts-help-text-wrapper {
-    left: 16px;
+    left: 19px;
+    top: 16px;
 }
+
 /** Chosen Style **/
-#add_coupon  .chosen-container-multi .chosen-choices li.search-field input[type="text"] {
+#add_coupon .chosen-container-multi .chosen-choices li.search-field input[type="text"] {
     height: 24px;
     width: auto !important;
 }
+
 .chosen-container-multi {
     max-width: 180px;
     width: auto !important;
 }
+
 #add_coupon .chosen-container-single .chosen-single span {
     margin: 0;
 }
+
 /** Settings Page **/
 .psts-help-div {
     position: relative;
 }
-.post-page-quota .help_tip {
+
+.post-page-quota .help_tip,
+.psts-free-trial .help_tip,
+.psts-free-level .help_tip {
     top: 21px;
 }
-.post-page-quota .psts-help-text-wrapper {
-    top: 36px;
-}
+
 .post-page-quota td, .post-page-quota th {
     position: relative;
 }
-.post-page-quota .pro-site-level .psts-help-text-wrapper {
-    left: 37px;
+
+.pro-site-level .help_tip {
+    top: 23px;
 }
+
 .post-page-quota td.upgrade-message .psts-help-text-wrapper {
-    left: 62px;
+    left: 37px;
+    top: 40px;
+    width: 200px;
 }
+
 .pay-for-signup {
     position: relative;
 }
-.pay-for-signup .help_tip {
-    top:22px;
-}
+
 .pay-for-signup .psts-help-text-wrapper {
     left: 77px;
     top: 37px;
 }
-.psts-free-trial .help_tip {
-    top: 21px;
-}
+
 .psts-free-trial .psts-help-text-wrapper {
     left: -6px;
     top: 35px;
 }
-.psts-cancellation .help_tip,
-.psts-trial-message .help_tip {
-    top: 23px;
-}
 .psts-trial-message .psts-help-text-wrapper {
     left: 30px;
-    top: 38px;
 }
+
+.psts-cancellation .help_tip,
+.psts-trial-message .help_tip,
+.psts-xml-restricted .help_tip,
+.psts-post-restricted .help_tip,
+.psts-page-restricted .help_tip,
+.psts-filtered-message .help_tip,
+.psts-signup-message .help_tip,
+.psts-checkout-page .help_tip,
+.psts-feature-message .help_tip {
+    top: 23px;
+}
+
 .psts-cancellation .psts-help-text-wrapper {
     left: 51px;
     top: 40px;
 }
-.psts-rebrand-pro .help_tip {
-    top: 22px;
-}
+
 .psts-rebrand-pro .psts-help-text-wrapper {
     left: 51px;
     top: 36px;
 }
-.psts-free-level .help_tip {
-    top: 21px;
-}
+
 .psts-free-level .psts-help-text-wrapper {
     left: 0;
-    top: 38px;
     width: 150px;
 }
-.psts-signup-message .help_tip {
-    top: 23px;
-}
+
 .psts-signup-message .psts-help-text-wrapper {
     left: 40px;
     top: 40px;
 }
-.psts-checkout-page .help_tip, .psts-feature-message .help_tip {
-    top: 23px;
-}
+
 .psts-checkout-page .psts-help-text-wrapper {
     left: 21px;
-    top:  37px;
+    top: 37px;
 }
-.psts-checkout-page .psts-help-arrow-wrapper, .psts-pro-signup .psts-help-arrow-wrapper {
+
+.psts-checkout-page .psts-help-arrow-wrapper,
+.psts-pro-signup .psts-help-arrow-wrapper {
     margin: 0 0 0 83px;
 }
+
+.psts-checkout-message .psts-help-text-wrapper {
+    left: 36px;
+    width: 200px;
+}
+
 .psts-feature-message .psts-help-text-wrapper {
     left: 74px;
     top: 39px;
 }
+
 .psts-feature-message .psts-help-text,
 .psts-trial-message .psts-help-text,
 .psts-cancellation .psts-help-text,
 .pay-for-signup .psts-help-text {
-   width: 200px;
+    width: 200px;
 }
+
 .psts-feature-message .psts-help-arrow-wrapper,
 .psts-trial-message .psts-help-arrow-wrapper,
 .pay-for-signup .psts-help-arrow-wrapper,
 .psts-cancellation .psts-help-arrow-wrapper {
     margin: 0 0 0 100px;
 }
-.psts-setup-fee .help_tip, .psts-recurring .help_tip {
-    top: 22px;
-}
+
 .psts-setup-fee .psts-help-text-wrapper {
     left: -2px;
     top: 37px;
     width: 150px;
 }
+
 .psts-recurring .psts-help-text-wrapper {
     left: 92px;
     top: 36px;
@@ -208,93 +247,359 @@ input[name="uses"] {
     display: inline-block;
     width: 80px;
 }
-.psts-email-notifications .help_tip {
-    top: 22px;
-}
+
 .psts-pro-signup .psts-help-text-wrapper {
     left: 23px;
     top: 36px;
 }
+
 .psts-pro-site-cancelled .psts-help-text-wrapper {
     left: 7px;
     top: 37px;
     width: 250px;
 }
+
 .psts-pro-site-cancelled .psts-help-arrow-wrapper {
     margin: 0 0 0 115px;
 }
+
 .psts-payment-reciept .psts-help-text-wrapper {
     left: -1px;
     top: 37px;
     width: 250px;
 }
+
 .psts-payment-reciept .psts-help-arrow-wrapper {
     margin: 0 0 0 120px;
 }
+
 .psts-expiration-mail .psts-help-text-wrapper {
     left: 41px;
-    top: 38px;
 }
+
 .psts-payment-problem .psts-help-text-wrapper {
     left: 52px;
-    top: 38px;
 }
+
 /* Paypal */
 .psts-paypal-header .help_tip {
     right: 45px;
     top: 23px;
 }
+
 .psts-paypal-header .psts-help-text-wrapper {
     left: 77px;
-    top: 38px;
 }
+
 .psts-paypal-header-border .help_tip {
     right: 0;
-    top:22px;
 }
+
 .psts-paypal-header-border .psts-help-text-wrapper {
     left: 122px;
     top: 36px;
 }
+
 .psts-paypal-header-background .help_tip {
     right: 5px;
-    top: 22px;
 }
+
 .psts-paypal-header-background .psts-help-text-wrapper {
     left: 117px;
     top: 36px;
 }
+
 .psts-paypal-background .help_tip {
     right: 20px;
     top: 23px;
 }
+
 .psts-paypal-background .psts-help-text-wrapper {
     left: 102px;
-    top: 38px;
 }
+
 .psts-paypal-thank-you .help_tip {
     right: 55px;
     top: 23px;
 }
+
 .psts-paypal-thank-you .psts-help-text-wrapper {
     left: 67px;
-    top: 38px;
 }
+
+.psts-ad-free .psts-help-text-wrapper {
+    left: 24px;
+}
+
+.psts-ad-free .psts-help-arrow-wrapper {
+    margin: 0 0 0 80px;
+}
+
+.psts-ads-perpage .psts-help-text-wrapper {
+    left: 3px;
+    width: 200px;
+}
+
+.psts-ads-perpage .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-before-ad .psts-help-text-wrapper {
+    left: 48px;
+}
+
+.psts-after-ad .psts-help-text-wrapper {
+    left: 28px;
+}
+
+.psts-after-ad .psts-help-arrow-wrapper {
+    margin: 0 0 0 82px;
+}
+
+.psts-rename-ads .psts-help-text-wrapper {
+    left: 43px;
+}
+
+.psts-adfree-sites .psts-help-text-wrapper {
+    left: 70px;
+    width: 200px;
+}
+
+.psts-adfree-sites .psts-help-arrow-wrapper {
+    margin: 0 0 0 95px;
+}
+
+.psts-ads-message .psts-help-text-wrapper {
+    left: -8px;
+}
+
+.psts-ads-message .psts-help-arrow-wrapper {
+    margin: 0 0 0 100px;
+}
+
+.psts-enable-other-modules .psts-help-text-wrapper {
+    left: 60px;
+    width: 200px;
+}
+
+.psts-badge-link .psts-help-text-wrapper {
+    left: 43px;
+    width: 200px;
+}
+
+.psts-badge-link .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-buddypress-restricted .psts-help-text-wrapper {
+    left: 45px;
+    width: 200px;
+}
+
+.psts-buddypress-restricted .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-limit-blog-tracking .psts-help-text-wrapper {
+    left: 58px;
+}
+
+.psts-bulk-payment-type .psts-help-text-wrapper {
+    left: 76px;
+}
+
+.psts-credit-level .psts-help-text-wrapper {
+    left: 12px;
+    width: 150px;
+}
+
+.psts-option4-settings .psts-help-text-wrapper,
+.psts-option3-settings .psts-help-text-wrapper,
+.psts-option2-settings .psts-help-text-wrapper,
+.psts-option1-settings .psts-help-text-wrapper {
+    left: 48px;
+}
+
+.psts-bulk-upgrade-option-message .psts-help-text-wrapper {
+    left: 41px;
+}
+
+.psts-bulk-upgrade-checkout-message .psts-help-text-wrapper {
+    left: 57px;
+}
+
+.psts-bulk-upgrade-checkout .psts-help-text-wrapper {
+    left: 92px;
+}
+
+.psts-frontend-restricted .psts-help-text-wrapper {
+    left: 110px;
+    width: 200px;
+}
+
+.psts-quota-prosite-level .psts-help-text-wrapper {
+    left: 5px;
+}
+
+.psts-quota-prosite-level .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-pplugin-rename-feature .psts-help-text-wrapper {
+    left: 43px;
+}
+
+.psts-premium-prosite-level .psts-help-text-wrapper {
+    left: 5px;
+}
+
+.psts-premium-prosite-level .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-support-email .psts-help-text-wrapper {
+    left: 5px;
+}
+
+.psts-premium-support .psts-help-text-wrapper {
+    left: 92px;
+    width: 200px;
+}
+
+.psts-premium-support .psts-help-arrow-wrapper,
+.psts-support-email .psts-help-arrow-wrapper,
+.psts-restricted-message .psts-help-arrow-wrapper,
+.psts-quota-amounts .psts-help-arrow-wrapper,
+.post-page-quota td.upgrade-message .psts-help-arrow-wrapper,
+.psts-checkout-message .psts-help-arrow-wrapper,
+.psts-frontend-restricted .psts-help-arrow-wrapper,
+.psts-enable-other-modules .psts-help-arrow-wrapper,
+.coupon-period .psts-help-arrow-wrapper {
+    margin: 0 0 0 95px;
+}
+
+.psts-restricted-message .psts-help-text-wrapper {
+    left: 40px;
+    width: 200px;
+}
+
+.psts-rename-feature .psts-help-text-wrapper {
+    left: 43px;
+}
+
+.psts-theme-preview .psts-help-text-wrapper {
+    left: 70px;
+    top: 40px;
+    width: 200px;
+}
+
+.psts-theme-preview .psts-help-arrow-wrapper {
+    margin: 0 0 0 100px;
+}
+
+.psts-quota-amounts .psts-help-text-wrapper {
+    left: 17px;
+}
+
+.psts-quota-message .psts-help-text-wrapper {
+    left: -11px;
+    width: 250px;
+}
+
+.psts-quota-message .psts-help-arrow-wrapper {
+    margin: 0 0 0 120px;
+}
+
+.psts-out-of-space .psts-help-text-wrapper {
+    left: 53px;
+    width: 200px;
+}
+
+.psts-out-of-space .psts-help-arrow-wrapper {
+    margin: 0 0 0 100px;
+}
+
+.psts-unfilter-level .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-filtered-message .psts-help-text-wrapper {
+    left: 5px;
+    top: 40px;
+    width: 250px;
+}
+
+.psts-filtered-message .psts-help-arrow-wrapper {
+    margin: 0 0 0 114px;
+}
+
+.psts-unfilter-html .psts-help-text-wrapper {
+    left: 5px;
+    top: 34px;
+}
+
+.psts-limit-prolevel .psts-help-text-wrapper,
+.psts-unfilter-level .psts-help-text-wrapper {
+    left: 5px;
+}
+
+.psts-limit-prolevel .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
+.psts-post-restricted .psts-help-text-wrapper {
+    left: 78px;
+    top: 39px;
+    width: 200px;
+}
+
+.psts-post-restricted .psts-help-arrow-wrapper {
+    margin: 0 0 0 98px;
+}
+
+.psts-page-restricted .psts-help-text-wrapper {
+    left: 105px;
+}
+
+.psts-xml-prolevel .psts-help-text-wrapper {
+    left: 25px;
+    top: 36px;
+    width: 150px;
+}
+
+.psts-xml-prolevel .psts-help-arrow-wrapper {
+    margin: 0 0 0 70px;
+}
+
+.psts-xml-restricted .psts-help-text-wrapper {
+    left: 46px;
+    top: 40px;
+    width: 200px;
+}
+
+.psts-xml-restricted .psts-help-arrow-wrapper {
+    margin: 0 0 0 90px;
+}
+
 /** Stripe  **/
 .psts-stripe-currency .help_tip {
     top: 23px;
 }
+
 .psts-stripe-currency .psts-help-text-wrapper {
     left: 36px;
-    top: 38px;
 }
-.psts-stripe-thankyou .help_tip {
+
+.psts-stripe-thankyou .help_tip,
+.upgrade-message .help_tip {
     top: 24px;
 }
+
 .psts-stripe-thankyou .psts-help-text-wrapper {
     left: 64px;
     top: 37px;
 }
+
 /** Manual Payment **/
 .psts-method-name .help_tip,
 .psts-show-submission .help_tip,
@@ -302,42 +607,58 @@ input[name="uses"] {
 .psts-submission-form-email .help_tip {
     top: 23px;
 }
+
 .psts-method-name .psts-help-text-wrapper {
     left: 15px;
     top: 41px;
 }
+
 .psts-method-name .psts-help-arrow-wrapper {
-    margin :0 0 0 87px;
+    margin: 0 0 0 87px;
 }
+
 .psts-user-instruction .psts-help-text-wrapper {
     left: 48px;
     top: 39px;
 }
+
 .psts-show-submission .help_tip {
     left: 158px;
     top: 23px;
 }
+
 .psts-show-submission .psts-help-text-wrapper {
     left: 90px;
     top: 40px;
 }
+
 .psts-submission-form-email .psts-help-text-wrapper {
     left: 90px;
     top: 40px;
 }
+
 /* Two checkout */
 .psts-thankyou-checkout .help_tip {
     top: 23px;
 }
+
 .psts-thankyou-checkout .psts-help-text-wrapper {
     left: 63px;
     top: 40px;
 }
+
 /* Post throttling */
 .plan-th-limits {
     margin: 10px 0;
 }
+
 .plan-th-limits .chosen-container {
     min-width: 93px;
     width: auto !important;
+}
+
+/* Bulk Upgrade */
+.psts-bulk-checkout-form .psts-label {
+    display: inline-block;
+    width: 100px;
 }

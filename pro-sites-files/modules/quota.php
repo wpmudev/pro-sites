@@ -26,16 +26,16 @@ class ProSites_Module_Quota {
 		add_action( 'pre-upload-ui', array( &$this, 'message' ), 11 );
 		add_action( 'admin_notices', array( &$this, 'out_message' ) );
 
-		self::$user_label = __( 'Quota', 'psts' );
+		self::$user_label       = __( 'Quota', 'psts' );
 		self::$user_description = __( 'Upload quota', 'psts' );
 
 		//add checkout grid text
 		$this->checkout_name = __( 'Upload Space', 'psts' ); //can only i18n in _construct()
 		$this->checkout_desc = __( 'Get additional upload space for your images, media, and other files.', 'psts' ); //can only i18n in _construct()
 		add_filter( 'psts_checkout_item-ProSites_Module_Quota', array(
-				&$this,
-				'checkout_output'
-			), 10, 2 ); //note the classname is part of the filter
+			&$this,
+			'checkout_output'
+		), 10, 2 ); //note the classname is part of the filter
 	}
 
 	//get's passed a given level, return string for custom text, or bool for checkmark
@@ -96,7 +96,7 @@ class ProSites_Module_Quota {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Quota Amounts', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
 						<td><?php
 							if ( function_exists( 'psts_ads_upgrade_active' ) && psts_ads_upgrade_active() ) {
 								$level = 0;
@@ -112,22 +112,19 @@ class ProSites_Module_Quota {
 								$this->quota_select( $level, $quota );
 								echo ' ' . $level . ' - ' . $data['name'] . '</label><br />';
 							}
-							_e( 'Each level should have an identical or progressively higher quota.', 'psts' );
 							?>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Quota Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[quota_message]" id="quota_message" value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>" style="width: 95%"/>
-							<br/><?php _e( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ?>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Out of Space Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[quota_out_message]" id="quota_out_message" value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>" style="width: 95%"/>
-							<br/><?php _e( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ?>
 						</td>
 					</tr>
 				</table>

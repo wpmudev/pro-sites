@@ -47,9 +47,9 @@ class ProSites_Module_Plugins {
 
 	function plug_network_page() {
 		add_submenu_page( 'psts', __( 'Pro Sites Premium Plugins', 'psts' ), __( 'Premium Plugins', 'psts' ), 'manage_network_options', 'psts-plugins', array(
-				&$this,
-				'admin_page'
-			) );
+			&$this,
+			'admin_page'
+		) );
 	}
 
 	//adds Premium Plugins submenu under pro blogs
@@ -57,9 +57,9 @@ class ProSites_Module_Plugins {
 		global $psts;
 
 		add_submenu_page( 'psts-checkout', $psts->get_setting( 'pp_name' ), $psts->get_setting( 'pp_name' ), 'activate_plugins', 'premium-plugins', array(
-				&$this,
-				'plugins_page_redirect'
-			) );
+			&$this,
+			'plugins_page_redirect'
+		) );
 	}
 
 	function enable_plugins_page( $menu_items ) {
@@ -368,10 +368,10 @@ class ProSites_Module_Plugins {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Rename Feature', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-pplugin-rename-feature"><?php echo __( 'Rename Feature', 'psts' ) . $psts->help_text( __( 'Required - No HTML! - Make this short and sweet.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[pp_name]" value="<?php echo esc_attr( $psts->get_setting( 'pp_name', __( 'Premium Plugins', 'psts' ) ) ); ?>" size="30"/>
-							<br/><?php _e( 'Required - No HTML! - Make this short and sweet.', 'psts' ) ?></td>
+						</td>
 					</tr>
 				</table>
 			</div>
