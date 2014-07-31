@@ -52,7 +52,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		<div class="postbox">
 	  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Paypal Express/Pro', 'psts') ?></span> - <span class="description"><?php _e('Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts'); ?></span></h3>
     <div class="inside">
-        <p><?php _e('Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info &raquo;</a>', 'psts'); ?></p>
+        <p><?php _e('Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info »</a>', 'psts'); ?></p>
         <p><?php printf(__('To use PayPal Express Checkout or Pro you must <a href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_admin_IPNSetup#id089EG030E5Z" target="_blank">manually turn on IPN notifications</a> and enter your IPN url (<strong>%s</strong>) in your PayPal profile (you must also do this in your sandbox account when testing).', 'psts'), network_site_url('wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin')); ?></p>
 			  <table class="form-table">
 			  <tr valign="top">
@@ -69,16 +69,16 @@ class ProSites_Gateway_PayPalExpressPro {
 					'BR'	=> 'Brazil',
 					'CA'	=> 'Canada',
 					'CN'	=> 'China',
-          'FI'	=> 'Finland',
+          			'FI'	=> 'Finland',
 					'FR'	=> 'France',
 					'DE'	=> 'Germany',
 					'HK'	=> 'Hong Kong',
-          'IL'	=> 'Israel',
+          			'IL'	=> 'Israel',
 					'IT'	=> 'Italy',
 					'JP'	=> 'Japan',
 					'MX'	=> 'Mexico',
 					'NL'	=> 'Netherlands',
-          'NZ'	=> 'New Zealand',
+          			'NZ'	=> 'New Zealand',
 					'PL'	=> 'Poland',
 					'SG'	=> 'Singapore',
 					'ES'	=> 'Spain',
@@ -146,7 +146,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			  <tr>
 				<th scope="row"><?php _e('PayPal API Credentials', 'psts') ?></th>
 				<td>
-					<span class="description"><?php _e('You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECAPICredentials">Instructions &raquo;</a>', 'psts') ?></span>
+					<span class="description"><?php _e('You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECAPICredentials">Instructions »</a>', 'psts') ?></span>
 			    <p><label><?php _e('API Username', 'psts') ?><br />
 			    <input value="<?php esc_attr_e($psts->get_setting("pypl_api_user")); ?>" size="30" name="psts[pypl_api_user]" type="text" />
 			    </label></p>
@@ -397,7 +397,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	      echo '<ul>';
 	      echo '<li>'.sprintf(__('Subscription Description: <strong>%s</strong>', 'psts'), stripslashes($resArray['DESC'])).'</li>';
-	      echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
+	      echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal »">'.$profile_id.'</a>').'</li>';
 
 	      if (isset($resArray['ACCT'])) { //credit card
 	        $month = substr($resArray['EXPDATE'], 0, 2);
@@ -425,7 +425,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	      $end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 	      echo '<strong>'.__('The Subscription Has Been Cancelled in PayPal', 'psts').'</strong>';
 	      echo '<ul><li>'.sprintf(__('They should continue to have access until %s.', 'psts'), $end_date).'</li>';
-				echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
+				echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal »">'.$profile_id.'</a>').'</li>';
 
 	      if (isset($resArray['LASTPAYMENTDATE'])) {
 	        $prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
@@ -448,9 +448,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	      $end_date = date_i18n(get_option('date_format'), $psts->get_expire($blog_id));
 	      echo '<strong>'.__('The Subscription Has Been Suspended in PayPal', 'psts').'</strong>';
-	      echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
+	      echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal »">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
 				echo '<ul><li>'.sprintf(__('They should continue to have access until %s.', 'psts'), $end_date).'</li>';
-				echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
+				echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal »">'.$profile_id.'</a>').'</li>';
 
 	      if (isset($resArray['LASTPAYMENTDATE'])) {
 	        $prev_billing = date_i18n(get_option('date_format'), strtotime($resArray['LASTPAYMENTDATE']));
@@ -470,7 +470,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
       } else if ($resArray['ACK']=='Success' || $resArray['ACK']=='SuccessWithWarning') {
 				
         echo '<p>'.sprintf(__('The Subscription profile status is currently: <strong>%s</strong>', 'psts'), $resArray['STATUS']).'</p>';
-        echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
+        echo '<p><a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal »">'.__('Please check your PayPal account for more information.', 'psts').'</a></p>';
 			
 			} else {
 	      echo '<div id="message" class="error fade"><p>'.sprintf( __("Whoops! There was a problem accessing this site's subscription information: %s", 'psts'), $this->parse_error_string($resArray) ).'</p></div>';
@@ -497,7 +497,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			
 			echo '<ul>';
 			echo '<li>'.__('Old Supporter PayPal Gateway', 'psts').'</li>';
-			echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/'.$locale.'/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal &raquo;">'.$profile_id.'</a>').'</li>';
+			echo '<li>'.sprintf(__('PayPal Profile ID: <strong>%s</strong>', 'psts'), '<a href="https://www.paypal.com/'.$locale.'/cgi-bin/webscr?cmd=_profile-recurring-payments&encrypted_profile_id='.$profile_id.'&mp_id='.$profile_id.'&return_to=merchant&flag_flow=merchant#name1" target="_blank" title="View in PayPal »">'.$profile_id.'</a>').'</li>';
 			echo '<li>'.sprintf(__('Last Payment Date: <strong>%s</strong>', 'psts'), $prev_billing).'</li>';
 			echo '<li>'.sprintf(__('Last Payment Amount: <strong>%s</strong>', 'psts'), $psts->format_currency($old_info['mc_currency'], $old_info['payment_gross'])).'</li>';
 			echo '<li>'.sprintf(__('Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts'), $old_info['txn_id'], $old_info['txn_id']).'</li>';
@@ -1331,7 +1331,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	  if ($this->complete_message) {
 	    $content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
 	    $content .= '<p>' . $psts->get_setting('pypl_thankyou') . '</p>';
-	    $content .= '<p><a href="' . get_admin_url($blog_id, '', 'http') . '">' . __('Visit your newly upgraded site &raquo;', 'psts') . '</a></p>';
+	    $content .= '<p><a href="' . get_admin_url($blog_id, '', 'http') . '">' . __('Visit your newly upgraded site »', 'psts') . '</a></p>';
 	    return $content;
 	  }
 		
@@ -1523,7 +1523,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		$content .= '<!-- Credit Card Type -->
 			  <tr>
-					<td class="pypl_label" align="right">' . __('Card Type:', 'psts') . '&nbsp;</td>
+					<td class="pypl_label" align="right">' . __('Card Type:', 'psts') . ' </td>
 					<td>';
 		if ($errmsg = $psts->errors->get_error_message('card-type')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<label class="cc-image" title="Visa"><input type="radio" name="cc_card-type" value="Visa"' . (($cc_cardtype=='Visa') ? ' checked="checked"' : '') . ' /><img src="' . $img_base . 'visa.png" alt="Visa" /></label>
@@ -1534,7 +1534,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					</tr>
 
 			  <tr>
-					<td class="pypl_label" align="right">' . __('Card Number:', 'psts') . '&nbsp;</td>
+					<td class="pypl_label" align="right">' . __('Card Number:', 'psts') . ' </td>
 					<td>';
 		if ($errmsg = $psts->errors->get_error_message('number')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<input name="cc_number" type="text" class="cctext" value="' . esc_attr($cc_number) . '" size="23" />
@@ -1542,16 +1542,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					</tr>
 
 					<tr>
-					<td class="pypl_label" align="right">' . __('Expiration Date:', 'psts') . '&nbsp;</td>
+					<td class="pypl_label" align="right">' . __('Expiration Date:', 'psts') . ' </td>
 					<td valign="middle">';
 		if ($errmsg = $psts->errors->get_error_message('expiration')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
-		$content .= '<select name="cc_month">'.$this->month_dropdown($cc_month).'</select>&nbsp;/&nbsp;<select name="cc_year">'.$this->year_dropdown($cc_year).'</select>
+		$content .= '<select name="cc_month">'.$this->month_dropdown($cc_month).'</select> / <select name="cc_year">'.$this->year_dropdown($cc_year).'</select>
 					</td>
 					</tr>
 
 				<!-- Card Security Code -->
 				<tr>
-				<td class="pypl_label" align="right"><nobr>' . __('Card Security Code:', 'psts') . '</nobr>&nbsp;</td>
+				<td class="pypl_label" align="right"><nobr>' . __('Card Security Code:', 'psts') . '</nobr> </td>
 				<td valign="middle">';
 		if ($errmsg = $psts->errors->get_error_message('cvv2')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<label><input name="cc_cvv2" size="5" maxlength="4" type="password" class="cctext" title="' . __('Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts') . '" />
@@ -1561,40 +1561,40 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			<tr><td colspan="2"><h3>' . __('Billing Address:', 'psts') . '</h3></td></tr>
 				<tr>
-				<td class="pypl_label" align="right">' . __('First Name:', 'psts') . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __('First Name:', 'psts') . '* </td><td>';
 		if ($errmsg = $psts->errors->get_error_message('firstname')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<input name="cc_firstname" type="text" class="cctext" value="' . esc_attr($cc_firstname) . '" size="25" /> </td>
 				</tr>
 				<tr>
-				<td class="pypl_label" align="right">' . __('Last Name:', 'psts') . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __('Last Name:', 'psts') . '* </td><td>';
 		if ($errmsg = $psts->errors->get_error_message('lastname')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<input name="cc_lastname" type="text" class="cctext" value="' . esc_attr($cc_lastname) . '" size="25" /></td>
 				</tr>
 				<tr>
 
-				<td class="pypl_label" align="right">' . __('Address:', 'psts') . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __('Address:', 'psts') . '* </td><td>';
 		if ($errmsg = $psts->errors->get_error_message('address')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<input size="45" name="cc_address" type="text" class="cctext" value="' . esc_attr($cc_address) . '" /></td>
 				</tr>
 				<tr>
 
-				<td class="pypl_label" align="right">' . __('Address 2:', 'psts') . '&nbsp;</td><td>
+				<td class="pypl_label" align="right">' . __('Address 2:', 'psts') . ' </td><td>
 			<input size="45" name="cc_address2" type="text" class="cctext" value="' . esc_attr($cc_address2) . '" /></td>
 				</tr>
 				<tr>
-				<td class="pypl_label" align="right">' . __('City:', 'psts') . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __('City:', 'psts') . '* </td><td>';
 		if ($errmsg = $psts->errors->get_error_message('city')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		if ($errmsg = $psts->errors->get_error_message('state')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
-		$content .= '<input size="20" name="cc_city" type="text" class="cctext" value="' . esc_attr($cc_city) . '" />&nbsp;&nbsp; ' . __('State/Province:', 'psts') . '*&nbsp;<input size="5" name="cc_state" type="text" class="cctext" value="' . esc_attr($cc_state) . '" /></td>
+		$content .= '<input size="20" name="cc_city" type="text" class="cctext" value="' . esc_attr($cc_city) . '" />   ' . __('State/Province:', 'psts') . '* <input size="5" name="cc_state" type="text" class="cctext" value="' . esc_attr($cc_state) . '" /></td>
 				</tr>
 				<tr>
-				<td class="pypl_label" align="right">' . __('Postal/Zip Code:', 'psts') . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __('Postal/Zip Code:', 'psts') . '* </td><td>';
 		if ($errmsg = $psts->errors->get_error_message('zip')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		$content .= '<input size="10" name="cc_zip" type="text" class="cctext" value="' . esc_attr($cc_zip) . '" /> </td>
 				</tr>
 				<tr>
 
-				<td class="pypl_label" align="right">' . __('Country:', 'psts') . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __('Country:', 'psts') . '* </td><td>';
 		if ($errmsg = $psts->errors->get_error_message('country')) $content .= '<div class="psts-error">'.$errmsg.'</div>';
 		//default to USA
 		if (empty($cc_country))
@@ -1608,7 +1608,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				</tr>
 		  </tbody></table>
 			<p>
-			<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __('Subscribe', 'psts') . ' &raquo;" />
+			<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __('Subscribe', 'psts') . ' »" />
 		  </p>
 				</div>';
 	}
@@ -1890,31 +1890,34 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 
 	function DoExpressCheckoutPayment($token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false) {
-    global $psts;
+		global $psts;
 
-    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
-      $coupon = true;
-      $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
-    } else {
+		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
+		  $coupon = true;
+		  $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
+		} else {
 			$coupon = false;
 		}
 
-    $nvpstr = "&TOKEN=" .urlencode($token);
-    $nvpstr .= "&PAYERID=" . urlencode($payer_id);
+		$nvpstr = "&TOKEN=" .urlencode($token);
+		$nvpstr .= "&PAYERID=" . urlencode($payer_id);
+		if ( ! defined( 'PSTS_NO_BN' ) ) {
+			$nvpstr .= "&BUTTONSOURCE=incsub_SP";
+		}
 
-    //handle discounts
-    if ($coupon && !$modify) { // already expired
-      $nvpstr .= "&AMT=".round($coupon_value['new_total'], 2);
-    } else if (!$modify) { // normal checkout
-      $nvpstr .= "&AMT=$paymentAmount";
-    }
-		$nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
-		$nvpstr .= "&PAYMENTACTION=Sale";
-		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
-		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
-		$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
+		//handle discounts
+		if ($coupon && !$modify) { // already expired
+		  $nvpstr .= "&AMT=".round($coupon_value['new_total'], 2);
+		} else if (!$modify) { // normal checkout
+		  $nvpstr .= "&AMT=$paymentAmount";
+		}
+			$nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
+			$nvpstr .= "&PAYMENTACTION=Sale";
+			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
+			$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
+			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
 
-	  $resArray = $this->api_call("DoExpressCheckoutPayment", $nvpstr);
+		  $resArray = $this->api_call("DoExpressCheckoutPayment", $nvpstr);
 
 		return $resArray;
 	}
@@ -2000,25 +2003,28 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 
 	function DoDirectPayment($paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false) {
-    global $psts;
+		global $psts;
 
-    if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
-      $coupon = true;
-      $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
-    } else {
+		if ( isset($_SESSION['COUPON_CODE']) && $psts->check_coupon($_SESSION['COUPON_CODE'], $blog_id, $level) ) {
+		  $coupon = true;
+		  $coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
+		} else {
 			$coupon = false;
 		}
 
-    //handle discounts
-    if ($coupon && !$modify) { // already expired
-      $nvpstr = "&AMT=".round($coupon_value['new_total'], 2);
-    } else if (!$modify) { // normal checkout
-      $nvpstr = "&AMT=$paymentAmount";
-    }
-    
-    $nvpstr .= "&IPADDRESS=" . $_SERVER['REMOTE_ADDR'];
-    $nvpstr .= "&PAYMENTACTION=Sale";
-    $nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
+		//handle discounts
+		if ($coupon && !$modify) { // already expired
+		  $nvpstr = "&AMT=".round($coupon_value['new_total'], 2);
+		} else if (!$modify) { // normal checkout
+		  $nvpstr = "&AMT=$paymentAmount";
+		}
+
+		if ( ! defined( 'PSTS_NO_BN' ) ) {
+			$nvpstr .= "&BUTTONSOURCE=incsub_SP";
+		}
+		$nvpstr .= "&IPADDRESS=" . $_SERVER['REMOTE_ADDR'];
+		$nvpstr .= "&PAYMENTACTION=Sale";
+		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting('pypl_currency');
 		$nvpstr .= "&DESC=".urlencode(html_entity_decode($desc, ENT_COMPAT, "UTF-8"));
 		$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting('pypl_currency') . '_' . time();
 		$nvpstr .= "&CREDITCARDTYPE=$cctype";
@@ -2035,7 +2041,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&COUNTRYCODE=$countrycode";
 		$nvpstr .= "&EMAIL=$email";
 
-	  $resArray = $this->api_call("DoDirectPayment", $nvpstr);
+		$resArray = $this->api_call("DoDirectPayment", $nvpstr);
 
 		return $resArray;
 	}
