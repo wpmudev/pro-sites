@@ -4,7 +4,7 @@ Author: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
-
+ 
 3.4.3.6 - 4/1/2014 - Jonathan Cowher
 ----------------------------------------------------------------------
 - Fixed: multiple customer_id index issue in "pro_sites_stripe_customers" table http://wp.mu/945
