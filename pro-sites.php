@@ -3701,78 +3701,19 @@ _gaq.push(["_trackTrans"]);
 		}else{
 			$blog_id = false;
 
-			$blogs_of_user = get_blogs_of_user(get_current_user_id(), false);
 			$blogs = array();
-            
-            $count = 0;
-            $loop_count = 0;
-            $per_page = 10;
-
-            $start = isset($_REQUEST['blogs-start'])?intval($_REQUEST['blogs-start']):0;
-			$next_start = 0;
-            $prev_start = -1;
-
-            foreach ($blogs_of_user as $id => $obj) {
-                if ($count >= $per_page) break;
-                
-                $loop_count++;
-                if ($start > $loop_count) continue;
-
+			foreach(get_blogs_of_user(get_current_user_id()) as $id => $obj){
 				// permission?
 				switch_to_blog($id);
 				$permission = current_user_can('edit_pages');
-				if ($permission) {
-                    $obj->level = $this->get_level($obj->userblog_id);
-                    $obj->level_label = ($obj->level) ? $this->get_level_setting($obj->level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
-                    $obj->upgrade_label = is_pro_site($obj->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $obj->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $obj->blogname);
-                    $obj->checkout_url = $this->checkout_url($obj->userblog_id);
-
+				restore_current_blog();
+				if($permission){
 					$blogs[$id] = $obj;
-                    $count++;
 				}
-                restore_current_blog();
 			}
 
-            $next_start = $loop_count + 1;
-
-            $prev_loop_count = $loop_count;
-            if ( count($blogs_of_user) > $next_start ) {
-                $prev_loop_count++;
-            } else {
-                end($blogs_of_user);
-            }
-
-            // reverse
-            while ( prev($blogs_of_user) ) {
-                $prev_loop_count--;
-                if ($prev_loop_count == $start) break;
-            }
-
-            $prev_count = 0;
-            // reverse to previous start
-            while ( $obj = prev($blogs_of_user) ) {
-                $prev_loop_count--;
-                if ($prev_loop_count < 0) break;
-                if ($prev_count >= $per_page) {
-                    $prev_start = $prev_loop_count;
-                    break;
-                }
-                $id = key($blogs_of_user);
-                switch_to_blog($id);
-                $permission = current_user_can('edit_pages');
-                if ($permission) {
-                    $prev_count++;
-                }
-                $prev_count;
-                restore_current_blog();
-            }
-
-            if ( $prev_start > 0 ) {
-                $prev_start = $prev_loop_count + 1;
-            }
-
 			// user has edit permission for one blog, load checkout page
-			if( count($blogs)==1 ) {
+			if(count($blogs)==1){
 				$all_blog_ids = array_keys($blogs);
 				$blog_id = intval($all_blog_ids[0]);
 			}
@@ -3815,18 +3756,9 @@ _gaq.push(["_trackTrans"]);
 					$level_label = ($level) ? $this->get_level_setting($level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
 					$upgrade_label = is_pro_site($blog->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $blog->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $blog->blogname);
 
-	        $content .= '<li><a href="' . $blog->checkout_url . '">' . $blog->upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $blog->level_label . '</li>';
+	        $content .= '<li><a href="' . $this->checkout_url($blog->userblog_id) . '">' . $upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $level_label . '</li>';
 	      }
 	      $content .= '</ul>';
-
-          $content .= '<div id="post-navigator">';
-          if ( $prev_start >= 0 ) {
-            $content .= '<div class="alignleft"><a href="'.add_query_arg(array('blogs-start' => $prev_start), get_permalink()) .'">Previous</a></div>';
-          }
-          if ( count($blogs_of_user) > $next_start ) {
-            $content .= '<div class="alignright"><a href="'.add_query_arg(array('blogs-start' => $next_start), get_permalink()) .'">Next</a></div>';
-          }
-          $content .= '</div>';
 	    }
 
 	    //show message if no valid blogs
