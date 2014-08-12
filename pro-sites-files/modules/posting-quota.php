@@ -207,6 +207,16 @@ class ProSites_Module_PostingQuota {
 			</div><?php
 		}
 	}
+
+	/**
+	 * Returns the minimum required level to remove restrictions
+	 */
+	public function required_level() {
+		global $psts;
+
+		return $psts->get_setting( 'pq_level' );
+
+	}
 }
 
 //register the module

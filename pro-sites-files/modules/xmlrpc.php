@@ -94,6 +94,16 @@ class ProSites_Module_XMLRPC {
 				return false;
 		}
 	}
+
+	/**
+	 * Returns the minimum required level to remove restrictions
+	 */
+	public function required_level() {
+		global $psts;
+
+		return $psts->get_setting( 'xmlrpc_level' );
+
+	}
 }
 
 //register the module

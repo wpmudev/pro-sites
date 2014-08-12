@@ -2672,6 +2672,7 @@ _gaq.push(["_trackTrans"]);
 
 function admin_stats() {
 	global $wpdb;
+	$pro_sites = $level_counts = $term_1 = $term_12 = $term_3 = '';
 	$term_manual = $daily_stats_levels = '';
 	if ( ! is_super_admin() ) {
 		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
@@ -2828,10 +2829,12 @@ if ( $active_pro_sites ) {
 				data: [<?php echo $pro_sites; ?>]
 			};
 			<?php
-      foreach ($level_counts as $level => $data) {
-        //daily stats
-        echo 'var level_'.$level.' = { label: "'.esc_js($level.': '.$this->get_level_setting($level, 'name')).'", data: ['.$data.'] };';
-        $daily_stats_levels .= ", level_$level";
+			if ( ! empty( $level_counts ) ) {
+		        foreach ($level_counts as $level => $data) {
+		            //daily stats
+		            echo 'var level_'.$level.' = { label: "'.esc_js($level.': '.$this->get_level_setting($level, 'name')).'", data: ['.$data.'] };';
+		            $daily_stats_levels .= ", level_$level";
+				}
 			}
 			?>
 
@@ -4453,7 +4456,7 @@ function admin_levels() {
 
 				if ( in_array( 3, $periods ) || in_array( 12, $periods ) ) {
 					$equiv = '<span class="psts-equiv">' . __( 'Try it out!', 'psts' ) . '</span>
-	                  <span class="psts-equiv">' . __( 'You can easily upgrade to a better value plan at any time.', 'psts' ) . '</span>';
+	                  <span class="psts-equiv">' . __( 'You can easily switch to a better value plan at any time.', 'psts' ) . '</span>';
 				}
 				$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt' . $current . $selected . '">
 										<input type="hidden" value="' . $level . ':1"/>
@@ -5172,6 +5175,27 @@ function admin_levels() {
 			return false;
 		}
 		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+	}
+
+	/**
+	 * Displays a error on plugin activation
+	 * @param $message
+	 * @param $errno
+	 */
+	function trigger_install_error( $message, $errno ) {
+
+		if ( isset( $_GET['action'] ) && $_GET['action'] == 'error_scrape' ) {
+
+			echo '<strong>' . $message . '</strong>';
+
+			exit;
+
+		} else {
+
+			trigger_error( $message, $errno );
+
+		}
+
 	}
 
 }

@@ -123,6 +123,17 @@ class ProSites_Module_PayToBlog {
 				return false;
 		}
 	}
+	/**
+	 * Returns the staring pro level as pro widget is available for all sites
+	 */
+	public function required_level() {
+		global $psts;
+
+		$levels = ( array ) get_site_option( 'psts_levels' );
+
+		return ! empty( $levels ) ? key( $levels ) : false;
+
+	}
 }
 
 //register the module

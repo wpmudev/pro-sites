@@ -66,9 +66,9 @@ class ProSites_Module_Ads {
 		//add it under the pro blogs menu
 		if ( ! is_main_site() && $psts->get_setting( 'ads_enable_blogs' ) ) {
 			add_submenu_page( 'psts-checkout', $psts->get_setting( 'ads_name' ), $psts->get_setting( 'ads_name' ), 'manage_options', 'psts-ads', array(
-					&$this,
-					'ads_page'
-				) );
+				&$this,
+				'ads_page'
+			) );
 		}
 	}
 
@@ -326,7 +326,7 @@ class ProSites_Module_Ads {
 							<input type="text" name="psts[ads_name]" id="ads_name" value="<?php echo esc_attr( $psts->get_setting( 'ads_name' ) ); ?>" size="30"/>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-adfree-sites"><?php echo __( 'Additional Ad-Free Sites', 'psts' ) . $psts->help_text ( __( 'Number of sites that can have ads disabled in addition to the Pro Site. Each level should have an identical or progressively higher number.', 'psts' ) ); ?></th>
+						<th scope="row" class="psts-help-div psts-adfree-sites"><?php echo __( 'Additional Ad-Free Sites', 'psts' ) . $psts->help_text( __( 'Number of sites that can have ads disabled in addition to the Pro Site. Each level should have an identical or progressively higher number.', 'psts' ) ); ?></th>
 						<td><?php
 							foreach ( $levels as $level => $data ) {
 								echo '<label>';
@@ -343,7 +343,7 @@ class ProSites_Module_Ads {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-enable-other-modules"><?php echo __( 'Enable Other Modules', 'psts' ) . $psts->help_text ( __( 'These override any level limits you add in the module. You will want to tell users of this in the Ads Message above.', 'psts' ) ); ?></th>
+						<th scope="row" class="psts-help-div psts-enable-other-modules"><?php echo __( 'Enable Other Modules', 'psts' ) . $psts->help_text( __( 'These override any level limits you add in the module. You will want to tell users of this in the Ads Message above.', 'psts' ) ); ?></th>
 						<td>
 							<?php if ( class_exists( 'ProSites_Module_PremiumThemes' ) ) { ?>
 								<label><input type="checkbox" name="psts[ads_themes]" value="1"<?php checked( $psts->get_setting( 'ads_themes' ) ); ?> /> <?php _e( 'Enable all Premium Themes', 'psts' ) ?>
@@ -633,6 +633,16 @@ class ProSites_Module_Ads {
 			default:
 				return false;
 		}
+	}
+
+	/**
+	 * Returns the minimum required level to remove restrictions
+	 */
+	public function required_level() {
+		global $psts;
+
+		return $psts->get_setting( 'ads_level' );
+
 	}
 }
 

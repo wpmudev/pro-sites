@@ -11,6 +11,11 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		);
 	}
 
+	/**
+	 * @TODO: Show Table as it is displayed in frontend
+	 *
+	 * @param $which
+	 */
 	function extra_tablenav( $which ) {
 		if ( $which == "top" ) {
 			$cur_level = 1;
@@ -39,12 +44,21 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 
 	function column_default( $item, $column_name ) {
 		global $psts;
+		$field = '';
 		switch ( $column_name ) {
 			case 'psts_co_order_id':
 				$field = '<span class="' . $column_name . '" data-order="' . $item [ $column_name ] . '">' . $item [ $column_name ] . '</span>';
 				break;
 			case 'psts_co_visible':
-				$check_value = $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_visible' ) ? $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_visible' ) : "disabled";
+				global $$item ['psts_co_class_name'];
+				//Check if class has some level settings
+				$default_value = ( method_exists( $$item ['psts_co_class_name'], 'required_level' ) && $item ['psts_co_level_id'] >= $$item ['psts_co_class_name']->required_level() ) ? "enabled" : "disabled";
+
+				$check_value = $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_visible' );
+
+				//Check if there is a setting by user, otherwise check for default
+				$check_value = $check_value ? $check_value : ( $default_value ? $default_value : "disabled" );
+
 				if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == 'post' ) {
 					if ( array_key_exists( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_visible', $_POST['psts'] ) ) {
 						$check_value = $_POST['psts'][ 'pricing_table_module_' . $item ['psts_co_class_name'] . '_visible' ];
@@ -71,17 +85,17 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 				$field_content = $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_description' ) ? $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_description' ) : $item [ $column_name ];
 				$field         = strip_tags( $field_content );
 				if ( $item ['psts_co_class_name'] == $this->edit_item ) {
-					$field = wp_editor( $item[ $column_name ], "psts[pricing_table_module_" . $item ['psts_co_class_name'] . '_description]' );
+					$field = wp_editor( $item[ $column_name ], "psts_pricing_table_module_" . $item ['psts_co_class_name'] . '_description' );
 				}
 				break;
 			case 'psts_co_included':
-				$field     = $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_included_' . $item ['psts_co_level_id'] );
+				//Text for modules, in place of right or wrong mark
 				$cur_level = 1;
 				if ( ! empty ( $_REQUEST['level_id'] ) ) {
 					$cur_level = $_REQUEST['level_id'];
 				}
 				if ( ( $item ['psts_co_class_name'] == $this->edit_item ) && ( $item ['psts_co_level_id'] == $cur_level ) ) {
-					$field_value = $psts->get_setting( 'pricing_table_module_' . $item ['psts_co_class_name'] . '_included_' . $item ['psts_co_level_id'] );
+					$field_value = $this->get_include_text( $item ['psts_co_class_name'], $item ['psts_co_level_id'] );
 					$field       = '<textarea id="psts[pricing_table_module_' . $item ['psts_co_class_name'] . '_included_' . $item ['psts_co_level_id'] . ']" name="psts[pricing_table_module_' . $item ['psts_co_class_name'] . '_included_' . $item ['psts_co_level_id'] . ']" cols="14">' . $field_value . '</textarea>';
 				}
 				break;
@@ -125,7 +139,6 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 			'psts_co_name'        => __( 'Name' ),
 			'psts_co_description' => __( 'Description' ),
 			'psts_co_included'    => __( 'Included in Plan' ),
-			'psts_co_has_thick'   => __( 'Checked' ),
 			'psts_co_class_name'  => __( 'Class Name' ),
 			'psts_co_order_id'    => __( 'Order' ),
 			'psts_co_level_id'    => __( 'Level' )
@@ -184,12 +197,19 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 			$cur_level = $_REQUEST['level_id'];
 		}
 		$cur_level = intval( $cur_level );
+
 		foreach ( $items as $index => $module ) {
+			global $$module;
+			$required_level = '';
+			//Get Level Preference for each module and mark it visible as per settings
+			//Check if class exists and if there is any function t return minimum level
+			if ( class_exists( $module ) && method_exists( $$module, 'required_level' ) ) {
+				$required_level = $$module->required_level();
+			}
+			$module_is_visible    = $required_level <= $cur_level ? true : false;
 			$module_label         = $psts->get_setting( 'pricing_table_module_' . $module . '_label' ) ? $psts->get_setting( 'pricing_table_module_' . $module . '_label' ) : $module::$user_label;
 			$module_desc          = $psts->get_setting( 'pricing_table_module_' . $module . '_description' ) ? $psts->get_setting( 'pricing_table_module_' . $module . '_description' ) : $module::$user_description;
-			$module_is_visible    = $psts->get_setting( 'pricing_table_module_' . $module . '_visible' ) ? $psts->get_setting( 'pricing_table_module_' . $module . '_visible' ) : false;
 			$module_included_text = $psts->get_setting( 'pricing_table_module_' . $module . '_included' ) ? $psts->get_setting( 'pricing_table_module_' . $module . '_included' ) : "";
-			$module_has_thick     = $psts->get_setting( 'pricing_table_module_' . $module . '_has_thick' ) ? $psts->get_setting( 'pricing_table_module_' . $module . '_has_thick' ) : false;
 			$levels               = (array) get_site_option( 'psts_levels' );
 			if ( ! ( defined( 'PSTS_DONT_REVERSE_LEVELS' ) && PSTS_DONT_REVERSE_LEVELS ) ) {
 				$levels = array_reverse( $levels, true );
@@ -205,16 +225,15 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 					'psts_co_description' => $module_desc,
 					'psts_co_class_name'  => $module,
 					'psts_co_included'    => $module_included_text,
-					'psts_co_has_thick'   => $module_has_thick,
 					'psts_co_level_id'    => $level_id
 				);
 			}
 		}
 		$modules_order = $psts->get_setting( 'pricing_table_order' ) ? $psts->get_setting( 'pricing_table_order' ) : "";
 		if ( count( array_filter( explode( ",", $modules_order ), array(
-						&$this,
-						"trim_array"
-					) ) ) !== count( $data )
+				&$this,
+				"trim_array"
+			) ) ) !== count( $data )
 		) {
 			$modules_order = "";
 		}
@@ -254,26 +273,25 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		$featured_level_options    = '';
 		$colorpicker_level_options = '';
 		foreach ( $levels as $level ) {
-			if ( $psts->get_setting( 'featured_level' ) == $level_count ) {
-				$selected = ' selected="selected"';
-			} else {
-				$selected = '';
-			}
+
+			$selected = ( $psts->get_setting( 'featured_level' ) == $level_count ) ? ' selected="selected"' : '';
+
 			$featured_level_options .= '<option value="' . $level_count . '"' . $selected . '>' . $level_count . ':' . $level['name'] . '</option>';
+
 			$level_count ++;
 			// Load Color Picker Options
-			$colorpicker_level_options .= '<tr>';
-			$colorpicker_level_options .= '<th scope="row">';
-			$colorpicker_level_options .= $level['name'];
-			$colorpicker_level_options .= '</th>';
-			$colorpicker_level_options .= '<td>';
-			$colorpicker_level_options .= '<input type="text" class="color-picker" name="psts[pricing_table_level_' . $level['name'] . '_color]" value="' . $psts->get_setting( 'pricing_table_level_' . $level['name'] . '_color' ) . '"><br/>';
-			$colorpicker_level_options .= '<small>Choose a color to identify this plan</small>';
-			$colorpicker_level_options .= '</td>';
-			$colorpicker_level_options .= '</tr>';
+			$colorpicker_level_options .= '<tr>
+												<th scope="row">' . $level['name'] . '</th>
+												<td>
+													<input type="text" class="color-picker" name="psts[pricing_table_level_' . $level['name'] . '_color]" value="' . $psts->get_setting( 'pricing_table_level_' . $level['name'] . '_color' ) . '"><br/>
+													<small>Choose a color to identify this plan</small>
+												</td>
+											</tr>';
 		}
+
 		$enable_pricing_value = $psts->get_setting( 'comparison_table_enabled' ) ? $psts->get_setting( 'comparison_table_enabled' ) : $psts->get_setting( 'co_pricing' );
 		$enable_plans_table   = $psts->get_setting( 'plans_table_enabled' ) ? $psts->get_setting( 'plans_table_enabled' ) : 'disabled';
+
 		if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == 'post' ) {
 			if ( array_key_exists( 'comparison_table_enabled', $_POST['psts'] ) ) {
 				$enable_pricing_value = $_POST['psts']['comparison_table_enabled'];
@@ -289,80 +307,129 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 			}
 		}
 		$modules_order = $psts->get_setting( 'pricing_table_order' ) ? $psts->get_setting( 'pricing_table_order' ) : "";
-		$this->prepare_items();
-		echo '
-      <div class="wrap">
-          <div class="icon32">
-            <img src="' . $psts->plugin_url . 'images/settings.png" />
-          </div>
-          <h2>' . apply_filters( 'psts_checkout_page_settings_title', __( 'Pro Sites Pricing Table Settings', 'psts' ) ) . '</h2>
-          <form method="post" action="">
-            <p>' . apply_filters( 'psts_checkout_page_settings_helper', __( 'You can enable plans &amp; pricing and comparison table settings here.', 'psts' ) ) . '
-                <input type="submit" name="submit_settings" class="button-primary alignright" value="Save Changes">
-            </p>
-            <div style="clear:both;"><br /></div>
-            <div class="metabox-holder general-settings">
-              <div class="postbox">
-                <h3 class="hndle">
-                  <span>' . __( 'Plans &amp; Pricing', 'psts' ) . '</span>
-                </h3>
-                <div class="inside">
-                  <table class="form-table">
-                    <tr>
-                      <th>' . __( 'Use Plans &amp; Pricing Table', 'psts' ) . '</th>
-                      <td>
-                        <input type="checkbox" id="psts[plans_table_enabled]" name="psts[plans_table_enabled]" value="enabled" ' . checked( $enable_plans_table, 'enabled', false ) . ' /><label for="psts[plans_table_enabled]">&nbsp;Check this option to display only the plans and pricing table.</label>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>' . __( 'Show Comparison Table', 'psts' ) . '</th>
-                      <td>
-                        <input type="checkbox" id="psts[comparison_table_enabled]" name="psts[comparison_table_enabled]" value="enabled" ' . checked( $enable_pricing_value, 'enabled', false ) . ' /><label for="psts[comparison_table_enabled]">&nbsp;Selecting this option will show both the plans and comparison tables.</label>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-              <div class="postbox">
-                <h3 class="hndle">
-                  <span>' . __( 'Plans Settings', 'psts' ) . '</span>
-                </h3>
-                <div class="inside">
-                  <table class="form-table">
-                    <tr>
-                      <th>' . __( 'Featured Level', 'psts' ) . '</th>
-                      <td>
-                        <select name="psts[featured_level]">' . $featured_level_options . '</select>
-                      </td>
-                    </tr>' .
-		     $colorpicker_level_options . '
-                  </table>
-                </div>
-              </div>
-              <div class="postbox">
-                <h3 class="hndle">
-                  <span>' . __( 'Comparison Modules', 'psts' ) . '</span>
-                </h3>
-                <div class="inside">';
-		$this->display();
-		echo '</div>
-              </div>
-              <input type="hidden" id="psts[pricing_table_order]" name="psts[pricing_table_order]" value="' . $modules_order . '" />
-              ' .
-		     wp_nonce_field( 'psts_checkout_page_settings', 'psts_checkout_page_settings' ) . '
-              <p class="submit alignright">
-                <input type="submit" name="submit_settings" class="button-primary" value="Save Changes">
-              </p>
-            </div>
-            ' . wp_nonce_field( 'psts_checkout_settings' ) . '
-          </form>
-      </div>';
+		$this->prepare_items(); ?>
+
+		<!-- Pricing Table Settings page-->
+		<div class="wrap">
+
+			<div class="icon32">
+				<img src="<?php echo $psts->plugin_url; ?>images/settings.png"/>
+			</div>
+
+			<h2><?php echo apply_filters( 'psts_checkout_page_settings_title', __( 'Pro Sites Pricing Table Settings', 'psts' ) ); ?></h2>
+
+			<form method="post" action="">
+				<!-- Description-->
+				<p>
+					<?php echo apply_filters( 'psts_checkout_page_settings_helper', __( 'You can enable plans &amp; pricing and comparison table settings here.', 'psts' ) ); ?>
+					<input type="submit" name="submit_settings" class="button-primary alignright" value="Save Changes">
+				</p>
+
+				<div style="clear:both;"><br/></div>
+				<div class="metabox-holder general-settings">
+
+					<!-- Plans and Pricing-->
+					<div class="postbox">
+						<h3 class="hndle">
+							<span><?php echo __( 'Plans &amp; Pricing', 'psts' ); ?></span>
+						</h3>
+
+						<div class="inside">
+							<table class="form-table">
+								<tr>
+									<th><?php echo __( 'Use Plans &amp; Pricing Table', 'psts' ); ?></th>
+									<td>
+										<input type="checkbox" id="psts[plans_table_enabled]" name="psts[plans_table_enabled]" value="enabled" <?php echo checked( $enable_plans_table, 'enabled', false ); ?> />
+										<label for="psts[plans_table_enabled]">
+											&nbsp;<?php echo __( 'Check this option to display only the plans and pricing table.', 'psts' ); ?></label>
+									</td>
+								</tr>
+								<tr>
+									<th><?php echo __( 'Show Comparison Table', 'psts' ); ?></th>
+									<td>
+										<input type="checkbox" id="psts[comparison_table_enabled]" name="psts[comparison_table_enabled]" value="enabled" <?php echo checked( $enable_pricing_value, 'enabled', false ); ?>/>
+										<label for="psts[comparison_table_enabled]">
+											&nbsp;<?php echo __( 'Selecting this option will show both the plans and comparison tables.', 'psts' ); ?></label>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+
+					<!-- Plans Settings -->
+					<div class="postbox">
+						<h3 class="hndle">
+							<span><?php echo __( 'Plans Settings', 'psts' ); ?></span>
+						</h3>
+
+						<div class="inside">
+							<table class="form-table">
+								<tr>
+									<th><?php echo __( 'Featured Level', 'psts' ); ?></th>
+									<td>
+										<select name="psts[featured_level]"><?php echo $featured_level_options; ?></select>
+									</td>
+								</tr>
+								<?php echo $colorpicker_level_options; ?>
+							</table>
+						</div>
+					</div>
+
+					<!-- Comparison Modules -->
+					<div class="postbox">
+						<h3 class="hndle">
+							<span><?php echo __( 'Comparison Modules', 'psts' ); ?></span>
+						</h3>
+
+						<div class="inside">
+							<?php echo $this->display(); ?>
+						</div>
+
+					</div>
+
+					<input type="hidden" id="psts[pricing_table_order]" name="psts[pricing_table_order]" value="<?php echo $modules_order; ?>"/>
+					<?php echo wp_nonce_field( 'psts_checkout_page_settings', 'psts_checkout_page_settings' ); ?>
+
+					<!-- Submit-->
+					<p class="submit alignright">
+						<input type="submit" name="submit_settings" class="button-primary" value="Save Changes">
+					</p>
+
+				</div>
+				<?php echo wp_nonce_field( 'psts_checkout_settings' ); ?>
+			</form>
+		</div>
+		<!--		End of div wrap-->
+	<?php
 	}
 
 	public function __toString() {
 		$this->render_settings();
 
 		return "";
+	}
+
+	/**
+	 * Returns a text to be displayed in pricing table, level wise for a module
+	 *
+	 * @param $class_name
+	 * @param $level
+	 */
+	public function get_include_text( $class_name, $level ) {
+		global $psts;
+		//Array of classes which have numeric limits level wise
+		$classes_with_text = array(
+			'ProSites_Module_PostThrottling',
+			'ProSites_Module_Quota',
+		);
+		$include_text      = $psts->get_setting( 'pricing_table_module_' . $class_name . '_included_' . $level );
+
+		//If there is no include text and class is one of the selected class, get the text as per settings
+		if ( ! empty( $include_text ) && in_array( $class_name, $classes_with_text ) ) {
+
+		}
+
+		return $include_text;
 	}
 }
 

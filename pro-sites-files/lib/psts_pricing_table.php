@@ -67,13 +67,26 @@ class ProSites_Pricing_Table {
 		return self::$instance;
 	}
 
+	/**
+	 * Display Coupon detail if applied on checkout
+	 *
+	 * @param $content
+	 *
+	 * @return mixed|string|void
+	 */
 	public function show_coupon_feedback( $content ) {
+
 		global $psts;
+
 		$blog_id = $this->blog_id;
+
 		$content = apply_filters( 'psts_before_checkout_grid_coupon', $content, $this->blog_id );
+
 		if ( isset( $_SESSION['COUPON_CODE'] ) ) {
+
 			$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], 100 );
 			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $_SESSION['COUPON_CODE'] ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
+
 		} else if ( $errmsg = $psts->errors->get_error_message( 'coupon' ) ) {
 			$content .= '<div id="psts-coupon-error" class="psts-error">' . $errmsg . '</div>';
 		}
@@ -108,7 +121,7 @@ class ProSites_Pricing_Table {
 			case MONTHLY:
 				$content = '<p><strong>' . __( 'Try it out!', 'psts' ) . '</strong></p>';
 				if ( in_array( QUARTERLY, $this->periods ) || in_array( QUARTERLY, $this->periods ) ) {
-					$content .= '<p class="save">' . __( 'You can easily upgrade to a better value plan at any time.', 'psts' ) . '</p>';
+					$content .= '<p class="save">' . __( 'You can easily switch to a better value plan at any time.', 'psts' ) . '</p>';
 				}
 				$content = apply_filters( 'psts_pricing_plan_description', $content, MONTHLY, $this->periods );
 				break;
@@ -132,18 +145,20 @@ class ProSites_Pricing_Table {
 	}
 
 	private function get_coupon_link() {
-		$content = '<div class="coupon-wrapper">';
+
 		if ( ! ( defined( 'PSTS_DISABLE_COUPON_FORM' ) && PSTS_DISABLE_COUPON_FORM ) ) {
+			$content = '<div class="coupon-wrapper">';
 			$coupons = get_site_option( 'psts_coupons' );
+
 			if ( is_array( $coupons ) && count( $coupons ) && ! isset ( $_SESSION ['COUPON_CODE'] ) ) {
 				$content .= '<div id="psts-coupon-block">
-          <small><a id="psts-coupon-link" href="#">' . __( 'Have a coupon code?', 'psts' ) . '</a></small>
-          <div id="psts-coupon-code" style="display: none;">
-            <label for="coupon_code">' . __( 'Enter your code:', 'psts' ) . '</label>
-            <input type="text" name="coupon_code" id="coupon_code" />&nbsp;
-            <input type="submit" name="coupon-submit" class="regbutton" value="' . __( 'Apply &raquo;', 'psts' ) . '" />
-          </div>
-         </div>';
+                                <small><a id="psts-coupon-link" href="#">' . __( 'Have a coupon code?', 'psts' ) . '</a></small>
+					            <div id="psts-coupon-code" style="display: none;">
+					                <label for="coupon_code">' . __( 'Enter your code:', 'psts' ) . '</label>
+					                <input type="text" name="coupon_code" id="coupon_code" />&nbsp;
+					                <input type="submit" name="coupon-submit" class="regbutton" value="' . __( 'Apply &raquo;', 'psts' ) . '" />
+					            </div>
+					         </div>';
 			}
 			$content .= '</div>';
 		}
@@ -193,9 +208,16 @@ class ProSites_Pricing_Table {
 		return $content;
 	}
 
+	/**
+	 * List of modules Level wise
+	 * @return mixed|string|void
+	 */
 	private function get_plans_extra_content() {
 		global $psts;
+
 		$content = "";
+		$trial_days = $psts->get_setting( 'trial_days', 0 );
+
 		if ( $this->include_pricing ) {
 			$content .= $this->display_pricing_table();
 		}
@@ -203,22 +225,23 @@ class ProSites_Pricing_Table {
 		$content = apply_filters( 'psts_checkout_method_image', $content );
 
 		$content .= '<div class="terms-wrapper">';
-		$trial_days = $psts->get_setting( 'trial_days', 0 );
-		if ( $psts->is_trial_allowed( $this->blog_id ) ) {
-			$content .= '<p style="padding-top:24px">' . str_replace( 'DAYS', $trial_days, $psts->get_setting( 'cancel_message' ) ) . '</p>';
-		}
+			if ( $psts->is_trial_allowed( $this->blog_id ) ) {
+				$content .= '<p style="padding-top:24px">' . str_replace( 'DAYS', $trial_days, $psts->get_setting( 'cancel_message' ) ) . '</p>';
+			}
 		$content .= '</div>';
+
 		$content .= '<div class="bulk-updates-wrapper">';
-		$content = apply_filters( 'psts_checkout_grid_before_free', $content, $this->blog_id, $this->periods, '100%' );
+			$content = apply_filters( 'psts_checkout_grid_before_free', $content, $this->blog_id, $this->periods, '100%' );
 		$content .= '</div>';
+
 		$content .= '<div class="free-msg-wrapper">';
-		if ( get_blog_option( $this->blog_id, 'psts_signed_up' ) && ! apply_filters( 'psts_prevent_dismiss', false ) ) {
-			$content .= '<tr class="psts_level level-free">
-        <td valign="middle" class="level-name"><h3>' . $psts->get_setting( 'free_name', __( 'Free', 'psts' ) ) . '</h3></td>';
-			$content .= '<td class="level-option" colspan="' . count( $this->periods ) . '">';
-			$content .= '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( $this->blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
-			$content .= '</td></tr>';
-		}
+			if ( get_blog_option( $this->blog_id, 'psts_signed_up' ) && ! apply_filters( 'psts_prevent_dismiss', false ) ) {
+				$content .= '<tr class="psts_level level-free">
+                    <td valign="middle" class="level-name"><h3>' . $psts->get_setting( 'free_name', __( 'Free', 'psts' ) ) . '</h3></td>';
+					$content .= '<td class="level-option" colspan="' . count( $this->periods ) . '">';
+					$content .= '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( $this->blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+				$content .= '</td></tr>';
+			}
 		$content .= '</div>';
 		$content = apply_filters( 'psts_checkout_grid_after_free', $content, $this->blog_id, $this->periods, '100%' );
 
@@ -300,7 +323,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
     </style>
     <div class="plans body">';
 		// Render table headers
-		$content .= '<div class="header row"><ul class="plan labels"><li class="price column">Select your plan!</li>';
+		$content .= '<div class="header row">
+						<ul class="plan labels">
+							<li class="price column">Select your plan!</li>';
 		$selected_period = $this->sel_period;
 		$body_content    = "";
 		$selected        = $this->sel_level;
@@ -326,8 +351,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
       </div>
     </div>
     <input type="hidden" id="psts_period" value="' . ( $this->sel_period ? $this->sel_period : MONTHLY ) . '" name="period" />
-    <input type="hidden" id="psts_level" value="' . $this->sel_level . '" name="level" />
-    ';
+    <input type="hidden" id="psts_level" value="' . $this->sel_level . '" name="level" />';
 
 		return $content;
 	}
@@ -356,16 +380,19 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
 
 		$data = array();
 		foreach ( $modules as $class_name ) {
-			$is_visible = $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' ) ? $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' ) : false;
-			if ( ! $is_visible ) {
-				continue;
-			}
+//			$is_visible = $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' ) ? $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' ) : false;
+
 			$data[] = $class_name;
 		}
 
 		return $data;
 	}
 
+	/**
+	 * Returns all modules which are visible and it's availability as per level
+	 * @return string, List of all the features
+	 * @Todo: Do not show feature which are not enabled for any of the levels
+	 */
 	private function get_module_features() {
 		global $psts;
 
@@ -374,10 +401,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
 		$levels  = $this->get_levels();
 		$modules = $this->filter_modules( $modules );
 		foreach ( $modules as $class_name ) {
-			$is_visible = $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' ) ? $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' ) : false;
-			if ( ! $is_visible ) {
+			$exclude_class = array(
+				'ProSites_Module_ProWidget',
+				'ProSites_Module_PayToBlog'
+			);
+			if ( in_array( $class_name, $exclude_class ) ) {
 				continue;
 			}
+			global $$class_name;
 			$module_label       = "";
 			$module_description = "";
 			if ( class_exists( $class_name ) ) {
@@ -391,24 +422,32 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
 			$module_label       = $psts->get_setting( 'pricing_table_module_' . $class_name . '_label' ) ? $psts->get_setting( 'pricing_table_module_' . $class_name . '_label' ) : $module_label;
 			$module_description = $psts->get_setting( 'pricing_table_module_' . $class_name . '_description' ) ? $psts->get_setting( 'pricing_table_module_' . $class_name . '_description' ) : $module_description;
 			$content .= '<li class="row">
-        <div class="feature-name column">
-          <label>' .
-			            $module_label . '
-            <span class="helper icon">&nbsp;</span>
-          </label>
-          <div class="helper wrapper">
-            <div class="helper content">' .
-			            $module_description .
-			            '</div>
-		  </div>
-		</div>';
+				            <div class="feature-name column">
+				                <label>' . $module_label . '<span class="helper icon">&nbsp;</span></label>
+				                <div class="helper wrapper">
+				                    <div class="helper content">' . $module_description . '</div>
+						        </div>
+							</div>';
+
+			//Check the Availability of a module for a particular level
 			foreach ( $levels as $level_id => $level ) {
-				$module_includes     = false;
+				$module_includes = $is_visible = false;
+
+				//Check if class has some level settings
+				$default_value = ( method_exists( $class_name, 'required_level' ) && $level_id >= $$class_name->required_level() ) ? "enabled" : "disabled";
+
+				//Fetch class settings
+				$is_visible = $psts->get_setting( 'pricing_table_module_' . $class_name . '_visible' );
+
+				//Check if there is no settings, Use the default settings
+				$is_visible = $is_visible ? $is_visible : ( $default_value ? $default_value : "disabled" );
+
 				$level_includes_text = $psts->get_setting( 'pricing_table_module_' . $class_name . '_included_' . $level_id );
-				$module_includes     = $level_includes_text;
+				$module_includes     = ! empty( $level_includes_text ) ? $level_includes_text : $module_includes;
+
 				if ( empty ( $module_includes ) ) {
 					$level_includes_check_mark = $psts->get_setting( 'pricing_table_module_' . $class_name . '_has_thick_' . $level_id );
-					if ( $level_includes_check_mark == 'enabled' ) {
+					if ( $is_visible == 'enabled' ) {
 						$module_includes = true;
 					} else {
 						if ( class_exists( $class_name ) ) {
@@ -418,6 +457,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
 						}
 					}
 				}
+
 				if ( ! empty ( $module_includes ) && ! is_bool( $module_includes ) ) {
 					$module_includes = '<div class="text">' . $module_includes . '</div>';
 				} elseif ( $module_includes === true ) {
@@ -426,32 +466,38 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
 					$module_includes = '<div class="cross">X</div>';
 				}
 				$selected = $this->sel_level == $level_id ? "selected" : "";
-				$content .= '<div class="' . strtolower( $level ['name'] ) . ' column ' . $selected . '">' .
-				            $module_includes . '
-        </div>';
+				$content .= '<div class="' . strtolower( $level ['name'] ) . ' column ' . $selected . '">' . $module_includes . '</div>';
 			}
 			$content .= '</li>';
 		}
 		$content .= '<li class="row"><div class="column"></div>';
 		foreach ( $levels as $level_id => $level ) {
-			$content .= '
-        <div class="column">
-          <a href="#" class="button choose-plan" data-level="' . $level_id . '" data-level-name="' . strtolower( $level ['name'] ) . '">Choose Plan</a>
-        </div>';
+			$content .= '<div class="column">
+			          <a href="#" class="button choose-plan" data-level="' . $level_id . '" data-level-name="' . strtolower( $level ['name'] ) . '">Choose Plan</a>
+		            </div>';
 		}
 		$content .= '</li>';
 		$content .= '
-    </ul>
-    <div class="clearfix"></div>';
+        </ul>
+        <div class="clearfix"></div>';
 
 		return $content;
 	}
 
+	/**
+	 * Display Pricing table (Plans and Comparison ) on checkout page
+	 *
+	 * @param string $include_pricing
+	 *
+	 * @return mixed|string|void
+	 */
 	public function display_plans_table( $include_pricing = 'no' ) {
+
 		$this->include_pricing = 'include-pricing' == $include_pricing ? true : false;
-		$content               = '<section id="plans-table">';
-		$content               = apply_filters( 'psts_pricing_coupon_feedback', $this->show_coupon_feedback( $content ) );
-		$content               = apply_filters( 'psts_before_checkout_grid', $content, $this->blog_id );
+
+		$content = '<section id="plans-table">';
+		$content = apply_filters( 'psts_pricing_coupon_feedback', $this->show_coupon_feedback( $content ) );
+		$content = apply_filters( 'psts_before_checkout_grid', $content, $this->blog_id );
 		$content .= $this->get_periods_nav();
 		$content = apply_filters( 'psts_after_pricing_periods', $content, $this->blog_id );
 		$content .= $this->get_plans_table();

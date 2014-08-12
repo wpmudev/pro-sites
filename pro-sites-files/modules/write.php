@@ -15,7 +15,7 @@ class ProSites_Module_Writing {
 		add_action( 'admin_notices', array( &$this, 'message' ) );
 		add_filter( 'user_has_cap', array( &$this, 'write_filter' ), 10, 3 );
 
-		self::$user_label = __( 'Limit Publishing', 'psts' );
+		self::$user_label       = __( 'Limit Publishing', 'psts' );
 		self::$user_description = __( 'Limited post and pages content creation', 'psts' );
 	}
 
@@ -74,7 +74,7 @@ class ProSites_Module_Writing {
 							</label></td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-post-restricted"><?php echo __( 'Posts Restricted Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the post screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts' ) )?></th>
+						<th scope="row" class="psts-help-div psts-post-restricted"><?php echo __( 'Posts Restricted Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the post screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts' ) ) ?></th>
 						<td>
 							<input type="text" name="psts[publishing_message_posts]" id="publishing_message_posts" value="<?php echo esc_attr( $psts->get_setting( 'publishing_message_posts' ) ); ?>" style="width: 95%"/>
 						</td>
@@ -105,16 +105,16 @@ class ProSites_Module_Writing {
 		}
 
 		if ( $psts->get_setting( 'publishing_posts' ) && in_array( $current_screen->id, array(
-					'edit-post',
-					'post'
-				) )
+				'edit-post',
+				'post'
+			) )
 		) {
 			$notice = str_replace( 'LEVEL', $psts->get_level_setting( $psts->get_setting( 'publishing_level', 1 ), 'name' ), $psts->get_setting( 'publishing_message_posts' ) );
 			echo '<div class="error"><p><a href="' . $psts->checkout_url( $blog_id ) . '">' . $notice . '</a></p></div>';
 		} else if ( $psts->get_setting( 'publishing_pages' ) && in_array( $current_screen->id, array(
-					'edit-page',
-					'page'
-				) )
+				'edit-page',
+				'page'
+			) )
 		) {
 			$notice = str_replace( 'LEVEL', $psts->get_level_setting( $psts->get_setting( 'publishing_level', 1 ), 'name' ), $psts->get_setting( 'publishing_message_pages' ) );
 			echo '<div class="error"><p><a href="' . $psts->checkout_url( $blog_id ) . '">' . $notice . '</a></p></div>';
@@ -126,6 +126,16 @@ class ProSites_Module_Writing {
 			default:
 				return false;
 		}
+	}
+
+	/**
+	 * Returns the minimum required level to remove restrictions
+	 */
+	public function required_level() {
+		global $psts;
+
+		return $psts->get_setting( 'publish_level' );
+
 	}
 }
 

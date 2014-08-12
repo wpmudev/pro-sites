@@ -210,6 +210,25 @@ class ProSites_Module_Quota {
 				return false;
 		}
 	}
+	/**
+	 * Returns the staring pro level as pro widget is available for all sites
+	 */
+	public function required_level() {
+		global $psts;
+
+		$levels = ( array ) get_site_option( 'psts_levels' );
+
+		return ! empty( $levels ) ? key( $levels ) : false;
+
+	}
+
+	/**
+	 * return the include text level wise
+	 * @param $level
+	 */
+	public function include_text( $level ){
+
+	}
 }
 
 //register the module

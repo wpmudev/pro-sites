@@ -137,6 +137,16 @@ class ProSites_Module_Support {
 				return false;
 		}
 	}
+
+	/**
+	 * Returns the minimum required level to remove restrictions
+	 */
+	public function required_level() {
+		global $psts;
+
+		return $psts->get_setting( 'ps_level' );
+
+	}
 }
 
 //register the module
