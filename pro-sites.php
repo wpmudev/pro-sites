@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.4.3.7
+Version: 3.4.3.8
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.4.3.7';
+  var $version = '3.4.3.8';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -337,6 +337,11 @@ Many thanks again for being a member!", 'psts'),
 
 		//create a checkout page if not existing
 		add_action( 'init', array(&$this, 'create_checkout_page') );
+
+		//3.4.3.8 upgrade - fixes permanent upgrades that got truncated on 32 bit systems due to (int) casting
+		if ( version_compare( $this->get_setting('version'), '3.4.3.7', '<=' ) ) {
+			$wpdb->query( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = '9999999999' WHERE expire = '1410065407'" );
+		}
 
 		$this->update_setting('version', $this->version);
 	}
@@ -1171,9 +1176,9 @@ Many thanks again for being a member!", 'psts'),
 		$extra_sql .= ($term) ? $wpdb->prepare(", term = %s", $term) : '';
 		
 		if ($exists)
-	  	$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %d, level = %d{$extra_sql} WHERE blog_ID = %d", $new_expire, $level, $blog_id) );
+	  	$wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s, level = %d{$extra_sql} WHERE blog_ID = %d", $new_expire, $level, $blog_id) );
 		else
-		  $wpdb->query( $wpdb->prepare("INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount) VALUES (%d, %d, %d, %s, %s, %s)", $blog_id, $new_expire, $level, $gateway, $term, $amount) );
+		  $wpdb->query( $wpdb->prepare("INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount) VALUES (%d, %s, %d, %s, %s, %s)", $blog_id, $new_expire, $level, $gateway, $term, $amount) );
 
 		unset($this->pro_sites[$blog_id]); //clear cache
 		unset($this->level[$blog_id]); //clear cache
@@ -1222,7 +1227,7 @@ Many thanks again for being a member!", 'psts'),
 		} else {
       $new_expire = time() - 1;
 		}
-	  $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %d WHERE blog_ID = %d", $new_expire, $blog_id) );
+	  $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id) );
 
     unset($this->pro_sites[$blog_id]); //clear cache
 
