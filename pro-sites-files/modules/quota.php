@@ -137,29 +137,29 @@ class ProSites_Module_Quota {
 
 	function message() {
 	  global $psts, $blog_id;
-	  if ( current_user_can('edit_pages') ) {
+	  if ( !is_main_site() && current_user_can('edit_pages') ) {
 			//if override is set don't show this message
 			if ( !defined('PSTS_QUOTA_ALLOW_OVERRIDE') && get_option('blog_upload_space') ) return;
 			
 			$level = $psts->get_level() + 1;
 			if ($name = $psts->get_level_setting($level, 'name')) { //only show if there is a higher level
-        $space = $this->display_space($psts->get_level_setting($level, 'quota'));
+                $space = $this->display_space($psts->get_level_setting($level, 'quota'));
 				$msg = str_replace( 'LEVEL', $name, $psts->get_setting('quota_message') );
-	      $msg = str_replace( 'SPACE', $space, $msg );
-		    echo '<p><strong><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></strong></p>';
+	            $msg = str_replace( 'SPACE', $space, $msg );
+		        echo '<p><strong><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></strong></p>';
 			}
 	  }
 	}
 
 	function out_message() {
 	  global $psts;
-	  if( current_user_can('edit_pages') && !is_upload_space_available() ) {
+	  if ( !is_main_site() && current_user_can('edit_pages') && !is_upload_space_available() ) {
 			$level = $psts->get_level() + 1;
 			if ($name = $psts->get_level_setting($level, 'name')) { //only show if there is a higher level
-      	$space = $this->display_space($psts->get_level_setting($level, 'quota'));
+      	        $space = $this->display_space($psts->get_level_setting($level, 'quota'));
 				$msg = str_replace( 'LEVEL', $name, $psts->get_setting('quota_message') );
-	      $msg = str_replace( 'SPACE', $space, $msg );
-		    echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></p></div>';
+	            $msg = str_replace( 'SPACE', $space, $msg );
+		        echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></p></div>';
 			}
 	  }
 	}
@@ -182,4 +182,3 @@ class ProSites_Module_Quota {
 
 //register the module
 psts_register_module( 'ProSites_Module_Quota', __('Upload Quota', 'psts'), __('Allows you to give additional upload space to Pro Sites.', 'psts') );
-?>
