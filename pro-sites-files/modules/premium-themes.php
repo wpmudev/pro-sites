@@ -11,7 +11,7 @@ class ProSites_Module_PremiumThemes {
 		add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
-		add_action( 'psts_withdraw', array(&$this, 'deactivate_theme') );
+		add_action( 'psts_expire', array(&$this, 'deactivate_theme') );
 		add_action( 'psts_downgrade', array(&$this, 'deactivate_theme') );
 		
 		add_action( 'admin_print_styles-themes.php', array(&$this, 'themes_styles') );
@@ -129,7 +129,7 @@ class ProSites_Module_PremiumThemes {
 				$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $slug ], 'name'), $psts->get_setting('pt_text') );
 				//This is SUPER hacky due to no hooks. We utilize the lack of esc_attr() in themes.php to insert create 2 hidden <a> tags with our custom one in the middle!
 				$prepared_themes[$slug]['actions']['activate'] = '#" style="display:none;">';		
-				$prepared_themes[$slug]['actions']['activate'] .= '<a href="' . $psts->checkout_url($blog_id) .  '" class="button button-secondary activate nonpsts" style="color:red;" data-level="' . $allowed_themes[ $slug ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';		
+				$prepared_themes[$slug]['actions']['activate'] .= '<a href="' . $psts->checkout_url($blog_id, 'Theme - '.$theme['name']) .  '" class="button button-secondary activate nonpsts" style="color:red;" data-level="' . $allowed_themes[ $slug ] . '" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';		
 				$prepared_themes[$slug]['actions']['activate'] .= '<a style="display:none;';		
 			}
 			
@@ -309,7 +309,7 @@ class ProSites_Module_PremiumThemes {
 			
 			$rebrand = sprintf( __('%s Only', 'psts'), $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name') );
 	  	$upgrade_notice = str_replace( 'LEVEL', $psts->get_level_setting($allowed_themes[ $theme[ 'Stylesheet' ] ], 'name'), $psts->get_setting('pt_text') );
-			$upgrade_link = '<a href="' . $psts->checkout_url($blog_id) .  '" target="_parent" class="activatelink nonpsts button-primary" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
+			$upgrade_link = '<a href="' . $psts->checkout_url($blog_id, 'Theme - '.$theme->get( 'Name' )) .  '" target="_parent" class="activatelink nonpsts button-primary" title="' . esc_attr($upgrade_notice) . '">' . $rebrand . '</a>';	
 			?>
 			<script type="text/javascript">
 				jQuery('#save').remove();

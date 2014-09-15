@@ -102,6 +102,11 @@ class ProSites_Module_Ads {
 			$blog_id = $wpdb->blogid;
 		}
 		
+		$show_ads = apply_filters( 'psts_show_ads', null, $blog_id );
+        if ( !is_null($show_ads) ) {
+            return $show_ads;
+        }
+		
 		if ( is_main_site($blog_id) ) {
 			return false;
 		} else {
@@ -119,6 +124,10 @@ class ProSites_Module_Ads {
 		if ( empty( $blog_id ) ) {
 			$blog_id = $wpdb->blogid;
 		}
+		$hide_ads = apply_filters( 'psts_hide_ads', null, $blog_id );
+        if ( !is_null($hide_ads) ) {
+            return $hide_ads;
+        }
 
 		if ( is_main_site($blog_id) ) {
 			return true;

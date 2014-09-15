@@ -597,6 +597,14 @@ Many thanks again for being a member!", 'psts'),
 		//add user admin bar upgrade button
 		if ( current_user_can('edit_pages') && !$this->get_setting('hide_adminbar') ) {
 			$checkout = $this->checkout_url($blog_id);
+			if(is_admin()) {
+				$current_screen = get_current_screen();
+				$current_screen = $current_screen->id;
+			}
+			else
+				$current_screen = 'Frontend';
+
+			$checkout = $this->checkout_url($blog_id, 'Page - '.$current_screen);
 	
 			$label = is_pro_site() ? $this->get_setting('lbl_curr') : $this->get_setting('lbl_signup');
 			$label = '<span>' . esc_attr($label) . '</span>';
@@ -628,7 +636,7 @@ Many thanks again for being a member!", 'psts'),
 		}
 	}
 	
-	function checkout_url($blog_id = false) {
+	function checkout_url($blog_id = false, $source = false) {
 	  global $current_site;
 
 	  $url = $this->get_setting('checkout_url');
@@ -648,6 +656,9 @@ Many thanks again for being a member!", 'psts'),
 
 		if ($blog_id)
 		  $url .= '?bid=' . $blog_id;
+
+		if($source)
+			$url = add_query_arg('source', urlencode($source), $url);
 
 	  return $url;
 	}
@@ -761,6 +772,11 @@ Many thanks again for being a member!", 'psts'),
 		      $this->log_action( $blog_id, __("User attempted to add an invalid coupon to their order on the checkout page:", 'psts') . ' ' . $code );
 		    }
 		  }
+					
+
+			if (isset($_GET['source'])) {
+				$_SESSION['SOURCE'] = urldecode($_GET['source']);
+			}
 					
 			do_action('psts_checkout_page_load', $blog_id); //for gateway plugins to hook into
 		} else {
@@ -957,8 +973,8 @@ Many thanks again for being a member!", 'psts'),
 	  }
 	}
 
-	function is_pro_site($blog_id = false, $level = false) {
-		global $wpdb, $current_site;
+	function check_pro_site($blog_id = false, $level = false) {
+		global $wpdb;
 
 		if ( !$blog_id ) {
 			$blog_id = $wpdb->blogid;
@@ -1022,6 +1038,27 @@ Many thanks again for being a member!", 'psts'),
 				return false;
 			}
 		}
+	}
+
+	function is_pro_site($blog_id = false, $level = false) {
+		global $wpdb;
+
+		if ( !$blog_id )
+			$blog_id = $wpdb->blogid;
+    	$blog_id = intval($blog_id);
+
+		$current_status = $this->check_pro_site($blog_id, $level);
+
+        if ($blog_id == $wpdb->blogid) {
+    		$last_status = get_blog_option( $blog_id, 'psts_last_pro_status' );
+            if($last_status != $current_status) {
+    			update_blog_option($blog_id, 'psts_last_pro_status', $current_status);
+    			if(!$current_status)
+    				do_action('psts_expire', $blog_id);
+    		}
+        }
+
+		return $current_status;
 	}
 
 
@@ -1574,7 +1611,7 @@ Many thanks again for being a member!", 'psts'),
 	}
 	
 	//returns the js needed to record ecommerce transactions.
-	function create_ga_ecommerce($blog_id, $period, $amount, $level, $city = '', $state = '', $country = '') {
+	function create_ga_ecommerce($blog_id, $period, $amount, $level, $city = '', $state = '', $country = '', $source = '') {
 		global $current_site;
 		
 		$name = $this->get_level_setting($level, 'name');
@@ -1614,6 +1651,7 @@ try{
 	  } else if ($this->get_setting('ga_ecommerce') == 'new') {
 			
 			$js = '<script type="text/javascript">
+_gaq.push(["_setCustomVar",1,"Upgrade Source","'.esc_attr($source).'", 3]);
 _gaq.push(["_addTrans",
 	"'.$order_id.'",          // order ID - required
 	"'.esc_js($store_name).'",// affiliation or store name

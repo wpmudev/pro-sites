@@ -954,7 +954,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	        $this->complete_message = sprintf(__('Your PayPal subscription modification was successful for %s.', 'psts'), $desc);
 					
 					//display GA ecommerce in footer
-					$psts->create_ga_ecommerce($blog_id, $_SESSION['PERIOD'], $initAmount, $_SESSION['LEVEL']);
+	        		$source = isset($_SESSION['SOURCE']) ? $_SESSION['SOURCE'] : '';
+					$psts->create_ga_ecommerce($blog_id, $_SESSION['PERIOD'], $initAmount, $_SESSION['LEVEL'], '', '', '', $source);
 
 					//show instructions for old gateways
           if ($old_gateway == 'PayPal') {
@@ -968,6 +969,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
           unset($_SESSION['COUPON_CODE']);
 					unset($_SESSION['PERIOD']);
 					unset($_SESSION['LEVEL']);
+					unset($_SESSION['SOURCE']);
           
 	    	} else {
 	        $psts->errors->add('general', sprintf(__('There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts'), $this->parse_error_string($resArray) ) );
@@ -1030,11 +1032,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 					
 					//display GA ecommerce in footer
-					$psts->create_ga_ecommerce($blog_id, $_SESSION['PERIOD'], $amount, $_SESSION['LEVEL']);
+					$source = isset($_SESSION['SOURCE']) ? $_SESSION['SOURCE'] : '';
+					$psts->create_ga_ecommerce($blog_id, $_SESSION['PERIOD'], $amount, $_SESSION['LEVEL'], '', '', '', $source);
 					
           unset($_SESSION['COUPON_CODE']);
 					unset($_SESSION['PERIOD']);
 					unset($_SESSION['LEVEL']);
+					unset($_SESSION['SOURCE']);
 
 	    	} else {
 	        $psts->errors->add('general', sprintf(__('There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts'), $this->parse_error_string($resArray) ) );
@@ -1215,7 +1219,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			        $this->complete_message = sprintf(__('Your Credit Card subscription modification was successful for %s.', 'psts'), $desc);
 							
 							//display GA ecommerce in footer
-							$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country);
+			        		$source = isset($_SESSION['SOURCE']) ? $_SESSION['SOURCE'] : '';
+							$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country, $source);
 							
 							//show instructions for old gateways
 		          if ($old_gateway == 'PayPal') {
@@ -1227,6 +1232,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
               unset($_SESSION['COUPON_CODE']);
+              		unset($_SESSION['SOURCE']);
               
 			    	} else {
 			        $psts->errors->add('general', sprintf(__('There was a problem with your Credit Card information:<br />"<strong>%s</strong>"<br />Please try again.', 'psts'), $this->parse_error_string($resArray) ) );
@@ -1288,9 +1294,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 							
 							//display GA ecommerce in footer
-							$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country);
+							$source = isset($_SESSION['SOURCE']) ? $_SESSION['SOURCE'] : '';
+							$psts->create_ga_ecommerce($blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country, $source);
 							
              	unset($_SESSION['COUPON_CODE']);
+             	unset($_SESSION['SOURCE']);
              	
 	        	} else {
 	            $psts->errors->add('general', sprintf(__('There was a problem with your credit card information:<br />"<strong>%s</strong>"<br />Please check all fields and try again.', 'psts'), $this->parse_error_string($resArray) ));

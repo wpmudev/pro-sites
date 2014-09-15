@@ -16,7 +16,7 @@ class ProSites_Module_Plugins {
 		
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message_output') );
-		add_action( 'psts_withdraw', array(&$this, 'deactivate_all') );
+		add_action( 'psts_expire', array(&$this, 'deactivate_all') );
 		add_action( 'psts_upgrade', array(&$this, 'auto_activate'), 10, 3 );
 		add_action( 'psts_downgrade', array(&$this, 'deactivate'), 10, 3 );
 		add_action( 'wpmu_new_blog', array(&$this, 'new_blog'), 50 ); //auto activation hook
@@ -92,7 +92,7 @@ class ProSites_Module_Plugins {
 				$action_links = array();
 			}
 
-			$action_links[] = '<a style="color:'.$color.';" href="'.$psts->checkout_url($blog_id).'">'.$rebrand.'</a>';
+			$action_links[] = '<a style="color:'.$color.';" href="'.$psts->checkout_url($blog_id, 'Plugin - '.$plugin_data['Name']).'">'.$rebrand.'</a>';
 		}
 
 		return $action_links;
