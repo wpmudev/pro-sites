@@ -116,5 +116,5 @@ class ProSites_Gateway_Manual {
 }
 
 //register the gateway
-psts_register_gateway( 'ProSites_Gateway_Manual', __('Manual Payments', 'psts'), __('Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts') );
+psts_register_gateway( 'ProSites_Gateway_Manual', __('Manual Payments', 'psts'), __('Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts'), false, array(), 'Manual' );
 ?>

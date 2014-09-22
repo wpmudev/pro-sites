@@ -772,7 +772,7 @@ Many thanks again for being a member!", 'psts'),
 		      $this->log_action( $blog_id, __("User attempted to add an invalid coupon to their order on the checkout page:", 'psts') . ' ' . $code );
 		    }
 		  }
-					
+
 
 			if (isset($_GET['source'])) {
 				$_SESSION['SOURCE'] = urldecode($_GET['source']);
@@ -825,6 +825,7 @@ Many thanks again for being a member!", 'psts'),
 		$mail_headers = array('Content-Type: text/html');
 
 		switch($action){
+
 			case 'success':
 				$e = array(
 					'msg'=> $this->get_setting('success_msg'),
@@ -854,7 +855,7 @@ Many thanks again for being a member!", 'psts'),
 					$payment_info .= sprintf(__('Payment Term: %s', 'psts'), $term)."\n";
 				
 				$payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $this->format_currency(false, $result->amount) . ' ' . $this->get_setting('currency'))."\n";
-				
+
 				if ( $result->gateway == 'Trial' ) {
 					$trial_info = "\n" . __('*** PLEASE NOTE ***', 'psts') . "\n";
 					$trial_info .= sprintf(__('You will not be charged for your subscription until your trial ends on %s. If applicable, this does not apply to setup fees and other upfront costs.', 'psts'), date_i18n(get_option('date_format'), $result->expire));
@@ -1140,14 +1141,16 @@ Many thanks again for being a member!", 'psts'),
 		}
 	}
 
-	function get_expire($blog_id = '') {
+	function get_expire($blog_id = '', $gateway = false) {
 		global $wpdb;
 
 		if ( empty( $blog_id ) ) {
 			$blog_id = $wpdb->blogid;
 		}
 
-		$expire = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		$gateway = $gateway ? $wpdb->prepare( "AND gateway = %s", $gateway ) : '';
+		$expire = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d $gateway", $blog_id ) );
+
 		if ($expire) {
 			return $expire;
 		} else {
@@ -1619,6 +1622,7 @@ Many thanks again for being a member!", 'psts'),
 		$sku = 'level'.$level.'_'.$period.'month';
 		$order_id = $blog_id.'_'.time();
 		$store_name = $current_site->site_name . ' ' . $this->get_setting('rebrand');
+		$source = $source ? esc_attr($source) : (isset($_SESSION['SOURCE']) ? esc_attr($_SESSION['SOURCE']) : '');
 		
 		if ($this->get_setting('ga_ecommerce') == 'old') {
 
@@ -1651,7 +1655,7 @@ try{
 	  } else if ($this->get_setting('ga_ecommerce') == 'new') {
 			
 			$js = '<script type="text/javascript">
-_gaq.push(["_setCustomVar",1,"Upgrade Source","'.esc_attr($source).'", 3]);
+_gaq.push(["_setCustomVar",1,"Upgrade Source","'.$source.'", 3]);
 _gaq.push(["_addTrans",
 	"'.$order_id.'",          // order ID - required
 	"'.esc_js($store_name).'",// affiliation or store name
@@ -1786,7 +1790,7 @@ _gaq.push(["_trackTrans"]);
 
     <?php if ( $blog_id ) { ?>
     	<h3><?php _e('Manage Site', 'psts') ?>
-			<?php
+	<?php
       if ($name = get_blog_option($blog_id, 'blogname'))
         echo ': '.$name.' (Blog ID: '.$blog_id.')';
 
@@ -3037,6 +3041,7 @@ _gaq.push(["_trackTrans"]);
 
       $this->update_setting('modules_enabled', @$_POST['allowed_modules']);
       $this->update_setting('gateways_enabled', @$_POST['allowed_gateways']);
+      $this->update_setting('switch_support', @$_POST['switch_support']);
 
       do_action('psts_modules_save');
 
@@ -3127,7 +3132,26 @@ _gaq.push(["_trackTrans"]);
       			?>
             </td>
   					<td><label for="psts_<?php echo $class; ?>"><?php echo esc_attr($plugin[0]); ?></label></td>
-  					<td><?php echo esc_attr($plugin[1]); ?></td>
+  					<td>
+  						<?php 
+  						echo esc_attr($plugin[1]); 
+  						if($plugin[3]) {
+  							$switch_support = $this->get_setting('switch_support');
+  							echo '
+	  							<p>
+	  							<small>
+	  							'.__('Select gateways subsciptions that you want to support after switching to this gateway:', 'psts').'
+	  							<br/>';
+  							foreach ($plugin[3] as $switch_class) {
+  								$switch_current = (isset($switch_support[$class]) && in_array($switch_class, $switch_support[$class])) ? true : false;
+  								echo '<input type="checkbox" id="psts_switch_support'.$class.'_'.$switch_class.'" name="switch_support['.$class.'][]" value="'.$switch_class.'"'.checked($switch_current, true, false).'/>'.$psts_gateways[$switch_class][0].'<br/>';
+  							}
+  							echo '
+  								</small>
+  								</p>';
+  						}
+  						?>
+  					</td>
   				</tr>
     			<?php
 				}
@@ -3264,7 +3288,7 @@ _gaq.push(["_trackTrans"]);
 						$trial_days = $this->get_setting('trial_days');
 						$trial_days_options = '';
 						
-						for ( $counter = 0; $counter <= 365; $counter++) {
+						for ( $counter = 0; $counter <=  365; $counter++) {
 						  $trial_days_options .= '<option value="' . $counter . '"' . ($counter == $trial_days ? ' selected' : '') . '>' . (($counter) ? $counter : __('Disabled', 'psts')) . '</option>' . "\n";
 						}
 						
@@ -3630,7 +3654,7 @@ _gaq.push(["_trackTrans"]);
 
     return $content;
 	}
-
+	
 	/**
 	 * Check if given blog has been canceled
 	 *
@@ -3739,12 +3763,12 @@ _gaq.push(["_trackTrans"]);
 		//set blog_id
 		if (isset($_POST['bid'])){
 			$blog_id = intval($_POST['bid']);
-		}else if (isset($_GET['bid'])){
+		} else if (isset($_GET['bid'])) {
 			$blog_id = intval($_GET['bid']);
-		}else{
+		} else {
 			$blog_id = false;
 
-			$blogs_of_user = get_blogs_of_user(get_current_user_id(), false);
+            $blogs_of_user = get_blogs_of_user(get_current_user_id(), false);
 			$blogs = array();
             
             $count = 0;
@@ -3825,15 +3849,15 @@ _gaq.push(["_trackTrans"]);
 
 	  if ($blog_id) {
 
-	    //check for admin permissions for this blog
-	    switch_to_blog($blog_id);
-	    $permission = current_user_can('edit_pages');
-	    restore_current_blog();
-	    if (!$permission) {
-	      $content = '<p>' . __('Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts') . '</p>';
-	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
-	      return $content;
-	    }
+    	    //check for admin permissions for this blog
+    	    switch_to_blog($blog_id);
+    	    $permission = current_user_can('edit_pages');
+    	    restore_current_blog();
+    	    if (!$permission) {
+    	      $content = '<p>' . __('Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts') . '</p>';
+    	      $content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __('Choose a different site', 'psts') . '</a></p>';
+    	      return $content;
+    	    }
 			
 			if ($this->get_expire($blog_id) > 2147483647) {
 				$level = $this->get_level_setting($this->get_level($blog_id), 'name');
@@ -3853,7 +3877,7 @@ _gaq.push(["_trackTrans"]);
 	      foreach ($blogs as $blog) {
 
 	        $has_blog = true;
-					
+			
 					$level = $this->get_level($blog->userblog_id);
 					$level_label = ($level) ? $this->get_level_setting($level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
 					$upgrade_label = is_pro_site($blog->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $blog->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $blog->blogname);
@@ -3972,6 +3996,20 @@ _gaq.push(["_trackTrans"]);
 		$attachments[] = $fname;
 		return $attachments;
 
+	}
+
+	function get_switch_details($blog_id, $current_class) {
+		global $wpdb, $psts_gateways, $psts_switch_active_gateways;
+
+		if(isset($psts_switch_active_gateways[$current_class])) {
+			$current_gateway = $wpdb->get_var($wpdb->prepare("SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id));
+			if($current_gateway != $psts_gateways[$current_class][4] && $current_gateway != NULL)
+				foreach ($psts_switch_active_gateways[$current_class] as $switch_class_name => $switch_class)
+					if($current_gateway == $psts_gateways[$switch_class_name][4])
+						return array('db_name' => $current_gateway, 'class' => $switch_class);
+		}
+
+		return false;
 	}
 
 }

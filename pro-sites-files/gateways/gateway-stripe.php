@@ -866,13 +866,13 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 	
-  function process_checkout( $blog_id ) {
+  	function process_checkout( $blog_id ) {
 		global $current_site, $current_user, $psts, $wpdb;
 
-    if (isset($_POST['cc_checkout']) && empty($_POST['coupon_code'])) {
+    	if (isset($_POST['cc_checkout']) && empty($_POST['coupon_code'])) {
 			
-      //check for level
-	    if (empty($_POST['level']) || empty($_POST['period'])) {
+      		//check for level
+	    	if (empty($_POST['level']) || empty($_POST['period'])) {
 				$psts->errors->add('general', __('Please choose your desired level and payment plan.', 'psts'));
 				return;
 			} else if (!isset($_POST['stripeToken']) && empty($_POST['wp_password'])) {
@@ -945,13 +945,80 @@ class ProSites_Gateway_Stripe {
 				//!TODO uncomment out above lines - temporary fix
 				$has_setup_fee = false;
 				$recurring = true;
+
+				//check out if we are switching from different gateway
+				$current_class = get_class($this);
+				$switch_details = $psts->get_switch_details($blog_id, $current_class);
+				if($switch_details) {
+					if($switch_details['db_name'] == 'PayPal Express/Pro') {
+						$switch_details['profile_id'] = $switch_details['class']->get_profile_id($blog_id);
+						$switch_details['payment_profile_array'] = $switch_details['class']->GetRecurringPaymentsProfileDetails($switch_details['profile_id']);
+						
+						//disable because profile does not exists
+						if(!($switch_details['payment_profile_array']['ACK'] == 'Success' || $switch_details['payment_profile_array']['ACK'] == 'SuccessWithWarning') && $switch_details['payment_profile_array']['STATUS'] != 'Active')
+							$switch_details = false;
+						//all good - lets set up the data
+						else {
+							$last_stored_payment = $psts->last_transaction($blog_id);
+							$blog_expire = $psts->get_expire($blog_id);
+							
+							$switch_details['blog_expire'] = $blog_expire;
+							$switch_details['prev_billing'] = isset($switch_details['payment_profile_array']['LASTPAYMENTDATE']) ? strtotime($switch_details['payment_profile_array']['LASTPAYMENTDATE']) : $last_stored_payment['timestamp'];
+							$switch_details['next_billing'] = isset($switch_details['payment_profile_array']['NEXTBILLINGDATE']) ? strtotime($switch_details['payment_profile_array']['NEXTBILLINGDATE']) : $switch_details['blog_expire'];
+							$switch_details['last_billing_amount'] = isset($switch_details['payment_profile_array']['AMT']) ? $switch_details['payment_profile_array']['AMT'] : $last_stored_payment['amount'];							
+						}
+					}
+				}
+
 				
 				if ( $has_setup_fee ) {
 					$initAmount = $setup_fee + $paymentAmount;
 				}
+
+				//this we will use to discount users when they update details or choose higher plan in middle while we need to switch from paypal to stripe
+				if 
+					( 
+						$switch_details && $switch_details['db_name'] == 'PayPal Express/Pro' &&
+						$switch_details['prev_billing'] && $switch_details['next_billing'] && $switch_details['last_billing_amount'] && 
+						$switch_details['next_billing'] > $switch_details['prev_billing'] &&
+						$paymentAmount >= $switch_details['last_billing_amount']
+					) 
+				{
+					$amount_off =
+						( 
+							1 -
+							(
+								(time() - $switch_details['prev_billing'])
+								/
+								($switch_details['next_billing'] - $switch_details['prev_billing'])
+							)
+						)
+						*
+						$switch_details['last_billing_amount'];
+
+					$psts->log_action($blog_id, 'LASTPAYMENTDATE:'.$switch_details['prev_billing'].' NEXTBILLINGDATE:'.$switch_details['next_billing'].' AMT:'.$switch_details['last_billing_amount'].' amount_off:'.$amount_off.' '.implode(';', $switch_details['payment_profile_array']));
+
+					if($amount_off > 0) {
+						$initAmount -= $amount_off;
+
+						try {
+							$cpn = Stripe_Coupon::create(array(
+								'amount_off' => round($amount_off * 100),
+								'duration' => 'once',
+								'max_redemptions' => 1,
+								'currency' => $currency,
+							));
+						} catch(Exception $e) {
+							$psts->errors->add('general', __('Temporary Stripe coupon could not be generated correctly for coupon used to switch user from paypal to stripe. Please try again.', 'psts'));
+							return;	
+						}
+						
+						$cp_code = $switch_details['cp_code'] = $cpn->id;
+					}
+				}
 					
-				if ( $has_coupon || $has_setup_fee ) {
-					if ( $has_coupon ) {
+				if ( $has_coupon || $has_setup_fee || $cp_code ) {
+					if ( $has_coupon && !$cp_code ) {
 						//apply coupon
 						$coupon_value = $psts->coupon_value($_SESSION['COUPON_CODE'], $paymentAmount);
 						$amount_off = $paymentAmount - $coupon_value['new_total'];
@@ -1024,6 +1091,38 @@ class ProSites_Gateway_Stripe {
 							$args['trial_end'] = $psts->get_expire($blog_id);
 						}
 					}
+
+					//lets check if someone is not downgrading when we need to switch from paypal to stripe
+					//we only do it if user stays on the same plan
+					$switch_trial = get_blog_option($blog_id, 'psts_switch_trial', 0);
+					$current_blog_level = $psts->get_level($blog_id);
+					if(
+						$current_blog_level == $_POST['level'] &&
+						!isset($switch_details['cp_code']) &&
+						!isset($args['trial_end']) &&
+						(
+							(
+								$switch_details && $switch_details['db_name'] == 'PayPal Express/Pro' &&
+								$switch_details['blog_expire'] > time() &&
+								$paymentAmount < $switch_details['last_billing_amount']
+							) ||
+							$switch_trial > time()
+						)
+					) {
+						if($switch_trial > time()) {
+							$args['trial_end'] = $switch_trial;
+
+							$psts->log_action($blog_id, 'blog continued switch expire:'.$switch_details['blog_expire']);
+						}
+						else {
+							$args['trial_end'] = $switch_details['trial_end'] = $switch_details['blog_expire'];
+
+							//lets store the information about blog being on "switch trial" so it is taken into account when user changes subscription
+							update_blog_option($blog_id, 'psts_switch_trial', $switch_details['blog_expire']);
+						
+							$psts->log_action($blog_id, 'blog fresh switch expire:'.$switch_details['blog_expire']);
+						}
+					}
 					
 					if ( $has_setup_fee ) {  //add the setup fee onto the next invoice
 						try {
@@ -1092,7 +1191,8 @@ class ProSites_Gateway_Stripe {
 						);
 					}
 					
-					$psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
+					if(!isset($switch_details['cp_code']))
+						$psts->use_coupon($_SESSION['COUPON_CODE'], $blog_id);
 				}
 				
 				if ( !$psts->is_existing($blog_id) ) {
@@ -1112,8 +1212,9 @@ class ProSites_Gateway_Stripe {
 						and display an appropriate message to the customer (e.g. there are changes pending to your account) */			
 				update_blog_option($blog_id, 'psts_stripe_waiting', 1);
 				
-				if (empty($this->complete_message))
+				if (empty($this->complete_message)){
 					$this->complete_message = __('Your subscription was successful! You should be receiving an email receipt shortly.', 'psts');
+				}
 					
 			} catch (Exception $e) {
 				$psts->errors->add('general', $e->getMessage());
@@ -1126,26 +1227,10 @@ class ProSites_Gateway_Stripe {
 	  ?><script type="text/javascript"> jQuery(document).ready( function() { jQuery("a#stripe_cancel").click( function() { if ( confirm( "<?php echo __('Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts'); ?>" ) ) return true; else return false; }); });</script><?php
 	}
 
-	function checkout_screen($content, $blog_id) {
-	  global $psts, $wpdb, $current_site, $current_user;
-	  
-	  if (!$blog_id)
-	    return $content;
+	function checkout_current_subscription($blog_id) {
+		global $psts, $wpdb, $current_site, $current_user;
 
-	  //add scripts
-	  add_action( 'wp_head', array(&$this, 'checkout_js') );
-
-		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
-		$stripe_publishable_key = $psts->get_setting('stripe_publishable_key');
-		
-		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array('jquery') );	
-		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'gateways/gateway-stripe-files/stripe_token.js', array('js-stripe', 'jquery') );
-		wp_localize_script( 'stripe-token', 'stripe', array('publisher_key' => $stripe_publishable_key,
-																												'name' =>__('Please enter the full Cardholder Name.', 'psts'),
-																												'number' => __('Please enter a valid Credit Card Number.', 'psts'),
-																												'expiration' => __('Please choose a valid expiration date.', 'psts'),
-																												'cvv2' => __('Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts')
-																												) );			
+		$content = '';
 		//cancel subscription
 		if (isset($_GET['action']) && $_GET['action']=='cancel' && wp_verify_nonce($_GET['_wpnonce'], 'psts-cancel')) {		
 			$error = '';
@@ -1176,31 +1261,8 @@ class ProSites_Gateway_Stripe {
 		$cancel_status = get_blog_option($blog_id, 'psts_stripe_canceled');
 		$cancel_content = '';
 		
-    $img_base = $psts->plugin_url. 'images/';
-    $pp_active = false;
-
-    //hide top part of content if its a pro blog
-		if ( is_pro_site($blog_id) || $psts->errors->get_error_message('coupon') )
-			$content = '';
-			
-		if ($errmsg = $psts->errors->get_error_message('general')) {
-			$content = '<div id="psts-general-error" class="psts-error">'.$errmsg.'</div>'; //hide top part of content if theres an error 
-		}
 		
-	  //if transaction was successful display a complete message and skip the rest
-	  if ($this->complete_message) {
-	    $content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
-	    $content .= '<p>' . $psts->get_setting('stripe_thankyou') . '</p>';
-	    $content .= '<p><a href="' . get_admin_url($blog_id, '', 'http') . '">' . __('Visit your newly upgraded site &raquo;', 'psts') . '</a></p>';
-	    return $content;
-	  }
-
-		if ( 1 == get_blog_option($blog_id, 'psts_stripe_waiting') ) {
-			$content .= '<div id="psts-general-error" class="psts-warning">' . __('There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts') . '</div>';
-		}
-		
-		
-    if ($customer_id = $this->get_customer_id($blog_id)) {
+    	if ($customer_id = $this->get_customer_id($blog_id)) {
 			
 			try {
 				$customer_object = Stripe_Customer::retrieve($customer_id);
@@ -1258,12 +1320,11 @@ class ProSites_Gateway_Stripe {
 	
 				$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
 			
-				$pp_active = false;
-			
 				if (is_pro_site($blog_id)) {
+					$img_base = $psts->plugin_url. 'images/';
+
 					$cancel_content .= '<p>'.sprintf(__('If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts'), $level, $end_date).'</p>';
-					$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';
-					$pp_active = true;		
+					$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url($psts->checkout_url($blog_id) . '&action=cancel', 'psts-cancel') . '" title="'.__('Cancel Your Subscription', 'psts').'"><img src="'.$img_base.'cancel_subscribe_gen.gif" /></a></p>';	
 				}		
 				
 				//print receipt send form
@@ -1275,20 +1336,74 @@ class ProSites_Gateway_Stripe {
 			
 			$content .= "<br>";
 			$content .= '</div>';
-		}	
+		}
 
-    if (!$cancel_status && is_pro_site($blog_id) && !is_pro_trial($blog_id)) {
-    	$content .= '<h2>' . __('Change Your Plan or Payment Details', 'psts') . '</h2>
-        <p>' . __('You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts') . '</p>';
-    } else if (!is_pro_site($blog_id) || is_pro_trial($blog_id)) {
+		if (!$cancel_status && is_pro_site($blog_id) && !is_pro_trial($blog_id)) {
+			$content .= '<h2>' . __('Change Your Plan or Payment Details', 'psts') . '</h2>
+			<p>' . __('You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts') . '</p>';
+		} else if (!is_pro_site($blog_id) || is_pro_trial($blog_id)) {
 			$content .= '<p>' . __('Please choose your desired plan then click the checkout button below.', 'psts') . '</p>';
-    } 		
+		}
+
+		return $content;
+	}
+
+	function checkout_screen($content, $blog_id) {
+	  global $psts, $wpdb, $current_site, $current_user;
+	  
+	  if (!$blog_id)
+	    return $content;
+
+	  //add scripts
+	  add_action( 'wp_head', array(&$this, 'checkout_js') );
+
+		$stripe_secret_key = $psts->get_setting('stripe_secret_key');
+		$stripe_publishable_key = $psts->get_setting('stripe_publishable_key');
+		
+		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array('jquery') );	
+		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'gateways/gateway-stripe-files/stripe_token.js', array('js-stripe', 'jquery') );
+		wp_localize_script( 'stripe-token', 'stripe', 
+			array(
+				'publisher_key' => $stripe_publishable_key,
+				'name' =>__('Please enter the full Cardholder Name.', 'psts'),
+				'number' => __('Please enter a valid Credit Card Number.', 'psts'),
+				'expiration' => __('Please choose a valid expiration date.', 'psts'),
+				'cvv2' => __('Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts')
+			) 
+		);			
+		
+    $img_base = $psts->plugin_url. 'images/';
+
+    //hide top part of content if its a pro blog
+		if ( is_pro_site($blog_id) || $psts->errors->get_error_message('coupon') )
+			$content = '';
+			
+		if ($errmsg = $psts->errors->get_error_message('general')) {
+			$content = '<div id="psts-general-error" class="psts-error">'.$errmsg.'</div>'; //hide top part of content if theres an error 
+		}
+		
+	  //if transaction was successful display a complete message and skip the rest
+	  if ($this->complete_message) {
+	    $content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
+	    $content .= '<p>' . $psts->get_setting('stripe_thankyou') . '</p>';
+	    $content .= '<p><a href="' . get_admin_url($blog_id, '', 'http') . '">' . __('Visit your newly upgraded site &raquo;', 'psts') . '</a></p>';
+	    return $content;
+	  }
+
+		if ( 1 == get_blog_option($blog_id, 'psts_stripe_waiting') ) {
+			$content .= '<div id="psts-general-error" class="psts-warning">' . __('There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts') . '</div>';
+		}
+
+	$current_class = get_class($this);
+	$switch_details = $psts->get_switch_details($blog_id, $current_class);
+    
+	$content .= $switch_details ? $switch_details['class']->checkout_current_subscription($blog_id) : $this->checkout_current_subscription($blog_id);
 
     $content .= '<form action="'.$psts->checkout_url($blog_id).'" method="post" autocomplete="off"  id="payment-form">';
 	
     //print the checkout grid
     $content .= $psts->checkout_grid($blog_id);
-    
+
     //if existing customer, offer ability to checkout using saved credit card info
     /*if ( isset($customer_object) ) {
     	$card_object = $this->get_default_card($customer_object);
@@ -1441,6 +1556,21 @@ class ProSites_Gateway_Stripe {
 				return false;
 			}
 		}
+
+		//check out if we are switching from different gateway
+		$current_class = get_class($this);
+		$switch_details = $psts->get_switch_details($blog_id, $current_class);
+		//lets cancel paypal subscription if user is switching
+		if($switch_details && $switch_details['db_name'] == 'PayPal Express/Pro') {
+			global $current_site;
+
+			$switch_details['profile_id'] = $switch_details['class']->get_profile_id($blog_id);
+			$switch_details['payment_profile_cancel_array'] = $switch_details['class']->ManageRecurringPaymentsProfileStatus($switch_details['profile_id'], 'Cancel', sprintf(__('Your %1$s subscription has been moved to different payment provider.', 'psts') , $current_site->site_name . ' ' . $psts->get_setting('rebrand')));
+			if ($switch_details['payment_profile_cancel_array']['ACK'] == 'Success' || $switch_details['payment_profile_cancel_array']['ACK'] == 'SuccessWithWarning')
+				$psts->log_action($blog_id, __('PayPal subscription successfully canceled while switching to Stripe.', 'psts'));
+			else
+				$psts->log_action($blog_id, __('There was a problem canceling PayPal subscription while switching to Stripe: ', 'psts') . $switch_details['class']->parse_error_string($switch_details['payment_profile_cancel_array']));
+		}
 		
 		if ( !empty($expire) ) {
 			$psts->extend($blog_id, $period, $gateway, $level, $amount, $expire);
@@ -1507,7 +1637,9 @@ class ProSites_Gateway_Stripe {
 					break;
 				}
 				
-				$gateway = ( $is_trial ) ? 'Trial' : 'Stripe';
+				//do not mark switch trial sites as normal trial
+				$switch_trial = get_blog_option($blog_id, 'psts_switch_trial', 0);
+				$gateway = ( $is_trial && $switch_trial ) ? 'Trial' : 'Stripe';
 				$amount_formatted = $psts->format_currency(false, $amount);
 				$charge_id = ( isset($event_json->data->object->charge) ) ? $event_json->data->object->charge : $event_json->data->object->id;
 				
@@ -1615,5 +1747,5 @@ class ProSites_Gateway_Stripe {
 }
 
 //register the gateway
-psts_register_gateway( 'ProSites_Gateway_Stripe', __('Stripe (beta)', 'psts'), __('Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account.', 'psts') );
+psts_register_gateway( 'ProSites_Gateway_Stripe', __('Stripe (beta)', 'psts'), __('Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account.', 'psts'), false, array('ProSites_Gateway_PayPalExpressPro'), 'Stripe' );
 ?>

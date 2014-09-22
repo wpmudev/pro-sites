@@ -75,10 +75,22 @@ class ProSites_PluginLoader {
 		do_action('psts_load_gateways');
 
     //load chosen plugin class
-    global $psts_gateways, $psts_active_gateways;
+    global $psts_gateways, $psts_active_gateways, $psts_switch_active_gateways;
     foreach ((array)$psts_gateways as $class => $gateway) {
-      if ( class_exists($class) && in_array($class, (array)$psts->get_setting('gateways_enabled')) )
-        $psts_active_gateways[] = new $class;
+      if ( class_exists($class) && in_array($class, (array)$psts->get_setting('gateways_enabled')) ) {
+        //if switch supported - load correct getways
+        if($gateway[3]) {
+          $switch_active_gateways = (array)$psts->get_setting('switch_support');
+          $switch_active_gateways = isset($switch_active_gateways[$class]) ? $switch_active_gateways[$class] : false;
+
+          if(is_array($switch_active_gateways))
+            foreach ($switch_active_gateways as $switch_class)
+              if ( class_exists($switch_class) && !isset($psts_active_gateways[$switch_class]) )
+                $psts_switch_active_gateways[$class][$switch_class] = new $switch_class(true);
+        }
+
+        $psts_active_gateways[$class] = new $class;
+      }
     }
   }
 
@@ -93,8 +105,9 @@ $psts_plugin_loader = new ProSites_PluginLoader();
  * @param string $class_name - the case sensitive name of your plugin class
  * @param string $name - the nice name for your plugin
  * @param string $description - Short description of your gateway, for the admin side.
+ * @param array $switch_support - Different gateways subsciptions that can be supported after changing gateway.
  */
-function psts_register_gateway($class_name, $name, $description, $demo = false) {
+function psts_register_gateway($class_name, $name, $description, $demo = false, $switch_support = array(), $db_name) {
   global $psts_gateways;
   
   if (!is_array($psts_gateways)) {
@@ -102,7 +115,7 @@ function psts_register_gateway($class_name, $name, $description, $demo = false) 
 	}
 	
 	if (class_exists($class_name)) {
-		$psts_gateways[$class_name] = array($name, $description, $demo);
+		$psts_gateways[$class_name] = array($name, $description, $demo, $switch_support, $db_name);
 	} else {
 		return false;
 	}
