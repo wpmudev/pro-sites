@@ -1639,7 +1639,7 @@ class ProSites_Gateway_Stripe {
 				
 				//do not mark switch trial sites as normal trial
 				$switch_trial = get_blog_option($blog_id, 'psts_switch_trial', 0);
-				$gateway = ( $is_trial && $switch_trial ) ? 'Trial' : 'Stripe';
+				$gateway = ( $is_trial && (!$switch_trial || $switch_trial < time()) ) ? 'Trial' : 'Stripe';
 				$amount_formatted = $psts->format_currency(false, $amount);
 				$charge_id = ( isset($event_json->data->object->charge) ) ? $event_json->data->object->charge : $event_json->data->object->id;
 				
