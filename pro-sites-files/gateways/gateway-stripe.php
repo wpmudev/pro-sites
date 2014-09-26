@@ -388,14 +388,55 @@ class ProSites_Gateway_Stripe {
   	global $psts;
 
     $customer_id = $this->get_customer_id($blog_id);
-    $next_billing = __('None', 'psts');
-    
+
+    $error = 0;
     if ($customer_id) {
-    	/*if ($psts->get_setting('recurring_billing', true))
-				$next_billing = date_i18n(get_blog_option($blog_id, 'date_format'), $psts->get_expire($blog_id));*/
-			
-			// !TODO - append extra details to $payment_info
+		try {
+			$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
+		} catch (Exception $e) {
+			$cancel_status = 1;
 		}
+		
+		try {
+			$existing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
+		} catch (Exception $e) {
+			$error = $e->getMessage();
+		}
+		
+		try {
+			$customer_object = Stripe_Customer::retrieve($customer_id);
+		} catch (Exception $e) {
+			$error = $e->getMessage();
+		}
+    }
+
+	if($customer_object) {
+		if($customer_object->description && $customer_object->subscriptions->data[0]->plan->name)
+			$payment_info = sprintf(__('Subscription Description: %s', 'psts'), $customer_object->description.': '.$customer_object->subscriptions->data[0]->plan->name)."\n\n";
+		else
+			$payment_info = '';
+
+		if (isset($customer_object->active_card)) {
+			$active_card = $customer_object->active_card->type;
+			$last4 = $customer_object->active_card->last4;
+			$exp_year = $customer_object->active_card->exp_year;
+			$exp_month = $customer_object->active_card->exp_month;
+			$payment_info .= sprintf(__('Payment Method: %1$s Card ending in %2$s. Expires %3$s', 'psts'), $active_card, $last4, $exp_month.'/'.$exp_year)."\n";
+		}
+
+		if ($last_payment = $psts->last_transaction($blog_id)) {
+			$payment_info .= sprintf(__('Payment Date: %s', 'psts'), date_i18n(get_blog_option($blog_id, 'date_format'), $last_payment['timestamp']))."\n";
+			$payment_info .= sprintf(__('Payment Amount: %s', 'psts'), $last_payment['amount'] . ' ' . $psts->get_setting('currency'))."\n";
+			$payment_info .= sprintf(__('Payment Transaction ID: %s', 'psts'), $last_payment['txn_id'])."\n\n";
+		}
+
+        if (isset($invoice_object->next_payment_attempt))
+			$next_billing = date_i18n(get_option('date_format'), $invoice_object->next_payment_attempt);
+		else
+			$next_billing = __("None", 'psts');
+
+		$payment_info .= sprintf(__('Next Scheduled Payment Date: %s', 'psts'), $next_billing)."\n";
+	}
 		
     return $payment_info;
   }
@@ -414,6 +455,12 @@ class ProSites_Gateway_Stripe {
 			}
 	
 			echo '<li>'.sprintf(__('Stripe Customer ID: <strong><a href="https://manage.stripe.com/#test/customers/%s" target="_blank">%s</a></strong>', 'psts'), $customer_id, $customer_id).'</li>';
+			
+			try {
+				$invoice_object = Stripe_Invoice::upcoming(array("customer" => $customer_id));
+			} catch (Exception $e) {
+				$cancel_status = 1;
+			}
 			
 			try {
 				$existing_invoice_object = Stripe_Invoice::all(array( "customer" => $customer_id, "count" => 1) ); 
