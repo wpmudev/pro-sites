@@ -5,6 +5,11 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.4.4 - 10/30/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Fixed: Some PHP notices
+- Fixed: Default email text that would trigger Commodo firewall rules
+
 3.4.3.9 - 9/10/2014 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fixed: Upload quota upgrade message was displaying on main site

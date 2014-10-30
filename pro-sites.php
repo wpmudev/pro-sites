@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.4.3.9
+Version: 3.4.4
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-  var $version = '3.4.3.9';
+  var $version = '3.4.4';
   var $location;
   var $language;
   var $plugin_dir = '';
@@ -262,10 +262,7 @@ Looking forward to having you back as a valued member!", 'psts'),
       'failed_subject' => __('Your Pro Site subscription payment failed', 'psts'),
       'failed_msg' => __("It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.
 
-Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features:
-http://mysite.com/pro-site/
-
-If you're still having billing problems please contact us for help:
+Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features. If you're still having billing problems please contact us for help:
 http://mysite.com/contact/
 
 Many thanks again for being a member!", 'psts'),
