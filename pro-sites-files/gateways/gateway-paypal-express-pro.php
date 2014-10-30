@@ -1453,6 +1453,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$content .= '<li>'.sprintf(__('Expire Date: <strong>%s</strong>', 'psts'), $end_date).'</li>';
 				
 			$content .= '</ul><br />';
+	        $cancel_content = '';
 			if ($old_gateway == 'PayPal' || $old_gateway == 'Amazon') {
 				$cancel_content .= '<h3>'.__('Cancel Your Subscription', 'psts').'</h3>';
 				$cancel_content .= '<p>'.sprintf(__('If your subscription is still active your next scheduled payment should be %1$s.', 'psts'), $end_date).'</p>';
