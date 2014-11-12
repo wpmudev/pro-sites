@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.4.4
+Version: 3.4.5
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -1835,11 +1835,13 @@ _gaq.push(["_trackTrans"]);
 	          <table class="widefat">
 	            <?php
 	            $log = get_blog_option($blog_id, 'psts_action_log');
+	            $time_offset = ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
 	            if (is_array($log) && count($log)) {
 	              $log = array_reverse($log, true);
 	              foreach ($log as $timestamp => $memo) {
 	                $class = (isset($class) && $class == 'alternate') ? '' : 'alternate';
-	                echo '<tr class="'.$class.'"><td><strong>' . date_i18n( __('Y-m-d g:i:s a', 'psts'), $timestamp ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
+	                $localtime = $timestamp + $time_offset;
+	                echo '<tr class="'.$class.'"><td><strong>' . date_i18n( __('Y-m-d g:i:s a', 'psts'), $localtime ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
 								}
 	            } else {
 	              echo '<tr><td colspan="2">'.__('No history recorded for this site yet.', 'psts').'</td></tr>';
