@@ -51,7 +51,7 @@ class ProSites_Module_UnfilterHtml {
 	  $levels = (array)get_site_option( 'psts_levels' );
 		?>
 		<div class="postbox">
-		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Unfilter HTML', 'psts') ?></span> - <span class="description"><?php _e('Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts') ?></span></h3>
+		  <h3 class="hndle" style="cursor:auto;"><span><?php _e('Unfilter HTML', 'psts') ?></span> - <span class="description"><?php _e('Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts') ?></span></h3>
 		  <div class="inside">
 			  <table class="form-table">
           <tr valign="top">
@@ -92,5 +92,5 @@ class ProSites_Module_UnfilterHtml {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_UnfilterHtml', __('Unfilter HTML', 'psts'), __('Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts') );
+psts_register_module( 'ProSites_Module_UnfilterHtml', __('Unfilter HTML', 'psts'), __('Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts') );
 ?>

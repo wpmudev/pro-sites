@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.4.5
+Version: 3.4.6 beta 1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.4.4';
+	var $version = '3.4.6 beta 1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -1856,7 +1856,7 @@ _gaq.push(["_trackTrans"]);
 			$new_bid     = (int) $_POST['new_bid'];
 			$current_bid = (int) $_GET['bid'];
 			if ( ! $new_bid ) {
-				echo '<div id="message" class="error"><p>' . __( 'Please enter the Blog ID of a site to transfer too.', 'psts' ) . '</p></div>';
+				echo '<div id="message" class="error"><p>' . __( 'Please enter the Blog ID of a site to transfer to.', 'psts' ) . '</p></div>';
 			} else if ( is_pro_site( $new_bid ) ) {
 				echo '<div id="message" class="error"><p>' . __( 'Could not transfer Pro Status: The chosen site already is a Pro Site. You must remove Pro status and cancel any existing subscriptions tied to that site.', 'psts' ) . '</p></div>';
 			} else {
@@ -1936,7 +1936,7 @@ _gaq.push(["_trackTrans"]);
 			$result        = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
 			if ( $result ) {
 				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
-					$term = sprintf( __( '%s Month', 'psts' ), $result->term );
+					$term = sprintf( _n( '%s Month','%s Months', $result->term, 'psts' ), $result->term );
 				} else {
 					$term = $result->term;
 				}
@@ -4318,7 +4318,7 @@ function admin_levels() {
 	}
 
 	function pdf_receipt( $payment_info = '' ) {
-
+		require_once( $this->plugin_dir . 'tcpdf-config.php' );
 		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php' );
 		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php' );
 

@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.4.6 - 12/19/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix: Module/Gateway names/descriptions not translating properly
+- Fix: Various text typos - refreshed pot file
+- Fix: Limit potential conflicts with other plugins using the TCPDF library
+
 3.4.5 - 11/12/2014 - Aaron Edwards
 ----------------------------------------------------------------------
 - New: Add timezone offset support to log entry timestamps
