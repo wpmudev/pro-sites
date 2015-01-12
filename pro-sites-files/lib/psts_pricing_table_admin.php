@@ -421,11 +421,15 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		$classes_with_text = array(
 			'ProSites_Module_PostThrottling',
 			'ProSites_Module_Quota',
+			'ProSites_Module_PostingQuota'
 		);
 		$include_text      = $psts->get_setting( 'pricing_table_module_' . $class_name . '_included_' . $level );
 
 		//If there is no include text and class is one of the selected class, get the text as per settings
-		if ( ! empty( $include_text ) && in_array( $class_name, $classes_with_text ) ) {
+		if ( empty( $include_text ) && in_array( $class_name, $classes_with_text ) ) {
+
+			global $$class_name;
+			$include_text = $$class_name->include_text( $level );
 
 		}
 

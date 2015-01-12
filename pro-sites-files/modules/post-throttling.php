@@ -457,6 +457,16 @@ class ProSites_Module_PostThrottling {
 
 	}
 
+	/**
+	 * Returns the Text to be displayed in pricing table
+	 *
+	 * @param $level
+	 */
+	function include_text( $level ) {
+
+
+	}
+
 }
 
 // register module

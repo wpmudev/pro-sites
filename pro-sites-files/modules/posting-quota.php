@@ -217,6 +217,39 @@ class ProSites_Module_PostingQuota {
 		return $psts->get_setting( 'pq_level' );
 
 	}
+
+	/**
+	 * Return the include text level wise
+	 *
+	 * @param $level
+	 */
+	public function include_text( $level ) {
+
+		//Return if there is no level specified
+		if ( empty( $level ) ) {
+			return;
+		}
+		global $psts;
+
+		$limits = $text = '';
+
+		//Return Upload posting limit for the specified level
+		$required_level = $psts->get_setting( 'pq_level', 1 );
+		$quota_settings = $psts->get_setting( "pq_quotas" );
+
+		$text = "<ul>" . __( "Publish Limits: ", 'psts' );
+		//If specified level value is same or less than required level, show the limits
+		if( $level <= $required_level ) {
+			foreach ( $quota_settings as $post_type => $limits ) {
+				$text .= "<li>" . ucfirst( $post_type ) . ": " . $limits['quota'] . "</li>";
+			}
+		}
+		$text .= "</ul>";
+
+		//Return Publish quota
+		return $text;
+
+	}
 }
 
 //register the module

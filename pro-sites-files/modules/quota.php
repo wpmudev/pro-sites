@@ -224,9 +224,27 @@ class ProSites_Module_Quota {
 
 	/**
 	 * return the include text level wise
+	 *
 	 * @param $level
 	 */
-	public function include_text( $level ){
+	public function include_text( $level ) {
+
+		//Return if there is no level specified
+		if ( empty( $level ) ) {
+			return;
+		}
+
+		//Return Upload Quota limit for the specified level
+		$levels = (array) get_site_option( 'psts_levels' );
+
+		//Check for level data
+		if ( empty( $levels [ $level ] ) ) {
+			return;
+		}
+		$format_limit = ! empty( $levels[ $level ]['quota'] ) && $levels[ $level ]['quota'] > 1024 ? number_format_i18n( $levels[ $level ]['quota'] ) / 1024 . ' GB' : number_format_i18n( $levels[ $level ]['quota'] ) . ' MB';
+
+		//Return upload quota
+		return __( 'Upload data upto ', 'psts' ) . $format_limit;
 
 	}
 }
