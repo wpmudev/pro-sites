@@ -29,7 +29,7 @@ class ProSites_Module_PostThrottling {
 	 */
 	public function __construct() {
 		// actions
-		add_action( 'psts_settings_page', array( $this, 'renderModuleSettings' ) );
+//		add_action( 'psts_settings_page', array( $this, 'renderModuleSettings' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'renderLimitsInformation' ) );
 		add_action( 'transition_post_status', array( $this, 'checkTransitionPostStatus' ), 10, 3 );
 
@@ -239,7 +239,8 @@ class ProSites_Module_PostThrottling {
 			</style>
 
 			<div class="misc-pub-section">
-			<a id="psts-upgrade" class="button button-primary button-large" href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
+			<a id="psts-upgrade" class="button button-primary button-large"
+			   href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
 			</div><?php
 		}
 	}
@@ -300,11 +301,11 @@ class ProSites_Module_PostThrottling {
 	 */
 	public function renderModuleSettings() {
 		?>
-		<div class="postbox">
-		<h3 class="hndle" style="cursor:auto;">
-			<span><?php _e( 'Post Throttling', 'psts' ); ?> </span> -
-			<span class="description"><?php _e( 'Allows you to limit the number of posts/pages to be published daily/hourly per site.', 'psts' ); ?> </span>
-		</h3>
+		<!--		<div class="postbox">-->
+		<!--		<h3 class="hndle" style="cursor:auto;">-->
+		<!--			<span>--><?php //_e( 'Post Throttling', 'psts' ); ?><!-- </span> --->
+		<!--			<span class="description">--><?php //_e( 'Allows you to limit the number of posts/pages to be published daily/hourly per site.', 'psts' ); ?><!-- </span>-->
+		<!--		</h3>-->
 
 		<div class="inside">
 			<p><?php echo __( 'Post Throttling module allows you to limit the number of posts published daily or hourly per site, to avoid flooding of posts by a single site.', 'psts' ), ' '; ?></p>
@@ -313,7 +314,8 @@ class ProSites_Module_PostThrottling {
 				$this->_renderLevelLimitsSettings(); ?>
 			</table>
 		</div>
-		</div><?php
+		<!--		</div>-->
+	<?php
 	}
 
 	/**
@@ -332,12 +334,13 @@ class ProSites_Module_PostThrottling {
 					?>
 					<div>
 					<label>
-						<input type="checkbox" name="throttling_types[]" value="<?php echo esc_attr( $type ); ?>" <?php echo checked( in_array( $type, $types ) ); ?>>
+						<input type="checkbox" name="throttling_types[]"
+						       value="<?php echo esc_attr( $type ); ?>" <?php echo checked( in_array( $type, $types ) ); ?>>
 						<?php echo esc_html( $object->label ); ?>
 					</label>
 					</div><?php
 				}
-			}?>
+			} ?>
 		</td>
 		</tr><?php
 	}
@@ -372,7 +375,8 @@ class ProSites_Module_PostThrottling {
 				<div class="plan-th-limits">
 					<select name="<?php echo $key . '[0]'; ?>" class="chosen">
 						<?php $free_value = isset( $limits[ $key ] ) ? intval( $limits[ $key ] ) : 0; ?>
-						<option value="unlimited"<?php selected( $free_value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
+						<option
+							value="unlimited"<?php selected( $free_value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
 						<?php
 						for ( $counter = 1; $counter <= 1000; $counter ++ ) {
 							echo '<option value="' . $counter . '"' . ( $counter == $free_value ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
@@ -390,7 +394,8 @@ class ProSites_Module_PostThrottling {
 				<td>
 					<div class="plan-th-limits">
 						<select name="<?php echo $key . '[' . $level . ']'; ?>" class="chosen">
-							<option value="unlimited"<?php selected( $value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
+							<option
+								value="unlimited"<?php selected( $value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
 							<?php
 							for ( $counter = 1; $counter <= 1000; $counter ++ ) {
 								echo '<option value="' . $counter . '"' . ( $counter == $value ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";

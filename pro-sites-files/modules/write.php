@@ -10,7 +10,7 @@ class ProSites_Module_Writing {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
 		add_action( 'admin_notices', array( &$this, 'message' ) );
 		add_filter( 'user_has_cap', array( &$this, 'write_filter' ), 10, 3 );
@@ -47,10 +47,10 @@ class ProSites_Module_Writing {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Limit Publishing', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Limit Publishing', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -93,7 +93,7 @@ class ProSites_Module_Writing {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

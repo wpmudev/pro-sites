@@ -13,7 +13,7 @@ class ProSites_Module_Ads {
 	function __construct() {
 		global $psts;
 
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
 		add_action( 'admin_menu', array( &$this, 'plug_page' ), 100 );
 		add_action( 'psts_extend', array( &$this, 'extend' ), 10, 2 );
@@ -255,10 +255,10 @@ class ProSites_Module_Ads {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Ads', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Ads', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -361,7 +361,7 @@ class ProSites_Module_Ads {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

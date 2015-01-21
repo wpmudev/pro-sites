@@ -10,7 +10,7 @@ class ProSites_Module_UnfilterHtml {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_notices', array( &$this, 'message' ) );
 		add_filter( 'user_has_cap', array( &$this, 'unfilter_check' ), 100, 3 );
 		add_filter( 'map_meta_cap', array( &$this, 'unfilter_caps' ), 10, 4 );
@@ -18,7 +18,10 @@ class ProSites_Module_UnfilterHtml {
 		self::$user_label       = __( 'Unfiltered HTML', 'psts' );
 		self::$user_description = __( 'Can use the unfiltered html permission', 'psts' );
 
-		define( 'DISALLOW_UNFILTERED_HTML', false );
+		if( ! defined('DISALLOW_UNFILTERED_HTML') )
+		{
+			define( 'DISALLOW_UNFILTERED_HTML', false );
+		}
 	}
 
 	//for ads module to allow unfiltered
@@ -62,10 +65,10 @@ class ProSites_Module_UnfilterHtml {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Unfilter HTML', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Unfilter HTML', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -90,7 +93,7 @@ class ProSites_Module_UnfilterHtml {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

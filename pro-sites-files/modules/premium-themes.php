@@ -12,7 +12,7 @@ class ProSites_Module_PremiumThemes {
 	function __construct() {
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_theme' ) );
 		add_action( 'psts_downgrade', array( &$this, 'deactivate_theme' ) );
 
@@ -211,10 +211,9 @@ class ProSites_Module_PremiumThemes {
 	function settings() {
 		global $psts;
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Premium Themes', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to give access to selected themes to a Pro Site level.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+			<h3><?php _e( 'Premium Themes', 'psts' ) ?></h3>
+			<span class="description"><?php _e( 'Allows you to give access to selected themes to a Pro Site level.', 'psts' ) ?></span>
 
 			<div class="inside">
 				<table class="form-table">
@@ -232,7 +231,7 @@ class ProSites_Module_PremiumThemes {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

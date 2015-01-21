@@ -31,18 +31,9 @@ if ( ! class_exists( 'ProSites_Model_Gateways' ) ) {
 				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'] ) );
 				update_site_option( 'psts_settings', $settings );
 
-//				switch ( $gateway_class ) {
-//
-//					case 'ProSites_Gateway_2Checkout':
-//						break;
-//					case 'ProSites_Gateway_PayPalExpressPro':
-//						break;
-//					case 'ProSites_Gateway_Stripe':
-//						break;
-//					case 'ProSites_Gateway_Manual':
-//						break;
-//
-//				}
+				do_action( 'psts_settings_process' );
+				do_action( 'supporter_settings_process' ); //depreciated
+
 				echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
 
 			}

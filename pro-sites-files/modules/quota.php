@@ -12,7 +12,7 @@ class ProSites_Module_Quota {
 	public $checkout_name, $checkout_desc;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'psts_settings_process', array( &$this, 'settings_process' ) );
 
 		//filter blog and site options
@@ -88,10 +88,10 @@ class ProSites_Module_Quota {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Upload Quota', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to give additional upload space to Pro Sites.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Upload Quota', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to give additional upload space to Pro Sites.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -128,10 +128,11 @@ class ProSites_Module_Quota {
 						</td>
 					</tr>
 				</table>
+				<p>
 				<span class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
-					<pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span>
+					<pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span><br /></p>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

@@ -10,7 +10,7 @@ class ProSites_Module_PayToBlog {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
 		add_action( 'template_redirect', array( &$this, 'disable_front' ) );
 		add_filter( 'psts_prevent_dismiss', create_function( null, 'return true;' ) );
@@ -86,10 +86,10 @@ class ProSites_Module_PayToBlog {
 	function settings() {
 		global $psts;
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Pay To Blog', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to completely disable a site both front end and back until paid.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Pay To Blog', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to completely disable a site both front end and back until paid.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -113,7 +113,7 @@ class ProSites_Module_PayToBlog {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

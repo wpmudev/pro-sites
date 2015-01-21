@@ -10,7 +10,7 @@ class ProSites_Module_Support {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_menu', array( &$this, 'plug_page' ), 99 );
 
 		self::$user_label       = __( 'Premium Support', 'psts' );
@@ -32,10 +32,10 @@ class ProSites_Module_Support {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Premium Support', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to provide a premium direct to email support page for selected Pro Site levels.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Premium Support', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to provide a premium direct to email support page for selected Pro Site levels.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -79,7 +79,7 @@ class ProSites_Module_Support {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

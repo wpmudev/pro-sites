@@ -19,7 +19,7 @@ class ProSites_Module_Plugins {
 			add_action( 'admin_init', array( &$this, 'redirect_plugins_page' ) );
 		}
 
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_notices', array( &$this, 'message_output' ) );
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_all' ) );
 		add_action( 'psts_upgrade', array( &$this, 'auto_activate' ), 10, 3 );
@@ -360,10 +360,9 @@ class ProSites_Module_Plugins {
 	function settings() {
 		global $psts;
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Premium Plugins', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to create plugin packages only available to selected Pro Site levels.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+			<h3><?php _e( 'Premium Plugins', 'psts' ) ?></h3>
+			<span class="description"><?php _e( 'Allows you to create plugin packages only available to selected Pro Site levels.', 'psts' ) ?></span>
 
 			<div class="inside">
 				<table class="form-table">
@@ -375,7 +374,7 @@ class ProSites_Module_Plugins {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

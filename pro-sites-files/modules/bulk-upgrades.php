@@ -10,7 +10,7 @@ class ProSites_Module_BulkUpgrades {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_menu', array( &$this, 'plug_page' ), 110 );
 
 		// Edit profile
@@ -272,225 +272,258 @@ class ProSites_Module_BulkUpgrades {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-		<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Bulk Upgrades', 'psts' ) ?></span> -
-			<span class="description"><?php _e( 'Allows you to sell Pro Site level upgrades in bulk packages.', 'psts' ) ?></span>
-		</h3>
+		<!--		<div class="postbox">-->
+		<!--		<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Bulk Upgrades', 'psts' ) ?><!--</span> --->
+		<!--			<span class="description">--><?php //_e( 'Allows you to sell Pro Site level upgrades in bulk packages.', 'psts' ) ?><!--</span>-->
+		<!--		</h3>-->
 
 		<div class="inside">
-		<?php if ( get_site_option( "supporter_bulk_upgrades_paypal_payment_type" ) == 'recurring' ) { ?>
-			<p><?php _e( 'Important - If you were previously using Bulk Upgrades and subscriptions with Supporter 2.x, you must copy and overwrite the <em>/pro-sites/pro-sites-files/gateways/backwards-compatibility/<strong>supporter-bulk-upgrades-paypal.php</strong></em> file to the webroot of this site to prevent problems with payments from existing subscriptions being applied.', 'psts' ) ?></p>
-		<?php } ?>
-		<table class="form-table">
-		<tr>
-			<th scope="row"><?php _e( 'PayPal Email', 'psts' ) ?></th>
-			<td>
-				<input value="<?php echo esc_attr( $psts->get_setting( 'bu_email' ) ); ?>" size="50" name="psts[bu_email]" type="text"/>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
-			<td><select name="psts[bu_site]">
-					<?php
-					$paypal_site = $psts->get_setting( 'bu_site' );
-					$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
-					$locales     = array(
-						'AU' => 'Australia',
-						'AT' => 'Austria',
-						'BE' => 'Belgium',
-						'CA' => 'Canada',
-						'CN' => 'China',
-						'FR' => 'France',
-						'DE' => 'Germany',
-						'HK' => 'Hong Kong',
-						'IT' => 'Italy',
-						'MX' => 'Mexico',
-						'NL' => 'Netherlands',
-						'PL' => 'Poland',
-						'SG' => 'Singapore',
-						'ES' => 'Spain',
-						'SE' => 'Sweden',
-						'CH' => 'Switzerland',
-						'GB' => 'United Kingdom',
-						'US' => 'United States'
-					);
+			<?php if ( get_site_option( "supporter_bulk_upgrades_paypal_payment_type" ) == 'recurring' ) { ?>
+				<p><?php _e( 'Important - If you were previously using Bulk Upgrades and subscriptions with Supporter 2.x, you must copy and overwrite the <em>/pro-sites/pro-sites-files/gateways/backwards-compatibility/<strong>supporter-bulk-upgrades-paypal.php</strong></em> file to the webroot of this site to prevent problems with payments from existing subscriptions being applied.', 'psts' ) ?></p>
+			<?php } ?>
+			<table class="form-table">
+				<tr>
+					<th scope="row"><?php _e( 'PayPal Email', 'psts' ) ?></th>
+					<td>
+						<input value="<?php echo esc_attr( $psts->get_setting( 'bu_email' ) ); ?>" size="50"
+						       name="psts[bu_email]" type="text"/>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
+					<td><select name="psts[bu_site]">
+							<?php
+							$paypal_site = $psts->get_setting( 'bu_site' );
+							$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
+							$locales     = array(
+								'AU' => 'Australia',
+								'AT' => 'Austria',
+								'BE' => 'Belgium',
+								'CA' => 'Canada',
+								'CN' => 'China',
+								'FR' => 'France',
+								'DE' => 'Germany',
+								'HK' => 'Hong Kong',
+								'IT' => 'Italy',
+								'MX' => 'Mexico',
+								'NL' => 'Netherlands',
+								'PL' => 'Poland',
+								'SG' => 'Singapore',
+								'ES' => 'Spain',
+								'SE' => 'Sweden',
+								'CH' => 'Switzerland',
+								'GB' => 'United Kingdom',
+								'US' => 'United States'
+							);
 
-					foreach ( $locales as $k => $v ) {
-						echo '		<option value="' . $k . '"' . selected( $k, $sel_locale, false ) . '>' . esc_attr( $v ) . '</option>' . "\n";
-					}
-					?>
-				</select>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
-			<td><select name="psts[bu_currency]">
-					<?php
-					$currency     = $psts->get_setting( 'bu_currency' );
-					$sel_currency = empty( $currency ) ? $psts->get_setting( 'currency' ) : $currency;
-					$currencies   = array(
-						'AUD' => 'AUD - Australian Dollar',
-						'BRL' => 'BRL - Brazilian Real',
-						'CAD' => 'CAD - Canadian Dollar',
-						'CHF' => 'CHF - Swiss Franc',
-						'CZK' => 'CZK - Czech Koruna',
-						'DKK' => 'DKK - Danish Krone',
-						'EUR' => 'EUR - Euro',
-						'GBP' => 'GBP - Pound Sterling',
-						'ILS' => 'ILS - Israeli Shekel',
-						'HKD' => 'HKD - Hong Kong Dollar',
-						'HUF' => 'HUF - Hungarian Forint',
-						'JPY' => 'JPY - Japanese Yen',
-						'MYR' => 'MYR - Malaysian Ringgits',
-						'MXN' => 'MXN - Mexican Peso',
-						'NOK' => 'NOK - Norwegian Krone',
-						'NZD' => 'NZD - New Zealand Dollar',
-						'PHP' => 'PHP - Philippine Pesos',
-						'PLN' => 'PLN - Polish Zloty',
-						'SEK' => 'SEK - Swedish Krona',
-						'SGD' => 'SGD - Singapore Dollar',
-						'TWD' => 'TWD - Taiwan New Dollars',
-						'THB' => 'THB - Thai Baht',
-						'USD' => 'USD - U.S. Dollar'
-					);
+							foreach ( $locales as $k => $v ) {
+								echo '		<option value="' . $k . '"' . selected( $k, $sel_locale, false ) . '>' . esc_attr( $v ) . '</option>' . "\n";
+							}
+							?>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
+					<td><select name="psts[bu_currency]">
+							<?php
+							$currency     = $psts->get_setting( 'bu_currency' );
+							$sel_currency = empty( $currency ) ? $psts->get_setting( 'currency' ) : $currency;
+							$currencies   = array(
+								'AUD' => 'AUD - Australian Dollar',
+								'BRL' => 'BRL - Brazilian Real',
+								'CAD' => 'CAD - Canadian Dollar',
+								'CHF' => 'CHF - Swiss Franc',
+								'CZK' => 'CZK - Czech Koruna',
+								'DKK' => 'DKK - Danish Krone',
+								'EUR' => 'EUR - Euro',
+								'GBP' => 'GBP - Pound Sterling',
+								'ILS' => 'ILS - Israeli Shekel',
+								'HKD' => 'HKD - Hong Kong Dollar',
+								'HUF' => 'HUF - Hungarian Forint',
+								'JPY' => 'JPY - Japanese Yen',
+								'MYR' => 'MYR - Malaysian Ringgits',
+								'MXN' => 'MXN - Mexican Peso',
+								'NOK' => 'NOK - Norwegian Krone',
+								'NZD' => 'NZD - New Zealand Dollar',
+								'PHP' => 'PHP - Philippine Pesos',
+								'PLN' => 'PLN - Polish Zloty',
+								'SEK' => 'SEK - Swedish Krona',
+								'SGD' => 'SGD - Singapore Dollar',
+								'TWD' => 'TWD - Taiwan New Dollars',
+								'THB' => 'THB - Thai Baht',
+								'USD' => 'USD - U.S. Dollar'
+							);
 
-					foreach ( $currencies as $k => $v ) {
-						echo '		<option value="' . $k . '"' . selected( $k, $sel_currency, false ) . '>' . esc_attr( $v ) . '</option>' . "\n";
-					}
-					?>
-				</select></td>
-		</tr>
-		<tr valign="top">
-			<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
-			<td><select name="psts[bu_status]">
-					<option value="live"<?php selected( $psts->get_setting( 'bu_status' ), 'live' ); ?>><?php _e( 'Live Site', 'psts' ) ?></option>
-					<option value="test"<?php selected( $psts->get_setting( 'bu_status' ), 'test' ); ?>><?php _e( 'Test Mode (Sandbox)', 'psts' ) ?></option>
-				</select>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-bulk-payment-type"><?php echo __( 'PayPal Payment Type', 'psts' ) . $psts->help_text( __( 'Recurring = PayPal 12 month subscription', 'psts' ) ); ?></th>
-			<td><select name="psts[bu_payment_type]">
-					<option value="single"<?php selected( $psts->get_setting( 'bu_payment_type' ), 'single' ); ?>><?php _e( 'Single', 'psts' ) ?></option>
-					<option value="recurring"<?php selected( $psts->get_setting( 'bu_payment_type' ), 'recurring' ); ?>><?php _e( 'Recurring', 'psts' ) ?></option>
-				</select>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-credit-level"><?php echo __( 'Credit Level', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to.', 'psts' ) ); ?></th>
-			<td>
-				<select name="psts[bu_level]">
-					<?php
-					foreach ( $levels as $level => $value ) {
-						?>
-						<option value="<?php echo $level; ?>"<?php selected( $psts->get_setting( 'bu_level', 1 ), $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
-					}
-					?>
-				</select>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-option1-settings"><?php echo __( 'Option 1 Settings', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to. One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
-			<td><label><?php _e( 'Credits', 'psts' ) ?>:
-					<select name="psts[bu_credits_1]">
-						<?php
-						$credits_1 = $psts->get_setting( 'bu_credits_1', 10 );
-						for ( $counter = 1; $counter <= 900; $counter ++ ) {
-							echo '<option value="' . $counter . '"' . ( $counter == $credits_1 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-						}
-						?>
-					</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<label><?php _e( 'Price', 'psts' ) ?>:
-					<?php echo $psts->format_currency(); ?>
-					<input value="<?php echo ( $psts->get_setting( 'bu_price_1' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_1' ), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_1]" type="text"/>
-				</label>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-option2-settings"><?php echo __( 'Option 2 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
-			<td><label><?php _e( 'Credits', 'psts' ) ?>:
-					<select name="psts[bu_credits_2]">
-						<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
-						<?php
-						$credits_2 = $psts->get_setting( 'bu_credits_2' );
-						for ( $counter = 1; $counter <= 900; $counter ++ ) {
-							echo '<option value="' . $counter . '"' . ( $counter == $credits_2 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-						}
-						?>
-					</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<label><?php _e( 'Price', 'psts' ) ?>:
-					<?php echo $psts->format_currency(); ?>
-					<input value="<?php echo ( $psts->get_setting( 'bu_price_2' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_2' ), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_2]" type="text"/>
-				</label>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-option3-settings"><?php echo __( 'Option 3 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
-			<td><label><?php _e( 'Credits', 'psts' ) ?>:
-					<select name="psts[bu_credits_3]">
-						<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
-						<?php
-						$credits_3 = $psts->get_setting( 'bu_credits_3' );
-						for ( $counter = 1; $counter <= 900; $counter ++ ) {
-							echo '<option value="' . $counter . '"' . ( $counter == $credits_3 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-						}
-						?>
-					</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<label><?php _e( 'Price', 'psts' ) ?>:
-					<?php echo $psts->format_currency(); ?>
-					<input value="<?php echo ( $psts->get_setting( 'bu_price_3' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_3' ), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_3]" type="text"/>
-				</label>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-option4-settings"><?php echo __( 'Option 4 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
-			<td><label><?php _e( 'Credits', 'psts' ) ?>:
-					<select name="psts[bu_credits_4]">
-						<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
-						<?php
-						$credits_4 = $psts->get_setting( 'bu_credits_4' );
-						for ( $counter = 1; $counter <= 900; $counter ++ ) {
-							echo '<option value="' . $counter . '"' . ( $counter == $credits_4 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-						}
-						?>
-					</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<label><?php _e( 'Price', 'psts' ) ?>:
-					<?php echo $psts->format_currency(); ?>
-					<input value="<?php echo ( $psts->get_setting( 'bu_price_4' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_4' ), 2, '.', '' ) : ''; ?>" size="4" name="psts[bu_price_4]" type="text"/>
-				</label>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-bulk-upgrade-option-message"><?php echo __( 'Option Message', 'psts' ) . $psts->help_text( __( 'The keywords CREDITS, PRICE, and LEVEL will be replaced with their respective values.', 'psts' ) ); ?></th>
-			<td>
-				<input type="text" name="psts[bu_option_msg]" value="<?php echo esc_attr( $psts->get_setting( 'bu_option_msg' ) ); ?>" style="width: 95%"/>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row" class="psts-help-div psts-bulk-upgrade-checkout-message"><?php echo __( 'Checkout Message', 'psts' ) . $psts->help_text( __( 'Required - HTML allowed - This message is displayed at the top of the "Bulk Upgrades" page.', 'psts' ) ); ?></th>
-			<td>
-				<textarea name="psts[bu_checkout_msg]" rows="10" wrap="soft" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'bu_checkout_msg' ) ); ?></textarea>
-			</td>
-		</tr>
-		<tr valign="top">
-			<th scope="row"><?php _e( 'Payment Message', 'psts' ) ?></th>
-			<td>
-				<input type="text" name="psts[bu_payment_msg]" value="<?php echo esc_attr( $psts->get_setting( 'bu_payment_msg' ) ); ?>" style="width: 95%"/>
-				<br/></td>
-		</tr>
-		<tr valign="top" class="psts-bulk-checkout-form">
-			<th scope="row" class="psts-help-div psts-bulk-upgrade-checkout"><?php echo __( 'Checkout Form Settings', 'psts' ) . $psts->help_text( __( 'Configure how the Bulk Upgrades option is displayed on the main checkout form:', 'psts' ) ); ?></th>
-			<td>
-				<label><span class="psts-label"><?php _e( 'Name', 'psts' ); ?></span><input type="text" name="psts[bu_name]" value="<?php echo esc_attr( $psts->get_setting( 'bu_name' ) ); ?>"/>
-				</label><br/>
-				<label><span class="psts-label"><?php _e( 'Link Message', 'psts' ); ?></span><input type="text" size="60" name="psts[bu_link_msg]" value="<?php echo esc_attr( $psts->get_setting( 'bu_link_msg' ) ); ?>"/>
-				</label>
-			</td>
-		</tr>
-		</table>
-		<span class="description"><?php _e( 'Note - You can manually grant Bulk Upgrade credits to users by editing their profile.', 'psts' ) ?></span>
+							foreach ( $currencies as $k => $v ) {
+								echo '		<option value="' . $k . '"' . selected( $k, $sel_currency, false ) . '>' . esc_attr( $v ) . '</option>' . "\n";
+							}
+							?>
+						</select></td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
+					<td><select name="psts[bu_status]">
+							<option
+								value="live"<?php selected( $psts->get_setting( 'bu_status' ), 'live' ); ?>><?php _e( 'Live Site', 'psts' ) ?></option>
+							<option
+								value="test"<?php selected( $psts->get_setting( 'bu_status' ), 'test' ); ?>><?php _e( 'Test Mode (Sandbox)', 'psts' ) ?></option>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-bulk-payment-type"><?php echo __( 'PayPal Payment Type', 'psts' ) . $psts->help_text( __( 'Recurring = PayPal 12 month subscription', 'psts' ) ); ?></th>
+					<td><select name="psts[bu_payment_type]">
+							<option
+								value="single"<?php selected( $psts->get_setting( 'bu_payment_type' ), 'single' ); ?>><?php _e( 'Single', 'psts' ) ?></option>
+							<option
+								value="recurring"<?php selected( $psts->get_setting( 'bu_payment_type' ), 'recurring' ); ?>><?php _e( 'Recurring', 'psts' ) ?></option>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-credit-level"><?php echo __( 'Credit Level', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to.', 'psts' ) ); ?></th>
+					<td>
+						<select name="psts[bu_level]">
+							<?php
+							foreach ( $levels as $level => $value ) {
+								?>
+								<option value="<?php echo $level; ?>"<?php selected( $psts->get_setting( 'bu_level', 1 ), $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
+							}
+							?>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-option1-settings"><?php echo __( 'Option 1 Settings', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to. One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+					<td><label><?php _e( 'Credits', 'psts' ) ?>:
+							<select name="psts[bu_credits_1]">
+								<?php
+								$credits_1 = $psts->get_setting( 'bu_credits_1', 10 );
+								for ( $counter = 1; $counter <= 900; $counter ++ ) {
+									echo '<option value="' . $counter . '"' . ( $counter == $credits_1 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+								}
+								?>
+							</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label><?php _e( 'Price', 'psts' ) ?>:
+							<?php echo $psts->format_currency(); ?>
+							<input
+								value="<?php echo ( $psts->get_setting( 'bu_price_1' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_1' ), 2, '.', '' ) : ''; ?>"
+								size="4" name="psts[bu_price_1]" type="text"/>
+						</label>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-option2-settings"><?php echo __( 'Option 2 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+					<td><label><?php _e( 'Credits', 'psts' ) ?>:
+							<select name="psts[bu_credits_2]">
+								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
+								<?php
+								$credits_2 = $psts->get_setting( 'bu_credits_2' );
+								for ( $counter = 1; $counter <= 900; $counter ++ ) {
+									echo '<option value="' . $counter . '"' . ( $counter == $credits_2 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+								}
+								?>
+							</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label><?php _e( 'Price', 'psts' ) ?>:
+							<?php echo $psts->format_currency(); ?>
+							<input
+								value="<?php echo ( $psts->get_setting( 'bu_price_2' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_2' ), 2, '.', '' ) : ''; ?>"
+								size="4" name="psts[bu_price_2]" type="text"/>
+						</label>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-option3-settings"><?php echo __( 'Option 3 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+					<td><label><?php _e( 'Credits', 'psts' ) ?>:
+							<select name="psts[bu_credits_3]">
+								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
+								<?php
+								$credits_3 = $psts->get_setting( 'bu_credits_3' );
+								for ( $counter = 1; $counter <= 900; $counter ++ ) {
+									echo '<option value="' . $counter . '"' . ( $counter == $credits_3 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+								}
+								?>
+							</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label><?php _e( 'Price', 'psts' ) ?>:
+							<?php echo $psts->format_currency(); ?>
+							<input
+								value="<?php echo ( $psts->get_setting( 'bu_price_3' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_3' ), 2, '.', '' ) : ''; ?>"
+								size="4" name="psts[bu_price_3]" type="text"/>
+						</label>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-option4-settings"><?php echo __( 'Option 4 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+					<td><label><?php _e( 'Credits', 'psts' ) ?>:
+							<select name="psts[bu_credits_4]">
+								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
+								<?php
+								$credits_4 = $psts->get_setting( 'bu_credits_4' );
+								for ( $counter = 1; $counter <= 900; $counter ++ ) {
+									echo '<option value="' . $counter . '"' . ( $counter == $credits_4 ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+								}
+								?>
+							</select></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label><?php _e( 'Price', 'psts' ) ?>:
+							<?php echo $psts->format_currency(); ?>
+							<input
+								value="<?php echo ( $psts->get_setting( 'bu_price_4' ) ) ? number_format( (float) $psts->get_setting( 'bu_price_4' ), 2, '.', '' ) : ''; ?>"
+								size="4" name="psts[bu_price_4]" type="text"/>
+						</label>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-bulk-upgrade-option-message"><?php echo __( 'Option Message', 'psts' ) . $psts->help_text( __( 'The keywords CREDITS, PRICE, and LEVEL will be replaced with their respective values.', 'psts' ) ); ?></th>
+					<td>
+						<input type="text" name="psts[bu_option_msg]"
+						       value="<?php echo esc_attr( $psts->get_setting( 'bu_option_msg' ) ); ?>"
+						       style="width: 95%"/>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-bulk-upgrade-checkout-message"><?php echo __( 'Checkout Message', 'psts' ) . $psts->help_text( __( 'Required - HTML allowed - This message is displayed at the top of the "Bulk Upgrades" page.', 'psts' ) ); ?></th>
+					<td>
+						<textarea name="psts[bu_checkout_msg]" rows="10" wrap="soft"
+						          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'bu_checkout_msg' ) ); ?></textarea>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Payment Message', 'psts' ) ?></th>
+					<td>
+						<input type="text" name="psts[bu_payment_msg]"
+						       value="<?php echo esc_attr( $psts->get_setting( 'bu_payment_msg' ) ); ?>"
+						       style="width: 95%"/>
+						<br/></td>
+				</tr>
+				<tr valign="top" class="psts-bulk-checkout-form">
+					<th scope="row"
+					    class="psts-help-div psts-bulk-upgrade-checkout"><?php echo __( 'Checkout Form Settings', 'psts' ) . $psts->help_text( __( 'Configure how the Bulk Upgrades option is displayed on the main checkout form:', 'psts' ) ); ?></th>
+					<td>
+						<label><span class="psts-label"><?php _e( 'Name', 'psts' ); ?></span><input type="text"
+						                                                                            name="psts[bu_name]"
+						                                                                            value="<?php echo esc_attr( $psts->get_setting( 'bu_name' ) ); ?>"/>
+						</label><br/>
+						<label><span class="psts-label"><?php _e( 'Link Message', 'psts' ); ?></span><input type="text"
+						                                                                                    size="60"
+						                                                                                    name="psts[bu_link_msg]"
+						                                                                                    value="<?php echo esc_attr( $psts->get_setting( 'bu_link_msg' ) ); ?>"/>
+						</label>
+					</td>
+				</tr>
+			</table>
+			<span
+				class="description"><?php _e( 'Note - You can manually grant Bulk Upgrade credits to users by editing their profile.', 'psts' ) ?></span>
 		</div>
-		</div>
+		<!--		</div>-->
 	<?php
 	}
 
@@ -719,7 +752,7 @@ class ProSites_Module_BulkUpgrades {
 		<h2><?php _e( 'Bulk Upgrades', 'psts' ) ?></h2>
 
 
-	<div class="metabox-holder">
+		<div class="metabox-holder">
 		<?php
 		if ( ! isset( $_POST['submit_search'] ) ) {
 			if ( ! empty( $message ) ) {
@@ -823,7 +856,7 @@ class ProSites_Module_BulkUpgrades {
 			</div>
 		<?php } ?>
 
-	<form method="post" action="">
+		<form method="post" action="">
 		<?php if ( $upgrade_credits > 0 ) { ?>
 			<div class="postbox">
 				<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Find Sites', 'psts' ) ?></span> -
@@ -878,7 +911,8 @@ class ProSites_Module_BulkUpgrades {
 							</tbody>
 						</table>
 						<p class="submit">
-							<input type="submit" name="submit_process" value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
+							<input type="submit" name="submit_process"
+							       value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
 						</p>
 					<?php } ?>
 
@@ -907,7 +941,8 @@ class ProSites_Module_BulkUpgrades {
 					if ( count( $blogs ) > 0 ) {
 						if ( count( $blogs ) >= 150 ) {
 							?>
-							<span class="description"><?php _e( 'Over 150 sites were found matching the provided search criteria. If you do not find the site you are looking for in the selection below please try refining your search.', 'psts' ) ?></span>
+							<span
+								class="description"><?php _e( 'Over 150 sites were found matching the provided search criteria. If you do not find the site you are looking for in the selection below please try refining your search.', 'psts' ) ?></span>
 						<?php
 						}
 						?>
@@ -922,36 +957,36 @@ class ProSites_Module_BulkUpgrades {
 							</thead>
 							<tbody id='the-list'>
 							<?php
-							$class = '';
-							foreach ( $blogs as $blog ) {
-								$blog_details = get_blog_details( $blog['blog_id'] );
-								if ( isset( $blog['expire'] ) ) {
-									if ( $blog['expire'] >= 9999999999 ) {
-										$expire = __( 'Permanent', 'psts' );
-									} else {
-										$expire = date_i18n( get_option( 'date_format' ), $blog['expire'] );
-									}
+						$class = '';
+						foreach ( $blogs as $blog ) {
+							$blog_details = get_blog_details( $blog['blog_id'] );
+							if ( isset( $blog['expire'] ) ) {
+								if ( $blog['expire'] >= 9999999999 ) {
+									$expire = __( 'Permanent', 'psts' );
 								} else {
-									$expire = __( 'Never Upgraded', 'psts' );
+									$expire = date_i18n( get_option( 'date_format' ), $blog['expire'] );
 								}
-								//=========================================================//
-								echo "<tr class='" . $class . "'>";
-								if ( is_pro_site( $blog['blog_id'] ) ) {
-									echo "<td valign='top'><center><input name='blogs[" . $blog['blog_id'] . "]' id='blog_{$blog['blog_id']}' value='1' type='checkbox' disabled='disabled'></center></td>";
-								} else {
-									echo "<td valign='top'><center><input name='blogs[" . $blog['blog_id'] . "]' id='blog_{$blog['blog_id']}' value='1' type='checkbox'></center></td>";
-								}
-								if ( is_pro_site( $blog['blog_id'] ) ) {
-									echo "<td valign='top' style='color:#666666;'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>): " . __( 'Already Upgraded', 'psts' ) . "</strong></td>";
-								} else {
-									echo "<td valign='top'><label for='blog_{$blog['blog_id']}'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>)</strong></label></td>";
-								}
-								echo "<td valign='top'>" . $expire . "</td>";
-								echo "</tr>";
-								$class = ( 'alternate' == $class ) ? '' : 'alternate';
-								//=========================================================//
+							} else {
+								$expire = __( 'Never Upgraded', 'psts' );
 							}
-							?>
+							//=========================================================//
+							echo "<tr class='" . $class . "'>";
+							if ( is_pro_site( $blog['blog_id'] ) ) {
+								echo "<td valign='top'><center><input name='blogs[" . $blog['blog_id'] . "]' id='blog_{$blog['blog_id']}' value='1' type='checkbox' disabled='disabled'></center></td>";
+							} else {
+								echo "<td valign='top'><center><input name='blogs[" . $blog['blog_id'] . "]' id='blog_{$blog['blog_id']}' value='1' type='checkbox'></center></td>";
+							}
+							if ( is_pro_site( $blog['blog_id'] ) ) {
+								echo "<td valign='top' style='color:#666666;'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>): " . __( 'Already Upgraded', 'psts' ) . "</strong></td>";
+							} else {
+								echo "<td valign='top'><label for='blog_{$blog['blog_id']}'><strong>" . $blog_details->blogname . " (<em>" . $blog_details->domain . "</em>)</strong></label></td>";
+							}
+							echo "<td valign='top'>" . $expire . "</td>";
+							echo "</tr>";
+							$class = ( 'alternate' == $class ) ? '' : 'alternate';
+							//=========================================================//
+						}
+						?>
 							</tbody>
 						</table></p>
 						<p class="submit">
@@ -972,7 +1007,8 @@ class ProSites_Module_BulkUpgrades {
 				<div class="postbox">
 					<h3 class="hndle" style="cursor:auto;">
 						<span><?php _e( 'Previously Upgraded Sites', 'psts' ); ?></span> -
-						<span class="description"><?php _e( 'These are sites that you have previously upgraded in the past.', 'psts' ); ?></span>
+						<span
+							class="description"><?php _e( 'These are sites that you have previously upgraded in the past.', 'psts' ); ?></span>
 					</h3>
 
 					<div class="inside">
@@ -1031,7 +1067,8 @@ class ProSites_Module_BulkUpgrades {
 						</p>
 						<?php if ( $upgrade_credits > 0 ) { ?>
 							<p class="submit">
-								<input type="submit" id="submit_process" name="submit_process" value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
+								<input type="submit" id="submit_process" name="submit_process"
+								       value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
 							</p>
 						<?php } ?>
 					</div>

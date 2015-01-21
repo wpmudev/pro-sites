@@ -11,7 +11,7 @@ class ProSites_Module_XMLRPC {
 
 	function __construct() {
 		add_filter( 'init', array( &$this, 'xmlrpc_check' ) );
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_notices', array( &$this, 'message' ) );
 
 		self::$user_label       = __( 'XML RPC', 'psts' );
@@ -56,10 +56,10 @@ class ProSites_Module_XMLRPC {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Restrict XML-RPC', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Restrict XML-RPC', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -84,7 +84,7 @@ class ProSites_Module_XMLRPC {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

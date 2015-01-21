@@ -52,7 +52,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 				'ads'                => array_merge( $section_options, array(
 					'title' => __( 'Advertising', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ),
 					),
 				) ),
 //				'messages_automated' => array(
@@ -61,73 +61,73 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 				'prowidget'          => array_merge( $section_options, array(
 					'title' => __( 'Pro Sites Widget', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts' ),
 					),
 				) ),
 				'buddypress'         => array_merge( $section_options, array(
-					'title' => __( 'BuddyPress Features', 'psts' ),
+					'title' => __( 'Limit BuddyPress Features', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts' ),
 					),
 				) ),
 				'bulkupgrades'       => array_merge( $section_options, array(
 					'title' => __( 'Bulk Upgrades', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to sell Pro Site level upgrades in bulk packages.', 'psts' ),
 					),
 				) ),
 				'paytoblog'          => array_merge( $section_options, array(
 					'title' => __( 'Pay to Blog', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to completely disable a site both front end and back until paid.', 'psts' ),
 					),
 				) ),
 				'throttling'         => array_merge( $section_options, array(
 					'title' => __( 'Post/Page Throttling', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to limit the number of posts/pages to be published daily/hourly per site.', 'psts' ),
 					),
 				) ),
 				'quotas'             => array_merge( $section_options, array(
 					'title' => __( 'Post/Page Quotas', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to limit the number of post types for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
 				'renaming'           => array_merge( $section_options, array(
 					'title' => __( 'Rename Plugin/Theme Features', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to rename your Premium Themes and Premium Plugins packages.', 'psts' ),
 					),
 				) ),
 				'support'            => array_merge( $section_options, array(
 					'title' => __( 'Premium Support', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to provide a premium direct to email support page for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
 				'upload_quota'       => array_merge( $section_options, array(
 					'title' => __( 'Upload Quotas', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to give additional upload space to Pro Sites.', 'psts' ),
 					),
 				) ),
 				'filters'            => array_merge( $section_options, array(
-					'title' => __( 'Content/HTML Filter', 'psts' ),
+					'title' => __( 'Unfiltered HTML', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
 				'writing'            => array_merge( $section_options, array(
-					'title' => __( 'Publishing Limits', 'psts' ),
+					'title' => __( 'Limit Publishing', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
 				'xmlrpc'             => array_merge( $section_options, array(
 					'title' => __( 'Restrict XML-RPC', 'psts' ),
 					'desc'               => array(
-						__( '', 'psts' ),
+						__( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
 			);

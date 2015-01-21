@@ -10,7 +10,7 @@ class ProSites_Module_BP {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
 		add_filter( 'messages_template_compose', array( &$this, 'messages_template' ) );
 		add_filter( 'bp_user_can_create_groups', array( &$this, 'create_groups' ) );
@@ -98,10 +98,10 @@ class ProSites_Module_BP {
 		global $psts, $wpdb;
 
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Limit BuddyPress Features', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Limit BuddyPress Features', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -132,7 +132,7 @@ class ProSites_Module_BP {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

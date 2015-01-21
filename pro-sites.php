@@ -770,7 +770,7 @@ Many thanks again for being a member!", 'psts' ),
 
 		//Add PSTS Style to settings page
 		add_action( 'admin_print_styles-' . $psts_settings_page, array( &$this, 'load_settings_style' ) );
-		add_action( 'admin_print_styles-' . $psts_settings_page_old, array( &$this, 'load_settings_style' ) );
+//		add_action( 'admin_print_styles-' . $psts_settings_page_old, array( &$this, 'load_settings_style' ) );
 
 		//Add PSTS Style to gateways page
 		add_action( 'admin_print_styles-' . $psts_gateways_page, array( &$this, 'load_settings_style' ) );
@@ -2719,8 +2719,6 @@ _gaq.push(["_trackTrans"]);
 		<?php
 		}
 		echo '</div>';
-
-		ProSites_Helper_Tabs_Settings::render( 'settings' );
 	}
 
 function admin_stats() {

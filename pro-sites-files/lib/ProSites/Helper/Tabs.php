@@ -45,7 +45,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			}
 
 			// Note: IDE error, but it will be created from extract() function.
-			if( ! $settings_header['page_header'] ) {
+			if( ! isset( $settings_header['page_header'] ) || ! $settings_header['page_header'] ) {
 				$settings_header['header_save_button'] = $header_save_button;
 			}
 			$settings_header['button_name'] = $button_name;

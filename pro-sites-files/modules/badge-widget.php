@@ -10,7 +10,7 @@ class ProSites_Module_ProWidget {
 	static $user_description;
 
 	function __construct() {
-		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
+//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 
 		self::$user_label       = __( 'Pro Widget', 'psts' );
 		self::$user_description = __( 'Brag about your Pro Level with a widget', 'psts' );
@@ -25,10 +25,10 @@ class ProSites_Module_ProWidget {
 		$levels = (array) get_site_option( 'psts_levels' );
 		$images = $psts->get_setting( 'widget_imgs', array() );
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Pro Widget', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts' ) ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Pro Widget', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts' ) ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<span class="description"><?php _e( 'Enter a url to the badge image file for each corresponding level. It is recommended to use an image with a maximum width of 160px to be compatible with most theme sidebars.', 'psts' ) ?></span>
@@ -53,7 +53,7 @@ class ProSites_Module_ProWidget {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 
