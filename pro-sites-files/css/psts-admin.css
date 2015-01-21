@@ -875,8 +875,9 @@ input[name="uses"] {
     padding-bottom: 10px;
 }
 
+/*.psts-wrap .section-save-button,*/
 .psts-settings-title-wrapper .header-save-button {
     float: right;
     position: relative;
-    top: -15px;
+    top: -8px;
 }

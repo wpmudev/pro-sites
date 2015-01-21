@@ -91,6 +91,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 					if( ! empty( $section_save_button ) && ! empty( $button_name ) ) {
 						ob_start();
 						?>
+							<hr />
 							<p class="section-save-button">
 								<input type="submit" name="submit_<?php echo esc_attr( $button_name ); ?>_section" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
 							</p>
