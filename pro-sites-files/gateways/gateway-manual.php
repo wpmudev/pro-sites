@@ -22,10 +22,10 @@ class ProSites_Gateway_Manual {
 		$show_form = $psts->get_setting( 'mp_show_form', 0 );
 		$show_form = $show_form || $show_form == 'on' ? 1 : 0;
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Manual Payments', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts' ); ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Manual Payments', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts' ); ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<table class="form-table">
@@ -67,7 +67,7 @@ class ProSites_Gateway_Manual {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

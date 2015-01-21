@@ -27,5 +27,13 @@ jQuery(document).ready(function($){
             jQuery(this).trigger('chosen:updated')
         });
     }
-	
+
+
+    /**
+     * Make sure that settings wrapper go as far as it needs to go.
+     */
+    var height = $('.psts-tab-container .psts-tabs').height() + 10;
+    $('.psts-wrap .psts-settings').css( 'min-height', height );
+
+
 });

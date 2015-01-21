@@ -66,10 +66,10 @@ class ProSites_Gateway_PayPalExpressPro {
 	function settings() {
 		global $psts;
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Paypal Express/Pro', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts' ); ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Paypal Express/Pro', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts' ); ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<p><?php _e( 'Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info &raquo;</a>', 'psts' ); ?></p>
@@ -243,7 +243,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

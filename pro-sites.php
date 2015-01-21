@@ -44,6 +44,10 @@ class ProSites {
 	var $tcpdf = array(); //Array for PDF settings
 
 	function __construct() {
+
+		// Creates the class autoloader.
+		spl_autoload_register( array( $this, 'class_loader' ) );
+
 		//setup our variables
 		$this->init_vars();
 
@@ -63,7 +67,8 @@ class ProSites {
 				'pro-sites_page_psts-modules-network',
 				'pro-sites_page_psts-plugins-network',
 				'pro-sites_page_psts-themes-network',
-				'pro-sites_page_psts-settings-network'
+				'pro-sites_page_psts-settings-network',
+				'pro-sites_page_psts-gateways-network',
 			)
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
@@ -147,6 +152,36 @@ class ProSites {
 //------------------------------------------------------------------------//
 //---Functions------------------------------------------------------------//
 //------------------------------------------------------------------------//
+
+	private function class_loader( $class ) {
+
+		do_action( 'prosites_class_loader_pre_processing', $this );
+
+		$basedir = dirname( __FILE__ );
+		$class   = trim( $class );
+
+		$included_classes = array(
+			'^ProSites_Helper',
+			'^ProSites_View',
+			'^ProSites_Model',
+		);
+
+		$pattern = '/' . implode( '|', $included_classes ) . '/';
+
+		if ( preg_match( $pattern, $class ) ) {
+
+			$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+			$filename = apply_filters( 'prosites_class_file_override', $filename );
+
+			if ( is_readable( $filename ) ) {
+				include_once $filename;
+
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	function localization() {
 		// Load up the localization file if we're using WordPress in a different language
@@ -688,7 +723,7 @@ Many thanks again for being a member!", 'psts' ),
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
-		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules/Gateways', 'psts' ), 'manage_network_options', 'psts-modules', array(
+		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules', 'psts' ), 'manage_network_options', 'psts-modules', array(
 			&$this,
 			'admin_modules'
 		) );
@@ -696,11 +731,22 @@ Many thanks again for being a member!", 'psts' ),
 		do_action( 'psts_page_after_modules' );
 
 		//settings page
-		$psts_settings_page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
-			&$this,
-			'admin_settings'
-		) );
+//		$psts_settings_page_old = add_submenu_page( 'psts', __( 'Pro Sites Settings OLD', 'psts' ), __( 'Settings OLD', 'psts' ), 'manage_network_options', 'psts-settings-old', array(
+//			&$this,
+//			'admin_settings'
+//		) );
 
+		$psts_gateways_page = add_submenu_page( 'psts', __( 'Pro Sites Gateways', 'psts' ), __( 'Payment Gateways', 'psts' ), 'manage_network_options', 'psts-gateways', array(
+			'ProSites_View_Gateways',
+			'render_page'
+		) );
+		do_action( 'psts_page_after_gateways' );
+
+		//ProSites_View_Settings
+		$psts_settings_page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
+			'ProSites_View_Settings',
+			'render_page'
+		) );
 		do_action( 'psts_page_after_settings' );
 
 		//checkout page settings
@@ -724,6 +770,10 @@ Many thanks again for being a member!", 'psts' ),
 
 		//Add PSTS Style to settings page
 		add_action( 'admin_print_styles-' . $psts_settings_page, array( &$this, 'load_settings_style' ) );
+		add_action( 'admin_print_styles-' . $psts_settings_page_old, array( &$this, 'load_settings_style' ) );
+
+		//Add PSTS Style to gateways page
+		add_action( 'admin_print_styles-' . $psts_gateways_page, array( &$this, 'load_settings_style' ) );
 
 		do_action( 'psts_after_checkout_page_settings' );
 
@@ -2047,6 +2097,7 @@ Many thanks again for being a member!", 'psts' ),
 		if ( ! wp_script_is( 'chosen', 'registered' ) ) {
 			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js' );
 		}
+
 	}
 
 	/**
@@ -2668,6 +2719,8 @@ _gaq.push(["_trackTrans"]);
 		<?php
 		}
 		echo '</div>';
+
+		ProSites_Helper_Tabs_Settings::render( 'settings' );
 	}
 
 function admin_stats() {
@@ -3880,50 +3933,50 @@ function admin_levels() {
 					</tbody>
 				</table>
 
-				<h3><?php _e( 'Choose a Gateway', 'psts' ) ?></h3>
-				<span class="description"><?php _e( 'Select the gateway you would like to enable below. You can then configure its options on the settings page.', 'psts' ) ?></span>
-				<table class="widefat">
-					<thead>
-					<tr>
-						<th style="width: 15px;"><?php _e( 'Enable', 'psts' ) ?></th>
-						<th><?php _e( 'Gateway Name', 'psts' ) ?></th>
-						<th><?php _e( 'Description', 'psts' ) ?></th>
-					</tr>
-					</thead>
-					<tbody id="plugins">
-					<?php
-					foreach ( (array) $psts_gateways as $class => $plugin ) {
-						$css = ( 'alt' == $css ) ? '' : 'alt';
-						if ( in_array( $class, (array) $this->get_setting( 'gateways_enabled' ) ) ) {
-							$css2   = ' active';
-							$active = true;
-						} else {
-							$active = false;
-						}
-
-						?>
-						<tr valign="top" class="<?php echo $css . $css2; ?>">
-							<td style="text-align:center;">
-								<?php
-								if ( $plugin[2] ) { //if demo
-									?>
-									<input type="radio" id="psts_<?php echo $class; ?>" name="allowed_gateways[]" value="<?php echo $class; ?>" disabled="disabled"/>
-									<a class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites" title="<?php _e( 'Upgrade', 'psts' ); ?> &raquo;"><?php _e( 'Premium Only &raquo;', 'psts' ); ?></a><?php
-								} else {
-									?>
-									<input type="radio" id="psts_<?php echo $class; ?>" name="allowed_gateways[]" value="<?php echo $class; ?>"<?php checked( $active ); ?> /><?php
-								}
-								?>
-							</td>
-							<td><label for="psts_<?php echo $class; ?>"><?php echo esc_attr( $plugin[0] ); ?></label>
-							</td>
-							<td><?php echo esc_attr( $plugin[1] ); ?></td>
-						</tr>
-					<?php
-					}
-					?>
-					</tbody>
-				</table>
+<!--				<h3>--><?php //_e( 'Choose a Gateway', 'psts' ) ?><!--</h3>-->
+<!--				<span class="description">--><?php //_e( 'Select the gateway you would like to enable below. You can then configure its options on the settings page.', 'psts' ) ?><!--</span>-->
+<!--				<table class="widefat">-->
+<!--					<thead>-->
+<!--					<tr>-->
+<!--						<th style="width: 15px;">--><?php //_e( 'Enable', 'psts' ) ?><!--</th>-->
+<!--						<th>--><?php //_e( 'Gateway Name', 'psts' ) ?><!--</th>-->
+<!--						<th>--><?php //_e( 'Description', 'psts' ) ?><!--</th>-->
+<!--					</tr>-->
+<!--					</thead>-->
+<!--					<tbody id="plugins">-->
+<!--					--><?php
+//					foreach ( (array) $psts_gateways as $class => $plugin ) {
+//						$css = ( 'alt' == $css ) ? '' : 'alt';
+//						if ( in_array( $class, (array) $this->get_setting( 'gateways_enabled' ) ) ) {
+//							$css2   = ' active';
+//							$active = true;
+//						} else {
+//							$active = false;
+//						}
+//
+//						?>
+<!--						<tr valign="top" class="--><?php //echo $css . $css2; ?><!--">-->
+<!--							<td style="text-align:center;">-->
+<!--								--><?php
+//								if ( $plugin[2] ) { //if demo
+//									?>
+<!--									<input type="radio" id="psts_--><?php //echo $class; ?><!--" name="allowed_gateways[]" value="--><?php //echo $class; ?><!--" disabled="disabled"/>-->
+<!--									<a class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites" title="--><?php //_e( 'Upgrade', 'psts' ); ?><!-- &raquo;">--><?php //_e( 'Premium Only &raquo;', 'psts' ); ?><!--</a>--><?php
+//								} else {
+//									?>
+<!--									<input type="radio" id="psts_--><?php //echo $class; ?><!--" name="allowed_gateways[]" value="--><?php //echo $class; ?><!--"--><?php //checked( $active ); ?><!-- />--><?php
+//								}
+//								?>
+<!--							</td>-->
+<!--							<td><label for="psts_--><?php //echo $class; ?><!--">--><?php //echo esc_attr( $plugin[0] ); ?><!--</label>-->
+<!--							</td>-->
+<!--							<td>--><?php //echo esc_attr( $plugin[1] ); ?><!--</td>-->
+<!--						</tr>-->
+<!--					--><?php
+//					}
+//					?>
+<!--					</tbody>-->
+<!--				</table>-->
 
 				<?php do_action( 'psts_modules_page' ); ?>
 

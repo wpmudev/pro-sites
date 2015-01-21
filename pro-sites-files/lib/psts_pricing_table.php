@@ -224,7 +224,7 @@ class ProSites_Pricing_Table {
 
 		$content = apply_filters( 'psts_checkout_method_image', $content );
 
-		$content .= '<div class="terms-wrapper">';
+		$content .= '<div class="terpsts-wrapper">';
 			if ( $psts->is_trial_allowed( $this->blog_id ) ) {
 				$content .= '<p style="padding-top:24px">' . str_replace( 'DAYS', $trial_days, $psts->get_setting( 'cancel_message' ) ) . '</p>';
 			}

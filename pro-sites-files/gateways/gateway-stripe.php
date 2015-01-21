@@ -157,10 +157,10 @@ class ProSites_Gateway_Stripe {
 	function settings() {
 		global $psts;
 		?>
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Stripe', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts' ); ?></span>
-			</h3>
+<!--		<div class="postbox">-->
+<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Stripe', 'psts' ) ?><!--</span> --->
+<!--				<span class="description">--><?php //_e( 'Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts' ); ?><!--</span>-->
+<!--			</h3>-->
 
 			<div class="inside">
 				<p class="description"><?php _e( "Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club cards directly on your site. You don't need a merchant account or gateway. Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account. Credit cards go directly to Stripe's secure environment, and never hit your servers so you can avoid most PCI requirements.", 'psts' ); ?>
@@ -221,7 +221,7 @@ class ProSites_Gateway_Stripe {
 					</tr>
 				</table>
 			</div>
-		</div>
+<!--		</div>-->
 	<?php
 	}
 

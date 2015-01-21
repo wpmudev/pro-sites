@@ -662,3 +662,221 @@ input[name="uses"] {
     display: inline-block;
     width: 100px;
 }
+
+
+/* ------------- */
+/**
+ * Navigational tabs.
+ */
+
+/**
+ * Navigational tabs.
+ */
+.psts-wrap .psts-tab-container {
+    float: left;
+    width: 225px;
+}
+.psts-wrap .psts-tabs-titlerow {
+    margin-left: 15px;
+    font-weight: bold;
+}
+.psts-wrap .psts-tabs {
+    float: left;
+    width: 225px;
+    margin: 0;
+    padding: 0;
+}
+.psts-wrap .psts-tab {
+    position: relative;
+    z-index: 10;
+    border: 1px solid transparent;
+    border-radius: 4px 0 0 4px;
+    border-width: 1px 0 1px 1px;
+    font-size: .9em;
+    font-weight: 500;
+}
+.psts-wrap .psts-tab.active {
+    background: #fff;
+    border-color: #e5e5e5;
+    box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.04);
+}
+.psts-wrap .psts-tab.active:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: -1px;
+    width: 1px;
+    bottom: 0;
+    background: #fff;
+    font-size: 0;
+    line-height: 0;
+}
+.psts-wrap .psts-tab.active .psts-tab-link {
+    color: #222;
+}
+.psts-wrap .psts-tab-link {
+    display: block;
+    padding: 8px 15px;
+    text-decoration: none;
+}
+
+/**
+ * Box-styles (e.g. accordeon box)
+ */
+/***
+ * General settings box *
+ ***/
+.psts-wrap .psts-settings {
+    position: relative;
+    overflow: hidden;
+    padding: 10px 20px 20px;
+    min-height: 280px;
+    background: #fff;
+    border: 1px solid #E5E5E5;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+.psts-wrap .psts-wrapper-center {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.psts-wrap .psts-wrapper-center.wide {
+    max-width: 1200px;
+}
+.psts-wrap .psts-part-4,
+.psts-wrap .psts-part-3,
+.psts-wrap .psts-part-2,
+.psts-wrap .psts-quarter,
+.psts-wrap .psts-third,
+.psts-wrap .psts-half {
+    position: relative;
+    float: left;
+    width: 50%;
+    margin: 0;
+    padding: 0;
+}
+.psts-wrap .psts-part-4.space,
+.psts-wrap .psts-part-3.space,
+.psts-wrap .psts-part-2.space,
+.psts-wrap .psts-quarter.space,
+.psts-wrap .psts-third.space,
+.psts-wrap .psts-half.space {
+    padding-right: 30px;
+}
+.psts-wrap .psts-part-4.right,
+.psts-wrap .psts-part-3.right,
+.psts-wrap .psts-part-2.right,
+.psts-wrap .psts-quarter.right,
+.psts-wrap .psts-third.right,
+.psts-wrap .psts-half.right {
+    float: right;
+}
+.psts-wrap .psts-part-3,
+.psts-wrap .psts-third {
+    width: 33.33333%;
+}
+.psts-wrap .psts-part-4,
+.psts-wrap .psts-quarter {
+    width: 25%;
+}
+.psts-wrap .psts-fixed-height .inside,
+.psts-wrap .psts-settings-box.psts-fixed-height .inside {
+    overflow: auto;
+    height: 150px;
+    padding: 0;
+    margin: 20px 20px 0 0;
+}
+.psts-wrap .psts-min-height .inside,
+.psts-wrap .psts-settings-box.psts-min-height .inside {
+    min-height: 200px;
+    padding: 0;
+    margin: 20px 20px 0 0;
+}
+
+/* Settings overview with lighter background */
+.psts-wrap .psts-wrap-top {
+    margin: -15px -15px 0 -20px;
+    padding: 15px 15px 15px 20px;
+    background-color: #FAFAFA;
+    border-bottom: 1px solid #E5E5E5;
+}
+
+/* Accordeon box */
+.psts-wrap .psts-settings-box-wrapper {
+    background: #FBFBFB;
+    border: 1px solid #E5E5E5;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    min-width: 255px;
+    position: relative;
+    margin-bottom: 15px;
+}
+.psts-wrap .psts-settings-box {
+    padding: 10px;
+}
+.psts-wrap .psts-settings-box .psts-header {
+    padding: 10px;
+    margin: -10px;
+    border-bottom: 1px solid #E5E5E5;
+    background: #F9F9F9;
+}
+.psts-wrap .psts-settings-box .psts-settings-description {
+    margin-bottom: 0;
+}
+.psts-wrap .psts-settings-box .inside {
+    padding-top: 20px;
+}
+.psts-wrap .psts-settings-box .handlediv {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.psts-wrap .psts-settings-box .handlediv:before {
+    content: '\f142';
+    position: relative;
+    display: inline-block;
+    right: 12px;
+    top: 0;
+    padding: 8px 10px;
+    font: 400 20px/1 dashicons;
+    speak: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-decoration: none !important;
+}
+.psts-wrap .psts-settings-box.closed .handlediv:before {
+    content: '\f140';
+}
+.psts-wrap .psts-settings-box.nohead .psts-header {
+    display: none;
+}
+.psts-wrap .psts-settings-box.nohead .inside {
+    padding: 0;
+}
+
+.psts-settings-header-desc {
+    margin: 10px 0;
+}
+
+.psts-settings-title {
+    margin: 0 5px;
+}
+
+.psts-wrap .psts-settings-desc {
+    color: #888;
+    font-size: 0.9em;
+    margin: 0 5px;
+}
+
+.psts-wrap .psts-settings-desc-wrapper {
+    border-bottom: 1px solid #cccccc;
+    padding-bottom: 10px;
+}
+
+.psts-settings-title-wrapper .header-save-button {
+    float: right;
+    position: relative;
+    top: -15px;
+}

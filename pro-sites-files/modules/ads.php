@@ -439,7 +439,7 @@ class ProSites_Module_Ads {
 				});
 			});
 		</script>
-		<div id="icon-ms-admin" class="icon32"></div>
+		<div id="icon-psts-admin" class="icon32"></div>
 		<h2><?php echo $psts->get_setting( 'ads_name' ); ?></h2>
 
 		<form method="post" action="">
