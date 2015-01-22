@@ -552,6 +552,8 @@ class ProSites_Module_BulkUpgrades {
 
 		$name = sprintf( __( '%1$s %2$s %3$s Bulk Upgrade Credits', 'psts' ), $credits, $current_site->site_name, $psts->get_setting( 'rebrand' ) );
 
+		$bn_code = defined( 'PSTS_NO_BN' ) ? '' : '<input type="hidden" name="bn" value="incsub_SP">';
+
 		if ( $psts->get_setting( 'bu_payment_type' ) == 'single' ) {
 			$button = '
 			<form action="' . $action . '" method="post">
@@ -563,12 +565,12 @@ class ProSites_Module_BulkUpgrades {
 				<input type="hidden" name="no_shipping" value="1">
 				<input type="hidden" name="return" value="' . admin_url( 'admin.php?page=psts-bulk-upgrades&msg=' . urlencode( __( 'Transaction Complete!', 'psts' ) ) ) . '">
 				<input type="hidden" name="cancel_return" value="' . admin_url( 'admin.php?page=psts-bulk-upgrades&msg=' . urlencode( __( 'Transaction Cancelled!', 'psts' ) ) ) . '">
-    		<input type="hidden" name="notify_url" value="' . network_site_url( 'wp-admin/admin-ajax.php?action=psts_bu_ipn', 'admin' ) . '">
+    		    <input type="hidden" name="notify_url" value="' . network_site_url( 'wp-admin/admin-ajax.php?action=psts_bu_ipn', 'admin' ) . '">
 				<input type="hidden" name="no_note" value="1">
 				<input type="hidden" name="currency_code" value="' . $psts->get_setting( 'bu_currency' ) . '">
 				<input type="hidden" name="lc" value="' . $psts->get_setting( 'bu_site' ) . '">
 				<input type="hidden" name="custom" value="' . $wpdb->blogid . '_' . $user_ID . '_' . $credits . '_' . $amount . '_' . $psts->get_setting( 'bu_currency' ) . '_' . time() . '">
-				<input type="hidden" name="bn" value="PP-BuyNowBF">
+				' . $bn_code . '
 	      <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 			</form>
 			';
@@ -597,6 +599,7 @@ class ProSites_Module_BulkUpgrades {
 				<input type="hidden" name="t3" value="Y">
 				<input type="hidden" name="src" value="1">
 				<input type="hidden" name="sra" value="1">
+				' . $bn_code . '
 	      <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 			</form>
 			';

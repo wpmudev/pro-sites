@@ -26,6 +26,41 @@ Change Log:
 - Fixed: Translatable strings
 - Fixed: Checkout url ( displayed if quota is exceeded ) on media page
 
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+
+3.4.6 - 12/19/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Fix: Module/Gateway names/descriptions not translating properly
+- Fix: Various text typos - refreshed pot file
+- Fix: Limit potential conflicts with other plugins using the TCPDF library
+
+3.4.5 - 11/12/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- New: Add timezone offset support to log entry timestamps
+
+3.4.4 - 10/30/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Fixed: Some PHP notices
+- Fixed: Default email text that would trigger Commodo firewall rules
+
+3.4.3.9 - 9/10/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Fixed: Upload quota upgrade message was displaying on main site
+
+3.4.3.8 - 9/7/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Fixed: Permanent upgrades that got truncated on 32 bit systems due to (int) casting
+
+3.4.3.7 - 8/4/2014 - Aaron Edwards
+----------------------------------------------------------------------
+- Added: Add BN code to PayPal gateway
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+
 3.4.3.6 - 4/1/2014 - Jonathan Cowher
 ----------------------------------------------------------------------
 - Fixed: multiple customer_id index issue in "pro_sites_stripe_customers" table http://wp.mu/945

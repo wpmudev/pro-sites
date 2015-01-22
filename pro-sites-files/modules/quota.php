@@ -88,51 +88,59 @@ class ProSites_Module_Quota {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-<!--		<div class="postbox">-->
-<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Upload Quota', 'psts' ) ?><!--</span> --->
-<!--				<span class="description">--><?php //_e( 'Allows you to give additional upload space to Pro Sites.', 'psts' ) ?><!--</span>-->
-<!--			</h3>-->
+		<!--		<div class="postbox">-->
+		<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Upload Quota', 'psts' ) ?><!--</span> --->
+		<!--				<span class="description">--><?php //_e( 'Allows you to give additional upload space to Pro Sites.', 'psts' ) ?><!--</span>-->
+		<!--			</h3>-->
 
-			<div class="inside">
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
-						<td><?php
-							if ( function_exists( 'psts_ads_upgrade_active' ) && psts_ads_upgrade_active() ) {
-								$level = 0;
-								echo '<label>';
-								$quota = $psts->get_setting( "quota_upgraded_space" );
-								$quota = $quota ? $quota : get_site_option( 'blog_upload_space' );
-								$this->quota_select( $level, $quota );
-								echo ' ' . $level . ' - ' . __( 'Ads Removed (Upgraded)', 'psts' ) . '</label><br />';
-							}
-							foreach ( $levels as $level => $data ) {
-								echo '<label>';
-								$quota = isset( $data['quota'] ) ? $data['quota'] : get_site_option( 'blog_upload_space' );
-								$this->quota_select( $level, $quota );
-								echo ' ' . $level . ' - ' . $data['name'] . '</label><br />';
-							}
-							?>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
-						<td>
-							<input type="text" name="psts[quota_message]" id="quota_message" value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>" style="width: 95%"/>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
-						<td>
-							<input type="text" name="psts[quota_out_message]" id="quota_out_message" value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>" style="width: 95%"/>
-						</td>
-					</tr>
-				</table>
-				<p>
-				<span class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
-					<pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span><br /></p>
-			</div>
-<!--		</div>-->
+		<div class="inside">
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
+					<td><?php
+						if ( function_exists( 'psts_ads_upgrade_active' ) && psts_ads_upgrade_active() ) {
+							$level = 0;
+							echo '<label>';
+							$quota = $psts->get_setting( "quota_upgraded_space" );
+							$quota = $quota ? $quota : get_site_option( 'blog_upload_space' );
+							$this->quota_select( $level, $quota );
+							echo ' ' . $level . ' - ' . __( 'Ads Removed (Upgraded)', 'psts' ) . '</label><br />';
+						}
+						foreach ( $levels as $level => $data ) {
+							echo '<label>';
+							$quota = isset( $data['quota'] ) ? $data['quota'] : get_site_option( 'blog_upload_space' );
+							$this->quota_select( $level, $quota );
+							echo ' ' . $level . ' - ' . $data['name'] . '</label><br />';
+						}
+						?>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
+					<td>
+						<input type="text" name="psts[quota_message]" id="quota_message"
+						       value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>"
+						       style="width: 95%"/>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
+					<td>
+						<input type="text" name="psts[quota_out_message]" id="quota_out_message"
+						       value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>"
+						       style="width: 95%"/>
+					</td>
+				</tr>
+			</table>
+			<p>
+				<span
+					class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
+					<pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span><br/></p>
+		</div>
+		<!--		</div>-->
 	<?php
 	}
 
@@ -159,7 +167,7 @@ class ProSites_Module_Quota {
 
 	function message() {
 		global $psts, $blog_id;
-		if ( current_user_can( 'edit_pages' ) ) {
+		if ( ! is_main_site() && current_user_can( 'edit_pages' ) ) {
 			//if override is set don't show this message
 			if ( ! defined( 'PSTS_QUOTA_ALLOW_OVERRIDE' ) && get_option( 'blog_upload_space' ) ) {
 				return;
@@ -177,7 +185,7 @@ class ProSites_Module_Quota {
 
 	function out_message() {
 		global $psts, $blog_id;
-		if ( current_user_can( 'edit_pages' ) && ! is_upload_space_available() ) {
+		if ( ! is_main_site() && current_user_can( 'edit_pages' ) && ! is_upload_space_available() ) {
 			$level = $psts->get_level() + 1;
 			if ( $name = $psts->get_level_setting( $level, 'name' ) ) { //only show if there is a higher level
 				$space = $this->display_space( $psts->get_level_setting( $level, 'quota' ) );
@@ -211,6 +219,7 @@ class ProSites_Module_Quota {
 				return false;
 		}
 	}
+
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */
@@ -252,4 +261,3 @@ class ProSites_Module_Quota {
 
 //register the module
 psts_register_module( 'ProSites_Module_Quota', __( 'Upload Quota', 'psts' ), __( 'Allows you to give additional upload space to Pro Sites.', 'psts' ) );
-?>

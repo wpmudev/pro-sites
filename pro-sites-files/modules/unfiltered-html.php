@@ -135,5 +135,4 @@ class ProSites_Module_UnfilterHtml {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_UnfilterHtml', __( 'Unfilter HTML', 'psts' ), __( 'Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ) );
-?>
+psts_register_module( 'ProSites_Module_UnfilterHtml', __( 'Unfilter HTML', 'psts' ), __( 'Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ) );

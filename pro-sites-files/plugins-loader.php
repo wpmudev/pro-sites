@@ -6,10 +6,10 @@ class ProSites_PluginLoader {
 
   function __construct() {
     //load modules
-		add_action( 'plugins_loaded', array(&$this, 'load_modules') );
+		add_action( 'plugins_loaded', array(&$this, 'load_modules'), 11 );
 
 		//load gateways
-		add_action( 'plugins_loaded', array(&$this, 'load_gateways') );
+		add_action( 'plugins_loaded', array(&$this, 'load_gateways'), 11 );
 	}
 	
 	function load_modules() {

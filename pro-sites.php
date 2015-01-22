@@ -363,10 +363,7 @@ Looking forward to having you back as a valued member!", 'psts' ),
 			'failed_subject'           => __( 'Your Pro Site subscription payment failed', 'psts' ),
 			'failed_msg'               => __( "It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.
 
-Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features:
-http://mysite.com/pro-site/
-
-If you're still having billing problems please contact us for help:
+Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features. If you're still having billing problems please contact us for help:
 http://mysite.com/contact/
 
 Many thanks again for being a member!", 'psts' ),
@@ -443,6 +440,11 @@ Many thanks again for being a member!", 'psts' ),
 
 		//create a checkout page if not existing
 		add_action( 'init', array( &$this, 'create_checkout_page' ) );
+
+		//3.4.3.8 upgrade - fixes permanent upgrades that got truncated on 32 bit systems due to (int) casting
+		if ( version_compare( $this->get_setting( 'version' ), '3.4.3.7', '<=' ) ) {
+			$wpdb->query( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = '9999999999' WHERE expire = '1410065407'" );
+		}
 
 		$this->update_setting( 'version', $this->version );
 	}
@@ -1597,7 +1599,7 @@ Many thanks again for being a member!", 'psts' ),
 
 		$old_level = $this->get_level( $blog_id );
 
-		$extra_sql = $wpdb->prepare( "expire = %d", $new_expire );
+		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
 		$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
@@ -1614,7 +1616,7 @@ Many thanks again for being a member!", 'psts' ),
 		} else {
 			$wpdb->query( $wpdb->prepare( "
 		  	INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount, is_recurring)
-		  	VALUES (%d, %d, %d, %s, %s, %d, %d)",
+		  	VALUES (%d, %s, %d, %s, %s, %d, %d)",
 				$blog_id, $new_expire, $level, $gateway, $term, $amount, $is_recurring
 			) );
 		}
@@ -1669,7 +1671,7 @@ Many thanks again for being a member!", 'psts' ),
 		} else {
 			$new_expire = time() - 1;
 		}
-		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %d WHERE blog_ID = %d", $new_expire, $blog_id ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
 		unset( $this->pro_sites[ $blog_id ] ); //clear cache
 		wp_cache_delete( 'is_pro_site_' . $blog_id, 'psts' ); //clear object cache
@@ -2384,7 +2386,7 @@ _gaq.push(["_trackTrans"]);
 			$new_bid     = (int) $_POST['new_bid'];
 			$current_bid = (int) $_GET['bid'];
 			if ( ! $new_bid ) {
-				echo '<div id="message" class="error"><p>' . __( 'Please enter the Blog ID of a site to transfer too.', 'psts' ) . '</p></div>';
+				echo '<div id="message" class="error"><p>' . __( 'Please enter the Blog ID of a site to transfer to.', 'psts' ) . '</p></div>';
 			} else if ( is_pro_site( $new_bid ) ) {
 				echo '<div id="message" class="error"><p>' . __( 'Could not transfer Pro Status: The chosen site already is a Pro Site. You must remove Pro status and cancel any existing subscriptions tied to that site.', 'psts' ) . '</p></div>';
 			} else {
@@ -2464,7 +2466,7 @@ _gaq.push(["_trackTrans"]);
 			$result        = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
 			if ( $result ) {
 				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
-					$term = sprintf( __( '%s Month', 'psts' ), $result->term );
+					$term = sprintf( _n( '%s Month','%s Months', $result->term, 'psts' ), $result->term );
 				} else {
 					$term = $result->term;
 				}
@@ -2555,11 +2557,13 @@ _gaq.push(["_trackTrans"]);
 							<table class="widefat">
 								<?php
 								$log = get_blog_option( $blog_id, 'psts_action_log' );
+								$time_offset = ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
 								if ( is_array( $log ) && count( $log ) ) {
 									$log = array_reverse( $log, true );
 									foreach ( $log as $timestamp => $memo ) {
 										$class = ( isset( $class ) && $class == 'alternate' ) ? '' : 'alternate';
-										echo '<tr class="' . $class . '"><td><strong>' . date_i18n( __( 'Y-m-d g:i:s a', 'psts' ), $timestamp ) . '</strong></td><td>' . esc_html( $memo ) . '</td></tr>';
+										$localtime = $timestamp + $time_offset;
+										echo '<tr class="'.$class.'"><td><strong>' . date_i18n( __('Y-m-d g:i:s a', 'psts'), $localtime ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
 									}
 								} else {
 									echo '<tr><td colspan="2">' . __( 'No history recorded for this site yet.', 'psts' ) . '</td></tr>';
@@ -4742,33 +4746,90 @@ function admin_levels() {
 		$checkout_roles = $this->get_setting( 'checkout_roles' );
 
 		//set blog_id
-		if ( isset( $_POST['bid'] ) ) {
-			$blog_id = intval( $_POST['bid'] );
-		} else if ( isset( $_GET['bid'] ) ) {
-			$blog_id = intval( $_GET['bid'] );
-		} else {
+		if (isset($_POST['bid'])){
+			$blog_id = intval($_POST['bid']);
+		}else if (isset($_GET['bid'])){
+			$blog_id = intval($_GET['bid']);
+		}else{
 			$blog_id = false;
 
+			$blogs_of_user = get_blogs_of_user(get_current_user_id(), false);
 			$blogs = array();
 
-			foreach ( get_blogs_of_user( $current_user_id ) as $id => $obj ) {
+			$count = 0;
+			$loop_count = 0;
+			$per_page = 10;
+
+			$start = isset($_REQUEST['blogs-start'])?intval($_REQUEST['blogs-start']):0;
+			$next_start = 0;
+			$prev_start = -1;
+
+			foreach ($blogs_of_user as $id => $obj) {
+				if ($count >= $per_page) break;
+
+				$loop_count++;
+				if ($start > $loop_count) continue;
+
 				// permission?
-				switch_to_blog( $id );
+				switch_to_blog($id);
+				$permission = current_user_can('edit_pages');
+				if ($permission) {
+					$obj->level = $this->get_level($obj->userblog_id);
+					$obj->level_label = ($obj->level) ? $this->get_level_setting($obj->level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
+					$obj->upgrade_label = is_pro_site($obj->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $obj->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $obj->blogname);
+					$obj->checkout_url = $this->checkout_url($obj->userblog_id);
 
-				$permission = $this->check_user_role( $current_user_id, $checkout_roles );
-
-				restore_current_blog();
-				if ( $permission ) {
-					$blogs[ $id ] = $obj;
+					$blogs[$id] = $obj;
+					$count++;
 				}
+				restore_current_blog();
+			}
+
+			$next_start = $loop_count + 1;
+
+			$prev_loop_count = $loop_count;
+			if ( count($blogs_of_user) > $next_start ) {
+				$prev_loop_count++;
+			} else {
+				end($blogs_of_user);
+			}
+
+			// reverse
+			while ( prev($blogs_of_user) ) {
+				$prev_loop_count--;
+				if ($prev_loop_count == $start) break;
+			}
+
+			$prev_count = 0;
+			// reverse to previous start
+			while ( $obj = prev($blogs_of_user) ) {
+				$prev_loop_count--;
+				if ($prev_loop_count < 0) break;
+				if ($prev_count >= $per_page) {
+					$prev_start = $prev_loop_count;
+					break;
+				}
+				$id = key($blogs_of_user);
+				switch_to_blog($id);
+				$permission = current_user_can('edit_pages');
+				if ($permission) {
+					$prev_count++;
+				}
+				$prev_count;
+				restore_current_blog();
+			}
+
+			if ( $prev_start > 0 ) {
+				$prev_start = $prev_loop_count + 1;
 			}
 
 			// user has edit permission for one blog, load checkout page
-			if ( count( $blogs ) == 1 ) {
-				$all_blog_ids = array_keys( $blogs );
-				$blog_id      = intval( $all_blog_ids[0] );
+			if( count($blogs)==1 ) {
+				$all_blog_ids = array_keys($blogs);
+				$blog_id = intval($all_blog_ids[0]);
 			}
 		}
+
 		if ( $blog_id ) {
 
 			//check for admin permissions for this blog
@@ -4797,6 +4858,7 @@ function admin_levels() {
 			//after signup
 			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
 		} else { //blogid not set
+
 			if ( $blogs ) {
 				$content .= '<h3>' . __( 'Please choose a site to Upgrade or Modify:', 'psts' ) . '</h3>';
 				$content .= '<ul>';
@@ -4806,12 +4868,25 @@ function admin_levels() {
 					$has_blog = true;
 
 					$level         = $this->get_level( $blog->userblog_id );
+
+					/**
+					 * @todo Check to make sure there variables are used or removed.
+					 */
 					$level_label   = ( $level ) ? $this->get_level_setting( $level, 'name' ) : sprintf( __( 'Not %s', 'psts' ), $this->get_setting( 'rebrand' ) );
 					$upgrade_label = is_pro_site( $blog->userblog_id ) ? sprintf( __( 'Modify "%s"', 'psts' ), $blog->blogname ) : sprintf( __( 'Upgrade "%s"', 'psts' ), $blog->blogname );
 
-					$content .= '<li><a href="' . $this->checkout_url( $blog->userblog_id ) . '">' . $upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $level_label . '</li>';
+					$content .= '<li><a href="' . $blog->checkout_url . '">' . $blog->upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $blog->level_label . '</li>';
 				}
 				$content .= '</ul>';
+
+				$content .= '<div id="post-navigator">';
+				if ( $prev_start >= 0 ) {
+					$content .= '<div class="alignleft"><a href="' . add_query_arg( array( 'blogs-start' => $prev_start ), get_permalink() ) . '">Previous</a></div>';
+				}
+				if ( count( $blogs_of_user ) > $next_start ) {
+					$content .= '<div class="alignright"><a href="' . add_query_arg( array( 'blogs-start' => $next_start ), get_permalink() ) . '">Next</a></div>';
+				}
+				$content .= '</div>';
 			}
 
 			//show message if no valid blogs
@@ -4832,6 +4907,7 @@ function admin_levels() {
 
 	function pdf_receipt( $payment_info = '' ) {
 
+		require_once( $this->plugin_dir . 'tcpdf-config.php' );
 		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php' );
 		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php' );
 

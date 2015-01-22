@@ -115,7 +115,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 				'filters'            => array_merge( $section_options, array(
 					'title' => __( 'Unfiltered HTML', 'psts' ),
 					'desc'               => array(
-						__( 'Allows you provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ),
+						__( 'Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
 				'writing'            => array_merge( $section_options, array(

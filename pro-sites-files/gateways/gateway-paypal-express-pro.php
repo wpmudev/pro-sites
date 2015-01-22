@@ -18,7 +18,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
 
 		//checkout stuff
-		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
+		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), 10, 2 );
 		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );
 		add_filter( 'psts_force_ssl', array( &$this, 'force_ssl' ) );
 
@@ -1724,6 +1724,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			$content .= '</ul><br />';
+			$cancel_content = '';
 			if ( $old_gateway == 'PayPal' || $old_gateway == 'Amazon' ) {
 				$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
 				$cancel_content .= '<p>' . sprintf( __( 'If your subscription is still active your next scheduled payment should be %1$s.', 'psts' ), $end_date ) . '</p>';
@@ -2242,6 +2243,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		$nvpstr = "&TOKEN=" . urlencode( $token );
 		$nvpstr .= "&PAYERID=" . urlencode( $payer_id );
+		if ( ! defined( 'PSTS_NO_BN' ) ) {
+			$nvpstr .= "&BUTTONSOURCE=incsub_SP";
+		}
 		$nvpstr .= "&PAYMENTREQUEST_0_AMT=$paymentAmount";
 		$nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
 		$nvpstr .= "&PAYMENTACTION=Sale";
@@ -2395,6 +2399,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		global $psts;
 
 		$nvpstr = "&AMT=$paymentAmount";
+		if ( ! defined( 'PSTS_NO_BN' ) ) {
+			$nvpstr .= "&BUTTONSOURCE=incsub_SP";
+		}
 		$nvpstr .= "&IPADDRESS=" . $_SERVER['REMOTE_ADDR'];
 		$nvpstr .= "&PAYMENTACTION=Sale";
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
