@@ -75,7 +75,8 @@ class ProSites_Module_Quota {
 	function settings_process() {
 		global $psts;
 
-		foreach ( $_POST['quota'] as $level => $quota ) {
+		$post_quota = isset( $_POST['quota'] ) ? (array) $_POST['quota'] : array();
+		foreach ( $post_quota as $level => $quota ) {
 			if ( $level == 0 ) {
 				$psts->update_setting( "quota_upgraded_space", $quota );
 			} else {

@@ -559,6 +559,18 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			return ob_get_clean();
 		}
 
+		/**
+		 * 'Upgrade Admin Links'
+		 *
+		 * @return string
+		 */
+		public static function render_tab_upgrade_admin_links() {
+			ob_start();
+			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
+			$module = new ProSites_Module_UpgradeAdminLinks();
+			echo $module->settings();
+			return ob_get_clean();
+		}
 
 		/**
 		 * 'Content/HTML Filter'

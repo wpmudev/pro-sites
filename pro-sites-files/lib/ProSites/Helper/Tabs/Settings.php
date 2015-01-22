@@ -112,6 +112,12 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 						__( 'Allows you to give additional upload space to Pro Sites.', 'psts' ),
 					),
 				) ),
+				'upgrade_admin_links'       => array_merge( $section_options, array(
+					'title' => __( 'Upgrade Admin Menu Links', 'psts' ),
+					'desc'               => array(
+						__('Allows you to add custom menu items in admin panel that will encourage admins to get higher level by redirecting to upgrade page.', 'psts'),
+					),
+				) ),
 				'filters'            => array_merge( $section_options, array(
 					'title' => __( 'Unfiltered HTML', 'psts' ),
 					'desc'               => array(
@@ -191,6 +197,9 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 			if ( ! in_array( 'ProSites_Module_PremiumThemes', $modules ) && ! in_array( 'ProSites_Module_Plugins', $modules ) ) {
 				unset( $tabs['renaming'] );
 			}
+			if ( ! in_array( 'ProSites_Module_UpgradeAdminLinks', $modules ) ) {
+				unset( $tabs['upgrade_admin_links'] );
+			}
 
 
 			$modules = array(
@@ -208,6 +217,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 				'ProSites_Module_XMLRPC',
 				'ProSites_Module_UnfilterHtml',
 				'ProSites_Module_Quota',
+				'ProSites_Module_UpgradeAdminLinks',
 			);
 
 
