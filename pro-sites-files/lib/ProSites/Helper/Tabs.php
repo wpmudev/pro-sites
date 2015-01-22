@@ -162,6 +162,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			$tabs = call_user_func( array( get_called_class(), 'get_tabs' ) );
 			reset( $tabs ); // If the first key has already been used
 			$active_tab = sanitize_html_class( @$_GET['tab'], key( $tabs ) );
+			$tabs[ $active_tab ]['tab_key'] = $active_tab;
 			return $tabs[ $active_tab ];
 		}
 

@@ -4,7 +4,14 @@ Plugin Name: Pro Sites (Feature: Upgrade Admin Links)
 */
 class ProSites_Module_UpgradeAdminLinks {
 
+	static $user_label;
+	static $user_description;
+
 	function __construct() {
+
+		self::$user_label       = __( 'Admin Menu Upgrade Link', 'psts' );
+		self::$user_description = __( 'Displays a convenient upgrade link in the admin menu.', 'psts' );
+
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_menu', array(&$this, 'admin_menu'), 20 );
 		add_action('admin_print_scripts', array(&$this, 'admin_print_scripts'), 99);

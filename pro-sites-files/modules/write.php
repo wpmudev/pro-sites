@@ -11,7 +11,7 @@ class ProSites_Module_Writing {
 
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
+		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_action( 'admin_notices', array( &$this, 'message' ) );
 		add_filter( 'user_has_cap', array( &$this, 'write_filter' ), 10, 3 );
 
@@ -36,9 +36,12 @@ class ProSites_Module_Writing {
 		return $allcaps;
 	}
 
-	function settings_process( $settings ) {
-		$settings['publishing_posts'] = isset( $settings['publishing_posts'] ) ? 1 : 0;
-		$settings['publishing_pages'] = isset( $settings['publishing_pages'] ) ? 1 : 0;
+	function settings_process( $settings, $active_tab ) {
+
+		if( 'writing' == $active_tab ) {
+			$settings['publishing_posts'] = isset( $settings['publishing_posts'] ) ? 1 : 0;
+			$settings['publishing_pages'] = isset( $settings['publishing_pages'] ) ? 1 : 0;
+		}
 
 		return $settings;
 	}

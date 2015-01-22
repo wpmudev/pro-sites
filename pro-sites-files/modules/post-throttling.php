@@ -34,7 +34,7 @@ class ProSites_Module_PostThrottling {
 		add_action( 'transition_post_status', array( $this, 'checkTransitionPostStatus' ), 10, 3 );
 
 		// filters
-		add_filter( 'psts_settings_filter', array( $this, 'saveModuleSettings' ) );
+		add_filter( 'psts_settings_filter', array( $this, 'saveModuleSettings' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
 
 		//Admin Notice If limit exceeded
@@ -253,7 +253,12 @@ class ProSites_Module_PostThrottling {
 	 *
 	 * @param array $settings The array of plugin settings.
 	 */
-	public function saveModuleSettings( $settings ) {
+	public function saveModuleSettings( $settings, $active_tab ) {
+
+		if( 'throttling' != $active_tab ) {
+			return $settings;
+		}
+
 		global $psts;
 
 		// level limits

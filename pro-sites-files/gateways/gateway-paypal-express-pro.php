@@ -14,8 +14,8 @@ class ProSites_Gateway_PayPalExpressPro {
 		}
 
 		//settings
-		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
-		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
+//		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
+		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 
 		//checkout stuff
 		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), 10, 2 );
@@ -247,8 +247,11 @@ class ProSites_Gateway_PayPalExpressPro {
 	<?php
 	}
 
-	function settings_process( $settings ) {
-		$settings['pypl_enable_pro'] = isset( $settings['pypl_enable_pro'] ) ? $settings['pypl_enable_pro'] : 0;
+	function settings_process( $settings, $gateway_class ) {
+
+		if ( get_class() == $gateway_class ) {
+			$settings['pypl_enable_pro'] = isset( $settings['pypl_enable_pro'] ) ? $settings['pypl_enable_pro'] : 0;
+		}
 
 		return $settings;
 	}

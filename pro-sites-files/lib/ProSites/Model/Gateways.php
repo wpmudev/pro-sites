@@ -28,10 +28,10 @@ if ( ! class_exists( 'ProSites_Model_Gateways' ) ) {
 				$active_gateways = array_values( $active_gateways );
 				$old_settings = get_site_option( 'psts_settings' );
 				$old_settings['gateways_enabled'] = $active_gateways;
-				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'] ) );
+				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $gateway_class ) );
 				update_site_option( 'psts_settings', $settings );
 
-				do_action( 'psts_settings_process' );
+				do_action( 'psts_settings_process', $gateway_class );
 				do_action( 'supporter_settings_process' ); //depreciated
 
 				echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';

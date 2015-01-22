@@ -11,7 +11,7 @@ class ProSites_Module_BP {
 
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
+		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_filter( 'messages_template_compose', array( &$this, 'messages_template' ) );
 		add_filter( 'bp_user_can_create_groups', array( &$this, 'create_groups' ) );
 		add_filter( 'bp_blogs_is_blog_recordable', array( &$this, 'prosites_filter_blogs' ), 10, 2 );
@@ -85,11 +85,14 @@ class ProSites_Module_BP {
 		bp_blogs_record_blog( $blog_id, $user['ID'] );
 	}
 
-	function settings_process( $settings ) {
-		global $psts;
-		$settings['bp_group']       = isset( $settings['bp_group'] ) ? 1 : 0;
-		$settings['bp_compose']     = isset( $settings['bp_compose'] ) ? 1 : 0;
-		$settings['bp_hide_unpaid'] = isset( $settings['bp_hide_unpaid'] ) ? 1 : 0;
+	function settings_process( $settings, $active_tab ) {
+
+		if ( 'buddypress' == $active_tab ) {
+			global $psts;
+			$settings['bp_group']       = isset( $settings['bp_group'] ) ? 1 : 0;
+			$settings['bp_compose']     = isset( $settings['bp_compose'] ) ? 1 : 0;
+			$settings['bp_hide_unpaid'] = isset( $settings['bp_hide_unpaid'] ) ? 1 : 0;
+		}
 
 		return $settings;
 	}

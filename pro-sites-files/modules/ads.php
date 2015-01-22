@@ -14,7 +14,7 @@ class ProSites_Module_Ads {
 		global $psts;
 
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
+		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_action( 'admin_menu', array( &$this, 'plug_page' ), 100 );
 		add_action( 'psts_extend', array( &$this, 'extend' ), 10, 2 );
 		add_action( 'psts_withdraw', array( &$this, 'withdraw' ), 10, 2 );
@@ -227,8 +227,8 @@ class ProSites_Module_Ads {
 		return $content;
 	}
 
-	function settings_process( $settings ) {
-		if ( ! array_key_exists( 'ads_levels', $_POST ) ) {
+	function settings_process( $settings, $active_tab ) {
+		if ( ! array_key_exists( 'ads_levels', $_POST ) || 'ads' != $active_tab ) {
 			return $settings;
 		}
 		global $psts;

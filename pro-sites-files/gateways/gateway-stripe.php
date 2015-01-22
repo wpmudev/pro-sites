@@ -24,8 +24,8 @@ class ProSites_Gateway_Stripe {
 		}
 
 		//settings
-		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
-		add_action( 'psts_settings_process', array( &$this, 'settings_process' ) );
+//		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
+		add_action( 'psts_settings_process', array( &$this, 'settings_process' ), 10, 1 );
 
 		//checkout stuff
 		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
@@ -225,8 +225,11 @@ class ProSites_Gateway_Stripe {
 	<?php
 	}
 
-	function settings_process() {
-		$this->update_psts_levels( 'psts_levels', get_site_option( 'psts_levels' ), get_site_option( 'psts_levels' ) );
+	function settings_process( $gateway_class ) {
+		if( get_class() == $gateway_class ) {
+			$this->update_psts_levels( 'psts_levels', get_site_option( 'psts_levels' ), get_site_option( 'psts_levels' ) );
+		}
+
 	}
 
 	//filters the ssl on checkout page

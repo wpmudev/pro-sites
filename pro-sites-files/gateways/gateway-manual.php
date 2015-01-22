@@ -10,7 +10,7 @@ class ProSites_Gateway_Manual {
 
 	function __construct() {
 		//settings
-		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
+//		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
 
 		//checkout stuff
 		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );

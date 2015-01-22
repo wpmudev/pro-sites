@@ -13,7 +13,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 
 			require_once $psts->plugin_dir . "gateways/gateway-2checkout-files/Twocheckout.php";
 			//settings
-			add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
+//			add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
 
 			//checkout stuff
 			add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );

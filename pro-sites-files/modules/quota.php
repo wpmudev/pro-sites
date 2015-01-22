@@ -13,7 +13,7 @@ class ProSites_Module_Quota {
 
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_action( 'psts_settings_process', array( &$this, 'settings_process' ) );
+		add_action( 'psts_settings_process', array( &$this, 'settings_process' ), 10, 1 );
 
 		//filter blog and site options
 		if ( ! defined( 'PSTS_QUOTA_ALLOW_OVERRIDE' ) ) {
@@ -72,7 +72,12 @@ class ProSites_Module_Quota {
 		}
 	}
 
-	function settings_process() {
+	function settings_process( $active_tab ) {
+
+		if( 'upload_quota' != $active_tab ) {
+			return false;
+		}
+
 		global $psts;
 
 		$post_quota = isset( $_POST['quota'] ) ? (array) $_POST['quota'] : array();

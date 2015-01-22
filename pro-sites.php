@@ -3992,6 +3992,9 @@ function admin_levels() {
 	}
 
 	function admin_settings() {
+		// redundant
+		return false;
+
 		global $wpdb, $current_site;
 
 		if ( ! is_super_admin() ) {

@@ -11,7 +11,7 @@ class ProSites_Module_PayToBlog {
 
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ) );
+		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_action( 'template_redirect', array( &$this, 'disable_front' ) );
 		add_filter( 'psts_prevent_dismiss', create_function( null, 'return true;' ) );
 		add_filter( 'psts_force_redirect', array( &$this, 'force_redirect' ) );
@@ -77,8 +77,11 @@ class ProSites_Module_PayToBlog {
 		}
 	}
 
-	function settings_process( $settings ) {
-		$settings['ptb_front_disable'] = isset( $settings['ptb_front_disable'] ) ? $settings['ptb_front_disable'] : 0;
+	function settings_process( $settings, $active_tab ) {
+
+		if( 'paytoblog' == $active_tab ) {
+			$settings['ptb_front_disable'] = isset( $settings['ptb_front_disable'] ) ? $settings['ptb_front_disable'] : 0;
+		}
 
 		return $settings;
 	}

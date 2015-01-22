@@ -47,6 +47,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		public static function render_tab_general() {
 			global $psts;
 			ob_start();
+			$x = '';
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			?>
 
