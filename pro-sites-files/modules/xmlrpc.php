@@ -66,7 +66,7 @@ class ProSites_Module_XMLRPC {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-xml-prolevel"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to enable remote publishing.', 'psts' ) ); ?></th>
 						<td>
-							<select name="psts[xmlrpc_level]">
+							<select name="psts[xmlrpc_level]" class="chosen">
 								<?php
 								foreach ( $levels as $level => $value ) {
 									?>

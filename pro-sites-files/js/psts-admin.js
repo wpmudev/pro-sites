@@ -23,11 +23,10 @@ jQuery(document).ready(function($){
     });
     //If chosen function exists and there is any select with class chosen
     if ( jQuery.isFunction(jQuery.fn.chosen) && jQuery('.chosen').length ) {
-        jQuery('.chosen').chosen().change(function () {
+        jQuery('.chosen').chosen({disable_search_threshold: 10}).change(function () {
             jQuery(this).trigger('chosen:updated')
         });
     }
-
 
     /**
      * Make sure that settings wrapper go as far as it needs to go.

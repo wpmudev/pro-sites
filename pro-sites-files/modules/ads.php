@@ -266,7 +266,7 @@ class ProSites_Module_Ads {
 					<th scope="row"
 					    class="psts-help-div psts-ad-free"><?php echo __( 'Add Free Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to not show ads on the site.', 'psts', $psts ) ); ?></th>
 					<td>
-						<select name="psts[ads_level]">
+						<select name="psts[ads_level]" class="chosen">
 							<?php
 							foreach ( $levels as $level => $value ) {
 								?>
@@ -297,7 +297,7 @@ class ProSites_Module_Ads {
 					<th scope="row"
 					    class="psts-help-div psts-ads-perpage"><?php echo __( 'Ads Per Page', 'psts' ) . $psts->help_text( __( 'Maximum number of ads to be shown on a single page. For Google Adsense set this to "3".', 'psts' ) ); ?></th>
 					<td>
-						<select name="psts[ads_count]">
+						<select name="psts[ads_count]" class="chosen">
 							<?php
 							$per_page = $psts->get_setting( 'ads_count', 3 );
 							for ( $counter = 1; $counter <= 10; $counter ++ ) {
@@ -388,7 +388,7 @@ class ProSites_Module_Ads {
 
 	function ads_select( $level, $selected ) {
 		?>
-		<select name="ads_levels[<?php echo $level; ?>]" id="ads_level_<?php echo $level; ?>">
+		<select name="ads_levels[<?php echo $level; ?>]" id="ads_level_<?php echo $level; ?>" class="chosen">
 			<?php
 			for ( $counter = 0; $counter <= 100; $counter ++ ) {
 				echo '<option value="' . $counter . '"' . ( $counter == $selected ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";

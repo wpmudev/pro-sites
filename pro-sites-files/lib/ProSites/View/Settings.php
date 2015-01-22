@@ -183,7 +183,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"
 						    class="psts-free-trial psts-help-div"><?php echo __( 'Free Trial', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Free days for all new sites', 'psts' ) ); ?></th>
-						<td><select name="psts[trial_days]">
+						<td><select name="psts[trial_days]" class="chosen">
 								<?php
 								$trial_days         = $psts->get_setting( 'trial_days' );
 								$trial_days_options = '';
@@ -251,7 +251,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Google Analytics Ecommerce Tracking', 'psts' ) ?></th>
 						<td>
-							<select name="psts[ga_ecommerce]">
+							<select name="psts[ga_ecommerce]" class="chosen">
 								<option
 									value="none"<?php selected( $psts->get_setting( 'ga_ecommerce' ), 'none' ) ?>><?php _e( 'None', 'psts' ) ?></option>
 								<option
@@ -361,7 +361,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Currency Symbol', 'psts' ) ?></th>
 						<td>
-							<select id="psts-currency-select" name="psts[currency]">
+							<select id="psts-currency-select" name="psts[currency]" class="chosen">
 								<?php
 								foreach ( $psts->currencies as $key => $value ) {
 									?>

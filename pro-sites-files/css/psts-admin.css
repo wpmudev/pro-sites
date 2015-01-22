@@ -881,3 +881,15 @@ input[name="uses"] {
     position: relative;
     top: -8px;
 }
+
+.psts-settings textarea {
+    min-height: 150px;
+}
+
+.psts-settings .chosen-container {
+    margin-bottom: 10px;
+}
+
+select.chosen {
+    min-width: 150px;
+}

@@ -42,7 +42,7 @@ class ProSites_Module_Support {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-premium-prosite-level"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to use premium support.', 'psts' ) ); ?></th>
 						<td>
-							<select name="psts[ps_level]">
+							<select name="psts[ps_level]" class="chosen">
 								<?php
 								foreach ( $levels as $level => $value ) {
 									?>

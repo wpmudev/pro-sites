@@ -147,7 +147,7 @@ class ProSites_Module_Quota {
 
 	function quota_select( $level, $selected ) {
 		?>
-		<select name="quota[<?php echo $level; ?>]" id="quota_<?php echo $level; ?>">
+		<select name="quota[<?php echo $level; ?>]" id="quota_<?php echo $level; ?>" class="chosen">
 			<?php
 			for ( $counter = 1; $counter < 10; $counter += 1 ) {
 				echo '<option value="' . $counter . '"' . ( $counter == $selected ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . ' MB</option>' . "\n";

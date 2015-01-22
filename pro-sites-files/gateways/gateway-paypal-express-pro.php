@@ -78,7 +78,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
-						<td><select name="psts[pypl_site]">
+						<td><select name="psts[pypl_site]" class="chosen">
 								<?php
 								$paypal_site = $psts->get_setting( 'pypl_site' );
 								$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
@@ -121,7 +121,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
-						<td><select name="psts[pypl_currency]">
+						<td><select name="psts[pypl_currency]" class="chosen">
 								<?php
 								$currency     = $psts->get_setting( 'pypl_currency' );
 								$sel_currency = empty( $currency ) ? $psts->get_setting( 'currency' ) : $currency;
@@ -161,7 +161,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
-						<td><select name="psts[pypl_status]">
+						<td><select name="psts[pypl_status]" class="chosen">
 								<option value="live"<?php selected( $psts->get_setting( 'pypl_status' ), 'live' ); ?>><?php _e( 'Live Site', 'psts' ) ?></option>
 								<option value="test"<?php selected( $psts->get_setting( 'pypl_status' ), 'test' ); ?>><?php _e( 'Test Mode (Sandbox)', 'psts' ) ?></option>
 							</select>
@@ -173,15 +173,15 @@ class ProSites_Gateway_PayPalExpressPro {
 							<span class="description"><?php _e( 'You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECAPICredentials">Instructions &raquo;</a>', 'psts' ) ?></span>
 
 							<p><label><?php _e( 'API Username', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_user" ) ); ?>" size="30" name="psts[pypl_api_user]" type="text"/>
+									<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_user" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[pypl_api_user]" type="text"/>
 								</label></p>
 
 							<p><label><?php _e( 'API Password', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_pass" ) ); ?>" size="20" name="psts[pypl_api_pass]" type="text"/>
+									<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_pass" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[pypl_api_pass]" type="text"/>
 								</label></p>
 
 							<p><label><?php _e( 'Signature', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_sig" ) ); ?>" size="70" name="psts[pypl_api_sig]" type="text"/>
+									<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_sig" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[pypl_api_sig]" type="text"/>
 								</label></p>
 						</td>
 					</tr>

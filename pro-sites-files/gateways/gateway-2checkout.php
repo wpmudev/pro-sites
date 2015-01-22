@@ -56,7 +56,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 					<tr>
 						<th scope="row"><?php _e( '2Checkout Mode', 'psts' ) ?></th>
 						<td>
-							<select name="psts[2co_checkout_mode]">
+							<select name="psts[2co_checkout_mode]" class="chosen">
 								<option
 									value="N"<?php selected( $psts->get_setting( '2co_checkout_mode' ), 'N' ); ?>><?php _e( 'Live Site', 'psts' ) ?></option>
 								<option
@@ -66,7 +66,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 					<tr>
 						<th scope="row"><?php _e( '2Checkout Currency', 'psts' ) ?></th>
 						<td>
-							<select name="psts[2co_currency]">
+							<select name="psts[2co_currency]" class="chosen">
 								<?php
 								$sel_currency = $psts->get_setting( "2co_currency", 'USD' );
 								$currencies   = array(
@@ -106,7 +106,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 					<tr>
 						<th scope="row"><?php _e( '2Checkout Language', 'psts' ) ?></th>
 						<td>
-							<select name="psts[2co_language]">
+							<select name="psts[2co_language]" class="chosen">
 								<?php
 								$sel_language = $psts->get_setting( "2co_language", 'en' );
 								$languages    = array(

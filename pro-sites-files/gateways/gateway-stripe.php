@@ -171,7 +171,7 @@ class ProSites_Gateway_Stripe {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Stripe Mode', 'psts' ) ?></th>
 						<td>
-							<select name="psts[stripe_ssl]">
+							<select name="psts[stripe_ssl]" class="chosen">
 								<option value="1"<?php selected( $psts->get_setting( 'stripe_ssl' ), 1 ); ?>><?php _e( 'Force SSL (Live Site)', 'psts' ) ?></option>
 								<option value="0"<?php selected( $psts->get_setting( 'stripe_ssl' ), 0 ); ?>><?php _e( 'No SSL (Testing)', 'psts' ) ?></option>
 							</select><br />
@@ -183,11 +183,11 @@ class ProSites_Gateway_Stripe {
 						<th scope="row"><?php _e( 'Stripe API Credentials', 'psts' ) ?></th>
 						<td>
 							<p><label><?php _e( 'Secret key', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "stripe_secret_key" ) ); ?>" size="70" name="psts[stripe_secret_key]" type="text"/>
+									<input value="<?php esc_attr_e( $psts->get_setting( "stripe_secret_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_secret_key]" type="text"/>
 								</label></p>
 
 							<p><label><?php _e( 'Publishable key', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ) ); ?>" size="70" name="psts[stripe_publishable_key]" type="text"/>
+									<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_publishable_key]" type="text"/>
 								</label></p><br />
 							<span class="description"><?php _e( 'You must login to Stripe to <a target="_blank" href="https://manage.stripe.com/#account/apikeys">get your API credentials</a>. You can enter your test credentials, then live ones when ready. When switching from test to live API credentials, if you were testing on a site that will be used in live mode, you need to manually clear the associated row from the *_pro_sites_stripe_customers table for the given blogid to prevent errors on checkout or management of the site.', 'psts' ) ?></span>
 						</td>
@@ -195,7 +195,7 @@ class ProSites_Gateway_Stripe {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ) . $psts->help_text( __( 'The currency must match the currency of your Stripe account.', 'psts' ) ); ?></th>
 						<td>
-							<select name="psts[stripe_currency]">
+							<select name="psts[stripe_currency]" class="chosen">
 								<?php
 								$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
 								$currencies   = array(
@@ -216,7 +216,7 @@ class ProSites_Gateway_Stripe {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-stripe-thankyou"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text( __( 'Displayed on successful checkout. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
 						<td>
-							<textarea name="psts[stripe_thankyou]" type="text" rows="4" wrap="soft" id="stripe_thankyou" style="width: 95%"/><?php echo esc_textarea( $psts->get_setting( 'stripe_thankyou' ) ); ?></textarea>
+							<textarea name="psts[stripe_thankyou]" type="text" rows="4" wrap="soft" id="stripe_thankyou" style="width: 100%" /><?php echo esc_textarea( $psts->get_setting( 'stripe_thankyou' ) ); ?></textarea>
 						</td>
 					</tr>
 				</table>
