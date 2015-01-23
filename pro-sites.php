@@ -777,6 +777,9 @@ Many thanks again for being a member!", 'psts' ),
 		//Add PSTS Style to gateways page
 		add_action( 'admin_print_styles-' . $psts_gateways_page, array( &$this, 'load_settings_style' ) );
 
+		// Add Scripts for Levels page
+		add_action( 'admin_print_styles-' . $psts_levels_page, array( &$this, 'load_levels_style' ) );
+
 		do_action( 'psts_after_checkout_page_settings' );
 
 	}
@@ -2091,10 +2094,17 @@ Many thanks again for being a member!", 'psts' ),
 			'wp-color-picker',
 			'jquery'
 		), $this->version );
+
 		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
 			'wp-color-picker',
 			'jquery'
 		), $this->version );
+
+		wp_register_script( 'psts-js-levels', $this->plugin_url . 'js/psts-admin-levels.js', array(
+			'jquery',
+			'jquery-ui-sortable',
+		), $this->version );
+
 		//Check if chosen js is already registered
 		if ( ! wp_script_is( 'chosen', 'registered' ) ) {
 			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js' );
@@ -2121,6 +2131,14 @@ Many thanks again for being a member!", 'psts' ),
 	function load_settings_style() {
 		$this->load_psts_style();
 		$this->load_chosen();
+	}
+
+	function load_levels_style() {
+		$this->load_psts_style();
+		$this->load_chosen();
+
+		wp_enqueue_script( 'psts-js-levels' );
+		wp_enqueue_script( 'jquery-ui-sortable' );
 	}
 
 	function css_pricing() {
@@ -3699,7 +3717,7 @@ function admin_levels() {
 		?>
 		<h3><?php _e( 'Edit Pro Site Levels', 'psts' ) ?></h3>
 		<span class="description"><?php _e( 'Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number.', 'psts' ) ?></span>
-		<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
+		<table width="100%" cellpadding="3" cellspacing="3" class="widefat" id="prosites-level-list">
 			<thead>
 			<tr>
 				<th scope="col"><?php _e( 'Level', 'psts' ); ?></th>

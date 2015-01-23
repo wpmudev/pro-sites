@@ -893,3 +893,18 @@ input[name="uses"] {
 select.chosen {
     min-width: 150px;
 }
+
+#prosites-level-list .ui-sortable-handle:hover > td:first-child {
+    border-left: 3px solid rgba( 57, 57, 57, 0.6 );
+}
+
+#prosites-level-list .ui-sortable-handle:hover,
+#prosites-level-list .ui-sortable-handle:hover > td {
+    cursor: move;
+}
+
+#prosites-level-list .prosite-level-placeholder {
+    height: 46px;
+    line-height: 1.2em;
+    background: rgba( 57,57,57, 0.1);
+}
