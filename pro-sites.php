@@ -3572,45 +3572,6 @@ function admin_levels() {
 	}
 	?>
 	<div class="wrap">
-	<script type="text/javascript">
-		jQuery(document).ready(function ($) {
-			jQuery('#level-delete').click(function () {
-				return confirm("<?php _e('Are you sure you really want to remove this level? This will also delete all feature settings for the level.', 'psts'); ?>");
-			});
-
-			if (!$('#enable_1').is(':checked')) {
-				$('.price-1').attr('disabled', true);
-			}
-			if (!$('#enable_3').is(':checked')) {
-				$('.price-3').attr('disabled', true);
-			}
-			if (!$('#enable_12').is(':checked')) {
-				$('.price-12').attr('disabled', true);
-			}
-
-			$('#enable_1').change(function () {
-				if (this.checked) {
-					$('.price-1').removeAttr('disabled');
-				} else {
-					$('.price-1').attr('disabled', true);
-				}
-			});
-			$('#enable_3').change(function () {
-				if (this.checked) {
-					$('.price-3').removeAttr('disabled');
-				} else {
-					$('.price-3').attr('disabled', true);
-				}
-			});
-			$('#enable_12').change(function () {
-				if (this.checked) {
-					$('.price-12').removeAttr('disabled');
-				} else {
-					$('.price-12').attr('disabled', true);
-				}
-			});
-		});
-	</script>
 	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/levels.png'; ?>"/></div>
 	<h2><?php _e( 'Pro Sites Levels', 'psts' ); ?></h2>
 	<?php
@@ -3619,17 +3580,29 @@ function admin_levels() {
 
 	//delete checked levels
 	if ( isset( $_POST['delete_level'] ) ) {
+
 		//check nonce
 		check_admin_referer( 'psts_levels' );
 
-		if ( is_array( $levels ) && count( $levels ) > 1 ) {
-			$level_num = count( $levels );
-			$null      = array_pop( $levels );
+		// Get correct level
+		$level_num = (array) $_POST['delete_level'];
+		$level_num = array_keys( $level_num );
+		$level_num = array_pop( $level_num );
+		$level_num = (int) $level_num;
+
+		if( in_array( $level_num, array_keys( $levels ) ) ) {
+			unset( $levels[ $level_num] );
+
+			// Re-Index
+			$levels = array_merge( array('x'), array_values( $levels ) );
+			unset( $levels[0]);
+
 			update_site_option( 'psts_levels', $levels );
 
 			//display message confirmation
 			echo '<div class="updated fade"><p>' . sprintf( __( 'Level %s successfully deleted.', 'psts' ), number_format_i18n( $level_num ) ) . '</p></div>';
 		}
+
 	}
 
 	//add level
@@ -3648,7 +3621,7 @@ function admin_levels() {
 		}
 
 		if ( ! $error ) {
-			$levels[] = array(
+			$level_data = array(
 				'name'       => stripslashes( trim( wp_filter_nohtml_kses( $_POST['add_name'] ) ) ),
 				'price_1'    => round( @$_POST['add_price_1'], 2 ),
 				'price_3'    => round( @$_POST['add_price_3'], 2 ),
@@ -3656,6 +3629,14 @@ function admin_levels() {
 				'is_visible' => intval( @$_POST['add_is_visible'] ),
 				'setup_fee'  => round( @$_POST['add_setup_fee'], 2 )
 			);
+
+			// Just in case something went wrong, make sure we start at 1.
+			if( 0 == count( $levels ) ){
+				$levels[1] = $level_data;
+			} else {
+				$levels[] = $level_data;
+			}
+
 			update_site_option( 'psts_levels', $levels );
 			echo '<div class="updated fade"><p>' . __( 'Level added.', 'psts' ) . '</p></div>';
 		} else {
@@ -3757,7 +3738,7 @@ function admin_levels() {
 							case 'name':
 								?>
 								<td scope="row">
-									<input value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
+									<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
 								</td>
 								<?php
 								break;
@@ -3798,10 +3779,10 @@ function admin_levels() {
 							case 'edit':
 								?>
 								<td scope="row">
-									<?php if ( $level_code == $last_level && $level_code != 1 ) {
+									<?php if ( count( $level_list ) > 1 ) {
 										//Display delete option for last level only
 										?>
-										<input class="button" type="submit" id="level-delete" name="delete_level" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+										<input class="button" type="submit" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
 									<?php } ?>
 								</td>
 								<?php
@@ -3826,6 +3807,7 @@ function admin_levels() {
 		</table>
 		<p class="submit">
 			<input type="submit" name="save_levels" class="button-primary" value="<?php _e( 'Save Levels', 'psts' ) ?>"/>
+			<span class="save_levels_dirty" style="display:none;"><?php esc_html_e( 'Changed not saved.', 'psts' ); ?></span>
 		</p>
 
 		<h3><?php _e( 'Add New Level', 'psts' ) ?></h3>

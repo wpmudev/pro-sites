@@ -640,9 +640,23 @@ class ProSites_Gateway_Stripe {
 	function update_psts_levels( $option, $new_levels, $old_levels ) {
 		global $psts;
 
+		$x = '';
 		//deleting
 		if ( count( $old_levels ) > count( $new_levels ) ) {
-			$level_id = count( $old_levels );
+
+			$level_id = 0;
+			foreach( $old_levels as $key => $value ) {
+				$new_keys = array_keys( $new_levels );
+				if( ! in_array( $key, $new_keys ) ) {
+					$level_id = $key;
+				}
+			}
+
+			// Should not happen, but check anyway.
+			if( empty( $level_id ) ) {
+				return;
+			}
+
 			$periods  = array( 1, 3, 12 );
 
 			foreach ( $periods as $period ) {
@@ -718,8 +732,10 @@ class ProSites_Gateway_Stripe {
 	function update_plan( $plan_id, $plan_name ) {
 		try {
 			$plan       = $this->retrieve_plan( $plan_id );
-			$plan->name = $plan_name;
-			$plan->save();
+			if( ! empty( $plan ) ) {
+				$plan->name = $plan_name;
+				$plan->save();
+			}
 		} catch ( Exception $e ) {
 			//oh well
 		}
@@ -729,7 +745,9 @@ class ProSites_Gateway_Stripe {
 	function delete_plan( $stripe_plan_id, $retry = true ) {
 		try {
 			$plan = $this->retrieve_plan( $stripe_plan_id );
-			$plan->delete();
+			if( !empty( $plan ) ) {
+				$plan->delete();
+			}
 		} catch ( Exception $e ) {
 			//oh well
 		}

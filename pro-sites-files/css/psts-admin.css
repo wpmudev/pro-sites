@@ -908,3 +908,8 @@ select.chosen {
     line-height: 1.2em;
     background: rgba( 57,57,57, 0.1);
 }
+
+.save_levels_dirty {
+    padding: 0 10px;
+    color: #cc0000;
+}
