@@ -13,6 +13,7 @@ class ProSites_Module_PremiumThemes {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'psts_withdraw', array(&$this, 'deactivate_theme') );
 		add_action( 'psts_downgrade', array(&$this, 'deactivate_theme') );
+		add_action( 'psts_trial_expired', array( &$this, 'deactivate_theme' ) );
 		
 		add_action( 'admin_print_styles-themes.php', array(&$this, 'themes_styles') );
 		add_action( 'admin_footer-themes.php', array(&$this, 'themes_scripts') );
@@ -162,7 +163,7 @@ class ProSites_Module_PremiumThemes {
       return;
     
     //if they have permission for this theme skip
-    if ( is_pro_site($blog_id, $psts_allowed_themes[$current_theme]) || $this->ads_theme() )
+    if ( ( is_pro_site($blog_id) && isset( $psts_allowed_themes[$current_theme] ) ) || $this->ads_theme() )
       return;
     
 	  //check for our default theme plugin first

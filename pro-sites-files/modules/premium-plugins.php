@@ -17,6 +17,7 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'admin_notices', array(&$this, 'message_output') );
 		add_action( 'psts_withdraw', array(&$this, 'deactivate_all') );
+	    add_action( 'psts_trial_expired', array( &$this, 'deactivate_all' ) );
 		add_action( 'psts_upgrade', array(&$this, 'auto_activate'), 10, 3 );
 		add_action( 'psts_downgrade', array(&$this, 'deactivate'), 10, 3 );
 		add_action( 'wpmu_new_blog', array(&$this, 'new_blog'), 50 ); //auto activation hook
