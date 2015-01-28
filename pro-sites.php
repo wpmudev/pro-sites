@@ -4517,5 +4517,3 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
-
-error_log( print_r( get_site_option( 'menu_items' ), true ) );
