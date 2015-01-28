@@ -31,14 +31,6 @@ class ProSites_Module_Plugins {
 		add_filter( 'plugin_row_meta' , array( &$this, 'remove_plugin_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'remove_plugin_update_row' ) );
 
-
-	  // make sure options are saved
-	  $psts_menu_item_value = get_site_option( 'psts_menu_items_plugin_original' );
-	  if( ! empty( $psts_menu_item_value ) & ! isset( $psts_menu_item_value['plugins'] ) ) {
-		  $psts_menu_item_value['plugins'] = 1;
-		  update_site_option( 'menu_items', $psts_menu_item_value );
-	  }
-
 	}
   function plug_network_page() {
 	  add_submenu_page( 'psts', __('Pro Sites Premium Plugins', 'psts'), __('Premium Plugins', 'psts'), 'manage_network_options', 'psts-plugins', array(&$this, 'admin_page') );
