@@ -305,17 +305,16 @@ class ProSites_Module_Plugins {
   //This page should never be shown
   function plugins_page_redirect() {
 
-//		if( !current_user_can('activate_plugins') ) {
-//			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
-//			return;
-//		}
-//
-//	  echo '<div class="wrap">';
-//  	echo "<SCRIPT LANGUAGE='JavaScript'>window.location='plugins.php';</script>";
-//	  echo '<a href="plugins.php">Go Here</a>';
-//	  echo '</div>'; //div wrap
+	  if ( ! current_user_can( 'activate_plugins' ) ) {
+		  echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
+		  return;
+	  }
 
-	  echo "Whatup!";
+	  echo '<div class="wrap">';
+	  echo "<SCRIPT LANGUAGE='JavaScript'>window.location='plugins.php';</script>";
+	  echo '<a href="plugins.php">Go Here</a>';
+	  echo '</div>'; //div wrap
+
 	}
 
 	function settings() {
