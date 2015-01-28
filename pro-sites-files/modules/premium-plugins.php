@@ -5,10 +5,9 @@ Pro Sites (Module: Premium Plugins)
 class ProSites_Module_Plugins {
 
 	var $checkbox_rows = array();
-	
+
   function __construct() {
   	add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
-		
 		if ( !defined('PSTS_HIDE_PLUGINS_MENU') ) {
 			add_action( 'admin_menu', array(&$this, 'plug_page') );
 			add_action( 'admin_init', array(&$this, 'redirect_plugins_page') );
@@ -20,9 +19,7 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_upgrade', array(&$this, 'auto_activate'), 10, 3 );
 		add_action( 'psts_downgrade', array(&$this, 'deactivate'), 10, 3 );
 		add_action( 'wpmu_new_blog', array(&$this, 'new_blog'), 50 ); //auto activation hook
-		
-		add_filter( 'site_option_menu_items', array(&$this, 'enable_plugins_page') );
-		
+
 		add_filter( 'all_plugins', array(&$this, 'remove_plugins') );
 		add_filter( 'plugin_action_links', array(&$this, 'action_links'), 10, 4);
 		add_filter( 'pre_update_option_recently_activated', array(&$this, 'check_activated') );
@@ -33,8 +30,16 @@ class ProSites_Module_Plugins {
 
 		add_filter( 'plugin_row_meta' , array( &$this, 'remove_plugin_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'remove_plugin_update_row' ) );
-	}
 
+
+	  // make sure options are saved
+	  $psts_menu_item_value = get_site_option( 'psts_menu_items_plugin_original' );
+	  if( ! empty( $psts_menu_item_value ) & ! isset( $psts_menu_item_value['plugins'] ) ) {
+		  $psts_menu_item_value['plugins'] = 1;
+		  update_site_option( 'menu_items', $psts_menu_item_value );
+	  }
+
+	}
   function plug_network_page() {
 	  add_submenu_page( 'psts', __('Pro Sites Premium Plugins', 'psts'), __('Premium Plugins', 'psts'), 'manage_network_options', 'psts-plugins', array(&$this, 'admin_page') );
 	}
@@ -42,15 +47,10 @@ class ProSites_Module_Plugins {
 	//adds Premium Plugins submenu under pro blogs
 	function plug_page() {
 		global $psts;
-		
+
 	  add_submenu_page('psts-checkout', $psts->get_setting('pp_name'), $psts->get_setting('pp_name'), 'activate_plugins', 'premium-plugins', array(&$this, 'plugins_page_redirect') );
 	}
-	
-	function enable_plugins_page($menu_items) {
-		$menu_items['plugins'] = 1;
-		return $menu_items;
-	}
-	
+
 	//remove plugins with no user control
 	function remove_plugins($all_plugins) {
     global $psts;
@@ -177,7 +177,7 @@ class ProSites_Module_Plugins {
 	function deactivate_all($blog_id) {
 	  require_once( ABSPATH.'wp-admin/includes/plugin.php' );
     global $psts;
-    
+
     if ( is_pro_site($blog_id) )
       return;
     
@@ -313,15 +313,17 @@ class ProSites_Module_Plugins {
   //This page should never be shown
   function plugins_page_redirect() {
 
-		if( !current_user_can('activate_plugins') ) {
-			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
-			return;
-		}
+//		if( !current_user_can('activate_plugins') ) {
+//			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
+//			return;
+//		}
+//
+//	  echo '<div class="wrap">';
+//  	echo "<SCRIPT LANGUAGE='JavaScript'>window.location='plugins.php';</script>";
+//	  echo '<a href="plugins.php">Go Here</a>';
+//	  echo '</div>'; //div wrap
 
-	  echo '<div class="wrap">';
-  	echo "<SCRIPT LANGUAGE='JavaScript'>window.location='plugins.php';</script>";
-	  echo '<a href="plugins.php">Go Here</a>';
-	  echo '</div>'; //div wrap
+	  echo "Whatup!";
 	}
 
 	function settings() {

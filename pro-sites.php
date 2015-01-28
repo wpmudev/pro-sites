@@ -72,6 +72,14 @@ class ProSites {
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
+		//add important filters
+		$modules = get_site_option( 'psts_settings' );
+		$modules = $modules['modules_enabled'];
+
+		if( in_array( 'ProSites_Module_Plugins', $modules ) ) {
+			add_filter( 'site_option_menu_items', array( &$this, 'enable_plugins_page' ) );
+		}
+
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
 
@@ -109,7 +117,6 @@ class ProSites {
 		if ( ! defined( 'PSTS_DISABLE_UPGRADE' ) && $this->get_setting( 'version' ) != $this->version ) {
 			$this->install();
 		}
-
 	}
 
 //------------------------------------------------------------------------//
@@ -627,6 +634,11 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
+	function enable_plugins_page($menu_items) {
+		$menu_items['plugins'] = 1;
+		return $menu_items;
+	}
+
 	function add_menu_admin_bar_css() {
 
 		if ( is_main_site() || ! is_admin_bar_showing() || ! is_user_logged_in() || ! current_user_can( 'edit_pages' ) || $this->get_setting( 'hide_adminbar' ) ) {
@@ -885,6 +897,7 @@ Many thanks again for being a member!", 'psts' ),
 
 	function check() {
 		global $blog_id, $wpdb;
+
 		if ( is_pro_site( $blog_id ) ) {
 			do_action( 'psts_active' );
 		} else if ( $wpdb->result ) { //only trigger withdrawls if it wasn't a db error
@@ -1351,6 +1364,8 @@ Many thanks again for being a member!", 'psts' ),
 	function withdraw( $blog_id, $withdraw = false ) {
 		global $wpdb;
 
+		$blog_expire = $this->get_expire( $blog_id );
+
 		if ( $withdraw ) {
 			if ( $withdraw == '1' ) {
 				$withdraw = 2629744;
@@ -1359,10 +1374,12 @@ Many thanks again for being a member!", 'psts' ),
 			} else if ( $withdraw == '12' ) {
 				$withdraw = 31556926;
 			}
-			$new_expire = $this->get_expire( $blog_id ) - $withdraw;
-		} else {
-			$new_expire = time() - 1;
+			$new_expire = $blog_expire - $withdraw;
 		}
+		else {
+			$new_expire = strtotime('-1 day', time() );
+		}
+
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
 		unset( $this->pro_sites[ $blog_id ] ); //clear cache
@@ -4500,3 +4517,5 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
+
+error_log( print_r( get_site_option( 'menu_items' ), true ) );
