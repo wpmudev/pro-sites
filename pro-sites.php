@@ -72,6 +72,14 @@ class ProSites {
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
+		//add important filters
+		$modules = get_site_option( 'psts_settings' );
+		$modules = $modules['modules_enabled'];
+
+		if( in_array( 'ProSites_Module_Plugins', $modules ) ) {
+			add_filter( 'site_option_menu_items', array( &$this, 'enable_plugins_page' ) );
+		}
+
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
 
@@ -109,7 +117,6 @@ class ProSites {
 		if ( ! defined( 'PSTS_DISABLE_UPGRADE' ) && $this->get_setting( 'version' ) != $this->version ) {
 			$this->install();
 		}
-
 	}
 
 //------------------------------------------------------------------------//
@@ -398,42 +405,25 @@ Many thanks again for being a member!", 'psts' ),
 
 	function trial_notice() {
 		global $wpdb, $blog_id;
-
-		$user_id = get_current_user_id();
-
 		if ( ! is_main_site() && current_user_can( 'edit_pages' ) && $this->get_setting( 'trial_days' ) ) {
-
-			// Get the expiry date regardless of days left or not
 			$expire = $wpdb->get_var( $wpdb->prepare( "
 				SELECT expire
 				FROM {$wpdb->base_prefix}pro_sites
 				WHERE blog_ID = %d
 					AND gateway = 'Trial'
+					AND expire >= %s
 					AND (term = '' OR term IS NULL)
-				LIMIT 1", $blog_id
+				LIMIT 1", $blog_id, time()
 			) );
 
 			if ( $expire ) {
-
-				// Now check the days left
 				$days   = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
-
-				if( $days > 0 ) {
-					// If days left...
-
-					$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_setting( 'trial_level', 1 ), 'name' ), $this->get_setting( 'trial_message' ) );
-					$notice = str_replace( 'DAYS', $days, $notice );
-					echo '
+				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_setting( 'trial_level', 1 ), 'name' ), $this->get_setting( 'trial_message' ) );
+				$notice = str_replace( 'DAYS', $days, $notice );
+				echo '
 					<div class="update-nag">
 						<a href="' . $this->checkout_url( $blog_id ) . '">' . $notice . '</a>
 					</div>';
-				} else if( get_user_option( 'trial_expired_' . $blog_id ) === false ) {
-					// If expired, but not yet marked expired, then mark it and fire an action.
-
-					do_action( 'psts_trial_expired', $blog_id );
-					update_user_option( $user_id, 'trial_expired_' . $blog_id, '1', false );
-				}
-
 			}
 		}
 	}
@@ -642,6 +632,11 @@ Many thanks again for being a member!", 'psts' ),
 					'checkout_redirect_page'
 				), 'dashicons-plus', 3.12 );
 		}
+	}
+
+	function enable_plugins_page($menu_items) {
+		$menu_items['plugins'] = 1;
+		return $menu_items;
 	}
 
 	function add_menu_admin_bar_css() {
@@ -902,6 +897,7 @@ Many thanks again for being a member!", 'psts' ),
 
 	function check() {
 		global $blog_id, $wpdb;
+
 		if ( is_pro_site( $blog_id ) ) {
 			do_action( 'psts_active' );
 		} else if ( $wpdb->result ) { //only trigger withdrawls if it wasn't a db error
@@ -1368,6 +1364,8 @@ Many thanks again for being a member!", 'psts' ),
 	function withdraw( $blog_id, $withdraw = false ) {
 		global $wpdb;
 
+		$blog_expire = $this->get_expire( $blog_id );
+
 		if ( $withdraw ) {
 			if ( $withdraw == '1' ) {
 				$withdraw = 2629744;
@@ -1376,10 +1374,12 @@ Many thanks again for being a member!", 'psts' ),
 			} else if ( $withdraw == '12' ) {
 				$withdraw = 31556926;
 			}
-			$new_expire = $this->get_expire( $blog_id ) - $withdraw;
-		} else {
-			$new_expire = time() - 1;
+			$new_expire = $blog_expire - $withdraw;
 		}
+		else {
+			$new_expire = strtotime('-1 day', time() );
+		}
+
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
 		unset( $this->pro_sites[ $blog_id ] ); //clear cache
@@ -1865,15 +1865,7 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$blog_id = (int) $_POST['bid'];
-			$this->extend( $blog_id, $extend, __( 'Manual', 'psts' ), $_POST['extend_level'] );
-
-			// Make sure we remove the meta flag marking trial as expired
-			$blog_users = get_users( array( 'blog_id' => $blog_id ) );
-			foreach( $blog_users as $user ) {
-				delete_user_option( $user->ID, 'trial_expired_' . $blog_id, false );
-			}
-
+			$this->extend( (int) $_POST['bid'], $extend, __( 'Manual', 'psts' ), $_POST['extend_level'] );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
