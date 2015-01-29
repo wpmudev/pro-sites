@@ -5,6 +5,16 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.4.7 - 01/29/2015 - Rheinard Korf
+----------------------------------------------------------------------
+- Fix: Trial users now correctly expires
+- Fix: Manual extented Pro Sites now correctly expires
+- Fix: When downgraded, premium themes disable and default or first non premium theme is applied
+- Fix: When downgraded, premium plugins now correctly disables
+- Fix: Network wide Plugins option checked when Premium Plugins module is active
+- Fix: Network setting for limiting quotas automatically checked when Upload Quotas module is active
+- Added: Upload Quotas module now displays space used with an upgrade prompt to a higher level  
+
 3.4.6 - 12/19/2014 - Aaron Edwards
 ----------------------------------------------------------------------
 - Fix: Module/Gateway names/descriptions not translating properly

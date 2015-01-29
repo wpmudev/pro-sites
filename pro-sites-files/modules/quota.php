@@ -202,9 +202,10 @@ class ProSites_Module_Quota {
 		$percentused = number_format( $percentused );
 		$text = sprintf(
 		/* translators: 1: number of megabytes, 2: percentage */
-			__( '%1$s MB (%2$s%%) Space Used' ),
+			__( '%1$s MB (%2$s%%) of %3$s MB used.' ),
 			number_format_i18n( $used, 2 ),
-			$percentused
+			$percentused,
+			number_format_i18n( $quota, 2 )
 		);
 
 		$message = '<div class="size-text">' . $text . '</div>' . $this->message( false, 'media-upload' );
