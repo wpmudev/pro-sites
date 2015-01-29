@@ -4,7 +4,17 @@ Plugin Name: Pro Sites (Feature: Limit BuddyPress)
 */
 class ProSites_Module_BP {
 
-  function __construct() {
+	// Module name for registering
+	public static function get_name() {
+		return __('Limit BuddyPress Features', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts');
+	}
+
+	function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_filter( 'psts_settings_filter', array(&$this, 'settings_process') );
 		add_filter( 'bp_user_can_create_groups', array(&$this, 'create_groups') );
@@ -97,5 +107,4 @@ class ProSites_Module_BP {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_BP', __('Limit BuddyPress Features', 'psts'), __('Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts') );
-?>
+//psts_register_module( 'ProSites_Module_BP', __('Limit BuddyPress Features', 'psts'), __('Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts') );

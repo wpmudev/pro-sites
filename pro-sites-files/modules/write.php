@@ -4,6 +4,16 @@ Plugin Name: Pro Sites (Feature: Limit Writing)
 */
 class ProSites_Module_Writing {
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Limit Publishing', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts');
+	}
+
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_filter( 'psts_settings_filter', array(&$this, 'settings_process') );
@@ -93,5 +103,4 @@ class ProSites_Module_Writing {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_Writing', __('Limit Publishing', 'psts'), __('Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts') );
-?>
+//psts_register_module( 'ProSites_Module_Writing', __('Limit Publishing', 'psts'), __('Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts') );

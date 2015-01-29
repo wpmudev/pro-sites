@@ -8,6 +8,16 @@ class ProSites_Module_Ads {
 
 	var $ad_counter;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Advertising', 'psts' );
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' );
+	}
+
 	function __construct() {
 		global $psts;
 
@@ -635,7 +645,7 @@ class ProSites_Module_Ads {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_Ads', __( 'Advertising', 'psts' ), __( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ) );
+//psts_register_module( 'ProSites_Module_Ads', __( 'Advertising', 'psts' ), __( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ) );
 
 
 /* Ads functions used by other plugins */

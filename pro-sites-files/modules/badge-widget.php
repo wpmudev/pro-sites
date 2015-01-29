@@ -4,6 +4,16 @@ Plugin Name: Pro Sites (Feature: Pro Widget)
 */
 class ProSites_Module_ProWidget {
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Pro Widget', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts');
+	}
+
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		
@@ -82,5 +92,4 @@ class ProSites_Pro_Widget extends WP_Widget {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_ProWidget', __('Pro Widget', 'psts'), __('Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts') );
-?>
+//psts_register_module( 'ProSites_Module_ProWidget', __('Pro Widget', 'psts'), __('Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts') );

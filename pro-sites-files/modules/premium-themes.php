@@ -7,6 +7,16 @@ class ProSites_Module_PremiumThemes {
   static $user_label;
   static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Premium Themes', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to give access to selected themes to a Pro Site level.', 'psts');
+	}
+
 	function __construct() {
 		add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 
@@ -359,4 +369,4 @@ class ProSites_Module_PremiumThemes {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_PremiumThemes', __('Premium Themes', 'psts'), __('Allows you to give access to selected themes to a Pro Site level.', 'psts') );
+//psts_register_module( 'ProSites_Module_PremiumThemes', __('Premium Themes', 'psts'), __('Allows you to give access to selected themes to a Pro Site level.', 'psts') );

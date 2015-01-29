@@ -4,6 +4,16 @@ Plugin Name: Pro Sites (Feature: Restrict XML-RPC & Atom Publishing)
 */
 class ProSites_Module_XMLRPC {
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Restrict XML-RPC', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts');
+	}
+
   function __construct() {
 		add_filter( 'init', array(&$this, 'xmlrpc_check') );
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
@@ -76,5 +86,4 @@ class ProSites_Module_XMLRPC {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_XMLRPC', __('Restrict XML-RPC', 'psts'), __('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts') );
-?>
+//psts_register_module( 'ProSites_Module_XMLRPC', __('Restrict XML-RPC', 'psts'), __('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts') );

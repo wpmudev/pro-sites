@@ -4,6 +4,16 @@ Plugin Name: Pro Sites (Feature: Posting Quota)
 */
 class ProSites_Module_PostingQuota {
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Post/Page Quotas', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to limit the number of post types for selected Pro Site levels.', 'psts');
+	}
+
   function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_filter( 'psts_settings_filter', array(&$this, 'settings_process') );
@@ -125,5 +135,4 @@ class ProSites_Module_PostingQuota {
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_PostingQuota', __('Post/Page Quotas', 'psts'), __('Allows you to limit the number of post types for selected Pro Site levels.', 'psts') );
-?>
+//psts_register_module( 'ProSites_Module_PostingQuota', __('Post/Page Quotas', 'psts'), __('Allows you to limit the number of post types for selected Pro Site levels.', 'psts') );

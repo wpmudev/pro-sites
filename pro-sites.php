@@ -41,6 +41,7 @@ class ProSites {
 	var $pro_sites = array();
 	var $level = array();
 	var $checkout_processed = false;
+	public static $plugin_file = __FILE__;
 
 	var $tcpdf = array(); //Array for PDF settings
 
@@ -76,8 +77,12 @@ class ProSites {
 		$modules = get_site_option( 'psts_settings' );
 		$modules = $modules['modules_enabled'];
 
-		if( in_array( 'ProSites_Module_Plugins', $modules ) ) {
-			add_filter( 'site_option_menu_items', array( &$this, 'enable_plugins_page' ) );
+		foreach ( $modules as $module ) {
+			ProSites_PluginLoader::require_module( $module );
+			// Making sure that important filters are in place rather than loading too late
+			if( method_exists( $module, 'run_critical_tasks' ) ) {
+				call_user_func( array(  $module, 'run_critical_tasks' ) );
+			}
 		}
 
 		//localize

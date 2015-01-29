@@ -6,6 +6,20 @@ class ProSites_Module_Plugins {
 
 	var $checkbox_rows = array();
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Premium Plugins', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts');
+	}
+
+	static function run_critical_tasks() {
+		add_filter( 'site_option_menu_items', array( get_class(), 'enable_plugins_page' ) );
+	}
+
   function __construct() {
   	add_action( 'psts_page_after_modules', array(&$this, 'plug_network_page') );
 		if ( !defined('PSTS_HIDE_PLUGINS_MENU') ) {
@@ -403,8 +417,14 @@ class ProSites_Module_Plugins {
 		</div>
 	  <?php
 	}
+
+	// Static hooks
+	public static function enable_plugins_page($menu_items) {
+		$menu_items['plugins'] = 1;
+		return $menu_items;
+	}
+
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_Plugins', __('Premium Plugins', 'psts'), __('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts') );
-?>
+//psts_register_module( 'ProSites_Module_Plugins', __('Premium Plugins', 'psts'), __('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts') );

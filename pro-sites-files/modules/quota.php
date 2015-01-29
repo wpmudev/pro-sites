@@ -5,16 +5,29 @@ Pro Sites (Module: Upload Quota)
 class ProSites_Module_Quota {
 	
 	public $checkout_name, $checkout_desc;
-	
+
+	// Module name for registering
+	public static function get_name() {
+		return __('Upload Quota', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to give additional upload space to Pro Sites.', 'psts');
+	}
+
+	static function run_critical_tasks() {
+		//filter blog and site options
+		if ( !defined('PSTS_QUOTA_ALLOW_OVERRIDE') )
+			add_filter( 'pre_option_blog_upload_space', array( get_class(), 'filter') );
+		add_filter( 'pre_site_option_blog_upload_space', array( get_class(), 'filter') );
+		add_filter( 'pre_site_option_upload_space_check_disabled', array( get_class(), 'force_network_quota_checkbox' ) );
+	}
+
 	function __construct() {
 		add_action( 'psts_settings_page', array(&$this, 'settings') );
 		add_action( 'psts_settings_process', array(&$this, 'settings_process') );
-		
-		//filter blog and site options
-		if ( !defined('PSTS_QUOTA_ALLOW_OVERRIDE') )
-			add_filter( 'pre_option_blog_upload_space', array(&$this, 'filter') );
-		add_filter( 'pre_site_option_blog_upload_space', array(&$this, 'filter') );
-		
+
 		//add messages
 		add_action( 'activity_box_end', array(&$this, 'message') , 11);
 		add_action( 'pre-upload-ui', array(&$this, 'message') , 11);
@@ -24,6 +37,9 @@ class ProSites_Module_Quota {
 		$this->checkout_name = __('Upload Space', 'psts'); //can only i18n in _construct()
 		$this->checkout_desc = __('Get additional upload space for your images, media, and other files.', 'psts'); //can only i18n in _construct()
 		add_filter( 'psts_checkout_item-ProSites_Module_Quota', array(&$this, 'checkout_output'), 10, 2 ); //note the classname is part of the filter
+
+		// Using footer to make sure it loads after the media grid
+		add_action( 'admin_footer', array( &$this, 'add_quota_to_library' ) );
 	}
 	
 	//get's passed a given level, return string for custom text, or bool for checkmark
@@ -36,25 +52,7 @@ class ProSites_Module_Quota {
 		
 		//pro level, get setting
 		$quota = $psts->get_level_setting($level, 'quota');
-		return $this->display_space($space);
-	}
-	
-	//changed in 2.0 to filter return as to be non-permanent.
-	function filter($space) {
-		global $psts;
-    
-		//don't filter on network settings page to avoid confusion
-		if ( is_network_admin() )
-			return $space;
-
-		$quota = $psts->get_level_setting($psts->get_level(), 'quota');
-		if ( $quota && is_pro_site(false, $psts->get_level()) ) {
-			return $quota;
-		} else if ( function_exists('psts_hide_ads') && psts_hide_ads() && $quota = $psts->get_setting( "quota_upgraded_space" ) ) {
-			return $quota;
-		} else {
-			return $space;
-		}
+		return $this->display_space($quota);
 	}
 
 	function settings_process() {
@@ -135,7 +133,7 @@ class ProSites_Module_Quota {
 		<?php
 	}
 
-	function message() {
+	function message( $output = true, $para = 'default' ) {
 	  global $psts, $blog_id;
 	  if ( !is_main_site() && current_user_can('edit_pages') ) {
 			//if override is set don't show this message
@@ -146,7 +144,17 @@ class ProSites_Module_Quota {
                 $space = $this->display_space($psts->get_level_setting($level, 'quota'));
 				$msg = str_replace( 'LEVEL', $name, $psts->get_setting('quota_message') );
 	            $msg = str_replace( 'SPACE', $space, $msg );
-		        echo '<p><strong><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></strong></p>';
+				if( 'default' == $para ) {
+					$msg = '<p><strong><a href="' . $psts->checkout_url( $blog_id ) . '">' . $msg . '</a></strong></p>';
+				} else {
+					$msg = '<div class="' . esc_attr( $para ) . '"><a href="' . $psts->checkout_url( $blog_id ) . '">' . $msg . '</a></div>';
+				}
+
+				if( $output ) {
+					echo $msg;
+				} else {
+					return $msg;
+				}
 			}
 	  }
 	}
@@ -159,7 +167,7 @@ class ProSites_Module_Quota {
       	        $space = $this->display_space($psts->get_level_setting($level, 'quota'));
 				$msg = str_replace( 'LEVEL', $name, $psts->get_setting('quota_message') );
 	            $msg = str_replace( 'SPACE', $space, $msg );
-		        echo '<div class="error"><p><a href="'.$psts->checkout_url($blog_id).'">'.$msg.'</a></p></div>';
+		        echo '<div class="error"><p><a href="'.$psts->checkout_url( get_current_blog_id() ).'">'.$msg.'</a></p></div>';
 			}
 	  }
 	}
@@ -178,7 +186,65 @@ class ProSites_Module_Quota {
 		}
 		return $space;
 	}
+
+	public function add_quota_to_library() {
+		global $psts;
+
+		$quota = get_space_allowed();
+		$used = get_space_used();
+
+		if ( $used > $quota )
+			$percentused = '100';
+		else
+			$percentused = ( $used / $quota ) * 100;
+		$used_class = ( $percentused >= 70 ) ? ' warning' : '';
+		$used = round( $used, 2 );
+		$percentused = number_format( $percentused );
+		$text = sprintf(
+		/* translators: 1: number of megabytes, 2: percentage */
+			__( '%1$s MB (%2$s%%) Space Used' ),
+			number_format_i18n( $used, 2 ),
+			$percentused
+		);
+
+		$message = '<div class="size-text">' . $text . '</div>' . $this->message( false, 'media-upload' );
+
+		ob_start();
+		?>
+			<div id="prosites-media-quota-display" style="display:none;" class="<?php echo esc_attr( $used_class); ?>"><?php echo $message; ?></div>
+		<?php
+		echo ob_get_clean();
+
+		global $psts;
+		wp_enqueue_style( 'psts-quota-style', $psts->plugin_url . 'css/quota.css', $psts->version );
+		wp_enqueue_script( 'psts-quota', $psts->plugin_url . 'js/quota.js', array( 'jquery' ), $psts->version );
+	}
+
+	// Static hooks
+	//changed in 2.0 to filter return as to be non-permanent.
+	public static function filter($space) {
+		global $psts;
+
+		//don't filter on network settings page to avoid confusion
+		if ( is_network_admin() )
+			return $space;
+
+		$quota = $psts->get_level_setting($psts->get_level(), 'quota');
+		if ( $quota && is_pro_site(false, $psts->get_level()) ) {
+			return $quota;
+		} else if ( function_exists('psts_hide_ads') && psts_hide_ads() && $quota = $psts->get_setting( "quota_upgraded_space" ) ) {
+			return $quota;
+		} else {
+			return $space;
+		}
+	}
+
+	// Turn on quotas
+	public static function force_network_quota_checkbox( $value ) {
+		return 0;
+	}
+
 }
 
 //register the module
-psts_register_module( 'ProSites_Module_Quota', __('Upload Quota', 'psts'), __('Allows you to give additional upload space to Pro Sites.', 'psts') );
+//psts_register_module( 'ProSites_Module_Quota', __('Upload Quota', 'psts'), __('Allows you to give additional upload space to Pro Sites.', 'psts') );
