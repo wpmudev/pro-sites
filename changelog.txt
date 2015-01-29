@@ -13,7 +13,7 @@ Change Log:
 - Fix: When downgraded, premium plugins now correctly disables
 - Fix: Network wide Plugins option checked when Premium Plugins module is active
 - Fix: Network setting for limiting quotas automatically checked when Upload Quotas module is active
-- Added: Upload Quotas module now displays space used with an upgrade prompt to a higher level  
+- Added: Upload Quotas module now displays space used with an upgrade prompt to a higher level
 
 3.4.6 - 12/19/2014 - Aaron Edwards
 ----------------------------------------------------------------------
