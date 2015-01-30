@@ -75,7 +75,7 @@ class ProSites {
 
 		//add important filters
 		$modules = get_site_option( 'psts_settings' );
-		$modules = $modules['modules_enabled'];
+		$modules = isset( $modules['modules_enabled'] ) ? $modules['modules_enabled'] : array();
 
 		foreach ( $modules as $module ) {
 			ProSites_PluginLoader::require_module( $module );
