@@ -129,6 +129,10 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 						$tab_class = $tab_name == $active_tab ? 'active' : '';
 						$url       = $tab['url'];
 
+						if ( ! empty( $tab['class'] ) ) {
+							$tab_class .= ' ' . $tab['class'];
+						}
+
 						foreach ( $persistent as $param ) {
 							$value = @$_REQUEST[ $param ];
 							$url   = add_query_arg( $param, $value, $url );

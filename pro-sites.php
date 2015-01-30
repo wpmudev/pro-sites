@@ -42,6 +42,7 @@ class ProSites {
 	var $level = array();
 	var $checkout_processed = false;
 	var $tcpdf = array(); //Array for PDF settings
+	public static $plugin_file = __FILE__;
 
 	function __construct() {
 
@@ -75,6 +76,23 @@ class ProSites {
 
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
+
+		/**
+		 * Temporary loading for modules
+		 *
+		 * @todo Improve this
+		 */
+		//add important filters
+		$modules = get_site_option( 'psts_settings' );
+		$modules = isset( $modules['modules_enabled'] ) ? $modules['modules_enabled'] : array();
+
+		foreach ( $modules as $module ) {
+			ProSites_PluginLoader::require_module( $module );
+			// Making sure that important filters are in place rather than loading too late
+			if( method_exists( $module, 'run_critical_tasks' ) ) {
+				call_user_func( array(  $module, 'run_critical_tasks' ) );
+			}
+		}
 
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
@@ -1662,6 +1680,8 @@ Many thanks again for being a member!", 'psts' ),
 	function withdraw( $blog_id, $withdraw = false, $domain = false ) {
 		global $wpdb;
 
+		$blog_expire = $this->get_expire( $blog_id );
+
 		if ( $withdraw ) {
 			if ( $withdraw == '1' ) {
 				$withdraw = 2629744;
@@ -1670,9 +1690,9 @@ Many thanks again for being a member!", 'psts' ),
 			} else if ( $withdraw == '12' ) {
 				$withdraw = 31556926;
 			}
-			$new_expire = $this->get_expire( $blog_id ) - $withdraw;
+			$new_expire = $blog_expire - $withdraw;
 		} else {
-			$new_expire = time() - 1;
+			$new_expire = strtotime('-1 day', time() );
 		}
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
@@ -2116,16 +2136,14 @@ Many thanks again for being a member!", 'psts' ),
 	 * Enqueue the main style and js
 	 */
 	function load_psts_style() {
-		wp_enqueue_style( 'psts-style' );
-		wp_enqueue_script( 'psts-js' );
+		ProSites_Helper_UI::load_psts_style();
 	}
 
 	/**
 	 * Loads the Chosen Style and script
 	 */
 	function load_chosen() {
-		wp_enqueue_style( 'chosen' );
-		wp_enqueue_script( 'chosen' );
+		ProSites_Helper_UI::load_chosen();
 	}
 
 	function load_settings_style() {
@@ -3506,7 +3524,7 @@ if ( $active_pro_sites ) {
 							</td>
 							<td>
 								<input value="<?php echo $discount; ?>" size="3" name="discount" type="text"/>
-								<select name="discount_type" class="chosen">
+								<select name="discount_type" class="chosen narrow">
 									<option value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $this->format_currency(); ?></option>
 									<option value="pct"<?php selected( $discount_type, 'pct' ) ?>>%</option>
 								</select>
@@ -3807,7 +3825,7 @@ function admin_levels() {
 		</table>
 		<p class="submit">
 			<input type="submit" name="save_levels" class="button-primary" value="<?php _e( 'Save Levels', 'psts' ) ?>"/>
-			<span class="save_levels_dirty" style="display:none;"><?php esc_html_e( 'Changed not saved.', 'psts' ); ?></span>
+			<span class="save_levels_dirty" style="display:none;"><?php esc_html_e( 'Changes not saved.', 'psts' ); ?></span>
 		</p>
 
 		<h3><?php _e( 'Add New Level', 'psts' ) ?></h3>
@@ -3873,7 +3891,7 @@ function admin_levels() {
 			check_admin_referer( 'psts_modules' );
 
 			$this->update_setting( 'modules_enabled', @$_POST['allowed_modules'] );
-			$this->update_setting( 'gateways_enabled', @$_POST['allowed_gateways'] );
+//			$this->update_setting( 'gateways_enabled', @$_POST['allowed_gateways'] );
 
 			do_action( 'psts_modules_save' );
 

@@ -1500,6 +1500,12 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 		function modStartDate( $expire_stamp ) {
 			return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $expire_stamp ) );
 		}
+
+		public static function get_name() {
+			return array(
+				'2checkout' => __( '2Checkout', 'psts' ),
+			);
+		}
 	}
 
 //register the gateway

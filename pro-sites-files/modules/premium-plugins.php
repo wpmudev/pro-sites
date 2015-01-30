@@ -11,6 +11,22 @@ class ProSites_Module_Plugins {
 
 	var $checkbox_rows = array();
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Premium Plugins', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts');
+	}
+
+	static function run_critical_tasks() {
+		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
+			add_filter( 'site_option_menu_items', array( get_class(), 'enable_plugins_page' ) );
+		}
+	}
+
 	function __construct() {
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
@@ -25,10 +41,6 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_upgrade', array( &$this, 'auto_activate' ), 10, 3 );
 		add_action( 'psts_downgrade', array( &$this, 'deactivate' ), 10, 3 );
 		add_action( 'wpmu_new_blog', array( &$this, 'new_blog' ), 50 ); //auto activation hook
-
-		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
-			add_filter( 'site_option_menu_items', array( &$this, 'enable_plugins_page' ) );
-		}
 
 		add_filter( 'all_plugins', array( &$this, 'remove_plugins' ) );
 		add_filter( 'plugin_action_links', array( &$this, 'action_links' ), 10, 4 );
@@ -46,10 +58,17 @@ class ProSites_Module_Plugins {
 	}
 
 	function plug_network_page() {
-		add_submenu_page( 'psts', __( 'Pro Sites Premium Plugins', 'psts' ), __( 'Premium Plugins', 'psts' ), 'manage_network_options', 'psts-plugins', array(
+		$module_page = add_submenu_page( 'psts', __( 'Pro Sites Premium Plugins', 'psts' ), __( 'Premium Plugins', 'psts' ), 'manage_network_options', 'psts-plugins', array(
 			&$this,
 			'admin_page'
 		) );
+
+		add_action( 'admin_print_styles-' . $module_page, array( &$this, 'load_settings_style' ) );
+	}
+
+	function load_settings_style() {
+		ProSites_Helper_UI::load_psts_style();
+		ProSites_Helper_UI::load_chosen();
 	}
 
 	//adds Premium Plugins submenu under pro blogs
@@ -60,12 +79,6 @@ class ProSites_Module_Plugins {
 			&$this,
 			'plugins_page_redirect'
 		) );
-	}
-
-	function enable_plugins_page( $menu_items ) {
-		$menu_items['plugins'] = 1;
-
-		return $menu_items;
 	}
 
 	//remove plugins with no user control
@@ -401,7 +414,7 @@ class ProSites_Module_Plugins {
 			<p><?php _e( 'Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Selecting "None" will make the plugin unavailable to all but Super Admins. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list. Note you can also override plugin permissions on a per-site basis on the <a href="sites.php">edit sites</a> page.', 'psts' ); ?></p>
 
 			<form method="post" action="">
-				<table class="widefat">
+				<table class="widefat prosites-premium-plugins">
 					<thead>
 					<tr>
 						<th style="width:25%;"><?php _e( 'Minimum Level', 'psts' ) ?></th>
@@ -436,8 +449,8 @@ class ProSites_Module_Plugins {
 								<label><input type="checkbox" name="plugins[<?php echo $file; ?>][auto]" value="1"<?php checked( @$psts_plugins[ $file ]['auto'] ); ?> /> <?php _e( 'Auto Activate', 'psts' ) ?>
 								</label>
 							</td>
-							<th scope="row"><?php echo $p['Name'] ?></th>
-							<th scope="row"><?php echo $p['Version'] ?></th>
+							<th scope="row"><p><?php echo $p['Name'] ?></p></th>
+							<th scope="row"><p><?php echo $p['Version'] ?></p></th>
 							<td><?php echo $p['Description'] ?></td>
 						</tr>
 					<?php } ?>
@@ -469,8 +482,10 @@ class ProSites_Module_Plugins {
 		return ! empty( $levels ) ? key( $levels ) : false;
 
 	}
-}
 
-//register the module
-psts_register_module( 'ProSites_Module_Plugins', __( 'Premium Plugins', 'psts' ), __( 'Allows you to create plugin packages only available to selected Pro Site levels.', 'psts' ) );
-?>
+	// Static hooks
+	public static function enable_plugins_page($menu_items) {
+		$menu_items['plugins'] = 1;
+		return $menu_items;
+	}
+}

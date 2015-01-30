@@ -22,6 +22,16 @@ class ProSites_Module_PostThrottling {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __( 'Post Throttling', 'psts' );
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __( 'Allows you to limit the number of posts to be published daily/hourly per site.', 'psts' );
+	}
+
 	/**
 	 * Constructor.
 	 *
@@ -478,6 +488,3 @@ class ProSites_Module_PostThrottling {
 	}
 
 }
-
-// register module
-psts_register_module( ProSites_Module_PostThrottling::NAME, __( 'Post Throttling', 'psts' ), __( 'Allows you to limit the number of posts to be published daily/hourly per site.', 'psts' ) );

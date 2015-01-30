@@ -9,6 +9,16 @@ class ProSites_Module_Support {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Premium Support', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to provide a premium direct to email support page for selected Pro Site levels.', 'psts');
+	}
+
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_menu', array( &$this, 'plug_page' ), 99 );
@@ -148,7 +158,3 @@ class ProSites_Module_Support {
 
 	}
 }
-
-//register the module
-psts_register_module( 'ProSites_Module_Support', __( 'Premium Support', 'psts' ), __( 'Allows you to provide a premium direct to email support page for selected Pro Site levels.', 'psts' ) );
-?>

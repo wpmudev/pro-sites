@@ -9,6 +9,16 @@ class ProSites_Module_PremiumThemes {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Premium Themes', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to give access to selected themes to a Pro Site level.', 'psts');
+	}
+
 	function __construct() {
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
@@ -84,6 +94,14 @@ class ProSites_Module_PremiumThemes {
 			return $themes;
 		}
 
+		$blog_id = get_current_blog_id();
+
+		// If the blog is not a Pro Site, just return standard themes
+		if( ! is_pro_site( get_current_blog_id() ) ) {
+			update_blog_option( $blog_id, 'psts_blog_allowed_themes', $themes );
+			return $themes;
+		}
+
 		$allowed_themes = $psts->get_setting( 'pt_allowed_themes' );
 		if ( $allowed_themes == false ) {
 			$allowed_themes = array();
@@ -98,6 +116,8 @@ class ProSites_Module_PremiumThemes {
 				$themes[ $key ] = $allowed_theme;
 			}
 		}
+
+		update_blog_option( $blog_id, 'psts_blog_allowed_themes', $themes );
 
 		return $themes;
 	}
@@ -176,6 +196,19 @@ class ProSites_Module_PremiumThemes {
 
 		$current_theme       = get_blog_option( $blog_id, 'stylesheet' );
 		$psts_allowed_themes = $psts->get_setting( 'pt_allowed_themes' );
+		$blog_allowed_themes = get_blog_option( $blog_id, 'psts_blog_allowed_themes' );
+
+		$is_pro_site = is_pro_site( $blog_id );
+
+		// Makes sure its not a Pro Site and then remove the Pro Sites themes
+		if( ! $is_pro_site ) {
+			foreach( $psts_allowed_themes as $key => $value ) {
+				if( isset( $blog_allowed_themes[$key] ) ) {
+					unset( $blog_allowed_themes[$key] );
+				}
+			}
+			update_blog_option( $blog_id, 'psts_blog_allowed_themes', $blog_allowed_themes );
+		}
 
 		//if not using pro theme skip
 		if ( ! isset( $psts_allowed_themes[ $current_theme ] ) ) {
@@ -192,7 +225,15 @@ class ProSites_Module_PremiumThemes {
 			default_theme_switch_theme( $blog_id );
 		} else {
 			switch_to_blog( $blog_id );
-			switch_theme( WP_DEFAULT_THEME, WP_DEFAULT_THEME );
+
+			if( defined( WP_DEFAULT_THEME ) && ! empty( $blog_allowed_themes[WP_DEFAULT_THEME] ) ) {
+				switch_theme( WP_DEFAULT_THEME, WP_DEFAULT_THEME );
+			} else {
+				// switch to first available theme if default is not set or not allowed
+				$theme = key( $blog_allowed_themes );
+				switch_theme( $theme, $theme );
+			}
+
 			restore_current_blog();
 		}
 	}
@@ -370,6 +411,3 @@ class ProSites_Module_PremiumThemes {
 
 	}
 }
-
-//register the module
-psts_register_module( 'ProSites_Module_PremiumThemes', __( 'Premium Themes', 'psts' ), __( 'Allows you to give access to selected themes to a Pro Site level.', 'psts' ) );

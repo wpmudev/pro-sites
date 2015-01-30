@@ -7,6 +7,16 @@ class ProSites_Module_UpgradeAdminLinks {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Upgrade Admin Menu Links', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to add custom menu items in admin panel that will encourage admins to get higher level by redirecting to upgrade page.', 'psts');
+	}
+
 	function __construct() {
 
 		self::$user_label       = __( 'Admin Menu Upgrade Link', 'psts' );
@@ -193,6 +203,3 @@ class ProSites_Module_UpgradeAdminLinks {
 		return $output_array;
 	}
 }
-
-//register the module
-psts_register_module( 'ProSites_Module_UpgradeAdminLinks', __('Upgrade Admin Menu Links', 'psts'), __('Allows you to add custom menu items in admin panel that will encourage admins to get higher level by redirecting to upgrade page.', 'psts') );

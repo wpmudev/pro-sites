@@ -9,6 +9,16 @@ class ProSites_Module_UnfilterHtml {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Unfilter HTML', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts');
+	}
+
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_notices', array( &$this, 'message' ) );
@@ -133,6 +143,3 @@ class ProSites_Module_UnfilterHtml {
 
 	}
 }
-
-//register the module
-psts_register_module( 'ProSites_Module_UnfilterHtml', __( 'Unfilter HTML', 'psts' ), __( 'Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ) );

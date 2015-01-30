@@ -9,6 +9,16 @@ class ProSites_Module_PayToBlog {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Pay To Blog', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to completely disable a site both front end and back until paid.', 'psts');
+	}
+
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
@@ -138,7 +148,3 @@ class ProSites_Module_PayToBlog {
 
 	}
 }
-
-//register the module
-psts_register_module( 'ProSites_Module_PayToBlog', __( 'Pay To Blog', 'psts' ), __( 'Allows you to completely disable a site both front end and back until paid.', 'psts' ) );
-?>

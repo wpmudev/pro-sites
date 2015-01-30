@@ -212,6 +212,13 @@ class ProSites_Gateway_Manual {
 
 		return $content;
 	}
+
+	public static function get_name() {
+		return array(
+			'manual' => __( 'Manual Payments', 'psts' ),
+		);
+	}
+
 }
 
 //register the gateway

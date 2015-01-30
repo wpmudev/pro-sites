@@ -2580,6 +2580,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $expire_stamp ) );
 	}
 
+	public static function get_name() {
+		return array(
+			'paypal' => __( 'PayPal Express/Pro', 'psts' ),
+		);
+	}
 }
 
 //register the gateway

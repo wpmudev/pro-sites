@@ -715,6 +715,13 @@ input[name="uses"] {
 .psts-wrap .psts-tab.active .psts-tab-link {
     color: #222;
 }
+
+.psts-wrap .psts-tab.prosites-gateway-pref  {
+    /*display: block;*/
+    border-bottom: 1px solid #cccccc;
+    border-radius: 0;
+}
+
 .psts-wrap .psts-tab-link {
     display: block;
     padding: 8px 15px;
@@ -894,6 +901,10 @@ select.chosen {
     min-width: 150px;
 }
 
+select.chosen.narrow {
+    min-width: 60px;
+}
+
 #prosites-level-list .ui-sortable-handle:hover > td:first-child {
     border-left: 3px solid rgba( 57, 57, 57, 0.6 );
 }
@@ -912,4 +923,13 @@ select.chosen {
 .save_levels_dirty {
     padding: 0 10px;
     color: #cc0000;
+}
+
+table.widefat.prosites-premium-plugins tbody tr th,
+table.widefat.prosites-premium-plugins tbody tr td {
+    vertical-align: top;
+}
+
+table.widefat.prosites-premium-plugins tbody tr th p {
+    margin: 5px 0;
 }

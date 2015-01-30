@@ -40,6 +40,7 @@ jQuery(document).ready(function($){
         } else {
             $('.price-1').attr('disabled', true);
         }
+        prosites_levels_mark_dirty();
     });
     $('#enable_3').change(function () {
         if (this.checked) {
@@ -47,6 +48,7 @@ jQuery(document).ready(function($){
         } else {
             $('.price-3').attr('disabled', true);
         }
+        prosites_levels_mark_dirty();
     });
     $('#enable_12').change(function () {
         if (this.checked) {
@@ -54,6 +56,11 @@ jQuery(document).ready(function($){
         } else {
             $('.price-12').attr('disabled', true);
         }
+        prosites_levels_mark_dirty();
+    });
+
+    $('#prosites-level-list tbody input').change( function() {
+        prosites_levels_mark_dirty();
     });
 
 
@@ -72,9 +79,7 @@ jQuery(document).ready(function($){
             //});
 
             prosite_update_level_rows();
-
-            $( '.save_levels_dirty' ).css( 'display', 'inline-block' );
-
+            prosites_levels_mark_dirty();
         }
     });
 
@@ -148,5 +153,8 @@ jQuery(document).ready(function($){
 
     }
 
+    function prosites_levels_mark_dirty() {
+        $( '.save_levels_dirty' ).css( 'display', 'inline-block' );
+    }
 
 });

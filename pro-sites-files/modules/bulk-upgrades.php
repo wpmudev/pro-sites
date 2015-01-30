@@ -9,6 +9,16 @@ class ProSites_Module_BulkUpgrades {
 	static $user_label;
 	static $user_description;
 
+	// Module name for registering
+	public static function get_name() {
+		return __('Bulk Upgrades', 'psts');
+	}
+
+	// Module description for registering
+	public static function get_description() {
+		return __('Allows you to sell Pro Site level upgrades in bulk packages.', 'psts');
+	}
+
 	function __construct() {
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_menu', array( &$this, 'plug_page' ), 110 );
@@ -1090,7 +1100,3 @@ class ProSites_Module_BulkUpgrades {
 		}
 	}
 }
-
-//register the module
-psts_register_module( 'ProSites_Module_BulkUpgrades', __( 'Bulk Upgrades', 'psts' ), __( 'Allows you to sell Pro Site level upgrades in bulk packages.', 'psts' ) );
-?>

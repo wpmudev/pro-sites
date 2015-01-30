@@ -640,7 +640,6 @@ class ProSites_Gateway_Stripe {
 	function update_psts_levels( $option, $new_levels, $old_levels ) {
 		global $psts;
 
-		$x = '';
 		//deleting
 		if ( count( $old_levels ) > count( $new_levels ) ) {
 
@@ -1684,6 +1683,12 @@ class ProSites_Gateway_Stripe {
 				$psts->log_action( $blog_id, __( 'Subscription successfully canceled because the blog was deleted.', 'psts' ) );
 			}
 		}
+	}
+
+	public static function get_name() {
+		return array(
+			'stripe' => __( 'Stripe', 'psts' ),
+		);
 	}
 
 }

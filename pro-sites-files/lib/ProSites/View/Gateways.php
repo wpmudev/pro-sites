@@ -40,6 +40,68 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		}
 
 		/**
+		 * Multi-Gateway Preferences
+		 */
+		public static function render_tab_gateway_prefs() {
+			global $psts;
+			$active_count = 0;
+			ob_start();
+			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
+			?>
+			<table class="form-table">
+				<tr>
+					<th scope="row"><?php _e( 'Active gateways', 'psts' ) ?></th>
+					<td>
+						<?php
+							$active_gateways = (array) $psts->get_setting('gateways_enabled');
+							$active_count = count( $active_gateways );
+						?>
+						<?php echo esc_html( $active_count ); ?>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Primary gateway', 'psts' ); ?></th>
+					<td>
+						<select name="psts[gateway_pref_primary]" class="chosen">
+							<?php
+							$setting = 'gateway_pref_primary';
+							echo self::gateway_input_options( $active_gateways, $setting );
+							?>
+						</select></td>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Secondary gateway', 'psts' ); ?></th>
+					<td>
+						<select name="psts[gateway_pref_secondary]" class="chosen">
+							<?php
+							$setting = 'gateway_pref_secondary';
+							echo self::gateway_input_options( $active_gateways, $setting, true );
+							?>
+						</select></td>
+					</td>
+				</tr>
+				<?php
+					if( $active_count > 2 && in_array( 'ProSites_Gateway_Manual', $active_gateways ) ) {
+						$manual_checked = $psts->get_setting( 'gateway_pref_use_manual' );
+						$value = isset( $manual_checked ) && 'on' == $manual_checked ? 'on' : 'off';
+					?>
+						<tr>
+							<th scope="row"><?php _e( 'Manual Gateway preference', 'psts' ); ?></th>
+							<td>
+								<input type="checkbox" name="psts[gateway_pref_use_manual]" <?php checked( $manual_checked, 'on'  ); ?> />
+								<?php esc_html_e( 'Use the Manual Gateway as a third option.', 'psts' ); ?>
+							</td>
+						</tr>
+					<?php
+					}
+				?>
+			</table>
+			<?php
+			return ob_get_clean();
+		}
+
+		/**
 		 * 2Checkout
 		 *
 		 * @return string
@@ -156,6 +218,48 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 			<?php
 			$gateway = new ProSites_Gateway_Manual();
 			echo $gateway->settings();
+
+			return ob_get_clean();
+		}
+
+		public static function gateway_input_options( $active_gateways, $setting, $allow_none = false ) {
+			global $psts;
+			ob_start();
+			$names = array();
+			foreach( $active_gateways as $gateway ) {
+				$names = array_merge( $names, $gateway::get_name() );
+			}
+			ksort( $names );
+
+			// Make sure 'Manual' is last.
+			if( isset( $names['manual'] ) ) {
+				$temp = array( 'manual' => $names['manual'] );
+				unset( $names['manual'] );
+				$names = array_merge( $names, $temp );
+			}
+
+			// Give a 'None' value if required
+			if( $allow_none ) {
+				$names = array_merge( array( 'none' => 'None' ), $names );
+			}
+
+			// And if its empty...
+			if( empty( $names ) || ( $allow_none && 1 == count( $names ) ) ) {
+				$names = array( 'not_enabled' => __( 'No gateways enabled' ) );
+				$default_value = 'not_enabled';
+			}
+
+			reset( $names );
+			$default_value = key( $names );
+
+			$saved_setting = $psts->get_setting( $setting );
+			$saved_setting = null !== $saved_setting ? $saved_setting : '';
+
+			foreach( $names as $key => $value ) {
+			?>
+				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $saved_setting, $key ); ?>><?php echo esc_html( $value ); ?></option>
+			<?php
+			}
 
 			return ob_get_clean();
 		}
