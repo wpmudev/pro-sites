@@ -1,0 +1,5382 @@
+# Copyright (C) 2015 WPMU DEV
+# This file is distributed under the same license as the Pro Sites (Formerly Supporter) package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Pro Sites (Formerly Supporter) 3.5\n"
+"Report-Msgid-Bugs-To: https://premium.wpmudev.org/project/pro-sites/\n"
+"POT-Creation-Date: 2015-02-02 04:05:55+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
+"Last-Translator: WPMU Dev <support@wpmudev.org>\n"
+"Language-Team: WPMU Dev <support@wpmudev.org>\n"
+"X-Generator: grunt-wp-i18n\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Country: United States\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Textdomain-Support: yes\n"
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:61
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1972
+#: pro-sites-files/modules/bulk-upgrades.php:152
+msgid "There was a problem verifying the IPN string with PayPal. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:84
+#: pro-sites-files/modules/bulk-upgrades.php:176
+msgid ""
+"Last transaction has been reversed. Reason: Payment has been reversed "
+"(charge back)"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:93
+#: pro-sites-files/modules/bulk-upgrades.php:185
+msgid "Last transaction has been reversed. Reason: Payment has been refunded"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:102
+#: pro-sites-files/modules/bulk-upgrades.php:194
+msgid "Last transaction has been reversed. Reason: Payment Denied"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:110
+#: pro-sites-files/modules/bulk-upgrades.php:206
+msgid "Customer did not include a confirmed shipping address"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:111
+#: pro-sites-files/modules/bulk-upgrades.php:207
+msgid "Funds not captured yet"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:112
+#: pro-sites-files/modules/bulk-upgrades.php:208
+msgid "eCheck that has not cleared yet"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:113
+#: pro-sites-files/modules/bulk-upgrades.php:209
+msgid "Payment waiting for aproval by service provider"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:114
+#: pro-sites-files/modules/bulk-upgrades.php:210
+msgid "Payment waiting for service provider to handle multi-currency process"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:115
+#: pro-sites-files/modules/bulk-upgrades.php:211
+msgid "Customer did not register or confirm his/her email yet"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:116
+#: pro-sites-files/modules/bulk-upgrades.php:212
+msgid "Waiting for service provider to upgrade the PayPal account"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:117
+#: pro-sites-files/modules/bulk-upgrades.php:213
+msgid "Waiting for service provider to verify his/her PayPal account"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-bulk-upgrades-paypal.php:121
+#: pro-sites-files/modules/bulk-upgrades.php:217
+msgid "Last transaction is pending. Reason: "
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:89
+msgid ""
+"Old PayPal IPN \"%s\" received: A reversal has been canceled; for example, "
+"when you win a dispute and the funds for the reversal have been returned to "
+"you."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:93
+msgid ""
+"Old PayPal IPN \"%s\" received: The authorization period for this payment "
+"has been reached."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:97
+msgid ""
+"Old PayPal IPN \"%s\" received: An authorization for this transaction has "
+"been voided."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:101
+msgid ""
+"Old PayPal IPN \"%s\" received: The payment has failed. This happens only "
+"if the payment was made from your customer's bank account."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:106
+msgid ""
+"Old PayPal IPN \"%s\" received: The payment has been partially refunded "
+"with %s."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:110
+msgid ""
+"Old PayPal IPN \"%s\" received: The transaction has not terminated, e.g. an "
+"authorization may be awaiting completion."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:114
+msgid ""
+"A payment was reversed due to a chargeback or other type of reversal. The "
+"funds have been removed from your account balance and returned to the "
+"buyer: "
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:117
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2021
+msgid ""
+"A reversal has occurred on this transaction due to a chargeback by your "
+"customer."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:118
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2022
+msgid ""
+"A reversal has occurred on this transaction due to a reimbursement of a "
+"chargeback."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:119
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2023
+msgid ""
+"A reversal has occurred on this transaction due to settlement of a "
+"chargeback."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:120
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2024
+msgid ""
+"A reversal has occurred on this transaction due to your customer triggering "
+"a money-back guarantee."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:121
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2025
+msgid ""
+"A reversal has occurred on this transaction due to a complaint about the "
+"transaction from your customer."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:122
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2027
+msgid ""
+"A reversal has occurred on this transaction because you have given the "
+"customer a refund."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:123
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2028
+msgid "A reversal has occurred on this transaction due to an unknown reason."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:126
+msgid "Old PayPal IPN \"%s\" received: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:131
+msgid "Old PayPal IPN \"%s\" received: You refunded the payment with %s."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:135
+msgid ""
+"Old PayPal IPN \"%s\" received: You denied the payment when it was marked "
+"as pending."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:145
+msgid "Old PayPal IPN \"%s\" received: %s %s payment received, transaction ID %s"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:155
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2079
+msgid ""
+"The payment is pending because your customer did not include a confirmed "
+"shipping address and your Payment Receiving Preferences is set such that "
+"you want to manually accept or deny each of these payments. To change your "
+"preference, go to the Preferences  section of your Profile."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:156
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2080
+msgid ""
+"The payment is pending because it has been authorized but not settled. You "
+"must capture the funds first."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:157
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2081
+msgid ""
+"The payment is pending because it was made by an eCheck that has not yet "
+"cleared."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:158
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2082
+msgid ""
+"The payment is pending because you hold a non-U.S. account and do not have "
+"a withdrawal mechanism. You must manually accept or deny this payment from "
+"your Account Overview."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:159
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2083
+msgid ""
+"You do not have a balance in the currency sent, and you do not have your "
+"Payment Receiving Preferences set to automatically convert and accept this "
+"payment. You must manually accept or deny this payment."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:160
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2084
+msgid ""
+"The payment is pending because it is part of an order that has been "
+"authorized but not settled."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:161
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2085
+msgid "The payment is pending while it is being reviewed by PayPal for risk."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:162
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2086
+msgid ""
+"The payment is pending because it was made to an email address that is not "
+"yet registered or confirmed."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:163
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2087
+msgid ""
+"The payment is pending because it was made via credit card and you must "
+"upgrade your account to Business or Premier status in order to receive the "
+"funds. It can also mean that you have reached the monthly limit for "
+"transactions on your account."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:164
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2088
+msgid ""
+"The payment is pending because you are not yet verified. You must verify "
+"your account before you can accept this payment."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:165
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2089
+msgid ""
+"The payment is pending for an unknown reason. For more information, contact "
+"PayPal customer service."
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:169
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2093
+msgid "PayPal IPN \"%s\" received: Last payment is pending (%s). Reason: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:179
+msgid ""
+"Old PayPal subscription IPN \"%s\" received. The subscription has been "
+"canceled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:57
+msgid "2Checkout Mode"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:61
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:165
+#: pro-sites-files/modules/bulk-upgrades.php:378
+msgid "Live Site"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:63
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:166
+#: pro-sites-files/modules/bulk-upgrades.php:380
+msgid "Test Mode (Sandbox)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:67
+msgid "2Checkout Currency"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:107
+msgid "2Checkout Language"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:137
+msgid "2Checkout API Credentials"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:140
+msgid "Account Number"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:146
+msgid "Username"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:152
+msgid "Password"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:158
+msgid "Secret Word"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:166
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:239
+#: pro-sites-files/gateways/gateway-stripe.php:217
+msgid "Thank You Message"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:166
+msgid ""
+"Displayed on checkout page after successful payment. This is also a good "
+"place to paste any conversion tracking scripts like from Google Analytics. "
+"- HTML allowed"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:201
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1284
+msgid ""
+"Whoops, looks like you may have tried to submit your payment twice so we "
+"prevented it. Check your subscription info below to see if it was created. "
+"If not, please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:205
+#: pro-sites-files/gateways/gateway-manual.php:92
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:957
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1257
+#: pro-sites-files/gateways/gateway-stripe.php:796
+msgid "Please choose your desired level and payment plan."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:299
+msgid "First month is free due to new level apply to next month"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:316
+msgid ""
+"Your 2Checkout subscription modification was not done automate! You will "
+"recive an email about the new upgrade when current subsciprion expire."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:326
+msgid "Balance left of last subscription"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:374
+msgid "Your transaction has already settled!"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:377
+msgid ""
+"There was a problem validating the 2Checkout payment:<br /><strong>MD5 Hash "
+"did not match!</strong><br />Please contact the seller directly for "
+"assistance."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:427
+#: pro-sites-files/gateways/gateway-2checkout.php:557
+msgid ""
+"User creating new subscription via 2Checkout: Subscription created (%1$s) - "
+"Profile ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:439
+#: pro-sites-files/gateways/gateway-2checkout.php:569
+msgid ""
+"Your 2Checkout subscription was successful! You should be receiving an "
+"email receipt shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:467
+#: pro-sites-files/gateways/gateway-2checkout.php:499
+msgid "User modifying subscription via 2Checkout: Old subscription canceled - %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:472
+#: pro-sites-files/gateways/gateway-2checkout.php:504
+msgid ""
+"User modifying subscription via 2Checkout: New subscription created (%1$s) "
+"- Profile ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:483
+#: pro-sites-files/gateways/gateway-2checkout.php:513
+msgid ""
+"Your 2Checkout subscription modification was successful! You should be "
+"receiving an email receipt shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:526
+msgid "2Checkout IPN \"%s\" received: %s %s payment received, transaction ID %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:538
+msgid ""
+"2Checkout IPN \"%s\" received: The payment has failed. This happens only if "
+"the payment was made from your customer's bank account."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:544
+msgid "2Checkout IPN \"%s\" received: The recurring has stopped."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:576
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1570
+#: pro-sites-files/gateways/gateway-stripe.php:1098
+msgid ""
+"Please note that if you cancel your subscription you will not be immune to "
+"future price increases. The price of un-canceled subscriptions will never "
+"go up!\\n"
+"\\n"
+"Are you sure you really want to cancel your subscription?\\n"
+"This action cannot be undone!"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:612
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1600
+#: pro-sites-files/gateways/gateway-stripe.php:1162
+#: pro-sites-files/gateways/gateway-stripe.php:1164
+msgid "Visit your newly upgraded site &raquo;"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:629
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1619
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1622
+#: pro-sites-files/gateways/gateway-stripe.php:1134
+msgid ""
+"Your %1$s subscription has been canceled. You should continue to have "
+"access until %2$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:633
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1629
+msgid ""
+"Subscription successfully canceled by the user. They should continue to "
+"have access until %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:635
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1632
+#: pro-sites-files/gateways/gateway-stripe.php:1125
+msgid ""
+"There was a problem canceling your subscription, please contact us for "
+"help: "
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:652
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1645
+msgid ""
+"None yet with this subscription <small>(only initial separate single "
+"payment has been made, or you've recently modified your "
+"subscription)</small>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:659
+msgid "Invoice not deposited yet or not scheduled to recur."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:663
+#: pro-sites-files/gateways/gateway-2checkout.php:725
+#: pro-sites-files/gateways/gateway-manual.php:169
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1657
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1717
+#: pro-sites-files/gateways/gateway-stripe.php:1210
+msgid "Level:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:665
+msgid "Payment Method:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:666
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1668
+#: pro-sites-files/gateways/gateway-stripe.php:1227
+msgid "Last Payment Date:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:667
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1669
+#: pro-sites-files/gateways/gateway-stripe.php:1231
+msgid "Next Payment Date:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:670
+msgid "Your new level %1$s will be start at %2$s:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:675
+#: pro-sites-files/gateways/gateway-2checkout.php:679
+#: pro-sites-files/gateways/gateway-2checkout.php:692
+#: pro-sites-files/gateways/gateway-2checkout.php:698
+#: pro-sites-files/gateways/gateway-2checkout.php:744
+#: pro-sites-files/gateways/gateway-2checkout.php:749
+#: pro-sites-files/gateways/gateway-2checkout.php:758
+#: pro-sites-files/gateways/gateway-manual.php:183
+#: pro-sites-files/gateways/gateway-manual.php:188
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1672
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1676
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1690
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1694
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1732
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1737
+#: pro-sites-files/gateways/gateway-stripe.php:1243
+#: pro-sites-files/gateways/gateway-stripe.php:1247
+msgid "Cancel Your Subscription"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:677
+#: pro-sites-files/gateways/gateway-2checkout.php:695
+#: pro-sites-files/gateways/gateway-2checkout.php:746
+#: pro-sites-files/gateways/gateway-2checkout.php:760
+#: pro-sites-files/gateways/gateway-manual.php:185
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1674
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1692
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1734
+#: pro-sites-files/gateways/gateway-stripe.php:1246
+msgid ""
+"If you choose to cancel your subscription this site should continue to have "
+"%1$s features until %2$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:685
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1682
+#: pro-sites-files/gateways/gateway-stripe.php:1203
+msgid "Your subscription has been canceled"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:686
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1683
+#: pro-sites-files/gateways/gateway-stripe.php:1204
+msgid "This site should continue to have %1$s features until %2$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:690
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1687
+msgid "Your subscription is: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:691
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1688
+msgid "Please update your payment information below to resolve this."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:702
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1697
+msgid "There was a problem accessing your subscription information: "
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:724
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1716
+msgid "Your Subscription Information"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:728
+#: pro-sites-files/gateways/gateway-manual.php:172
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1665
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1720
+msgid "Payment Method: <strong>Your PayPal Account</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:731
+#: pro-sites-files/gateways/gateway-manual.php:174
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1722
+msgid "Payment Method: <strong>Your Amazon Account</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:734
+#: pro-sites-files/gateways/gateway-manual.php:176
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1724
+msgid "Expire Date: <strong>Never</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:736
+#: pro-sites-files/gateways/gateway-manual.php:178
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1726
+msgid "Expire Date: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:745
+#: pro-sites-files/gateways/gateway-2checkout.php:759
+#: pro-sites-files/gateways/gateway-manual.php:184
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1733
+msgid ""
+"If your subscription is still active your next scheduled payment should be "
+"%1$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:749
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1437
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1737
+msgid ""
+"You can also cancel following <a "
+"href=\"https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6"
+"QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft="
+"homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&"
+"cmd=_help-ext\">these steps</a>."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:752
+msgid ""
+"To cancel your subscription, simply go to <a id=\"twocheckout_cancel\" "
+"target=\"_blank\" "
+"href=\"https://payments.amazon.com/\">https://payments.amazon.com/</a>, "
+"click Your Account at the top of the page, log in to your Amazon Payments "
+"account (if asked), and then click the Your Subscriptions link. This page "
+"displays your subscriptions, showing the most recent, active subscription "
+"at the top. To view the details of a specific subscription, click Details. "
+"Then cancel your subscription by clicking the Cancel Subscription button on "
+"the Subscription Details page."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:775
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1758
+#: pro-sites-files/gateways/gateway-stripe.php:1266
+msgid "Change Your Plan or Payment Details"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:776
+msgid ""
+"You can modify or upgrade your plan by placing a new subscription and "
+"canceling your previous subscription. Your new subscription expire time "
+"will be prorated for the first installment."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:778
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1761
+#: pro-sites-files/gateways/gateway-stripe.php:1271
+msgid "Please choose your desired plan then click the checkout button below."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:796
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1915
+#: pro-sites-files/gateways/gateway-stripe.php:1353
+msgid "Subscribe"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:895
+msgid "The Subscription Has Been Cancelled in 2Checkout"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:896
+#: pro-sites-files/gateways/gateway-2checkout.php:946
+#: pro-sites-files/gateways/gateway-2checkout.php:971
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:467
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:492
+#: pro-sites-files/gateways/gateway-stripe.php:305
+msgid "They should continue to have access until %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:901
+#: pro-sites-files/gateways/gateway-2checkout.php:920
+#: pro-sites-files/gateways/gateway-2checkout.php:954
+#: pro-sites-files/gateways/gateway-2checkout.php:979
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:427
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:475
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:500
+msgid ""
+"None yet with this subscription <small>(only initial separate single "
+"payment has been made, or they recently modified their subscription)</small>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:904
+#: pro-sites-files/gateways/gateway-2checkout.php:930
+#: pro-sites-files/gateways/gateway-2checkout.php:958
+#: pro-sites-files/gateways/gateway-2checkout.php:983
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:450
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:478
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:503
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:542
+#: pro-sites-files/gateways/gateway-stripe.php:332
+msgid "Last Payment Date: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:906
+#: pro-sites-files/gateways/gateway-2checkout.php:933
+#: pro-sites-files/gateways/gateway-2checkout.php:961
+#: pro-sites-files/gateways/gateway-2checkout.php:985
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:452
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:480
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:505
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:543
+#: pro-sites-files/gateways/gateway-stripe.php:334
+msgid "Last Payment Amount: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:907
+msgid "Last Payment Transaction ID: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:927
+#: pro-sites-files/gateways/gateway-2checkout.php:1050
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:384
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:433
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1651
+#: pro-sites-files/gateways/gateway-stripe.php:283
+#: pro-sites-files/lib/ProSites/View/Settings.php:267
+#: pro-sites-files/modules/premium-plugins.php:440
+#: pro-sites-files/modules/premium-themes.php:343 pro-sites.php:4298
+msgid "None"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:934
+msgid "Last Payment Transaction ID: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:936
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:455
+#: pro-sites-files/gateways/gateway-stripe.php:340
+msgid "Next Payment Date: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:938
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:456
+msgid "Payments Made With This Subscription: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:945
+msgid "The Subscription Has Been Cancelled with 2Checkout"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:970
+msgid "The Subscription Has Been Suspended"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:989
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:516
+msgid ""
+"Whoops! There was a problem accessing this site's subscription information: "
+"%s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:995
+#: pro-sites-files/gateways/gateway-2checkout.php:1016
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:548
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:594
+msgid ""
+"This site is using an older gateway so their information is not accessible "
+"until the next payment comes through."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1053
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:387
+msgid "Subscription Description: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1056
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:398
+msgid "Payment Date: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1057
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:399
+#: pro-sites.php:1234
+msgid "Payment Amount: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1058
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:400
+msgid "Payment Transaction ID: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1060
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:402
+msgid "Next Scheduled Payment Date: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1092
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:640
+#: pro-sites-files/gateways/gateway-stripe.php:423
+msgid "Cancelations:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1094
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:641
+#: pro-sites-files/gateways/gateway-stripe.php:424
+msgid "Cancel Subscription Only"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1095
+#: pro-sites-files/gateways/gateway-2checkout.php:1107
+#: pro-sites-files/gateways/gateway-2checkout.php:1112
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:642
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:654
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:658
+#: pro-sites-files/gateways/gateway-stripe.php:425
+#: pro-sites-files/gateways/gateway-stripe.php:429
+msgid "Their access will expire on %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1106
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:653
+#: pro-sites-files/gateways/gateway-stripe.php:428
+msgid "Cancel Subscription and Refund Full (%s) Last Payment"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1111
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:657
+msgid "Cancel Subscription and Refund Prorated (%s) Last Payment"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1117
+#: pro-sites-files/gateways/gateway-2checkout.php:1132
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:662
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:674
+#: pro-sites-files/gateways/gateway-stripe.php:435
+msgid "Refunds:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1119
+#: pro-sites-files/gateways/gateway-2checkout.php:1134
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:663
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:675
+#: pro-sites-files/gateways/gateway-stripe.php:436
+msgid "Refund Full (%s) Last Payment"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1120
+#: pro-sites-files/gateways/gateway-2checkout.php:1124
+#: pro-sites-files/gateways/gateway-2checkout.php:1135
+#: pro-sites-files/gateways/gateway-2checkout.php:1139
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:664
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:667
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:676
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:679
+#: pro-sites-files/gateways/gateway-stripe.php:437
+#: pro-sites-files/gateways/gateway-stripe.php:440
+msgid "Their subscription and access will continue"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1123
+#: pro-sites-files/gateways/gateway-2checkout.php:1138
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:666
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:678
+#: pro-sites-files/gateways/gateway-stripe.php:439
+msgid "Refund a Partial %s Amount of Last Payment"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1172
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:713
+#: pro-sites-files/gateways/gateway-stripe.php:473
+#: pro-sites-files/gateways/gateway-stripe.php:1133
+msgid ""
+"Subscription successfully cancelled by %1$s. They should continue to have "
+"access until %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1173
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:714
+#: pro-sites-files/gateways/gateway-stripe.php:474
+msgid ""
+"Subscription successfully cancelled. They should continue to have access "
+"until %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1176
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:717
+#: pro-sites-files/gateways/gateway-stripe.php:478
+msgid "Attempt to Cancel Subscription by %1$s failed with an error: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1177
+#: pro-sites-files/gateways/gateway-2checkout.php:1208
+#: pro-sites-files/gateways/gateway-2checkout.php:1223
+#: pro-sites-files/gateways/gateway-2checkout.php:1253
+msgid ""
+"Whoops, 2Checkout returned an error when attempting to cancel the "
+"subscription. Nothing was completed: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1196
+#: pro-sites-files/gateways/gateway-2checkout.php:1262
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:737
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:804
+msgid "This is a full refund of your last subscription payment."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1199
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:739
+msgid ""
+"Subscription cancelled and full (%1$s) refund of last payment completed by "
+"%2$s. They should continue to have access until %3$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1200
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:740
+msgid ""
+"Subscription cancelled and full (%1$s) refund of last payment were "
+"successfully completed. They should continue to have access until %2$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1203
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:743
+msgid ""
+"Subscription cancelled, but full (%1$s) refund of last payment by %2$s "
+"returned an error: %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1204
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:744
+msgid ""
+"Subscription cancelled, but full (%1$s) refund of last payment returned an "
+"error: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1207
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:747
+msgid ""
+"Attempt to Cancel Subscription and Refund Full (%1$s) Last Payment by %2$s "
+"failed with an error: "
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1222
+#: pro-sites-files/gateways/gateway-2checkout.php:1252
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:761
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:793
+#: pro-sites-files/gateways/gateway-stripe.php:496
+msgid ""
+"Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by "
+"%2$s failed with an error: %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1242
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:783
+msgid ""
+"This is a prorated refund of the unused portion of your last subscription "
+"payment."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1244
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:785
+#: pro-sites-files/gateways/gateway-stripe.php:515
+msgid ""
+"Subscription cancelled and a prorated (%1$s) refund of last payment "
+"completed by %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1245
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:786
+#: pro-sites-files/gateways/gateway-stripe.php:516
+msgid ""
+"Subscription cancelled and a prorated (%s) refund of last payment were "
+"successfully completed."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1248
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:789
+#: pro-sites-files/gateways/gateway-stripe.php:519
+msgid ""
+"Subscription cancelled, but prorated (%1$s) refund of last payment by %2$s "
+"returned an error: %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1249
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:790
+#: pro-sites-files/gateways/gateway-stripe.php:520
+msgid ""
+"Subscription cancelled, but prorated (%1$s) refund of last payment returned "
+"an error: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1264
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:806
+#: pro-sites-files/gateways/gateway-stripe.php:531
+msgid ""
+"A full (%1$s) refund of last payment completed by %2$s The subscription was "
+"not cancelled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1265
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:807
+#: pro-sites-files/gateways/gateway-stripe.php:532
+msgid ""
+"A full (%s) refund of last payment was successfully completed. The "
+"subscription was not cancelled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1268
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:810
+#: pro-sites-files/gateways/gateway-stripe.php:536
+msgid ""
+"Attempt to issue a full (%1$s) refund of last payment by %2$s returned an "
+"error: %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1269
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:811
+#: pro-sites-files/gateways/gateway-stripe.php:537
+msgid ""
+"Attempt to issue a full (%1$s) refund of last payment returned an error: "
+"%2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1279
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:821
+msgid "This is a partial refund of your last payment."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1281
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:823
+#: pro-sites-files/gateways/gateway-stripe.php:547
+msgid ""
+"A partial (%1$s) refund of last payment completed by %2$s The subscription "
+"was not cancelled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1282
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:824
+#: pro-sites-files/gateways/gateway-stripe.php:548
+msgid ""
+"A partial (%s) refund of last payment was successfully completed. The "
+"subscription was not cancelled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1285
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:827
+#: pro-sites-files/gateways/gateway-stripe.php:552
+msgid ""
+"Attempt to issue a partial (%1$s) refund of last payment by %2$s returned "
+"an error: %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1286
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:828
+#: pro-sites-files/gateways/gateway-stripe.php:553
+msgid ""
+"Attempt to issue a partial (%1$s) refund of last payment returned an error: "
+"%2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1317
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2150
+#: pro-sites-files/gateways/gateway-stripe.php:1683
+msgid "Subscription successfully canceled because the blog was deleted."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1488
+msgid "There was a problem connecting to 2CO. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1506
+#: pro-sites-files/gateways/gateway-2checkout.php:1512
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:42
+msgid "2Checkout"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-2checkout.php:1512
+msgid ""
+"Online payment processing service that helps you accept credit cards, "
+"PayPal and debit cards"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:33
+msgid "Method Name"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:33
+msgid ""
+"Enter a public name for this payment method that is displayed to users - No "
+"HTML"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:43
+msgid "User Instructions"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:43
+msgid "Manual payment instructions to display on the checkout screen - HTML allowed"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:49
+msgid "Show Submission Form"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:49
+msgid ""
+"Displays a textarea to allow user to enter payment details. The form "
+"submission will come to the network admin email address."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:53
+#: pro-sites-files/lib/ProSites/View/Settings.php:412 pro-sites.php:4411
+msgid "Yes"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:58
+#: pro-sites-files/lib/ProSites/View/Settings.php:414 pro-sites.php:4413
+msgid "No"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:63
+msgid "Submission Form Email"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:63
+msgid "The email address to send manual payment form submissions to."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:77
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:394
+msgid "Payment Method: PayPal Account"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:78
+msgid "Next Payment Date: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:101
+msgid "Pro Sites Manual Payment Submission"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:102
+msgid ""
+"The user \"%s\" has submitted a manual payment request via the Pro Sites "
+"checkout form."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:103
+msgid "Level: "
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:104
+msgid "Period: "
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:104
+msgid "Every %d Months"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:105
+msgid "User Email: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:106
+msgid "Site Address: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:107
+msgid "Manage Site: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:110
+msgid "User-Entered Comments:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:125
+msgid "Thank you, we have been notified of your request."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:168
+msgid "Your Account Information"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:188
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1103
+msgid ""
+"You can also cancel following <a "
+"href=\"https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#"
+"canceling_recurring_paymemt_subscription_automatic_billing\">these "
+"steps</a>."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:190
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1739
+msgid ""
+"To cancel your subscription, simply go to <a id=\"pypl_cancel\" "
+"target=\"_blank\" "
+"href=\"https://payments.amazon.com/\">https://payments.amazon.com/</a>, "
+"click Your Account at the top of the page, log in to your Amazon Payments "
+"account (if asked), and then click the Your Subscriptions link. This page "
+"displays your subscriptions, showing the most recent, active subscription "
+"at the top. To view the details of a specific subscription, click Details. "
+"Then cancel your subscription by clicking the Cancel Subscription button on "
+"the Subscription Details page."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:210
+msgid "Submit"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:218
+#: pro-sites-files/gateways/gateway-manual.php:225
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:61
+msgid "Manual Payments"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-manual.php:225
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:63
+msgid ""
+"Record payments manually, such as by Cash, Check, EFT, or an unsupported "
+"gateway."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:75
+msgid ""
+"Unlike PayPal Pro, there are no additional fees to use Express Checkout, "
+"though you may need to do a free upgrade to a business account. <a "
+"target=\"_blank\" "
+"href=\"https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID="
+"developer/e_howto_api_ECGettingStarted\">More Info &raquo;</a>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:77
+msgid ""
+"To use PayPal Express Checkout or Pro you must <a "
+"href=\"https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID="
+"developer/e_howto_admin_IPNSetup#id089EG030E5Z\" target=\"_blank\">manually "
+"turn on IPN notifications</a> and enter your IPN url (<strong>%s</strong>) "
+"in your PayPal profile (you must also do this in your sandbox account when "
+"testing)."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:80
+#: pro-sites-files/modules/bulk-upgrades.php:303
+msgid "PayPal Site"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:123
+#: pro-sites-files/modules/bulk-upgrades.php:337
+msgid "Paypal Currency"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:163
+#: pro-sites-files/modules/bulk-upgrades.php:375
+msgid "PayPal Mode"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:171
+msgid "PayPal API Credentials"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:173
+msgid ""
+"You must login to PayPal and create an API signature to get your "
+"credentials. <a target=\"_blank\" "
+"href=\"https://www.x.com/developers/paypal/documentation-tools/express-"
+"checkout/integration-guide/ECAPICredentials\">Instructions &raquo;</a>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:175
+msgid "API Username"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:179
+msgid "API Password"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:183
+msgid "Signature"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:188
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:201
+msgid "Enable PayPal Pro"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:190
+msgid ""
+"PayPal Website Payments Pro 3.0 allows you to seemlessly accept credit "
+"cards on your site, and gives you the most professional look with a widely "
+"accepted payment method. There are a few requirements you must meet to use "
+"PayPal Website Payments Pro:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:192
+msgid ""
+"You must signup (and pay the monthly fees) for <a "
+"href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_wp-pro-overview-outside\" "
+"target=\"_blank\">PayPal Website Payments Pro</a>. Note this uses the older "
+"Website Payments Pro 3.0 API, you will have to contact PayPal and have them "
+"manually setup or create a new account that supports Website Payments Pro "
+"3.0"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:193
+msgid ""
+"You must signup (and pay the monthly fees) for the <a "
+"href=\"https://www.paypal.com/cgi-bin/webscr?cmd=xpt/Marketing/general/"
+"ProRecurringPayments-outside\" target=\"_blank\">PayPal Website Payments "
+"Pro Recurring Payments addon</a>."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:194
+msgid ""
+"You must have an SSL certificate setup for your main blog/site where the "
+"checkout form will be displayed."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:195
+msgid ""
+"You additionaly must be <a href=\"https://www.paypal.com/pcicompliance\" "
+"target=\"_blank\">PCI compliant</a>, which means your server must meet "
+"security requirements for collecting and transmitting payment data."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:196
+msgid ""
+"The checkout form will be added to a page on your main site. You may need "
+"to adjust your theme stylesheet for it to look nice with your theme."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:197
+msgid ""
+"Due to PayPal policies, PayPal Express will always be offered in addition "
+"to credit card payments."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:198
+msgid ""
+"Be aware that PayPal Website Payments Pro only supports PayPal accounts in "
+"select countries."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:199
+msgid ""
+"Tip: When testing you will need to setup a preconfigured Website Payments "
+"Pro seller account in your sandbox."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:207
+msgid "PayPal Header Image (optional)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:207
+msgid ""
+"https url of an 750 x 90 image displayed at the top left of the payment "
+"page. If a image is not specified, the business name is displayed."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:215
+msgid "PayPal Header Border Color (optional)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:215
+msgid "6 character hex color for border around the header of the payment page."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:223
+msgid "PayPal Header Background Color (optional)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:223
+msgid "6 character hex color for header background of the payment page."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:231
+msgid "PayPal Page Background Color (optional)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:231
+msgid ""
+"6 character hex color for payment page background. Darker colors may not be "
+"allowed by PayPal."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:239
+msgid ""
+"Displayed on the page after successful checkout. This is also a good place "
+"to paste any conversion tracking scripts like from Google Analytics. - HTML "
+"allowed"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:309
+msgid ""
+"Thank you for modifying your subscription!\r\n"
+"\r\n"
+"We want to remind you that because of billing system upgrades, we were "
+"unable to cancel your old subscription automatically, so it is important "
+"that you cancel the old one yourself in your PayPal account, otherwise the "
+"old payments will continue along with new ones!\r\n"
+"\r\n"
+"Cancel your subscription in your PayPal account:\r\n"
+"%s\r\n"
+"\r\n"
+"You can also cancel following these steps:\r\n"
+"https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#"
+"canceling_recurring_paymemt_subscription_automatic_billing"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:319
+msgid ""
+"Thank you for modifying your subscription!\r\n"
+"\r\n"
+"We want to remind you that because of billing system upgrades, we were "
+"unable to cancel your old subscription automatically, so it is important "
+"that you cancel the old one yourself in your Amazon Payments account, "
+"otherwise the old payments will continue along with new ones!\r\n"
+"\r\n"
+"To cancel your subscription:\r\n"
+"\r\n"
+"Simply go to https://payments.amazon.com/, click Your Account at the top of "
+"the page, log in to your Amazon Payments account (if asked), and then click "
+"the Your Subscriptions link. This page displays your subscriptions, showing "
+"the most recent, active subscription at the top. To view the details of a "
+"specific subscription, click Details. Then cancel your subscription by "
+"clicking the Cancel Subscription button on the Subscription Details page."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:330
+msgid "Don't forget to cancel your old subscription!"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:332
+msgid "Reminder to cancel previous %s subscription sent to %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:356
+#: pro-sites-files/gateways/gateway-stripe.php:263
+msgid "Jan"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:357
+#: pro-sites-files/gateways/gateway-stripe.php:264
+msgid "Feb"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:358
+#: pro-sites-files/gateways/gateway-stripe.php:265
+msgid "Mar"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:359
+#: pro-sites-files/gateways/gateway-stripe.php:266
+msgid "Apr"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:360
+#: pro-sites-files/gateways/gateway-stripe.php:267
+msgid "May"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:361
+#: pro-sites-files/gateways/gateway-stripe.php:268
+msgid "Jun"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:362
+#: pro-sites-files/gateways/gateway-stripe.php:269
+msgid "Jul"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:363
+#: pro-sites-files/gateways/gateway-stripe.php:270
+msgid "Aug"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:364
+#: pro-sites-files/gateways/gateway-stripe.php:271
+msgid "Sep"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:365
+#: pro-sites-files/gateways/gateway-stripe.php:272
+msgid "Oct"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:366
+#: pro-sites-files/gateways/gateway-stripe.php:273
+msgid "Nov"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:367
+#: pro-sites-files/gateways/gateway-stripe.php:274
+msgid "Dec"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:392
+msgid "Payment Method: %1$s Card ending in %2$s. Expires %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:439
+msgid "Subscription Description: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:440
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:468
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:493
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:541
+msgid "PayPal Profile ID: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:445
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1663
+#: pro-sites-files/gateways/gateway-stripe.php:327
+msgid ""
+"Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. "
+"Expires <strong>%3$s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:447
+msgid "Payment Method: <strong>Their PayPal Account</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:453
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:481
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:506
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:544
+msgid ""
+"Last Payment Transaction ID: <a target=\"_blank\" "
+"href=\"https://www.paypal.com/vst/id=%s\"><strong>%s</strong></a>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:457
+msgid "Aggregate Total With This Subscription: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:459
+#: pro-sites-files/gateways/gateway-stripe.php:344
+msgid ""
+"This does not include the initial payment at signup, or payments before the "
+"last payment method/plan change."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:466
+msgid "The Subscription Has Been Cancelled in PayPal"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:490
+msgid "The Subscription Has Been Suspended in PayPal"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:491
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:513
+msgid "Please check your PayPal account for more information."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:512
+msgid "The Subscription profile status is currently: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:524
+msgid "Last used on %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:526
+msgid "Profile History:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:540
+msgid "Old Supporter PayPal Gateway"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:685
+msgid ""
+"Note: This <strong>will not</strong> cancel their PayPal subscription or "
+"refund any payments made. You will have to do it from your PayPal account "
+"for this site."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:705
+msgid ""
+"Your subscription has been cancelled by an admin. You should continue to "
+"have access until %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:718
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:748
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:762
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:794
+msgid ""
+"Whoops, PayPal returned an error when attempting to cancel the "
+"subscription. Nothing was completed: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:728
+msgid ""
+"Your subscription has been cancelled by an admin. You should continue to "
+"have access until %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:774
+msgid "Your subscription has been cancelled by an admin."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:922
+msgid "%1$s for the first month%3$s, then %2$s each month"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:924
+msgid "%1$s for the first %2$s month period%5$s, then %3$s every %4$s months"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:929
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:944
+msgid "%1$s %2$s for 1 month (non recurring)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:931
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:946
+msgid "%1$s %2$s for %3$s months (non recurring)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:937
+#: pro-sites-files/gateways/gateway-stripe.php:924
+msgid "%1$s %2$s each month"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:939
+#: pro-sites-files/gateways/gateway-stripe.php:926
+msgid "%1$s %2$s every %3$s months"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:978
+msgid ""
+"There was a problem setting up the paypal payment:<br "
+"/>\"<strong>%s</strong>\"<br />Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1016
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1138
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1140
+msgid ""
+"User creating new subscription via PayPal Express: Initial payment "
+"successful (%1$s) - Transaction ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1018
+msgid ""
+"User creating modifying subscription via PayPal Express: Payment successful "
+"(%1$s) - Transaction ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1023
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1151
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1362
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1464
+msgid ""
+"Your %s subscription has been modified. This previous subscription has been "
+"canceled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1047
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1210
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1384
+msgid ""
+"Your PayPal subscription was successful! You should be receiving an email "
+"receipt shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1060
+msgid ""
+"User modifying subscription via PayPal Express: New subscription created "
+"(%1$s), first payment will be made on %2$s - %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1065
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1409
+msgid ""
+"Your %1$s subscription has been modified. This previous subscription has "
+"been canceled, and your new subscription (%2$s) will begin on %3$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1067
+msgid ""
+"User modifying subscription via PayPal Express: Old subscription canceled - "
+"%s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1093
+msgid "Your PayPal subscription modification was successful for %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1102
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1436
+msgid ""
+"Because of billing system upgrades, we were unable to cancel your old "
+"subscription automatically, so it is important that you cancel the old one "
+"yourself in your PayPal account, otherwise the old payments will continue "
+"along with new ones! Note this is the only time you will have to do this."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1105
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1439
+msgid ""
+"Because of billing system upgrades, we were unable to cancel your old "
+"subscription automatically, so it is important that you cancel the old one "
+"yourself in your Amazon Payments account, otherwise the old payments will "
+"continue along with new ones! Note this is the only time you will have to "
+"do this."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1106
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1440
+msgid ""
+"To view your subscriptions, simply go to <a target=\"_blank\" "
+"href=\"https://payments.amazon.com/\">https://payments.amazon.com/</a>, "
+"click Your Account at the top of the page, log in to your Amazon Payments "
+"account (if asked), and then click the Your Subscriptions link. This page "
+"displays your subscriptions, showing the most recent, active subscription "
+"at the top. To view the details of a specific subscription, click Details. "
+"Then cancel your subscription by clicking the Cancel Subscription button on "
+"the Subscription Details page."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1113
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1246
+msgid ""
+"There was a problem setting up the Paypal payment:<br "
+"/>\"<strong>%s</strong>\"<br />Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1114
+msgid "User modifying subscription via PayPal Express: PayPal returned an error: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1166
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1171
+msgid ""
+"User creating new subscription via PayPal Express: Subscription created "
+"(%1$s) - Profile ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1176
+msgid ""
+"There was a problem processing the Paypal payment:<br "
+"/>\"<strong>%s</strong>\"<br />Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1177
+msgid "User creating subscription via PayPal Express: PayPal returned an error: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1179
+msgid ""
+"Your initial PayPal transaction was successful, but there was a problem "
+"creating the subscription so you may need to renew when the first period is "
+"up. Your site should be upgraded shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1180
+msgid ""
+"User creating new subscription via PayPal Express: Problem creating the "
+"subscription after successful initial payment. User may need to renew when "
+"the first period is up: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1247
+msgid ""
+"User creating new subscription via PayPal Express: PayPal returned an "
+"error: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1288
+msgid "Please choose a Card Type."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1292
+#: pro-sites-files/gateways/gateway-stripe.php:86
+msgid "Please enter a valid Credit Card Number."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1296
+msgid "Please choose an expiration date."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1300
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1846
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1847
+#: pro-sites-files/gateways/gateway-stripe.php:88
+#: pro-sites-files/gateways/gateway-stripe.php:1335
+#: pro-sites-files/gateways/gateway-stripe.php:1336
+msgid ""
+"Please enter a valid card security code. This is the 3 digits on the "
+"signature panel, or 4 digits on the front of Amex cards."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1304
+msgid "Please enter your First Name."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1308
+msgid "Please enter your Last Name."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1312
+msgid "Please enter your billing Street Address."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1316
+msgid "Please enter your billing City."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1320
+msgid "Please enter your billing State/Province."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1324
+msgid "Please enter your billing Zip/Postal Code."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1328
+msgid "Please enter your billing Country."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1355
+msgid ""
+"User creating new subscription via PayPal Direct Payment: Initial payment "
+"successful (%1$s) - Transaction ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1357
+msgid ""
+"User creating modifying subscription via PayPal Direct Payment: Payment "
+"successful (%1$s) - Transaction ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1404
+msgid ""
+"User modifying subscription via CC: New subscription created (%1$s), first "
+"payment will be made on %2$s - %3$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1411
+msgid "User modifying subscription via CC: Old subscription canceled - %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1429
+msgid "Your Credit Card subscription modification was successful for %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1446
+msgid ""
+"There was a problem with your Credit Card information:<br "
+"/>\"<strong>%s</strong>\"<br />Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1447
+msgid ""
+"User modifying subscription via CC: PayPal returned a problem with Credit "
+"Card info: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1468
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1470
+msgid ""
+"User creating new subscription via CC: Initial payment successful (%1$s) - "
+"Transaction ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1492
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1497
+msgid ""
+"User creating new subscription via CC: Subscription created (%1$s) - "
+"Profile ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1502
+msgid ""
+"Your initial payment was successful, but there was a problem creating the "
+"subscription with your credit card so you may need to renew when the first "
+"period is up. Your site should be upgraded shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1503
+msgid ""
+"User creating new subscription via CC: Problem creating the subscription "
+"after successful initial payment. User may need to renew when the first "
+"period is up: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1527
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1536
+msgid ""
+"Your Credit Card subscription was successful! You should be receiving an "
+"email receipt at %s shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1548
+msgid ""
+"There was a problem with your credit card information:<br "
+"/>\"<strong>%s</strong>\"<br />Please check all fields and try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1554
+msgid ""
+"There was a problem with your credit card information. Please check all "
+"fields and try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1759
+#: pro-sites-files/gateways/gateway-stripe.php:1267
+msgid ""
+"You can modify or upgrade your plan or just change your payment method or "
+"information below. Your new subscription will automatically go into effect "
+"when your next payment is due."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1771
+msgid "Checkout With PayPal"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1772
+msgid "PayPal - The safer, easier way to pay online!"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1792
+msgid "Or Pay Directly By Credit Card"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1801
+msgid "Credit Card Info:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1807
+msgid "Card Type:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1820
+#: pro-sites-files/gateways/gateway-stripe.php:1309
+msgid "Card Number:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1830
+#: pro-sites-files/gateways/gateway-stripe.php:1319
+msgid "Expiration Date:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1841
+#: pro-sites-files/gateways/gateway-stripe.php:1330
+msgid "Card Security Code:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1851
+msgid "Billing Address:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1853
+msgid "First Name:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1860
+msgid "Last Name:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1868
+msgid "Address:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1876
+msgid "Address 2:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1880
+msgid "City:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1887
+msgid "State/Province:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1890
+msgid "Postal/Zip Code:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1898
+msgid "Country:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1916
+#: pro-sites-files/gateways/gateway-stripe.php:1354
+msgid "Processing..."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1993
+msgid ""
+"PayPal IPN \"%s\" received: A reversal has been canceled; for example, when "
+"you win a dispute and the funds for the reversal have been returned to you."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1997
+msgid ""
+"PayPal IPN \"%s\" received: The authorization period for this payment has "
+"been reached."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2001
+msgid ""
+"PayPal IPN \"%s\" received: An authorization for this transaction has been "
+"voided."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2005
+msgid ""
+"PayPal IPN \"%s\" received: The payment has failed. This happens only if "
+"the payment was made from your customer's bank account."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2009
+msgid "PayPal IPN \"%s\" received: The payment has been partially refunded with %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2014
+msgid ""
+"PayPal IPN \"%s\" received: The transaction has not terminated, e.g. an "
+"authorization may be awaiting completion."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2018
+msgid ""
+"A payment was reversed due to a chargeback or other type of reversal. The "
+"funds have been removed from your account balance: "
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2026
+msgid ""
+"A reversal has occurred on this transaction due to the customer claiming it "
+"as an unauthorized payment."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2031
+msgid "PayPal IPN \"%s\" received: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2037
+msgid "PayPal IPN \"%s\" received: You refunded the payment with %s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2042
+msgid ""
+"PayPal IPN \"%s\" received: You denied the payment when it was marked as "
+"pending."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2056
+msgid "PayPal IPN \"%s\" received: %s %s payment received, transaction ID %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2107
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2113
+msgid "PayPal subscription IPN \"%s\" received."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2127
+msgid "PayPal subscription IPN \"%s\" received. The subscription has been canceled."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2142
+msgid "Your subscription was canceled because the blog was deleted."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2585
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:49
+msgid "PayPal Express/Pro"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2591
+msgid "Paypal Express/Pro"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2591
+msgid ""
+"Express Checkout is PayPal's premier checkout solution, which streamlines "
+"the checkout process for buyers and keeps them on your site after making a "
+"purchase. Enabling the optional PayPal Pro allows you to seamlessly accept "
+"credit cards on your site, and gives you the most professional look with a "
+"widely accepted payment method."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:85
+msgid "Please enter the full Cardholder Name."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:87
+msgid "Please choose a valid expiration date."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:124
+#: pro-sites-files/gateways/gateway-stripe.php:1171
+msgid ""
+"There are pending changes to your account. This message will disappear once "
+"these pending changes are completed."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:166
+msgid ""
+"Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club "
+"cards directly on your site. You don't need a merchant account or gateway. "
+"Stripe handles everything, including storing cards, subscriptions, and "
+"direct payouts to your bank account. Credit cards go directly to Stripe's "
+"secure environment, and never hit your servers so you can avoid most PCI "
+"requirements."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:167
+#: pro-sites-files/gateways/gateway-stripe.php:179
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:45
+msgid "More Info &raquo;"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:169
+msgid ""
+"To use Stripe you must <a "
+"href=\"https://manage.stripe.com/#account/webhooks\" "
+"target=\"_blank\">enter this webook url</a> (<strong>%s</strong>) in your "
+"account."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:172
+msgid "Stripe Mode"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:175
+msgid "Force SSL (Live Site)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:176
+msgid "No SSL (Testing)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:178
+msgid ""
+"When in live mode Stripe recommends you have an SSL certificate setup for "
+"your main blog/site where the checkout form will be displayed."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:183
+msgid "Stripe API Credentials"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:185
+msgid "Secret key"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:189
+msgid "Publishable key"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:192
+msgid ""
+"You must login to Stripe to <a target=\"_blank\" "
+"href=\"https://manage.stripe.com/#account/apikeys\">get your API "
+"credentials</a>. You can enter your test credentials, then live ones when "
+"ready. When switching from test to live API credentials, if you were "
+"testing on a site that will be used in live mode, you need to manually "
+"clear the associated row from the *_pro_sites_stripe_customers table for "
+"the given blogid to prevent errors on checkout or management of the site."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:196
+msgid "Stripe Currency"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:196
+msgid "The currency must match the currency of your Stripe account."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:217
+msgid ""
+"Displayed on successful checkout. This is also a good place to paste any "
+"conversion tracking scripts like from Google Analytics. - HTML allowed"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:304
+msgid "The Subscription Has Been Cancelled in Stripe"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:308
+msgid ""
+"Stripe Customer ID: <strong><a "
+"href=\"https://manage.stripe.com/#test/customers/%s\" "
+"target=\"_blank\">%s</a></strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:335
+msgid "Last Payment Invoice ID: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:347
+msgid "This site is using different gateway so their information is not accessible."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:369
+msgid "Stripe returned an error retrieving the customer:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:372
+msgid ""
+"This site is using a different gateway so their information is not "
+"accessible."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:497
+msgid ""
+"Whoops, Stripe returned an error when attempting to cancel the "
+"subscription. Nothing was completed: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:800
+msgid "The Stripe Token was not generated correctly. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:816
+msgid "Stripe plan %1$s does not exist."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:827
+#: pro-sites-files/gateways/gateway-stripe.php:853
+msgid "%s Pro Site - BlogID: %d"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:836
+msgid "The Stripe customer could not be created. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:848
+msgid "The Stripe customer could not be retrieved. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:865
+msgid "The password you entered is incorrect."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:900
+msgid "Temporary Stripe coupon could not be generated correctly. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:910
+msgid "%1$s for the first month, then %2$s each month"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:912
+msgid "%1$s for the first %2$s month period, then %3$s every %4$s months"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:917
+#: pro-sites-files/gateways/gateway-stripe.php:931
+msgid "%1$s for 1 month"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:919
+#: pro-sites-files/gateways/gateway-stripe.php:933
+msgid "%1$s for %2$s months"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:972
+msgid "One-time setup fee"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:982
+msgid "Error charging setup fee. Attention required!"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:983
+msgid ""
+"An error occurred while charging a setup fee of %1$s to Stripe customer "
+"%2$s. You will need to manually process this amount."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1035
+msgid "An unknown error occurred while processing your payment. Please try again."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1047
+msgid "Error deleting temporary Stripe coupon code. Attention required!."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1048
+msgid ""
+"An error occurred when attempting to delete temporary Stripe coupon code "
+"%1$s. You will need to manually delete this coupon via your Stripe account."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1060
+msgid ""
+"User creating new subscription via CC: Subscription created (%1$s) - "
+"Customer ID: %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1063
+msgid "User modifying subscription via CC: Plan changed to (%1$s) - %2$s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1085
+msgid ""
+"Your subscription was successful! You should be receiving an email receipt "
+"shortly."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1224
+msgid ""
+"Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. "
+"Expires <strong>%3$s/%4$s</strong>"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1235
+msgid "Subscription Expires On:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1285
+msgid "Checkout Using Existing Credit Card"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1288
+msgid "Last 4 Digits:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1292
+msgid "WordPress Password:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1293
+msgid "Enter the WordPress password that you login with."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1300
+msgid "Checkout With a Credit Card:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1340
+msgid "Cardholder Name:"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1601
+msgid ""
+"Stripe webhook \"%s\" received: The %s payment was successfully received. "
+"Date: \"%s\", Charge ID \"%s\""
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1608
+msgid ""
+"Stripe webhook \"%1$s\" received: Customer successfully subscribed to %2$s "
+"%3$s: %4$s every %5$s %6$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1627
+msgid ""
+"Stripe webhook \"%s\" received. The customer's subscription was "
+"successfully updated to %2$s %3$s: %4$s every %5$s %6$s."
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1632
+msgid ""
+"Stripe webhook \"%s\" received: The %s payment has failed. Date: \"%s\", "
+"Charge ID \"%s\""
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1637
+msgid ""
+"Stripe webhook \"%s\" received: The customer disputed a charge with their "
+"bank (chargeback), Charge ID \"%s\""
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1643
+msgid "Stripe webhook \"%s\" received: The subscription has been canceled"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1647
+msgid "Stripe webhook \"%s\" received"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1650
+msgid ": Customer ID: %s"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1690
+msgid "Stripe"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1697
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:55
+msgid "Stripe (beta)"
+msgstr ""
+
+#: pro-sites-files/gateways/gateway-stripe.php:1697
+msgid ""
+"Stripe handles everything, including storing cards, subscriptions, and "
+"direct payouts to your bank account."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Settings.php:40
+#: pro-sites-files/lib/ProSites/Helper/Tabs.php:96
+#: pro-sites-files/modules/premium-plugins.php:461
+#: pro-sites-files/modules/premium-themes.php:363 pro-sites.php:4066
+#: pro-sites.php:4424
+msgid "Save Changes"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:35
+msgid "Multi-Gateway Preferences"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:37
+msgid "Choose how Pro Sites should handle multiple active payment gateways"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:44
+msgid "Accept Credit Cards, PayPal, and Debit Cards"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:51
+msgid ""
+"Express Checkout is PayPal's premier checkout solution, which streamlines "
+"the checkout process for buyers and keeps them on your site after making a "
+"purchase."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:57
+msgid ""
+"Stripe makes it easy to start accepting credit cards directly on your site "
+"with full PCI compliance"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:35 pro-sites.php:4132
+msgid "General Settings"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:37
+msgid "Setup the basic settings for your Pro Sites network."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:41
+msgid "E-mail Notifications"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:43 pro-sites.php:4313
+msgid ""
+"\"LEVEL\", \"SITENAME\", \"SITEURL\" and \"CHECKOUTURL\" will be replaced "
+"with their associated values. No HTML allowed."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:47 pro-sites.php:4375
+msgid "Currency Settings"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:49 pro-sites.php:4376
+msgid ""
+"These preferences affect display only. Your payment gateway of choice may "
+"not support every currency listed here."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:53
+#: pro-sites-files/modules/ads.php:15
+msgid "Advertising"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:55
+#: pro-sites-files/modules/ads.php:20
+msgid ""
+"Allows you to disable ads for a Pro Site level, or give a Pro Site level "
+"the ability to disable ads on a number of other sites."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:62
+msgid "Pro Sites Widget"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:64
+#: pro-sites-files/modules/badge-widget.php:19
+msgid ""
+"Allows Pro Sites to put a widget in their sidebar to proudly display their "
+"Pro level."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:68
+#: pro-sites-files/modules/buddypress.php:14
+msgid "Limit BuddyPress Features"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:70
+#: pro-sites-files/modules/buddypress.php:19
+msgid ""
+"Allows you to limit BuddyPress group creation and messaging to users of a "
+"Pro Site."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:74
+#: pro-sites-files/modules/bulk-upgrades.php:14
+#: pro-sites-files/modules/bulk-upgrades.php:39
+#: pro-sites-files/modules/bulk-upgrades.php:56
+#: pro-sites-files/modules/bulk-upgrades.php:67
+#: pro-sites-files/modules/bulk-upgrades.php:765 pro-sites.php:369
+msgid "Bulk Upgrades"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:76
+#: pro-sites-files/modules/bulk-upgrades.php:19
+msgid "Allows you to sell Pro Site level upgrades in bulk packages."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:80
+#: pro-sites-files/modules/pay-to-blog.php:30
+msgid "Pay to Blog"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:82
+#: pro-sites-files/modules/pay-to-blog.php:19
+msgid "Allows you to completely disable a site both front end and back until paid."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:86
+msgid "Post/Page Throttling"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:88
+msgid ""
+"Allows you to limit the number of posts/pages to be published daily/hourly "
+"per site."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:92
+#: pro-sites-files/modules/posting-quota.php:14
+msgid "Post/Page Quotas"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:94
+#: pro-sites-files/modules/posting-quota.php:19
+msgid "Allows you to limit the number of post types for selected Pro Site levels."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:98
+msgid "Rename Plugin/Theme Features"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:100
+msgid "Allows you to rename your Premium Themes and Premium Plugins packages."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:104
+#: pro-sites-files/modules/premium-support.php:14
+#: pro-sites-files/modules/premium-support.php:26 pro-sites.php:340
+msgid "Premium Support"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:106
+#: pro-sites-files/modules/premium-support.php:19
+msgid ""
+"Allows you to provide a premium direct to email support page for selected "
+"Pro Site levels."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:110
+msgid "Upload Quotas"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:112
+#: pro-sites-files/modules/quota.php:21
+msgid "Allows you to give additional upload space to Pro Sites."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:116
+#: pro-sites-files/modules/upgrade-admin-links.php:12
+msgid "Upgrade Admin Menu Links"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:118
+#: pro-sites-files/modules/upgrade-admin-links.php:17
+msgid ""
+"Allows you to add custom menu items in admin panel that will encourage "
+"admins to get higher level by redirecting to upgrade page."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:122
+#: pro-sites-files/modules/unfiltered-html.php:28
+msgid "Unfiltered HTML"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:124
+#: pro-sites-files/modules/unfiltered-html.php:19
+msgid ""
+"Allows you to provide the \"unfiltered_html\" permission to specific user "
+"types for selected Pro Site levels."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:128
+#: pro-sites-files/modules/write.php:14 pro-sites-files/modules/write.php:28
+msgid "Limit Publishing"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:130
+#: pro-sites-files/modules/write.php:19
+msgid ""
+"Allows you to only enable writing posts and/or pages for selected Pro Site "
+"levels."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:134
+#: pro-sites-files/modules/xmlrpc.php:14
+msgid "Restrict XML-RPC"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:136
+#: pro-sites-files/modules/xmlrpc.php:19
+msgid "Allows you to only enable XML-RPC for selected Pro Site levels."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs.php:42
+msgid "This title needs a new name."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs.php:43
+msgid "Pass it as argument 2 in render()"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Helper/Tabs.php:157
+msgid "Settings page not found."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/Model/Gateways.php:45
+#: pro-sites-files/lib/ProSites/Model/Settings.php:41
+#: pro-sites-files/modules/premium-plugins.php:406
+#: pro-sites-files/modules/premium-themes.php:300 pro-sites.php:4111
+#: pro-sites.php:5104
+msgid "Settings Saved!"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:9
+#: pro-sites-files/lib/ProSites/View/Settings.php:9
+#: pro-sites-files/modules/ads.php:415
+#: pro-sites-files/modules/bulk-upgrades.php:723
+#: pro-sites-files/modules/premium-plugins.php:363 pro-sites.php:2458
+#: pro-sites.php:2831 pro-sites.php:3248 pro-sites.php:3650 pro-sites.php:3947
+#: pro-sites.php:4081 pro-sites.php:5092
+msgid "Nice Try..."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:21
+msgid "Pro Sites Gateway Settings"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:53
+msgid "Active gateways"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:63
+msgid "Primary gateway"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:74
+msgid "Secondary gateway"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:90
+msgid "Manual Gateway preference"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:93
+msgid "Use the Manual Gateway as a third option."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:121
+#: pro-sites-files/lib/ProSites/View/Gateways.php:151
+#: pro-sites-files/lib/ProSites/View/Gateways.php:181
+#: pro-sites-files/lib/ProSites/View/Gateways.php:211
+msgid "Enable Gateway"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Gateways.php:248
+msgid "No gateways enabled"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:21 pro-sites.php:785
+#: pro-sites.php:4125
+msgid "Pro Sites Settings"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:68 pro-sites.php:4137
+msgid "Rebrand Pro Sites"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:68 pro-sites.php:4137
+msgid ""
+"Rename \"Pro Sites\" for users to whatever you want like \"Pro\" or "
+"\"Plus\"."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:75 pro-sites.php:4143
+msgid "Admin Menu Button Labels"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:78 pro-sites.php:4146
+msgid "Not Pro"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:84 pro-sites.php:4150
+msgid "Current Pro"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:91 pro-sites.php:4156
+msgid "Hide Admin Menu"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:95 pro-sites.php:4159
+msgid "Remove the Pro Sites upgrade menu item"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:99 pro-sites.php:4163
+msgid "Hide Admin Bar Button"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:103 pro-sites.php:4166
+msgid "Remove the Pro Sites upgrade menu button from the admin bar"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:108 pro-sites.php:4171
+msgid "Hide Pro Status for Superadmin"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:112 pro-sites.php:4174
+msgid "Remove the Super Admin Pro Site status menu from the admin bar"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:118 pro-sites.php:4179
+msgid "Free Level"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:118 pro-sites.php:4179
+msgid ""
+"Pro Sites has a built-in free level by default. Configure how this level is "
+"displayed on the checkout form:"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:121
+#: pro-sites-files/lib/psts_pricing_table_admin.php:139
+#: pro-sites-files/modules/bulk-upgrades.php:521
+#: pro-sites-files/modules/premium-plugins.php:266 pro-sites.php:3771
+#: pro-sites.php:3785 pro-sites.php:3899 pro-sites.php:4182
+msgid "Name"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:126 pro-sites.php:4186
+msgid "Message"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:134 pro-sites.php:4192
+msgid "Allow checkout on Signup"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:134 pro-sites.php:4192
+msgid ""
+"Enables the user to checkout after signing up, If user opts for Pro Site, "
+"blog setup takes place only after the user have made the payment."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:142 pro-sites.php:4198
+msgid "Signup Message"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:142 pro-sites.php:4198
+msgid ""
+"Optional - HTML allowed - This message is displayed on the signup page if "
+"the box is checked above."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:150 pro-sites.php:4204
+msgid "Checkout Page"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:150 pro-sites.php:4204
+msgid ""
+"If checkout page is not found, a new checkout page is generated upon saving "
+"the settings. The slug and title is based on the rebrand option above."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:153
+msgid ""
+"There was a problem finding the Checkout Page. It will be created when you "
+"save the settings on this page."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:156 pro-sites.php:4209
+msgid "Edit Checkout Page &raquo;"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:161 pro-sites.php:4214
+msgid "Checkout Permissions"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:187 pro-sites.php:4238
+msgid "Pro Site Feature Message"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:187 pro-sites.php:4238
+msgid ""
+"Required - No HTML - This message is displayed when a feature is accessed "
+"on a site that does not have access to it. \"LEVEL\" will be replaced with "
+"the needed level name for the feature."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:196 pro-sites.php:4244
+msgid "Free Trial"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:196 pro-sites.php:4244
+msgid "Free days for all new sites"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:203
+#: pro-sites-files/modules/bulk-upgrades.php:434
+#: pro-sites-files/modules/bulk-upgrades.php:455
+#: pro-sites-files/modules/bulk-upgrades.php:476 pro-sites.php:4251
+msgid "Disabled"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:214 pro-sites.php:4261
+msgid "Free Trial Message"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:214 pro-sites.php:4261
+msgid ""
+"Required - This message is displayed on the dashboard notifying how many "
+"days left in their free trial. \"DAYS\" will be replaced with the number of "
+"days left in the trial. \"LEVEL\" will be replaced with the needed level "
+"name."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:223 pro-sites.php:4267
+msgid "Cancellation Message"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:223 pro-sites.php:4267
+msgid ""
+"This message is displayed on the checkout screen notifying FREE TRIAL and "
+"NEW customers of your cancellation policy. \"DAYS\" will be replaced with "
+"the number of \"Cancellation Days\" set above."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:226 pro-sites.php:259
+#: pro-sites.php:4269
+msgid ""
+"Your DAYS day trial begins once you click \"Subscribe\" below. We perform a "
+"$1 pre-authorization to ensure your credit card is valid, but we won't "
+"actually charge your card until the end of your trial. If you don't cancel "
+"by day DAYS, your card will be charged for the subscription amount shown "
+"above. You can cancel your subscription at any time."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:231 pro-sites.php:4273
+msgid "Setup Fee"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:231 pro-sites.php:4273
+msgid ""
+"If \"Apply setup fee to upgrades\" is left unchecked then only <strong>free "
+"sites</strong> will be charged a setup fee. Otherwise, all levels will be "
+"charged a setup fee upon upgrading to a higher level."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:242 pro-sites.php:4279
+msgid "Apply setup fee to upgrades"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:248 pro-sites.php:4284
+msgid "Recurring Subscriptions"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:248 pro-sites.php:4284
+msgid ""
+"Disabling recurring subscriptions will force users to have to manually "
+"re-subscribe after their term has expired."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:253
+#: pro-sites-files/modules/premium-plugins.php:283 pro-sites.php:3975
+#: pro-sites.php:4287
+msgid "Enable"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:258
+#: pro-sites-files/modules/pay-to-blog.php:118 pro-sites.php:4290
+msgid "Disable"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:263 pro-sites.php:4295
+msgid "Google Analytics Ecommerce Tracking"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:269 pro-sites.php:4299
+msgid "Asynchronous Tracking Code"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:271 pro-sites.php:4300
+msgid "Old Tracking Code"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:274 pro-sites.php:4302
+msgid ""
+"If you already use Google Analytics for your website, you can track "
+"detailed ecommerce information by enabling this setting. Choose whether you "
+"are using the new asynchronous or old tracking code. Before Google "
+"Analytics can report ecommerce activity for your website, you must enable "
+"ecommerce tracking on the profile settings page for your website. <a "
+"href=\"http://analytics.blogspot.com/2009/05/how-to-use-ecommerce-tracking-"
+"in-google.html\" target=\"_blank\">More information &raquo;</a>"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:302 pro-sites.php:4319
+msgid "Pro Site Signup"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:302 pro-sites.php:4319
+msgid "Pro Site signup confirmation email sent to user"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:304
+#: pro-sites-files/lib/ProSites/View/Settings.php:314
+#: pro-sites-files/lib/ProSites/View/Settings.php:324
+#: pro-sites-files/lib/ProSites/View/Settings.php:335
+#: pro-sites-files/lib/ProSites/View/Settings.php:345
+#: pro-sites-files/lib/ProSites/View/Settings.php:355 pro-sites.php:4321
+#: pro-sites.php:4331 pro-sites.php:4341 pro-sites.php:4352 pro-sites.php:4362
+msgid "Subject:"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:306
+#: pro-sites-files/lib/ProSites/View/Settings.php:316
+#: pro-sites-files/lib/ProSites/View/Settings.php:326
+#: pro-sites-files/lib/ProSites/View/Settings.php:337
+#: pro-sites-files/lib/ProSites/View/Settings.php:347
+#: pro-sites-files/lib/ProSites/View/Settings.php:357 pro-sites.php:4323
+#: pro-sites.php:4333 pro-sites.php:4343 pro-sites.php:4354 pro-sites.php:4364
+msgid "Message:"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:312 pro-sites.php:4329
+msgid "Pro Site Canceled"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:312 pro-sites.php:4329
+msgid ""
+"Membership cancellation email sent to user, \"ENDDATE\" will be replaced "
+"with the date when their Pro Site access ends."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:322 pro-sites.php:4339
+#: pro-sites.php:5018
+msgid "Payment Receipt"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:322 pro-sites.php:4339
+msgid ""
+"Payment confirmation receipt. You must include the \"PAYMENTINFO\" code "
+"which will be replaced with payment details."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:328 pro-sites.php:4345
+msgid "Header Image URL (for PDF attachment):"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:333 pro-sites.php:4350
+msgid "Expiration Email"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:333 pro-sites.php:4350
+msgid ""
+"Pro Site expiration email sent to user. \"CHECKOUTURL\" will be replaced "
+"with the url to upgrade the site."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:343 pro-sites.php:4360
+msgid "Payment Problem"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:343 pro-sites.php:4360
+msgid "The email text sent to your customer when a scheduled payment fails."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:353
+msgid "Pro Site Manual Extension"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:353
+msgid "Pro Site email sent to user when site is manually extended."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:383 pro-sites.php:4382
+msgid "Currency Symbol"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:396 pro-sites.php:4395
+msgid "Currency Symbol Position"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Settings.php:409 pro-sites.php:4408
+msgid "Show Decimal in Prices"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:88 pro-sites.php:4530
+msgid ""
+"Your coupon code <strong>%1$s</strong> has been applied for a discount of "
+"%2$s off the first payment. <a href=\"%3$s\">Remove it &raquo;</a>"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:122 pro-sites.php:4596
+msgid "Try it out!"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:124 pro-sites.php:4597
+msgid "You can easily switch to a better value plan at any time."
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:129
+msgid "Equivalent to only <br />  %s monthly"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:131 pro-sites.php:4628
+msgid "Save %s by paying for 3 months in advance!"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:136
+msgid "Equivalent to only <br />%s monthly"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:138 pro-sites.php:4660
+msgid "Save %s by paying for a year in advance!"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:155 pro-sites.php:4717
+msgid "Have a coupon code?"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:157 pro-sites.php:4719
+msgid "Enter your code:"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:159 pro-sites.php:4721
+msgid "Apply &raquo;"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:240 pro-sites.php:254
+#: pro-sites.php:926 pro-sites.php:4683
+msgid "Free"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:242 pro-sites.php:4688
+msgid "Dismiss"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table.php:242 pro-sites.php:255
+#: pro-sites.php:4688 pro-sites.php:4696
+msgid "No thank you, I will continue with a basic site for now"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:138
+msgid "Visible"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:140
+#: pro-sites-files/modules/premium-plugins.php:423
+#: pro-sites-files/modules/premium-themes.php:327 pro-sites.php:3977
+msgid "Description"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:141
+msgid "Included in Plan"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:142
+msgid "Class Name"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:143
+msgid "Order"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:144
+#: pro-sites-files/modules/post-throttling.php:383 pro-sites.php:2718
+#: pro-sites.php:3383 pro-sites.php:3572 pro-sites.php:3770 pro-sites.php:3784
+#: pro-sites.php:3898 pro-sites.php:4541 pro-sites.php:4554
+msgid "Level"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:319
+msgid "Pro Sites Pricing Table Settings"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:324
+msgid "You can enable plans &amp; pricing and comparison table settings here."
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:334
+msgid "Plans &amp; Pricing"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:340
+msgid "Use Plans &amp; Pricing Table"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:344
+msgid "Check this option to display only the plans and pricing table."
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:348
+msgid "Show Comparison Table"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:352
+msgid "Selecting this option will show both the plans and comparison tables."
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:362
+msgid "Plans Settings"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:368
+msgid "Featured Level"
+msgstr ""
+
+#: pro-sites-files/lib/psts_pricing_table_admin.php:381
+msgid "Comparison Modules"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:33
+msgid "Ads"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:34
+msgid "Advertising module"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:277
+msgid "Add Free Level"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:277
+msgid "Select the minimum level required to not show ads on the site."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:290
+msgid "Ad Locations"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:293
+msgid "Before Post Content"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:296
+msgid "After Post Content"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:299
+msgid "Before Page Content"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:302
+msgid "After Page Content"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:308
+msgid "Ads Per Page"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:308
+msgid ""
+"Maximum number of ads to be shown on a single page. For Google Adsense set "
+"this to \"3\"."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:322
+msgid "\"Before\" Ad Code"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:322
+msgid "Displayed before post and page content."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:330
+msgid "\"After\" Ad Code"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:330
+msgid "Displayed after post and page content."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:338
+msgid "Enable Additional Ad-Free Sites"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:341
+msgid "Allow disabling of ads on other sites"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:346
+#: pro-sites-files/modules/premium-plugins.php:383
+#: pro-sites-files/modules/premium-support.php:72
+#: pro-sites-files/modules/premium-themes.php:262
+msgid "Rename Feature"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:346
+#: pro-sites-files/modules/premium-plugins.php:383
+#: pro-sites-files/modules/premium-support.php:72
+#: pro-sites-files/modules/premium-themes.php:262
+msgid "Required - No HTML! - Make this short and sweet."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:353
+msgid "Additional Ad-Free Sites"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:353
+msgid ""
+"Number of sites that can have ads disabled in addition to the Pro Site. "
+"Each level should have an identical or progressively higher number."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:365
+msgid "Ads Message"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:365
+msgid ""
+"Required - This message is displayed on the Disable Ads page as an "
+"advertisment to upgrade to the next level. \"LEVEL\" will be replaced with "
+"the needed level name, and \"NUM\" will be replaced with the number of "
+"sites that can be disabled in the next level."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:374
+msgid "Enable Other Modules"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:374
+msgid ""
+"These override any level limits you add in the module. You will want to "
+"tell users of this in the Ads Message above."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:378
+msgid "Enable all Premium Themes"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:383
+msgid "Enable XML-RPC"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:388
+msgid "Enable Unfiltered HTML"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:440
+msgid "Sites Added."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:451
+msgid "Sites Removed."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:463
+msgid "Are you sure you really want to remove these sites?"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:480
+msgid "Status"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:486
+msgid "Maximum sites"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:487
+msgid "Currently disabling ads on"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:489
+msgid "Remaining"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:498
+#: pro-sites-files/modules/bulk-upgrades.php:875
+msgid "Find Sites"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:499
+msgid "Search for a site to disable ads on."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:507
+#: pro-sites-files/modules/bulk-upgrades.php:884
+msgid "Choose a site you are a member of:"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:511 pro-sites-files/modules/ads.php:541
+#: pro-sites-files/modules/ads.php:579 pro-sites-files/modules/ads.php:611
+#: pro-sites.php:352
+msgid "Disable Ads"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:512 pro-sites-files/modules/ads.php:580
+#: pro-sites-files/modules/ads.php:631
+#: pro-sites-files/modules/bulk-upgrades.php:889
+#: pro-sites-files/modules/bulk-upgrades.php:967
+#: pro-sites-files/modules/bulk-upgrades.php:1035
+msgid "Site"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:528 pro-sites-files/modules/ads.php:598
+msgid "Ads already disabled"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:545
+#: pro-sites-files/modules/bulk-upgrades.php:932
+msgid "Search for a site:"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:548
+msgid ""
+"Enter the site domain here. Example - for \"asite.edublogs.org\" you would "
+"search for \"asite\"."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:552
+#: pro-sites-files/modules/bulk-upgrades.php:939
+msgid "Search"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:561
+#: pro-sites-files/modules/bulk-upgrades.php:948
+msgid "Search Results"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:571
+#: pro-sites-files/modules/bulk-upgrades.php:958
+msgid ""
+"Over 150 sites were found matching the provided search criteria. If you do "
+"not find the site you are looking for in the selection below please try "
+"refining your search."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:610
+#: pro-sites-files/modules/bulk-upgrades.php:1006
+msgid "Back"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:613
+#: pro-sites-files/modules/bulk-upgrades.php:1009
+msgid "No sites found matching your search criteria."
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:623
+msgid "Currently Disabled Sites"
+msgstr ""
+
+#: pro-sites-files/modules/ads.php:630 pro-sites-files/modules/ads.php:653
+#: pro-sites-files/modules/upgrade-admin-links.php:166
+msgid "Remove"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:14
+#: pro-sites-files/modules/badge-widget.php:25
+msgid "Pro Widget"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:26
+msgid "Brag about your Pro Level with a widget"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:44
+msgid ""
+"Enter a url to the badge image file for each corresponding level. It is "
+"recommended to use an image with a maximum width of 160px to be compatible "
+"with most theme sidebars."
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:50
+msgid "%s Image URL:"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:59
+msgid "Link URL (optional)"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:59
+msgid ""
+"If you would like the badge to link somewhere (like a page describing Pro "
+"Sites) enter the url here."
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:95
+msgid "Proudly display your %s status in you sidebar!"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:97
+msgid "%s Widget"
+msgstr ""
+
+#: pro-sites-files/modules/badge-widget.php:118
+msgid "A proud %s site."
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:32
+msgid "Buddy Press"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:33
+msgid "Limited group creation and messaging"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:127
+msgid "Limit Group Creation"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:129
+#: pro-sites-files/modules/buddypress.php:135
+msgid "Pro Site user only"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:133
+msgid "Limit Composing Messages"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:139
+#: pro-sites-files/modules/premium-support.php:84
+#: pro-sites-files/modules/xmlrpc.php:91
+msgid "Restricted Message"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:139
+msgid ""
+"Required - HTML allowed - This message is displayed when a Pro Site user "
+"only feature is accessed in BuddyPress. \"LEVEL\" will be replaced with the "
+"first level name."
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:145
+msgid "Limit Blog tracking"
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:145
+msgid "Be aware: Changing this setting will retroactively affect BuddyPress."
+msgstr ""
+
+#: pro-sites-files/modules/buddypress.php:147
+msgid "Do not track non-paid sites"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:40
+msgid "Can upgrade in bulk packages"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:236
+msgid "%s bulk upgrade credits were manually added to your account by an admin."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:258
+msgid "Pro Site Bulk Upgrade Credits"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:261
+msgid "Current Credits:"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:262
+msgid "This user has %s upgrade credits in their account."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:266
+msgid "Manually Grant Credits:"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:292
+msgid ""
+"Important - If you were previously using Bulk Upgrades and subscriptions "
+"with Supporter 2.x, you must copy and overwrite the "
+"<em>/pro-sites/pro-sites-files/gateways/backwards-compatibility/<strong>"
+"supporter-bulk-upgrades-paypal.php</strong></em> file to the webroot of "
+"this site to prevent problems with payments from existing subscriptions "
+"being applied."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:296
+msgid "PayPal Email"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:386
+msgid "PayPal Payment Type"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:386
+msgid "Recurring = PayPal 12 month subscription"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:389
+msgid "Single"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:391
+msgid "Recurring"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:397
+msgid "Credit Level"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:397
+msgid "What Pro Site level credits will upgrade to."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:411
+msgid "Option 1 Settings"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:411
+msgid ""
+"What Pro Site level credits will upgrade to. One credit allows for one site "
+"to be upgraded for one year."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:412
+#: pro-sites-files/modules/bulk-upgrades.php:432
+#: pro-sites-files/modules/bulk-upgrades.php:453
+#: pro-sites-files/modules/bulk-upgrades.php:474
+msgid "Credits"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:421
+#: pro-sites-files/modules/bulk-upgrades.php:442
+#: pro-sites-files/modules/bulk-upgrades.php:463
+#: pro-sites-files/modules/bulk-upgrades.php:484
+msgid "Price"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:431
+msgid "Option 2 Settings"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:431
+#: pro-sites-files/modules/bulk-upgrades.php:452
+#: pro-sites-files/modules/bulk-upgrades.php:473
+msgid "One credit allows for one site to be upgraded for one year."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:452
+msgid "Option 3 Settings"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:473
+msgid "Option 4 Settings"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:494
+msgid "Option Message"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:494
+msgid ""
+"The keywords CREDITS, PRICE, and LEVEL will be replaced with their "
+"respective values."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:503
+#: pro-sites-files/modules/pay-to-blog.php:110
+msgid "Checkout Message"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:503
+msgid ""
+"Required - HTML allowed - This message is displayed at the top of the "
+"\"Bulk Upgrades\" page."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:510
+msgid "Payment Message"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:519
+msgid "Checkout Form Settings"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:519
+msgid ""
+"Configure how the Bulk Upgrades option is displayed on the main checkout "
+"form:"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:525
+msgid "Link Message"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:534
+msgid ""
+"Note - You can manually grant Bulk Upgrade credits to users by editing "
+"their profile."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:563
+msgid "%1$s %2$s %3$s Bulk Upgrade Credits"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:576
+#: pro-sites-files/modules/bulk-upgrades.php:600
+msgid "Transaction Complete!"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:577
+#: pro-sites-files/modules/bulk-upgrades.php:601
+msgid "Transaction Cancelled!"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:736
+msgid "You must purchase more Pro Site credits in order to upgrade sites."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:749
+msgid "A bulk upgrade credit was applied by %s."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:755
+msgid "%s Sites Upgraded."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:777
+msgid "Your Credits"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:783
+msgid "You have %s upgrade credits ready to apply."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:785
+msgid "You have no upgrade credits. You may purchase them below."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:792
+msgid "Note"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:801
+msgid "Purchase Bulk Upgrades"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:816
+#: pro-sites-files/modules/bulk-upgrades.php:830
+#: pro-sites-files/modules/bulk-upgrades.php:845
+#: pro-sites-files/modules/bulk-upgrades.php:860
+msgid "Per Site"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:816
+#: pro-sites-files/modules/bulk-upgrades.php:830
+#: pro-sites-files/modules/bulk-upgrades.php:845
+#: pro-sites-files/modules/bulk-upgrades.php:860
+msgid "Per Year"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:816
+#: pro-sites-files/modules/bulk-upgrades.php:830
+#: pro-sites-files/modules/bulk-upgrades.php:845
+#: pro-sites-files/modules/bulk-upgrades.php:860
+msgid "For %d Sites"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:876
+msgid "Search for a site to apply an upgrade to."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:888
+#: pro-sites-files/modules/bulk-upgrades.php:966
+#: pro-sites-files/modules/bulk-upgrades.php:1033 pro-sites.php:4001
+msgid "Upgrade"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:890
+#: pro-sites-files/modules/bulk-upgrades.php:968
+#: pro-sites-files/modules/bulk-upgrades.php:1036
+msgid "Expiration"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:899
+#: pro-sites-files/modules/bulk-upgrades.php:978
+#: pro-sites-files/modules/bulk-upgrades.php:1050 pro-sites.php:930
+#: pro-sites.php:1679 pro-sites.php:2712
+msgid "Permanent"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:904
+#: pro-sites-files/modules/bulk-upgrades.php:983
+#: pro-sites-files/modules/bulk-upgrades.php:1055
+msgid "Never Upgraded"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:914
+#: pro-sites-files/modules/bulk-upgrades.php:993
+#: pro-sites-files/modules/bulk-upgrades.php:1067
+msgid "Already Upgraded"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:928
+#: pro-sites-files/modules/bulk-upgrades.php:1007
+#: pro-sites-files/modules/bulk-upgrades.php:1084
+msgid "Upgrade Sites"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:935
+msgid ""
+"Enter the site domain here. Example - for \"ablog.edublogs.org\" you would "
+"search for \"ablog\"."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:1022
+msgid "Previously Upgraded Sites"
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:1024
+msgid "These are sites that you have previously upgraded in the past."
+msgstr ""
+
+#: pro-sites-files/modules/bulk-upgrades.php:1037 pro-sites.php:925
+msgid "Upgraded"
+msgstr ""
+
+#: pro-sites-files/modules/marketpress-filter.php:16
+msgid "MarketPress Global Products Filter"
+msgstr ""
+
+#: pro-sites-files/modules/marketpress-filter.php:21
+msgid ""
+"When enabled, removes non-pro site products from the MarketPress global "
+"product lists."
+msgstr ""
+
+#: pro-sites-files/modules/marketpress-filter.php:32
+msgid "Market Press"
+msgstr ""
+
+#: pro-sites-files/modules/marketpress-filter.php:33
+msgid "Display on MarketPress global product list"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:14
+msgid "Pay To Blog"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:31
+msgid "Site disabled until payment is cleared"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:73
+msgid "Re-enable now &raquo;"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:110
+msgid ""
+"Required - This message is displayed on the checkout page if the site is "
+"unpaid. HTML Allowed"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:116
+msgid "Disable Front End"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:122
+msgid "Front End Restricted Message"
+msgstr ""
+
+#: pro-sites-files/modules/pay-to-blog.php:122
+msgid ""
+"Required - This message is displayed on front end of the site if it is "
+"unpaid and disabling the front end is enabled. HTML Allowed"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:27
+#: pro-sites-files/modules/post-throttling.php:52
+msgid "Post Throttling"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:32
+msgid ""
+"Allows you to limit the number of posts to be published daily/hourly per "
+"site."
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:53
+msgid "Limit Post publishing rate."
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:97
+msgid "Hour Limits"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:101
+msgid "Day Limits"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:253
+#: pro-sites-files/modules/posting-quota.php:216
+msgid "Upgrade Your Account"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:326
+msgid ""
+"Post Throttling module allows you to limit the number of posts published "
+"daily or hourly per site, to avoid flooding of posts by a single site."
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:345
+#: pro-sites-files/modules/post-throttling.php:384
+#: pro-sites-files/modules/write.php:86 pro-sites-files/modules/write.php:98
+msgid "Limit"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:394
+#: pro-sites-files/modules/post-throttling.php:413
+#: pro-sites-files/modules/posting-quota.php:88 pro-sites.php:3480
+msgid "Unlimited"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:462
+msgid "hourly"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:462
+msgid "daily"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:463
+msgid "upgrade"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:463
+msgid "Contact site admin for more details"
+msgstr ""
+
+#: pro-sites-files/modules/post-throttling.php:464
+msgid ""
+"You have reached the %s publishing limit, you can publish again after %s, "
+"or %s."
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:41
+msgid "Posting Quotas"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:42
+msgid "Limited post types"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:56
+#: pro-sites-files/modules/premium-support.php:53
+#: pro-sites-files/modules/unfiltered-html.php:86
+#: pro-sites-files/modules/write.php:71 pro-sites-files/modules/xmlrpc.php:78
+msgid "Pro Site Level"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:56
+msgid "Select the minimum level required to remove quotas"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:79
+msgid ""
+"You've reached the publishing limit, To publish more %s, please upgrade to "
+"LEVEL &raquo;"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:82
+msgid "%s Quota"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:85
+msgid "Publish Limit"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:98
+msgid "Upgrade message"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:98
+msgid ""
+"Displayed on the respective add post, page or media screen for sites that "
+"have used up their quota. \"LEVEL\" will be replaced with the needed level "
+"name"
+msgstr ""
+
+#: pro-sites-files/modules/posting-quota.php:250
+msgid "Publish Limits: "
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:16
+#: pro-sites-files/modules/premium-plugins.php:56
+#: pro-sites-files/modules/premium-plugins.php:61
+#: pro-sites-files/modules/premium-plugins.php:377
+#: pro-sites-files/modules/premium-plugins.php:385
+#: pro-sites-files/modules/premium-plugins.php:412 pro-sites.php:351
+msgid "Premium Plugins"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:21
+#: pro-sites-files/modules/premium-plugins.php:378
+msgid ""
+"Allows you to create plugin packages only available to selected Pro Site "
+"levels."
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:57
+msgid "Include premium plugins"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:61
+msgid "Pro Sites Premium Plugins"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:115
+#: pro-sites-files/modules/premium-themes.php:82
+#: pro-sites-files/modules/premium-themes.php:168
+#: pro-sites-files/modules/premium-themes.php:384
+msgid "%s Only"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:243
+msgid "As a Super Admin you can activate any plugins for this site."
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:248
+msgid ""
+"WARNING: Multisite Plugin Manager and the Premium Plugins module are "
+"incompatible. Please remove Multisite Plugin Manager."
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:258
+msgid "Plugin Override Options"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:260
+msgid ""
+"Checked plugins here will be accessible to this site, overriding the <a "
+"href=\"admin.php?page=psts-plugins\">Premium Plugins</a> settings. Uncheck "
+"to return to those permissions."
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:265
+msgid "Site users may activate/deactivate"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:265
+msgid "User Control"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:267
+#: pro-sites-files/modules/premium-plugins.php:422
+#: pro-sites-files/modules/premium-themes.php:326
+msgid "Version"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:268
+msgid "Author"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:414
+msgid ""
+"Select the minimum Pro Site level for premium plugins that you want to "
+"enable for sites of that level or above. Selecting \"None\" will make the "
+"plugin unavailable to all but Super Admins. Checking Auto Activate will "
+"activate the plugin when they upgrade to that level. Network only and "
+"network activated plugins will not show in this list. Note you can also "
+"override plugin permissions on a per-site basis on the <a "
+"href=\"sites.php\">edit sites</a> page."
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:420
+#: pro-sites-files/modules/premium-themes.php:324
+msgid "Minimum Level"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:421
+msgid "Plugin"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:441
+msgid "Anyone"
+msgstr ""
+
+#: pro-sites-files/modules/premium-plugins.php:449
+msgid "Auto Activate"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:27
+msgid "Include Premium direct to email support"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:53
+msgid "Select the minimum level required to use premium support."
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:66
+msgid "Support Email"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:66
+msgid "The email address to send premium support messages to."
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:78
+msgid "Premium Support Message"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:78
+msgid "The message that is displayed on the Premium Support page. HTML allowed."
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:84
+msgid ""
+"Required - This message is displayed on for sites that don't have "
+"permissions. \"LEVEL\" will be replaced with the needed level name."
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:109
+msgid "Premium Support Request: %s"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:110
+msgid ""
+"%s has submitted a new premium support request for the site %s (%s).\n"
+"Here is their message:\n"
+"_______________________\n"
+"\n"
+"%s\n"
+"\n"
+"_______________________\n"
+"You can reply to this email directly."
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:111
+msgid "Site Address: %s\n"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:112
+msgid "Site Admin: %s\n"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:118
+msgid "Your message has been sent! Someone will reply to your email shortly."
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:124
+msgid "Your Support Question:"
+msgstr ""
+
+#: pro-sites-files/modules/premium-support.php:137
+msgid "Submit Request &raquo;"
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:14
+#: pro-sites-files/modules/premium-themes.php:42
+#: pro-sites-files/modules/premium-themes.php:47
+#: pro-sites-files/modules/premium-themes.php:256
+#: pro-sites-files/modules/premium-themes.php:264
+#: pro-sites-files/modules/premium-themes.php:314 pro-sites.php:336
+msgid "Premium Themes"
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:19
+#: pro-sites-files/modules/premium-themes.php:257
+msgid "Allows you to give access to selected themes to a Pro Site level."
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:43
+msgid "Includes access to premium themes"
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:47
+msgid "Pro Sites Premium Themes"
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:268
+msgid "Theme Preview Message"
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:268
+msgid ""
+"Required - No HTML! - This message is displayed when the wrong level site "
+"is previewing a premium theme. \"LEVEL\" will be replaced with the needed "
+"level name for that theme."
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:270 pro-sites.php:337
+msgid "Upgrade to LEVEL to activate this premium theme &raquo;"
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:316
+msgid ""
+"Select the minimum Pro Site level for premium themes that you want to "
+"enable for sites of that level or above. Only <a "
+"href=\"themes.php?theme_status=disabled\">disabled network themes</a> are "
+"shown in this list. "
+msgstr ""
+
+#: pro-sites-files/modules/premium-themes.php:325
+msgid "Theme"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:16
+msgid "Upload Quota"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:41
+msgid "Quota"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:42
+msgid "Upload quota"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:45
+msgid "Upload Space"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:46
+msgid "Get additional upload space for your images, media, and other files."
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:102
+msgid "Quota Amounts"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:102
+msgid "Each level should have an identical or progressively higher quota."
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:110
+msgid "Ads Removed (Upgraded)"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:123
+msgid "Quota Message"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:123
+msgid ""
+"Required - This message is displayed on the dashboard and media upload form "
+"as an advertisment to upgrade to the next level. \"LEVEL\" will be replaced "
+"with the needed level name, and \"SPACE\" will be replaced with the extra "
+"upload space in the next level."
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:132
+msgid "Out of Space Message"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:132
+msgid ""
+"Required - This message is displayed on the dashboard when out of upload "
+"space. \"LEVEL\" will be replaced with the needed level name, and \"SPACE\" "
+"will be replaced with the extra upload space in the next level."
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:142
+msgid ""
+"NOTE: If you need to be able to override the upload quota on a per site "
+"basis when editing the site, add this to your wp-config.php file:"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:213 pro-sites-files/modules/quota.php:222
+#. translators: Megabytes
+msgid "MB"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:219
+#. translators: Gigabytes
+msgid "GB"
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:269
+msgid "Upload data upto "
+msgstr ""
+
+#: pro-sites-files/modules/quota.php:288
+#. translators: 1: number of megabytes, 2: percentage
+msgid "%1$s MB (%2$s%%) of %3$s MB used."
+msgstr ""
+
+#: pro-sites-files/modules/unfiltered-html.php:14
+msgid "Unfilter HTML"
+msgstr ""
+
+#: pro-sites-files/modules/unfiltered-html.php:29
+msgid "Can use the unfiltered html permission"
+msgstr ""
+
+#: pro-sites-files/modules/unfiltered-html.php:86
+msgid "Select the minimum level required to enable unfiltered html."
+msgstr ""
+
+#: pro-sites-files/modules/unfiltered-html.php:99
+msgid "Filtered Message"
+msgstr ""
+
+#: pro-sites-files/modules/unfiltered-html.php:99
+msgid ""
+"Required - This message is displayed on the post/page screen for sites that "
+"don't have unfiltered html permissions upon the saving of a post. \"LEVEL\" "
+"will be replaced with the needed level name."
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:22
+msgid "Admin Menu Upgrade Link"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:23
+msgid "Displays a convenient upgrade link in the admin menu."
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:134
+msgid "Menu Items"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:146
+msgid "Name:"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:148
+msgid "Parent:"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:156
+msgid "Position Priority:"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:158
+msgid "Required level:"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:173
+msgid "Add new menu item"
+msgstr ""
+
+#: pro-sites-files/modules/upgrade-admin-links.php:174
+msgid ""
+"Add admin menu items redirecting to upgrade page for sites without required "
+"level."
+msgstr ""
+
+#: pro-sites-files/modules/write.php:29
+msgid "Limited post and pages content creation"
+msgstr ""
+
+#: pro-sites-files/modules/write.php:71
+msgid "Select the minimum level required to enable publishing posts or pages."
+msgstr ""
+
+#: pro-sites-files/modules/write.php:84
+msgid "Limit Posts"
+msgstr ""
+
+#: pro-sites-files/modules/write.php:90
+msgid "Posts Restricted Message"
+msgstr ""
+
+#: pro-sites-files/modules/write.php:90
+msgid ""
+"Required - This message is displayed on the post screen for sites that "
+"don't have permissions. \"LEVEL\" will be replaced with the needed level "
+"name."
+msgstr ""
+
+#: pro-sites-files/modules/write.php:96
+msgid "Limit Pages"
+msgstr ""
+
+#: pro-sites-files/modules/write.php:102
+msgid "Pages Restricted Message"
+msgstr ""
+
+#: pro-sites-files/modules/write.php:102
+msgid ""
+"Required - This message is displayed on the page screen for sites that "
+"don't have permissions. \"LEVEL\" will be replaced with the needed level "
+"name."
+msgstr ""
+
+#: pro-sites-files/modules/xmlrpc.php:28
+msgid "XML RPC"
+msgstr ""
+
+#: pro-sites-files/modules/xmlrpc.php:29
+msgid "Can use XML RPC calls"
+msgstr ""
+
+#: pro-sites-files/modules/xmlrpc.php:78
+msgid "Select the minimum level required to enable remote publishing."
+msgstr ""
+
+#: pro-sites-files/modules/xmlrpc.php:91
+msgid ""
+"Required - This message is displayed on the writing settings screen for "
+"sites that don't have permissions. \"LEVEL\" will be replaced with the "
+"needed level name."
+msgstr ""
+
+#: pro-sites.php:232
+msgid ""
+"There was an issue determining where Pro Sites is installed. Please "
+"reinstall."
+msgstr ""
+
+#: pro-sites.php:245 pro-sites.php:2319
+msgid "Pro Site"
+msgstr ""
+
+#: pro-sites.php:246
+msgid "Pro Upgrade"
+msgstr ""
+
+#: pro-sites.php:247
+msgid "Your Account"
+msgstr ""
+
+#: pro-sites.php:258
+msgid ""
+"You have DAYS days left in your LEVEL free trial. Checkout now to prevent "
+"losing LEVEL features &raquo;"
+msgstr ""
+
+#: pro-sites.php:262
+msgid "Would you like to upgrade this site to Pro?"
+msgstr ""
+
+#: pro-sites.php:263 pro-sites.php:350
+msgid "Upgrade to LEVEL to access this feature &raquo;"
+msgstr ""
+
+#: pro-sites.php:264
+msgid ""
+"Your Pro Site privileges will expire on: DATE<br />Unless you have canceled "
+"your subscription or your site was upgraded via the Bulk Upgrades tool, "
+"your Pro Site privileges will automatically be renewed."
+msgstr ""
+
+#: pro-sites.php:265
+msgid "Thank you for becoming a Pro Site member!"
+msgstr ""
+
+#: pro-sites.php:266
+msgid ""
+"Thank you for becoming a Pro Site member!\r\n"
+"\r\n"
+"We have received your first subscription payment and you can now access all "
+"LEVEL features!\r\n"
+"\r\n"
+"Subscription payments should show on your credit card or bank statement as "
+"\"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your "
+"Pro Site subscription you can do so here:\r\n"
+"http://mysite.com/pro-site/\r\n"
+"\r\n"
+"If you ever have any billing questions please contact us:\r\n"
+"http://mysite.com/contact/\r\n"
+"\r\n"
+"Thanks again for joining!"
+msgstr ""
+
+#: pro-sites.php:277
+msgid "Your Pro Site subscription has been canceled"
+msgstr ""
+
+#: pro-sites.php:278
+msgid ""
+"Your Pro Site subscription has been canceled.\r\n"
+"\r\n"
+"You should continue to have access until ENDDATE.\r\n"
+"\r\n"
+"We are very sorry to see you go, but we are looking forward to you "
+"subscribing to our services again.\r\n"
+"\r\n"
+"You can resubscribe at any time here:\r\n"
+"http://mysite.com/pro-site/\r\n"
+"\r\n"
+"Thanks!"
+msgstr ""
+
+#: pro-sites.php:288
+msgid "Your Pro Site payment receipt"
+msgstr ""
+
+#: pro-sites.php:289
+msgid ""
+"Your Pro Site subscription payment was successful!\r\n"
+"\r\n"
+"PAYMENTINFO\r\n"
+"\r\n"
+"Subscription payments should show on your credit card or bank statement as "
+"\"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your "
+"Pro Site subscription you can do so here:\r\n"
+"http://mysite.com/pro-site/\r\n"
+"\r\n"
+"If you ever have any billing questions please contact us:\r\n"
+"http://mysite.com/contact/\r\n"
+"\r\n"
+"Thanks again for being a valued member!"
+msgstr ""
+
+#: pro-sites.php:300
+msgid "Your Pro Site status has expired"
+msgstr ""
+
+#: pro-sites.php:301
+msgid ""
+"Unfortunately the Pro status for your site SITENAME (SITEURL) has lapsed.\r\n"
+"\r\n"
+"You can renew your Pro Site status here:\r\n"
+"CHECKOUTURL\r\n"
+"\r\n"
+"If you're having billing problems please contact us for help:\r\n"
+"http://mysite.com/contact/\r\n"
+"\r\n"
+"Looking forward to having you back as a valued member!"
+msgstr ""
+
+#: pro-sites.php:310
+msgid "Your Pro Site subscription payment failed"
+msgstr ""
+
+#: pro-sites.php:311
+msgid ""
+"It seems like there is a problem with your latest Pro Site subscription "
+"payment, sorry about that.\r\n"
+"\r\n"
+"Please update your payment information or change your payment method as "
+"soon as possible to avoid a lapse in Pro Site features. If you're still "
+"having billing problems please contact us for help:\r\n"
+"http://mysite.com/contact/\r\n"
+"\r\n"
+"Many thanks again for being a member!"
+msgstr ""
+
+#: pro-sites.php:317
+msgid "You have been given free Pro Site membership."
+msgstr ""
+
+#: pro-sites.php:318
+msgid ""
+"We have given you free Pro Site access. You will now be able to enjoy all "
+"the benefits of being a Pro Site member.\r\n"
+"\r\n"
+"These benefits will be available to you until: ENDDATE.\r\n"
+"\r\n"
+"After this date your site will revert back to a standard site.\r\n"
+"\r\n"
+"You can subscribe at any time from the link below:\r\n"
+"http://mysite.com/pro-site/\r\n"
+"\r\n"
+"Thanks!"
+msgstr ""
+
+#: pro-sites.php:333
+msgid "Manual Payment"
+msgstr ""
+
+#: pro-sites.php:341
+msgid ""
+"You can send us a priority direct email support request here if you need "
+"help with your site."
+msgstr ""
+
+#: pro-sites.php:342
+msgid "To enable premium support, please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: pro-sites.php:344
+msgid "To enable publishing posts, please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: pro-sites.php:345
+msgid "To enable publishing pages, please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: pro-sites.php:346
+msgid "For SPACE of upload space, upgrade to LEVEL!"
+msgstr ""
+
+#: pro-sites.php:347
+msgid ""
+"You are out of upload space! Please upgrade to LEVEL to enable SPACE of "
+"storage space."
+msgstr ""
+
+#: pro-sites.php:349
+msgid "To enable XML-RPC remote publishing please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: pro-sites.php:366
+msgid "Upgrade CREDITS sites to LEVEL for one year for only PRICE:"
+msgstr ""
+
+#: pro-sites.php:367
+msgid ""
+"You can upgrade multiple sites at a lower cost by purchasing Pro Site "
+"credits below. After purchasing your credits just come back to this page, "
+"search for your sites via the tool at the bottom of the page, and upgrade "
+"them to Pro Site status. Each site is upgraded for one year."
+msgstr ""
+
+#: pro-sites.php:368
+msgid ""
+"Depending on your payment method it may take just a few minutes (Credit "
+"Card or PayPal funds) or it may take several days (eCheck) for your Pro "
+"Site credits to become available."
+msgstr ""
+
+#: pro-sites.php:370
+msgid "Purchase credits to upgrade multiple sites for one discounted price!"
+msgstr ""
+
+#: pro-sites.php:372
+msgid ""
+"This site is temporarily disabled until payment is received. Please check "
+"back later."
+msgstr ""
+
+#: pro-sites.php:373
+msgid "You must pay to enable your site."
+msgstr ""
+
+#: pro-sites.php:380
+msgid "To enable the embedding html, please upgrade to LEVEL &raquo;"
+msgstr ""
+
+#: pro-sites.php:390
+msgid ""
+"WordPress multisite is required to run this plugin. <a target=\"_blank\" "
+"href=\"http://codex.wordpress.org/Create_A_Network\">Create a network</a>."
+msgstr ""
+
+#: pro-sites.php:468
+msgid "Pro"
+msgstr ""
+
+#: pro-sites.php:671 pro-sites.php:696 pro-sites.php:706 pro-sites.php:716
+msgid "no change"
+msgstr ""
+
+#: pro-sites.php:674
+msgid "%s active Pro Sites %s since last week"
+msgstr ""
+
+#: pro-sites.php:699
+msgid "%s new signups this week %s compared to last week"
+msgstr ""
+
+#: pro-sites.php:709
+msgid "%s upgrades this week %s compared to last week"
+msgstr ""
+
+#: pro-sites.php:719
+msgid "%s cancelations this week %s compared to last week"
+msgstr ""
+
+#: pro-sites.php:728
+msgid "Pro Sites"
+msgstr ""
+
+#: pro-sites.php:732
+msgid "Manage Sites"
+msgstr ""
+
+#: pro-sites.php:740 pro-sites.php:3174
+msgid "Pro Sites Statistics"
+msgstr ""
+
+#: pro-sites.php:740
+msgid "Statistics"
+msgstr ""
+
+#: pro-sites.php:749 pro-sites.php:3267
+msgid "Pro Sites Coupons"
+msgstr ""
+
+#: pro-sites.php:749
+msgid "Coupons"
+msgstr ""
+
+#: pro-sites.php:757 pro-sites.php:3656
+msgid "Pro Sites Levels"
+msgstr ""
+
+#: pro-sites.php:757
+msgid "Levels"
+msgstr ""
+
+#: pro-sites.php:765
+msgid "Pro Sites Modules & Gateways"
+msgstr ""
+
+#: pro-sites.php:765
+msgid "Modules"
+msgstr ""
+
+#: pro-sites.php:778
+msgid "Pro Sites Gateways"
+msgstr ""
+
+#: pro-sites.php:778
+msgid "Payment Gateways"
+msgstr ""
+
+#: pro-sites.php:785
+msgid "Settings"
+msgstr ""
+
+#: pro-sites.php:792
+msgid "Pro Sites Pricing Table"
+msgstr ""
+
+#: pro-sites.php:792
+msgid "Pricing Table"
+msgstr ""
+
+#: pro-sites.php:932
+msgid "N/A"
+msgstr ""
+
+#: pro-sites.php:1100
+msgid "Sorry, the coupon code you entered is not valid for your chosen level."
+msgstr ""
+
+#: pro-sites.php:1102 pro-sites.php:1115
+msgid "Whoops! The coupon code you entered is not valid."
+msgstr ""
+
+#: pro-sites.php:1113
+msgid "User added a valid coupon to their order on the checkout page:"
+msgstr ""
+
+#: pro-sites.php:1116
+msgid "User attempted to add an invalid coupon to their order on the checkout page:"
+msgstr ""
+
+#: pro-sites.php:1212
+msgid "Signup success email sent to %s"
+msgstr ""
+
+#: pro-sites.php:1219
+msgid "Every %s Month(s)"
+msgstr ""
+
+#: pro-sites.php:1227
+msgid "Payment Method: %s"
+msgstr ""
+
+#: pro-sites.php:1231
+msgid "Payment Term: %s"
+msgstr ""
+
+#: pro-sites.php:1237
+msgid "*** PLEASE NOTE ***"
+msgstr ""
+
+#: pro-sites.php:1238
+msgid ""
+"You will not be charged for your subscription until your trial ends on %s. "
+"If applicable, this does not apply to setup fees and other upfront costs."
+msgstr ""
+
+#: pro-sites.php:1252
+msgid "Payment receipt email sent to %s"
+msgstr ""
+
+#: pro-sites.php:1268
+msgid "Subscription canceled email sent to %s"
+msgstr ""
+
+#: pro-sites.php:1280
+msgid "Expired email sent to %s"
+msgstr ""
+
+#: pro-sites.php:1292
+msgid "Payment failed email sent to %s"
+msgstr ""
+
+#: pro-sites.php:1299
+msgid "Indefinitely"
+msgstr ""
+
+#: pro-sites.php:1311
+msgid "Manual extension email sent to %s"
+msgstr ""
+
+#: pro-sites.php:1714
+msgid "Pro Site status expiration permanently extended."
+msgstr ""
+
+#: pro-sites.php:1716
+msgid "Pro Site status expiration extended until %s."
+msgstr ""
+
+#: pro-sites.php:1727
+msgid "Pro Site level upgraded from \"%s\" to \"%s\"."
+msgstr ""
+
+#: pro-sites.php:1730
+msgid "Pro Site level downgraded from \"%s\" to \"%s\"."
+msgstr ""
+
+#: pro-sites.php:1764
+msgid "Pro Site status has been withdrawn."
+msgstr ""
+
+#: pro-sites.php:2095
+msgid "%1$s: %2$s (%3$s)"
+msgstr ""
+
+#: pro-sites.php:2285
+msgid "I'm Interested"
+msgstr ""
+
+#: pro-sites.php:2289
+msgid "Not Now"
+msgstr ""
+
+#: pro-sites.php:2329 pro-sites.php:2331
+msgid "Manage site &raquo;"
+msgstr ""
+
+#: pro-sites.php:2331
+msgid "Manage &raquo;"
+msgstr ""
+
+#: pro-sites.php:2465
+msgid "Log entry added."
+msgstr ""
+
+#: pro-sites.php:2479 pro-sites.php:2998 pro-sites.php:3040
+msgid "Manual"
+msgstr ""
+
+#: pro-sites.php:2480
+msgid "Site Extended."
+msgstr ""
+
+#: pro-sites.php:2487
+msgid "Please enter the Blog ID of a site to transfer to."
+msgstr ""
+
+#: pro-sites.php:2489
+msgid ""
+"Could not transfer Pro Status: The chosen site already is a Pro Site. You "
+"must remove Pro status and cancel any existing subscriptions tied to that "
+"site."
+msgstr ""
+
+#: pro-sites.php:2496
+msgid "Pro Status transferred by %s to BlogID: %d"
+msgstr ""
+
+#: pro-sites.php:2497
+msgid "Pro Status transferred by %s from BlogID: %d"
+msgstr ""
+
+#: pro-sites.php:2499
+msgid "Pro Status transferred to BlogID: %d"
+msgstr ""
+
+#: pro-sites.php:2511
+msgid "Pro Site Status Removed."
+msgstr ""
+
+#: pro-sites.php:2516
+msgid "Email receipt sent."
+msgstr ""
+
+#: pro-sites.php:2525
+msgid "Invalid blog ID. Please try again."
+msgstr ""
+
+#: pro-sites.php:2539
+msgid "Are you sure you really want to do this?"
+msgstr ""
+
+#: pro-sites.php:2550
+msgid "Pro Sites Management"
+msgstr ""
+
+#: pro-sites.php:2553
+msgid "Manage Site"
+msgstr ""
+
+#: pro-sites.php:2567
+msgid "%s Month"
+msgid_plural "%s Months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: pro-sites.php:2576
+msgid "Current Pro Site"
+msgstr ""
+
+#: pro-sites.php:2580
+msgid "Pro Site privileges will expire: <strong>Never</strong>"
+msgstr ""
+
+#: pro-sites.php:2582
+msgid "Pro Site privileges will expire on: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2585
+msgid "Level: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2587
+msgid "Payment Gateway: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2590
+msgid "Payment Term: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2595
+msgid "Expired Pro Site"
+msgstr ""
+
+#: pro-sites.php:2598
+msgid "Pro Site privileges expired on: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2600
+msgid "Previous Level: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2602
+msgid "Previous Payment Gateway: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2605
+msgid "Previous Payment Term: <strong>%s</strong>"
+msgstr ""
+
+#: pro-sites.php:2610
+msgid "has never been a Pro Site."
+msgstr ""
+
+#: pro-sites.php:2621
+msgid "Subscription Information"
+msgstr ""
+
+#: pro-sites.php:2634
+msgid "Subscriber Information"
+msgstr ""
+
+#: pro-sites.php:2649
+msgid "Account History"
+msgstr ""
+
+#: pro-sites.php:2652
+msgid ""
+"This logs basically every action done in the system regarding the site for "
+"an audit trail."
+msgstr ""
+
+#: pro-sites.php:2664
+msgid "Y-m-d g:i:s a"
+msgstr ""
+
+#: pro-sites.php:2667
+msgid "No history recorded for this site yet."
+msgstr ""
+
+#: pro-sites.php:2673
+msgid "Add a custom log entry..."
+msgstr ""
+
+#: pro-sites.php:2674 pro-sites.php:3928
+msgid "Add &raquo;"
+msgstr ""
+
+#: pro-sites.php:2686
+msgid "Manually Extend Pro Site Status"
+msgstr ""
+
+#: pro-sites.php:2689
+msgid ""
+"Please note that these changes will not adjust the payment dates or level "
+"for any existing subscription."
+msgstr ""
+
+#: pro-sites.php:2696 pro-sites.php:3384 pro-sites.php:3578
+msgid "Period"
+msgstr ""
+
+#: pro-sites.php:2703
+msgid "Months"
+msgstr ""
+
+#: pro-sites.php:2710
+msgid "Days"
+msgstr ""
+
+#: pro-sites.php:2711
+msgid "or"
+msgstr ""
+
+#: pro-sites.php:2714
+msgid "Period you wish to extend the site. Leave at zero to only change the level."
+msgstr ""
+
+#: pro-sites.php:2727
+msgid "Choose what level the site should have access to."
+msgstr ""
+
+#: pro-sites.php:2732
+msgid "Extend &raquo;"
+msgstr ""
+
+#: pro-sites.php:2742
+msgid "Transfer &raquo;"
+msgstr ""
+
+#: pro-sites.php:2755
+msgid "Modify Pro Site Status"
+msgstr ""
+
+#: pro-sites.php:2766
+msgid "Remove Pro status from this site."
+msgstr ""
+
+#: pro-sites.php:2772
+msgid "Email a receipt copy for last payment to:"
+msgstr ""
+
+#: pro-sites.php:2778
+msgid "Modify &raquo;"
+msgstr ""
+
+#: pro-sites.php:2793
+msgid "Manage a Site"
+msgstr ""
+
+#: pro-sites.php:2800
+msgid "Blog ID:"
+msgstr ""
+
+#: pro-sites.php:2802
+msgid "Continue &raquo;"
+msgstr ""
+
+#: pro-sites.php:2811
+msgid "Or search for a site:"
+msgstr ""
+
+#: pro-sites.php:2813
+msgid "Search Sites &raquo;"
+msgstr ""
+
+#: pro-sites.php:2980
+msgid "Total Pro Sites"
+msgstr ""
+
+#: pro-sites.php:2994 pro-sites.php:3028 pro-sites.php:4556
+msgid "1 Month"
+msgstr ""
+
+#: pro-sites.php:2995 pro-sites.php:3032
+msgid "3 Month"
+msgstr ""
+
+#: pro-sites.php:2996 pro-sites.php:3036
+msgid "12 Month"
+msgstr ""
+
+#: pro-sites.php:3002 pro-sites.php:3011
+msgid "Signups"
+msgstr ""
+
+#: pro-sites.php:3003 pro-sites.php:3012
+msgid "Upgrades"
+msgstr ""
+
+#: pro-sites.php:3005 pro-sites.php:3014
+msgid "Modifications"
+msgstr ""
+
+#: pro-sites.php:3009 pro-sites.php:3018
+msgid "Cancelations"
+msgstr ""
+
+#: pro-sites.php:3181
+msgid "Monthly Activity Summary"
+msgstr ""
+
+#: pro-sites.php:3184 pro-sites.php:3192 pro-sites.php:3204 pro-sites.php:3210
+#: pro-sites.php:3221 pro-sites.php:3229 pro-sites.php:3232 pro-sites.php:3239
+msgid "No data available yet"
+msgstr ""
+
+#: pro-sites.php:3189
+msgid "Weekly Activity Summary"
+msgstr ""
+
+#: pro-sites.php:3197
+msgid "Ratios"
+msgstr ""
+
+#: pro-sites.php:3202
+msgid "Current Pro Site Levels (%s Total)"
+msgstr ""
+
+#: pro-sites.php:3208
+msgid "Current Gateway Use"
+msgstr ""
+
+#: pro-sites.php:3218
+msgid "Pro Sites History"
+msgstr ""
+
+#: pro-sites.php:3226
+msgid "Pro Sites Term History"
+msgstr ""
+
+#: pro-sites.php:3230
+msgid "Current Terms"
+msgstr ""
+
+#: pro-sites.php:3269
+msgid "You can create, delete, or update coupon codes for your network here."
+msgstr ""
+
+#: pro-sites.php:3288
+msgid "Coupon(s) succesfully deleted."
+msgstr ""
+
+#: pro-sites.php:3301
+msgid "Please enter a valid Coupon Code"
+msgstr ""
+
+#: pro-sites.php:3306
+msgid "Please enter a valid Discount Amount"
+msgstr ""
+
+#: pro-sites.php:3311
+msgid "Please choose a valid Discount Type"
+msgstr ""
+
+#: pro-sites.php:3317
+msgid "Please enter a valid Start Date"
+msgstr ""
+
+#: pro-sites.php:3322
+msgid "Please enter a valid End Date not earlier than the Start Date"
+msgstr ""
+
+#: pro-sites.php:3332
+msgid "Coupon succesfully saved."
+msgstr ""
+
+#: pro-sites.php:3369
+msgid "Delete"
+msgstr ""
+
+#: pro-sites.php:3379 pro-sites.php:3564
+msgid "Coupon Code"
+msgstr ""
+
+#: pro-sites.php:3380 pro-sites.php:3566
+msgid "Discount"
+msgstr ""
+
+#: pro-sites.php:3381 pro-sites.php:3567
+msgid "Start Date"
+msgstr ""
+
+#: pro-sites.php:3382 pro-sites.php:3569
+msgid "Expire Date"
+msgstr ""
+
+#: pro-sites.php:3385
+msgid "Used"
+msgstr ""
+
+#: pro-sites.php:3386
+msgid "Remaining Uses"
+msgstr ""
+
+#: pro-sites.php:3387 pro-sites.php:3490
+msgid "Edit"
+msgstr ""
+
+#: pro-sites.php:3452
+msgid "No End"
+msgstr ""
+
+#: pro-sites.php:3460 pro-sites.php:3602
+msgid "Any Level"
+msgstr ""
+
+#: pro-sites.php:3504
+msgid "No coupons yet."
+msgstr ""
+
+#: pro-sites.php:3535
+msgid "Edit Coupon"
+msgstr ""
+
+#: pro-sites.php:3537
+msgid "Add Coupon"
+msgstr ""
+
+#: pro-sites.php:3564
+msgid "Letters and numbers only"
+msgstr ""
+
+#: pro-sites.php:3569
+msgid "No end if left blank"
+msgstr ""
+
+#: pro-sites.php:3575
+msgid "Allowed Uses"
+msgstr ""
+
+#: pro-sites.php:3575
+msgid "Unlimited if blank"
+msgstr ""
+
+#: pro-sites.php:3578
+msgid ""
+"Allows you to limit the availability of coupon for selected subscription "
+"period."
+msgstr ""
+
+#: pro-sites.php:3618
+msgid "Any Period"
+msgstr ""
+
+#: pro-sites.php:3634
+msgid "Save Coupon"
+msgstr ""
+
+#: pro-sites.php:3683
+msgid "Level %s successfully deleted."
+msgstr ""
+
+#: pro-sites.php:3696
+msgid "Please enter a valid level name."
+msgstr ""
+
+#: pro-sites.php:3700
+msgid "You must enter a price for at least one payment period."
+msgstr ""
+
+#: pro-sites.php:3721
+msgid "Level added."
+msgstr ""
+
+#: pro-sites.php:3756
+msgid "Levels saved."
+msgstr ""
+
+#: pro-sites.php:3772 pro-sites.php:3786 pro-sites.php:3900
+msgid "Is Visible"
+msgstr ""
+
+#: pro-sites.php:3773 pro-sites.php:3788 pro-sites.php:3901
+msgid "1 Month Price"
+msgstr ""
+
+#: pro-sites.php:3774 pro-sites.php:3791 pro-sites.php:3902
+msgid "3 Month Price"
+msgstr ""
+
+#: pro-sites.php:3775 pro-sites.php:3794 pro-sites.php:3903
+msgid "12 Month Price"
+msgstr ""
+
+#: pro-sites.php:3779
+msgid "Edit Pro Site Levels"
+msgstr ""
+
+#: pro-sites.php:3780
+msgid ""
+"Pro Sites will have the features assigned to all level numbers at or less "
+"than their own. You can disable a subscription period by unchecking it. "
+"Modifying the prices of a level will not change the current subsciption "
+"rate or plan for existing sites in that level. When you delete a level, "
+"existing sites in that level will retain the features of all levels below "
+"their current level number."
+msgstr ""
+
+#: pro-sites.php:3788
+msgid "Enable 1 Month Checkout"
+msgstr ""
+
+#: pro-sites.php:3791
+msgid "Enable 3 Month Checkout"
+msgstr ""
+
+#: pro-sites.php:3794
+msgid "Enable 12 Month Checkout"
+msgstr ""
+
+#: pro-sites.php:3865
+msgid "Delete &raquo;"
+msgstr ""
+
+#: pro-sites.php:3880
+msgid "No levels yet."
+msgstr ""
+
+#: pro-sites.php:3889
+msgid "Save Levels"
+msgstr ""
+
+#: pro-sites.php:3890
+msgid "Changes not saved."
+msgstr ""
+
+#: pro-sites.php:3893
+msgid "Add New Level"
+msgstr ""
+
+#: pro-sites.php:3894
+msgid "You can add a new Pro Site level here."
+msgstr ""
+
+#: pro-sites.php:3960
+msgid ""
+"Modules/Gateways Saved. Please <a "
+"href=\"admin.php?page=psts-settings\">visit Settings</a> to configure them."
+msgstr ""
+
+#: pro-sites.php:3965
+msgid "Pro Sites Modules and Gateways"
+msgstr ""
+
+#: pro-sites.php:3970
+msgid "Enable Modules"
+msgstr ""
+
+#: pro-sites.php:3971
+msgid ""
+"Select the modules you would like to use below. You can then configure "
+"their options on the settings page."
+msgstr ""
+
+#: pro-sites.php:3976
+msgid "Module Name"
+msgstr ""
+
+#: pro-sites.php:4001
+msgid "Premium Only &raquo;"
+msgstr ""
+
+#: pro-sites.php:4207
+msgid ""
+"There was a problem finding the Checkout Page. Please follow the directions "
+"below to regenerate it:"
+msgstr ""
+
+#: pro-sites.php:4312
+msgid "Email Notifications"
+msgstr ""
+
+#: pro-sites.php:4543
+msgid "Monthly"
+msgstr ""
+
+#: pro-sites.php:4546
+msgid "Every 3 Months"
+msgstr ""
+
+#: pro-sites.php:4549
+msgid "Every 12 Months"
+msgstr ""
+
+#: pro-sites.php:4559
+msgid "3 Months"
+msgstr ""
+
+#: pro-sites.php:4562
+msgid "12 Months"
+msgstr ""
+
+#: pro-sites.php:4626 pro-sites.php:4658
+msgid "Equivalent to only %s monthly"
+msgstr ""
+
+#: pro-sites.php:4791
+msgid "Email receipt sent to %s."
+msgstr ""
+
+#: pro-sites.php:4795
+msgid "Email a receipt copy for your last payment to:"
+msgstr ""
+
+#: pro-sites.php:4795
+msgid "change"
+msgstr ""
+
+#: pro-sites.php:4797
+msgid "Send &raquo;"
+msgstr ""
+
+#: pro-sites.php:4809
+msgid ""
+"Your <strong>%d day trial</strong> begins once you click the \"Subscribe\" "
+"button below."
+msgstr ""
+
+#: pro-sites.php:4822
+msgid "You must first login before you can choose a site to upgrade:"
+msgstr ""
+
+#: pro-sites.php:4861 pro-sites.php:4958
+msgid "Not %s"
+msgstr ""
+
+#: pro-sites.php:4862 pro-sites.php:4959
+msgid "Modify \"%s\""
+msgstr ""
+
+#: pro-sites.php:4862 pro-sites.php:4959
+msgid "Upgrade \"%s\""
+msgstr ""
+
+#: pro-sites.php:4924
+msgid ""
+"Sorry, but you do not have permission to upgrade this site. Only the site "
+"administrator can upgrade their site."
+msgstr ""
+
+#: pro-sites.php:4925 pro-sites.php:4933
+msgid "Choose a different site"
+msgstr ""
+
+#: pro-sites.php:4932
+msgid "This site has been permanently given %s status."
+msgstr ""
+
+#: pro-sites.php:4946
+msgid "Please choose a site to Upgrade or Modify:"
+msgstr ""
+
+#: pro-sites.php:4977
+msgid "Sorry, but it appears you are not an administrator for any sites."
+msgstr ""
+
+#: pro-sites.php:5370
+msgid "The original Level doesn't exist, it might have been removed."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Pro Sites (Formerly Supporter)"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://premium.wpmudev.org/project/pro-sites/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"The ultimate multisite site upgrade plugin, turn regular sites into "
+"multiple pro site subscription levels selling access to storage space, "
+"premium themes, premium plugins and much more!"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "WPMU DEV"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://premium.wpmudev.org/"
+msgstr ""

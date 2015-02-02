@@ -46,7 +46,7 @@ class ProSites_Module_BP {
 	 *
 	 * @return bool True if site is pro or originally was recorable False if filtering is on plus it's a non-pro site
 	 **/
-	function prosites_filter_blogs( $recordable_globally = null, $blog_id = null, $user_id = null ) {
+	function prosites_filter_blogs( $recordable_globally = null, $blog_id = false, $user_id = null ) {
 		global $bp, $psts;
 		// If related feature is off simply return original value
 		if ( ! $psts->get_setting( 'bp_hide_unpaid' ) ) {
@@ -70,11 +70,13 @@ class ProSites_Module_BP {
 			return;
 		}
 		get_admin_users_for_domain( $blog_id );
-		bp_blogs_remove_blog( $blog_id );
+		if( function_exists( 'bp_blogs_remove_blog' ) ) {
+			bp_blogs_remove_blog( $blog_id );
+		}
 	}
 
 	/**
-	 * Upgrade blog. Basically add remoced blog entry to BP cache
+	 * Upgrade blog. Basically add removed blog entry to BP cache
 	 *
 	 * @param int $blog_id
 	 * @param int $level
@@ -92,7 +94,10 @@ class ProSites_Module_BP {
 		$user = get_admin_users_for_domain();
 		restore_current_blog();
 
-		bp_blogs_record_blog( $blog_id, $user['ID'] );
+		if( function_exists( 'bp_blogs_record_blog' ) ) {
+			bp_blogs_record_blog( $blog_id, $user['ID'] );
+		}
+
 	}
 
 	function settings_process( $settings, $active_tab ) {

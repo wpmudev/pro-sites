@@ -165,6 +165,9 @@ class ProSites {
 		if ( ( ! defined( 'PSTS_DISABLE_UPGRADE' ) || ( defined( 'PSTS_DISABLE_UPGRADE' ) && ! PSTS_DISABLE_UPGRADE ) ) && $this->get_setting( 'version' ) != $this->version ) {
 			$this->install();
 		}
+
+		// Hooking here until the models get reworked.
+		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 3 );
 	}
 
 //------------------------------------------------------------------------//
@@ -231,6 +234,152 @@ class ProSites {
 
 		//load data structures
 		require_once( $this->plugin_dir . 'data.php' );
+	}
+
+	public static function get_default_settings_array() {
+		return array(
+			'base_country'             => 'US',
+			'currency'                 => 'USD',
+			'curr_symbol_position'     => 1,
+			'curr_decimal'             => 1,
+			'rebrand'                  => __( 'Pro Site', 'psts' ),
+			'lbl_signup'               => __( 'Pro Upgrade', 'psts' ),
+			'lbl_curr'                 => __( 'Your Account', 'psts' ),
+			'gateways_enabled'         => array( 'ProSites_Gateway_PayPalExpressPro' ),
+			'modules_enabled'          => array(),
+			'enabled_periods'          => array( 1, 3, 12 ),
+			'hide_adminmenu'           => 0,
+			'hide_adminbar'            => 0,
+			'hide_adminbar_super'      => 0,
+			'free_name'                => __( 'Free', 'psts' ),
+			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
+			'trial_level'              => 1,
+			'trial_days'               => get_site_option( "supporter_free_days" ),
+			'trial_message'            => __( 'You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts' ),
+			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
+			'recurring_subscriptions'  => 1,
+			'ga_ecommerce'             => 'none',
+			'signup_message'           => __( 'Would you like to upgrade this site to Pro?', 'psts' ),
+			'feature_message'          => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
+			'active_message'           => __( 'Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts' ),
+			'success_subject'          => __( 'Thank you for becoming a Pro Site member!', 'psts' ),
+			'success_msg'              => __( "Thank you for becoming a Pro Site member!
+
+We have received your first subscription payment and you can now access all LEVEL features!
+
+Subscription payments should show on your credit card or bank statement as \"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
+http://mysite.com/pro-site/
+
+If you ever have any billing questions please contact us:
+http://mysite.com/contact/
+
+Thanks again for joining!", 'psts' ),
+			'canceled_subject'         => __( 'Your Pro Site subscription has been canceled', 'psts' ),
+			'canceled_msg'             => __( "Your Pro Site subscription has been canceled.
+
+You should continue to have access until ENDDATE.
+
+We are very sorry to see you go, but we are looking forward to you subscribing to our services again.
+
+You can resubscribe at any time here:
+http://mysite.com/pro-site/
+
+Thanks!", 'psts' ),
+			'receipt_subject'          => __( 'Your Pro Site payment receipt', 'psts' ),
+			'receipt_msg'              => __( "Your Pro Site subscription payment was successful!
+
+PAYMENTINFO
+
+Subscription payments should show on your credit card or bank statement as \"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
+http://mysite.com/pro-site/
+
+If you ever have any billing questions please contact us:
+http://mysite.com/contact/
+
+Thanks again for being a valued member!", 'psts' ),
+			'expired_subject'          => __( 'Your Pro Site status has expired', 'psts' ),
+			'expired_msg'              => __( "Unfortunately the Pro status for your site SITENAME (SITEURL) has lapsed.
+
+You can renew your Pro Site status here:
+CHECKOUTURL
+
+If you're having billing problems please contact us for help:
+http://mysite.com/contact/
+
+Looking forward to having you back as a valued member!", 'psts' ),
+			'failed_subject'           => __( 'Your Pro Site subscription payment failed', 'psts' ),
+			'failed_msg'               => __( "It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.
+
+Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features. If you're still having billing problems please contact us for help:
+http://mysite.com/contact/
+
+Many thanks again for being a member!", 'psts' ),
+			'extension_subject'           => __( 'You have been given free Pro Site membership.', 'psts' ),
+			'extension_msg'               => __( "We have given you free Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
+
+These benefits will be available to you until: ENDDATE.
+
+After this date your site will revert back to a standard site.
+
+You can subscribe at any time from the link below:
+http://mysite.com/pro-site/
+
+Thanks!", 'psts' ),
+			'pypl_site'                => 'US',
+			'pypl_currency'            => 'USD',
+			'pypl_status'              => 'test',
+			'pypl_enable_pro'          => 0,
+			'stripe_ssl'               => 0,
+			'mp_name'                  => __( 'Manual Payment', 'psts' ),
+			'mp_show_form'             => 0,
+			'mp_email'                 => get_site_option( "admin_email" ),
+			'pt_name'                  => __( 'Premium Themes', 'psts' ),
+			'pt_text'                  => __( 'Upgrade to LEVEL to activate this premium theme &raquo;', 'psts' ),
+			'ps_level'                 => 1,
+			'ps_email'                 => get_site_option( "admin_email" ),
+			'ps_name'                  => __( 'Premium Support', 'psts' ),
+			'ps_message'               => __( 'You can send us a priority direct email support request here if you need help with your site.', 'psts' ),
+			'ps_notice'                => __( 'To enable premium support, please upgrade to LEVEL &raquo;', 'psts' ),
+			'publishing_level'         => 1,
+			'publishing_message_posts' => __( 'To enable publishing posts, please upgrade to LEVEL &raquo;', 'psts' ),
+			'publishing_message_pages' => __( 'To enable publishing pages, please upgrade to LEVEL &raquo;', 'psts' ),
+			'quota_message'            => __( 'For SPACE of upload space, upgrade to LEVEL!', 'psts' ),
+			'quota_out_message'        => __( 'You are out of upload space! Please upgrade to LEVEL to enable SPACE of storage space.', 'psts' ),
+			'xmlrpc_level'             => 1,
+			'xmlrpc_message'           => __( 'To enable XML-RPC remote publishing please upgrade to LEVEL &raquo;', 'psts' ),
+			'bp_notice'                => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
+			'pp_name'                  => __( 'Premium Plugins', 'psts' ),
+			'ads_name'                 => __( 'Disable Ads', 'psts' ),
+			'ads_level'                => 1,
+			'ads_enable_blogs'         => 0,
+			'ads_count'                => 3,
+			'ads_before_page'          => 0,
+			'ads_after_page'           => 0,
+			'ads_before_post'          => 0,
+			'ads_after_post'           => 0,
+			'ads_themes'               => 0,
+			'bu_email'                 => get_site_option( "supporter_paypal_email" ),
+			'bu_status'                => 'test',
+			'bu_payment_type'          => 'recurring',
+			'bu_level'                 => 1,
+			'bu_credits_1'             => 10,
+			'bu_option_msg'            => __( 'Upgrade CREDITS sites to LEVEL for one year for only PRICE:', 'psts' ),
+			'bu_checkout_msg'          => __( 'You can upgrade multiple sites at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your sites via the tool at the bottom of the page, and upgrade them to Pro Site status. Each site is upgraded for one year.', 'psts' ),
+			'bu_payment_msg'           => __( 'Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available.', 'psts' ),
+			'bu_name'                  => __( 'Bulk Upgrades', 'psts' ),
+			'bu_link_msg'              => __( 'Purchase credits to upgrade multiple sites for one discounted price!', 'psts' ),
+			'ptb_front_disable'        => 1,
+			'ptb_front_msg'            => __( 'This site is temporarily disabled until payment is received. Please check back later.', 'psts' ),
+			'ptb_checkout_msg'         => __( 'You must pay to enable your site.', 'psts' ),
+			'pq_level'                 => 1,
+			'pq_quotas'                => array(
+				'post' => array( 'quota' => 'unlimited' ),
+				'page' => array( 'quota' => 'unlimited' )
+			),
+			'uh_level'                 => 1,
+			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
+			'co_pricing'               => 'disabled'
+		);
 	}
 
 	function install() {
@@ -308,138 +457,8 @@ class ProSites {
 		restore_current_blog();
 
 		//our default settings
-		$default_settings = array(
-			'base_country'             => 'US',
-			'currency'                 => 'USD',
-			'curr_symbol_position'     => 1,
-			'curr_decimal'             => 1,
-			'rebrand'                  => __( 'Pro Site', 'psts' ),
-			'lbl_signup'               => __( 'Pro Upgrade', 'psts' ),
-			'lbl_curr'                 => __( 'Your Account', 'psts' ),
-			'gateways_enabled'         => array( 'ProSites_Gateway_PayPalExpressPro' ),
-			'modules_enabled'          => array(),
-			'enabled_periods'          => array( 1, 3, 12 ),
-			'hide_adminmenu'           => 0,
-			'hide_adminbar'            => 0,
-			'hide_adminbar_super'      => 0,
-			'free_name'                => __( 'Free', 'psts' ),
-			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
-			'trial_level'              => 1,
-			'trial_days'               => get_site_option( "supporter_free_days" ),
-			'trial_message'            => __( 'You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts' ),
-			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
-			'recurring_subscriptions'  => 1,
-			'ga_ecommerce'             => 'none',
-			'signup_message'           => __( 'Would you like to upgrade this site to Pro?', 'psts' ),
-			'feature_message'          => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
-			'active_message'           => __( 'Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts' ),
-			'success_subject'          => __( 'Thank you for becoming a Pro Site member!', 'psts' ),
-			'success_msg'              => __( "Thank you for becoming a Pro Site member!
+		$default_settings = ProSites::get_default_settings_array();
 
-We have received your first subscription payment and you can now access all LEVEL features!
-
-Subscription payments should show on your credit card or bank statement as \"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
-http://mysite.com/pro-site/
-
-If you ever have any billing questions please contact us:
-http://mysite.com/contact/
-
-Thanks again for joining!", 'psts' ),
-			'canceled_subject'         => __( 'Your Pro Site subscription has been canceled', 'psts' ),
-			'canceled_msg'             => __( "Your Pro Site subscription has been canceled.
-
-You should continue to have access until ENDDATE.
-
-We are very sorry to see you go, but we are looking forward to you subscribing to our services again.
-
-You can resubscribe at any time here:
-http://mysite.com/pro-site/
-
-Thanks!", 'psts' ),
-			'receipt_subject'          => __( 'Your Pro Site payment receipt', 'psts' ),
-			'receipt_msg'              => __( "Your Pro Site subscription payment was successful!
-
-PAYMENTINFO
-
-Subscription payments should show on your credit card or bank statement as \"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
-http://mysite.com/pro-site/
-
-If you ever have any billing questions please contact us:
-http://mysite.com/contact/
-
-Thanks again for being a valued member!", 'psts' ),
-			'expired_subject'          => __( 'Your Pro Site status has expired', 'psts' ),
-			'expired_msg'              => __( "Unfortunately the Pro status for your site SITENAME (SITEURL) has lapsed.
-
-You can renew your Pro Site status here:
-CHECKOUTURL
-
-If you're having billing problems please contact us for help:
-http://mysite.com/contact/
-
-Looking forward to having you back as a valued member!", 'psts' ),
-			'failed_subject'           => __( 'Your Pro Site subscription payment failed', 'psts' ),
-			'failed_msg'               => __( "It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.
-
-Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features. If you're still having billing problems please contact us for help:
-http://mysite.com/contact/
-
-Many thanks again for being a member!", 'psts' ),
-			'pypl_site'                => 'US',
-			'pypl_currency'            => 'USD',
-			'pypl_status'              => 'test',
-			'pypl_enable_pro'          => 0,
-			'stripe_ssl'               => 0,
-			'mp_name'                  => __( 'Manual Payment', 'psts' ),
-			'mp_show_form'             => 0,
-			'mp_email'                 => get_site_option( "admin_email" ),
-			'pt_name'                  => __( 'Premium Themes', 'psts' ),
-			'pt_text'                  => __( 'Upgrade to LEVEL to activate this premium theme &raquo;', 'psts' ),
-			'ps_level'                 => 1,
-			'ps_email'                 => get_site_option( "admin_email" ),
-			'ps_name'                  => __( 'Premium Support', 'psts' ),
-			'ps_message'               => __( 'You can send us a priority direct email support request here if you need help with your site.', 'psts' ),
-			'ps_notice'                => __( 'To enable premium support, please upgrade to LEVEL &raquo;', 'psts' ),
-			'publishing_level'         => 1,
-			'publishing_message_posts' => __( 'To enable publishing posts, please upgrade to LEVEL &raquo;', 'psts' ),
-			'publishing_message_pages' => __( 'To enable publishing pages, please upgrade to LEVEL &raquo;', 'psts' ),
-			'quota_message'            => __( 'For SPACE of upload space, upgrade to LEVEL!', 'psts' ),
-			'quota_out_message'        => __( 'You are out of upload space! Please upgrade to LEVEL to enable SPACE of storage space.', 'psts' ),
-			'xmlrpc_level'             => 1,
-			'xmlrpc_message'           => __( 'To enable XML-RPC remote publishing please upgrade to LEVEL &raquo;', 'psts' ),
-			'bp_notice'                => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
-			'pp_name'                  => __( 'Premium Plugins', 'psts' ),
-			'ads_name'                 => __( 'Disable Ads', 'psts' ),
-			'ads_level'                => 1,
-			'ads_enable_blogs'         => 0,
-			'ads_count'                => 3,
-			'ads_before_page'          => 0,
-			'ads_after_page'           => 0,
-			'ads_before_post'          => 0,
-			'ads_after_post'           => 0,
-			'ads_themes'               => 0,
-			'bu_email'                 => get_site_option( "supporter_paypal_email" ),
-			'bu_status'                => 'test',
-			'bu_payment_type'          => 'recurring',
-			'bu_level'                 => 1,
-			'bu_credits_1'             => 10,
-			'bu_option_msg'            => __( 'Upgrade CREDITS sites to LEVEL for one year for only PRICE:', 'psts' ),
-			'bu_checkout_msg'          => __( 'You can upgrade multiple sites at a lower cost by purchasing Pro Site credits below. After purchasing your credits just come back to this page, search for your sites via the tool at the bottom of the page, and upgrade them to Pro Site status. Each site is upgraded for one year.', 'psts' ),
-			'bu_payment_msg'           => __( 'Depending on your payment method it may take just a few minutes (Credit Card or PayPal funds) or it may take several days (eCheck) for your Pro Site credits to become available.', 'psts' ),
-			'bu_name'                  => __( 'Bulk Upgrades', 'psts' ),
-			'bu_link_msg'              => __( 'Purchase credits to upgrade multiple sites for one discounted price!', 'psts' ),
-			'ptb_front_disable'        => 1,
-			'ptb_front_msg'            => __( 'This site is temporarily disabled until payment is received. Please check back later.', 'psts' ),
-			'ptb_checkout_msg'         => __( 'You must pay to enable your site.', 'psts' ),
-			'pq_level'                 => 1,
-			'pq_quotas'                => array(
-				'post' => array( 'quota' => 'unlimited' ),
-				'page' => array( 'quota' => 'unlimited' )
-			),
-			'uh_level'                 => 1,
-			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
-			'co_pricing'               => 'disabled'
-		);
 		$settings         = wp_parse_args( ( array ) get_site_option( 'psts_settings' ), $default_settings );
 		update_site_option( 'psts_settings', $settings );
 
@@ -812,7 +831,7 @@ Many thanks again for being a member!", 'psts' ),
 		$permission      = $this->check_user_role( $current_user_id, $checkout_roles );
 
 		if ( ! is_main_site() && ! $this->get_setting( 'hide_adminmenu', 0 ) && $permission ) {
-			$label = is_pro_site() ? $this->get_setting( 'lbl_curr' ) : $this->get_setting( 'lbl_signup' );
+			$label = is_pro_site( get_current_blog_id() ) ? $this->get_setting( 'lbl_curr' ) : $this->get_setting( 'lbl_signup' );
 			add_menu_page( $label, $label, 'edit_pages', 'psts-checkout', array(
 				&$this,
 				'checkout_redirect_page'
@@ -927,6 +946,10 @@ Many thanks again for being a member!", 'psts' ),
 
 		$url = $this->get_setting( 'checkout_url' );
 
+		$page = get_post( $this->get_setting( 'checkout_page' ) );
+		if ( ! $page || $page->post_status == 'trashed' ) {
+			$url = $this->create_checkout_page();
+		}
 		/*
           //just in case the checkout page was not created do it now
           if (!$url) {
@@ -977,11 +1000,15 @@ Many thanks again for being a member!", 'psts' ),
 				'post_content'   => stripslashes( get_site_option( 'supporter_message' ) )
 			) );
 			$this->update_setting( 'checkout_page', $id );
-			$this->update_setting( 'checkout_url', get_permalink( $id ) );
+			$url = get_permalink( $id );
+			$this->update_setting( 'checkout_url', $url );
 		} else {
-			$this->update_setting( 'checkout_url', get_permalink( $this->get_setting( 'checkout_page' ) ) );
+			$url = get_permalink( $this->get_setting( 'checkout_page' ) );
+			$this->update_setting( 'checkout_url', $url );
 		}
 		restore_current_blog();
+
+		return $url;
 	}
 
 	function checkout_page_load( $query ) {
@@ -1122,6 +1149,7 @@ Many thanks again for being a member!", 'psts' ),
 		if ( ! session_id() ) {
 			session_start();
 		}
+
 	}
 
 	/**
@@ -1154,7 +1182,7 @@ Many thanks again for being a member!", 'psts' ),
 
 
 	//sends email notification to the user
-	function email_notification( $blog_id, $action, $email = false ) {
+	function email_notification( $blog_id, $action, $email = false, $args = array() ) {
 		global $wpdb;
 
 		if ( ! $email ) {
@@ -1263,6 +1291,40 @@ Many thanks again for being a member!", 'psts' ),
 
 				$this->log_action( $blog_id, sprintf( __( 'Payment failed email sent to %s', 'psts' ), $email ) );
 				break;
+			case 'extension':
+				//get end date from expiration
+				$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $this->get_expire( $blog_id ) );
+
+				if( ! empty( $args ) && isset( $args['indefinite'] ) ) {
+					$end_date = __( 'Indefinitely', 'psts' );
+				}
+
+				$search_replace['ENDDATE'] = $end_date;
+				$e                         = array(
+					'msg'     => $this->get_setting( 'extension_msg' ),
+					'subject' => $this->get_setting( 'extension_subject' )
+				);
+
+				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
+				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
+
+				$this->log_action( $blog_id, sprintf( __( 'Manual extension email sent to %s', 'psts' ), $email ) );
+				break;
+		}
+	}
+
+	/**
+	 * @todo: Rework this into a model
+	 */
+	public function send_extension_email( $blog_id, $new_expire, $level ) {
+
+		$args = array();
+		if( '9999999999' == $new_expire ) {
+			$args['indefinite'] = true;
+		}
+
+		if ( ! defined( 'PSTS_NO_EXTENSION_EMAIL' ) ) {
+			$this->email_notification( $blog_id, 'extension', false, $args );
 		}
 	}
 
@@ -5374,7 +5436,7 @@ define ( "YEARLY", 12 );
 function is_pro_site( $blog_id = false, $level = false ) {
 	global $psts;
 
-	return empty( $blog_id ) ? false : $psts->is_pro_site( $blog_id, $level );
+	return $psts->is_pro_site( $blog_id, $level );
 }
 
 /**

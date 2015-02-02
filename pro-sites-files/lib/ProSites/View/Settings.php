@@ -45,10 +45,20 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_general() {
-			global $psts;
+			global $psts, $current_site;
 			ob_start();
-			$x = '';
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
+
+//			$levels = (array) get_site_option( 'psts_levels' );
+
+			//allow overriding and changing the root site to put the checkout page on
+			$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+
+			//insert new page if not existing
+			switch_to_blog( $checkout_site );
+			$checkout_link = get_edit_post_link( $psts->get_setting( 'checkout_page' ) );
+			restore_current_blog();
+
 			?>
 
 			<div class="inside">
@@ -140,7 +150,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 						    class="psts-help-div psts-checkout-page"><?php echo __( 'Checkout Page', 'psts' ) . ProSites_Helper_UI::help_text( __( 'If checkout page is not found, a new checkout page is generated upon saving the settings. The slug and title is based on the rebrand option above.', 'psts' ) ); ?></th>
 						<td>
 							<?php if ( empty( $checkout_link ) ) { ?>
-								<?php _e( 'There was a problem finding the Checkout Page. Please follow the directions below to regenerate it:', 'psts' ); ?>
+								<?php _e( 'There was a problem finding the Checkout Page. It will be created when you save the settings on this page.', 'psts' ); ?>
 							<?php } else { ?>
 								<a href="<?php echo $checkout_link; ?>"
 								   title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a>
@@ -336,6 +346,16 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 								<input type="text" class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr( $psts->get_setting( 'failed_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
 								<textarea class="pp_emails_txt" name="psts[failed_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'failed_msg' ) ); ?></textarea>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="psts-help-div psts-pro-manual-extension"><?php echo __( 'Pro Site Manual Extension', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site email sent to user when site is manually extended.', 'psts' ) ); ?></th>
+						<td>
+							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
+								<input type="text" class="pp_emails_sub" name="psts[extension_subject]" value="<?php echo esc_attr( $psts->get_setting( 'extension_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+							<label><?php _e( 'Message:', 'psts' ); ?><br/>
+								<textarea class="pp_emails_txt" name="psts[extension_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'extension_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
