@@ -15,7 +15,7 @@ WDP ID: 49
 /*
 Copyright 2007-2014 Incsub (http://incsub.com)
 Author - Aaron Edwards
-Contributors - Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
+Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -2874,6 +2874,7 @@ if ( $active_pro_sites ) {
 	}
 	$month_data = array();
 	for ( $i = 1; $i <= PSTS_STATS_MONTHS; $i ++ ) {
+		$month_start = '';
 		if ( $i == 1 ) {
 			$month_start = date( 'Y-m-01' );
 			$month_end   = date( 'Y-m-d', strtotime( '+1 month', strtotime( $month_start ) ) );
@@ -2908,6 +2909,7 @@ if ( $active_pro_sites ) {
 	$week_data = array();
 	$start     = time();
 	for ( $i = 1; $i <= 26; $i ++ ) { //Only show 6 months of weekly data
+		$week_start = '';
 		if ( $i == 1 ) {
 			$week_start                           = strtotime( "-$i week", $start );
 			$week_start_date                      = date( 'Y-m-d', $week_start );
@@ -2982,6 +2984,7 @@ if ( $active_pro_sites ) {
 				data: [<?php echo $pro_sites; ?>]
 			};
 			<?php
+			$daily_stats_levels = '';
 			if ( ! empty( $level_counts ) ) {
 		        foreach ($level_counts as $level => $data) {
 		            //daily stats
@@ -3957,7 +3960,7 @@ function admin_levels() {
 
 			do_action( 'psts_modules_save' );
 
-			echo '<div class="updated fade"><p>' . __( 'Modules/Gateways Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
+			echo '<div class="updated fade"><p>' . __( 'Modules Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap">
@@ -5037,6 +5040,7 @@ function admin_levels() {
 		$pdf->setImageScale( PDF_IMAGE_SCALE_RATIO );
 
 		//set some language-dependent strings
+		global $l;
 		$pdf->setLanguageArray( $l );
 
 		// ---------------------------------------------------------

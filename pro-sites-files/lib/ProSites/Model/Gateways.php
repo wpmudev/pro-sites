@@ -42,7 +42,7 @@ if ( ! class_exists( 'ProSites_Model_Gateways' ) ) {
 				do_action( 'psts_settings_process', $gateway_class );
 				do_action( 'supporter_settings_process' ); //depreciated
 
-				echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
+				echo '<div id="message" class="updated fade"><p>' . __( 'Gateways Saved!', 'psts' ) . '</p></div>';
 
 			}
 

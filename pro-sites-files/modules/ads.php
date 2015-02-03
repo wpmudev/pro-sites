@@ -42,13 +42,16 @@ class ProSites_Module_Ads {
 	function install() {
 		global $wpdb, $psts;
 
-		$table1 = "CREATE TABLE `{$wpdb->base_prefix}supporter_ads` (
-		  `supporter_ads_ID` bigint(20) unsigned NOT NULL auto_increment,
-		  `supporter_blog_ID` bigint(20) NOT NULL default '0',
-		  `blog_ID` bigint(20) NOT NULL default '0',
-		  `expire` bigint(20) NOT NULL default '0',
-		  PRIMARY KEY  (`supporter_ads_ID`)
-		);";
+		$table_name = $wpdb->base_prefix . 'supporter_ads';
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$table1 = "CREATE TABLE $table_name (
+		  supporter_ads_ID bigint(20) unsigned NOT NULL auto_increment,
+		  supporter_blog_ID bigint(20) NOT NULL default '0',
+		  blog_ID bigint(20) NOT NULL default '0',
+		  expire bigint(20) NOT NULL default '0',
+		  PRIMARY KEY  ( supporter_ads_ID )
+		) $charset_collate;";
 
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
