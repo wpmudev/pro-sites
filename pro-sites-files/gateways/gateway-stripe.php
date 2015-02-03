@@ -1693,5 +1693,4 @@ class ProSites_Gateway_Stripe {
 }
 
 //register the gateway
-psts_register_gateway( 'ProSites_Gateway_Stripe', __( 'Stripe (beta)', 'psts' ), __( 'Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account.', 'psts' ) );
-?>
+psts_register_gateway( 'ProSites_Gateway_Stripe', __( 'Stripe', 'psts' ), __( 'Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account.', 'psts' ) );
