@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.4.7.1
+Version: 3.4.7.2
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -15,7 +15,7 @@ WDP ID: 49
 /*
 Copyright 2007-2014 Incsub (http://incsub.com)
 Author - Aaron Edwards
-Contributors - Jonathan Cowher, Carlos Vences, Andrew Billits
+Contributors - Jonathan Cowher, Rheinard Korf, Carlos Vences, Andrew Billits
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.4.7.1';
+	var $version = '3.4.7.2';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -2279,6 +2279,7 @@ if ( $active_pro_sites ) {
 	}
 	$month_data = array();
 	for ( $i = 1; $i <= PSTS_STATS_MONTHS; $i ++ ) {
+		$month_start = '';
 		if ( $i == 1 ) {
 			$month_start = date( 'Y-m-01' );
 			$month_end   = date( 'Y-m-d', strtotime( '+1 month', strtotime( $month_start ) ) );
@@ -2313,6 +2314,7 @@ if ( $active_pro_sites ) {
 	$week_data = array();
 	$start     = time();
 	for ( $i = 1; $i <= 26; $i ++ ) { //Only show 6 months of weekly data
+		$week_start = '';
 		if ( $i == 1 ) {
 			$week_start                           = strtotime( "-$i week", $start );
 			$week_start_date                      = date( 'Y-m-d', $week_start );
@@ -2387,6 +2389,7 @@ if ( $active_pro_sites ) {
 				data: [<?php echo $pro_sites; ?>]
 			};
 			<?php
+			$daily_stats_levels = '';
       foreach ($level_counts as $level => $data) {
         //daily stats
         echo 'var level_'.$level.' = { label: "'.esc_js($level.': '.$this->get_level_setting($level, 'name')).'", data: ['.$data.'] };';
@@ -3217,6 +3220,7 @@ function admin_levels() {
 			</thead>
 			<tbody id="the-list">
 			<?php
+			$bgcolor = '';
 			if ( is_array( $level_list ) && count( $level_list ) ) {
 				$bgcolor = $class = '';
 				foreach ( $level_list as $level_code => $level ) {
@@ -4387,6 +4391,7 @@ function admin_levels() {
 		$pdf->setImageScale( PDF_IMAGE_SCALE_RATIO );
 
 		//set some language-dependent strings
+		global $l;
 		$pdf->setLanguageArray( $l );
 
 		// ---------------------------------------------------------

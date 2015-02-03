@@ -76,12 +76,12 @@ class ProSites_PluginLoader {
 
 		//load chosen plugin classes
 		foreach ( array_keys( $modules ) as $class ) {
-			$name = $class::get_name();
-			$description = $class::get_description();
+			$name = call_user_func( $class.'::get_name' );
+			$description = call_user_func( $class.'::get_description' );
 			$restriction = '';
 
 			if( method_exists( $class, 'get_class_restriction' ) ) {
-				$restriction = $class::get_class_restriction();
+				$restriction = call_user_func( $class.'::get_class_restriction' );
 			}
 
 			if ( empty( $restriction ) || ( ! empty( $restriction) && class_exists( $restriction ) ) ) {
