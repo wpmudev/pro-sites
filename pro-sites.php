@@ -70,6 +70,7 @@ class ProSites {
 				'pro-sites_page_psts-themes-network',
 				'pro-sites_page_psts-settings-network',
 				'pro-sites_page_psts-gateways-network',
+				'pro-sites_page_psts-pricing-settings-network',
 			)
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
@@ -118,6 +119,8 @@ class ProSites {
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
 
 		add_action( 'pre_get_posts', array( &$this, 'checkout_page_load' ) );
+
+		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
 
 		//handle signup pages
 		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
@@ -788,8 +791,15 @@ Thanks!", 'psts' ),
 		) );
 		do_action( 'psts_page_after_settings' );
 
+		//ProSites_View_Settings
+		$psts_pricing_page = add_submenu_page( 'psts', ProSites_View_Pricing::get_page_name(), ProSites_View_Pricing::get_menu_name(), 'manage_network_options', ProSites_View_Pricing::get_page_slug(), array(
+			'ProSites_View_Pricing',
+			'render_page'
+		) );
+		do_action( 'psts_page_after_pricing_settings' );
+
 		//checkout page settings
-		$psts_pricing_page = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
+		$psts_pricing_page_old = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
 			&$this,
 			'pricing_table_settings'
 		) );
@@ -813,6 +823,9 @@ Thanks!", 'psts' ),
 
 		//Add PSTS Style to gateways page
 		add_action( 'admin_print_styles-' . $psts_gateways_page, array( &$this, 'load_settings_style' ) );
+
+		//Add PSTS Style to pricing page
+		add_action( 'admin_print_styles-' . $psts_pricing_page, array( &$this, 'load_levels_style' ) );
 
 		// Add Scripts for Levels page
 		add_action( 'admin_print_styles-' . $psts_levels_page, array( &$this, 'load_levels_style' ) );
@@ -1023,12 +1036,12 @@ Thanks!", 'psts' ),
 			return;
 		}
 
-
 		// using get_queried_object_id() causes child forums in bbpress to give 404 results.
 		$queried_object_id = intval( isset( $query->queried_object_id ) ? $query->queried_object_id : 0 );
 
-		//check if on checkout page
+		//check if on checkout page or exit
 		if ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) {
+
 			return;
 		}
 
@@ -1048,6 +1061,10 @@ Thanks!", 'psts' ),
 		//remove all filters except shortcodes and checkout form
 		remove_all_filters( 'the_content' );
 		add_filter( 'the_content', 'do_shortcode' );
+
+		/**
+		 * Responsible for checkout page
+		 */
 		add_filter( 'the_content', array( &$this, 'checkout_output' ), 15 );
 
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
@@ -1116,6 +1133,10 @@ Thanks!", 'psts' ),
 					$this->log_action( $blog_id, __( "User attempted to add an invalid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code, $domain );
 				}
 			}
+
+			/**
+			 * @todo: come back to this one
+			 */
 			do_action( 'psts_checkout_page_load', $blog_id, $domain ); //for gateway plugins to hook into
 		} else {
 			//code for unique coupon links
@@ -2186,6 +2207,11 @@ Thanks!", 'psts' ),
 			'jquery',
 			'jquery-ui-sortable',
 		), $this->version );
+
+		wp_localize_script( 'psts-js-levels', 'prosites_levels', array(
+			'confirm_level_delete' => __( 'Are you sure you really want to remove this level? This will also delete all feature settings for the level.', 'psts' ),
+			'confirm_feature_delete' => __( 'Are you sure you really want to remove this custom feature?', 'psts' ),
+		) );
 
 		//Check if chosen js is already registered
 		if ( ! wp_script_is( 'chosen', 'registered' ) ) {
@@ -3781,7 +3807,7 @@ function admin_levels() {
 		?>
 		<h3><?php _e( 'Edit Pro Site Levels', 'psts' ) ?></h3>
 		<span class="description"><?php _e( 'Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number.', 'psts' ) ?></span>
-		<table width="100%" cellpadding="3" cellspacing="3" class="widefat" id="prosites-level-list">
+		<table width="100%" cellpadding="3" cellspacing="3" class="widefat level-settings" id="prosites-level-list">
 			<thead>
 			<tr>
 				<th scope="col"><?php _e( 'Level', 'psts' ); ?></th>
@@ -4461,16 +4487,25 @@ function admin_levels() {
 		$pricing_table = ProSites_Pricing_Table::getInstance( array(
 			'blog_id' => $blog_id
 		) );
+
 		if ( $show_pricing_table === "enabled" ) {
 			$content .= $pricing_table->display_plans_table( 'include-pricing' );
 
 			return apply_filters( 'psts_checkout_grid_output', $content );
 		}
+
 		if ( $use_plans_table === "enabled" ) {
 			$content .= $pricing_table->display_plans_table();
 
 			return apply_filters( 'psts_checkout_grid_output', $content );
 		}
+
+		if( 'enabled' === $use_plans_table || 'enabled' === $show_pricing_table ) {
+			return false;
+		}
+
+
+		// DO IT THE OLD WAY
 
 		$levels    = (array) get_site_option( 'psts_levels' );
 		$recurring = $this->get_setting( 'recurring_subscriptions', 1 );
@@ -4938,11 +4973,23 @@ function admin_levels() {
 				return $content;
 			}
 
+			//this is the main hook for new checkout page
+			$content = apply_filters( 'psts_primary_checkout_table', $content, $blog_id );
+
+			/**
+			 * @todo: Moved this to the Checkout class
+			 */
 			//this is the main hook for gateways to add all their code
-			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
+//			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
 		} elseif ( isset( $_SESSION['domain'] ) ) {
 			//after signup
-			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
+
+			//this is the main hook for new checkout page
+			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $_SESSION['domain'] );
+			/**
+			 * @todo: Moved this to the Checkout class
+			 */
+//			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
 		} else { //blogid not set
 
 			if ( $blogs ) {
@@ -5410,6 +5457,46 @@ function admin_levels() {
 
 		}
 
+	}
+
+	public static function filter_html( $content ) {
+		$allowed_atts = array( 'align'    => array(),
+		                       'class'    => array(),
+		                       'id'       => array(),
+		                       'dir'      => array(),
+		                       'lang'     => array(),
+		                       'style'    => array(),
+		                       'xml:lang' => array(),
+		                       'src'      => array(),
+		                       'alt'      => array(),
+								'value' =>array(),
+			'selected' =>array(),
+			'name'=>array(),
+			'checked'=>array(),
+		);
+		$allowed = array(
+			'span' => $allowed_atts,
+			'div' => $allowed_atts,
+			'button' => $allowed_atts,
+			'select' => $allowed_atts,
+			'input' => $allowed_atts,
+			'option' => $allowed_atts,
+			'br' => $allowed_atts,
+			'hr' => $allowed_atts,
+			'h1' => $allowed_atts,
+			'h2' => $allowed_atts,
+			'h3' => $allowed_atts,
+			'h4' => $allowed_atts,
+			'h5' => $allowed_atts,
+			'h6' => $allowed_atts,
+			'strong' => $allowed_atts,
+			'em' => $allowed_atts,
+			'b' => $allowed_atts,
+			'i' => $allowed_atts,
+			'style' => $allowed_atts,
+		);
+
+		return wp_kses( $content, $allowed );
 	}
 
 }

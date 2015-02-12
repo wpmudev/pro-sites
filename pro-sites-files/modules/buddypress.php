@@ -217,4 +217,12 @@ class ProSites_Module_BP {
 				return false;
 		}
 	}
+
+	public static function is_active() {
+		global $psts;
+
+		$active = $psts->get_setting( 'bp_group' ) || $psts->get_setting( 'bp_compose' );
+
+		return $active;
+	}
 }

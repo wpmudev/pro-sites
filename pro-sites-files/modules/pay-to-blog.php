@@ -139,7 +139,7 @@ class ProSites_Module_PayToBlog {
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */
-	public function required_level() {
+	public static function required_level() {
 		global $psts;
 
 		$levels = ( array ) get_site_option( 'psts_levels' );

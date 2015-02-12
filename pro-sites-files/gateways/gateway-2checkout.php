@@ -791,7 +791,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			global $psts;
 			$html = '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
 			//checkout grid
-			$html .= $psts->checkout_grid( $blog_id, $domain );
+//			$html .= $psts->checkout_grid( $blog_id, $domain );
 			$html .= $this->nonce_field();
 			$html .= '<input type="submit" id="cc_checkout" name="2co_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="2co_checkout_buttonsubmit-button"/>';
 			$html .= '</form>';

@@ -477,13 +477,17 @@ class ProSites_Module_PostThrottling {
 
 	}
 
-	/**
-	 * Returns the Text to be displayed in pricing table
-	 *
-	 * @param $level
-	 */
-	function include_text( $level ) {
+	public static function get_level_status( $level_id ) {
+		global $psts;
 
+		$setting_daily = $psts->get_level_setting( $level_id, ProSites_Module_PostThrottling::PERIOD_DAILY );
+		$setting_hourly = $psts->get_level_setting( $level_id, ProSites_Module_PostThrottling::PERIOD_HOURLY );
+
+		if( 0 == $setting_daily && 0 == $setting_hourly ) {
+			return 'tick';
+		} else {
+			return 'cross';
+		}
 
 	}
 

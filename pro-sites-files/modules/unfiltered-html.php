@@ -136,10 +136,23 @@ class ProSites_Module_UnfilterHtml {
 	/**
 	 * Returns the minimum required level to remove restrictions
 	 */
-	public function required_level() {
+	public static function required_level() {
 		global $psts;
 
 		return $psts->get_setting( 'uh_level' );
+
+	}
+
+	public static function get_level_status( $level_id ) {
+		global $psts;
+
+		$min_level = $psts->get_setting( 'uh_level', 1 );
+
+		if( $level_id >= $min_level ) {
+			return 'tick';
+		} else {
+			return 'cross';
+		}
 
 	}
 }

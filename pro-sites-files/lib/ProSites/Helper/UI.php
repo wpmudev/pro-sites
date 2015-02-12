@@ -29,6 +29,64 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 			wp_enqueue_script( 'chosen' );
 		}
 
+		public static function rich_currency_format( $amount ) {
+			global $psts;
+				$currency = $psts->get_setting( 'currency', 'USD' );
+
+
+			// get the currency symbol
+			$symbol = @$psts->currencies[ $currency ][1];
+			// if many symbols are found, rebuild the full symbol
+			$symbols = explode( ', ', $symbol );
+			if ( is_array( $symbols ) ) {
+				$symbol = "";
+				foreach ( $symbols as $temp ) {
+					$symbol .= '&#x' . $temp . ';';
+				}
+			} else {
+				$symbol = '&#x' . $symbol . ';';
+			}
+
+			//check decimal option
+			if ( $psts->get_setting( 'curr_decimal' ) === '0' ) {
+				$decimal_place = 0;
+				$zero          = '0';
+			} else {
+				$decimal_place = 2;
+				$zero          = '0.00';
+			}
+
+			$symbol = '<span class="symbol">' . $symbol . '</span>';
+
+			$amount = number_format( $amount, $decimal_place );
+			$amount = explode( '.', $amount );
+
+			$left = $amount[0];
+			$left = '<span class="whole">' . $left . '</span>';
+
+			$right = count( $amount ) > 1 ? $amount[1] : '';
+			$right = ! empty( $right ) ? '<span class="decimal">' . $right . '</span>' : '';
+
+			if( ! empty( $right ) ) {
+				$amount = $left . '<span class="dot">.</span>' . $right;
+			} else {
+				$amount = $left;
+			}
+
+			//format currency amount according to preference
+			if ( $psts->get_setting( 'curr_symbol_position' ) == 1 || ! $psts->get_setting( 'curr_symbol_position' ) ) {
+				return $symbol . $amount;
+			} else if ( $psts->get_setting( 'curr_symbol_position' ) == 2 ) {
+				return $symbol . ' ' . $amount;
+			} else if ( $psts->get_setting( 'curr_symbol_position' ) == 3 ) {
+				return $amount . $symbol;
+			} else if ( $psts->get_setting( 'curr_symbol_position' ) == 4 ) {
+				return $amount . ' ' . $symbol;
+			}
+
+		}
+
+
 
 	}
 

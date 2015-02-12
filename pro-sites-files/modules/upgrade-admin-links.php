@@ -202,4 +202,8 @@ class ProSites_Module_UpgradeAdminLinks {
 		ksort($output_array);
 		return $output_array;
 	}
+
+	public static function hide_from_pricing_table() {
+		return true;
+	}
 }

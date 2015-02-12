@@ -474,12 +474,32 @@ class ProSites_Module_Plugins {
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */
-	public function required_level() {
+	public static function required_level() {
 		global $psts;
 
 		$levels = ( array ) get_site_option( 'psts_levels' );
 
 		return ! empty( $levels ) ? key( $levels ) : false;
+
+	}
+
+	public static function get_level_status( $level_id ) {
+		global $psts;
+
+		$psts_plugins = (array) $psts->get_setting( 'pp_plugins' );
+		$access = false;
+
+		foreach( $psts_plugins as $plugin ) {
+			if( (int) $plugin['level'] == $level_id || ( 0 == $plugin['level'] && 'none' != $plugin['level'] ) ) {
+				$access = true;
+			}
+		}
+
+		if( $access ) {
+			return 'tick';
+		} else {
+			return 'cross';
+		}
 
 	}
 

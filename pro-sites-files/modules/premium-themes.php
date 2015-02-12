@@ -402,12 +402,32 @@ class ProSites_Module_PremiumThemes {
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */
-	public function required_level() {
+	public static function required_level() {
 		global $psts;
 
 		$levels = ( array ) get_site_option( 'psts_levels' );
 
 		return ! empty( $levels ) ? key( $levels ) : false;
+
+	}
+
+	public static function get_level_status( $level_id ) {
+		global $psts;
+
+		$allowed_themes = $psts->get_setting( 'pt_allowed_themes' );
+		$access = false;
+
+		foreach( $allowed_themes as $theme => $level ) {
+			if( $level_id == $level ) {
+				$access = true;
+			}
+		}
+
+		if( $access ) {
+			return 'tick';
+		} else {
+			return 'cross';
+		}
 
 	}
 }

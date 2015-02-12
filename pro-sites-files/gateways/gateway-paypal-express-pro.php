@@ -1765,7 +1765,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off">';
 
 		//print the checkout grid
-		$content .= $psts->checkout_grid( $blog_id, $domain );
+//		$content .= $psts->checkout_grid( $blog_id, $domain );
 
 		$content .= '<div id="psts-paypal-checkout">
 			<h2>' . __( 'Checkout With PayPal', 'psts' ) . '</h2>

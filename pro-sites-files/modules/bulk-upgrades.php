@@ -1099,4 +1099,13 @@ class ProSites_Module_BulkUpgrades {
 				return false;
 		}
 	}
+
+	public static function get_level_status( $level_id ) {
+		return '';
+	}
+
+	public static function hide_from_pricing_table() {
+		return true;
+	}
+
 }

@@ -197,7 +197,7 @@ class ProSites_Gateway_Manual {
 		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post">';
 
 		//print the checkout grid
-		$content .= $psts->checkout_grid( $blog_id, $domain );
+//		$content .= $psts->checkout_grid( $blog_id, $domain );
 
 		$content .= '<div id="psts-manual-checkout"><h2>' . $psts->get_setting( 'mp_name' ) . '</h2>';
 

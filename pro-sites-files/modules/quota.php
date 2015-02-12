@@ -59,13 +59,13 @@ class ProSites_Module_Quota {
 
 		//for free level use core function
 		if ( 0 == $level ) {
-			return $this->display_space( get_space_allowed() );
+			return ProSites_Module_Quota::display_space( get_space_allowed() );
 		}
 
 		//pro level, get setting
 		$quota = $psts->get_level_setting( $level, 'quota' );
 
-		return $this->display_space( $quota );
+		return ProSites_Module_Quota::display_space( $quota );
 	}
 
 	function settings_process( $active_tab ) {
@@ -177,7 +177,7 @@ class ProSites_Module_Quota {
 
 			$level = $psts->get_level() + 1;
 			if ( $name = $psts->get_level_setting( $level, 'name' ) ) { //only show if there is a higher level
-				$space = $this->display_space( $psts->get_level_setting( $level, 'quota' ) );
+				$space = ProSites_Module_Quota::display_space( $psts->get_level_setting( $level, 'quota' ) );
 				$msg   = str_replace( 'LEVEL', $name, $psts->get_setting( 'quota_message' ) );
 				$msg   = str_replace( 'SPACE', $space, $msg );
 				if( 'default' == $para ) {
@@ -200,7 +200,7 @@ class ProSites_Module_Quota {
 		if ( ! is_main_site() && current_user_can( 'edit_pages' ) && ! is_upload_space_available() ) {
 			$level = $psts->get_level() + 1;
 			if ( $name = $psts->get_level_setting( $level, 'name' ) ) { //only show if there is a higher level
-				$space = $this->display_space( $psts->get_level_setting( $level, 'quota' ) );
+				$space = ProSites_Module_Quota::display_space( $psts->get_level_setting( $level, 'quota' ) );
 				$msg   = str_replace( 'LEVEL', $name, $psts->get_setting( 'quota_message' ) );
 				$msg   = str_replace( 'SPACE', $space, $msg );
 				echo '<div class="error"><p><a href="' . $psts->checkout_url( $blog_id ) . '">' . $msg . '</a></p></div>';
@@ -208,7 +208,7 @@ class ProSites_Module_Quota {
 		}
 	}
 
-	function display_space( $space ) {
+	public static function display_space( $space ) {
 		if ( ! $space ) {
 			return '0' . __( 'MB', 'psts' );
 		}
@@ -235,12 +235,25 @@ class ProSites_Module_Quota {
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */
-	public function required_level() {
+	public static function required_level() {
 		global $psts;
 
 		$levels = ( array ) get_site_option( 'psts_levels' );
 
 		return ! empty( $levels ) ? key( $levels ) : false;
+
+	}
+
+	public static function get_level_status( $level_id ) {
+		global $psts;
+
+		$space = $psts->get_level_setting( $level_id, 'quota', get_space_allowed() );
+
+		return array(
+			'type' => 'space',
+			'display' => self::display_space( $space ),
+			'value' => $space,
+		);
 
 	}
 

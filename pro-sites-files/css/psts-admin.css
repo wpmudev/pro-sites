@@ -905,7 +905,137 @@ select.chosen.narrow {
     min-width: 60px;
 }
 
-#prosites-level-list .ui-sortable-handle:hover > td:first-child {
+table.widefat.prosites-premium-plugins tbody tr th,
+table.widefat.prosites-premium-plugins tbody tr td {
+    vertical-align: top;
+}
+
+table.widefat.prosites-premium-plugins tbody tr th p {
+    margin: 5px 0;
+}
+
+#add-feature-box td,
+#module-comparison-table td {
+ padding: 15px 0;
+}
+
+#module-comparison-table .form-description {
+    float:left;
+    font-style: oblique;
+    color: #888;
+}
+
+#module-comparison-table .feature-table th,
+#module-comparison-table .feature-table td {
+    border-left: 1px solid #f1f1f1;
+}
+
+#module-comparison-table .feature-table th:first-child,
+#module-comparison-table .feature-table td:first-child {
+    border-left: none;
+}
+
+#module-comparison-table .feature-table th small {
+    font-width: normal;
+    color: #888;
+}
+
+#module-comparison-table .feature-table .level-settings {
+    border-left: 3px double #e1e1e1;
+    overflow: visible;
+}
+
+#module-comparison-table .level-select-bar {
+    text-align: right;
+    padding: 0 10px 10px 0;
+}
+
+#prosites-level-list.feature-table th,
+#prosites-level-list.feature-table td {
+    vertical-align: top;
+    padding: 10px 10px;
+}
+
+#prosites-level-list.feature-table td textarea {
+    width:100%;
+}
+#prosites-level-list.feature-table td:last-child textarea {
+    width: 100%;
+    min-height: 70px;
+}
+
+#prosites-level-list.feature-table .order-col {
+    text-align: center;
+}
+#prosites-level-list.feature-table .order-col .delete {
+    padding: 10px 0;
+    display:block;
+}
+#prosites-level-list.feature-table .order-col .delete:hover {
+    cursor: pointer;
+}
+#prosites-level-list.feature-table .order-col .dashicons-trash{
+    color: #aaa;
+}
+#prosites-level-list.feature-table .order-col .delete:hover .dashicons-trash {
+    color: #EC3B4B;
+}
+#prosites-level-list.feature-table td:first-child {
+    border-left:3px solid #fff;
+}
+#prosites-level-list.feature-table .alternate td:first-child {
+    border-left-color: #f9f9f9;
+}
+
+
+
+.level-select-bar a {
+    padding: 0 5px;
+    text-decoration: none;
+    border:none;
+    cursor: pointer;
+}
+
+.level-select-bar a.selected {
+    outline: none;
+
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+
+    background: #0074a2;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+#add-pricing-feature th,
+#add-pricing-feature td {
+    border: 1px solid #e1e1e1;
+    padding: 10px 10px;
+    vertical-align: top;
+}
+
+#add-pricing-feature th:last-child,
+#add-pricing-feature td:last-child {
+    min-width: 25px;
+    width: 25px;
+}
+
+#add-pricing-feature td textarea {
+    width: 100%;
+    min-height: 70px;
+}
+
+#add-pricing-feature td [type=text] {
+    width: 100%;
+}
+
+#prosites-level-list th {
+    padding-left: 10px;
+}
+#prosites-level-list .ui-sortable-handle:hover > td:first-child,
+#prosites-level-list.feature-table tr.new-feature:hover td:first-child {
     border-left: 3px solid rgba( 57, 57, 57, 0.6 );
 }
 
@@ -918,6 +1048,10 @@ select.chosen.narrow {
     height: 46px;
     line-height: 1.2em;
     background: rgba( 57,57,57, 0.1);
+    border:1px dashed #444444;
+}
+#prosites-level-list .prosite-level-placeholder td:first-child {
+    border-left:none;
 }
 
 .save_levels_dirty {
@@ -925,11 +1059,6 @@ select.chosen.narrow {
     color: #cc0000;
 }
 
-table.widefat.prosites-premium-plugins tbody tr th,
-table.widefat.prosites-premium-plugins tbody tr td {
-    vertical-align: top;
-}
-
-table.widefat.prosites-premium-plugins tbody tr th p {
-    margin: 5px 0;
+#prosites-level-list.feature-table .prosite-level-placeholder {
+    height: 100px;
 }

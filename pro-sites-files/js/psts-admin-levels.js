@@ -1,6 +1,5 @@
 jQuery(document).ready(function($){
 
-
     // Confirm deleting level
     $('[name^="delete_level"]').click(function ( item ) {
 
@@ -14,7 +13,7 @@ jQuery(document).ready(function($){
 
         var row_index = $( $( $( $(item.currentTarget).parents('tr') ).find('td')[1]).find('input')).attr('data-position');
 
-        if ( confirm("<?php _e('Are you sure you really want to remove this level? This will also delete all feature settings for the level.', 'psts'); ?>") ) {
+        if ( confirm( prosites_levels.confirm_level_delete ) ) {
             prosite_update_level_rows( { deleteRow: row_index } );
             return true;
         }
@@ -64,8 +63,10 @@ jQuery(document).ready(function($){
     });
 
 
+    /* ---- ---- ---- LEVEL SETTINGS PAGE ---- ---- ---- */
+
     // Make the levels sortable
-    $('#prosites-level-list tbody').sortable({
+    $('#prosites-level-list.level-settings tbody').sortable({
         opacity: 0.5,
         cursor: 'pointer',
         axis: 'y',
@@ -157,4 +158,275 @@ jQuery(document).ready(function($){
         $( '.save_levels_dirty' ).css( 'display', 'inline-block' );
     }
 
+    /* ---- ---- ---- PRICING SETTINGS PAGE ---- ---- ---- */
+    // Make the levels sortable
+    $('#prosites-level-list.pricing-table tbody').sortable({
+        opacity: 0.5,
+        cursor: 'pointer',
+        axis: 'y',
+        placeholder: "prosite-level-placeholder",
+        update: function() {
+
+            var rows = $('#prosites-level-list tbody tr');
+            var level_order = new Array();
+
+            $.each( rows, function( index, row ) {
+                level_order[ level_order.length ] = $( row ).attr('data-level');
+
+                $(row).removeClass('alternate');
+                if ( index % 2 == 0) {
+                    $(row).addClass('alternate');
+                }
+
+            } );
+
+            level_order = level_order.join( ',' );
+            console.log( level_order );
+            $('input[name="psts[pricing_levels_order]"]').val( level_order );
+        }
+    });
+
+    /* ---- ---- ---- COMPARISON/ FEATURE TABLE PAGE ---- ---- ---- */
+   // Make the features sortable
+    function make_features_sortable() {
+        $('#prosites-level-list.feature-table tbody').sortable({
+            opacity: 0.5,
+            cursor: 'pointer',
+            axis: 'y',
+            placeholder: "prosite-level-placeholder",
+            update: function () {
+                rearrange_feature_rows();
+            }
+        });
+    }
+
+    function rearrange_feature_rows() {
+        var rows = $('#prosites-level-list tbody tr');
+        var module_order = new Array();
+        //
+        $.each(rows, function (index, row) {
+            var first_cell = $(row).find('td:first-child');
+            var pos_label = $(first_cell).find('.position');
+            var mod_key = $($(row).find('td:first-child [name*=module_key], td:first-child [name*=custom]')).val();
+            module_order[index] = mod_key;
+
+            $(pos_label).text(index + 1);
+
+            $(row).removeClass('alternate');
+            if (index % 2 == 0) {
+                $(row).addClass('alternate');
+            }
+
+        });
+
+        module_order = module_order.join(',');
+
+        $('input[name="psts[feature_table][feature_order]"]').val(module_order);
+    }
+
+    make_features_sortable();
+    switch_level( 1 );
+
+    $( '.level-select-bar a').click( function (e) {
+
+        var element = e.currentTarget;
+
+        $('.level-select-bar a').removeClass('selected');
+
+        var current_level = $(element).attr('data-id');
+        switch_level( current_level );
+        set_active_level( current_level );
+        $(element).addClass('selected');
+
+    });
+
+    function switch_level( level ) {
+        $( '[name*="[levels]"]').next('.chosen-container').hide();
+        $( 'textarea[name*="[levels]"]').hide();
+        $( '[name*="[levels][' + level + ']"]').next('.chosen-container').show();
+        $( 'textarea[name*="[levels][' + level + ']"]').show();
+    }
+
+    function get_active_level() {
+        return $( '.level-select-bar [name=current_level]').val();
+    }
+
+    function set_active_level( level ) {
+        $( '.level-select-bar [name=current_level]').val( level );
+    }
+
+    /* ---- ---- ---- ADD FEATURES BUTTON ---- ---- ---- */
+    $( '#add-feature-button').click( function( e ) {
+        var no_features = $('.no-features').hide().detach();
+        var name = $('[name=new-feature-name]').val();
+        var description = $('[name=new-feature-description]').val();
+        var text = $('[name=new-feature-text]').val();
+        var levels = $('[name=new-feature-levels]').val();
+
+        // Get the following with script translation
+        var save_action = 'save';
+        var reset_action = 'reset';
+        var none_label = 'None';
+
+        var all_item_count = $( '#prosites-level-list.feature-table tbody tr').length;
+
+        var custom_features = $( '#prosites-level-list.feature-table tbody tr.custom .order-col [type=hidden]');
+        var number_custom = custom_features.length;
+
+        // Set our custom name
+        if( 0 == number_custom ) {
+            var custom_name = 'custom-1';
+        } else {
+            var custom_name = 'custom-2';
+            var counter = 1;
+            // Make sure we get a valid custom name
+            while( ! check_valid_custom_name( custom_name, custom_features ) ) {
+                counter += 1;
+                custom_name = 'custom-' + counter;
+            }
+        }
+
+        var row_class = ( all_item_count + 1 ) % 2 == 0 ? '' : 'alternate';
+
+
+        var feature_row = '<tr class="' + row_class + ' custom new-feature" blog-row">';
+        var key = custom_name;
+        var feature_order = '<td scope="row" style="padding-left: 10px" class="order-col">';
+        feature_order += '<div class="position">' + ( all_item_count + 1 ) + '</div>';
+        feature_order += '<input type="hidden" name="psts[feature_table][' + key + '][custom]" value="' + custom_name + '" />';
+        feature_order += '<a class="delete"><span class="dashicons dashicons-trash"></span></a>';
+        feature_order += '</td>';
+
+        var feature_visible = '<td scope="row" style="padding-left: 20px;">';
+        feature_visible += '<input type="checkbox" name="psts[feature_table][' + key + '][visible]" value="1">';
+        feature_visible += '</td>'
+
+        var feature_name = '<td scope="row">';
+        feature_name += '<div class="text-item">' + name + '</div>';
+        feature_name += '<div class="edit-box" style="display:none">';
+        feature_name += '<input class="editor" type="text" name="psts[feature_table][' + key + '][name]" value="' + name + '" /><br />';
+        feature_name += '<span><a class="save-link">' + save_action + '</a> <a style="margin-left: 10px;" class="reset-link">' + reset_action + '</a></span></div>';
+        feature_name += '<input type="hidden" value="' + name + '" />'
+
+        var feature_description = '<td scope="row">';
+        feature_description += '<div class="text-item">' + description + '</div>';
+        feature_description += '<div class="edit-box" style="display:none">';
+        feature_description += '<textarea class="editor" name="psts[feature_table][' + key + '][description]">' + description + '</textarea><br />';
+        feature_description += '<span><a class="save-link">' + save_action + '</a> <a style="margin-left: 10px;" class="reset-link">' + reset_action + '</a></span></div>';
+        feature_description += '<input type="hidden" value="' + description + '" />'
+
+        var feature_indicator = '<td scope="row" class="level-settings">'
+        for( var i = 1; i <= levels ; i++ ) {
+            feature_indicator += '<select class="chosen" name="psts[feature_table][' + key + '][levels][' + i + '][status]">';
+            feature_indicator += '<option value="tick">&#x2713;</option>';
+            feature_indicator += '<option value="cross">&#x2718;</option>';
+            feature_indicator += '<option value="none">' + none_label + '</option>';
+            feature_indicator += '</select>';
+        }
+        feature_indicator += '</td>';
+
+        var feature_custom = '<td scope="row">';
+        for( var i = 1; i <= levels ; i++ ) {
+            feature_custom += '<textarea name="psts[feature_table][' + key + '][levels][' + i + '][text]">' + text + '</textarea>';
+        }
+        feature_custom += '</td>';
+
+        feature_row += feature_order + feature_visible + feature_name + feature_description + feature_indicator + feature_custom;
+        feature_row += '</tr>';
+
+        $( '#prosites-level-list.feature-table tbody').append( feature_row );
+        $( '#prosites-level-list.feature-table tbody').append( no_features );
+
+        // Activate chosen
+        if ( jQuery.isFunction(jQuery.fn.chosen) && jQuery('.chosen').length ) {
+            jQuery('.chosen').chosen({disable_search_threshold: 10}).change(function () {
+                jQuery(this).trigger('chosen:updated')
+            });
+        }
+
+        set_inline_editing();
+        switch_level( get_active_level() );
+        rearrange_feature_rows();
+        make_features_sortable();
+
+    } );
+
+    function check_valid_custom_name( custom_name, custom_items ) {
+        var valid = true;
+
+        $.each( custom_items, function( index, item ) {
+            if( $( item ).val() == custom_name ) {
+                valid = false;
+            }
+        } );
+
+        // check items marked for delete
+        var marked = $('[name=mark_for_delete]').val();
+        marked = marked.split( ',' );
+
+        $.each( marked, function( index, item ) {
+            if( item == custom_name ) {
+                valid = false;
+            }
+        } );
+
+        return valid;
+    }
+
+    function set_inline_editing() {
+        // Inline editing
+        $('#prosites-level-list.feature-table .text-item').unbind( 'dblclick' );
+        $('#prosites-level-list.feature-table .text-item').dblclick(function (e) {
+            var element = e.currentTarget;
+            $(element).next().show();
+            $(element).hide();
+        });
+
+        $('#prosites-level-list.feature-table .save-link').unbind( 'click' );
+        $('#prosites-level-list.feature-table .save-link').click(function (e) {
+            var element = e.currentTarget;
+            var text = $($(element).parents('td')[0]).find('.text-item');
+            var parent = $($(element).parents('div')[0]);
+            var editor = $(parent).find('.editor');
+
+            $(text).html($(editor).val());
+            $(text).show();
+            $(parent).hide();
+        });
+
+        $('#prosites-level-list.feature-table .reset-link').unbind( 'click' );
+        $('#prosites-level-list.feature-table .reset-link').click(function (e) {
+            var element = e.currentTarget;
+            var text = $($(element).parents('td')[0]).find('.text-item');
+            var parent = $($(element).parents('div')[0]);
+            var table_cell = $(element).parents('td')[0];
+            var original = $(table_cell).find('[type=hidden]');
+            var editor = $(parent).find('.editor');
+
+            $(text).html($(original).val());
+            $(text).show();
+            $(editor).val($(original).val());
+            $(parent).hide();
+        });
+
+        $('#prosites-level-list.feature-table .order-col .delete').unbind( 'click' );
+        $('#prosites-level-list.feature-table .order-col .delete').click( function (e) {
+
+            if ( confirm( prosites_levels.confirm_feature_delete ) ) {
+                var element = e.currentTarget;
+                var mark = $(element).prev().val();
+                var row = $(element).parents('tr')[0];
+
+                $(row).remove();
+                rearrange_feature_rows();
+
+                var marked = $('[name=mark_for_delete]').val();
+                marked = '' == marked ? mark : marked + ',' + mark;
+                $('[name=mark_for_delete]').val(marked);
+            }
+
+        } );
+    }
+
+    set_inline_editing();
 });

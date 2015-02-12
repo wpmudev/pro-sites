@@ -76,14 +76,18 @@ class ProSites_Module_ProWidget {
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */
-	public function required_level() {
+	public static function required_level() {
 		global $psts;
 
 		$levels = ( array ) get_site_option( 'psts_levels' );
 
 		return ! empty( $levels ) ? key( $levels ) : false;
-
 	}
+
+	public static function get_level_status( $level_id ) {
+		return '';
+	}
+
 }
 
 //Declare the widget class

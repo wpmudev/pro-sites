@@ -1275,7 +1275,7 @@ class ProSites_Gateway_Stripe {
 		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
 
 		//print the checkout grid
-		$content .= $psts->checkout_grid( $blog_id, $domain );
+//		$content .= $psts->checkout_grid( $blog_id, $domain );
 
 		//if existing customer, offer ability to checkout using saved credit card info
 		if ( isset( $customer_object ) ) {

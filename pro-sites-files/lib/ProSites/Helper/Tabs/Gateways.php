@@ -65,7 +65,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 				) ),
 			);
 
-			$page = sanitize_html_class( @$_GET['page'], 'twocheckout' );
+			$page = sanitize_html_class( @$_GET['page'], 'gateway_prefs' );
 
 			foreach ( $tabs as $key => $tab ) {
 				$tabs[ $key ]['url'] = sprintf(
