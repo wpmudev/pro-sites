@@ -674,7 +674,7 @@ input[name="uses"] {
  */
 .psts-wrap .psts-tab-container {
     float: left;
-    width: 225px;
+    width: 190px;
 }
 .psts-wrap .psts-tabs-titlerow {
     margin-left: 15px;
@@ -682,7 +682,7 @@ input[name="uses"] {
 }
 .psts-wrap .psts-tabs {
     float: left;
-    width: 225px;
+    width: 190px;
     margin: 0;
     padding: 0;
 }
@@ -970,6 +970,7 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 #prosites-level-list.feature-table .order-col .delete {
     padding: 10px 0;
     display:block;
+    margin-left: -5px;
 }
 #prosites-level-list.feature-table .order-col .delete:hover {
     cursor: pointer;

@@ -144,15 +144,16 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 				}
 
 				$type = '';
-				if( isset( $feature['active'] ) ) {
-					$type = 'sitewide';
-				}
 				if( isset( $feature['custom'] ) ) {
 					$type = 'custom';
 				}
 				if( isset( $feature['module'] ) ) {
 					$type = 'module';
 				}
+				if( isset( $feature['active'] ) ) {
+					$type = 'sitewide';
+				}
+
 
 				if( isset( $feature['levels'] ) ) {
 
@@ -208,15 +209,27 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 						switch ( $type ) {
 							case 'module':
 								if( ! isset( $level['status'] ) ) {
-
 									if( $type && method_exists( $feature[ 'module' ], 'get_level_status' ) ) {
-										$status = call_user_func( $feature[ 'module' ] . '::get_level_status', ( $original + $i ) );
+										$status = call_user_func( $feature[ 'module' ] . '::get_level_status', $key );
 										$status = is_array( $status ) ? $status : 'module';
 									} else {
 										$status = $level_defaults['module']['status'];
 									}
 
 									$table_settings[ $feature_key ]['levels'][ $key ]['status'] = $status;
+								}
+								if( is_array( $table_settings[ $feature_key ]['levels'][ $key ]['status'] ) ) {
+									$new_status = $table_settings[ $feature_key ]['levels'][ $key ]['status'];
+									if( method_exists( $feature[ 'module' ], 'get_level_status' ) ) {
+										$new_status = call_user_func( $feature[ 'module' ] . '::get_level_status', $key );
+										$old_status = $table_settings[ $feature_key ]['levels'][ $key ]['status'];
+										if( 'none' != $old_status['selection'] ) {
+											$new_status['selection'] = $new_status['value'];
+										} else {
+											$new_status['selection'] = 'none';
+										}
+									}
+									$table_settings[ $feature_key ]['levels'][ $key ]['status'] = $new_status;
 								}
 								if( ! isset( $level['text'] ) ) {
 									$table_settings[ $feature_key ]['levels'][ $key ]['text'] = $level_defaults[ $type ]['text'];
@@ -231,6 +244,9 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 								}
 								break;
 							case 'sitewide':
+								if( isset( $level['status'] ) ) {
+									unset( $table_settings[ $feature_key ]['levels'][ $key ]['status'] );
+								}
 								if( ! isset( $level['text'] ) ) {
 									$table_settings[ $feature_key ]['levels'][ $key ]['text'] = $level_defaults[ $type ]['text'];
 								}

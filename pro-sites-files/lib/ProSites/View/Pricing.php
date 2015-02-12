@@ -263,34 +263,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 			$table_settings = ProSites_Model_Pricing::load_feature_settings();
 			$enabled_modules = $psts->get_setting( 'modules_enabled', array() );
-//			if( ! empty( $modules ) ) {
-//
-//				foreach( $modules as $module ) {
-//
-//					$feature_array[] = array(
-//						'visible' => false,
-//						'name' => call_user_func( $module . '::get_name' ),
-//						'description' => call_user_func( $module . '::get_description' ),
-//						'module' => $module,
-//						'order' => 0,
-//					);
-//
-//
-//					if( ! empty( $level_list ) ) {
-//
-//						foreach( $level_list as $level_code => $level ) {
-//
-//
-//
-//						}
-//
-//					}
-//
-//
-//
-//				}
-//
-//			}
 
 			?>
 			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>" />
@@ -313,10 +285,10 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 									foreach( $level_list as $key => $level ) {
 										$class = 1 == $key ? 'selected' : '';
 
-										if( $key != ( count( $level_list ) - 1 ) ) {
+										echo '<strong><a data-id="' . $key . '" class="' . $class . '">' . $level['name'] . '</a></strong>';
+										if( $key != ( count( $level_list ) ) ) {
 											echo ' | ';
 										}
-										echo '<strong><a data-id="' . $key . '" class="' . $class . '">' . $level['name'] . '</a></strong>';
 
 									}
 								}
@@ -334,7 +306,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 							),
 							'visible'       => array(
 								'title' => __( 'Visible', 'psts' ),
-								'width' => '25px',
+								'width' => '36px',
 								'class' => '',
 							),
 							'name'        => array(
@@ -541,7 +513,20 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 																<?php
 																} elseif ( isset( $setting['levels'][ $level_id ]['status'] ) && is_array( $setting['levels'][ $level_id ]['status'] ) ) {
 
+//																	$new_status = $setting['levels'][ $level_id ]['status'];
+//																	if( method_exists( $setting[ 'module' ], 'get_level_status' ) ) {
+//																		$new_status = call_user_func( $setting[ 'module' ] . '::get_level_status', $level_id );
+//																		$old_status = $setting['levels'][ $level_id ]['status'] ;
+//																		if( 'none' != $old_status['selection'] ) {
+//																			$new_status['selection'] = $new_status['value'];
+//																		} else {
+//																			$new_status['selection'] = 'none';
+//																		}
+//
+//																	}
+//																	$keys = array_keys( $new_status );
 																	$keys = array_keys( $setting['levels'][ $level_id ]['status'] );
+
 																	foreach( $keys as $index ) {
 																		echo '<input type="hidden" name="psts[feature_table][' . $key . '][levels][' . $level_id . '][status][' . $index .']" value="' . $setting['levels'][ $level_id ]['status'][ $index ] . '" />';
 																	}
@@ -563,7 +548,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 														}
 
 														// There are no level specific settings
-														$x = '';
 														if( isset( $setting['active'] ) && ( ! empty( $setting['active'] ) || false === $setting['active'] ) ) {
 															$module_active = true;
 
