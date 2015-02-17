@@ -29,6 +29,18 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 							$_POST['psts']['plans_table_enabled'] = 'disabled';
 						}
 
+						if( isset( $_POST['psts']['coupons_enabled'] ) ) {
+							$_POST['psts']['coupons_enabled'] = 'enabled';
+						} else {
+							$_POST['psts']['coupons_enabled'] = 'disabled';
+						}
+
+						if( isset( $_POST['psts']['psts_checkout_show_featured'] ) ) {
+							$_POST['psts']['psts_checkout_show_featured'] = 'enabled';
+						} else {
+							$_POST['psts']['psts_checkout_show_featured'] = 'disabled';
+						}
+
 						break;
 
 					case 'comparison_table':

@@ -69,7 +69,11 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 //			$class_name = 'ProSites_Gateway_2Checkout';
 			$featured_level = $psts->get_setting( 'featured_level' );
 			$plans_table_enabled = $psts->get_setting('plans_table_enabled');
+			$coupons_enabled = $psts->get_setting('coupons_enabled');
+			$highlight_featured = $psts->get_setting('psts_checkout_show_featured');
 			$checked = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
+			$coupons_checked = 'enabled' == $coupons_enabled ? 'enabled' : 'disabled';
+			$show_featured_checked = 'enabled' == $highlight_featured ? 'enabled' : 'disabled';
 
 			?>
 			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>" />
@@ -95,6 +99,21 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						</select>
 					</td>
 				</tr>
+
+				<tr>
+					<th scope="row"><?php _e( 'Allow Coupons', 'psts' ) ?></th>
+					<td>
+						<input type="checkbox" name="psts[coupons_enabled]" value="1" <?php checked( $coupons_checked, 'enabled' ); ?> />
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row"><?php _e( 'Highlight \'Featured\' level', 'psts' ) ?></th>
+					<td>
+						<input type="checkbox" name="psts[psts_checkout_show_featured]" value="1" <?php checked( $show_featured_checked, 'enabled' ); ?> />
+					</td>
+				</tr>
+
 
 			</table>
 

@@ -24,7 +24,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 
 	class ProSites_Helper_Tabs {
 
-		public static function render( $callback_parent = 'ProSites_Helper_Tabs', $settings_header = array(), $options = array(), $persistent = array() ) {
+		public static function render_child( $child, $callback_parent = 'ProSites_Helper_Tabs', $settings_header = array(), $options = array(), $persistent = array() ) {
 
 			// Get options
 			$defaults = array(
@@ -50,7 +50,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			}
 			$settings_header['button_name'] = $button_name;
 
-			$tabs = call_user_func( array( get_called_class(), 'get_tabs' ) );
+			$tabs = call_user_func( array( $child, 'get_tabs' ) );
 
 			// Render tabbed interface.
 			ob_start();
@@ -162,8 +162,8 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			die( 'Please override get_tabs(),' );
 		}
 
-		public static function get_active_tab() {
-			$tabs = call_user_func( array( get_called_class(), 'get_tabs' ) );
+		public static function get_active_tab_child( $child ) {
+			$tabs = call_user_func( array( $child, 'get_tabs' ) );
 			reset( $tabs ); // If the first key has already been used
 			$active_tab = sanitize_html_class( @$_GET['tab'], key( $tabs ) );
 			$tabs[ $active_tab ]['tab_key'] = $active_tab;

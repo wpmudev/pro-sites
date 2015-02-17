@@ -23,6 +23,14 @@
 if ( ! class_exists( 'ProSites_Helper_Tabs_Pricing' ) ) {
 	class ProSites_Helper_Tabs_Pricing extends ProSites_Helper_Tabs {
 
+		public static function render( $callback_parent = 'ProSites_Helper_Tabs', $settings_header = array(), $options = array(), $persistent = array() ) {
+			parent::render_child( get_class(), $callback_parent, $settings_header, $options, $persistent );
+		}
+
+		public static function get_active_tab() {
+			return parent::get_active_tab_child( get_class() );
+		}
+
 		public static function get_tabs() {
 
 			$section_options = array(

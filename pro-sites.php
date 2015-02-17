@@ -171,6 +171,8 @@ class ProSites {
 
 		// Hooking here until the models get reworked.
 		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 3 );
+
+		$this->setup_ajax_hooks();
 	}
 
 //------------------------------------------------------------------------//
@@ -237,6 +239,14 @@ class ProSites {
 
 		//load data structures
 		require_once( $this->plugin_dir . 'data.php' );
+	}
+
+	private function setup_ajax_hooks() {
+
+		add_action( 'wp_ajax_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
+		// Adding _nopriv_ for future buy on register
+		add_action( 'wp_ajax_nopriv_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
+
 	}
 
 	public static function get_default_settings_array() {
@@ -749,11 +759,16 @@ Thanks!", 'psts' ),
 		do_action( 'psts_page_after_stats' );
 
 		//coupons page
-		$psts_coupons_page = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons', array(
-			&$this,
-			'admin_coupons'
-		) );
+//		$psts_coupons_page_old = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons-old', array(
+//			&$this,
+//			'admin_coupons'
+//		) );
 
+		//ProSites_View_Coupons
+		$psts_coupons_page = add_submenu_page( 'psts', ProSites_View_Coupons::get_page_name(), ProSites_View_Coupons::get_menu_name(), 'manage_network_options', ProSites_View_Coupons::get_page_slug(), array(
+			'ProSites_View_Coupons',
+			'render_page'
+		) );
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
@@ -1068,6 +1083,12 @@ Thanks!", 'psts' ),
 		add_filter( 'the_content', array( &$this, 'checkout_output' ), 15 );
 
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+
+		$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
+		$ajax_url = admin_url( "admin-ajax.php", $scheme );
+		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
+			'admin_ajax_url' => $ajax_url,
+		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
 			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
@@ -1798,172 +1819,26 @@ Thanks!", 'psts' ),
 
 	/**
 	 * checks a coupon code for validity. Return boolean
-	 *
-	 * @param $code , Coupo Code
-	 * @param int $blog_id , Blog Id for which coupon is being used
-	 * @param int $level , Site Level
-	 * @param int $period , Period
-	 * @param string $domain ,Domain name for which user ois signing up, Used in case of pay before blog creation
-	 *
-	 * @return bool
+	 * @todo: remove this after cleaning up
 	 */
 	function check_coupon( $code, $blog_id = false, $level = false, $period = '', $domain = '' ) {
-		global $wpdb;
-		$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
-
-		//empty code
-		if ( ! $coupon_code ) {
-			return false;
-		}
-
-		$coupons = (array) get_site_option( 'psts_coupons' );
-
-		/**
-		 * Allow plugins to override coupon check by returning a boolean value
-		 *
-		 * @param string , $coupon_code
-		 * @param int , $blog_id
-		 * @param int , $level Pro Level
-		 * @param int , $period
-		 * @param string , $domain, available at the time of signup
-		 *
-		 */
-		if ( is_bool( $override = apply_filters( 'psts_check_coupon', null, $coupon_code, $blog_id, $level, $coupons, $period, $domain ) ) ) {
-			return $override;
-		}
-
-		//no record for code
-		if ( ! isset( $coupons[ $coupon_code ] ) || ! is_array( $coupons[ $coupon_code ] ) ) {
-			return false;
-		}
-
-		//if specific level and not proper level
-		if ( $level && $coupons[ $coupon_code ]['level'] != 0 && $coupons[ $coupon_code ]['level'] != $level ) {
-			return false;
-		}
-		//If allowed for specific period only
-		$valid_for_period = $coupons[ $coupon_code ]['valid_for_period'];
-
-		//If user has selected period limit
-		if ( $period && ! empty( $valid_for_period ) &&
-		     //if user has not selected Any period option
-		     ! in_array( 0, $valid_for_period ) &&
-		     //Current Selected period is not in specified period list
-		     ! in_array( $period, $valid_for_period )
-		) {
-			return false;
-		}
-
-		//start date not valid yet
-		if ( time() < $coupons[ $coupon_code ]['start'] ) {
-			return false;
-		}
-
-		//if end date and expired
-		if ( isset( $coupons[ $coupon_code ]['end'] ) && $coupons[ $coupon_code ]['end'] && time() > $coupons[ $coupon_code ]['end'] ) {
-			return false;
-		}
-
-		//check remaining uses
-		if ( isset( $coupons[ $coupon_code ]['uses'] ) && $coupons[ $coupon_code ]['uses'] && ( intval( $coupons[ $coupon_code ]['uses'] ) - intval( @$coupons[ $coupon_code ]['used'] ) ) <= 0 ) {
-			return false;
-		}
-
-		//check if the blog has used the coupon before
-		if ( ! empty( $blog_id ) ) {
-			$used = get_blog_option( $blog_id, 'psts_used_coupons' );
-			if ( is_array( $used ) && in_array( $coupon_code, $used ) ) {
-				return false;
-			}
-		} else {
-			//Check if domain has already used the coupon
-			$signup_meta = '';
-			$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
-			if ( ! empty( $signup ) ) {
-				$signup_meta = maybe_unserialize( $signup->meta );
-			}
-			$psts_used_coupons = ! empty ( $signup_meta['psts_used_coupons'] ) ? $signup_meta['psts_used_coupons'] : array();
-			//If the coupon is used, return false
-			if ( $psts_used_coupons && in_array( $coupon_code, $psts_used_coupons ) ) {
-				return false;
-			}
-		}
-
-		//everything passed so it's valid
-		return true;
+		return ProSites_Helper_Coupons::check_coupon( $code, $blog_id, $level, $period, $domain );
 	}
 
-	//get coupon value. Returns array(discount, new_total) or false for invalid code
+	/**
+	* get coupon value. Returns array(discount, new_total) or false for invalid code
+	* @todo: remove this after cleaning up
+	*/
 	function coupon_value( $code, $total ) {
-		if ( $this->check_coupon( $code ) ) {
-			$coupons     = (array) get_site_option( 'psts_coupons' );
-			$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
-			if ( $coupons[ $coupon_code ]['discount_type'] == 'amt' ) {
-				$new_total = round( $total - $coupons[ $coupon_code ]['discount'], 2 );
-				$new_total = ( $new_total < 0 ) ? 0.00 : $new_total;
-				$discount  = '-' . $this->format_currency( '', $coupons[ $coupon_code ]['discount'] );
-
-				return array( 'discount' => $discount, 'new_total' => $new_total );
-			} else {
-				$new_total = round( $total - ( $total * ( $coupons[ $coupon_code ]['discount'] * 0.01 ) ), 2 );
-				$new_total = ( $new_total < 0 ) ? 0.00 : $new_total;
-				$discount  = '-' . $coupons[ $coupon_code ]['discount'] . '%';
-
-				return array( 'discount' => $discount, 'new_total' => $new_total );
-			}
-
-		} else {
-			return false;
-		}
+		return ProSites_Helper_Coupons::coupon_value( $code, $total );
 	}
 
-	//record coupon use. Returns boolean successful
+	/**
+	 * record coupon use. Returns boolean successful
+	 * @todo: remove this after cleaning up
+	 */
 	function use_coupon( $code, $blog_id, $domain = false ) {
-		global $wpdb;
-		if ( $this->check_coupon( $code, $blog_id, '', '', $domain ) ) {
-			$coupons     = (array) get_site_option( 'psts_coupons' );
-			$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
-
-			//increment count
-			@$coupons[ $coupon_code ]['used'] ++;
-			update_site_option( 'psts_coupons', $coupons );
-
-			unset( $_SESSION['COUPON_CODE'] );
-
-			if ( ! empty( $blog_id ) ) {
-				//If it's a existing blog, check for previous used coupons
-				$used = (array) get_blog_option( $blog_id, 'psts_used_coupons' );
-			}
-			//New blog won't have any previous coupons
-			$used[] = $coupon_code;
-
-			if ( ! empty( $blog_id ) ) {
-
-				update_blog_option( $blog_id, 'psts_used_coupons', $used );
-
-			} else {
-				//Update Signup meta for used coupons
-				$signup_meta = '';
-				$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
-				if ( ! empty( $signup ) ) {
-					$signup_meta = maybe_unserialize( $signup->meta );
-				}
-				$signup_meta['psts_used_coupons'] = $used;
-				$wpdb->update(
-					$wpdb->signups,
-					array(
-						'meta' => serialize( $signup_meta ), // string
-					),
-					array(
-						'domain' => $domain
-					)
-				);
-			}
-
-			return true;
-		} else {
-			return false;
-		}
+		return ProSites_Helper_Coupons::use_coupon( $code, $blog_id, $domain );
 	}
 
 	//display currency symbol
@@ -3269,408 +3144,6 @@ if ( $active_pro_sites ) {
 }
 	echo '</div>';
 }
-
-	function admin_coupons() {
-		global $wpdb;
-
-		if ( ! is_super_admin() ) {
-			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
-			return;
-		}
-
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function ($) {
-				jQuery.datepicker.setDefaults(jQuery.datepicker.regional['<?php echo $this->language; ?>']);
-				jQuery('.pickdate').datepicker({
-					dateFormat: 'yy-mm-dd',
-					changeMonth: true,
-					changeYear: true,
-					minDate: 0,
-					firstDay: <?php echo (get_option('start_of_week')=='0') ? 7 : get_option('start_of_week'); ?>
-				});
-			});
-		</script>
-		<div class="wrap">
-		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/coupon.png'; ?>"/></div>
-		<h2><?php _e( 'Pro Sites Coupons', 'psts' ); ?></h2>
-
-		<p><?php _e( 'You can create, delete, or update coupon codes for your network here.', 'psts' ) ?></p>
-		<?php
-
-		$coupons = get_site_option( 'psts_coupons' );
-		$error   = false;
-
-		//delete checked coupons
-		if ( isset( $_POST['allcoupon_delete'] ) ) {
-			//check nonce
-			check_admin_referer( 'psts_coupons' );
-
-			if ( is_array( $_POST['coupons_checks'] ) ) {
-				//loop through and delete
-				foreach ( $_POST['coupons_checks'] as $del_code ) {
-					unset( $coupons[ $del_code ] );
-				}
-
-				update_site_option( 'psts_coupons', $coupons );
-				//display message confirmation
-				echo '<div class="updated fade"><p>' . __( 'Coupon(s) succesfully deleted.', 'psts' ) . '</p></div>';
-			}
-		}
-
-		//save or add coupon
-		if ( isset( $_POST['submit_settings'] ) ) {
-			//check nonce
-			check_admin_referer( 'psts_coupons' );
-
-			$error = false;
-
-			$new_coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $_POST['coupon_code'] ) );
-			if ( ! $new_coupon_code ) {
-				$error[] = __( 'Please enter a valid Coupon Code', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['discount'] = round( $_POST['discount'], 2 );
-			if ( $coupons[ $new_coupon_code ]['discount'] <= 0 ) {
-				$error[] = __( 'Please enter a valid Discount Amount', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['discount_type'] = $_POST['discount_type'];
-			if ( $coupons[ $new_coupon_code ]['discount_type'] != 'amt' && $coupons[ $new_coupon_code ]['discount_type'] != 'pct' ) {
-				$error[] = __( 'Please choose a valid Discount Type', 'psts' );
-			}
-			//Coupon Valid for Period
-			$coupons[ $new_coupon_code ]['valid_for_period'] = $_POST['valid_for_period'];
-			$coupons[ $new_coupon_code ]['start']            = strtotime( $_POST['start'] );
-			if ( $coupons[ $new_coupon_code ]['start'] === false ) {
-				$error[] = __( 'Please enter a valid Start Date', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['end'] = strtotime( $_POST['end'] );
-			if ( $coupons[ $new_coupon_code ]['end'] && $coupons[ $new_coupon_code ]['end'] < $coupons[ $new_coupon_code ]['start'] ) {
-				$error[] = __( 'Please enter a valid End Date not earlier than the Start Date', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['level'] = intval( $_POST['level'] );
-
-			$coupons[ $new_coupon_code ]['uses'] = ( is_numeric( $_POST['uses'] ) ) ? (int) $_POST['uses'] : '';
-
-			if ( ! $error ) {
-				update_site_option( 'psts_coupons', $coupons );
-				$new_coupon_code = '';
-				echo '<div class="updated fade"><p>' . __( 'Coupon succesfully saved.', 'psts' ) . '</p></div>';
-			} else {
-				echo '<div class="error"><p>' . implode( '<br />', $error ) . '</p></div>';
-			}
-		}
-
-		//if editing a coupon
-		$new_coupon_code = isset ( $_GET['code'] ) ? $_GET['code'] : '';
-
-		$apage = isset( $_GET['apage'] ) ? intval( $_GET['apage'] ) : 1;
-		$num   = isset( $_GET['num'] ) ? intval( $_GET['num'] ) : 20;
-
-		$coupon_list = get_site_option( 'psts_coupons' );
-		$levels      = (array) get_site_option( 'psts_levels' );
-		$total       = ( is_array( $coupon_list ) ) ? count( $coupon_list ) : 0;
-
-		if ( $total ) {
-			$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ) );
-		}
-
-		$coupon_navigation = paginate_links( array(
-			'base'    => add_query_arg( 'apage', '%#%' ),
-			'format'  => '',
-			'total'   => ceil( $total / $num ),
-			'current' => $apage
-		) );
-		$page_link         = ( $apage > 1 ) ? '&amp;apage=' . $apage : '';
-		?>
-
-		<form id="form-coupon-list" action="<?php echo network_admin_url( 'admin.php?page=psts-coupons' ); ?>" method="post">
-		<?php wp_nonce_field( 'psts_coupons' ) ?>
-		<div class="tablenav">
-			<?php if ( $coupon_navigation ) {
-				echo "<div class='tablenav-pages'>$coupon_navigation</div>";
-			} ?>
-
-			<div class="alignleft">
-				<input type="submit" value="<?php _e( 'Delete', 'psts' ) ?>" name="allcoupon_delete" class="button-secondary delete"/>
-				<br class="clear"/>
-			</div>
-		</div>
-
-		<br class="clear"/>
-
-		<?php
-		// define the columns to display, the syntax is 'internal name' => 'display name'
-		$posts_columns = array(
-			'code'      => __( 'Coupon Code', 'psts' ),
-			'discount'  => __( 'Discount', 'psts' ),
-			'start'     => __( 'Start Date', 'psts' ),
-			'end'       => __( 'Expire Date', 'psts' ),
-			'level'     => __( 'Level', 'psts' ),
-			'period'    => __( 'Period', 'psts' ),
-			'used'      => __( 'Used', 'psts' ),
-			'remaining' => __( 'Remaining Uses', 'psts' ),
-			'edit'      => __( 'Edit', 'psts' )
-		);
-		?>
-
-		<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
-			<thead>
-			<tr>
-				<th scope="col" class="check-column"><input type="checkbox"/></th>
-				<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
-					$col_url = $column_display_name;
-					?>
-					<th scope="col"><?php echo $col_url ?></th>
-				<?php } ?>
-			</tr>
-			</thead>
-			<tbody id="the-list">
-			<?php
-			$bgcolor = isset( $class ) ? $class : '';
-			if ( is_array( $coupon_list ) && count( $coupon_list ) ) {
-				foreach ( $coupon_list as $coupon_code => $coupon ) {
-					$class = ( isset( $class ) && 'alternate' == $class ) ? '' : 'alternate';
-
-					//assign classes based on coupon availability
-					//$class = ($this->check_coupon($coupon_code)) ? $class . ' coupon-active' : $class . ' coupon-inactive';
-
-					echo '<tr class="' . $class . ' blog-row">
-                  <th scope="row" class="check-column">
-									<input type="checkbox" name="coupons_checks[]"" value="' . $coupon_code . '" />
-								  </th>';
-
-					foreach ( $posts_columns as $column_name => $column_display_name ) {
-						switch ( $column_name ) {
-							case 'code':
-								?>
-								<th scope="row">
-									<?php echo $coupon_code; ?>
-								</th>
-								<?php
-								break;
-
-							case 'discount':
-								?>
-								<th scope="row">
-									<?php
-									if ( $coupon['discount_type'] == 'pct' ) {
-										echo $coupon['discount'] . '%';
-									} else if ( $coupon['discount_type'] == 'amt' ) {
-										echo $this->format_currency( '', $coupon['discount'] );
-									}
-									?>
-								</th>
-								<?php
-								break;
-
-							case 'start':
-								?>
-								<th scope="row">
-									<?php echo date_i18n( get_option( 'date_format' ), $coupon['start'] ); ?>
-								</th>
-								<?php
-								break;
-
-							case 'end':
-								?>
-								<th scope="row">
-									<?php echo ( $coupon['end'] ) ? date_i18n( get_option( 'date_format' ), $coupon['end'] ) : __( 'No End', 'psts' ); ?>
-								</th>
-								<?php
-								break;
-
-							case 'level':
-								?>
-								<th scope="row">
-									<?php echo isset( $levels[ $coupon['level'] ] ) ? $coupon['level'] . ': ' . $levels[ $coupon['level'] ]['name'] : __( 'Any Level', 'psts' ); ?>
-								</th>
-								<?php
-								break;
-
-							case 'used':
-								?>
-								<th scope="row">
-									<?php echo isset( $coupon['used'] ) ? number_format_i18n( $coupon['used'] ) : 0; ?>
-								</th>
-								<?php
-								break;
-
-							case 'remaining':
-								?>
-								<th scope="row">
-									<?php
-									if ( isset( $coupon['uses'] ) ) {
-										echo number_format_i18n( intval( $coupon['uses'] ) - intval( @$coupon['used'] ) );
-									} else {
-										_e( 'Unlimited', 'psts' );
-									}
-									?>
-								</th>
-								<?php
-								break;
-
-							case 'edit':
-								?>
-								<th scope="row">
-									<a href="admin.php?page=psts-coupons<?php echo $page_link; ?>&amp;code=<?php echo $coupon_code; ?>#add_coupon"><?php _e( 'Edit', 'psts' ) ?>&raquo;</a>
-								</th>
-								<?php
-								break;
-
-						}
-					}
-					?>
-					</tr>
-				<?php
-				}
-			} else {
-				?>
-				<tr style='background-color: <?php echo $bgcolor; ?>'>
-					<td colspan="9"><?php _e( 'No coupons yet.', 'psts' ) ?></td>
-				</tr>
-			<?php
-			} // end if coupons
-			?>
-
-			</tbody>
-			<tfoot>
-			<tr>
-				<th scope="col" class="check-column"><input type="checkbox"/></th>
-				<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
-					$col_url = $column_display_name;
-					?>
-					<th scope="col"><?php echo $col_url ?></th>
-				<?php } ?>
-			</tr>
-			</tfoot>
-		</table>
-
-		<div class="tablenav">
-			<?php if ( $coupon_navigation ) {
-				echo "<div class='tablenav-pages'>$coupon_navigation</div>";
-			} ?>
-		</div>
-
-		<div id="poststuff" class="metabox-holder">
-
-			<div class="postbox">
-				<h3 class="hndle" style="cursor:auto;"><span>
-      <?php
-      if ( isset( $_GET['code'] ) || $error ) {
-	      _e( 'Edit Coupon', 'psts' );
-      } else {
-	      _e( 'Add Coupon', 'psts' );
-      }
-      $periods = $this->get_setting( 'enabled_periods', 0 );
-      ?></span></h3>
-
-				<div class="inside">
-					<?php
-					$discount         = '';
-					$discount_type    = '';
-					$start            = date( 'Y-m-d' );
-					$end              = '';
-					$uses             = '';
-					$valid_for_period = array();
-					//setup defaults
-					if ( isset( $new_coupon_code ) && isset( $coupons[ $new_coupon_code ] ) ) {
-						$discount         = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
-						$discount_type    = $coupons[ $new_coupon_code ]['discount_type'];
-						$start            = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
-						$end              = ( $coupons[ $new_coupon_code ]['end'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['end'] ) : '';
-						$uses             = $coupons[ $new_coupon_code ]['uses'];
-						$valid_for_period = isset( $coupons[ $new_coupon_code ]['valid_for_period'] ) ? $coupons[ $new_coupon_code ]['valid_for_period'] : array();
-					}
-					?>
-					<table id="add_coupon">
-						<thead>
-						<tr>
-							<th class="coupon-code">
-								<?php echo __( 'Coupon Code', 'psts' ) .  $this->help_text( __( 'Letters and numbers only', 'psts' ) ); ?>
-							</th>
-							<th><?php _e( 'Discount', 'psts' ) ?></th>
-							<th><?php _e( 'Start Date', 'psts' ) ?></th>
-							<th class="expire-date">
-								<?php echo __( 'Expire Date', 'psts' ) . $this->help_text( __( 'No end if left blank', 'psts' ) ); ?>
-							</th>
-							<th>
-								<?php _e( 'Level', 'psts' ) ?>
-							</th>
-							<th class="allowed-users">
-								<?php echo __( 'Allowed Uses', 'psts' ) . $this->help_text( __( 'Unlimited if blank', 'psts' ) ); ?>
-							</th>
-							<th class="coupon-period">
-								<?php echo __( 'Period', 'psts' ) . $this->help_text ( __( 'Allows you to limit the availability of coupon for selected subscription period.', 'psts' ) ); ?>
-							</th>
-						</tr>
-						</thead>
-						<tbody>
-						<tr>
-							<td>
-								<input value="<?php echo $new_coupon_code ?>" name="coupon_code" type="text" style="text-transform: uppercase;"/>
-							</td>
-							<td>
-								<input value="<?php echo $discount; ?>" size="3" name="discount" type="text"/>
-								<select name="discount_type" class="chosen narrow">
-									<option value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $this->format_currency(); ?></option>
-									<option value="pct"<?php selected( $discount_type, 'pct' ) ?>>%</option>
-								</select>
-							</td>
-							<td>
-								<input value="<?php echo $start; ?>" class="pickdate" size="11" name="start" type="text"/>
-							</td>
-							<td>
-								<input value="<?php echo $end; ?>" class="pickdate" size="11" name="end" type="text"/>
-							</td>
-							<td>
-								<select name="level" class="chosen">
-									<option value="0"><?php _e( 'Any Level', 'psts' ) ?></option>
-									<?php
-									foreach ( $levels as $key => $value ) {
-										?>
-										<option value="<?php echo $key; ?>"<?php selected( @$coupons[ $new_coupon_code ]['level'], $key ) ?>><?php echo $key . ': ' . $value['name']; ?></option><?php
-									}
-									?>
-								</select>
-							</td>
-							<td>
-								<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
-							</td><?php
-							if ( ! empty( $periods ) ) {
-								?>
-								<td>
-								<select name="valid_for_period[]" multiple class="psts-period chosen" data-placeholder="Select Period">
-									<option value="0" <?php echo in_array( 0, $valid_for_period ) ? 'selected' : ''; ?>><?php _e( 'Any Period', 'psts' ) ?></option>
-									<?php
-									foreach ( $periods as $period ) {
-										$text = $period == 1 ? 'month' : 'months';
-										?>
-										<option value="<?php echo $period; ?>"<?php echo in_array( $period, $valid_for_period ) ? 'selected' : ''; ?>><?php echo $period . ' ' . $text; ?></option><?php
-									}
-									?>
-								</select>
-								</td><?php
-							}?>
-						</tr>
-						</tbody>
-					</table>
-
-					<p class="submit">
-						<input type="submit" name="submit_settings" class="button-primary" value="<?php _e( 'Save Coupon', 'psts' ) ?>"/>
-					</p>
-				</div>
-			</div>
-
-		</div>
-		</form>
-
-		</div>
-	<?php
-	}
 
 function admin_levels() {
 	global $wpdb;

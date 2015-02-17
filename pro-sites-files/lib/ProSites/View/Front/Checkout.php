@@ -36,16 +36,18 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$normal_style = 'width: ' . $column_width . '%; ';
 			$feature_style = 'width: ' . $feature_width . '%; ';
 
-			$column_keys = array_keys( $columns );
+			$column_keys = array_keys( $columns[0] );
 			$show_pricing_table = in_array( 'title', $column_keys );
 			$show_feature_table = in_array( 'sub_title', $column_keys );
 			$show_buy_buttons = in_array( 'button', $column_keys );
+			$add_coupon = in_array( 'coupon', $column_keys );
 //			$show_buy_buttons = false;
 
 			foreach( $columns as $key => $column ) {
 				$style = true === $column['featured'] ? $feature_style : $normal_style;
 				$col_class = true === $column['featured'] ? ' featured' : '';
-				?><ul class="pricing-column <?php echo esc_attr( $col_class ); ?>" style="<?php echo esc_attr( $style ); ?>"><?php
+				$level_id = isset( $column['level_id'] ) ? $column['level_id'] : 0;
+				?><ul class="pricing-column psts-level-<?php echo esc_attr( $level_id ); ?> <?php echo esc_attr( $col_class ); ?>" style="<?php echo esc_attr( $style ); ?>"><?php
 
 				if( $show_pricing_table ) {
 					if( empty( $column['title'] ) ) {
@@ -89,7 +91,16 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				if( $show_buy_buttons ) {
 					if( empty( $column['button'] ) ) {
-						echo '<li class="button-box no-button"></li>';
+						if( $add_coupon ) {
+							echo '<li class="coupon">';
+							echo '<div class="coupon-box">';
+							echo '<input type="text" name="apply-coupon" placeholder="' . __( 'Enter coupon', 'psts' ) . '" />';
+							echo '<a name="apply-coupon-link" class="apply-coupon-link">' . $column['coupon'] . '</a>';
+							echo '</div>';
+							echo '</li>';
+						} else {
+							echo '<li class="button-box no-button"></li>';
+						}
 					} else {
 						echo '<li class="button-box">' . $column['button'] . '</li>';
 					}
@@ -125,6 +136,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$pricing_levels_order = $psts->get_setting( 'pricing_levels_order', $default_order );
 			$pricing_levels_order = explode( ',', $pricing_levels_order );
 
+			/**
+			 * @todo Add a setting to disable
+			 */
 			$featured_level = $psts->get_setting( 'featured_level' );
 
 			// Initialize all columns
@@ -141,6 +155,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				foreach( $pricing_levels_order as $level ) {
 					$columns[ $col_count ] = self::get_header_details( $level );
+					$columns[ $col_count ]['level_id'] = $level;
 					$col_count += 1;
 				}
 			}
@@ -210,6 +225,15 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			}
 
+			$coupons_enabled = $psts->get_setting('coupons_enabled');
+			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
+
+			if( $coupons_enabled ) {
+				$col_count = 0;
+				$columns[ $col_count ]['coupon'] = __( 'Apply coupon', 'psts' );
+			}
+
+
 			return $columns;
 		}
 
@@ -248,7 +272,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				return ob_get_clean();
 			} else {
 				global $psts;
-				$featured_level = $psts->get_setting( 'featured_level' );
+
+				if( 'enabled' == $psts->get_setting('psts_checkout_show_featured') ){
+					$featured_level = $psts->get_setting( 'featured_level' );
+				} else {
+					$featured_level = -1;
+				}
+
 				$level_list = get_site_option( 'psts_levels' );
 				$setup_fee_amount = $psts->get_setting( 'setup_fee', 0 );
 
@@ -265,7 +295,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				ob_start();
 
-				$setup_fee = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
+				if( ! empty( $setup_fee_amount ) ) {
+					$setup_fee = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
+				}
 				$setup_msg = '';
 				if( ! empty( $setup_fee_amount ) ) {
 					$setup_msg = '<div class="setup-fee">' . sprintf( $plan_text['setup'], $setup_fee ) . '</div>';
@@ -290,7 +322,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					// Get level price and format it
 					$price = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ] );
 					echo '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
-					echo $price;
+					echo '<div class="plan-price original-amount">' . $price . '</div>';
 					echo '<div class="period">' . esc_html( $period ) . '</div>';
 					echo ! empty( $setup_msg ) ? $setup_msg : '';
 					echo '</div>';
@@ -300,8 +332,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$monthly_calculated = $level_list[ $level ][ $period_key ] / $months * 1.0;
 					$difference = ( $monthly_price - $monthly_calculated ) * $months;
 
-					$formatted_calculated = ProSites_Helper_UI::rich_currency_format( $monthly_calculated );
-					$formatted_savings = ProSites_Helper_UI::rich_currency_format( $difference );
+					$formatted_calculated = '<div class="monthly-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly_calculated ) . '</div>';
+					$formatted_savings = '<div class="savings-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $difference ) . '</div>';
 
 					$summary_msg = $plan_text['monthly'];
 					if( $months > 1 ) {

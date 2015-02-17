@@ -493,6 +493,7 @@ ul.pricing-column {
 .pricing-column ol, .pricing-column ul {
 	list-style: none;
 }
+
 .pricing-column blockquote, .pricing-column q {
 	quotes: none;
 }
@@ -734,9 +735,10 @@ li > .period-selector {
 	/*border-color: #888;*/
 	border:1px solid #B6B6B6;
 	border-style: none solid;
-	font-size: 0.8em;
+	font-size: 0.7em;
 	/*margin-left: -1px;*/
 	/*padding-right: 1px;*/
+    font-weight: bold;
 	text-align: right;
 }
 .pricing-column .sub-title.no-title {
@@ -767,6 +769,7 @@ li > .period-selector {
 .pricing-column .button-box button {
 	width:100%;
 	margin-top: 10px;
+	font-size: 0.6em;
 }
 
 .pricing-column .button-box.no-button {
@@ -883,5 +886,92 @@ li > .period-selector {
 }
 
 .pricing-column:first-child .feature-section {
-	font-size:0.5em;
+	font-size:1em;
+}
+
+.pricing-column:first-child .feature-section .feature-name {
+    font-size: 0.7em;
+}
+
+.pricing-column li.coupon {
+    clear:both;
+}
+.pricing-column .coupon-box {
+    font-size: 1em;
+    /*position:relative;*/
+}
+
+.pricing-column .coupon-box input {
+	font-size: 0.7em;
+    /*position:absolute;*/
+    /*left:0;*/
+    /*top:0;*/
+    padding-top:3px;
+    padding-bottom:3px;
+    position:relative;
+    top: -4px;
+}
+
+.pricing-column .apply-coupon-link {
+    /*position:absolute;*/
+	cursor: pointer;
+    font-size: 0.7em;
+    position:relative;
+    top: -10px; /* border of input box */
+    /*left:0px;*/
+    /*width:100%;*/
+}
+
+.pricing-column .coupon-box {
+    position: relative;
+}
+
+.pricing-column .coupon-box:after  {
+    font-family: dashicons;
+    font-size:1em;
+    line-height: 1em;
+    position: absolute;
+    top:0.3em;
+    right: 10px;
+}
+
+.pricing-column .coupon-box.coupon-valid:after {
+    content: "\f147";
+    color: #00CE8A;
+}
+
+.pricing-column .coupon-box.coupon-invalid:after {
+    content: "\f158";
+    color: #B6B6B6;
+    /* IE 9 */
+    -ms-transform: scale(0.8,0.8);
+    /* Chrome, Safari, Opera */
+    -webkit-transform: scale(0.8,0.8);
+    transform: scale(0.8,0.8);
+}
+
+/* Applying Coupon */
+.monthly-price.original-amount.scratch,
+.savings-price.original-amount.scratch {
+    display: none;
+}
+
+.plan-price.original-amount.scratch * {
+    font-size: 1em;
+    top:0;
+    font-width: normal;
+}
+
+.plan-price.original-amount.scratch {
+    opacity: 0.5;
+    position:absolute;
+    right:10px;
+}
+.plan-price.original-amount.scratch:after {
+    border-bottom: 1px solid red;
+    content: "";
+    display: block;
+    margin: 0 auto;
+    position: relative;
+    top: -0.8em;
 }
