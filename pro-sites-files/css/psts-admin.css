@@ -75,6 +75,7 @@ input[name="uses"] {
 }
 
 .coupon-code .help_tip,
+.coupon-life .help_tip,
 .expire-date .help_tip,
 .allowed-users .help_tip,
 .coupon-period .help_tip {

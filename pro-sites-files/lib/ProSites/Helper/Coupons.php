@@ -284,6 +284,22 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 			return $level_list;
 		}
 
+		public static function get_coupon( $coupon_code, $coupons = false ) {
+			$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $coupon_code ) );
+
+			if( ! $coupons ) {
+				$coupons = (array) get_site_option( 'psts_coupons' );
+			}
+
+			$keys = array_keys( $coupons );
+
+			if( in_array( $coupon_code, $keys ) ) {
+				return $coupons[ $coupon_code ];
+			} else {
+				return array();
+			}
+		}
+
 		public static function apply_coupon_to_checkout() {
 
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
@@ -301,11 +317,17 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				}
 
 //				$ajax_response['value'] = self::coupon_value( $coupon_code, '200' );
+				$first_periods = array(
+					'price_1' => __('first month only', 'psts' ),
+					'price_3' => __('first 3 months only', 'psts' ),
+					'price_12' => __('first 12 months only', 'psts' ),
+				);
 
 				// New pricing
 				if( $valid_coupon ) {
 					$original_levels = get_site_option( 'psts_levels' );
 					$level_list      = self::get_adjusted_level_amounts( $coupon_code );
+					$coupon_obj = self::get_coupon( $coupon_code );
 					foreach ( $level_list as $key => $level ) {
 						unset( $level_list[ $key ]['is_visible'] );
 						unset( $level_list[ $key ]['name'] );
@@ -316,6 +338,11 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 							unset( $level_list[ $key ]['price_1'] );
 						} else {
 							$level_list[ $key ]['price_1']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_1'] ) . '</div>';
+							if( 'first' == $coupon_obj['lifetime'] ) {
+								$level_list[ $key ]['price_1_period'] = '<div class="period coupon-period">' . $first_periods['price_1'] . '</div>';
+							} else {
+								$level_list[ $key ]['price_1_period'] = '';
+							}
 							$level_list[ $key ]['price_1_adjust'] = true;
 						}
 						if ( $original_levels[ $key ]['price_3'] == $level['price_3'] ) {
@@ -329,6 +356,11 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 							$saving = $total_1 - $total_3;
 							$level_list[ $key ]['price_3_monthly'] = '<div class="monthly-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly ) . '</div>';
 							$level_list[ $key ]['price_3_savings'] = '<div class="savings-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $saving ) . '</div>';
+							if( 'first' == $coupon_obj['lifetime'] ) {
+								$level_list[ $key ]['price_3_period'] = '<div class="period coupon-period">' . $first_periods['price_3'] . '</div>';
+							} else {
+								$level_list[ $key ]['price_3_period'] = '';
+							}
 							$level_list[ $key ]['price_3_adjust'] = true;
 						}
 						if ( $original_levels[ $key ]['price_12'] == $level['price_12'] ) {
@@ -342,6 +374,11 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 							$saving = $total_1 - $total_12;
 							$level_list[ $key ]['price_12_monthly'] = '<div class="monthly-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly ) . '</div>';
 							$level_list[ $key ]['price_12_savings'] = '<div class="savings-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $saving ) . '</div>';
+							if( 'first' == $coupon_obj['lifetime'] ) {
+								$level_list[ $key ]['price_12_period'] = '<div class="period coupon-period">' . $first_periods['price_12'] . '</div>';
+							} else {
+								$level_list[ $key ]['price_12_period'] = '';
+							}
 							$level_list[ $key ]['price_12_adjust'] = true;
 						}
 					}
@@ -431,6 +468,7 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				if( ! in_array( $coupon_code, $existing_coupons ) ) {
 					$added_coupons += 1;
 					$coupons[ $coupon_code ]                     = array();
+					$coupons[ $coupon_code ]['lifetime']    = empty( $token['lifetime'] ) ? 'first' : $token['lifetime'];
 					$coupons[ $coupon_code ]['discount']         = empty( $token['discount'] ) ? 0 : $token['discount'];
 					$coupons[ $coupon_code ]['discount_type']    = empty( $token['type'] ) ? 'amt' : $token['type'];
 					$coupons[ $coupon_code ]['valid_for_period'] = empty( $token['period'] ) ? null : $token['period'];

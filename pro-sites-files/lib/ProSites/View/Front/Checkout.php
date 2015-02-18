@@ -323,7 +323,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$price = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ] );
 					echo '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
 					echo '<div class="plan-price original-amount">' . $price . '</div>';
-					echo '<div class="period">' . esc_html( $period ) . '</div>';
+					echo '<div class="period original-period">' . esc_html( $period ) . '</div>';
 					echo ! empty( $setup_msg ) ? $setup_msg : '';
 					echo '</div>';
 

@@ -101,6 +101,11 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 						$error[] = __( 'Please enter a valid Coupon Code', 'psts' );
 					}
 
+					$coupons[ $new_coupon_code ]['lifetime'] = $_POST['lifetime'];
+					if ( $coupons[ $new_coupon_code ]['lifetime'] != 'first' && $coupons[ $new_coupon_code ]['lifetime'] != 'indefinite' ) {
+						$error[] = __( 'Please choose a valid Coupon Lifetime', 'psts' );
+					}
+
 					$coupons[ $new_coupon_code ]['discount'] = round( $_POST['discount'], 2 );
 					if ( $coupons[ $new_coupon_code ]['discount'] <= 0 ) {
 						$error[] = __( 'Please enter a valid Discount Amount', 'psts' );
@@ -111,7 +116,8 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 						$error[] = __( 'Please choose a valid Discount Type', 'psts' );
 					}
 					//Coupon Valid for Period
-					$coupons[ $new_coupon_code ]['valid_for_period'] = $_POST['valid_for_period'];
+					$coupons[ $new_coupon_code ]['valid_for_period'] = isset( $_POST['valid_for_period'] ) ? $_POST['valid_for_period'] : array();
+
 					$coupons[ $new_coupon_code ]['start']            = strtotime( $_POST['start'] );
 					if ( $coupons[ $new_coupon_code ]['start'] === false ) {
 						$error[] = __( 'Please enter a valid Start Date', 'psts' );
@@ -182,6 +188,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				// define the columns to display, the syntax is 'internal name' => 'display name'
 				$posts_columns = array(
 					'code'      => __( 'Coupon Code', 'psts' ),
+					'lifetime'  => __( 'Lifetime', 'psts' ),
 					'discount'  => __( 'Discount', 'psts' ),
 					'start'     => __( 'Start Date', 'psts' ),
 					'end'       => __( 'Expire Date', 'psts' ),
@@ -225,7 +232,17 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 												</th>
 									<?php
 									break;
-
+								case 'lifetime':
+									$lifetime_label = array(
+										'first' => __( 'First payment', 'psts' ),
+										'indefinite' => __( 'Indefinite', 'psts' ),
+									);
+									?>
+									<th scope="row">
+										<?php echo $lifetime_label[ $coupon['lifetime'] ]; ?>
+									</th>
+									<?php
+									break;
 								case 'discount':
 									?>
 									<th scope="row">
@@ -368,6 +385,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 
 							<div class="inside">
 							<?php
+				$coupon_life      = 'first';
 				$discount         = '';
 				$discount_type    = '';
 				$start            = date( 'Y-m-d' );
@@ -376,6 +394,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				$valid_for_period = array();
 				//setup defaults
 				if ( isset( $new_coupon_code ) && isset( $coupons[ $new_coupon_code ] ) ) {
+					$coupon_life      = $coupons[ $new_coupon_code ]['lifetime'];
 					$discount         = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
 					$discount_type    = $coupons[ $new_coupon_code ]['discount_type'];
 					$start            = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
@@ -390,6 +409,9 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 										<th class="coupon-code">
 											<?php echo __( 'Coupon Code', 'psts' ) . $psts->help_text( __( 'Letters and numbers only', 'psts' ) ); ?>
 										</th>
+										<th class="coupon-life">
+											<?php echo __( 'Lifetime', 'psts' ) . $psts->help_text( __( 'For the first payment only or the life of the account.', 'psts' ) ); ?>
+										</th>
 										<th><?php _e( 'Discount', 'psts' ) ?></th>
 										<th><?php _e( 'Start Date', 'psts' ) ?></th>
 										<th class="expire-date">
@@ -398,11 +420,11 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 										<th>
 											<?php _e( 'Level', 'psts' ) ?>
 										</th>
-										<th class="allowed-users">
-											<?php echo __( 'Allowed Uses', 'psts' ) . $psts->help_text( __( 'Unlimited if blank', 'psts' ) ); ?>
-										</th>
 										<th class="coupon-period">
 											<?php echo __( 'Period', 'psts' ) . $psts->help_text( __( 'Allows you to limit the availability of coupon for selected subscription period.', 'psts' ) ); ?>
+										</th>
+										<th class="allowed-users">
+											<?php echo __( 'Allowed Uses', 'psts' ) . $psts->help_text( __( 'Unlimited if blank', 'psts' ) ); ?>
 										</th>
 									</tr>
 								</thead>
@@ -410,6 +432,12 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 									<tr>
 										<td>
 											<input value="<?php echo $new_coupon_code ?>" name="coupon_code" type="text" style="text-transform: uppercase;"/>
+										</td>
+										<td>
+											<select name="lifetime" class="chosen">
+												<option value="first"<?php selected( $coupon_life, 'first' ) ?>><?php esc_html_e( 'First payment'); ?></option>
+												<option value="indefinite"<?php selected( $coupon_life, 'indefinite' ) ?>><?php esc_html_e( 'Indefinite'); ?></option>
+											</select>
 										</td>
 										<td>
 											<input value="<?php echo $discount; ?>" size="3" name="discount" type="text"/>
@@ -435,9 +463,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				?>
 											</select>
 										</td>
-										<td>
-											<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
-										</td><?php
+										<?php
 				if ( ! empty( $periods ) ) {
 					?>
 					<td>
@@ -451,6 +477,8 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 						}
 						?>
 												</select>
+					</td><td>
+						<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
 					</td><?php
 				} ?>
 									</tr>
@@ -474,6 +502,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 
 			$csv_fields = array(
 				'coupon_code' => __( 'Letters and numbers only. No spaces.', 'psts' ),
+				'lifetime' => __( 'How long a coupon\'s discount is active for. "first" - for the first payment only. "indefinite" - for the life of the site.', 'psts' ),
 				'discount' => __( 'Numeric value of discount to be applied without symbols.', 'psts' ),
 				'type' => __( 'Specify \'amt\' for amount and \'pct\' for percentage.', 'psts' ),
 				'start_date' => __( 'Coupon start date in YYYY-MM-DD format or empty.', 'psts' ),

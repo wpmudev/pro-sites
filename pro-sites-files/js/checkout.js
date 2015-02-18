@@ -196,6 +196,8 @@ jQuery(document).ready(function ($) {
             /* Reset */
             $('.original-amount').removeClass('scratch');
             $('.coupon-amount').remove();
+            $('.original-period').removeClass('hidden');
+            $('.coupon-period').remove();
 
             /* Check Coupon AJAX */
             $.post(
@@ -221,6 +223,14 @@ jQuery(document).ready(function ($) {
                             var original = $( 'ul.psts-level-' + level_id + ' .price.price_1 .original-amount');
                             $( original).after( level.price_1 );
                             $(original).addClass('scratch');
+
+                            // Period display needs adjusting
+                            if( level.price_1_period != '' ) {
+                                var period_original = $( 'ul.psts-level-' + level_id + ' .price.price_1 .period.original-period');
+                                $( period_original).addClass('hidden');
+                                $( period_original).after( level.price_1_period );
+                            }
+
                         }
                         if( level.price_3_adjust ) {
                             var original = $( 'ul.psts-level-' + level_id + ' .price.price_3 .original-amount');
@@ -235,6 +245,13 @@ jQuery(document).ready(function ($) {
                             $(monthly_original).addClass('scratch');
                             $(savings_original).addClass('scratch');
 
+                            // Period display needs adjusting
+                            if( level.price_3_period != '' ) {
+                                var period_original = $( 'ul.psts-level-' + level_id + ' .price.price_3 .period.original-period');
+                                $( period_original).addClass('hidden');
+                                $( period_original).after( level.price_3_period );
+                            }
+
                         }
                         if( level.price_12_adjust ) {
                             var original = $( 'ul.psts-level-' + level_id + ' .price.price_12 .original-amount');
@@ -248,6 +265,13 @@ jQuery(document).ready(function ($) {
                             $(original).addClass('scratch');
                             $(monthly_original).addClass('scratch');
                             $(savings_original).addClass('scratch');
+
+                            // Period display needs adjusting
+                            if( level.price_12_period != '' ) {
+                                var period_original = $( 'ul.psts-level-' + level_id + ' .price.price_12 .period.original-period');
+                                $( period_original).addClass('hidden');
+                                $( period_original).after( level.price_12_period );
+                            }
                         }
 
                     } );
