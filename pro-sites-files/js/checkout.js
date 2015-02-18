@@ -215,66 +215,71 @@ jQuery(document).ready(function ($) {
                         $('.pricing-column .coupon-box').addClass('coupon-invalid');
                     }
 
-                    $.each( response.levels, function( level_id, level ) {
+                    // Handle empty returns
+                    var levels = response.levels;
+                    if( typeof levels != 'undefined' ) {
 
-                        if( level.price_1_adjust ) {
-                            var plan_original = $( 'ul.psts-level-' + level_id + ' .price.price_1 plan-price.original-amount');
+                        $.each(levels, function (level_id, level) {
 
-                            var original = $( 'ul.psts-level-' + level_id + ' .price.price_1 .original-amount');
-                            $( original).after( level.price_1 );
-                            $(original).addClass('scratch');
+                            if (level.price_1_adjust) {
+                                var plan_original = $('ul.psts-level-' + level_id + ' .price.price_1 plan-price.original-amount');
 
-                            // Period display needs adjusting
-                            if( level.price_1_period != '' ) {
-                                var period_original = $( 'ul.psts-level-' + level_id + ' .price.price_1 .period.original-period');
-                                $( period_original).addClass('hidden');
-                                $( period_original).after( level.price_1_period );
+                                var original = $('ul.psts-level-' + level_id + ' .price.price_1 .original-amount');
+                                $(original).after(level.price_1);
+                                $(original).addClass('scratch');
+
+                                // Period display needs adjusting
+                                if (level.price_1_period != '') {
+                                    var period_original = $('ul.psts-level-' + level_id + ' .price.price_1 .period.original-period');
+                                    $(period_original).addClass('hidden');
+                                    $(period_original).after(level.price_1_period);
+                                }
+
+                            }
+                            if (level.price_3_adjust) {
+                                var original = $('ul.psts-level-' + level_id + ' .price.price_3 .original-amount');
+
+                                var monthly_original = $('ul.psts-level-' + level_id + ' .price_3 .monthly-price.original-amount');
+                                var savings_original = $('ul.psts-level-' + level_id + ' .price_3 .savings-price.original-amount');
+
+                                $(original).after(level.price_3);
+                                $(monthly_original).after(level.price_3_monthly);
+                                $(savings_original).after(level.price_3_savings);
+                                $(original).addClass('scratch');
+                                $(monthly_original).addClass('scratch');
+                                $(savings_original).addClass('scratch');
+
+                                // Period display needs adjusting
+                                if (level.price_3_period != '') {
+                                    var period_original = $('ul.psts-level-' + level_id + ' .price.price_3 .period.original-period');
+                                    $(period_original).addClass('hidden');
+                                    $(period_original).after(level.price_3_period);
+                                }
+
+                            }
+                            if (level.price_12_adjust) {
+                                var original = $('ul.psts-level-' + level_id + ' .price.price_12 .original-amount');
+
+                                var monthly_original = $('ul.psts-level-' + level_id + ' .price_12 .monthly-price.original-amount');
+                                var savings_original = $('ul.psts-level-' + level_id + ' .price_12 .savings-price.original-amount');
+
+                                $(original).after(level.price_12);
+                                $(monthly_original).after(level.price_12_monthly);
+                                $(savings_original).after(level.price_12_savings);
+                                $(original).addClass('scratch');
+                                $(monthly_original).addClass('scratch');
+                                $(savings_original).addClass('scratch');
+
+                                // Period display needs adjusting
+                                if (level.price_12_period != '') {
+                                    var period_original = $('ul.psts-level-' + level_id + ' .price.price_12 .period.original-period');
+                                    $(period_original).addClass('hidden');
+                                    $(period_original).after(level.price_12_period);
+                                }
                             }
 
-                        }
-                        if( level.price_3_adjust ) {
-                            var original = $( 'ul.psts-level-' + level_id + ' .price.price_3 .original-amount');
-
-                            var monthly_original = $( 'ul.psts-level-' + level_id + ' .price_3 .monthly-price.original-amount');
-                            var savings_original = $( 'ul.psts-level-' + level_id + ' .price_3 .savings-price.original-amount');
-
-                            $( original ).after( level.price_3 );
-                            $( monthly_original ).after( level.price_3_monthly );
-                            $( savings_original ).after( level.price_3_savings );
-                            $(original).addClass('scratch');
-                            $(monthly_original).addClass('scratch');
-                            $(savings_original).addClass('scratch');
-
-                            // Period display needs adjusting
-                            if( level.price_3_period != '' ) {
-                                var period_original = $( 'ul.psts-level-' + level_id + ' .price.price_3 .period.original-period');
-                                $( period_original).addClass('hidden');
-                                $( period_original).after( level.price_3_period );
-                            }
-
-                        }
-                        if( level.price_12_adjust ) {
-                            var original = $( 'ul.psts-level-' + level_id + ' .price.price_12 .original-amount');
-
-                            var monthly_original = $( 'ul.psts-level-' + level_id + ' .price_12 .monthly-price.original-amount');
-                            var savings_original = $( 'ul.psts-level-' + level_id + ' .price_12 .savings-price.original-amount');
-
-                            $( original ).after( level.price_12 );
-                            $( monthly_original ).after( level.price_12_monthly );
-                            $( savings_original ).after( level.price_12_savings );
-                            $(original).addClass('scratch');
-                            $(monthly_original).addClass('scratch');
-                            $(savings_original).addClass('scratch');
-
-                            // Period display needs adjusting
-                            if( level.price_12_period != '' ) {
-                                var period_original = $( 'ul.psts-level-' + level_id + ' .price.price_12 .period.original-period');
-                                $( period_original).addClass('hidden');
-                                $( period_original).after( level.price_12_period );
-                            }
-                        }
-
-                    } );
+                        });
+                    }
 
                     /* Clear after AJAX return as bottom execution was synchronous */
                     check_pricing_font_sizes();
