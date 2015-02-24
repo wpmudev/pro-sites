@@ -41,6 +41,12 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 							$_POST['psts']['psts_checkout_show_featured'] = 'disabled';
 						}
 
+						if( isset( $_POST['psts']['pricing_gateways_tabbed'] ) ) {
+							$_POST['psts']['pricing_gateways_tabbed'] = 'enabled';
+						} else {
+							$_POST['psts']['pricing_gateways_tabbed'] = 'disabled';
+						}
+
 						break;
 
 					case 'comparison_table':

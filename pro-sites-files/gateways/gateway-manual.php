@@ -219,6 +219,27 @@ class ProSites_Gateway_Manual {
 		);
 	}
 
+	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = false ) {
+
+
+		$content = __( 'Manual Gateway', 'psts' );
+
+		return $content;
+	}
+
+	public static function process_checkout_form( $blog_id, $domain ) {
+
+	}
+
+	public static function get_existing_user_information() {
+
+		$content = '';
+
+
+		return empty( $content ) ? false : $content;
+	}
+
+
 }
 
 //register the gateway

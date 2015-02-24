@@ -100,6 +100,10 @@ jQuery(document).ready(function ($) {
     $('.pricing-column .period-selector select').change( function( e ) {
         var element = e.currentTarget;
         var period_class = $( element).val();
+        var period = parseInt( period_class.replace( 'price_', '' ) );
+
+        // Set the period required for gateways
+        $('.gateways [name=period]').val( period );
 
         $('.pricing-column [class*="price_"]').removeClass('hide');
         $('.pricing-column [class*="price_"]').hide();
@@ -182,6 +186,7 @@ jQuery(document).ready(function ($) {
     set_same_height( $('.pricing-column .summary'), false );
     set_same_height( $('.pricing-column .sub-title'), false );
 
+    // =========== APPLY COUPONS =========== //
     $( '.pricing-column [name=apply-coupon-link]').unbind( 'click' );
     $( '.pricing-column [name=apply-coupon-link]').click( function( e ) {
         var input_box = $( '.pricing-column .coupon input' );
@@ -298,5 +303,52 @@ jQuery(document).ready(function ($) {
             set_same_height( $('.pricing-column .sub-title'), false );
 
     });
+
+
+    // ====== CHOOSE BUTTON ======= //
+    $('.choose-plan-button').unbind( 'click' );
+    $('.choose-plan-button').click( function( e ) {
+
+        $('.checkout-gateways.hidden').removeClass('hidden');
+        $('.chosen-plan').removeClass('chosen-plan');
+        $('.not-chosen-plan').removeClass('not-chosen-plan');
+
+        var target = e.currentTarget;
+        var parent = $( target).parents('ul')[0];
+        var level = 0;
+
+        var classes = $( parent).attr('class');
+        classes = classes.split(' ');
+
+        // Extract the level number
+        $.each( classes, function( idx, val ) {
+            var num = parseInt( val.replace( 'psts-level-', '' ) );
+            if( ! isNaN( num ) ) {
+                level = num;
+            }
+        });
+
+        $(parent).addClass('chosen-plan');
+        $(parent).siblings('ul').addClass('not-chosen-plan');
+
+        // Set the level required for gateways
+        $('.gateways [name=level]').val( level );
+
+    });
+
+    $('#gateways').tabs();
+
+
+    // Cancellation confirmation
+    $('a.cancel-prosites-plan').click( function( e ) {
+
+        if( confirm( prosites_checkout.confirm_cancel ) ) {
+
+        } else {
+            e.preventDefault();
+        }
+
+    });
+
 
 });

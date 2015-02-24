@@ -312,8 +312,10 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				$valid_coupon = self::check_coupon( $coupon_code );
 				if( ! empty( $valid_coupon ) ) {
 					$ajax_response['valid'] = true;
+					$_SESSION['COUPON_CODE'] = $coupon_code;
 				} else {
 					$ajax_response['valid'] = false;
+					unset( $_SESSION['COUPON_CODE'] );
 				}
 
 //				$ajax_response['value'] = self::coupon_value( $coupon_code, '200' );
@@ -391,6 +393,8 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 					'id'     => 1, // success status
 					'data'   => json_encode( $ajax_response ),
 				);
+
+				// Buffer used to isolate AJAX response from unexpected output
 				ob_end_clean();
 				ob_start();
 				$xmlResponse = new WP_Ajax_Response( $response );

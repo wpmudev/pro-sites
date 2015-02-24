@@ -46,7 +46,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 */
 		public static function render_tab_general() {
 			global $psts, $current_site;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 
 //			$levels = (array) get_site_option( 'psts_levels' );
@@ -282,7 +282,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 
 
 			<?php
-			return ob_get_clean();
 		}
 
 		/**
@@ -292,7 +291,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 */
 		public static function render_tab_email() {
 			global $psts;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			?>
 
@@ -364,7 +363,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			</div>
 
 			<?php
-			return ob_get_clean();
 		}
 
 		/**
@@ -374,7 +372,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 */
 		public static function render_tab_payment() {
 			global $psts;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			?>
 			<div class="inside">
@@ -417,7 +415,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 				</table>
 			</div>
 			<?php
-			return ob_get_clean();
 		}
 
 		/**
@@ -426,11 +423,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_ads() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_Ads();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 		/**
@@ -439,9 +434,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 //		public static function render_tab_messages_automated() {
-//			ob_start();
 //			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
-//			return ob_get_clean();
 //		}
 
 		/**
@@ -450,11 +443,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_prowidget() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_ProWidget();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -464,11 +455,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_buddypress() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_BP();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -478,11 +467,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_bulkupgrades() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_BulkUpgrades();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -492,11 +479,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_paytoblog() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_PayToBlog();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -506,11 +491,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_throttling() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_PostThrottling();
 			echo $module->renderModuleSettings();
-			return ob_get_clean();
 		}
 
 
@@ -520,11 +503,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_quotas() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_PostingQuota();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -535,7 +516,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 */
 		public static function render_tab_renaming() {
 			global $psts;
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 
 			$modules = $psts->get_setting( 'modules_enabled' );
@@ -549,7 +529,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 				$module = new ProSites_Module_Plugins();
 				echo $module->settings();
 			}
-			return ob_get_clean();
 		}
 
 
@@ -559,11 +538,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_support() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_Support();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -573,11 +550,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_upload_quota() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_Quota();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 		/**
@@ -586,11 +561,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_upgrade_admin_links() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_UpgradeAdminLinks();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 		/**
@@ -599,11 +572,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_filters() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_UnfilterHtml();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -613,11 +584,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_writing() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_Writing();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 
@@ -627,11 +596,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		 * @return string
 		 */
 		public static function render_tab_xmlrpc() {
-			ob_start();
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
 			$module = new ProSites_Module_XMLRPC();
 			echo $module->settings();
-			return ob_get_clean();
 		}
 
 

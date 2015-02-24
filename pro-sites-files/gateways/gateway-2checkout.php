@@ -1506,7 +1506,30 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 				'2checkout' => __( '2Checkout', 'psts' ),
 			);
 		}
+
+		public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
+
+
+			$content = __( '2CheckOut Gateway', 'psts' );
+
+			return $content;
+		}
+
+		public static function process_checkout_form( $blog_id, $domain ) {
+
+		}
+
+		public static function get_existing_user_information() {
+
+			$content = '';
+
+
+			return empty( $content ) ? false : $content;
+		}
+
 	}
+
+
 
 //register the gateway
 	psts_register_gateway( 'ProSites_Gateway_2Checkout', __( '2Checkout', 'psts' ), __( 'Online payment processing service that helps you accept credit cards, PayPal and debit cards', 'psts' ) );

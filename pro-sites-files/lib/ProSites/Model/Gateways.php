@@ -39,6 +39,7 @@ if ( ! class_exists( 'ProSites_Model_Gateways' ) ) {
 				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $gateway_class ) );
 				update_site_option( 'psts_settings', $settings );
 
+				do_action( 'update_site_option_psts_levels' );
 				do_action( 'psts_settings_process', $gateway_class );
 				do_action( 'supporter_settings_process' ); //depreciated
 

@@ -6,12 +6,12 @@ Stripe.setPublishableKey(stripe.publisher_key);
 function stripeResponseHandler(status, response) {
 	if (response.error) {
 		// re-enable the submit button
-		jQuery('#cc_checkout').removeAttr("disabled").show();
+		jQuery('#cc_stripe_checkout').removeAttr("disabled").show();
 		jQuery('#stripe_processing').hide();
 		// show the errors on the form
 		jQuery("#psts-processcard-error").append('<div class="psts-error">' + response.error.message + '</div>');
 	} else {
-		var form = jQuery("#payment-form");
+		var form = jQuery("#stripe-payment-form");
 		// token contains id, last4, and card type
 		var token = response['id'];
 		// insert the token into the form so it gets submitted to the server
@@ -22,7 +22,7 @@ function stripeResponseHandler(status, response) {
 }
 
 jQuery(document).ready(function($) {
-    $("#payment-form").submit(function (event) {
+    $("#stripe-payment-form").submit(function (event) {
 
         //Check if free option is selected, skip card details
         if (jQuery('#psts-radio-0-0').length > 0 && jQuery('#psts-radio-0-0').parent().hasClass('opt-selected')) {
@@ -35,7 +35,7 @@ jQuery(document).ready(function($) {
         //skip checks for adding a coupon OR if using saved credit card info
         if ($('#coupon_code').val() || $('#wp_password').val()) {
             // disable the submit button to prevent repeated clicks
-            $('#cc_checkout').attr("disabled", "disabled").hide();
+            $('#cc_stripe_checkout').attr("disabled", "disabled").hide();
             $('#stripe_processing').show();
             return true;
         }
@@ -64,7 +64,7 @@ jQuery(document).ready(function($) {
 		if (is_error) return false;
 		
 		// disable the submit button to prevent repeated clicks
-		$('#cc_checkout').attr("disabled", "disabled").hide();
+		$('#cc_stripe_checkout').attr("disabled", "disabled").hide();
 		$('#stripe_processing').show();
 		
 	

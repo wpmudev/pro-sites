@@ -47,8 +47,8 @@
 /** Help Tip **/
 .help_tip {
     margin-left: 4px;
-    position: absolute;
-    top: 22px;
+    /*position: absolute;*/
+    /*top: 22px;*/
 }
 
 /** Coupons Table **/

@@ -19,15 +19,16 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$content .= self::render_tables_wrapper( 'post' );
 
 			// Hook for the gateways
-			$content = apply_filters( 'psts_checkout_output', $content, $blog_id, $domain );
+//			$content = apply_filters( 'psts_checkout_output', $content, $blog_id, $domain );
+			$content .= ProSites_View_Front_Gateway::render_checkout( $blog_id, $domain );
 
-			return $content;
+			return apply_filters( 'prosites_render_checkout_page', $content, $blog_id, $domain );
 
 		}
 
 		private static function render_pricing_columns( $columns, $echo = false ) {
-			ob_start();
 
+			$content = '';
 			$total_columns = count( $columns );
 			$total_width = 100.0;
 			$total_width -= 6.0; // account for extra space around featured plan
@@ -47,71 +48,71 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$style = true === $column['featured'] ? $feature_style : $normal_style;
 				$col_class = true === $column['featured'] ? ' featured' : '';
 				$level_id = isset( $column['level_id'] ) ? $column['level_id'] : 0;
-				?><ul class="pricing-column psts-level-<?php echo esc_attr( $level_id ); ?> <?php echo esc_attr( $col_class ); ?>" style="<?php echo esc_attr( $style ); ?>"><?php
+
+				$content .= '<ul class="pricing-column psts-level-' . esc_attr( $level_id ) . ' ' . esc_attr( $col_class ) . '" style="' . esc_attr( $style ) . '">';
 
 				if( $show_pricing_table ) {
 					if( empty( $column['title'] ) ) {
-						echo '<li class="title no-title"></li>';
+						$content .= '<li class="title no-title"></li>';
 					} else {
-						echo '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
+						$content .= '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
 					}
 
-					echo '<li class="summary">' . ProSites::filter_html( $column['summary'] ) . '</li>';
+					$content .= '<li class="summary">' . ProSites::filter_html( $column['summary'] ) . '</li>';
 				}
 
 				if( $show_feature_table ) {
 					$features_class = $show_pricing_table ? '' : 'no-header';
 					if( empty( $column['sub_title'] ) ) {
-						echo '<li class="sub-title no-title ' . $features_class . '"></li>';
+						$content .= '<li class="sub-title no-title ' . $features_class . '"></li>';
 					} else {
-						echo '<li class="sub-title ' . $features_class . '">' . ProSites::filter_html( $column['sub_title'] ) . '</li>';
+						$content .= '<li class="sub-title ' . $features_class . '">' . ProSites::filter_html( $column['sub_title'] ) . '</li>';
 					}
 
-					?><li><ul class="feature-section"><?php
+					$content .= '<li><ul class="feature-section">';
 
-						foreach( $column['features'] as $index => $feature ) {
-							$alt = isset( $feature['alt'] ) && true == $feature['alt'] ? 'alternate' : '';
+					foreach( $column['features'] as $index => $feature ) {
+						$alt = isset( $feature['alt'] ) && true == $feature['alt'] ? 'alternate' : '';
 
-							?><li class="feature feature-<?php echo $index; ?> <?php echo $alt; ?>"><?php
-							if( isset( $feature['name'] ) && ! empty( $feature['name'] ) ) {
-								echo '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
-							}
-							if( isset( $feature['indicator'] ) && ! empty( $feature['indicator'] ) ) {
-								echo '<div class="feature-indicator">' . ProSites::filter_html( $feature['indicator'] ) . '</div>';
-							}
-							if( isset( $feature['text'] ) && ! empty( $feature['text'] ) ) {
-								echo '<div class="feature-text">' . ProSites::filter_html( $feature['text'] ) . '</div>';
-							}
+						$content .= '<li class="feature feature-' . $index . ' ' . $alt . '">';
 
-							?></li><?php
+						if( isset( $feature['name'] ) && ! empty( $feature['name'] ) ) {
+							$content .= '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
+						}
+						if( isset( $feature['indicator'] ) && ! empty( $feature['indicator'] ) ) {
+							$content .= '<div class="feature-indicator">' . ProSites::filter_html( $feature['indicator'] ) . '</div>';
+						}
+						if( isset( $feature['text'] ) && ! empty( $feature['text'] ) ) {
+							$content .= '<div class="feature-text">' . ProSites::filter_html( $feature['text'] ) . '</div>';
 						}
 
-					?></ul></li><?php
+						$content .= '</li>';
+					}
+
+					$content .= '</ul></li>';
+
 				}
 
 				if( $show_buy_buttons ) {
 					if( empty( $column['button'] ) ) {
 						if( $add_coupon ) {
-							echo '<li class="coupon">';
-							echo '<div class="coupon-box">';
-							echo '<input type="text" name="apply-coupon" placeholder="' . __( 'Enter coupon', 'psts' ) . '" />';
-							echo '<a name="apply-coupon-link" class="apply-coupon-link">' . $column['coupon'] . '</a>';
-							echo '</div>';
-							echo '</li>';
+							$content .= '<li class="coupon">';
+							$content .= '<div class="coupon-box">';
+							$content .= '<input type="text" name="apply-coupon" placeholder="' . __( 'Enter coupon', 'psts' ) . '" />';
+							$content .= '<a name="apply-coupon-link" class="apply-coupon-link">' . $column['coupon'] . '</a>';
+							$content .= '</div>';
+							$content .= '</li>';
 						} else {
-							echo '<li class="button-box no-button"></li>';
+							$content .= '<li class="button-box no-button"></li>';
 						}
 					} else {
-						echo '<li class="button-box">' . $column['button'] . '</li>';
+						$content .= '<li class="button-box">' . $column['button'] . '</li>';
 					}
 				}
 
+				$content .= '</ul>';
 
-
-				?></ul><?php
 			}
-
-			$content = ob_get_clean();
 
 			if( $echo ) {
 				echo $content;
@@ -218,7 +219,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$col_count += 1;
 
 					foreach( $pricing_levels_order as $level ) {
-						$columns[ $col_count ]['button'] = '<button>' . __( 'Choose Plan', 'psts' ) . '</button>';
+						$columns[ $col_count ]['button'] = '<button class="choose-plan-button">' . __( 'Choose Plan', 'psts' ) . '</button>';
 						$col_count += 1;
 					}
 				}
@@ -254,24 +255,25 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$plan_text = array(
 				'payment_type' => __( 'Payment period', 'psts' ),
 				'setup' => __( 'Plus a One Time %s Setup Fee', 'psts' ),
-				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>', 'psts' ),
-				'saving' => __( '<br />saving you <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
+				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong> ', 'psts' ),
+				'saving' => __( 'saving you <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
 			);
 
 			if( empty( $level ) ) {
-				ob_start();
 
-				?><div class="period-selector"><div class="heading"><?php echo esc_html( $plan_text['payment_type'] ); ?></div>
-				<select class="chosen">
-					<option value="price_1"><?php echo esc_html( $payment_type['price_1'] ); ?></option>
-					<option value="price_3"><?php echo esc_html( $payment_type['price_3'] ); ?></option>
-					<option value="price_12"><?php echo esc_html( $payment_type['price_12'] ); ?></option>
-				</select></div><?php
+				$content = '<div class="period-selector"><div class="heading">' . esc_html( $plan_text['payment_type'] ) . '</div>
+					<select class="chosen">
+					<option value="price_1">' . esc_html( $payment_type['price_1'] ) . '</option>
+					<option value="price_3">' . esc_html( $payment_type['price_3'] ) . '</option>
+					<option value="price_12">' . esc_html( $payment_type['price_12'] ) . '</option>
+				</select></div>';
 
-				return ob_get_clean();
+				return $content;
 			} else {
 				global $psts;
+
+				$content = '';
 
 				if( 'enabled' == $psts->get_setting('psts_checkout_show_featured') ){
 					$featured_level = $psts->get_setting( 'featured_level' );
@@ -292,8 +294,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				} else {
 					$level_details['featured'] = false;
 				}
-
-				ob_start();
 
 				if( ! empty( $setup_fee_amount ) ) {
 					$setup_fee = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
@@ -321,11 +321,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					// Get level price and format it
 					$price = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ] );
-					echo '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
-					echo '<div class="plan-price original-amount">' . $price . '</div>';
-					echo '<div class="period original-period">' . esc_html( $period ) . '</div>';
-					echo ! empty( $setup_msg ) ? $setup_msg : '';
-					echo '</div>';
+					$content .= '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
+					$content .= '<div class="plan-price original-amount">' . $price . '</div>';
+					$content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
+					$content .= ! empty( $setup_msg ) ? $setup_msg : '';
+					$content .= '</div>';
 
 					$monthly_price = $level_list[ $level ]['price_1'];
 
@@ -344,12 +344,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					}
 
-					?><div class="level-summary <?php echo esc_attr( $period_key ) . esc_attr( $display_style ); ?>">
-						<?php echo $summary_msg; ?>
-					</div><?php
+					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
 				}
-
-				$content = ob_get_clean();
 
 				$level_details['summary'] = $content;
 
@@ -435,34 +431,19 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-
 		public static function render_tables_wrapper ( $section,  $echo = false ) {
-			ob_start();
-
+			$content = '';
 			switch( $section ) {
 
 				case 'pre':
-					echo '<div id="prosites-checkout-table">';
+					$content .= '<div id="prosites-checkout-table">';
 					break;
 
 				case 'post':
-					echo '</div>';
+					$content .= '</div>';
 					break;
 
 			}
-
-			$content = ob_get_clean();
 
 			if( $echo ) {
 				echo $content;
@@ -470,11 +451,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			return $content;
 		}
-
-
-
-
-
 
 	}
 }

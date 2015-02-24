@@ -2585,6 +2585,26 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			'paypal' => __( 'PayPal Express/Pro', 'psts' ),
 		);
 	}
+
+	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
+
+		$content =  __( 'PayPal Gateway', 'psts' );
+
+		return $content;
+	}
+
+	public static function process_checkout_form( $blog_id, $domain ) {
+
+	}
+
+	public static function get_existing_user_information() {
+
+		$content = '';
+
+
+		return empty( $content ) ? false : $content;
+	}
+
 }
 
 //register the gateway

@@ -45,7 +45,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		public static function render_tab_gateway_prefs() {
 			global $psts;
 			$active_count = 0;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
 			?>
 			<table class="form-table">
@@ -67,7 +67,9 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 							$setting = 'gateway_pref_primary';
 							echo self::gateway_input_options( $active_gateways, $setting );
 							?>
-						</select></td>
+						</select><br />
+						<?php echo '<span>' . __( 'Checkout label', 'psts') . '</span>'; ?>
+						<input type="text" name="psts[checkout_gateway_primary_label]" value="<?php echo $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ); ?>" />
 					</td>
 				</tr>
 				<tr>
@@ -78,7 +80,9 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 							$setting = 'gateway_pref_secondary';
 							echo self::gateway_input_options( $active_gateways, $setting, true );
 							?>
-						</select></td>
+						</select><br />
+						<?php echo '<span>' . __( 'Checkout label', 'psts') . '</span>'; ?>
+						<input type="text" name="psts[checkout_gateway_secondary_label]" value="<?php echo $psts->get_setting( 'checkout_gateway_secondary_label', __( 'Alternate Payment', 'psts' ) ); ?>" />
 					</td>
 				</tr>
 				<?php
@@ -90,7 +94,9 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 							<th scope="row"><?php _e( 'Manual Gateway preference', 'psts' ); ?></th>
 							<td>
 								<input type="checkbox" name="psts[gateway_pref_use_manual]" <?php checked( $manual_checked, 'on'  ); ?> />
-								<?php esc_html_e( 'Use the Manual Gateway as a third option.', 'psts' ); ?>
+								<?php esc_html_e( 'Use the Manual Gateway as a third option.', 'psts' ); ?><br />
+								<?php echo '<span>' . __( 'Checkout label', 'psts') . '</span>'; ?>
+								<input type="text" name="psts[checkout_gateway_manual_label]" value="<?php echo $psts->get_setting( 'checkout_gateway_manual_label', __( 'Offline Payment', 'psts' ) ); ?>" />
 							</td>
 						</tr>
 					<?php
@@ -98,7 +104,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 				?>
 			</table>
 			<?php
-			return ob_get_clean();
+
 		}
 
 		/**
@@ -108,7 +114,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		 */
 		public static function render_tab_twocheckout() {
 			global $psts;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
 
 			$class_name = 'ProSites_Gateway_2Checkout';
@@ -129,7 +135,6 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 			$gateway = new ProSites_Gateway_2Checkout();
 			echo $gateway->settings();
 
-			return ob_get_clean();
 		}
 
 		/**
@@ -139,7 +144,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		 */
 		public static function render_tab_paypal() {
 			global $psts;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
 			$class_name = 'ProSites_Gateway_PayPalExpressPro';
 			$active_gateways = (array) $psts->get_setting('gateways_enabled');
@@ -159,7 +164,6 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 			$gateway = new ProSites_Gateway_PayPalExpressPro();
 			echo $gateway->settings();
 
-			return ob_get_clean();
 		}
 
 		/**
@@ -169,7 +173,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		 */
 		public static function render_tab_stripe() {
 			global $psts;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
 			$class_name = 'ProSites_Gateway_Stripe';
 			$active_gateways = (array) $psts->get_setting('gateways_enabled');
@@ -189,7 +193,6 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 			$gateway = new ProSites_Gateway_Stripe();
 			echo $gateway->settings();
 
-			return ob_get_clean();
 		}
 
 		/**
@@ -199,7 +202,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		 */
 		public static function render_tab_manual() {
 			global $psts;
-			ob_start();
+
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
 			$class_name = 'ProSites_Gateway_Manual';
 			$active_gateways = (array) $psts->get_setting('gateways_enabled');
@@ -219,12 +222,11 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 			$gateway = new ProSites_Gateway_Manual();
 			echo $gateway->settings();
 
-			return ob_get_clean();
 		}
 
 		public static function gateway_input_options( $active_gateways, $setting, $allow_none = false ) {
 			global $psts;
-			ob_start();
+
 			$names = array();
 			foreach( $active_gateways as $gateway ) {
 				$names = array_merge( $names, $gateway::get_name() );
@@ -261,7 +263,6 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 			<?php
 			}
 
-			return ob_get_clean();
 		}
 
 	}

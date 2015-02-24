@@ -61,7 +61,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 		 */
 		public static function render_tab_pricing_table() {
 			global $psts;
-			ob_start();
 
 			$active_tab = ProSites_Helper_Tabs_Pricing::get_active_tab();
 			ProSites_Helper_Settings::settings_header( $active_tab );
@@ -74,6 +73,9 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			$checked = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
 			$coupons_checked = 'enabled' == $coupons_enabled ? 'enabled' : 'disabled';
 			$show_featured_checked = 'enabled' == $highlight_featured ? 'enabled' : 'disabled';
+
+			$pricing_gateways_style = $psts->get_setting( 'pricing_gateways_style', 'tabbed' );
+			$pricing_table_period_style = $psts->get_setting( 'pricing_table_period_style' );
 
 			?>
 			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>" />
@@ -91,11 +93,11 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					<td>
 						<select name="psts[pricing_table_period_style]" class="chosen">
 							<option
-								value="dropdown"<?php selected( $psts->get_setting( 'pricing_table_period_style' ), 'dropdown' ) ?>><?php _e( 'Drop-down list', 'psts' ) ?></option>
+								value="dropdown"<?php selected( $pricing_table_period_style, 'dropdown' ) ?>><?php _e( 'Drop-down list', 'psts' ) ?></option>
 							<option
-								value="radio"<?php selected( $psts->get_setting( 'pricing_table_period_style' ), 'radio' ) ?>><?php _e( 'Radio button', 'psts' ) ?></option>
+								value="radio"<?php selected( $pricing_table_period_style, 'radio' ) ?>><?php _e( 'Radio button', 'psts' ) ?></option>
 							<option
-								value="raw"<?php selected( $psts->get_setting( 'pricing_table_period_style' ), 'raw' ) ?>><?php _e( 'Raw', 'psts' ) ?></option>
+								value="raw"<?php selected( $pricing_table_period_style, 'raw' ) ?>><?php _e( 'Raw', 'psts' ) ?></option>
 						</select>
 					</td>
 				</tr>
@@ -114,10 +116,19 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					</td>
 				</tr>
 
+				<tr>
+					<th scope="row"><?php _e( 'Gateways layout', 'psts' ); ?>
+						<br/><span class="description" style="font-weight:normal; color:#888; "><?php _e( 'Select how the gateways will be shown.', 'psts' ) ?></span></th>
+					<td>
+						<select name="psts[pricing_gateways_style]" class="chosen">
+							<option
+								value="tabbed"<?php selected( $pricing_gateways_style, 'tabbed' ) ?>><?php _e( 'Tabbed layout', 'psts' ) ?></option>
+							<option
+								value="raw"<?php selected( $pricing_gateways_style, 'raw' ) ?>><?php _e( 'Raw HTML layout', 'psts' ) ?></option>
+						</select>
+					</td>
+				</tr>
 
-			</table>
-
-			<table class="form-table">
 				<tr>
 					<th scope="row"><?php _e( 'Level Order', 'psts' ) ?>
 						<br/><span class="description" style="font-weight:normal; color:#888; "><?php _e( 'Select the order that you want your levels to appear in the pricing and feature tables.', 'psts' ) ?></span></th>
@@ -259,8 +270,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			<?php
 //			$gateway = new ProSites_Gateway_2Checkout();
 //			echo $gateway->settings();
-
-			return ob_get_clean();
 		}
 
 		/**
@@ -270,7 +279,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 		 */
 		public static function render_tab_comparison_table() {
 			global $psts;
-			ob_start();
 
 			$active_tab = ProSites_Helper_Tabs_Pricing::get_active_tab();
 			ProSites_Helper_Settings::settings_header( $active_tab );
@@ -695,7 +703,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 //			$gateway = new ProSites_Gateway_2Checkout();
 //			echo $gateway->settings();
 
-			return ob_get_clean();
 		}
 
 

@@ -298,7 +298,7 @@ class ProSites_Module_Quota {
 		$percentused = number_format( $percentused );
 		$text = sprintf(
 		/* translators: 1: number of megabytes, 2: percentage */
-			__( '%1$s MB (%2$s%%) of %3$s MB used.' ),
+			__( '%1$s MB (%2$s%%) of %3$s MB used.', 'psts' ),
 			number_format_i18n( $used, 2 ),
 			$percentused,
 			number_format_i18n( $quota, 2 )
@@ -306,11 +306,7 @@ class ProSites_Module_Quota {
 
 		$message = '<div class="size-text">' . $text . '</div>' . $this->message( false, 'media-upload' );
 
-		ob_start();
-		?>
-		<div id="prosites-media-quota-display" style="display:none;" class="<?php echo esc_attr( $used_class); ?>"><?php echo $message; ?></div>
-		<?php
-		echo ob_get_clean();
+		echo '<div id="prosites-media-quota-display" style="display:none;" class="' . esc_attr( $used_class) . '">' . esc_html( $message ) . '</div>';
 
 		global $psts;
 		wp_enqueue_style( 'psts-quota-style', $psts->plugin_url . 'css/quota.css', $psts->version );

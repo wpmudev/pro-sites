@@ -27,14 +27,9 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 
 //			ProSites_Model_Coupons::process_form();
 
-			ob_start();
-
 			self::process_coupon_forms();
 			self::admin_coupons();
 			self::admin_render_import();
-
-			echo ob_get_clean();
-
 		}
 
 		/**

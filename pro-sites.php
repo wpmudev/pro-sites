@@ -170,7 +170,7 @@ class ProSites {
 		}
 
 		// Hooking here until the models get reworked.
-		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 3 );
+		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 4 );
 
 		$this->setup_ajax_hooks();
 	}
@@ -1067,7 +1067,7 @@ Thanks!", 'psts' ),
 		}
 
 		//make sure session is started
-		if ( session_id() == "" ) {
+		if ( ! session_id() ) {
 			session_start();
 		}
 		//passed all checks, flip one time flag
@@ -1083,11 +1083,13 @@ Thanks!", 'psts' ),
 		add_filter( 'the_content', array( &$this, 'checkout_output' ), 15 );
 
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'jquery-ui-tabs' );
 
 		$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
 		$ajax_url = admin_url( "admin-ajax.php", $scheme );
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
 			'admin_ajax_url' => $ajax_url,
+			'confirm_cancel' => __( 'Are you sure you want to cancel your current plan?', 'psts' ),
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
@@ -1158,7 +1160,7 @@ Thanks!", 'psts' ),
 			/**
 			 * @todo: come back to this one
 			 */
-			do_action( 'psts_checkout_page_load', $blog_id, $domain ); //for gateway plugins to hook into
+//			do_action( 'psts_checkout_page_load', $blog_id, $domain ); //for gateway plugins to hook into
 		} else {
 			//code for unique coupon links
 			if ( isset( $_GET['coupon'] ) ) {
@@ -1358,15 +1360,17 @@ Thanks!", 'psts' ),
 	/**
 	 * @todo: Rework this into a model
 	 */
-	public function send_extension_email( $blog_id, $new_expire, $level ) {
+	public function send_extension_email( $blog_id, $new_expire, $level, $manual_notify ) {
 
-		$args = array();
-		if( '9999999999' == $new_expire ) {
-			$args['indefinite'] = true;
-		}
+		if( $manual_notify ) {
+			$args = array();
+			if ( '9999999999' == $new_expire ) {
+				$args['indefinite'] = true;
+			}
 
-		if ( ! defined( 'PSTS_NO_EXTENSION_EMAIL' ) ) {
-			$this->email_notification( $blog_id, 'extension', false, $args );
+			if ( ! defined( 'PSTS_NO_EXTENSION_EMAIL' ) ) {
+				$this->email_notification( $blog_id, 'extension', false, $args );
+			}
 		}
 	}
 
@@ -1677,7 +1681,7 @@ Thanks!", 'psts' ),
 		return apply_filters( 'psts_next_payment', false );
 	}
 
-	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true ) {
+	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
 		$now    = time();
 		$exists = $this->get_expire( $blog_id );
@@ -1759,7 +1763,7 @@ Thanks!", 'psts' ),
 			}
 		}
 
-		do_action( 'psts_extend', $blog_id, $new_expire, $level );
+		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify );
 
 		//fire level change
 		if ( intval( $exists ) <= time() ) { //count reactivating account as upgrade
@@ -2017,6 +2021,7 @@ Thanks!", 'psts' ),
 
 	function scripts_checkout() {
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'jquery-ui-tabs' );
 	}
 
 	function scripts_stats() {
@@ -2377,7 +2382,7 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$this->extend( (int) $_POST['bid'], $extend, __( 'Manual', 'psts' ), $_POST['extend_level'] );
+			$this->extend( (int) $_POST['bid'], $extend, __( 'Manual', 'psts' ), $_POST['extend_level'], false, false, true, true );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
@@ -3244,6 +3249,7 @@ function admin_levels() {
 
 		$this->update_setting( 'enabled_periods', $periods );
 
+		$old_levels = $levels;
 		foreach ( $_POST['name'] as $level => $name ) {
 			$stripped_name                  = stripslashes( trim( wp_filter_nohtml_kses( $name ) ) );
 			$name                           = empty( $stripped_name ) ? $levels[ $level ]['name'] : $stripped_name;
@@ -3254,6 +3260,7 @@ function admin_levels() {
 			$levels[ $level ]['is_visible'] = intval( @$_POST['is_visible'][ $level ] );
 		}
 
+		do_action( 'update_site_option_psts_levels', '', $levels, $old_levels );
 		update_site_option( 'psts_levels', $levels );
 		echo '<div class="updated fade"><p>' . __( 'Levels saved.', 'psts' ) . '</p></div>';
 	}

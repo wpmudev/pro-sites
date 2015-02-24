@@ -53,7 +53,6 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			$tabs = call_user_func( array( $child, 'get_tabs' ) );
 
 			// Render tabbed interface.
-			ob_start();
 			?>
 			<div class="psts-wrap wrap">
 				<?php
@@ -89,23 +88,17 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 					$html = call_user_func( $render_callback );
 
 					if( ! empty( $section_save_button ) && ! empty( $button_name ) ) {
-						ob_start();
-						?>
-							<hr />
+						$html .= '<hr />
 							<p class="section-save-button">
-								<input type="submit" name="submit_<?php echo esc_attr( $button_name ); ?>_section" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
-							</p>
-						<?php
-						$html .= ob_get_clean();
+								<input type="submit" name="submit_' . esc_attr( $button_name ) . '_section" class="button-primary" value="' .  esc_attr( __( 'Save Changes', 'psts' ) ) . '"/>
+							</p>';
 					}
-
 					$html = apply_filters( 'prosites_settings_tab_content_' . $callback_name, $html );
 					echo $html;
 					?>
 				</div>
 			</div>
 			<?php
-			echo ob_get_clean();
 		}
 
 		public static function vertical_tabs( $tabs, $active_tab = null, $persistent = array() ) {
@@ -153,9 +146,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 		}
 
 		public static function render_generic_tab() {
-			ob_start();
 			_e( 'Settings page not found.', 'psts' );
-			return ob_get_clean();
 		}
 
 		public static function get_tabs() {
