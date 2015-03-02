@@ -1084,6 +1084,11 @@ ul.pricing-column.not-chosen-plan .button-box button {
     list-style: none;
 }
 
+#prosites-checkout-table .login-existing {
+    clear: both;
+    margin-top: 20px;
+}
+
 
 /* === DARK MODE === */
 

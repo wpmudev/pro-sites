@@ -86,9 +86,16 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$info_retrieved = false;
 			$content = '';
 
-			foreach( $gateway_order as $key ) {
-				if( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
-					$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
+			// Is this a trial, if not, get the normal gateway data?
+			$sql = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
+			$result = $wpdb->get_row( $sql );
+			if( ! empty( $result ) && 'Trial' == $result->gateway ) {
+				$info_retrieved = ProSites_Gateway_Trial::get_existing_user_information( $blog_id, $domain );
+			} else {
+				foreach ( $gateway_order as $key ) {
+					if ( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
+						$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
+					}
 				}
 			}
 
@@ -121,7 +128,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 				// Is recurring?
 				if( empty( $info_retrieved['recurring'] ) ) {
-					$content .= '<li class="psts-expiry">' . esc_html__( 'Subscription expires on:', 'psts' ) . ' <strong>' . $info_retrieved['expires'] . '</strong></li>';
+					$content .= '<li class="psts-expiry">' . esc_html__( 'Plan expires on:', 'psts' ) . ' <strong>' . $info_retrieved['expires'] . '</strong></li>';
 				}
 
 				$content .= '</ul>';
@@ -195,6 +202,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= $info_retrieved['pending'];
 			}
 
+			// Get trial message
+			if( ! empty( $info_retrieved['trial'] ) ) {
+				$content .= $info_retrieved['trial'];
+			}
+
 			// Get complete message
 			if( ! empty( $info_retrieved['complete_message'] ) ) {
 				$content .= $info_retrieved['complete_message'];
@@ -232,6 +244,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$plan_content    = '';
 			$gateways        = self::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
+
+			// No existing details for a new signup
+			if( ProSites_View_Front_Checkout::$new_signup ) {
+				return $content;
+			}
 
 			if ( is_pro_site( $blog_id ) ) {
 				// EXISTING DETAILS

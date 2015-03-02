@@ -1,4 +1,25 @@
 jQuery(document).ready(function ($) {
+
+
+    $.unserialize = function(serializedString){
+        var str = decodeURI(serializedString);
+        var pairs = str.split('&');
+        var obj = {}, p, idx;
+        for (var i=0, n=pairs.length; i < n; i++) {
+            p = pairs[i].split('=');
+            idx = p[0];
+            if (obj[idx] === undefined) {
+                obj[idx] = decodeURIComponent(p[1]);
+            }else{
+                if (typeof obj[idx] == "string") {
+                    obj[idx]=[obj[idx]];
+                }
+                obj[idx].push(decodeURIComponent(p[1]));
+            }
+        }
+        return obj;
+    };
+
     $('div.pblg-checkout-opt').click(function () {
         var values = $('input', this).val().split(':');
 
@@ -309,31 +330,34 @@ jQuery(document).ready(function ($) {
     $('.choose-plan-button').unbind( 'click' );
     $('.choose-plan-button').click( function( e ) {
 
-        $('.checkout-gateways.hidden').removeClass('hidden');
-        $('.chosen-plan').removeClass('chosen-plan');
-        $('.not-chosen-plan').removeClass('not-chosen-plan');
-
         var target = e.currentTarget;
-        var parent = $( target).parents('ul')[0];
-        var level = 0;
 
-        var classes = $( parent).attr('class');
-        classes = classes.split(' ');
+        if( ! $(target).hasClass('register-new') ) {
 
-        // Extract the level number
-        $.each( classes, function( idx, val ) {
-            var num = parseInt( val.replace( 'psts-level-', '' ) );
-            if( ! isNaN( num ) ) {
-                level = num;
-            }
-        });
+            $('.checkout-gateways.hidden').removeClass('hidden');
+            $('.chosen-plan').removeClass('chosen-plan');
+            $('.not-chosen-plan').removeClass('not-chosen-plan');
 
-        $(parent).addClass('chosen-plan');
-        $(parent).siblings('ul').addClass('not-chosen-plan');
+            var parent = $(target).parents('ul')[0];
+            var level = 0;
 
-        // Set the level required for gateways
-        $('.gateways [name=level]').val( level );
+            var classes = $(parent).attr('class');
+            classes = classes.split(' ');
 
+            // Extract the level number
+            $.each(classes, function (idx, val) {
+                var num = parseInt(val.replace('psts-level-', ''));
+                if (!isNaN(num)) {
+                    level = num;
+                }
+            });
+
+            $(parent).addClass('chosen-plan');
+            $(parent).siblings('ul').addClass('not-chosen-plan');
+
+            // Set the level required for gateways
+            $('.gateways [name=level]').val(level);
+        }
     });
 
     $('#gateways').tabs();
@@ -350,5 +374,58 @@ jQuery(document).ready(function ($) {
 
     });
 
+    // Signup buttons
+    $('.pricing-column .button-box button').click( function( e ) {
+        var target = e.currentTarget;
+        window.location.href = $(target).attr('data-link');
+    } );
+
+
+    // Check user/blog availability
+    $('#check-prosite-blog').unbind( "click" );
+    $('#check-prosite-blog').bind( "click", bind_availability_check );
+
+    function bind_availability_check( e ) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var form_data = $('#prosites-user-register').serialize();
+
+        $.post(
+            prosites_checkout.admin_ajax_url, {
+                action: 'check_prosite_blog',
+                data: form_data
+            }
+        ).done( function( data, status ) {
+
+                var response = $.parseJSON($(data).find('response_data').text());
+
+                if( typeof response.form != 'undefined' ) {
+                    $('#prosites-signup-form-checkout').replaceWith( response.form );
+                    $('#check-prosite-blog').unbind( "click" );
+                    $('#check-prosite-blog').bind( "click", bind_availability_check );
+
+                    // Reset values...
+                    var obj = $.unserialize( form_data );
+                    $.each( obj, function( key, val )  {
+
+                        if( key != "signup_form_id" && key != "_signup_form" ) {
+                            $('[name=' + key + ']').val( val );
+                        }
+
+                    });
+
+                } else {
+
+                }
+                //console.log( response.form );
+                //if (response.valid) {
+                //    $('.pricing-column .coupon-box').addClass('coupon-valid');
+                //} else {
+                //    $('.pricing-column .coupon-box').addClass('coupon-invalid');
+                //}
+            } );
+
+    }
 
 });

@@ -120,7 +120,16 @@ class ProSites {
 
 		add_action( 'pre_get_posts', array( &$this, 'checkout_page_load' ) );
 
+		// Change signup...
+		add_filter( 'register', array( &$this, 'prosites_signup_url' ) );
+
 		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
+		add_action( 'signup_extra_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
+		add_action( 'signup_hidden_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
+//		add_action( 'signup_header', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
+		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
+		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
+		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 
 		//handle signup pages
 		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
@@ -247,6 +256,8 @@ class ProSites {
 		// Adding _nopriv_ for future buy on register
 		add_action( 'wp_ajax_nopriv_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
 
+		add_action( 'wp_ajax_nopriv_create_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_create_prosite_blog' ) );
+		add_action( 'wp_ajax_nopriv_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
 	}
 
 	public static function get_default_settings_array() {
@@ -1089,11 +1100,12 @@ Thanks!", 'psts' ),
 		$ajax_url = admin_url( "admin-ajax.php", $scheme );
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
 			'admin_ajax_url' => $ajax_url,
-			'confirm_cancel' => __( 'Are you sure you want to cancel your current plan?', 'psts' ),
+			'confirm_cancel' => __("Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
 			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
+			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
 		}
 		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
 			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
@@ -4337,8 +4349,9 @@ function admin_levels() {
 		}
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
-			$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
-			$content .= wp_login_form( array( 'echo' => false ) );
+//			$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
+//			$content .= wp_login_form( array( 'echo' => false ) );
+			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
 
 			return $content;
 		}
@@ -4979,6 +4992,32 @@ function admin_levels() {
 		return wp_kses( $content, $allowed );
 	}
 
+	function registration_page_styles() {
+		if( 'wp-signup.php' == $GLOBALS['pagenow'] ) {
+
+			// On the signup page, but only if it comes from the checkout
+			if( defined( 'PSTS_DISABLE_REGISTRATION_OVERRIDE' ) ) {
+				return false;
+			}
+
+			if( ( ! isset( $_GET['level']) && ! isset( $_GET['period'] ) ) && ( ! isset( $_POST['level']) && ! isset( $_POST['period'] ) ) ) {
+				return false;
+			}
+
+			// Now we can hack the display specifically for ProSites.
+			wp_enqueue_style( 'psts-registration', $this->plugin_url . 'css/registration.css', false, $this->version );
+		}
+	}
+
+	function prosites_signup_url( $url ) {
+		// Do a test here...
+		if ( true ) {
+//			$url = sprintf( '<a href="%s">%s</a>', esc_url( $this->checkout_url() ), __( 'Register' ) );
+		}
+
+		return $url;
+	}
+
 }
 
 //End of class
@@ -5076,3 +5115,4 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
+
