@@ -131,7 +131,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-						    class="pay-for-signup"><?php echo __( 'Allow checkout on Signup', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to checkout after signing up, If user opts for Pro Site, blog setup takes place only after the user have made the payment.', 'psts' ) ); ?></th>
+						    class="pay-for-signup"><?php echo __( 'Allow Signup on Checkout', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]"
 							              value="1"<?php checked( $psts->get_setting( 'show_signup' ) ); ?> />

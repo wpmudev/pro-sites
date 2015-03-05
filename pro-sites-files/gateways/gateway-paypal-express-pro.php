@@ -8,6 +8,10 @@ class ProSites_Gateway_PayPalExpressPro {
 
 	var $complete_message = false;
 
+	public static function get_slug() {
+		return 'paypal';
+	}
+
 	function __construct() {
 		if ( ! is_admin() ) {
 			add_action( 'wp_enqueue_scripts', array( &$this, 'do_scripts' ) );
@@ -1027,7 +1031,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( $resArray['PAYMENTINFO_0_PAYMENTSTATUS'] == 'Completed' || $resArray['PAYMENTINFO_0_PAYMENTSTATUS'] == 'Processed' ) {
 						$old_expire = $psts->get_expire( $blog_id );
 						$new_expire = ( $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_SESSION['PERIOD'], 'PayPal Express/Pro', $_SESSION['LEVEL'], $psts->get_level_setting( $_SESSION['LEVEL'], 'price_' . $_SESSION['PERIOD'] ), $new_expire, false );
+						$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $psts->get_level_setting( $_SESSION['LEVEL'], 'price_' . $_SESSION['PERIOD'] ), $new_expire, false );
 						$psts->email_notification( $blog_id, 'success' );
 						$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
 
@@ -1076,7 +1080,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$psts->record_stat( $blog_id, 'modify' );
 					}
 
-					$psts->extend( $blog_id, $_SESSION['PERIOD'], 'PayPal Express/Pro', $_SESSION['LEVEL'], $paymentAmount, false, true );
+					$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount, false, true );
 
 					//use coupon
 					if ( $has_coupon ) {
@@ -1192,7 +1196,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							if ( $is_trial ) {
 								$psts->extend( $blog_id, $_SESSION['PERIOD'], 'Trial', $_SESSION['LEVEL'], '', strtotime( '+ ' . $trial_days . ' days' ) );
 							} else {
-								$psts->extend( $blog_id, $_SESSION['PERIOD'], 'PayPal Express/Pro', $_SESSION['LEVEL'], $paymentAmount );
+								$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount );
 							}
 						}
 						$psts->record_stat( $blog_id, 'signup' );
@@ -1364,7 +1368,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							$old_expire = $psts->get_expire( $blog_id );
 							$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-							$psts->extend( $blog_id, $_POST['period'], 'PayPal Express/Pro', $_POST['level'], $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] ), $new_expire, false );
+							$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] ), $new_expire, false );
 							$psts->email_notification( $blog_id, 'success' );
 							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
 
@@ -1415,7 +1419,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//extend
-							$psts->extend( $blog_id, $_POST['period'], ( $is_trial ? 'Trial' : 'PayPal Express/Pro' ), $_POST['level'], ( $is_trial ? '' : $paymentAmount ), ( $is_trial ? $psts->get_expire( $blog_id ) : false ) );
+							$psts->extend( $blog_id, $_POST['period'], ( $is_trial ? 'Trial' : self::get_slug() ), $_POST['level'], ( $is_trial ? '' : $paymentAmount ), ( $is_trial ? $psts->get_expire( $blog_id ) : false ) );
 
 							//use coupon
 							if ( $has_coupon ) {
@@ -1515,7 +1519,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 										//Activate the blog
 										$blog_id = $psts->activate_user_blog( $domain );
 									}
-									$psts->extend( $blog_id, $_POST['period'], 'PayPal Express/Pro', $_POST['level'], $paymentAmount );
+									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount );
 
 									//record last payment
 									$psts->record_transaction( $blog_id, $init_transaction, $result['AMT'] );
@@ -2057,12 +2061,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//extend only if a recurring payment, first payments are handled below
 							if ( ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
-								$psts->extend( $blog_id, $period, 'PayPal Express/Pro', $level, $_POST['mc_gross'] );
+								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
 
 							//in case of new member send notification
 							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && $_POST['txn_type'] == 'express_checkout' ) {
-								$psts->extend( $blog_id, $period, 'PayPal Express/Pro', $level, $_POST['mc_gross'] );
+								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 								$psts->email_notification( $blog_id, 'success' );
 								$psts->record_stat( $blog_id, 'signup' );
 								update_blog_option( $blog_id, 'psts_waiting_step', 0 );

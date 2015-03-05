@@ -8,6 +8,10 @@ class ProSites_Gateway_Manual {
 
 	var $complete_message = false;
 
+	public static function get_slug() {
+		return 'manual';
+	}
+
 	function __construct() {
 		//settings
 //		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );

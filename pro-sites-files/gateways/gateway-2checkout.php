@@ -8,6 +8,10 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 	class ProSites_Gateway_2Checkout {
 		var $complete_message = false;
 
+		public static function get_slug() {
+			return '2checkout';
+		}
+
 		function __construct() {
 			global $psts;
 
@@ -425,7 +429,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 
 					$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
 					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via 2Checkout: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
-					$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
+					$psts->extend( $blog_id, $_REQUEST['period'], self::get_slug(), $_REQUEST['level'], $hashTotal );
 					$psts->email_notification( $blog_id, 'success' );
 
 					//record last payment
@@ -470,7 +474,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 					//extend
 					$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
 					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via 2Checkout: New subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
-					$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
+					$psts->extend( $blog_id, $_REQUEST['period'], self::get_slug(), $_REQUEST['level'], $hashTotal );
 					//record last payment
 					$psts->record_transaction( $blog_id, $_REQUEST['invoice_id'], $hashTotal );
 					$psts->record_stat( $blog_id, 'upgrade' );
@@ -555,7 +559,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			$hashOrder = $_REQUEST['order_number'];
 			$this->set_profile_id( $blog_id, $_REQUEST['order_number'] );
 			$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via 2Checkout: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $hashOrder ) );
-			$psts->extend( $blog_id, $_REQUEST['period'], '2Checkout', $_REQUEST['level'], $hashTotal );
+			$psts->extend( $blog_id, $_REQUEST['period'], self::get_slug(), $_REQUEST['level'], $hashTotal );
 			$psts->email_notification( $blog_id, 'success' );
 
 			//record last payment
@@ -754,7 +758,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 						}
 					}
 
-					if ( $old_gateway == '2Checkout' ) {
+					if ( $old_gateway == '2checkout' ) {
 						$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
 						$cancel_content .= '<p>' . sprintf( __( 'If your subscription is still active your next scheduled payment should be %1$s.', 'psts' ), $end_date ) . '</p>';
 						$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';

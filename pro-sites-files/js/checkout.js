@@ -1,5 +1,11 @@
-jQuery(document).ready(function ($) {
+Requests = {
+    QueryString : function(item){
+        var svalue = location.search.match(new RegExp("[\?\&]" + item + "=([^\&]*)(\&?)","i"));
+        return svalue ? svalue[1] : false;
+    }
+}
 
+jQuery(document).ready(function ($) {
 
     $.unserialize = function(serializedString){
         var str = decodeURI(serializedString);
@@ -123,8 +129,9 @@ jQuery(document).ready(function ($) {
         var period_class = $( element).val();
         var period = parseInt( period_class.replace( 'price_', '' ) );
 
-        // Set the period required for gateways
+        // Set the period required for gateways... also set it on the pricing table
         $('.gateways [name=period]').val( period );
+        $('#prosites-checkout-table').attr('data-period', period);
 
         $('.pricing-column [class*="price_"]').removeClass('hide');
         $('.pricing-column [class*="price_"]').hide();
@@ -227,7 +234,7 @@ jQuery(document).ready(function ($) {
 
             /* Check Coupon AJAX */
             $.post(
-                prosites_checkout.admin_ajax_url, {
+                prosites_checkout.ajax_url, {
                     action: 'apply_coupon_to_checkout',
                     'coupon_code': code
                 }
@@ -331,10 +338,38 @@ jQuery(document).ready(function ($) {
     $('.choose-plan-button').click( function( e ) {
 
         var target = e.currentTarget;
+        var button_text = '';
 
-        if( ! $(target).hasClass('register-new') ) {
+        var blog_id = Requests.QueryString("bid");
+        var action = Requests.QueryString("action");
+        var new_blog = false;
+        if( false != action && 'new_blog' == action ) {
+            new_blog = true;
+        }
+        console.log( action );
+        console.log( new_blog );
+        if( prosites_checkout.logged_in ) {
+            button_text = prosites_checkout.button_choose;
+        } else {
+            button_text = prosites_checkout.button_signup;
+        }
 
-            $('.checkout-gateways.hidden').removeClass('hidden');
+        // Reset button text
+        $('.choose-plan-button').html( button_text );
+
+        //if( ! $(target).hasClass('register-new') ) {
+            if( prosites_checkout.logged_in && ! new_blog ) {
+                $('.checkout-gateways.hidden').removeClass('hidden');
+            } else {
+                $('#prosites-signup-form-checkout').removeClass('hidden');
+                var the_element = $('#prosites-signup-form-checkout');
+                if( typeof the_element != 'undefined' ) {
+                    $('html, body').animate({
+                        scrollTop: $("#prosites-signup-form-checkout").offset().top - 100
+                    }, 1000);
+                }
+            }
+
             $('.chosen-plan').removeClass('chosen-plan');
             $('.not-chosen-plan').removeClass('not-chosen-plan');
 
@@ -355,13 +390,13 @@ jQuery(document).ready(function ($) {
             $(parent).addClass('chosen-plan');
             $(parent).siblings('ul').addClass('not-chosen-plan');
 
-            // Set the level required for gateways
+            // Set the level required for gateways... but also set it on the checkout table
             $('.gateways [name=level]').val(level);
-        }
+            $('#prosites-checkout-table').attr('data-level', level);
+        //}
     });
 
     $('#gateways').tabs();
-
 
     // Cancellation confirmation
     $('a.cancel-prosites-plan').click( function( e ) {
@@ -374,57 +409,134 @@ jQuery(document).ready(function ($) {
 
     });
 
-    // Signup buttons
-    $('.pricing-column .button-box button').click( function( e ) {
-        var target = e.currentTarget;
-        window.location.href = $(target).attr('data-link');
-    } );
-
-
     // Check user/blog availability
     $('#check-prosite-blog').unbind( "click" );
-    $('#check-prosite-blog').bind( "click", bind_availability_check );
+    $('#check-prosite-blog').on( "click", bind_availability_check );
 
     function bind_availability_check( e ) {
         e.preventDefault();
         e.stopPropagation();
 
         var form_data = $('#prosites-user-register').serialize();
+        console.log( form_data );
+        $('#prosites-user-register p.error').remove();
+        $('.trial_msg').remove();
+        $('.reserved_msg').remove();
+
+        $('#check-prosite-blog').addClass("hidden");
+        $('#registration_processing').removeClass("hidden");
+
+        $('.input_available').remove();
+
+        var level = $('#prosites-checkout-table').attr('data-level');
+        var period = $('#prosites-checkout-table').attr('data-period');
 
         $.post(
-            prosites_checkout.admin_ajax_url, {
+            prosites_checkout.ajax_url, {
                 action: 'check_prosite_blog',
-                data: form_data
+                data: form_data,
+                level: level,
+                period: period
             }
         ).done( function( data, status ) {
+            $('#check-prosite-blog').removeClass("hidden");
+            $('#registration_processing').addClass("hidden");
+            post_registration_process( data, status, form_data );
+        } );
 
-                var response = $.parseJSON($(data).find('response_data').text());
+    }
 
-                if( typeof response.form != 'undefined' ) {
-                    $('#prosites-signup-form-checkout').replaceWith( response.form );
-                    $('#check-prosite-blog').unbind( "click" );
-                    $('#check-prosite-blog').bind( "click", bind_availability_check );
+    function position_field_available_tick( field ) {
+        var pos = $(field).position();
+        var width = $( field ).innerWidth();
+        var height = $( field ).innerHeight();
+        var item_h = $( field + ' + .input_available').innerHeight();
+        var item_w = $( field + ' + .input_available').innerWidth();
+        $( field + ' + .input_available').css( 'top', Math.ceil( pos.top + (height - item_h) / 2  ) + 'px' );
+        $( field + ' + .input_available').css( 'left', Math.ceil( pos.left + width - ( item_w * 2 ) ) + 'px' );
 
-                    // Reset values...
-                    var obj = $.unserialize( form_data );
-                    $.each( obj, function( key, val )  {
+    }
 
-                        if( key != "signup_form_id" && key != "_signup_form" ) {
-                            $('[name=' + key + ']').val( val );
-                        }
+    function post_registration_process( data, status, form_data ) {
 
-                    });
+        var response = $.parseJSON($(data).find('response_data').text());
 
-                } else {
+        if( typeof response == 'null' || typeof response == 'undefined' ) {
+            return false;
+        }
 
+        // Trial setup form for non-recurring settings
+        if( typeof response.show_finish != 'undefined' && response.show_finish === true ) {
+            $('#prosites-checkout-table').replaceWith( response.finish_content );
+            $('#prosites-signup-form-checkout').remove();
+            $('#gateways').remove();
+            return false;
+        }
+
+        // Get fresh signup form
+        if( typeof response.form != 'undefined' ) {
+            $('#prosites-signup-form-checkout').replaceWith( response.form );
+            $('#check-prosite-blog').unbind( "click" );
+            $('#check-prosite-blog').on( "click", bind_availability_check );
+
+            // Reset values...
+            var obj = $.unserialize( form_data );
+            $.each( obj, function( key, val )  {
+                // Restore values
+                if( key != "signup_form_id" && key != "_signup_form" ) {
+                    $('[name=' + key + ']').val( val );
                 }
-                //console.log( response.form );
-                //if (response.valid) {
-                //    $('.pricing-column .coupon-box').addClass('coupon-valid');
-                //} else {
-                //    $('.pricing-column .coupon-box').addClass('coupon-invalid');
-                //}
-            } );
+            });
+
+        }
+
+        // Get fresh gateways form
+        if( typeof response.gateways_form != 'undefined' ) {
+            $('#gateways').replaceWith(response.gateways_form);
+
+            // Reset the levels
+            $('.gateways [name=level]').val( $('#prosites-checkout-table').attr('data-level') );
+            $('.gateways [name=period]').val( $('#prosites-checkout-table').attr('data-period') );
+
+            // Rebind Stripe -- find a generic way to make it easier for custom gateways
+            $("#stripe-payment-form").unbind( "submit" );
+            $("#stripe-payment-form").on( 'submit', stripePaymentFormSubmit );
+
+            $('#gateways').tabs();
+            $('#gateways').removeClass('hidden');
+        }
+
+        if( typeof response.username_available != 'undefined' && true === response.username_available ) {
+            $('[name=user_name]').after('<i class="input_available"></i>');
+            position_field_available_tick('[name=user_name]');
+        }
+        if( typeof response.email_available != 'undefined' && true === response.email_available ) {
+            $('[name=user_email]').after('<i class="input_available"></i>');
+            position_field_available_tick('[name=user_email]');
+        }
+        if( typeof response.blogname_available != 'undefined' && true === response.blogname_available ) {
+            $('[name=blogname]').after('<i class="input_available"></i>');
+            position_field_available_tick('[name=blogname]');
+        }
+        if( typeof response.blog_title_available != 'undefined' && true === response.blog_title_available ) {
+            $('[name=blog_title]').after('<i class="input_available"></i>');
+            position_field_available_tick('[name=blog_title]');
+        }
+
+        if( typeof response.trial_message != 'undefined' ) {
+            $('#prosites-signup-form-checkout').replaceWith(response.trial_message);
+            $('.input_available').remove();
+        }
+        if( typeof response.reserved_message != 'undefined' ) {
+            $('#prosites-signup-form-checkout').replaceWith(response.reserved_message);
+            $('.input_available').remove();
+        }
+        //console.log( response.form );
+        //if (response.valid) {
+        //    $('.pricing-column .coupon-box').addClass('coupon-valid');
+        //} else {
+        //    $('.pricing-column .coupon-box').addClass('coupon-invalid');
+        //}
 
     }
 

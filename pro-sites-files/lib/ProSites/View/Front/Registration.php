@@ -97,13 +97,22 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 
 		public static function render_signup_form( $errors = false ) {
+			global $psts;
 			$current_site = get_current_site();
+			$img_base  = $psts->plugin_url . 'images/';
 
 			if( ! $errors ) {
 				$errors = new WP_Error();
 			}
 
-			$content = '<div id="prosites-signup-form-checkout">';
+			// Avoid rendering the form if its already been done
+			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['reserved_message'] ) ) {
+				$content = $_SESSION['new_blog_details']['reserved_message'];
+//				unset( $_SESSION['new_blog_details']);
+				return $content;
+			}
+
+			$content = '<div id="prosites-signup-form-checkout" class="hidden">';
 			$action = '';
 
 			$active_signup = get_site_option( 'registration', 'none' );
@@ -136,6 +145,8 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$user_name = '';
 				$user_email = '';
 
+				$content .= '<h2>' . esc_html__( 'Setup your site', 'psts' ) . '</h2>';
+
 				$content .= '<form method="post" id="prosites-user-register">';
 
 
@@ -145,9 +156,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= ob_get_clean();
 				$content .= self::render_user_section( $errors, $user_name, $user_email );
 
-
-				/// USE THIS TO REGISTER ----> register_new_user()
-				/// NEED TO ADD THIS SOMEWHERE ----> do_action( 'signup_finished' );
 				/// DO SOMETHING WITH THIS ----> $active_signup = apply_filters( 'wpmu_active_signup', $active_signup );
 				/// AND THIS ---->
 				//			do_action( 'preprocess_signup_form' );
@@ -160,8 +168,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				//			else
 				//				_e( 'You are logged in already. No need to register again!' );
 
-
-
 				// BLOG SECTION
 				ob_start();
 				do_action( 'signup_hidden_fields', 'validate-site' );
@@ -169,7 +175,10 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= ob_get_clean();
 				$content .= self::render_blog_section( $errors );
 
-				$content .= '<div><input type="button" id="check-prosite-blog" value="' . esc_attr__( 'Check availability', 'psts' ) . '" /></div>';
+				$content .= '<div><input type="button" id="check-prosite-blog" value="' . esc_attr__( 'Reserve your site', 'psts' ) . '" /></div>';
+				$content .= '<div class="hidden" id="registration_processing">
+							<img src="' . $img_base . 'loading.gif"> Processing...
+							</div>';
 				$content .= '</form>';
 
 				// WP hook
@@ -214,6 +223,11 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				ob_start();
 				do_action( 'signup_extra_fields', $errors );
 				$content .= ob_get_clean();
+			} else {
+				$user = wp_get_current_user();
+				$content .= '<input type="hidden" name="user_name" value="' . $user->user_login . '" />';
+				$content .= '<input type="hidden" name="user_email" value="' . $user->user_email . '" />';
+				$content .= '<input type="hidden" name="new_blog" value="1" />';
 			}
 
 			$content .= '</div>';
@@ -253,6 +267,25 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= '<p class="error">' . $errmsg . '</p>';
 			}
 			$content .= '<input name="blog_title" type="text" id="blog_title" value="'.esc_attr( $blog_title ) . '" />';
+
+			$yes_checked = !isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1' ? 'checked="checked"' : '';
+			$no_checked = isset( $_POST['blog_public'] ) && $_POST['blog_public'] == '0' ? 'checked="checked"' : '';
+
+			$content .= '<div id="privacy">
+        		<p class="privacy-intro">
+            		<label for="blog_public_on">' . esc_html__('Privacy:', 'psts') . '</label> ' .
+	                esc_html__( 'Allow search engines to index this site.', 'psts' ) .
+	                '<br style="clear:both" />
+	                <label class="checkbox" for="blog_public_on">
+		                <input type="radio" id="blog_public_on" name="blog_public" value="1" ' . $yes_checked  . '/>
+		                <strong>' . esc_html__( 'Yes', 'psts' ) . '</strong>
+	                </label>
+	                <label class="checkbox" for="blog_public_off">
+		                <input type="radio" id="blog_public_off" name="blog_public" value="0" ' . $no_checked  . '/>
+		                <strong>' . esc_html__( 'No', 'psts' ) . '</strong>
+	                </label>
+        		</p>
+			</div>';
 
 			ob_start();
 			do_action( 'signup_blogform', $errors );

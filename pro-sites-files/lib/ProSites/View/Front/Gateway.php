@@ -11,7 +11,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Add existing account filter
 			add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::prepend_plan_details', 10, 3 );
 
-			$gateways = self::get_gateways();
+			$gateways = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
 
 			$primary_gateway = $gateway_details['primary'];
@@ -148,24 +148,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		}
 
-
-		public static function get_gateways() {
-			global $psts;
-
-			$gateways = array();
-			$active_gateways = (array) $psts->get_setting( 'gateways_enabled' );
-			foreach( $active_gateways as $active_gateway ) {
-				if( method_exists( $active_gateway, 'get_name' ) ) {
-					$name = call_user_func( $active_gateway . '::get_name' );
-					$gateways[ key( $name ) ] = array(
-						'name'  => array_pop( $name ),
-						'class' => $active_gateway
-					);
-				}
-			}
-			return $gateways;
-		}
-
 		public static function get_gateway_details( $gateways ) {
 			global $psts;
 
@@ -240,14 +222,25 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 
 		public static function prepend_plan_details( $content, $blog_id, $domain ) {
+			global $psts;
 
 			$plan_content    = '';
-			$gateways        = self::get_gateways();
+			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
 
 			// No existing details for a new signup
-			if( ProSites_View_Front_Checkout::$new_signup ) {
-				return $content;
+			if( ProSites_View_Front_Checkout::$new_signup || isset( $_SESSION['new_blog_details'] ) ) {
+				$pre_content = '';
+
+				if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) {
+					$pre_content .= self::render_payment_submitted();
+				}
+
+				if( ! empty( $pre_content ) ) {
+					return $pre_content;
+				} else {
+					return $content;
+				}
 			}
 
 			if ( is_pro_site( $blog_id ) ) {
@@ -263,6 +256,66 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			return $plan_content . $content;
 
+		}
+
+
+		public static function render_payment_submitted( $show_trial = false ) {
+			global $psts;
+
+			$content = '<div id="psts-payment-info-received">';
+
+			if( ! is_user_logged_in() ) {
+				if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['email'] ) ) {
+					$email = $_SESSION['new_blog_details']['email'];
+				}
+			} else {
+				$user = wp_get_current_user();
+				$email = $user->user_email;
+			}
+
+			// Get the blog id... try the session or get it from the database
+			$blog_id = isset( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : isset( $_SESSION['new_blog_details']['blogname'] ) ? get_id_from_blogname( $_SESSION['new_blog_details']['blogname'] ) : 0;
+
+			switch_to_blog( $blog_id );
+			$blog_admin_url = admin_url();
+			restore_current_blog();
+
+
+			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
+
+			if( ! $show_trial ) {
+				$content .= '<p>' . esc_html__( 'Your payment is being processed and you should soon receive an email with your site details.', 'psts' ) . '</p>';
+			} else {
+				$content .= '<p>' . esc_html__( 'Your site trial has been setup and you should soon receive an email with your site details. Once your trial finishes you will be prompted to upgrade manually.', 'psts' ) . '</p>';
+			}
+
+			if( isset( $_SESSION['new_blog_details']['username'] ) && isset( $_SESSION['new_blog_details']['user_pass'] ) ) {
+				$username = $_SESSION['new_blog_details']['username'];
+				$userpass = strrev( $_SESSION['new_blog_details']['user_pass'] );
+			}
+
+			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
+			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
+			$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
+			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
+
+			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';
+			$content .= '<ul>' .
+			            '<li>' . esc_html__( 'Wait a little bit longer.', 'psts' ) . '</li>' .
+			            '<li>' . esc_html__( 'Check your spam folder just in case it ended up in there.', 'psts' ) . '</li>' .
+			            '<li>' . esc_html__( 'Make sure that your email address is correct (' . $email . ')', 'psts' ) . '</li>' .
+			            '</ul>';
+			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
+
+
+			unset( $_SESSION['new_blog_details'] );
+
+			if( ! empty( $blog_admin_url ) ) {
+				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
+			}
+
+			$content .= '</div>';
+			return $content;
 		}
 
 	}

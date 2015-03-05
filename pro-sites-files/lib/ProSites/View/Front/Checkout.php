@@ -36,8 +36,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 //			$expire = $psts->get_expire( $blog_id );
 
-			// Add Registration AJAX handler
-			ProSites_Model_Registration::add_ajax_hook();
 			// Signup registration
 			$content .= ProSites_View_Front_Registration::render_signup_form();
 
@@ -252,16 +250,17 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						if( ! self::$new_signup ) {
 							$columns[ $col_count ]['button'] = '<button class="choose-plan-button">' . __( 'Choose Plan', 'psts' ) . '</button>';
 						} else {
-							$args = array( 'level' => $level, 'period' => '1' );
-							$class = 'price_1' == self::$default_period ? '' : 'hide';
-							$buttons = '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_1 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
-							$args = array( 'level' => $level, 'period' => '3' );
-							$class = 'price_3' == self::$default_period ? '' : 'hide';
-							$buttons .= '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_3 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
-							$args = array( 'level' => $level, 'period' => '12' );
-							$class = 'price_12' == self::$default_period ? '' : 'hide';
-							$buttons .= '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_12 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
-							$columns[ $col_count ]['button'] = $buttons;
+							$columns[ $col_count ]['button'] = '<button class="choose-plan-button register-new">' . __( 'Sign Up', 'psts' ) . '</button>';
+//							$args = array( 'level' => $level, 'period' => '1' );
+//							$class = 'price_1' == self::$default_period ? '' : 'hide';
+//							$buttons = '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_1 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
+//							$args = array( 'level' => $level, 'period' => '3' );
+//							$class = 'price_3' == self::$default_period ? '' : 'hide';
+//							$buttons .= '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_3 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
+//							$args = array( 'level' => $level, 'period' => '12' );
+//							$class = 'price_12' == self::$default_period ? '' : 'hide';
+//							$buttons .= '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_12 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
+//							$columns[ $col_count ]['button'] = $buttons;
 						}
 
 						$col_count += 1;
@@ -477,10 +476,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		public static function render_tables_wrapper ( $section,  $echo = false ) {
 			$content = '';
+			$period = str_replace( 'price_', '', self::$default_period );
 			switch( $section ) {
 
 				case 'pre':
-					$content .= '<div id="prosites-checkout-table">';
+					$content .= '<div id="prosites-checkout-table" data-period="' . $period . '" data-level="0">';
 					break;
 
 				case 'post':
@@ -497,10 +497,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		}
 
 		public static function render_login_link() {
-			$content = '<div class="login-existing"><a href="<?php echo wp_login_url( ' . get_permalink() . ' ); ?>" title="' . esc_attr__( 'Login', 'psts' ) . '">' .
-			           esc_html__( 'Login to view or upgrade your existing plan.', 'psts' ) . '</a></div>';
-
-			return $content;
+			$content = '<div class="login-existing"><a href="' . esc_url( wp_login_url( ' . get_permalink() . ' ) ) . '" title="' .
+			           esc_attr__( 'Login', 'psts' ) . '">' . esc_html__( 'Login to view or upgrade your existing plan.', 'psts' ) . '</a></div>';
+			// return $content;
 		}
 
 	}

@@ -503,6 +503,14 @@ ul.pricing-column li, .pricing-column ul li {
     padding:0;
 }
 
+#psts-payment-info-received ul, #psts-payment-info-received ul li {
+    margin-left: 0.5em;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    padding:0;
+}
+
 .pricing-column blockquote, .pricing-column q {
 	quotes: none;
 }
@@ -1089,6 +1097,34 @@ ul.pricing-column.not-chosen-plan .button-box button {
     margin-top: 20px;
 }
 
+.input_available {
+    position: absolute;
+    display: inline-block;
+}
+.input_available:after {
+    font-family: dashicons;
+    content: "\f147";
+    color: #00CE8A;
+    /*z-index: 100;*/
+}
+
+#prosites-user-register .error{
+    background: none repeat scroll 0 0 #ffebe8;
+    /*border: 1px solid #cc0000;*/
+    /*color: #333333;*/
+    color: #cc0000;
+    font-size: 0.8em;
+    padding: 2px 5px;
+    margin: 2px 0;
+}
+
+#psts-payment-info-received, #psts-payment-info-received h2 {
+    margin: 0;
+    padding: 0;
+}
+#psts-payment-info-received h2 {
+    margin-bottom: 20px;
+}
 
 /* === DARK MODE === */
 

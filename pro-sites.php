@@ -124,19 +124,22 @@ class ProSites {
 		add_filter( 'register', array( &$this, 'prosites_signup_url' ) );
 
 		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
-		add_action( 'signup_extra_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
-		add_action( 'signup_hidden_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
+		// Add Registration AJAX handler
+		ProSites_Model_Registration::add_ajax_hook();
+
+//		add_action( 'signup_extra_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
+//		add_action( 'signup_hidden_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
 //		add_action( 'signup_header', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
-		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
-		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
+//		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
+//		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 
 		//handle signup pages
-		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
-		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
-		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
-		add_filter( 'add_signup_meta', array( &$this, 'signup_save' ) );
-		add_filter( 'bp_signup_usermeta', array( &$this, 'signup_save' ) );
+//		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
+//		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
+//		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
+//		add_filter( 'add_signup_meta', array( &$this, 'signup_save' ) );
+//		add_filter( 'bp_signup_usermeta', array( &$this, 'signup_save' ) );
 
 		//Force Used Space Check in network if quota is enabled
 		add_action( 'psts_modules_save', array( $this, 'enable_network_used_space_check' ) );
@@ -426,7 +429,7 @@ Thanks!", 'psts' ),
 		  blog_ID bigint(20) NOT NULL,
 		  level int(3) NOT NULL DEFAULT 1,
 		  expire bigint(20) NOT NULL,
-		  gateway varchar(25) NULL DEFAULT 'PayPal',
+		  gateway varchar(25) NULL DEFAULT '',
 		  term varchar(25) NULL DEFAULT NULL,
 		  amount varchar(10) NULL DEFAULT NULL,
 		  is_recurring tinyint(1) NULL DEFAULT 1,
@@ -505,6 +508,11 @@ Thanks!", 'psts' ),
 		//3.4.3.8 upgrade - fixes permanent upgrades that got truncated on 32 bit systems due to (int) casting
 		if ( version_compare( $this->get_setting( 'version' ), '3.4.3.7', '<=' ) ) {
 			$wpdb->query( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = '9999999999' WHERE expire = '1410065407'" );
+		}
+
+		//3.5 upgrade - modify pro_sites table
+		if ( version_compare( $this->get_setting( 'version' ), '3.5', '<=' ) ) {
+			$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
 		}
 
 		$this->update_setting( 'version', $this->version );
@@ -611,7 +619,12 @@ Thanks!", 'psts' ),
 	function is_trial( $blog_id ) {
 		global $wpdb;
 
-		return empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if( ! $trialing ) {
+			$trialing = empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
+		}
+
+		return $trialing;
 	}
 
 	//run daily via wp_cron
@@ -703,6 +716,7 @@ Thanks!", 'psts' ),
 		$this_week['total_signups'] = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE action = 'signup' AND time_stamp >= '$week_start_date'" );
 		$this_week['upgrades']      = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE action = 'upgrade' AND time_stamp >= '$week_start_date'" );
 		$this_week['cancels']       = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE action = 'cancel' AND time_stamp >= '$week_start_date'" );
+		$number_trial               = count( ProSites_Helper_Registration::get_all_trial_blogs() );
 
 		$week_end                   = $week_start;
 		$week_start                 = strtotime( "-1 week", $week_start );
@@ -741,6 +755,9 @@ Thanks!", 'psts' ),
 		}
 
 		$text .= sprintf( __( '%s cancelations this week %s compared to last week', 'psts' ), "\n<p><span style='font-size: 24px; font-family: arial;'>" . number_format_i18n( $this_week['cancels'] ) . "</span><span style='color: rgb(85, 85, 85);'>", "</span>$diff<span style='color: rgb(85, 85, 85);'>" ) . "</span></p>";
+
+		// Current active trials
+		$text .= sprintf( '<p>' . __( '%s active trials.', 'psts' ) . '</p>', "<span style='font-size: 24px; font-family: arial;'>" . number_format_i18n( $number_trial ) . "</span>" );
 
 		return $text;
 	}
@@ -1052,6 +1069,7 @@ Thanks!", 'psts' ),
 
 	function checkout_page_load( $query ) {
 
+		$x = '';
 		//don't check on other blogs
 		if ( ! is_main_site() ) {
 			return;
@@ -1099,8 +1117,12 @@ Thanks!", 'psts' ),
 		$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
 		$ajax_url = admin_url( "admin-ajax.php", $scheme );
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
-			'admin_ajax_url' => $ajax_url,
-			'confirm_cancel' => __("Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
+			'ajax_url' => $ajax_url,
+			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
+			'button_signup' => __( "Sign Up", 'psts' ),
+			'button_choose' => __( "Choose Plan", 'psts' ),
+			'button_chosen' => __( "Chosen Plan", 'psts' ),
+			'logged_in' => is_user_logged_in(),
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
@@ -1280,16 +1302,19 @@ Thanks!", 'psts' ),
 				$payment_info = '';
 
 				if ( $result->gateway ) {
-					$payment_info .= sprintf( __( 'Payment Method: %s', 'psts' ), $result->gateway ) . "\n";
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					$payment_info .= sprintf( __( 'Payment Method: %s', 'psts' ), $nicename ) . "\n";
 				}
 
 				if ( $term ) {
 					$payment_info .= sprintf( __( 'Payment Term: %s', 'psts' ), $term ) . "\n";
 				}
 
-				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $result->amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+				$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+				$amount = $trialing ? 0.0 : $result->amount;
+				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
-				if ( $result->gateway == 'Trial' ) {
+				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
 					$trial_info = "\n" . __( '*** PLEASE NOTE ***', 'psts' ) . "\n";
 					$trial_info .= sprintf( __( 'You will not be charged for your subscription until your trial ends on %s. If applicable, this does not apply to setup fees and other upfront costs.', 'psts' ), date_i18n( get_option( 'date_format' ), $result->expire ) );
 					$payment_info .= apply_filters( 'psts_trial_info', $trial_info, $blog_id );
@@ -1790,6 +1815,15 @@ Thanks!", 'psts' ),
 			}
 		}
 
+		// Change trial status
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if( $trialing && ! 'Trial' == $gateway ) {
+			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
+		}
+		if( 'Trial' == $gateway ) {
+			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
+		}
+
 		//flip flag after action fired
 		update_blog_option( $blog_id, 'psts_withdrawn', 0 );
 
@@ -1825,6 +1859,7 @@ Thanks!", 'psts' ),
 
 		//flip flag after action fired
 		update_blog_option( $blog_id, 'psts_withdrawn', 1 );
+		ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 
 		//force to checkout screen next login
 		if ( $new_expire <= time() ) {
@@ -2497,12 +2532,16 @@ _gaq.push(["_trackTrans"]);
 				if ( $expire > 2147483647 ) {
 					echo '<li>' . __( 'Pro Site privileges will expire: <strong>Never</strong>', 'psts' ) . '</li>';
 				} else {
-					echo '<li>' . sprintf( __( 'Pro Site privileges will expire on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . '</li>';
+					$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+					$active_trial = $trialing ? __( '(Active trial)', 'psts') : '';
+
+					echo '<li>' . sprintf( __( 'Pro Site privileges will expire on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . ' ' . $active_trial . '</li>';
 				}
 
 				echo '<li>' . sprintf( __( 'Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
 				if ( $result->gateway ) {
-					echo '<li>' . sprintf( __( 'Payment Gateway: <strong>%s</strong>', 'psts' ), $result->gateway ) . '</li>';
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					echo '<li>' . sprintf( __( 'Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
 				}
 				if ( $term ) {
 					echo '<li>' . sprintf( __( 'Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
@@ -2517,7 +2556,8 @@ _gaq.push(["_trackTrans"]);
 
 				echo '<li>' . sprintf( __( 'Previous Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
 				if ( $result->gateway ) {
-					echo '<li>' . sprintf( __( 'Previous Payment Gateway: <strong>%s</strong>', 'psts' ), $result->gateway ) . '</li>';
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					echo '<li>' . sprintf( __( 'Previous Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
 				}
 				if ( $term ) {
 					echo '<li>' . sprintf( __( 'Previous Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
@@ -3710,7 +3750,7 @@ function admin_levels() {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow checkout on Signup', 'psts' ) . $this->help_text( __( 'Enables the user to checkout after signing up, If user opts for Pro Site, blog setup takes place only after the user have made the payment.', 'psts' ) ); ?></th>
+						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow Signup on Checkout', 'psts' ) . $this->help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked( $this->get_setting( 'show_signup' ) ); ?> />
 						</td>
@@ -4280,12 +4320,15 @@ function admin_levels() {
 			return false;
 		}
 
-		if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-			return false;
-		}
+		// If blog exists
+		if( ! empty( $blog_id ) ) {
+			if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+				return false;
+			}
 
-		if ( $this->is_blog_canceled( $blog_id ) ) {
-			return false;
+			if ( $this->is_blog_canceled( $blog_id ) ) {
+				return false;
+			}
 		}
 
 		return true;
@@ -4342,13 +4385,14 @@ function admin_levels() {
 
 	//outputs the checkout form
 	function checkout_output( $content ) {
-
+		$x = '';
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
 			return $content;
 		}
 		//make sure logged in, Or if user comes just after signup, check session for domain name
-		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
+//		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
+		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
 //			$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
 //			$content .= wp_login_form( array( 'echo' => false ) );
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
@@ -4715,12 +4759,12 @@ function admin_levels() {
 		if ( 1 != $show_signup ) {
 			return true;
 		}
-		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
-		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
-		) {
-			//No post details to check
-			return true;
-		}
+//		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
+//		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
+//		) {
+//			//No post details to check
+//			return true;
+//		}
 
 		/* Wordpress do not provide option to filter confirm_blog_signup, we have disabled activation email */
 		ob_start();
@@ -4853,18 +4897,17 @@ function admin_levels() {
 	/**
 	 * Fetches signup meta for a domain
 	 *
-	 * @param string $domain
+	 * @param string $key
 	 *
 	 * @return mixed|string, meta value from signup table if there is a associated domain
 	 */
-
-	function get_signup_meta( $domain = '' ) {
-		if ( ! $domain ) {
+	function get_signup_meta( $key = '' ) {
+		if ( ! $key ) {
 			return false;
 		}
 		global $wpdb;
 		$signup_meta = '';
-		$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
+		$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
 		if ( ! empty( $signup ) ) {
 			$signup_meta = maybe_unserialize( $signup->meta );
 		}
@@ -4877,13 +4920,12 @@ function admin_levels() {
 	 *
 	 * @param array $signup_meta
 	 *
-	 * @param string $domain
+	 * @param string $key
 	 *
 	 * @return mixed|string, meta value from signup table if there is a associated domain
 	 */
-
-	function update_signup_meta( $signup_meta = array(), $domain = '' ) {
-		if ( ! $signup_meta || ! $domain ) {
+	function update_signup_meta( $signup_meta = array(), $key = '' ) {
+		if ( ! $signup_meta || ! $key ) {
 			return false;
 		}
 		global $wpdb;
@@ -4894,7 +4936,57 @@ function admin_levels() {
 				'meta' => serialize( $signup_meta ), // string
 			),
 			array(
-				'domain' => $domain
+				'activation_key' => $key
+			)
+		);
+
+		return $updated;
+	}
+
+	/**
+	 * Fetches meta for a ProSite
+	 *
+	 * @param int $blog_id
+	 * @param bool $default
+	 *
+	 * @return bool|mixed|string
+	 */
+	public static function get_prosite_meta( $blog_id = 0 ) {
+		if ( empty( $blog_id ) ) {
+			return false;
+		}
+
+		global $wpdb;
+		$meta = false;
+		$result = $wpdb->get_row( $wpdb->prepare( "SELECT meta FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id ) );
+		if ( ! empty( $result ) ) {
+			$meta = maybe_unserialize( $result->meta );
+		}
+
+		return $meta;
+	}
+
+	/**
+	 * Sets meta for a ProSite
+	 *
+	 * @param array $meta
+	 * @param int $blog_id
+	 *
+	 * @return bool
+	 */
+	public static function update_prosite_meta( $blog_id = 0, $meta = array() ) {
+		if ( false === $meta || empty( $blog_id ) ) {
+			return false;
+		}
+		global $wpdb;
+
+		$updated = $wpdb->update(
+			$wpdb->base_prefix . 'pro_sites',
+			array(
+				'meta' => serialize( $meta ),
+			),
+			array(
+				'blog_ID' => $blog_id
 			)
 		);
 
