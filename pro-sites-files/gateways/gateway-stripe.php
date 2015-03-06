@@ -102,13 +102,21 @@ class ProSites_Gateway_Stripe {
 		$table1 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites_stripe_customers` (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
+			subscription_id char(22) NOT NULL,
 			PRIMARY KEY  (blog_id),
-			UNIQUE KEY ix_customer_id (customer_id)
+			UNIQUE KEY ix_subscription_id (subscription_id)
 		) DEFAULT CHARSET=utf8;";
 
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $table1 );
+
+			//3.5 upgrade - modify pro_sites table
+			if ( $psts->version <= '3.5' ) {
+				$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD subscription_id char(22) NOT NULL" );
+				$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers DROP KEY ix_customer_id" );
+				$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
+			}
 		}
 
 		if ( $stripe_secret_key = $psts->get_setting( 'stripe_secret_key' ) ) {
@@ -285,7 +293,7 @@ class ProSites_Gateway_Stripe {
 	public static function payment_info( $payment_info, $blog_id ) {
 		global $psts;
 
-		$customer_id  = self::get_customer_id( $blog_id );
+		$customer_id  = self::get_customer_id( $blog_id )->customer_id;
 		$next_billing = __( 'None', 'psts' );
 
 		if ( $customer_id ) {
@@ -304,7 +312,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public static function subscription_info( $blog_id ) {
 		global $psts;
-		$customer_id = self::get_customer_id( $blog_id );
+		$customer_id = self::get_customer_id( $blog_id )->customer_id;
 
 		if ( $customer_id ) {
 			echo '<ul>';
@@ -361,7 +369,7 @@ class ProSites_Gateway_Stripe {
 	public static function subscriber_info( $blog_id ) {
 		global $psts;
 
-		$customer_id = self::get_customer_id( $blog_id );
+		$customer_id = self::get_customer_id( $blog_id )->customer_id;
 
 		if ( $customer_id ) {
 			try {
@@ -394,7 +402,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		$next_billing = false;
-		$customer_id  = self::get_customer_id( $blog_id );
+		$customer_id  = self::get_customer_id( $blog_id )->customer_id;
 		if ( $customer_id ) {
 
 			if ( get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
@@ -424,7 +432,7 @@ class ProSites_Gateway_Stripe {
 		$canceled_member = false;
 
 		$end_date    = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-		$customer_id = self::get_customer_id( $blog_id );
+		$customer_id = self::get_customer_id( $blog_id )->customer_id;
 
 		try {
 			$existing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );
@@ -469,7 +477,7 @@ class ProSites_Gateway_Stripe {
 
 		if ( isset( $_POST['stripe_mod_action'] ) ) {
 
-			$customer_id             = self::get_customer_id( $blog_id );
+			$customer_id             = self::get_customer_id( $blog_id )->customer_id;
 			$exitsing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );
 			$last_payment            = $exitsing_invoice_object->data[0]->total / 100;
 			$refund_value            = $_POST['refund_amount'];
@@ -1397,7 +1405,7 @@ class ProSites_Gateway_Stripe {
 	 * @param $customer_id
 	 * @param string $domain
 	 */
-	public static function set_customer_id( $blog_id, $customer_id, $domain = '' ) {
+	public static function set_customer_id( $blog_id, $customer_id, $sub_id, $domain = 'deprecated' ) {
 		global $wpdb, $psts;
 
 		$exists = false;
@@ -1406,16 +1414,19 @@ class ProSites_Gateway_Stripe {
 		}
 
 		if ( $exists ) {
-			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites_stripe_customers SET customer_id = %s WHERE blog_id = %d", $customer_id, $blog_id ) );
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites_stripe_customers SET customer_id = %s, subscription_id = %s WHERE blog_id = %d", $customer_id, $sub_id, $blog_id ) );
 		} else {
 			//If we have blog id update stripe customer id for blog id otherwise store in signup meta
 			if ( ! empty( $blog_id ) ) {
-				$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->base_prefix}pro_sites_stripe_customers(blog_id, customer_id) VALUES (%d, %s)", $blog_id, $customer_id ) );
+				$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->base_prefix}pro_sites_stripe_customers(blog_id, customer_id, subscription_id) VALUES (%d, %s, %s)", $blog_id, $customer_id, $sub_id ) );
 			} else {
-				$signup_meta                          = '';
-				$signup_meta                          = $psts->get_signup_meta( $domain );
-				$signup_meta['stripe']['customer_id'] = $customer_id;
-				$psts->update_signup_meta( $signup_meta, $domain );
+				/**
+				 * @todo: work something else out
+				 */
+//				$signup_meta                          = '';
+//				$signup_meta                          = $psts->get_signup_meta( $domain );
+//				$signup_meta['stripe']['customer_id'] = $customer_id;
+//				$psts->update_signup_meta( $signup_meta, $domain );
 			}
 		}
 	}
@@ -1424,23 +1435,26 @@ class ProSites_Gateway_Stripe {
 	 * Get stripe customer id, one of the two arguments is required
 	 *
 	 * @param $blog_id
-	 * @param string $domain
+	 * @param bool|string $domain DEPRECATED
 	 *
 	 * @return bool
 	 */
-	public static function get_customer_id( $blog_id, $domain = '' ) {
+	public static function get_customer_id( $blog_id, $domain = false ) {
 		global $wpdb, $psts;
 		if ( empty( $blog_id ) && empty( $domain ) ) {
 			return false;
 		}
 		if ( ! empty ( $blog_id ) ) {
-			return $wpdb->get_var( $wpdb->prepare( "SELECT customer_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE blog_id = %d", $blog_id ) );
+			return $wpdb->get_row( $wpdb->prepare( "SELECT customer_id, subscription_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE blog_id = %d", $blog_id ) );
 		} else {
+			/**
+			 * @todo work something else out
+			 */
 			//Get customer id from signup meta
-			$signup_meta = $psts->get_signup_meta( $domain );
-			if ( ! empty ( $signup_meta['stripe'] ) ) {
-				return ! empty ( $signup_meta['stripe']['customerid'] ) ? $signup_meta['stripe']['customerid'] : '';
-			}
+//			$signup_meta = $psts->get_signup_meta( $domain );
+//			if ( ! empty ( $signup_meta['stripe'] ) ) {
+//				return ! empty ( $signup_meta['stripe']['customerid'] ) ? $signup_meta['stripe']['customerid'] : '';
+//			}
 		}
 	}
 
@@ -1555,6 +1569,7 @@ class ProSites_Gateway_Stripe {
 					$domain = isset( $ipn_metadata->domain ) ? $ipn_metadata->domain : '';
 					$site_period = isset( $ipn_metadata->period ) ? $ipn_metadata->period : '';
 					$site_level  = isset( $ipn_metadata->level ) ? $ipn_metadata->level : '';
+					$activation = isset( $ipn_metadata->activation ) ? $ipn_metadata->activation : '';
 				} elseif ( ! empty( $customer_id ) ) {
 					$customer = Stripe_Customer::retrieve( $customer_id );
 					$domain = isset( $customer->metadata['domain'] ) ? $customer->metadata['domain'] : '';
@@ -1757,7 +1772,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		$error       = '';
-		$customer_id = self::get_customer_id( $blog_id );
+		$customer_id = self::get_customer_id( $blog_id )->customer_id;
 		if ( $customer_id ) {
 			try {
 				$cu = Stripe_Customer::retrieve( $customer_id );
@@ -1838,7 +1853,7 @@ class ProSites_Gateway_Stripe {
 //			$content .= '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
 //		}
 ////
-//		if ( $customer_id = self::get_customer_id( $blog_id ) ) {
+//		if ( $customer_id = self::get_customer_id( $blog_id )->customer_id ) {
 ////
 //			try {
 //				$customer_object = Stripe_Customer::retrieve( $customer_id );
@@ -2031,7 +2046,7 @@ class ProSites_Gateway_Stripe {
 //		}
 
 
-		if ( $customer_id = self::get_customer_id( $blog_id ) ) {
+		if ( $customer_id = self::get_customer_id( $blog_id )->customer_id ) {
 			try {
 				$customer_object = Stripe_Customer::retrieve( $customer_id );
 			} catch ( Exception $e ) {
@@ -2182,7 +2197,7 @@ class ProSites_Gateway_Stripe {
 			$error = '';
 
 			try {
-				$customer_id = self::get_customer_id( $blog_id );
+				$customer_id = self::get_customer_id( $blog_id )->customer_id;
 				$cu          = Stripe_Customer::retrieve( $customer_id );
 				$cu->cancelSubscription();
 			} catch ( Exception $e ) {
@@ -2221,7 +2236,7 @@ class ProSites_Gateway_Stripe {
 			$activation_key = isset( $_POST['activation'] ) ? $_POST['activation'] : '';
 			$email       = ! empty ( $_POST['user_email'] ) ? $_POST['user_email'] : ( ! empty( $_POST['signup_email'] ) ? $_POST['signup_email'] : ( ! empty( $_POST['blog_email'] ) ? $_POST['blog_email'] : '' ) );
 			if ( ! empty( $blog_id ) ) {
-				$customer_id = self::get_customer_id( $blog_id );
+				$customer_id = self::get_customer_id( $blog_id )->customer_id;
 				$email       = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
 			}
 
@@ -2659,7 +2674,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Existing customer information --- only if $get_all is true (default)
-		$customer_id = self::get_customer_id( $blog_id );
+		$customer_id = self::get_customer_id( $blog_id )->customer_id;
 		if ( ! empty( $customer_id ) && $get_all ) {
 
 			try {

@@ -48,7 +48,8 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 					$user_check->errors = array_merge( $user_check->errors, $blog_validation['errors']->errors );
 				} else {
-					$user_check = $blog_validation;
+					$user_check = new WP_Error();
+					$user_check->errors = array_merge( $user_check->errors, $blog_validation['errors']->errors );
 				}
 
 				// Set session vars...
@@ -63,7 +64,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$blogname_available  = true;
 				$blogtitle_available = true;
 
-				if( ( ! empty( $user_check->errors ) && 1 == count( $user_check->errors ) ) || ( 0 == count( $user_check->errors ) && isset( $_POST['new_blog'] ) ) ) {
+				if( ( ! empty( $user_check->errors ) && 1 == count( $user_check->errors ) && ! isset( $_POST['new_blog'] ) ) || ( 0 == count( $user_check->errors ) && isset( $_POST['new_blog'] ) ) ) {
 					$keys = array_keys( $user_check->errors );
 
 					if( $keys && ! in_array( 'availability_check_only', $keys ) && ! isset( $_POST['new_blog'] ) ) {

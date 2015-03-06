@@ -346,8 +346,8 @@ jQuery(document).ready(function ($) {
         if( false != action && 'new_blog' == action ) {
             new_blog = true;
         }
-        console.log( action );
-        console.log( new_blog );
+        //console.log( action );
+        //console.log( new_blog );
         if( prosites_checkout.logged_in ) {
             button_text = prosites_checkout.button_choose;
         } else {
@@ -418,7 +418,7 @@ jQuery(document).ready(function ($) {
         e.stopPropagation();
 
         var form_data = $('#prosites-user-register').serialize();
-        console.log( form_data );
+        //console.log( form_data );
         $('#prosites-user-register p.error').remove();
         $('.trial_msg').remove();
         $('.reserved_msg').remove();
@@ -478,6 +478,7 @@ jQuery(document).ready(function ($) {
             $('#prosites-signup-form-checkout').replaceWith( response.form );
             $('#check-prosite-blog').unbind( "click" );
             $('#check-prosite-blog').on( "click", bind_availability_check );
+            $('#prosites-signup-form-checkout').removeClass('hidden');
 
             // Reset values...
             var obj = $.unserialize( form_data );
@@ -507,12 +508,16 @@ jQuery(document).ready(function ($) {
         }
 
         if( typeof response.username_available != 'undefined' && true === response.username_available ) {
-            $('[name=user_name]').after('<i class="input_available"></i>');
-            position_field_available_tick('[name=user_name]');
+            if( 'new_blog' != Requests.QueryString("action") ) {
+                $('[name=user_name]').after('<i class="input_available"></i>');
+                position_field_available_tick('[name=user_name]');
+            }
         }
         if( typeof response.email_available != 'undefined' && true === response.email_available ) {
-            $('[name=user_email]').after('<i class="input_available"></i>');
-            position_field_available_tick('[name=user_email]');
+            if( 'new_blog' != Requests.QueryString("action") ) {
+                $('[name=user_email]').after('<i class="input_available"></i>');
+                position_field_available_tick('[name=user_email]');
+            }
         }
         if( typeof response.blogname_available != 'undefined' && true === response.blogname_available ) {
             $('[name=blogname]').after('<i class="input_available"></i>');
