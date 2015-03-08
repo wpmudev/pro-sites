@@ -548,7 +548,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			echo '<li>' . sprintf( __( 'Last Payment Transaction ID: <a target="_blank" href="https://www.paypal.com/vst/id=%s"><strong>%s</strong></a>', 'psts' ), $old_info['txn_id'], $old_info['txn_id'] ) . '</li>';
 			echo '</ul>';
 
-		} else {
+		} else if ( ProSites_Helper_Gateway::is_only_active( self::get_slug() ) ) {
 			echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
 		}
 	}
@@ -594,7 +594,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				echo '<p>' . stripslashes( $old_info['payer_email'] ) . '</p>';
 			}
 
-		} else {
+		} else if ( ProSites_Helper_Gateway::is_only_active( self::get_slug() ) ) {
 			echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
 		}
 	}
