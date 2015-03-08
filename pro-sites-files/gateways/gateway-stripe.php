@@ -102,9 +102,8 @@ class ProSites_Gateway_Stripe {
 		$table1 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites_stripe_customers` (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
-			subscription_id char(22) NOT NULL,
 			PRIMARY KEY  (blog_id),
-			UNIQUE KEY ix_subscription_id (subscription_id)
+			UNIQUE KEY ix_customer_id (customer_id)
 		) DEFAULT CHARSET=utf8;";
 
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
