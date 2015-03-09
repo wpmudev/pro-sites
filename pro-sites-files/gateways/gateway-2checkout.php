@@ -883,6 +883,10 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 		function subscription_info( $blog_id ) {
 			global $psts;
 
+			if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+				return false;
+			}
+
 			$profile_id = $this->get_profile_id( $blog_id );
 
 			if ( $profile_id ) {
@@ -1003,6 +1007,10 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 		function subscriber_info( $blog_id ) {
 			global $psts;
 
+			if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+				return false;
+			}
+
 			$profile_id = $this->get_profile_id( $blog_id );
 
 			if ( $profile_id ) {
@@ -1070,6 +1078,11 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 
 		function modify_form( $blog_id ) {
 			global $psts, $wpdb;
+
+			if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+				return false;
+			}
+
 			$active_member   = false;
 			$canceled_member = false;
 
