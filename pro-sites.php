@@ -2766,7 +2766,7 @@ _gaq.push(["_trackTrans"]);
 						<form method="get" action="sites.php" name="searchform">
 							<table class="form-table">
 								<tr valign="top">
-									<th scope="row"><?php _e( 'Or search for a site:', 'psts' ) ?></th>
+									<th scope="row"><?php _e( 'Or search for a site:<br /><small>By Blog ID, IP address or Path/Domain</small>', 'psts' ) ?></th>
 									<td><input type="text" size="17" value="" name="s"/>
 										<input class="button-secondary" type="submit" value="<?php _e( 'Search Sites &raquo;', 'psts' ) ?>" id="submit_sites" name="submit"/>
 									</td>

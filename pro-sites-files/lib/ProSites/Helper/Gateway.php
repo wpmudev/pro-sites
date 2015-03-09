@@ -39,5 +39,15 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 			return in_array( $gateway_key, $gateway_keys ) && 1 == count( $gateway_keys );
 		}
 
+		public static function is_last_gateway_used( $blog_id, $gateway_key ) {
+			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
+
+			if( ! empty( $last_gateway ) && $last_gateway == $gateway_key ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 	}
 }
