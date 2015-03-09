@@ -995,7 +995,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 						}
 					}
 				}
-			} else {
+			} else if ( ProSites_Helper_Gateway::is_only_active( self::get_slug() ) ){
 				echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
 			}
 		}
@@ -1016,7 +1016,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 					echo stripslashes( $resArray['sale']['customer']['city'] ) . ', ' . stripslashes( $resArray['sale']['customer']['state'] ) . ' ' . stripslashes( $resArray['sale']['customer']['zip'] ) . '<br />';
 					echo stripslashes( $resArray['sale']['customer']['email'] ) . '</p>';
 				}
-			} else {
+			} else if ( ProSites_Helper_Gateway::is_only_active( self::get_slug() ) ) {
 				echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
 			}
 		}
