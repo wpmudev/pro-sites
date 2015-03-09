@@ -414,6 +414,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	function subscription_info( $blog_id ) {
 		global $psts;
 
+		if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return false;
+		}
+
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
@@ -556,6 +560,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	function subscriber_info( $blog_id ) {
 		global $psts;
 
+		if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return false;
+		}
+
 		$profile_id = $this->get_profile_id( $blog_id );
 
 		if ( $profile_id ) {
@@ -620,6 +628,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	function modify_form( $blog_id ) {
 		global $psts, $wpdb;
+
+		if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return false;
+		}
+
 		$active_member   = false;
 		$canceled_member = false;
 
