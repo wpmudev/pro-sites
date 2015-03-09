@@ -133,6 +133,7 @@ class ProSites {
 //		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
 //		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
+		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
 		//handle signup pages
 //		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
@@ -1721,7 +1722,11 @@ Thanks!", 'psts' ),
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
 		$now    = time();
-		$exists = $this->get_expire( $blog_id );
+		//	$exists = $this->get_expire( $blog_id ); // not reliable
+		$exists = false;
+		if ( ! empty( $blog_id ) ) {
+			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		}
 		$term   = $extend;
 
 		if ( $expires !== false ) {

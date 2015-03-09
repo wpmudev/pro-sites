@@ -124,6 +124,16 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			return $postids;
 		}
 
+		// Avoid sending users passwords that wont work (for users with multiple blogs)
+		public static function alter_welcome_for_existing_users( $welcome_email, $blog_id, $user_id, $password, $title, $meta ) {
+			$blogs_of_user = get_blogs_of_user( $user_id );
+
+			if( count( $blogs_of_user )  > 1 ) {
+				$welcome_email = str_replace( $password, __( '(your current password)', 'psts' ), $welcome_email );
+			}
+			return $welcome_email;
+		}
+
 	}
 
 }

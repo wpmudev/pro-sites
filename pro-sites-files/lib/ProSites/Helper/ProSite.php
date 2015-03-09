@@ -28,5 +28,10 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		}
 
+		public static function get_activation_key( $blog_id ) {
+			global $wpdb;
+			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE blog_id = %d", $blog_id ) );
+		}
+
 	}
 }

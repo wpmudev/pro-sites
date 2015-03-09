@@ -201,21 +201,23 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			if( ! is_user_logged_in() ) {
 
-				$content .= '<label for="user_name">' . __( 'Username:' ) . '</label>';
+				$content .= '<div class="username"><label for="user_name">' . __( 'Username:' ) . '</label>';
 				if ( $errmsg = $errors->get_error_message('user_name') ) {
 					$content .= '<p class="error">' .$errmsg. '</p>';
 				}
 
-				$content .= '<input name="user_name" type="text" id="user_name" value="' . esc_attr( $user_name ) . '" maxlength="60" /><br />';
+				$content .= '<input name="user_name" type="text" id="user_name" value="' . esc_attr( $user_name ) . '" maxlength="60" />';
 				$content .= __( '(Must be at least 4 characters, letters and numbers only.)', 'psts' );
+				$content .= '</div>';
 
-				$content .= '<label for="user_email">' . __( 'Email&nbsp;Address:', 'psts' ) . '</label>';
+				$content .= '<div class="email"><label for="user_email">' . __( 'Email&nbsp;Address:', 'psts' ) . '</label>';
 				if ( $errmsg = $errors->get_error_message('user_email') ) {
 					$content .= '<p class="error">' . $errmsg  . '</p>';
 				}
 
 				$content .= '<input name="user_email" type="email" id="user_email" value="' . esc_attr($user_email) . '" maxlength="200" /><br />';
 				$content .= __('We send your registration email to this address. (Double-check your email address before continuing.)');
+				$content .= '</div>';
 
 				if ( $errmsg = $errors->get_error_message('generic') ) {
 					$content .= '<p class="error">' . $errmsg . '</p>';
@@ -241,7 +243,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			// Blog name
 //			if ( !is_subdomain_install() ) {
-			$content .= '<label for="blogname">' . __('Your Site: ') . '</label>';
+			$content .= '<div class="blogname"><label for="blogname">' . __('Your Site: ') . '</label>';
 //			} else {
 //				$content .= '<label for="blogname">' . __('Site Domain:') . '</label>';
 //			}
@@ -249,9 +251,9 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= '<p class="error">' . $errmsg . '</p>';
 			}
 			if ( !is_subdomain_install() ) {
-				$content .= '<span class="prefix_address">' . $current_site->domain . $current_site->path . '</span><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><br />';
+				$content .= '<span class="prefix_address">' . $current_site->domain . $current_site->path . '</span><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /></div>';
 			} else {
-				$content .= '<input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span><br />';
+				$content .= '<input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span></div>';
 			}
 
 //			if ( !is_user_logged_in() ) {
@@ -262,11 +264,11 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 //				$content .= '<p>(<strong>' . sprintf( __('Your address will be %s.', 'psts' ), $site ) . '</strong>) ' . __( 'Must be at least 4 characters, letters and numbers only. It cannot be changed, so choose carefully!', 'psts' ) . '</p>';
 //			}
 
-			$content .= '<label for="blog_title">' . esc_html__('Site Title:', 'psts' ) . '</label>';
+			$content .= '<div class="blog_title"><label for="blog_title">' . esc_html__('Site Title:', 'psts' ) . '</label>';
 			if ( $errmsg = $errors->get_error_message('blog_title') ) {
 				$content .= '<p class="error">' . $errmsg . '</p>';
 			}
-			$content .= '<input name="blog_title" type="text" id="blog_title" value="'.esc_attr( $blog_title ) . '" />';
+			$content .= '<input name="blog_title" type="text" id="blog_title" value="'.esc_attr( $blog_title ) . '" /></div>';
 
 			$yes_checked = !isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1' ? 'checked="checked"' : '';
 			$no_checked = isset( $_POST['blog_public'] ) && $_POST['blog_public'] == '0' ? 'checked="checked"' : '';

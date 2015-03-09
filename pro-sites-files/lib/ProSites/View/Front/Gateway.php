@@ -232,7 +232,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if( ProSites_View_Front_Checkout::$new_signup || isset( $_SESSION['new_blog_details'] ) ) {
 				$pre_content = '';
 
-				if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) {
+				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) ||
+				    ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] )) {
 					$pre_content .= self::render_payment_submitted();
 				}
 
@@ -274,7 +275,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			// Get the blog id... try the session or get it from the database
-			$blog_id = isset( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : isset( $_SESSION['new_blog_details']['blogname'] ) ? get_id_from_blogname( $_SESSION['new_blog_details']['blogname'] ) : 0;
+			$blog_id = isset( $_SESSION['upgraded_blog_details']['blog_id'] ) ? $_SESSION['upgraded_blog_details']['blog_id'] : 0;
+			$blog_id = ! empty( $blog_id ) ? $blog_id : ( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : isset( $_SESSION['new_blog_details']['blogname'] ) ? get_id_from_blogname( $_SESSION['new_blog_details']['blogname'] ) : 0;
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
@@ -292,11 +294,17 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if( isset( $_SESSION['new_blog_details']['username'] ) && isset( $_SESSION['new_blog_details']['user_pass'] ) ) {
 				$username = $_SESSION['new_blog_details']['username'];
 				$userpass = strrev( $_SESSION['new_blog_details']['user_pass'] );
+			} else {
+				$user = wp_get_current_user();
+				$username = $user->user_login;
 			}
 
 			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
 			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
-			$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
+			// Any passwords for existing users here will be wrong, so just don't display it.
+			if( ! is_user_logged_in() ) {
+				$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
+			}
 			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
 
 			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';
@@ -308,7 +316,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
 
-			unset( $_SESSION['new_blog_details'] );
+			if( isset( $_SESSION['new_blog_details'] ) ) {
+				unset( $_SESSION['new_blog_details'] );
+			}
+			if( isset( $_SESSION['upgraded_blog_details'] ) ) {
+				unset( $_SESSION['upgraded_blog_details'] );
+			}
 
 			if( ! empty( $blog_admin_url ) ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
