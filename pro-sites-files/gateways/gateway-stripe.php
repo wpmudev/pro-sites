@@ -307,7 +307,8 @@ class ProSites_Gateway_Stripe {
 
 	/**
 	 * @todo check this $invoice_object undefined
-	 * @param $blog_id
+	 *
+*@param $blog_id
 	 *
 	 * @return bool
 	 */
@@ -2091,8 +2092,9 @@ class ProSites_Gateway_Stripe {
 //			$content .= $cancel_content;
 //		}
 
-
-		if ( $customer_id = self::get_customer_data( $blog_id )->customer_id ) {
+		$customer_data = self::get_customer_data( $blog_id );
+		$customer_id = !empty( $customer_data ) ? $customer_data->customer_id : '';
+		if ( $customer_id ) {
 			try {
 				$customer_object = Stripe_Customer::retrieve( $customer_id );
 			} catch ( Exception $e ) {

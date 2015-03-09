@@ -730,7 +730,7 @@ function psts_ads_upgrade_active() {
 }
 
 
-/* depreciated functions */
+/* deprecated functions */
 function supporter_show_ads( $blog_id = null ) {
 	return psts_show_ads( $blog_id );
 }

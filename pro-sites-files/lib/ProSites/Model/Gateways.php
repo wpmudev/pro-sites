@@ -41,7 +41,7 @@ if ( ! class_exists( 'ProSites_Model_Gateways' ) ) {
 
 				do_action( 'update_site_option_psts_levels' );
 				do_action( 'psts_settings_process', $gateway_class );
-				do_action( 'supporter_settings_process' ); //depreciated
+				do_action( 'supporter_settings_process' ); //deprecated
 
 				echo '<div id="message" class="updated fade"><p>' . __( 'Gateways Saved!', 'psts' ) . '</p></div>';
 

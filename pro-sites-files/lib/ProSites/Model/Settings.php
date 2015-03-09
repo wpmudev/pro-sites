@@ -33,7 +33,7 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 				update_site_option( 'psts_settings', $settings );
 
 				do_action( 'psts_settings_process', $active_tab );
-				do_action( 'supporter_settings_process' ); //depreciated
+				do_action( 'supporter_settings_process' ); //deprecated
 
 				//create a checkout page if not existing
 				self::_create_checkout_page();
