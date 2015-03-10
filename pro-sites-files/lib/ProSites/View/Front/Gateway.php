@@ -39,6 +39,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$tabbed       = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
+			$hidden_class = isset( $_SESSION['new_blog_details'] ) || isset( $_SESSION['upgraded_blog_details'] ) ? '' : $hidden_class;
+
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
@@ -91,6 +93,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$info_retrieved = false;
 			$content        = '';
 
+			if( empty( $blog_id ) && isset( $_GET['bid'] ) ) {
+				$blog_id = (int) $_GET['bid'];
+			}
 			// Is this a trial, if not, get the normal gateway data?
 			$sql    = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 			$result = $wpdb->get_row( $sql );
@@ -234,7 +239,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$gateway_details = self::get_gateway_details( $gateways );
 
 			// No existing details for a new signup
-			if( ProSites_View_Front_Checkout::$new_signup || isset( $_SESSION['new_blog_details'] ) ) {
+			if( ! is_user_logged_in() || isset( $_SESSION['new_blog_details'] ) ) {
 				$pre_content = '';
 
 				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) ||
@@ -335,6 +340,28 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '</div>';
 
 			return $content;
+		}
+
+		public static function select_current_period( $period, $blog_id ) {
+			global $wpdb;
+			if( is_user_logged_in() ) {
+				$result = $wpdb->get_var( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+				if ( ! empty( $result ) ) {
+					$period = 'price_' . $result;
+				}
+			}
+			return $period;
+		}
+
+		public static function select_current_level( $level, $blog_id ) {
+			global $wpdb;
+			if( is_user_logged_in() ) {
+				$result = $wpdb->get_var( $wpdb->prepare( "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+				if ( ! empty( $result ) ) {
+					$level = $result;
+				}
+			}
+			return $level;
 		}
 
 	}

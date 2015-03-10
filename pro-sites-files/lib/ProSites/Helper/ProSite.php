@@ -30,7 +30,13 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		public static function get_activation_key( $blog_id ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE blog_id = %d", $blog_id ) );
+			$bloginfo = get_blog_details( $blog_id );
+			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE domain = %s AND path = %s", $bloginfo->domain, $bloginfo->path ) );
+		}
+
+		public static function get_blog_id( $activation_key ) {
+			global $wpdb;
+			return $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
 		}
 
 	}

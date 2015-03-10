@@ -4,14 +4,14 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 	class ProSites_View_Front_Checkout {
 
 		public static $new_signup = false;
-		private static $default_period = 'price_1';
-		private static $selected_level = false;
+		public static $default_period = 'price_1';
+		public static $selected_level = 0;
 
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts;
 
-			self::$default_period = $selected_period;
-			self::$selected_level = $selected_level;
+			self::$default_period = apply_filters( 'prosites_render_checkout_page_period', $selected_period, $blog_id );
+			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
 
 			// User is not logged in and this is not a new registration.
 			// Get them to sign up! (or login)
@@ -477,10 +477,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_tables_wrapper ( $section,  $echo = false ) {
 			$content = '';
 			$period = str_replace( 'price_', '', self::$default_period );
+			$level = self::$selected_level;
 			switch( $section ) {
 
 				case 'pre':
-					$content .= '<div id="prosites-checkout-table" data-period="' . $period . '" data-level="0">';
+					$content .= '<div id="prosites-checkout-table" data-period="' . $period . '" data-level="' . $level . '">';
 					break;
 
 				case 'post':

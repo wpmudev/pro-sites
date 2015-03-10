@@ -82,8 +82,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			echo $content;
 
-			error_log( print_r( $_POST, true ) );
-
 			?>
 			<div class="psts-registration-final">
 				<p>If this is your first site you will receive an activation email at the address provided
@@ -115,6 +113,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content = $_SESSION['new_blog_details']['reserved_message'];
 
 //				unset( $_SESSION['new_blog_details']);
+//				unset( $_SESSION['upgraded_blog_details']);
 				return $content;
 			}
 

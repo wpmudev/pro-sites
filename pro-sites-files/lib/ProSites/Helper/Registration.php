@@ -68,6 +68,11 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 				$user_id           = username_exists( $signup->user_login );
 				$blog_id           = domain_exists( $signup->domain, $signup->path, $wpdb->siteid );
+				// As a fallback, try the site domain
+				if( empty( $blog_id ) ) {
+					$domain = $wpdb->get_var( $wpdb->prepare( "SELECT domain FROM $wpdb->site WHERE id = %d", $wpdb->siteid ) );
+					$blog_id = domain_exists( $domain, $signup->path, $wpdb->siteid );
+				}
 				$result['user_id'] = $user_id;
 				$result['blog_id'] = $blog_id;
 			}
