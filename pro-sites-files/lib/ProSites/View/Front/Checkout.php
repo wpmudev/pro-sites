@@ -10,6 +10,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts;
 
+			// If its in session, get it
+			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ) {
+				$selected_period = 'price_' . ( (int) $_SESSION['new_blog_details']['period'] );
+				$selected_level = (int) $_SESSION['new_blog_details']['level'];
+			}
+
 			self::$default_period = apply_filters( 'prosites_render_checkout_page_period', $selected_period, $blog_id );
 			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
 

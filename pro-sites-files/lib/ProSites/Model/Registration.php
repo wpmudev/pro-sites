@@ -58,8 +58,8 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$_SESSION['new_blog_details']['email'] = $user_email;
 				$_SESSION['new_blog_details']['blogname'] = $blogname;
 				$_SESSION['new_blog_details']['title'] = $blog_title;
-				$_SESSION['new_blog_details']['level'] = $period;
-				$_SESSION['new_blog_details']['period'] = $level;
+				$_SESSION['new_blog_details']['level'] = $level;
+				$_SESSION['new_blog_details']['period'] = $period;
 
 				$username_available  = true;
 				$email_available     = true;
