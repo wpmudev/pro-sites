@@ -136,6 +136,9 @@ class ProSites {
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
 		//handle signup pages
+		add_filter( 'prosites_render_checkout_page_period', 'ProSites_View_Front_Gateway::select_current_period', 10, 2 );
+		add_filter( 'prosites_render_checkout_page_level', 'ProSites_View_Front_Gateway::select_current_level', 10, 2 );
+
 //		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
 //		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
 //		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
@@ -186,6 +189,11 @@ class ProSites {
 		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 4 );
 
 		$this->setup_ajax_hooks();
+
+		//Start Session if not there already, required for sign up.
+		if ( ! session_id() ) {
+			session_start();
+		}
 	}
 
 //------------------------------------------------------------------------//
@@ -1096,10 +1104,6 @@ Thanks!", 'psts' ),
 			exit();
 		}
 
-		//make sure session is started
-		if ( ! session_id() ) {
-			session_start();
-		}
 		//passed all checks, flip one time flag
 		$this->checkout_processed = true;
 
@@ -1224,11 +1228,6 @@ Thanks!", 'psts' ),
 				}
 			}
 		}
-		//Start Session if not there already, required for signup
-		if ( ! session_id() ) {
-			session_start();
-		}
-
 	}
 
 	/**
@@ -1725,7 +1724,7 @@ Thanks!", 'psts' ),
 		//	$exists = $this->get_expire( $blog_id ); // not reliable
 		$exists = false;
 		if ( ! empty( $blog_id ) ) {
-			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 		}
 		$term   = $extend;
 

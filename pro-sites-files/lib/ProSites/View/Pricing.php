@@ -87,20 +87,23 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					</td>
 				</tr>
 
-				<tr>
-					<th scope="row"><?php _e( 'Period Style', 'psts' ); ?>
-						<br/><span class="description" style="font-weight:normal; color:#888; "><?php _e( 'Select how users will select the plan period.', 'psts' ) ?></span></th>
-					<td>
-						<select name="psts[pricing_table_period_style]" class="chosen">
-							<option
-								value="dropdown"<?php selected( $pricing_table_period_style, 'dropdown' ) ?>><?php _e( 'Drop-down list', 'psts' ) ?></option>
-							<option
-								value="radio"<?php selected( $pricing_table_period_style, 'radio' ) ?>><?php _e( 'Radio button', 'psts' ) ?></option>
-							<option
-								value="raw"<?php selected( $pricing_table_period_style, 'raw' ) ?>><?php _e( 'Raw', 'psts' ) ?></option>
-						</select>
-					</td>
-				</tr>
+				<?php
+//					$option = '<tr>
+//						<th scope="row">' . __ ( 'Period Style', 'psts' ) .
+//							'<br/><span class="description" style="font-weight:normal; color:#888; ">' . __( 'Select how users will select the plan period.', 'psts' ) . '</span></th>
+//						<td>
+//							<select name="psts[pricing_table_period_style]" class="chosen">
+//								<option
+//									value="dropdown"' . selected( $pricing_table_period_style, 'dropdown', false ) . '>' . __( 'Drop-down list', 'psts' ) . '</option>
+//								<option
+//									value="radio"' . selected( $pricing_table_period_style, 'radio', false ) . '>' . __( 'Radio button', 'psts' ) . '</option>
+//								<option
+//									value="raw"' . selected( $pricing_table_period_style, 'raw', false ) . '>' . __( 'Raw', 'psts' ) . '</option>
+//							</select>
+//						</td>
+//					</tr>';
+//					echo $option;
+				?>
 
 				<tr>
 					<th scope="row"><?php _e( 'Allow Coupons', 'psts' ) ?></th>

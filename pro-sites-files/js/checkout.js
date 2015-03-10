@@ -363,7 +363,8 @@ jQuery(document).ready(function ($) {
             } else {
                 $('#prosites-signup-form-checkout').removeClass('hidden');
                 var the_element = $('#prosites-signup-form-checkout');
-                if( typeof the_element != 'undefined' ) {
+                console.log( the_element );
+                if( typeof the_element != 'undefined' && the_element.length != 0 ) {
                     $('html, body').animate({
                         scrollTop: $("#prosites-signup-form-checkout").offset().top - 100
                     }, 1000);
@@ -493,7 +494,7 @@ jQuery(document).ready(function ($) {
 
         // Get fresh gateways form
         if( typeof response.gateways_form != 'undefined' ) {
-            $('#gateways').replaceWith(response.gateways_form);
+            $('.gateways.checkout-gateways').replaceWith(response.gateways_form);
 
             // Reset the levels
             $('.gateways [name=level]').val( $('#prosites-checkout-table').attr('data-level') );
@@ -504,7 +505,7 @@ jQuery(document).ready(function ($) {
             $("#stripe-payment-form").on( 'submit', stripePaymentFormSubmit );
 
             $('#gateways').tabs();
-            $('#gateways').removeClass('hidden');
+            $('.gateways.checkout-gateways').removeClass('hidden');
         }
 
         if( typeof response.username_available != 'undefined' && true === response.username_available ) {
