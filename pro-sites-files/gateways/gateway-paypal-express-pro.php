@@ -275,7 +275,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	 *
 	 * @return string
 	 */
-	function nonce_field() {
+	public static function nonce_field() {
 		$user                    = wp_get_current_user();
 		$uid                     = ( int ) $user->ID;
 		$nonce                   = wp_hash( wp_rand() . 'pstsnonce' . $uid, 'nonce' );
@@ -336,7 +336,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$psts->log_action( $blog_id, sprintf( __( 'Reminder to cancel previous %s subscription sent to %s', 'psts' ), $old_gateway, get_blog_option( $blog_id, 'admin_email' ) ) );
 	}
 
-	function year_dropdown( $sel = '' ) {
+	public static function year_dropdown( $sel = '' ) {
 		$minYear = date( 'Y' );
 		$maxYear = $minYear + 15;
 
@@ -352,7 +352,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $output;
 	}
 
-	function month_dropdown( $sel = '' ) {
+	public static function month_dropdown( $sel = '' ) {
 		if ( empty( $sel ) ) {
 			$sel = date( 'n' );
 		}
@@ -1810,7 +1810,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			if ( $errmsg = $psts->errors->get_error_message( 'processcard' ) ) {
 				$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
 			}
-			$content .= $this->nonce_field();
+			$content .= self::nonce_field();
 			$content .= '
 		  <input type="hidden" name="cc_form" value="1" />
 			<table id="psts-cc-table">
@@ -2128,9 +2128,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			if ( $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
 
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string, $domain );
-				-
 
-					//save new profile_id
+				//save new profile_id
 				$this->set_profile_id( $blog_id, $_POST['recurring_payment_id'] );
 
 				//failed initial payment
@@ -2615,14 +2614,180 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 */
 	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
 
-		global $psts, $wpdb, $current_site, $current_user;
+		global $psts, $current_site;
 		$content   = '';
 		$site_name = $current_site->site_name;
 		$img_base  = $psts->plugin_url . 'images/';
 
-		//Get Customer details
-		$customer_data = self::get_customer_data( $blog_id );
-		$customer_id = !empty( $customer_data ) ? $customer_data->customer_id : '';
+		$button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
+		$button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
+
+		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off" id="paypal-payment-form">';
+
+		$content .= '<div id="psts-paypal-checkout">
+			<h2>' . __( 'Checkout With PayPal', 'psts' ) . '</h2>
+			<input type="image" src="' . $button_url . '" border="0" name="pypl_checkout" alt="' . __( 'PayPal - The safer, easier way to pay online!', 'psts' ) . '">
+			</div>';
+
+		if ( $psts->get_setting( 'pypl_enable_pro' ) ) {
+
+			//clean up $_POST
+			$cc_cardtype  = isset( $_POST['cc_card-type'] ) ? $_POST['cc_card-type'] : '';
+			$cc_number    = isset( $_POST['cc_number'] ) ? stripslashes( $_POST['cc_number'] ) : '';
+			$cc_month     = isset( $_POST['cc_month'] ) ? $_POST['cc_month'] : '';
+			$cc_year      = isset( $_POST['cc_year'] ) ? $_POST['cc_year'] : '';
+			$cc_firstname = isset( $_POST['cc_firstname'] ) ? stripslashes( $_POST['cc_firstname'] ) : '';
+			$cc_lastname  = isset( $_POST['cc_lastname'] ) ? stripslashes( $_POST['cc_lastname'] ) : '';
+			$cc_address   = isset( $_POST['cc_address'] ) ? stripslashes( $_POST['cc_address'] ) : '';
+			$cc_address2  = isset( $_POST['cc_address2'] ) ? stripslashes( $_POST['cc_address2'] ) : '';
+			$cc_city      = isset( $_POST['cc_city'] ) ? stripslashes( $_POST['cc_city'] ) : '';
+			$cc_state     = isset( $_POST['cc_state'] ) ? stripslashes( $_POST['cc_state'] ) : '';
+			$cc_zip       = isset( $_POST['cc_zip'] ) ? stripslashes( $_POST['cc_zip'] ) : '';
+			$cc_country   = isset( $_POST['cc_country'] ) ? stripslashes( $_POST['cc_country'] ) : '';
+
+			$content .= '<div id="psts-cc-checkout">
+		<h2>' . __( 'Or Pay Directly By Credit Card', 'psts' ) . '</h2>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'processcard' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= self::nonce_field();
+			$content .= '
+		  <input type="hidden" name="cc_form" value="1" />
+			<table id="psts-cc-table">
+			<tbody>
+			<tr><td colspan="2"><h3>' . __( 'Credit Card Info:', 'psts' ) . '</h3></td></tr>';
+
+			$content = apply_filters( 'psts_pp_pro_form_before_first_input', $content, $psts );
+
+			$content .= '<!-- Credit Card Type -->
+			  <tr>
+					<td class="pypl_label" align="right">' . __( 'Card Type:', 'psts' ) . '&nbsp;</td>
+					<td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'card-type' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<label class="cc-image" title="Visa"><input type="radio" name="cc_card-type" value="Visa"' . ( ( $cc_cardtype == 'Visa' ) ? ' checked="checked"' : '' ) . ' /><img src="' . $img_base . 'visa.png" alt="Visa" /></label>
+			  <label class="cc-image" title="MasterCard"><input type="radio" name="cc_card-type" value="MasterCard"' . ( ( $cc_cardtype == 'MasterCard' ) ? ' checked="checked"' : '' ) . ' /><img src="' . $img_base . 'mc.png" alt="MasterCard" /></label>
+			  <label class="cc-image" title="American Express"><input type="radio" name="cc_card-type" value="Amex"' . ( ( $cc_cardtype == 'Amex' ) ? ' checked="checked"' : '' ) . ' /><img src="' . $img_base . 'amex.png" alt="American Express" /></label>
+			  <label class="cc-image" title="Discover"><input type="radio" name="cc_card-type" value="Discover"' . ( ( $cc_cardtype == 'Discover' ) ? ' checked="checked"' : '' ) . ' /><img src="' . $img_base . 'discover.png" alt="Discover" /></label>
+			  </td>
+					</tr>
+
+			  <tr>
+					<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
+					<td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'number' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<input name="cc_number" type="text" class="cctext" value="' . esc_attr( $cc_number ) . '" size="23" />
+					</td>
+					</tr>
+
+					<tr>
+					<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
+					<td valign="middle">';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'expiration' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<select name="cc_month">' . self::month_dropdown( $cc_month ) . '</select>&nbsp;/&nbsp;<select name="cc_year">' . self::year_dropdown( $cc_year ) . '</select>
+					</td>
+					</tr>
+
+				<!-- Card Security Code -->
+				<tr>
+				<td class="pypl_label" align="right"><nobr>' . __( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
+				<td valign="middle">';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'cvv2' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<label><input name="cc_cvv2" size="5" maxlength="4" type="password" class="cctext" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
+				<img src="' . $img_base . 'buy-cvv.gif" height="27" width="42" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" /></label>
+				</td>
+					</tr>
+
+			<tr><td colspan="2"><h3>' . __( 'Billing Address:', 'psts' ) . '</h3></td></tr>
+				<tr>
+				<td class="pypl_label" align="right">' . __( 'First Name:', 'psts' ) . '*&nbsp;</td><td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'firstname' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<input name="cc_firstname" type="text" class="cctext" value="' . esc_attr( $cc_firstname ) . '" size="25" /> </td>
+				</tr>
+				<tr>
+				<td class="pypl_label" align="right">' . __( 'Last Name:', 'psts' ) . '*&nbsp;</td><td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'lastname' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<input name="cc_lastname" type="text" class="cctext" value="' . esc_attr( $cc_lastname ) . '" size="25" /></td>
+				</tr>
+				<tr>
+
+				<td class="pypl_label" align="right">' . __( 'Address:', 'psts' ) . '*&nbsp;</td><td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'address' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<input size="45" name="cc_address" type="text" class="cctext" value="' . esc_attr( $cc_address ) . '" /></td>
+				</tr>
+				<tr>
+
+				<td class="pypl_label" align="right">' . __( 'Address 2:', 'psts' ) . '&nbsp;</td><td>
+			<input size="45" name="cc_address2" type="text" class="cctext" value="' . esc_attr( $cc_address2 ) . '" /></td>
+				</tr>
+				<tr>
+				<td class="pypl_label" align="right">' . __( 'City:', 'psts' ) . '*&nbsp;</td><td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'city' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'state' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<input size="20" name="cc_city" type="text" class="cctext" value="' . esc_attr( $cc_city ) . '" />&nbsp;&nbsp; ' . __( 'State/Province:', 'psts' ) . '*&nbsp;<input size="5" name="cc_state" type="text" class="cctext" value="' . esc_attr( $cc_state ) . '" /></td>
+				</tr>
+				<tr>
+				<td class="pypl_label" align="right">' . __( 'Postal/Zip Code:', 'psts' ) . '*&nbsp;</td><td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'zip' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			$content .= '<input size="10" name="cc_zip" type="text" class="cctext" value="' . esc_attr( $cc_zip ) . '" /> </td>
+				</tr>
+				<tr>
+
+				<td class="pypl_label" align="right">' . __( 'Country:', 'psts' ) . '*&nbsp;</td><td>';
+			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'country' ) : false;
+			if ( $errmsg ) {
+				$content .= '<div class="psts-error">' . $errmsg . '</div>';
+			}
+			//default to USA
+			if ( empty( $cc_country ) ) {
+				$cc_country = 'US';
+			}
+			$content .= '<select name="cc_country">';
+			foreach ( $psts->countries as $key => $value ) {
+				$content .= '<option value="' . $key . '"' . ( ( $cc_country == $key ) ? ' selected="selected"' : '' ) . '>' . esc_attr( $value ) . '</option>';
+			}
+			$content .= '</select>
+			</td>
+				</tr>
+		  </tbody></table>
+			<p>
+			<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" />
+			<span id="paypal_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
+		  </p>
+				</div>';
+		}
+
+		$content .= '</form>';
 
 		return $content;
 	}

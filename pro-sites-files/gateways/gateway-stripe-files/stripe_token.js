@@ -31,8 +31,6 @@ function stripePaymentFormSubmit( event ) {
         return true;
     }
 
-    event.preventDefault();
-
     //skip checks for adding a coupon OR if using saved credit card info
     if ($('#coupon_code').val() || $('#wp_password').val()) {
         // disable the submit button to prevent repeated clicks
@@ -40,6 +38,8 @@ function stripePaymentFormSubmit( event ) {
         $('#stripe_processing').show();
         return true;
     }
+
+    event.preventDefault();
 
     //clear errors
     $("#psts-processcard-error").empty();
