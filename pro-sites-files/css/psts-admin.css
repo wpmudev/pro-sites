@@ -143,12 +143,17 @@ input[name="uses"] {
     width: 200px;
 }
 
+.redirect-signup,
+.free-signup,
 .pay-for-signup {
     position: relative;
 }
-
+.free-signup .psts-help-text-wrapper {
+    left: 52px;
+    top: 37px;
+}
 .pay-for-signup .psts-help-text-wrapper {
-    left: 77px;
+    left: 40px;
     top: 37px;
 }
 
