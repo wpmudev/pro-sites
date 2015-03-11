@@ -10,8 +10,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts;
 
-			error_log( print_r( $_SESSION, true ) );
-
 			// If its in session, get it
 			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ) {
 				$selected_period = 'price_' . ( (int) $_SESSION['new_blog_details']['period'] );
@@ -524,6 +522,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_free( $style, $blog_id ) {
 			global $psts;
 			$free_text = $psts->get_setting('free_msg');
+			$content = '';
 			if ( ! isset( $_GET['bid'] ) && empty( $blog_id ) && ! isset( $_SESSION['new_blog_details']['blogname'] ) ) {
 				$content = '<div class="free-plan-link" style="' . esc_attr( $style ) . '"><a>' . esc_html( $free_text ) . '</a></div>';
 			} else {

@@ -10,6 +10,10 @@ class ProSites_Gateway_Stripe {
 	private static $cancel_message = false;
 	private static $stripe_plans = array();
 
+	/**
+	 * Get gateway slug/name
+	 * @return string
+	 */
 	public static function get_slug() {
 		return 'stripe';
 	}
@@ -22,7 +26,7 @@ class ProSites_Gateway_Stripe {
 		}
 		$stripe_secret_key = $psts->get_setting( 'stripe_secret_key' );
 		Stripe::setApiKey( $stripe_secret_key );
-//		Stripe::setApiVersion( '2013-08-13' ); //make sure everyone is using the same API version. we can update this if/when necessary.
+		// Stripe::setApiVersion( '2013-08-13' );
 		Stripe::setApiVersion( '2015-02-16' ); //make sure everyone is using the same API version. we can update this if/when necessary.
 
 		if ( ! is_admin() ) {
@@ -129,16 +133,21 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
-	//display admin notices (if applicable)
+	/**
+	 * Display admin notices (if applicable)
+	 * @todo Future: Move to a parent gateway class
+	 */
 	function admin_notices() {
 		$blog_id = get_current_blog_id();
-
 		if ( 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
 			echo '<div class="updated"><p><strong>' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</strong></p></div>';
 		}
 	}
 
-	//update plan ids from old "level_period" convention to new "domain_level_period" convention
+	/**
+	 * Update plan ids from old "level_period" convention to new "domain_level_period" convention
+	 * @todo: This format may be redundant now, but keep it here for the time being.
+	 */
 	public static function update_plan_ids_v2() {
 		global $psts;
 
@@ -156,7 +165,6 @@ class ProSites_Gateway_Stripe {
 					try {
 						self::delete_plan( $plan_id );
 					} catch ( Exception $e ) {
-						//oh well
 					}
 				}
 
@@ -167,13 +175,13 @@ class ProSites_Gateway_Stripe {
 		$psts->update_setting( 'stripe_plan_ids_updated', true );
 	}
 
+	/**
+	 * Renders the Stripe settings for 'Pro Sites' > 'Payment Gateways' > 'Stripe'
+	 * @todo: Make sure all Stripe countries are covered
+	 */
 	function settings() {
 		global $psts;
 		?>
-<!--		<div class="postbox">-->
-<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Stripe', 'psts' ) ?><!--</span> --->
-<!--				<span class="description">--><?php //_e( 'Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts' ); ?><!--</span>-->
-<!--			</h3>-->
 
 			<div class="inside">
 				<p class="description"><?php _e( "Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club cards directly on your site. You don't need a merchant account or gateway. Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account. Credit cards go directly to Stripe's secure environment, and never hit your servers so you can avoid most PCI requirements.", 'psts' ); ?>
@@ -234,10 +242,16 @@ class ProSites_Gateway_Stripe {
 					</tr>
 				</table>
 			</div>
-<!--		</div>-->
 	<?php
 	}
 
+	/**
+	 * Perform actions when 'Pro Sites' > 'Settings' update.
+	 *
+	 * In this example, update Stripe plans with Pro Sites levels.
+	 *
+	 * @param $gateway_class
+	 */
 	public static function settings_process( $gateway_class ) {
 		if( get_class() == $gateway_class ) {
 			self::update_psts_levels( 'psts_levels', get_site_option( 'psts_levels' ), get_site_option( 'psts_levels' ) );
@@ -245,13 +259,23 @@ class ProSites_Gateway_Stripe {
 
 	}
 
-	//filters the ssl on checkout page
+	/**
+	 * Filters the ssl on checkout page
+	 * @return bool
+	 */
 	public static function force_ssl() {
 		global $psts;
 
 		return (bool) $psts->get_setting( 'stripe_ssl', false );
 	}
 
+	/**
+	 * Renders the Year drop down on Stripe checkout
+	 *
+	 * @param string $sel Pass in a selected year
+	 *
+	 * @return string
+	 */
 	public static function year_dropdown( $sel = '' ) {
 		$minYear = date( 'Y' );
 		$maxYear = $minYear + 15;
@@ -268,6 +292,13 @@ class ProSites_Gateway_Stripe {
 		return $output;
 	}
 
+	/**
+	 * Renders the month selection on Stripe checkout
+	 *
+	 * @param string $sel Pass in selected month
+	 *
+	 * @return string
+	 */
 	public static function month_dropdown( $sel = '' ) {
 		if ( empty( $sel ) ) {
 			$sel = date( 'n' );
@@ -289,6 +320,16 @@ class ProSites_Gateway_Stripe {
 		return $output;
 	}
 
+	/**
+	 * Hooks into payment info meta for managing a Pro Site
+	 *
+	 * @todo Work out if still needed, then complete it.
+	 *
+	 * @param $payment_info
+	 * @param $blog_id
+	 *
+	 * @return mixed
+	 */
 	public static function payment_info( $payment_info, $blog_id ) {
 		global $psts;
 
@@ -298,7 +339,6 @@ class ProSites_Gateway_Stripe {
 		if ( $customer_id ) {
 			/*if ($psts->get_setting('recurring_billing', true))
 					$next_billing = date_i18n(get_blog_option($blog_id, 'date_format'), $psts->get_expire($blog_id));*/
-
 			// !TODO - append extra details to $payment_info
 		}
 
@@ -306,7 +346,7 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * @todo check this $invoice_object undefined
+	 * Get the information for the Subscription metabox when managing Pro Site.
 	 * @param $blog_id
 	 *
 	 * @return bool
@@ -314,6 +354,7 @@ class ProSites_Gateway_Stripe {
 	public static function subscription_info( $blog_id ) {
 		global $psts;
 
+		// Make sure Stripe was the last gateway or bail
 		if( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
 			return false;
 		}
@@ -351,12 +392,13 @@ class ProSites_Gateway_Stripe {
 				echo '<li>' . sprintf( __( 'Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s</strong>', 'psts' ), $active_card, $last4, $exp_month . '/' . $exp_year ) . '</li>';
 			}
 
-			if ( isset( $existing_invoice_object->data[0] ) ) {
-				$prev_billing = date_i18n( get_option( 'date_format' ), $existing_invoice_object->data[0]->date );
+			$invoice_object = isset( $existing_invoice_object->data[0] ) ? $existing_invoice_object->data[0] : false;
+			if ( $invoice_object ) {
+				$prev_billing = date_i18n( get_option( 'date_format' ), $invoice_object->date );
 				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
-				$total = $existing_invoice_object->data[0]->total / 100;
+				$total = $invoice_object->total / 100;
 				echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( $psts->get_setting( "stripe_currency", 'USD' ), $total ) ) . '</li>';
-				echo '<li>' . sprintf( __( 'Last Payment Invoice ID: <strong>%s</strong>', 'psts' ), $existing_invoice_object->data[0]->id ) . '</li>';
+				echo '<li>' . sprintf( __( 'Last Payment Invoice ID: <strong>%s</strong>', 'psts' ), $invoice_object->id ) . '</li>';
 			}
 
 			if ( isset( $invoice_object->next_payment_attempt ) ) {
@@ -366,12 +408,19 @@ class ProSites_Gateway_Stripe {
 
 			echo '</ul>';
 			echo '<small>* (' . __( 'This does not include the initial payment at signup, or payments before the last payment method/plan change.', 'psts' ) . ')</small>';
-
+			self::next_payment( $blog_id );
 		} else {
 			echo '<p>' . __( "This site is using different gateway so their information is not accessible.", 'psts' ) . '</p>';
 		}
 	}
 
+	/**
+	 * Renders the subscriber info metabox when managing a Pro Site
+	 *
+	 * @param $blog_id
+	 *
+	 * @return bool
+	 */
 	public static function subscriber_info( $blog_id ) {
 		global $psts;
 
@@ -407,12 +456,23 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
-	//return timestamp of next payment if subscription active, else return false
+	/**
+	 * Timestamp of next payment if subscription active, else return false
+	 *
+	 * Catch, Stripe only does the next customer invoice and may not include
+	 * this subscription.
+	 *
+	 * @param $blog_id
+	 *
+	 * @return bool|null
+	 */
 	public static function next_payment( $blog_id ) {
 		global $psts;
 
 		$next_billing = false;
-		$customer_id  = self::get_customer_data( $blog_id )->customer_id;
+		$customer_data = self::get_customer_data( $blog_id );
+		$customer_id  = $customer_data->customer_id;
+		$subscription_id = $customer_data->subscription_id;
 		if ( $customer_id ) {
 
 			if ( get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
@@ -421,14 +481,24 @@ class ProSites_Gateway_Stripe {
 
 			try {
 				$invoice_object = Stripe_Invoice::upcoming( array( "customer" => $customer_id ) );
+				$subscription = false;
+				foreach( $invoice_object->lines->data as $line_item ) {
+					if( 'subscription' == $line_item->type ) {
+						$subscription = $line_item;
+						break;
+					}
+				}
 			} catch ( Exception $e ) {
 				$error = $e->getMessage();
 			}
 
-			$next_amount = $invoice_object->total / 100;
+			// Keep it to this blog and this subscription
+			if( $subscription->id == $subscription_id ) {
+				$next_amount = $invoice_object->total / 100;
 
-			if ( isset( $invoice_object->next_payment_attempt ) ) {
-				$next_billing = $invoice_object->next_payment_attempt;
+				if ( isset( $invoice_object->next_payment_attempt ) ) {
+					$next_billing = $invoice_object->next_payment_attempt;
+				}
 			}
 
 		}
@@ -436,6 +506,12 @@ class ProSites_Gateway_Stripe {
 		return $next_billing;
 	}
 
+	/**
+	 * Renders the Modify Pro Site Status content for this gateway
+	 * @param $blog_id
+	 *
+	 * @return bool
+	 */
 	public static function modify_form( $blog_id ) {
 		global $psts, $wpdb;
 
@@ -486,6 +562,11 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
+	/**
+	 * Process the changes from the Modify Pro Site Status metabox.
+	 *
+	 * @param $blog_id
+	 */
 	public static function process_modify( $blog_id ) {
 		global $psts, $current_user;
 		$success_msg = $error_msg = '';
@@ -505,8 +586,13 @@ class ProSites_Gateway_Stripe {
 					$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
 
 					try {
+						$customer_data = self::get_customer_data( $blog_id );
+						$customer_id = $customer_data->customer_id;
+						$sub_id = $customer_data->subscription_id;
 						$cu = Stripe_Customer::retrieve( $customer_id );
-						$cu->cancelSubscription();
+						// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
+						$cu->subscriptions->retrieve( $sub_id )->cancel();
+
 						//record stat
 						$psts->record_stat( $blog_id, 'cancel' );
 						$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
@@ -523,8 +609,13 @@ class ProSites_Gateway_Stripe {
 
 					$cancellation_success = false;
 					try {
+						$customer_data = self::get_customer_data( $blog_id );
+						$customer_id = $customer_data->customer_id;
+						$sub_id = $customer_data->subscription_id;
 						$cu = Stripe_Customer::retrieve( $customer_id );
-						$cu->cancelSubscription();
+						// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
+						$cu->subscriptions->retrieve( $sub_id )->cancel();
+
 						$cancellation_success = true;
 						//record stat
 					} catch ( Exception $e ) {
@@ -605,13 +696,27 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
-	//handle transferring pro status from one blog to another
+	/**
+	 * Handle transferring pro status from one blog to another
+	 *
+	 * Also updates the subscription metadata in Stripe.
+	 *
+	 * @param $from_id
+	 * @param $to_id
+	 */
 	public static function process_transfer( $from_id, $to_id ) {
 		global $wpdb;
+		$customer_data = self::get_customer_data( $from_id );
+		self::set_subscription_blog_id( $customer_data->subscription_id , $customer_data->customer_id ,false, $to_id );
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites_stripe_customers SET blog_id = %d WHERE blog_id = %d", $to_id, $from_id ) );
 	}
 
 	/**
+	 * Get a list of all stripe plans
+	 *
+	 * Note: This uses Stripe API paging. This has changed in from 2013-08-13
+	 * to 2015-02-16 in the Stripe API.
+	 *
 	 * @param int $count Number of plans to retrieve at a time. MAX: 100
 	 * @param bool $offset  // DEPRECATED in new Stripe API
 	 * @param int $listed Number of plans already retrieved
@@ -672,7 +777,12 @@ class ProSites_Gateway_Stripe {
 		return false;
 	}
 
-	//get a plan details from Stripe
+	/**
+	 * Get a plan's details from Stripe
+	 * @param $plan_id
+	 *
+	 * @return bool
+	 */
 	public static function get_plan_details( $plan_id ) {
 		self::get_stripe_plans();
 
@@ -685,17 +795,35 @@ class ProSites_Gateway_Stripe {
 		return false;
 	}
 
-	//gets a unique identifier for plans
+	/**
+	 * Gets a unique identifier for plans
+	 * @return mixed
+	 */
 	public static function get_plan_uid() {
 		return str_replace( array( 'http://', 'https://', '/', '.' ), array( '', '', '', '_' ), network_home_url() );
 	}
 
-	//get a plan id based upon a given level and period
+	/**
+	 * Get a plan id based upon a given level and period
+	 *
+	 * @todo: Make sure we dont add the level and period twice.
+	 *
+	 * @param $level
+	 * @param $period
+	 *
+	 * @return string
+	 */
 	public static function get_plan_id( $level, $period ) {
 		return self::get_plan_uid() . '_' . $level . '_' . $period;
-		//return $level . '_' . $period;
 	}
 
+	/**
+	 * Update Stripe plans when Pro Site levels are changed.
+	 *
+	 * @param string $option
+	 * @param bool $new_levels
+	 * @param bool $old_levels
+	 */
 	public static function update_psts_levels( $option = '', $new_levels = false, $old_levels = false ) {
 		global $psts;
 
@@ -781,7 +909,12 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
-	//retrieve a plan from Stripe
+	/**
+	 * Retrieve a plan from Stripe
+	 * @param $plan_id
+	 *
+	 * @return mixed
+	 */
 	public static function retrieve_plan( $plan_id ) {
 		self::get_stripe_plans();
 
@@ -792,7 +925,13 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
-	//update a plan (only name can be updated)
+	/**
+	 * Update a plan (only name can be updated)
+	 *
+	 * @todo Check if redundant.
+	 * @param $plan_id
+	 * @param $plan_name
+	 */
 	public static function update_plan( $plan_id, $plan_name ) {
 		try {
 			$plan       = self::retrieve_plan( $plan_id );
@@ -801,11 +940,15 @@ class ProSites_Gateway_Stripe {
 				$plan->save();
 			}
 		} catch ( Exception $e ) {
-			//oh well
 		}
 	}
 
-	//delete a plan from Stripe
+	/**
+	 * Delete a plan from Stripe
+	 *
+	 * @param $stripe_plan_id
+	 * @param bool $retry
+	 */
 	public static function delete_plan( $stripe_plan_id, $retry = true ) {
 		try {
 			$plan = self::retrieve_plan( $stripe_plan_id );
@@ -817,6 +960,15 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
+	/**
+	 * Add a new plan to Stripe via API
+	 *
+	 * @param $stripe_plan_id string Calculated from level and period
+	 * @param $int
+	 * @param $int_count
+	 * @param $name
+	 * @param $level_price
+	 */
 	public static function add_plan( $stripe_plan_id, $int, $int_count, $name, $level_price ) {
 		global $psts;
 		try {
@@ -829,337 +981,12 @@ class ProSites_Gateway_Stripe {
 				"id"             => "$stripe_plan_id"
 			) );
 		} catch ( Exception $e ) {
-			//oh well
 		}
 	}
 
-	function process_checkout( $blog_id, $domain ) {
-		global $current_site, $current_user, $psts;
-		$site_name = $current_site->site_name;
-		if ( ! empty( $domain ) ) {
-			//Get blog name from signup as per WP Signup or BP Signup
-			$site_name = $domain;
-		}
-
-		//If free level is selected, activate a trial
-		if ( isset ( $_POST['level'] ) && isset ( $_POST['period'] ) ) {
-			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
-				$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
-
-				$esc_domain = esc_url( $domain );
-
-				//Set complete message
-				$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
-
-				return;
-			}
-		}
-		if ( isset( $_POST['cc_checkout'] ) && empty( $_POST['coupon_code'] ) ) {
-
-			//check for level
-			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
-				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-
-				return;
-			} else if ( ! isset( $_POST['stripeToken'] ) && empty( $_POST['wp_password'] ) ) {
-				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
-
-				return;
-			}
-
-			$error       = '';
-			$success     = '';
-			$plan        = $this->get_plan_id( $_POST['level'], $_POST['period'] );
-			$customer_id = '';
-			$email       = ! empty ( $_POST['user_email'] ) ? $_POST['user_email'] : ( ! empty( $_POST['signup_email'] ) ? $_POST['signup_email'] : '' );
-			if ( ! empty( $blog_id ) ) {
-				$customer_id = $this->get_customer_data( $blog_id );
-				$email       = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
-			}
-
-			if ( ! $this->plan_exists( $plan ) ) {
-				$psts->errors->add( 'general', sprintf( __( 'Stripe plan %1$s does not exist.', 'psts' ), $plan ) );
-
-				return;
-			}
-
-			try {
-
-				if ( ! $customer_id ) {
-					try {
-						$c = Stripe_Customer::create( array(
-							'email'       => $email,
-							'description' => sprintf( __( '%s Pro Site - BlogID: %d', 'psts' ), $site_name, $blog_id ),
-							'card'        => $_POST['stripeToken'],
-							'metadata'    => array(
-								'domain' => $domain,
-								'period' => $_POST['period'],
-								'level'  => $_POST['level']
-							)
-						) );
-					} catch ( Exception $e ) {
-						$psts->errors->add( 'general', __( 'The Stripe customer could not be created. Please try again.', 'psts' ) );
-
-						return;
-					}
-					//Update the stripe customer id
-					$this->set_customer_data( $blog_id, $c->id, $domain );
-					$customer_id = $c->id;
-					$new         = true;
-				} else {
-					try {
-						$c = Stripe_Customer::retrieve( $customer_id );
-					} catch ( Exception $e ) {
-						$psts->errors->add( 'general', __( 'The Stripe customer could not be retrieved. Please try again.', 'psts' ) );
-
-						return;
-					}
-
-					$c->description = sprintf( __( '%s Pro Site - BlogID: %d', 'psts' ), $site_name, $blog_id );
-					$c->email       = $email;
-
-					if ( empty( $_POST['wp_password'] ) ) {
-						$c->card = $_POST['stripeToken'];
-					}
-
-					$c->save();
-					$new = false;
-
-					//validate wp password (if applicable)
-					if ( ! empty( $_POST['wp_password'] ) && ! wp_check_password( $_POST['wp_password'], $current_user->data->user_pass, $current_user->ID ) ) {
-						$psts->errors->add( 'general', __( 'The password you entered is incorrect.', 'psts' ) );
-
-						return;
-					}
-				}
-
-				//prepare vars
-				$currency      = $psts->get_setting( 'stripe_currency', 'USD' );
-				$amount_off    = false;
-				$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
-				$trial_days    = $psts->get_setting( 'trial_days', 0 );
-				$cp_code       = false;
-				$setup_fee     = (float) $psts->get_setting( 'setup_fee', 0 );
-				$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
-				$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
-				$recurring     = $psts->get_setting( 'recurring_subscriptions', 1 );
-
-				if ( $has_setup_fee ) {
-					$initAmount = $setup_fee + $paymentAmount;
-				}
-
-				if ( $has_coupon || $has_setup_fee ) {
-					if ( $has_coupon ) {
-						//apply coupon
-						$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
-						$amount_off   = $paymentAmount - $coupon_value['new_total'];
-						$initAmount -= $amount_off;
-
-						try {
-							$cpn = Stripe_Coupon::create( array(
-								'amount_off'      => ( $amount_off * 100 ),
-								'duration'        => 'once',
-								'max_redemptions' => 1,
-							) );
-						} catch ( Exception $e ) {
-							$psts->errors->add( 'general', __( 'Temporary Stripe coupon could not be generated correctly. Please try again.', 'psts' ) );
-
-							return;
-						}
-
-						$cp_code = $cpn->id;
-					}
-
-					if ( $recurring ) {
-						if ( $_POST['period'] == 1 ) {
-							$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $initAmount ), $psts->format_currency( $currency, $paymentAmount ) );
-						} else {
-							$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first %2$s month period, then %3$s every %4$s months', 'psts' ), $psts->format_currency( $currency, $initAmount ), $_POST['period'], $psts->format_currency( $currency, $paymentAmount ), $_POST['period'] );
-						}
-					} else {
-						$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
-						if ( $_POST['period'] == 1 ) {
-							$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for 1 month', 'psts' ), $psts->format_currency( $currency, $initAmount ) );
-						} else {
-							$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for %2$s months', 'psts' ), $psts->format_currency( $currency, $initAmount ), $_POST['period'] );
-						}
-					}
-				} elseif ( $recurring ) {
-					if ( $_POST['period'] == 1 ) {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s each month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
-					} else {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s every %3$s months', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency, $_POST['period'] );
-					}
-				} else {
-					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
-					if ( $_POST['period'] == 1 ) {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for 1 month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ) );
-					} else {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for %2$s months', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $_POST['period'] );
-					}
-				}
-
-				$desc = apply_filters( 'psts_stripe_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
-
-				if ( $recurring ) { //this is a recurring subscription
-					//assign the new plan to the customer
-					$args = array(
-						"plan"    => $plan,
-						"prorate" => true,
-					);
-
-					//add coupon if set
-					if ( $cp_code ) {
-						$args["coupon"] = $cp_code;
-					}
-					/***** DETERMINE TRIAL END (IF APPLICABLE) *****/
-					if ( $psts->is_trial_allowed( $blog_id ) ) {
-						if ( ! empty( $domain ) || ! $psts->is_existing( $blog_id ) ) {
-							//customer is new - add trial days
-							$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
-						} elseif ( is_pro_trial( $blog_id ) && $psts->get_expire( $blog_id ) > time() ) {
-							//customer's trial is still valid - carry over existing expiration date
-							$args['trial_end'] = $psts->get_expire( $blog_id );
-						}
-					}
-					//Meta data for pay before blog creation
-					$args['metadata'] = array(
-						'domain' => $site_name,
-						'period' => $_POST['period'],
-						'level'  => $_POST['level']
-					);
-					if ( $has_setup_fee ) { //add the setup fee onto the next invoice
-						try {
-							Stripe_InvoiceItem::create( array(
-								'customer'    => $customer_id,
-								'amount'      => ( $setup_fee * 100 ),
-								'currency'    => $currency,
-								'description' => __( 'One-time setup fee', 'psts' ),
-								'metadata'    => array(
-									'domain' => $site_name,
-									'period' => $_POST['period'],
-									'level'  => $_POST['level']
-								)
-							) );
-						} catch ( Exception $e ) {
-							wp_mail(
-								get_blog_option( $blog_id, 'admin_email' ),
-								__( 'Error charging setup fee. Attention required!', 'psts' ),
-								sprintf( __( 'An error occurred while charging a setup fee of %1$s to Stripe customer %2$s. You will need to manually process this amount.', 'psts' ), $this->format_currency( $currency, $setup_fee ), $customer_id )
-							);
-						}
-					}
-
-					try {
-						$c->updateSubscription( $args );
-					} catch ( Exception $e ) {
-						$body  = $e->getJsonBody();
-						$error = $body['error'];
-						$psts->errors->add( 'general', $error['message'] );
-
-						return;
-					}
-				} else { //do not create the subscription, just charge credit card for 1 term
-					try {
-						$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
-						Stripe_Charge::create( array(
-							'customer'    => $customer_id,
-							'amount'      => ( $initAmount * 100 ),
-							'currency'    => $currency,
-							'description' => $desc,
-							'metadata'    => array(
-								'domain' => $site_name,
-								'period' => $_POST['period'],
-								'level'  => $_POST['level']
-							)
-						) );
-
-						if ( $current_plan = $this->get_current_plan( $blog_id ) ) {
-							list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
-						}
-
-						$old_expire = $psts->get_expire( $blog_id );
-						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $psts->get_level_setting( $_SESSION['LEVEL'], 'price_' . $_SESSION['PERIOD'] ), $new_expire, false );
-						$psts->email_notification( $blog_id, 'receipt' );
-
-						if ( isset( $current_plan_level ) ) {
-							if ( $current_plan_level > $_POST['level'] ) {
-								$psts->record_stat( $blog_id, 'upgrade' );
-							} else {
-								$psts->record_stat( $blog_id, 'modify' );
-							}
-						} else {
-							$psts->record_stat( $blog_id, 'signup' );
-						}
-					} catch ( Stripe_CardError $e ) {
-						$body = $e->getJsonBody();
-						$err  = $body['error'];
-						$psts->errors->add( 'general', $e['message'] );
-					} catch ( Exception $e ) {
-						$psts->errors->add( 'general', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
-					}
-				}
-
-				//delete the temporary coupon code
-				if ( $cp_code ) {
-					try {
-						$cpn = Stripe_Coupon::retrieve( $cp_code );
-						$cpn->delete();
-					} catch ( Exception $e ) {
-						wp_mail(
-							get_blog_option( $blog_id, 'admin_email' ),
-							__( 'Error deleting temporary Stripe coupon code. Attention required!.', 'psts' ),
-							sprintf( __( 'An error occurred when attempting to delete temporary Stripe coupon code %1$s. You will need to manually delete this coupon via your Stripe account.', 'psts' ), $cp_code )
-						);
-					}
-
-					$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id, $domain );
-				}
-
-				if ( $new || $psts->is_blog_canceled( $blog_id ) ) {
-					//Activate trial Blog
-					$psts->activate_user_blog( $domain, true );
-
-					// Added for affiliate system link
-					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer_id ), $domain );
-					do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level'] );
-				} else {
-					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts' ), $desc, $customer_id ), $domain );
-				}
-
-				//display GA ecommerce in footer
-				$psts->create_ga_ecommerce( $blog_id, $_POST['period'], $initAmount, $_POST['level'], $site_name, $domain );
-
-				if ( ! empty( $blog_id ) ) {
-					update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
-					/* 	some times there is a lag receiving webhooks from Stripe. we want to be able to check for that
-						and display an appropriate message to the customer (e.g. there are changes pending to your account) */
-					update_blog_option( $blog_id, 'psts_stripe_waiting', 1 );
-					update_blog_option( $blog_id, 'payment_gateway', self::get_slug() );
-
-				} else {
-					//Update signup meta
-					$signup_meta                         = '';
-					$signup_meta                         = $psts->get_signup_meta( $domain );
-					$signup_meta['psts_stripe_canceled'] = 0;
-					$signup_meta['psts_stripe_waiting']  = 1;
-					$signup_meta['payment_submitted'] = 1;
-					$signup_meta['payment_gateway'] = 'stripe';
-					$psts->update_signup_meta( $signup_meta, $domain );
-				}
-
-
-				if ( empty( $this->complete_message ) ) {
-					$this->complete_message = __( 'Your subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-				}
-			} catch ( Exception $e ) {
-				$psts->errors->add( 'general', $e->getMessage() );
-			}
-		}
-	}
-
-	//js to be printed only on checkout page
+	/**
+	 * JS to be printed only on checkout page
+	 */
 	public static function checkout_js() {
 		?>
 		<script type="text/javascript"> jQuery(document).ready(function () {
@@ -1167,270 +994,6 @@ class ProSites_Gateway_Stripe {
 					if (confirm("<?php echo __('Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts'); ?>")) return true; else return false;
 				});
 			});</script><?php
-	}
-
-	function checkout_screen( $content, $blog_id = '', $domain = 'false' ) {
-		global $psts, $wpdb, $current_site, $current_user;
-		if ( ! $blog_id && ! $domain ) {
-			return $content;
-		}
-		$site_name = $current_site->site_name;
-		if ( ! empty( $domain ) ) {
-			$site_name = ! empty ( $_POST['blogname'] ) ? $_POST['blogname'] : ! empty ( $_POST['signup_email'] ) ? $_POST['signup_email'] : '';
-		}
-		//cancel subscription
-		if ( isset( $_GET['action'] ) && $_GET['action'] == 'cancel' && wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
-			$error = '';
-
-			try {
-				$customer_id = $this->get_customer_data( $blog_id );
-				$cu          = Stripe_Customer::retrieve( $customer_id );
-				$cu->cancelSubscription();
-			} catch ( Exception $e ) {
-				$error = $e->getMessage();
-			}
-
-			if ( $error != '' ) {
-				$content .= '<div id="message" class="error fade"><p>' . __( 'There was a problem canceling your subscription, please contact us for help: ', 'psts' ) . $error . '</p></div>';
-			} else {
-				//record stat
-				$psts->record_stat( $blog_id, 'cancel' );
-				$psts->email_notification( $blog_id, 'canceled' );
-				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
-
-				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
-				$content .= '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
-			}
-		}
-
-		$cancel_status  = get_blog_option( $blog_id, 'psts_stripe_canceled' );
-		$cancel_content = '';
-
-		$img_base  = $psts->plugin_url . 'images/';
-		$pp_active = false;
-
-		//hide top part of content if its a pro blog
-		if ( $domain || is_pro_site( $blog_id ) || $psts->errors->get_error_message( 'coupon' ) ) {
-			$content = '';
-		}
-
-		if ( $errmsg = $psts->errors->get_error_message( 'general' ) ) {
-			$content = '<div id="psts-general-error" class="psts-error">' . $errmsg . '</div>'; //hide top part of content if theres an error
-		}
-
-		//if transaction was successful display a complete message and skip the rest
-		if ( $this->complete_message ) {
-			$content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
-			$content .= '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
-
-			//If Checking out on signup, there wouldn't be a blogid probably
-			if ( ! empty ( $domain ) ) {
-				//Hardcoded, TODO: Search for alternative
-				$admin_url = is_ssl() ? trailingslashit( "https://$domain" ) . 'wp-admin/' : trailingslashit( "http://$domain" ) . 'wp-admin/';
-				$content .= '<p><a href="' . $admin_url . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
-			} else {
-				$content .= '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
-			}
-
-			return $content;
-		}
-
-		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
-			$content .= '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
-		}
-
-		if ( $customer_id = $this->get_customer_data( $blog_id ) ) {
-
-			try {
-				$customer_object = Stripe_Customer::retrieve( $customer_id );
-			} catch ( Exception $e ) {
-				$error = $e->getMessage();
-			}
-
-			$content .= '<div id="psts_existing_info">';
-			$end_date     = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-			$level        = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
-			$is_recurring = false;
-
-			try {
-				$invoice_object = Stripe_Invoice::upcoming( array( "customer" => $customer_id ) );
-			} catch ( Exception $e ) {
-				$is_recurring = $psts->is_blog_recurring( $blog_id );
-				if ( $is_recurring ) {
-					$cancel_status = 1;
-				}
-			}
-
-			try {
-				$existing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );
-			} catch ( Exception $e ) {
-				$error = $e->getMessage();
-			}
-
-			if ( $cancel_status == 1 ) {
-				$content .= '<h3>' . __( 'Your subscription has been canceled', 'psts' ) . '</h3>';
-				$content .= '<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-			}
-
-			if ( $cancel_status == 0 ) {
-				$content .= '<ul>';
-				if ( is_pro_site( $blog_id ) ) {
-					$content .= '<li>' . __( 'Level:', 'psts' ) . ' <strong>' . $level . '</strong></li>';
-				}
-
-				if ( isset( $customer_object->cards->data[0] ) && isset( $customer_object->default_card ) ) {
-					foreach ( $customer_object->cards->data as $tmpcard ) {
-						if ( $tmpcard->id == $customer_object->default_card ) {
-							$card = $tmpcard;
-							break;
-						}
-					}
-				} elseif ( isset( $customer_object->active_card ) ) { //for API pre 2013-07-25
-					$card = $customer_object->active_card;
-				}
-
-				$content .= '<li>' . sprintf( __( 'Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s/%4$s</strong>', 'psts' ), $card->type, $card->last4, $card->exp_month, $card->exp_year ) . '</li>';
-
-				if ( isset( $existing_invoice_object->data[0] ) && $customer_object->subscription->status != 'trialing' ) {
-					$content .= '<li>' . __( 'Last Payment Date:', 'psts' ) . ' <strong>' . date_i18n( get_option( 'date_format' ), $existing_invoice_object->data[0]->date ) . '</strong></li>';
-				}
-
-				if ( isset( $invoice_object->next_payment_attempt ) ) {
-					$content .= '<li>' . __( 'Next Payment Date:', 'psts' ) . ' <strong>' . date_i18n( get_option( 'date_format' ), $invoice_object->next_payment_attempt ) . '</strong></li>';
-				}
-
-				if ( ! $is_recurring ) {
-					$content .= '<li>' . __( 'Subscription Expires On:', 'psts' ) . ' <strong>' . $end_date . '</strong></li>';
-				}
-
-				$content .= "</ul>";
-
-				$pp_active = false;
-
-				if ( $is_recurring ) {
-					$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
-
-					if ( is_pro_site( $blog_id ) ) {
-						$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-						$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . __( 'Cancel Your Subscription', 'psts' ) . '"><img src="' . $img_base . 'cancel_subscribe_gen.gif" /></a></p>';
-						$pp_active = true;
-					}
-				}
-
-				//print receipt send form
-				$content .= $psts->receipt_form( $blog_id );
-
-				if ( ! defined( 'PSTS_CANCEL_LAST' ) || ( defined( 'PSTS_CANCEL_LAST' ) && ! PSTS_CANCEL_LAST ) ) {
-					$content .= $cancel_content;
-				}
-
-				$content .= "<br>";
-				$content .= '</div>';
-
-			}
-		}
-		if ( ! $cancel_status && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-
-			$content .= '<h2>' . __( 'Change Your Plan or Payment Details', 'psts' ) . '</h2>
-                <p>' . __( 'You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts' ) . '</p>';
-
-		} else if ( ! is_pro_site( $blog_id ) || is_pro_trial( $blog_id ) || $domain ) {
-
-			$content .= '<p>' . __( 'Please choose your desired plan then click the checkout button below.', 'psts' ) . '</p>';
-
-		}
-
-		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
-
-		//print the checkout grid
-//		$content .= $psts->checkout_grid( $blog_id, $domain );
-
-		//if existing customer, offer ability to checkout using saved credit card info
-		if ( isset( $customer_object ) ) {
-			$card_object = $this->get_default_card( $customer_object );
-			$content .= '
-	    		<div id="psts-stripe-checkout-existing">
-						<h2>' . __( 'Checkout Using Existing Credit Card', 'psts' ) . '</h2>
-						<table id="psts-cc-table-existing">
-							<tr>
-								<td class="pypl_label" align="right">' . __( 'Last 4 Digits:', 'psts' ) . '</td>
-								<td>' . $card_object->last4 . '</td>
-							</tr>
-							<tr>
-								<td class="pypl_label" align="right">' . __( 'WordPress Password:', 'psts' ) . '</td>
-								<td><input id="wp_password" name="wp_password" size="15" type="password" class="cctext" title="' . __( 'Enter the WordPress password that you login with.', 'psts' ) . '" /></td>
-							</tr>
-						</table>
-					</div>';
-		}
-
-		$content .= '<div id="psts-stripe-checkout">
-						<h2>' . __( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
-
-		$content .= '<div id="psts-processcard-error"></div>';
-
-		$content .= '
-				<table id="psts-cc-table">
-					<tbody>
-						<!-- Credit Card Number -->
-						<tr>
-							<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
-							<td>';
-		if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
-			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-		}
-		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br /><img class="accepted-cards" src="' . $img_base . 'stripe-cards.png" />
-							</td>
-						</tr>
-
-						<tr>
-							<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
-							<td valign="middle">';
-		if ( $errmsg = $psts->errors->get_error_message( 'expiration' ) ) {
-			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-		}
-		$content .= '<select id="cc_month" class="card-expiry-month">' . $this->month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . $this->year_dropdown() . '</select>
-							</td>
-						</tr>
-
-						<!-- Card Security Code -->
-						<tr>
-							<td class="pypl_label" align="right"><nobr>' . __( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
-							<td valign="middle">';
-		if ( $errmsg = $psts->errors->get_error_message( 'cvv2' ) ) {
-			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-		}
-		$content .= '<label><input id="cc_cvv2" size="5" maxlength="4" type="password" class="cctext card-cvc" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
-												<img src="' . $img_base . 'buy-cvv.gif" height="27" width="42" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" /></label>
-							</td>
-						</tr>
-						<tr>
-							<td class="pypl_label" align="right">' . __( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>' .
-		            '<td>';
-		if ( $errmsg = $psts->errors->get_error_message( 'name' ) ) {
-			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-		}
-		$content .= '<input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" />
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<input type="hidden" name="cc_checkout" value="1" />';
-
-		$content .= '<p>
-						<input type="submit" id="cc_checkout" name="stripe_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button"/>
-						<span id="stripe_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
-					</p>
-			</div>';
-
-		$content .= '</form>';
-
-		if ( ! defined( 'PSTS_CANCEL_LAST' ) || ( defined( 'PSTS_CANCEL_LAST' ) && ! PSTS_CANCEL_LAST ) ) {
-			$content .= $cancel_content;
-		}
-
-		return $content;
 	}
 
 	/**
@@ -1471,6 +1034,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @param $blog_id
 	 * @param bool|string $domain DEPRECATED
+	 * @param bool|string $email
 	 *
 	 * @return bool
 	 */
@@ -1484,11 +1048,13 @@ class ProSites_Gateway_Stripe {
 			if( ! empty( $email ) ) {
 				$data = false;
 				$user = get_user_by( 'email', $email );
-				$blogs_of_user = get_blogs_of_user( $user->ID );
-				foreach( $blogs_of_user as $blog_of_user ) {
-					$data = self::get_customer_data( $blog_of_user->userblog_id );
-					if( ! empty( $data ) ) {
-						break;
+				if( $user ) {
+					$blogs_of_user = get_blogs_of_user( $user->ID );
+					foreach ( $blogs_of_user as $blog_of_user ) {
+						$data = self::get_customer_data( $blog_of_user->userblog_id );
+						if ( ! empty( $data ) ) {
+							break;
+						}
 					}
 				}
 				if( $data ) {
@@ -1537,6 +1103,8 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
+	 * Get default Stripe card. (Update to sources)
+	 *
 	 * @todo Update for newer Stripe API as card objects have been replaced by source objects
 	 *
 	 * @param $customer_object
@@ -1558,20 +1126,19 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * maybe_extend()
 	 * Checks if a pro site should be extended and, if so, extends it
 	 *
-	 * @param int $blog_id The blog ID to extend
-	 * @param int $period The new plan's period
-	 * @param string $gateway The gateway
-	 * @param int $level The new plan's level
-	 * @param float $amount The new plan's amount
-	 * @param int $expire The new plan's expiration date
+	 * @param $blog_id
+	 * @param $period The plan's new period
+	 * @param $gateway The gateway
+	 * @param $level The plan's new level
+	 * @param $amount The plan's new amount
+	 * @param bool $expire The new plan's expiration date
 	 * @param bool $is_payment Whether or not this is an invoice payment
+	 * @param bool $is_recurring
 	 *
 	 * @return bool
 	 */
-
 	public static function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false, $is_recurring = true ) {
 		global $psts;
 
@@ -1603,6 +1170,13 @@ class ProSites_Gateway_Stripe {
 		return true;
 	}
 
+	/**
+	 * The heart of the Stripe API integration
+	 *
+	 * Everything that Stripe does gets communicated back here.
+	 *
+	 * @return bool
+	 */
 	public static function webhook_handler() {
 		global $wpdb, $psts, $current_site;
 		$site_name = $current_site->site_name;
@@ -1782,6 +1356,16 @@ class ProSites_Gateway_Stripe {
 
 	}
 
+	/**
+	 * Sets the Subscription's meta to include the $blod_id
+	 *
+	 * @param $subscription
+	 * @param $customer_id
+	 * @param $fallback_blog_id
+	 * @param bool $new_blog_id
+	 *
+	 * @return bool
+	 */
 	public static function set_subscription_blog_id ( $subscription, $customer_id, $fallback_blog_id, $new_blog_id = false ) {
 		// Use $new_blog_id, or the $subscription->id if it exists, or the $fallback_blog_id.
 		$the_blog_id = ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $subscription->blog_id ) ? $subscription->blog_id : $fallback_blog_id;
@@ -1813,6 +1397,13 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
+	/**
+	 * Uses Stripe API json object to retrieve the subscription object.
+	 *
+	 * @param $response
+	 *
+	 * @return bool
+	 */
 	public static function get_subscription( $response ) {
 		$object = $response->data->object;
 
@@ -1869,44 +1460,11 @@ class ProSites_Gateway_Stripe {
 		return $subscription;
 	}
 
-	public static function get_subsciption_details( $event_json ) {
-		$amount = 0;
-		$plan = '';
-		$is_trial = false;
-		$plan_end = 0;
-		$plan_amount = 0;
-
-		foreach ( (array) $event_json->data->object->lines->data as $line ) {
-			$amount += ( $line->amount / 100 );
-
-			switch ( $line->type ) {
-				case 'subscription' :
-					$plan        = $line->plan->id;
-					$is_trial    = ( empty( $line->amount ) ) ? true : false;
-					$plan_end    = $line->period->end;
-					$plan_amount = $is_trial ? ( $line->plan->amount / 100 ) : ( $line->amount / 100 );
-					break;
-			}
-		}
-
-		$result = array();
-		$result['amount'] = $amount;
-		$result['plan'] = $plan;
-		$result['is_trial'] = $is_trial;
-		$result['plan_end'] = $plan_end;
-		$result['plan_amount'] = $plan_amount;
-
-		if( ! empty( $plan ) ) {
-			$plan_parts = explode( '_', $plan );
-			$period     = array_pop( $plan_parts );
-			$level      = array_pop( $plan_parts );
-			$result['period'] = $period;
-			$result['level'] = $level;
-		}
-
-		return $result;
-	}
-
+	/**
+	 * Cancel a particular blog's subscription
+	 *
+	 * @param $blog_id
+	 */
 	public static function cancel_blog_subscription( $blog_id ) {
 		global $psts;
 
@@ -1914,8 +1472,12 @@ class ProSites_Gateway_Stripe {
 		$customer_id = self::get_customer_data( $blog_id )->customer_id;
 		if ( $customer_id ) {
 			try {
+				$customer_data = self::get_customer_data( $blog_id );
+				$customer_id = $customer_data->customer_id;
+				$sub_id = $customer_data->subscription_id;
 				$cu = Stripe_Customer::retrieve( $customer_id );
-				$cu->cancelSubscription();
+				// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
+				$cu->subscriptions->retrieve( $sub_id )->cancel();
 			} catch ( Exception $e ) {
 				$error = $e->getMessage();
 			}
@@ -1930,12 +1492,28 @@ class ProSites_Gateway_Stripe {
 		}
 	}
 
+	/**
+	 * Get gateway's nice name
+	 */
 	public static function get_name() {
 		return array(
 			'stripe' => __( 'Stripe', 'psts' ),
 		);
 	}
 
+	/**
+	 * Render the gateway as called from ProSites_View_Front_Gateway
+	 *
+	 * @todo: Future: Allow preference for gateways to use CC checkout or other
+	 * @todo: Review commented out code and add in the ones that make sense (e.g. statuses)
+	 *
+	 * @param $args
+	 * @param $blog_id
+	 * @param $domain
+	 * @param bool $prefer_cc Not implemented yet.
+	 *
+	 * @return string
+	 */
 	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
 		global $psts, $wpdb, $current_site, $current_user;
 
@@ -1949,113 +1527,14 @@ class ProSites_Gateway_Stripe {
 //
 //		$img_base  = $psts->plugin_url . 'images/';
 //		$pp_active = false;
-////
-////		//hide top part of content if its a pro blog
-//		if ( $domain || is_pro_site( $blog_id ) || $psts->errors->get_error_message( 'coupon' ) ) {
-//			$content = '';
-//		}
-//
+
 //		if ( $errmsg = $psts->errors->get_error_message( 'general' ) ) {
 //			$content = '<div id="psts-general-error" class="psts-error">' . $errmsg . '</div>'; //hide top part of content if theres an error
 //		}
 //
-//		//if transaction was successful display a complete message and skip the rest
-//		if ( self::$complete_message ) {
-//			$content = '<div id="psts-complete-msg">' . self::$complete_message . '</div>';
-//			$content .= '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
-//
-//			//If Checking out on signup, there wouldn't be a blogid probably
-//			if ( ! empty ( $domain ) ) {
-//				//Hardcoded, TODO: Search for alternative
-//				$admin_url = is_ssl() ? trailingslashit( "https://$domain" ) . 'wp-admin/' : trailingslashit( "http://$domain" ) . 'wp-admin/';
-//				$content .= '<p><a href="' . $admin_url . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
-//			} else {
-//				$content .= '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
-//			}
-//
-//			return $content;
-//		}
 //		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
 //			$content .= '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
 //		}
-////
-//		if ( $customer_id = self::get_customer_data( $blog_id )->customer_id ) {
-////
-//			try {
-//				$customer_object = Stripe_Customer::retrieve( $customer_id );
-//			} catch ( Exception $e ) {
-//				$error = $e->getMessage();
-//			}
-//
-//			$content .= '<div id="psts_existing_info">';
-//			$end_date     = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-//			$level        = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
-//			$is_recurring = false;
-//
-//			try {
-//				$invoice_object = Stripe_Invoice::upcoming( array( "customer" => $customer_id ) );
-//			} catch ( Exception $e ) {
-//				$is_recurring = $psts->is_blog_recurring( $blog_id );
-//				if ( $is_recurring ) {
-//					$cancel_status = 1;
-//				}
-//			}
-//
-//			try {
-//				$existing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );
-//			} catch ( Exception $e ) {
-//				$error = $e->getMessage();
-//			}
-//
-//			if ( $cancel_status == 1 ) {
-//				$content .= '<h3>' . __( 'Your subscription has been canceled', 'psts' ) . '</h3>';
-//				$content .= '<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-//			}
-//
-//			if ( $cancel_status == 0 ) {
-//				$content .= '<ul>';
-//				if ( is_pro_site( $blog_id ) ) {
-//					$content .= '<li>' . __( 'Level:', 'psts' ) . ' <strong>' . $level . '</strong></li>';
-//				}
-//
-//				if ( isset( $customer_object->cards->data[0] ) && isset( $customer_object->default_card ) ) {
-//					foreach ( $customer_object->cards->data as $tmpcard ) {
-//						if ( $tmpcard->id == $customer_object->default_card ) {
-//							$card = $tmpcard;
-//							break;
-//						}
-//					}
-//				} elseif ( isset( $customer_object->active_card ) ) { //for API pre 2013-07-25
-//					$card = $customer_object->active_card;
-//				}
-//
-//				$content .= '<li>' . sprintf( __( 'Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s/%4$s</strong>', 'psts' ), $card->type, $card->last4, $card->exp_month, $card->exp_year ) . '</li>';
-//
-//				if ( isset( $existing_invoice_object->data[0] ) && $customer_object->subscription->status != 'trialing' ) {
-//					$content .= '<li>' . __( 'Last Payment Date:', 'psts' ) . ' <strong>' . date_i18n( get_option( 'date_format' ), $existing_invoice_object->data[0]->date ) . '</strong></li>';
-//				}
-//
-//				if ( isset( $invoice_object->next_payment_attempt ) ) {
-//					$content .= '<li>' . __( 'Next Payment Date:', 'psts' ) . ' <strong>' . date_i18n( get_option( 'date_format' ), $invoice_object->next_payment_attempt ) . '</strong></li>';
-//				}
-//
-//				if ( ! $is_recurring ) {
-//					$content .= '<li>' . __( 'Subscription Expires On:', 'psts' ) . ' <strong>' . $end_date . '</strong></li>';
-//				}
-//
-//				$content .= "</ul>";
-//
-//				$pp_active = false;
-//
-//				if ( $is_recurring ) {
-//					$cancel_content .= '<h3>' . __( 'Cancel Your Subscription', 'psts' ) . '</h3>';
-//
-//					if ( is_pro_site( $blog_id ) ) {
-//						$cancel_content .= '<p>' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-//						$cancel_content .= '<p><a id="stripe_cancel" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . __( 'Cancel Your Subscription', 'psts' ) . '"><img src="' . $img_base . 'cancel_subscribe_gen.gif" /></a></p>';
-//						$pp_active = true;
-//					}
-//				}
 //
 //				//print receipt send form
 //				$content .= $psts->receipt_form( $blog_id );
@@ -2064,113 +1543,6 @@ class ProSites_Gateway_Stripe {
 //					$content .= $cancel_content;
 //				}
 //
-//				$content .= "<br>";
-////				$content .= '</div>';
-//
-//			}
-//
-//			$content .= '</div>';
-//		}
-//		if ( ! $cancel_status && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-//
-//			$content .= '<h2>' . __( 'Change Your Plan or Payment Details', 'psts' ) . '</h2>
-//                <p>' . __( 'You can modify or upgrade your plan or just change your payment method or information below. Your new subscription will automatically go into effect when your next payment is due.', 'psts' ) . '</p>';
-//
-//		} else if ( ! is_pro_site( $blog_id ) || is_pro_trial( $blog_id ) || $domain ) {
-//
-//			$content .= '<p>' . __( 'Please choose your desired plan then click the checkout button below.', 'psts' ) . '</p>';
-//
-//		}
-//
-//		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="payment-form">';
-//
-//		//print the checkout grid
-////		$content .= $psts->checkout_grid( $blog_id, $domain );
-//
-//		//if existing customer, offer ability to checkout using saved credit card info
-//		if ( isset( $customer_object ) ) {
-//			$card_object = $this->get_default_card( $customer_object );
-//			$content .= '
-//	    		<div id="psts-stripe-checkout-existing">
-//						<h2>' . __( 'Checkout Using Existing Credit Card', 'psts' ) . '</h2>
-//						<table id="psts-cc-table-existing">
-//							<tr>
-//								<td class="pypl_label" align="right">' . __( 'Last 4 Digits:', 'psts' ) . '</td>
-//								<td>' . $card_object->last4 . '</td>
-//							</tr>
-//							<tr>
-//								<td class="pypl_label" align="right">' . __( 'WordPress Password:', 'psts' ) . '</td>
-//								<td><input id="wp_password" name="wp_password" size="15" type="password" class="cctext" title="' . __( 'Enter the WordPress password that you login with.', 'psts' ) . '" /></td>
-//							</tr>
-//						</table>
-//					</div>';
-//		}
-//
-//		$content .= '<div id="psts-stripe-checkout">
-//						<h2>' . __( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
-//
-//		$content .= '<div id="psts-processcard-error"></div>';
-//
-//		$content .= '
-//				<table id="psts-cc-table">
-//					<tbody>
-//						<!-- Credit Card Number -->
-//						<tr>
-//							<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
-//							<td>';
-//		if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
-//			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-//		}
-//		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br /><img class="accepted-cards" src="' . $img_base . 'stripe-cards.png" />
-//							</td>
-//						</tr>
-//
-//						<tr>
-//							<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
-//							<td valign="middle">';
-//		if ( $errmsg = $psts->errors->get_error_message( 'expiration' ) ) {
-//			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-//		}
-//		$content .= '<select id="cc_month" class="card-expiry-month">' . $this->month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . $this->year_dropdown() . '</select>
-//							</td>
-//						</tr>
-//
-//						<!-- Card Security Code -->
-//						<tr>
-//							<td class="pypl_label" align="right"><nobr>' . __( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
-//							<td valign="middle">';
-//		if ( $errmsg = $psts->errors->get_error_message( 'cvv2' ) ) {
-//			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-//		}
-//		$content .= '<label><input id="cc_cvv2" size="5" maxlength="4" type="password" class="cctext card-cvc" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
-//												<img src="' . $img_base . 'buy-cvv.gif" height="27" width="42" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" /></label>
-//							</td>
-//						</tr>
-//						<tr>
-//							<td class="pypl_label" align="right">' . __( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>' .
-//		            '<td>';
-//		if ( $errmsg = $psts->errors->get_error_message( 'name' ) ) {
-//			$content .= '<div class="psts-error">' . $errmsg . '</div>';
-//		}
-//		$content .= '<input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" />
-//							</td>
-//						</tr>
-//					</tbody>
-//				</table>
-//				<input type="hidden" name="cc_checkout" value="1" />';
-//
-//		$content .= '<p>
-//						<input type="submit" id="cc_checkout" name="stripe_checkout_button" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button"/>
-//						<span id="stripe_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
-//					</p>
-//			</div>';
-//
-//		$content .= '</form>';
-//
-//		if ( ! defined( 'PSTS_CANCEL_LAST' ) || ( defined( 'PSTS_CANCEL_LAST' ) && ! PSTS_CANCEL_LAST ) ) {
-//			$content .= $cancel_content;
-//		}
-
 
 		$customer_data = self::get_customer_data( $blog_id );
 		$customer_id = $customer_data ? $customer_data->customer_id : false;
@@ -2300,6 +1672,10 @@ class ProSites_Gateway_Stripe {
 		return $content;
 	}
 
+	/**
+	 * @param $blog_id
+	 * @param $domain
+	 */
 	public static function process_checkout_form( $blog_id, $domain ) {
 		global $psts, $current_user, $current_site;
 
@@ -2344,10 +1720,10 @@ class ProSites_Gateway_Stripe {
 			//check for level
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-//				return;
+				//	return;
 			} else if ( ! isset( $_POST['stripeToken'] ) && empty( $_POST['wp_password'] ) ) {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
-//				return;
+				//	return;
 			}
 
 			$error       = '';
@@ -2378,8 +1754,6 @@ class ProSites_Gateway_Stripe {
 
 				if ( ! $customer_id ) {
 					try {
-						$c_blog_id = empty( $blog_id ) ? __( '(new)', 'psts' ) : $blog_id;
-
 						$customer_args = array(
 							'email'       => $email,
 							'description' => sprintf( __( '%s user', 'psts' ), $site_name ),
@@ -2475,9 +1849,9 @@ class ProSites_Gateway_Stripe {
 						$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $_SESSION['COUPON_CODE'] );
 						$coupon_obj = ProSites_Helper_Coupons::get_coupon( $_SESSION['COUPON_CODE'] );
 						$lifetime = isset( $coupon_obj['lifetime'] ) && 'indefinite' == $coupon_obj['lifetime'] ? 'forever' : 'once';
-//						$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
+						//	$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
 						$coupon_value = $adjusted_values[$_POST['level']]['price_' . $_POST['period']];
-//						$amount_off   = $paymentAmount - $coupon_value['new_total'];
+						// $amount_off   = $paymentAmount - $coupon_value['new_total'];
 						$amount_off   = $paymentAmount - $coupon_value;
 						$initAmount -= $amount_off;
 						$initAmount =  0 > $initAmount ? 0 : $initAmount; // avoid negative
@@ -2847,6 +2221,17 @@ class ProSites_Gateway_Stripe {
 
 	}
 
+	/**
+	 * Populate an array with existing user information
+	 *
+	 * Array will be rendered by ProSites_View_Front_Gateway
+	 *
+	 * @param $blog_id
+	 * @param $domain
+	 * @param bool $get_all
+	 *
+	 * @return array|bool
+	 */
 	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
 		global $psts;
 		$args = array();
