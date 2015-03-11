@@ -34,7 +34,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$tabbed = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
-			$hidden_class = isset( $_SESSION['new_blog_details'] ) || isset( $_SESSION['upgraded_blog_details'] ) ? '' : $hidden_class;
+			$hidden_class = ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['blogname'] ) ) || isset( $_SESSION['upgraded_blog_details'] ) ? '' : $hidden_class;
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
@@ -90,6 +90,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if( empty( $blog_id ) && isset( $_GET['bid'] ) ) {
 				$blog_id = (int) $_GET['bid'];
 			}
+
+			if( empty( $blog_id ) ) {
+				return '';
+			}
+
 			// Is this a trial, if not, get the normal gateway data?
 			$sql = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 			$result = $wpdb->get_row( $sql );
@@ -144,6 +149,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				// Receipt form
 				if( ! empty( $info_retrieved['receipt_form'] ) ) {
 					$content .= '<div class="psts-receipt-link">' . $info_retrieved['receipt_form'] . '</div>';
+				}
+
+				// Signup for another blog?
+				$allow_multi = $psts->get_setting('multiple_signup');
+				if( $allow_multi ) {
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
 			}
@@ -248,7 +259,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			}
 
-			if ( is_pro_site( $blog_id ) ) {
+			if ( is_pro_site( $blog_id ) && ! isset( $_GET['action'] ) ) {
 				// EXISTING DETAILS
 
 				$plan_content = self::render_current_plan_information( $blog_id, $domain, $gateways, $gateway_details['order'] );
@@ -296,10 +307,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
-			unset( $_SESSION['new_blog_details'] );
-			unset( $_SESSION['upgraded_blog_details'] );
-			unset( $_SESSION['blog_activation_key'] );
-
 			if( ! empty( $blog_admin_url ) ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
@@ -309,6 +316,10 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			ob_start();
 			do_action( 'signup_finished' );
 			$content .= ob_get_clean();
+
+			unset( $_SESSION['new_blog_details'] );
+			unset( $_SESSION['upgraded_blog_details'] );
+			unset( $_SESSION['blog_activation_key'] );
 
 			return $content;
 
@@ -370,32 +381,35 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
 
-			unset( $_SESSION['new_blog_details'] );
-			unset( $_SESSION['upgraded_blog_details'] );
-			unset( $_SESSION['blog_activation_key'] );
-
 			if( ! empty( $blog_admin_url ) ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 
 			$content .= '</div>';
+
+			unset( $_SESSION['new_blog_details'] );
+			unset( $_SESSION['upgraded_blog_details'] );
+			unset( $_SESSION['blog_activation_key'] );
+
 			return $content;
 		}
 
 		public static function select_current_period( $period, $blog_id ) {
 			global $wpdb;
-			if( is_user_logged_in() ) {
+
+			if( is_user_logged_in() && ! empty( $blog_id ) ) {
 				$result = $wpdb->get_var( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				if ( ! empty( $result ) ) {
 					$period = 'price_' . $result;
 				}
 			}
+
 			return $period;
 		}
 
 		public static function select_current_level( $level, $blog_id ) {
 			global $wpdb;
-			if( is_user_logged_in() ) {
+			if( is_user_logged_in() && ! empty( $blog_id ) ) {
 				$result = $wpdb->get_var( $wpdb->prepare( "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				if ( ! empty( $result ) ) {
 					$level = $result;

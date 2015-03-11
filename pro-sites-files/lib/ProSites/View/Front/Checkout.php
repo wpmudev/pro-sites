@@ -10,6 +10,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts;
 
+			error_log( print_r( $_SESSION, true ) );
+
 			// If its in session, get it
 			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ) {
 				$selected_period = 'price_' . ( (int) $_SESSION['new_blog_details']['period'] );
@@ -34,7 +36,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$columns = self::get_pricing_columns( $plans_table_enabled, $features_table_enabled );
 
 			$content .= self::render_tables_wrapper( 'pre' );
-			$content .= self::render_pricing_columns( $columns );
+			$content .= self::render_pricing_columns( $columns, $blog_id );
 			$content .= self::render_tables_wrapper( 'post' );
 
 			if( self::$new_signup && ! is_user_logged_in() ) {
@@ -55,7 +57,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			self::$new_signup = false;
 		}
 
-		private static function render_pricing_columns( $columns, $echo = false ) {
+		private static function render_pricing_columns( $columns, $blog_id = false, $echo = false ) {
 			global $psts;
 
 			$content = '';
@@ -153,7 +155,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			if( $allow_free ) {
 				$style = 'margin-left: ' . $column_width . '%; ';
 				$style .= 'width: ' . ( 100 - $column_width ) . '%; ';
-				$content .= self::render_free( $style );
+				$content .= self::render_free( $style, $blog_id );
 			}
 
 			if( $echo ) {
@@ -519,13 +521,16 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 //			return $content;
 		}
 
-		public static function render_free( $style ) {
+		public static function render_free( $style, $blog_id ) {
 			global $psts;
 			$free_text = $psts->get_setting('free_msg');
-			if ( ! isset( $_GET['bid'] ) ) {
+			if ( ! isset( $_GET['bid'] ) && empty( $blog_id ) && ! isset( $_SESSION['new_blog_details']['blogname'] ) ) {
 				$content = '<div class="free-plan-link" style="' . esc_attr( $style ) . '"><a>' . esc_html( $free_text ) . '</a></div>';
 			} else {
-				if( ! is_pro_site( (int) $_GET['bid'] ) ) {
+				if( empty( $blog_id ) && ! empty( $_GET['bid'] ) ) {
+					$blog_id = (int) $_GET['bid'];
+				}
+				if( ! is_pro_site( $blog_id ) ) {
 					$free_link = '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( (int) $_GET['bid'], 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
 					$content = '<div class="free-plan-link-logged-in" style="' . esc_attr( $style ) . '"><p>' . esc_html__( 'Your current site is a basic site with no extra features. Upgrade now by selecting a plan above.', 'psts' ) . '</p><p>' . $free_link . '</p></div>';
 				}

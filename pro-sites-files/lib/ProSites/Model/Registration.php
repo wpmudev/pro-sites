@@ -133,10 +133,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						}
 
 						// Keep this in session because we'll use it again
-						$_SESSION['new_blog_details']['site_name'] = $blog_title;
 						$_SESSION['new_blog_details']['reserved_message'] = $ajax_response['reserved_message'];
-
-						$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( '', '' );
 					}
 				} else {
 					// We had registration errors, redraw the form displaying errors
@@ -166,6 +163,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					}
 				}
 
+				$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( '', '' );
 				$ajax_response['username_available'] = $username_available;
 				$ajax_response['email_available'] = $email_available;
 				$ajax_response['blogname_available'] = $blogname_available;

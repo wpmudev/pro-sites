@@ -36,9 +36,15 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		public static function get_blog_id( $activation_key ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
+			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
+			$blog_id           = domain_exists( $row->domain, $row->path, $wpdb->siteid );
+			// As a fallback, try the site domain
+			if( empty( $blog_id ) ) {
+				$domain = $wpdb->get_var( $wpdb->prepare( "SELECT domain FROM $wpdb->site WHERE id = %d", $wpdb->siteid ) );
+				$blog_id = domain_exists( $domain, $row->path, $wpdb->siteid );
+			}
+			return $blog_id;
 		}
-
 
 		public static function redirect_signup_page() {
 			global $pagenow, $psts;

@@ -292,10 +292,9 @@ class ProSites {
 			'hide_adminmenu'           => 0,
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
-			'pay-for-signup'           => 1,
-			'free-signup'              => 0,
-			'redirect-signup'          => 0,
-			'multiple-signup'          => 1,
+			'show_signup'              => 1,
+			'free_signup'              => 0,
+			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
 			'trial_level'              => 1,
@@ -4575,6 +4574,12 @@ function admin_levels() {
 					$content .= '<div class="alignright"><a href="' . add_query_arg( array( 'blogs-start' => $next_start ), get_permalink() ) . '">Next</a></div>';
 				}
 				$content .= '</div>';
+
+				// Signup for another blog?
+				$allow_multi = $this->get_setting('multiple_signup');
+				if( $allow_multi ) {
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				}
 			}
 
 			//show message if no valid blogs
