@@ -36,7 +36,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
 			$hidden_class = isset( $_SESSION['new_blog_details'] ) || isset( $_SESSION['upgraded_blog_details'] ) ? '' : $hidden_class;
 
-
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
 			// Render tabs
@@ -264,6 +263,56 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		}
 
+		public static function render_free_confirmation() {
+			global $psts;
+
+			$content = '<div id="psts-payment-info-received">';
+
+			$username = $_SESSION['new_blog_details']['username'];
+			$userpass = __( '(password emailed to you)', 'psts' );
+			$email = $_SESSION['new_blog_details']['email'];
+			$blogname = $_SESSION['new_blog_details']['blogname'];
+			$blog_title = $_SESSION['new_blog_details']['title'];
+			$blog_id = $_SESSION['new_blog_details']['blog_id'];
+
+			switch_to_blog( $blog_id );
+			$blog_admin_url = admin_url();
+			restore_current_blog();
+
+			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
+
+			$content .= '<p>' . esc_html__( 'Your basic site has been setup and you should soon receive an email with your site details. You can always upgrade your site by logging in and viewing your account.', 'psts' ) . '</p>';
+
+			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
+			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
+			$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
+			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
+
+			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';
+			$content .= '<ul>' .
+			            '<li>' . esc_html__( 'Wait a little bit longer.', 'psts' ) . '</li>' .
+			            '<li>' . esc_html__( 'Check your spam folder just in case it ended up in there.', 'psts' ) . '</li>' .
+			            '<li>' . esc_html__( 'Make sure that your email address is correct (' . $email . ')', 'psts' ) . '</li>' .
+			            '</ul>';
+			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
+
+			unset( $_SESSION['new_blog_details'] );
+			unset( $_SESSION['upgraded_blog_details'] );
+			unset( $_SESSION['blog_activation_key'] );
+
+			if( ! empty( $blog_admin_url ) ) {
+				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
+			}
+
+			$content .= '</div>';
+
+			ob_start();
+			do_action( 'signup_finished' );
+			$content .= ob_get_clean();
+
+			return $content;
+
+		}
 
 		public static function render_payment_submitted( $show_trial = false ) {
 			global $psts;
@@ -321,12 +370,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
 
-			if( isset( $_SESSION['new_blog_details'] ) ) {
-				unset( $_SESSION['new_blog_details'] );
-			}
-			if( isset( $_SESSION['upgraded_blog_details'] ) ) {
-				unset( $_SESSION['upgraded_blog_details'] );
-			}
+			unset( $_SESSION['new_blog_details'] );
+			unset( $_SESSION['upgraded_blog_details'] );
+			unset( $_SESSION['blog_activation_key'] );
 
 			if( ! empty( $blog_admin_url ) ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';

@@ -39,5 +39,17 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			return $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
 		}
 
+
+		public static function redirect_signup_page() {
+			global $pagenow, $psts;
+			$show_signup = $psts->get_setting( 'show_signup' );
+
+			if( 'wp-signup.php' == $pagenow && $show_signup ) {
+				wp_redirect( $psts->checkout_url() );
+				exit();
+			}
+		}
+
+
 	}
 }

@@ -334,10 +334,12 @@ jQuery(document).ready(function ($) {
 
 
     // ====== CHOOSE BUTTON ======= //
-    $('.choose-plan-button').unbind( 'click' );
-    $('.choose-plan-button').click( function( e ) {
+    $('.choose-plan-button, .free-plan-link a').unbind( 'click' );
+    $('.choose-plan-button, .free-plan-link a').click( function( e ) {
 
         var target = e.currentTarget;
+        var free_link =  $(target).is('a');
+        var site_registered = "yes" == $('#prosites-checkout-table').attr('data-site-registered');
         var button_text = '';
 
         var blog_id = Requests.QueryString("bid");
@@ -346,6 +348,10 @@ jQuery(document).ready(function ($) {
         if( false != action && 'new_blog' == action ) {
             new_blog = true;
         }
+
+        // Hide login link if its visible
+        $('.login-existing').hide();
+
         //console.log( action );
         //console.log( new_blog );
         if( prosites_checkout.logged_in ) {
@@ -357,26 +363,34 @@ jQuery(document).ready(function ($) {
         // Reset button text
         $('.choose-plan-button').html( button_text );
 
-        //if( ! $(target).hasClass('register-new') ) {
-            if( prosites_checkout.logged_in && ! new_blog ) {
-                $('.checkout-gateways.hidden').removeClass('hidden');
-            } else {
-                $('#prosites-signup-form-checkout').removeClass('hidden');
-                var the_element = $('#prosites-signup-form-checkout');
-                console.log( the_element );
-                if( typeof the_element != 'undefined' && the_element.length != 0 ) {
-                    $('html, body').animate({
-                        scrollTop: $("#prosites-signup-form-checkout").offset().top - 100
-                    }, 1000);
-                }
+
+        if( prosites_checkout.logged_in && ! new_blog ) {
+            $('.checkout-gateways.hidden').removeClass('hidden');
+        } else {
+            $('#prosites-signup-form-checkout').removeClass('hidden');
+            var the_element = $('#prosites-signup-form-checkout');
+            if( typeof the_element != 'undefined' && the_element.length != 0 ) {
+                $('html, body').animate({
+                    scrollTop: $("#prosites-signup-form-checkout").offset().top - 100
+                }, 1000);
             }
+        }
 
-            $('.chosen-plan').removeClass('chosen-plan');
-            $('.not-chosen-plan').removeClass('not-chosen-plan');
+        $('.chosen-plan').removeClass('chosen-plan');
+        $('.not-chosen-plan').removeClass('not-chosen-plan');
 
-            var parent = $(target).parents('ul')[0];
-            var level = 0;
+        var parent = $(target).parents('ul')[0];
+        var level = 0;
 
+        if( free_link ) {
+            level = 'free';
+            if( site_registered ) {
+                $('.gateways.checkout-gateways').addClass('hidden');
+            }
+        } else {
+            if( site_registered ) {
+                $('.gateways.checkout-gateways').removeClass('hidden');
+            }
             var classes = $(parent).attr('class');
             classes = classes.split(' ');
 
@@ -390,11 +404,12 @@ jQuery(document).ready(function ($) {
 
             $(parent).addClass('chosen-plan');
             $(parent).siblings('ul').addClass('not-chosen-plan');
+        }
 
-            // Set the level required for gateways... but also set it on the checkout table
-            $('.gateways [name=level]').val(level);
-            $('#prosites-checkout-table').attr('data-level', level);
-        //}
+        // Set the level required for gateways... but also set it on the checkout table
+        $('.gateways [name=level]').val(level);
+        $('#prosites-checkout-table').attr('data-level', level);
+
     });
 
     $('#gateways').tabs();
@@ -476,10 +491,12 @@ jQuery(document).ready(function ($) {
 
         // Get fresh signup form
         if( typeof response.form != 'undefined' ) {
+
             $('#prosites-signup-form-checkout').replaceWith( response.form );
             $('#check-prosite-blog').unbind( "click" );
             $('#check-prosite-blog').on( "click", bind_availability_check );
             $('#prosites-signup-form-checkout').removeClass('hidden');
+            $('#prosites-checkout-table').attr('data-site-registered', 'yes');
 
             // Reset values...
             var obj = $.unserialize( form_data );
@@ -496,6 +513,8 @@ jQuery(document).ready(function ($) {
         if( typeof response.gateways_form != 'undefined' ) {
             $('.gateways.checkout-gateways').replaceWith(response.gateways_form);
 
+            var is_free = "free" == $('#prosites-checkout-table').attr('data-level');
+
             // Reset the levels
             $('.gateways [name=level]').val( $('#prosites-checkout-table').attr('data-level') );
             $('.gateways [name=period]').val( $('#prosites-checkout-table').attr('data-period') );
@@ -505,7 +524,9 @@ jQuery(document).ready(function ($) {
             $("#stripe-payment-form").on( 'submit', stripePaymentFormSubmit );
 
             $('#gateways').tabs();
-            $('.gateways.checkout-gateways').removeClass('hidden');
+            if( ! is_free ) {
+                $('.gateways.checkout-gateways').removeClass('hidden');
+            }
         }
 
         if( typeof response.username_available != 'undefined' && true === response.username_available ) {

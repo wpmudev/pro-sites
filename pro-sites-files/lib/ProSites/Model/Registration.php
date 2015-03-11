@@ -23,7 +23,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$params = array();
 			parse_str( $_POST['data'], $params);
 			$period = (int) $_POST['period'];
-			$level = (int) $_POST['level'];
+			$level = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
 			$_POST = $params;
 
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
@@ -120,6 +120,16 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 						} else {
 							$ajax_response['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment has been processed your site will become active with your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
+						}
+
+						// FREE basic site
+						if( 'free' == $_SESSION['new_blog_details']['level'] ) {
+							if( isset( $ajax_response['reserved_message'] ) ) {
+								unset( $ajax_response['reserved_message'] );
+							}
+							ProSites_Helper_Registration::activate_blog( $activation_key, false, false, false );
+							$ajax_response['show_finish'] = true;
+							$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_free_confirmation();
 						}
 
 						// Keep this in session because we'll use it again

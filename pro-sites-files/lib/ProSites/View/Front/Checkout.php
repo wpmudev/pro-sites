@@ -21,7 +21,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			// User is not logged in and this is not a new registration.
 			// Get them to sign up! (or login)
-			if( empty( $blog_id ) && ! $domain ) {
+			if( empty( $blog_id ) && ! isset( $_SESSION['new_blog_details'] ) ) {
 				self::$new_signup = true;
 			}
 
@@ -36,10 +36,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$content .= self::render_tables_wrapper( 'pre' );
 			$content .= self::render_pricing_columns( $columns );
 			$content .= self::render_tables_wrapper( 'post' );
-			if( self::$new_signup ) {
-				$content .= self::render_login_link();
-			}
 
+			if( self::$new_signup && ! is_user_logged_in() ) {
+				$content .= self::render_login();
+			}
 //			$expire = $psts->get_expire( $blog_id );
 
 			// Signup registration
@@ -56,6 +56,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		}
 
 		private static function render_pricing_columns( $columns, $echo = false ) {
+			global $psts;
 
 			$content = '';
 			$total_columns = count( $columns );
@@ -146,6 +147,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				$content .= '</ul>';
 
+			}
+
+			$allow_free = $psts->get_setting('free_signup');
+			if( $allow_free ) {
+				$style = 'margin-left: ' . $column_width . '%; ';
+				$style .= 'width: ' . ( 100 - $column_width ) . '%; ';
+				$content .= self::render_free( $style );
 			}
 
 			if( $echo ) {
@@ -503,10 +511,26 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			return $content;
 		}
 
-		public static function render_login_link() {
-			$content = '<div class="login-existing"><a href="' . esc_url( wp_login_url( ' . get_permalink() . ' ) ) . '" title="' .
+		public static function render_login() {
+			$content = '<div class="login-existing">
+						<a href="' . esc_url( wp_login_url( get_permalink()  ) ) . '" title="' .
 			           esc_attr__( 'Login', 'psts' ) . '">' . esc_html__( 'Login to view or upgrade your existing plan.', 'psts' ) . '</a></div>';
-			// return $content;
+//			$content .= wp_login_form( array( 'echo' => false ) );
+//			return $content;
+		}
+
+		public static function render_free( $style ) {
+			global $psts;
+			$free_text = $psts->get_setting('free_msg');
+			if ( ! isset( $_GET['bid'] ) ) {
+				$content = '<div class="free-plan-link" style="' . esc_attr( $style ) . '"><a>' . esc_html( $free_text ) . '</a></div>';
+			} else {
+				if( ! is_pro_site( (int) $_GET['bid'] ) ) {
+					$free_link = '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( (int) $_GET['bid'], 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+					$content = '<div class="free-plan-link-logged-in" style="' . esc_attr( $style ) . '"><p>' . esc_html__( 'Your current site is a basic site with no extra features. Upgrade now by selecting a plan above.', 'psts' ) . '</p><p>' . $free_link . '</p></div>';
+				}
+			}
+			return $content;
 		}
 
 	}

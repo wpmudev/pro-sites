@@ -131,7 +131,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-						    class="pay-for-signup"><?php echo __( 'Signup on Checkout', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
+						    class="pay-for-signup"><?php echo __( 'Signup on Checkout<br /><small>Disables WordPress Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]"
 							              value="1"<?php checked( $psts->get_setting( 'show_signup' ) ); ?> />
@@ -139,7 +139,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="free-signup"><?php echo __( 'Allow Free Signup', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow user to sign up for a standard non-Pro Sites blog.', 'psts' ) ); ?></th>
+							class="free-signup"><?php echo __( 'Allow Free Signup<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow user to sign up for a standard non-Pro Sites blog.', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[free_signup]"
 									value="1"<?php checked( $psts->get_setting( 'free_signup' ) ); ?> />
@@ -147,10 +147,10 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="redirect-signup"><?php echo __( 'Disable Standard Signup', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Take users to Pro Sites checkout instead of normal WordPress site registration.', 'psts' ) ); ?></th>
+							class="multiple-signup"><?php echo __( 'Allow multiple blogs<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow single users to register multiple blogs.', 'psts' ) ); ?></th>
 						<td>
-							<label><input type="checkbox" name="psts[redirect_signup]"
-									value="1"<?php checked( $psts->get_setting( 'redirect_signup' ) ); ?> />
+							<label><input type="checkbox" name="psts[multiple_signup]"
+									value="1"<?php checked( $psts->get_setting( 'multiple_signup' ) ); ?> />
 						</td>
 					</tr>
 

@@ -136,8 +136,13 @@ class ProSites {
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
 		//handle signup pages
+		add_action('init','ProSites_Helper_ProSite::redirect_signup_page' );
 		add_filter( 'prosites_render_checkout_page_period', 'ProSites_View_Front_Gateway::select_current_period', 10, 2 );
 		add_filter( 'prosites_render_checkout_page_level', 'ProSites_View_Front_Gateway::select_current_level', 10, 2 );
+		// Dismissed signup prompt
+		if ( isset( $_GET['psts_dismiss'] ) ) {
+			update_option( 'psts_signed_up', 0 );
+		}
 
 //		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
 //		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
@@ -171,8 +176,8 @@ class ProSites {
 		add_filter( 'bp_core_signup_send_activation_key', array( $this, 'disable_user_activation_mail' ), 10 );
 
 		//Redirect to checkout page after signup
-		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
-		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
+//		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
+//		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
 
 		//Register styles
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );
@@ -290,6 +295,7 @@ class ProSites {
 			'pay-for-signup'           => 1,
 			'free-signup'              => 0,
 			'redirect-signup'          => 0,
+			'multiple-signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
 			'trial_level'              => 1,
@@ -4400,8 +4406,13 @@ function admin_levels() {
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 //		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
 		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
-//			$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
-//			$content .= wp_login_form( array( 'echo' => false ) );
+
+			$show_signup = $this->get_setting( 'show_signup' );
+			if( ! is_user_logged_in() && ! $show_signup ) {
+				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
+				$content .= wp_login_form( array( 'echo' => false ) );
+				return $content;
+			}
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
 
 			return $content;
