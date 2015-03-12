@@ -36,7 +36,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$columns = self::get_pricing_columns( $plans_table_enabled, $features_table_enabled );
 
 			$content .= self::render_tables_wrapper( 'pre' );
-			$content .= self::render_pricing_columns( $columns, $blog_id );
+//			$content .= self::render_pricing_columns( $columns, $blog_id );
+			$content .= self::render_pricing_grid( $columns, $blog_id );
 			$content .= self::render_tables_wrapper( 'post' );
 
 			if( self::$new_signup && ! is_user_logged_in() ) {
@@ -317,6 +318,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong> ', 'psts' ),
 				'saving' => __( 'saving you <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
+				'monthly_alt' => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
 			);
 
 			if( empty( $level ) ) {
@@ -362,6 +364,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$setup_msg = '<div class="setup-fee">' . sprintf( $plan_text['setup'], $setup_fee ) . '</div>';
 				}
 
+				$level_details['breakdown'] = array();
+				$level_details['savings_msg'] = array();
 				foreach( $periods as $period_key => $period ) {
 
 					switch( $period_key ) {
@@ -380,11 +384,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					// Get level price and format it
 					$price = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ] );
-					$content .= '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
-					$content .= '<div class="plan-price original-amount">' . $price . '</div>';
-					$content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
-					$content .= ! empty( $setup_msg ) ? $setup_msg : '';
-					$content .= '</div>';
+					$period_content = '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
+					$period_content .= '<div class="plan-price original-amount">' . $price . '</div>';
+					$period_content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
+					$period_content .= ! empty( $setup_msg ) ? $setup_msg : '';
+					$period_content .= '</div>';
+					$level_details['breakdown'][ $period_key ] = str_replace( 'hide', '', $period_content );
+					$content .= $period_content;
 
 					$monthly_price = $level_list[ $level ]['price_1'];
 
@@ -395,12 +401,15 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$formatted_savings = '<div class="savings-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $difference ) . '</div>';
 
 					$summary_msg = $plan_text['monthly'];
+
 					if( $months > 1 ) {
 						$summary_msg = sprintf( $plan_text['summary'], $formatted_calculated );
 						if( $difference > 0.0 ) {
 							$summary_msg .= sprintf( $plan_text['saving'], $formatted_savings, $months );
 						}
-
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . $summary_msg . '</div>';
+					} else {
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . $plan_text['monthly_alt'] . '</div>';
 					}
 
 					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
@@ -536,6 +545,113 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$content = '<div class="free-plan-link-logged-in" style="' . esc_attr( $style ) . '"><p>' . esc_html__( 'Your current site is a basic site with no extra features. Upgrade now by selecting a plan above.', 'psts' ) . '</p><p>' . $free_link . '</p></div>';
 				}
 			}
+			return $content;
+		}
+
+		private static function render_pricing_grid( $columns, $blog_id = false, $echo = false ) {
+			global $psts;
+
+			$levels    = (array) get_site_option( 'psts_levels' );
+			$periods = (array) $psts->get_setting( 'enabled_periods' );
+			$recurring = $psts->get_setting( 'recurring_subscriptions', 1 );
+
+			//remove levels that are hidden
+			foreach ( $levels as $level_id => $level ) {
+				$is_visible = isset( $level['is_visible'] ) ? (bool) $level['is_visible'] : true;
+				if ( $is_visible ) {
+					continue;
+				}
+				unset( $columns[ $level_id ] );
+			}
+
+			$sel_level = self::$selected_level;
+			$sel_period = self::$default_period;
+
+			if ( count( $periods ) >= 3 ) {
+				$width      = '23%';
+				$free_width = '95%';
+			} else if ( count( $periods ) == 2 ) {
+				$width      = '30%';
+				$free_width = '92.5%';
+			} else {
+				$width      = '40%';
+				$free_width = '85%';
+			}
+
+			$content = '';
+
+			// TODO: Add coupon filter, apply_filters( 'psts_before_checkout_grid', $content, $blog_id );
+
+			$content = apply_filters( 'psts_before_checkout_grid', $content, $blog_id );
+			$content .= '<table id="psts_checkout_grid" width="100%">';
+
+			if ( $recurring ) {
+				$content .= '<tr class="psts_level_head">
+					<th>' . __( 'Level', 'psts' ) . '</th>';
+				if ( in_array( 1, $periods ) ) {
+					$content .= '<th>' . __( 'Monthly', 'psts' ) . '</th>';
+				}
+				if ( in_array( 3, $periods ) ) {
+					$content .= '<th>' . __( 'Every 3 Months', 'psts' ) . '</th>';
+				}
+				if ( in_array( 12, $periods ) ) {
+					$content .= '<th>' . __( 'Every 12 Months', 'psts' ) . '</th>';
+				}
+				$content .= '</tr>';
+			} else {
+				$content .= '<tr class="psts_level_head">
+					<th>' . __( 'Level', 'psts' ) . '</th>';
+				if ( in_array( 1, $periods ) ) {
+					$content .= '<th>' . __( '1 Month', 'psts' ) . '</th>';
+				}
+				if ( in_array( 3, $periods ) ) {
+					$content .= '<th>' . __( '3 Months', 'psts' ) . '</th>';
+				}
+				if ( in_array( 12, $periods ) ) {
+					$content .= '<th>' . __( '12 Months', 'psts' ) . '</th>';
+				}
+				$content .= '</tr>';
+			}
+
+			foreach ( $columns as $level_id => $column ) {
+				if ( 0 == $level_id ) {
+					continue;
+				}
+				$content .= '<tr class="psts_level level-' . $level_id . '">
+				<td valign="middle" class="level-name">';
+				$content .= apply_filters( 'psts_checkout_grid_levelname', '<h3>' . $column['title'] . '</h3>', $level, $blog_id );
+				$content .= '</td>';
+
+				if ( in_array( 1, $periods ) ) {
+					$content .= '<td class="level-option" style="width: ' . $width . '">';
+					$content .= $columns[$level_id]['breakdown']['price_1'];
+					$content .= $columns[$level_id]['savings_msg']['price_1'];
+					$content .= '</td>';
+				}
+
+				if ( in_array( 3, $periods ) ) {
+					$content .= '<td class="level-option" style="width: ' . $width . '">';
+					$content .= $columns[$level_id]['breakdown']['price_3'];
+					$content .= $columns[$level_id]['savings_msg']['price_3'];
+					$content .= '</td>';
+				}
+
+				if ( in_array( 12, $periods ) ) {
+					$content .= '<td class="level-option" style="width: ' . $width . '">';
+					$content .= $columns[$level_id]['breakdown']['price_12'];
+					$content .= $columns[$level_id]['savings_msg']['price_12'];
+					$content .= '</td>';
+				}
+
+				$content .= '</tr>';
+			}
+
+			$content = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
+
+			$content = apply_filters( 'psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width );
+
+			$content .= '</table>';
+
 			return $content;
 		}
 
