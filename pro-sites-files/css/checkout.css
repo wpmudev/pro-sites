@@ -29,6 +29,7 @@ table#psts_checkout_grid {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b8cad8', endColorstr='#234966',GradientType=0 );
 	background: linear-gradient(top, #b8cad8 1%,#5d7a93 3%,#5d7a93 36%,#4f687c 56%,#234966 99%);
 	width: 85%;
+    position:relative;
 }
 
 #psts_checkout_grid .pblg-checkout-opt:hover {
@@ -1146,6 +1147,90 @@ ul.pricing-column.not-chosen-plan .button-box button {
 .login-existing {
     /*text-align: right;*/
     /*font-size: 0.9em;*/
+}
+
+/* === ALTER CLASSIC === */
+#psts_checkout_grid .pblg-checkout-opt {
+    min-height: 170px;
+}
+#psts_checkout_grid .pblg-checkout-opt .level-summary {
+    font-size: 0.6em;
+}
+#psts_checkout_grid .pblg-checkout-opt .plan-price {
+    font-size: 1.2em;
+}
+#psts_checkout_grid .pblg-checkout-opt .price .period {
+    display:none;
+}
+
+#psts_checkout_grid .pblg-checkout-opt .level-summary div {
+    display:inline;
+}
+
+/* === COUPON STYLE === */
+#psts_checkout_grid .pblg-checkout-opt .level-summary div.scratch {
+    display: none;
+}
+#psts_checkout_grid .pblg-checkout-opt {
+    min-height: 190px;
+}
+#psts_checkout_grid .pblg-checkout-opt .plan-price.original-amount.scratch {
+    font-size: 0.7em;
+    opacity: 1;
+    position: absolute;
+    right: 3px;
+    top: -1px;
+    display:block;
+}
+#psts_checkout_grid .pblg-checkout-opt .plan-price.original-amount.scratch:after {
+    border-bottom: 1px solid red;
+    content: "";
+    display: block;
+    font-size: 0.3em;
+    margin: 0 auto;
+    position: relative;
+    top: -2.7em;
+    display:block;
+}
+
+.pricing-column.grid-checkout {
+    top: 2px;
+}
+.pricing-column.grid-checkout .coupon input {
+    width: auto;
+    margin-right: 10px;
+    padding-left: 20px;
+}
+
+.pricing-column.grid-checkout .coupon-box.coupon-valid:after {
+    display:none;
+}
+.pricing-column.grid-checkout .coupon-box.coupon-valid:before {
+    font-family: "dashicons";
+    content: "\f147";
+    color: #00CE8A;
+    position: absolute;
+    float:left;
+    margin-left: 5px;
+    z-index: 10;
+}
+
+.pricing-column.grid-checkout .coupon-box.coupon-invalid:after {
+    display: none;
+}
+.pricing-column.grid-checkout .coupon-box.coupon-invalid:before {
+    font-family: "dashicons";
+    content: "\f158";
+    color: #B6B6B6;
+    /* IE 9 */
+    -ms-transform: scale(0.8,0.8);
+    /* Chrome, Safari, Opera */
+    -webkit-transform: scale(0.8,0.8);
+    transform: scale(0.8,0.8);
+    position: absolute;
+    float:left;
+    margin-left: 5px;
+    z-index: 10;
 }
 
 /* === DARK MODE === */

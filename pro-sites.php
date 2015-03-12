@@ -422,7 +422,8 @@ Thanks!", 'psts' ),
 			),
 			'uh_level'                 => 1,
 			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
-			'co_pricing'               => 'disabled'
+			'co_pricing'               => 'disabled',
+			'plans_table_enabled'      => 1,
 		);
 	}
 

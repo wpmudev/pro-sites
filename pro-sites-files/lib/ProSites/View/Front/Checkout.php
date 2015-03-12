@@ -33,11 +33,15 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
 			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
-			$columns = self::get_pricing_columns( $plans_table_enabled, $features_table_enabled );
+			// $columns = self::get_pricing_columns( $plans_table_enabled, $features_table_enabled );
+			$columns = self::get_pricing_columns( true, $features_table_enabled );
 
 			$content .= self::render_tables_wrapper( 'pre' );
-//			$content .= self::render_pricing_columns( $columns, $blog_id );
-			$content .= self::render_pricing_grid( $columns, $blog_id );
+			if( $plans_table_enabled ) {
+				$content .= self::render_pricing_columns( $columns, $blog_id );
+			} else {
+				$content .= self::render_pricing_grid( $columns, $blog_id );
+			}
 			$content .= self::render_tables_wrapper( 'post' );
 
 			if( self::$new_signup && ! is_user_logged_in() ) {
@@ -315,7 +319,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$plan_text = array(
 				'payment_type' => __( 'Payment period', 'psts' ),
 				'setup' => __( 'Plus a One Time %s Setup Fee', 'psts' ),
-				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong> ', 'psts' ),
+				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>, ', 'psts' ),
 				'saving' => __( 'saving you <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
 				'monthly_alt' => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
@@ -623,34 +627,52 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$content .= '</td>';
 
 				if ( in_array( 1, $periods ) ) {
-					$content .= '<td class="level-option" style="width: ' . $width . '">';
+					$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt">';
 					$content .= $columns[$level_id]['breakdown']['price_1'];
 					$content .= $columns[$level_id]['savings_msg']['price_1'];
-					$content .= '</td>';
+					$content .= '</div></td>';
 				}
 
 				if ( in_array( 3, $periods ) ) {
-					$content .= '<td class="level-option" style="width: ' . $width . '">';
+					$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt">';
 					$content .= $columns[$level_id]['breakdown']['price_3'];
 					$content .= $columns[$level_id]['savings_msg']['price_3'];
-					$content .= '</td>';
+					$content .= '</div></td>';
 				}
 
 				if ( in_array( 12, $periods ) ) {
-					$content .= '<td class="level-option" style="width: ' . $width . '">';
+					$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt">';
 					$content .= $columns[$level_id]['breakdown']['price_12'];
 					$content .= $columns[$level_id]['savings_msg']['price_12'];
-					$content .= '</td>';
+					$content .= '</div></td>';
 				}
 
 				$content .= '</tr>';
 			}
 
-			$content = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
-
-			$content = apply_filters( 'psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width );
+			$column_keys = array_keys( $columns[0] );
+			$add_coupon = in_array( 'coupon', $column_keys );
+			if( $add_coupon ) {
+				$content .= '<tr>';
+				$content .= '<td colspan="' . (count( $periods )+1) . '">';
+				$content .= '<div class="pricing-column grid-checkout"><div class="coupon">';
+				$content .= '<div class="coupon-box">';
+				$content .= '<input type="text" name="apply-coupon" placeholder="' . __( 'Enter coupon', 'psts' ) . '" />';
+				$content .= '<a name="apply-coupon-link" class="apply-coupon-link">' . esc_html__( 'Apply Coupon', 'psts' ) . '</a>';
+				$content .= '</div></div></div>';
+				$content .= '</td>';
+				$content .= '</tr>';
+			}
 
 			$content .= '</table>';
+
+			$allow_free = $psts->get_setting('free_signup');
+			$content = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
+			if( $allow_free ) {
+				$style = 'width: ' . $free_width . '; ';
+				$content .= self::render_free( $style, $blog_id );
+			}
+			$content = apply_filters( 'psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width );
 
 			return $content;
 		}
