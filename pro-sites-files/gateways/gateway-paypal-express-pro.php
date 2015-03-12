@@ -2646,24 +2646,27 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$cc_country   = isset( $_POST['cc_country'] ) ? stripslashes( $_POST['cc_country'] ) : '';
 
 			$content .= '<div id="psts-cc-checkout">
-		<h2>' . __( 'Or Pay Directly By Credit Card', 'psts' ) . '</h2>';
+			<h2>' . __( 'Or Pay Directly By Credit Card', 'psts' ) . '</h2>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'processcard' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= self::nonce_field();
-			$content .= '
-		  <input type="hidden" name="cc_form" value="1" />
+			$content .= '<input type="hidden" name="cc_form" value="1" />
 			<table id="psts-cc-table">
-			<tbody>
-			<tr><td colspan="2"><h3>' . __( 'Credit Card Info:', 'psts' ) . '</h3></td></tr>';
+				<tbody>
+					<tr>
+						<td colspan="2">
+							<h3>' . __( 'Credit Card Info:', 'psts' ) . '</h3>
+						</td>
+					</tr>';
 
 			$content = apply_filters( 'psts_pp_pro_form_before_first_input', $content, $psts );
 
 			$content .= '<!-- Credit Card Type -->
-			  <tr>
-					<td class="pypl_label" align="right">' . __( 'Card Type:', 'psts' ) . '&nbsp;</td>
-					<td>';
+			         <tr>
+						<td class="pypl_label" align="right">' . __( 'Card Type:', 'psts' ) . '&nbsp;</td>
+						<td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'card-type' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
@@ -2673,32 +2676,32 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			  <label class="cc-image" title="American Express"><input type="radio" name="cc_card-type" value="Amex"' . ( ( $cc_cardtype == 'Amex' ) ? ' checked="checked"' : '' ) . ' /><img src="' . $img_base . 'amex.png" alt="American Express" /></label>
 			  <label class="cc-image" title="Discover"><input type="radio" name="cc_card-type" value="Discover"' . ( ( $cc_cardtype == 'Discover' ) ? ' checked="checked"' : '' ) . ' /><img src="' . $img_base . 'discover.png" alt="Discover" /></label>
 			  </td>
-					</tr>
+			</tr>
 
-			  <tr>
-					<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
-					<td>';
+		    <tr>
+				<td class="pypl_label" align="right">' . __( 'Card Number:', 'psts' ) . '&nbsp;</td>
+				<td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'number' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<input name="cc_number" type="text" class="cctext" value="' . esc_attr( $cc_number ) . '" size="23" />
-					</td>
-					</tr>
+				</td>
+			</tr>
 
-					<tr>
-					<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
-					<td valign="middle">';
+			<tr>
+				<td class="pypl_label" align="right">' . __( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
+				<td valign="middle">';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'expiration' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<select name="cc_month">' . self::month_dropdown( $cc_month ) . '</select>&nbsp;/&nbsp;<select name="cc_year">' . self::year_dropdown( $cc_year ) . '</select>
-					</td>
-					</tr>
+				</td>
+			</tr>
 
-				<!-- Card Security Code -->
-				<tr>
+			<!-- Card Security Code -->
+			<tr>
 				<td class="pypl_label" align="right"><nobr>' . __( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
 				<td valign="middle">';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'cvv2' ) : false;
@@ -2708,26 +2711,29 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$content .= '<label><input name="cc_cvv2" size="5" maxlength="4" type="password" class="cctext" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
 				<img src="' . $img_base . 'buy-cvv.gif" height="27" width="42" title="' . __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" /></label>
 				</td>
-					</tr>
+			</tr>
 
-			<tr><td colspan="2"><h3>' . __( 'Billing Address:', 'psts' ) . '</h3></td></tr>
-				<tr>
-				<td class="pypl_label" align="right">' . __( 'First Name:', 'psts' ) . '*&nbsp;</td><td>';
+			<tr>
+				<td colspan="2"><h3>' . __( 'Billing Address:', 'psts' ) . '</h3></td>
+			</tr>
+			<tr>
+				<td class="pypl_label" align="right">' . __( 'First Name:', 'psts' ) . '*&nbsp;</td>
+				<td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'firstname' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<input name="cc_firstname" type="text" class="cctext" value="' . esc_attr( $cc_firstname ) . '" size="25" /> </td>
-				</tr>
-				<tr>
+			</tr>
+			<tr>
 				<td class="pypl_label" align="right">' . __( 'Last Name:', 'psts' ) . '*&nbsp;</td><td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'lastname' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<input name="cc_lastname" type="text" class="cctext" value="' . esc_attr( $cc_lastname ) . '" size="25" /></td>
-				</tr>
-				<tr>
+			</tr>
+			<tr>
 
 				<td class="pypl_label" align="right">' . __( 'Address:', 'psts' ) . '*&nbsp;</td><td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'address' ) : false;
@@ -2735,14 +2741,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<input size="45" name="cc_address" type="text" class="cctext" value="' . esc_attr( $cc_address ) . '" /></td>
-				</tr>
-				<tr>
+			</tr>
+			<tr>
 
-				<td class="pypl_label" align="right">' . __( 'Address 2:', 'psts' ) . '&nbsp;</td><td>
-			<input size="45" name="cc_address2" type="text" class="cctext" value="' . esc_attr( $cc_address2 ) . '" /></td>
-				</tr>
-				<tr>
-				<td class="pypl_label" align="right">' . __( 'City:', 'psts' ) . '*&nbsp;</td><td>';
+				<td class="pypl_label" align="right">' . __( 'Address 2:', 'psts' ) . '&nbsp;</td>
+				<td><input size="45" name="cc_address2" type="text" class="cctext" value="' . esc_attr( $cc_address2 ) . '" /></td>
+			</tr>
+			<tr>
+				<td class="pypl_label" align="right">' . __( 'City:', 'psts' ) . '*&nbsp;</td>
+				<td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'city' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
@@ -2752,16 +2759,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<input size="20" name="cc_city" type="text" class="cctext" value="' . esc_attr( $cc_city ) . '" />&nbsp;&nbsp; ' . __( 'State/Province:', 'psts' ) . '*&nbsp;<input size="5" name="cc_state" type="text" class="cctext" value="' . esc_attr( $cc_state ) . '" /></td>
-				</tr>
-				<tr>
+			</tr>
+			<tr>
 				<td class="pypl_label" align="right">' . __( 'Postal/Zip Code:', 'psts' ) . '*&nbsp;</td><td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'zip' ) : false;
 			if ( $errmsg ) {
 				$content .= '<div class="psts-error">' . $errmsg . '</div>';
 			}
 			$content .= '<input size="10" name="cc_zip" type="text" class="cctext" value="' . esc_attr( $cc_zip ) . '" /> </td>
-				</tr>
-				<tr>
+			</tr>
+			<tr>
 
 				<td class="pypl_label" align="right">' . __( 'Country:', 'psts' ) . '*&nbsp;</td><td>';
 			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'country' ) : false;
@@ -2777,14 +2784,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$content .= '<option value="' . $key . '"' . ( ( $cc_country == $key ) ? ' selected="selected"' : '' ) . '>' . esc_attr( $value ) . '</option>';
 			}
 			$content .= '</select>
-			</td>
-				</tr>
-		  </tbody></table>
-			<p>
-			<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" />
-			<span id="paypal_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
-		  </p>
-				</div>';
+				</td>
+			</tr>
+        </tbody>
+    </table>
+	<p>
+		<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button" />
+		<div id="paypal_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</div>
+    </p>
+	</div>';
 		}
 
 		$content .= '</form>';
