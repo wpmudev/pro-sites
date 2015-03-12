@@ -862,10 +862,10 @@ Thanks!", 'psts' ),
 		do_action( 'psts_page_after_pricing_settings' );
 
 		//checkout page settings
-		$psts_pricing_page_old = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
-			&$this,
-			'pricing_table_settings'
-		) );
+//		$psts_pricing_page_old = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
+//			&$this,
+//			'pricing_table_settings'
+//		) );
 
 		//register plugin style
 		add_action( 'admin_print_styles-' . $psts_main_page, array( &$this, 'load_psts_style' ) );

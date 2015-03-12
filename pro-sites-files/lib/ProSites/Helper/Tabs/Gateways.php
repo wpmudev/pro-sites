@@ -60,7 +60,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 					),
 				) ),
 				'stripe' => array_merge( $section_options, array(
-					'title' => __( 'Stripe (beta)', 'psts' ),
+					'title' => __( 'Stripe', 'psts' ),
 					'desc'               => array(
 						__( 'Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts' ),
 					),

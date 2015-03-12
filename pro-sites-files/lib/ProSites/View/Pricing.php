@@ -8,7 +8,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 		}
 
 		public static function get_menu_name() {
-			return __( 'Pricing Tables (new)', 'psts' );
+			return __( 'Pricing Tables', 'psts' );
 		}
 
 		public static function get_description() {

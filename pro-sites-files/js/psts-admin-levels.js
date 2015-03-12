@@ -298,7 +298,7 @@ jQuery(document).ready(function($){
         feature_order += '</td>';
 
         var feature_visible = '<td scope="row" style="padding-left: 20px;">';
-        feature_visible += '<input type="checkbox" name="psts[feature_table][' + key + '][visible]" value="1">';
+        feature_visible += '<input type="checkbox" checked="checked" name="psts[feature_table][' + key + '][visible]" value="1">';
         feature_visible += '</td>'
 
         var feature_name = '<td scope="row">';
