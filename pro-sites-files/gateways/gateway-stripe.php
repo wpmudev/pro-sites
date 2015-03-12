@@ -106,8 +106,9 @@ class ProSites_Gateway_Stripe {
 		$table1 = "CREATE TABLE `{$wpdb->base_prefix}pro_sites_stripe_customers` (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
+			subscription_id char(22) NOT NULL,
 			PRIMARY KEY  (blog_id),
-			UNIQUE KEY ix_customer_id (customer_id)
+			UNIQUE KEY ix_subscription_id (subscription_id)
 		) DEFAULT CHARSET=utf8;";
 
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
@@ -116,9 +117,10 @@ class ProSites_Gateway_Stripe {
 
 			//3.5 upgrade - modify pro_sites table
 			if ( $psts->version <= '3.5' ) {
-				$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD subscription_id char(22) NOT NULL" );
-				$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers DROP KEY ix_customer_id" );
-				$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
+				//Using dbDelta instead
+				// $wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD subscription_id char(22) NOT NULL" );
+				// $wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers DROP KEY ix_customer_id" );
+				// $wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
 			}
 		}
 
@@ -167,8 +169,9 @@ class ProSites_Gateway_Stripe {
 					} catch ( Exception $e ) {
 					}
 				}
-
-				self::add_plan( self::get_plan_id( $level_id, $period ), $plan->interval, $plan->interval_count, $plan->name, ( $plan->amount / 100 ) );
+				if( is_object( $plan ) ) {
+					self::add_plan( self::get_plan_id( $level_id, $period ), $plan->interval, $plan->interval_count, $plan->name, ( $plan->amount / 100 ) );
+				}
 			}
 		}
 

@@ -42,13 +42,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if( $tabbed && count( $gateways ) > 1 ) {
 				$content .= '<ul>';
 				if( ! empty( $primary_gateway ) ) {
-					$content .= '<li><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label' ) ) . '</a></li>';
+					$content .= '<li><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				if( ! empty( $secondary_gateway ) ) {
-					$content .= '<li><a href="#gateways-2">' . esc_html( $psts->get_setting( 'checkout_gateway_secondary_label' ) ) . '</a></li>';
+					$content .= '<li><a href="#gateways-2">' . esc_html( $psts->get_setting( 'checkout_gateway_secondary_label', __( 'Alternate Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				if( ! empty( $manual_gateway ) ) {
-					$content .= '<li><a href="#gateways-3">' . esc_html( $psts->get_setting( 'checkout_gateway_manual_label' ) ) . '</a></li>';
+					$content .= '<li><a href="#gateways-3">' . esc_html( $psts->get_setting( 'checkout_gateway_manual_label', __( 'Offline Payment', 'psts' ) ) ) . '</a></li>';
 				}
 	            $content .= '</ul>';
 			}
@@ -153,6 +153,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				// Signup for another blog?
 				$allow_multi = $psts->get_setting('multiple_signup');
+				$registeration = get_site_option('registration');
+				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+
 				if( $allow_multi ) {
 					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
@@ -170,11 +173,15 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$active_count = count( $gateways );
 
 			if( 1 == $active_count ) {
-				$gateway_details['primary'] = key( $gateways[0] );
+				$keys = array_keys( $gateways );
+				$gateway_details['primary'] = $keys[0];
+				$gateway_details['secondary'] = '';
+				$gateway_details['manual'] = '';
 				reset( $gateways );
 			} else {
-				$gateway_details['primary'] = $psts->get_setting( 'gateway_pref_primary' );
-				$gateway_details['secondary']  = $psts->get_setting( 'gateway_pref_secondary' );
+				$keys = array_keys( $gateways );
+				$gateway_details['primary'] = $psts->get_setting( 'gateway_pref_primary', $keys[0] );
+				$gateway_details['secondary']  = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
 				$use_manual = $psts->get_setting( 'gateway_pref_use_manual' );
 
 				if( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && $use_manual ) {

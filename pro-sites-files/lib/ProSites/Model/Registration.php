@@ -101,7 +101,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						if ( !is_subdomain_install() ) {
 							$site_name = $current_site->domain . $current_site->path . $blogname;
 						} else {
-							$site_name = $blogname . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
+							$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
 						}
 
 						if( $trial_active ) {
@@ -177,7 +177,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				);
 
 				// Buffer used to isolate AJAX response from unexpected output
-				ob_end_clean();
+				@ob_end_clean();
 				ob_start();
 				$xmlResponse = new WP_Ajax_Response( $response );
 				$xmlResponse->send();

@@ -452,7 +452,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=\'' . $rgb_col
 					} else {
 						if ( class_exists( $class_name ) ) {
 							if ( method_exists( $class_name, 'is_included' ) ) {
-								$module_includes = $class_name::is_included( $level_id );
+								$is_included = call_user_func( $class_name . '::is_included', $level_id );
+								$module_includes = $is_included;
 							}
 						}
 					}

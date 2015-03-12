@@ -450,6 +450,7 @@ Thanks!", 'psts' ),
 		  term varchar(25) NULL DEFAULT NULL,
 		  amount varchar(10) NULL DEFAULT NULL,
 		  is_recurring tinyint(1) NULL DEFAULT 1,
+		  meta longtext NOT NULL,
 		  PRIMARY KEY  (blog_ID),
 		  KEY  (blog_ID,level,expire)
 		);";
@@ -529,7 +530,8 @@ Thanks!", 'psts' ),
 
 		//3.5 upgrade - modify pro_sites table
 		if ( version_compare( $this->get_setting( 'version' ), '3.5', '<=' ) ) {
-			$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
+			// Using dbDelta above, but add other code here.
+			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
 		}
 
 		$this->update_setting( 'version', $this->version );
@@ -4407,6 +4409,9 @@ function admin_levels() {
 		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
 
 			$show_signup = $this->get_setting( 'show_signup' );
+			$registeration = get_site_option('registration');
+			$show_signup = 'all' == $registeration ? $show_signup : false;
+
 			if( ! is_user_logged_in() && ! $show_signup ) {
 				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
 				$content .= wp_login_form( array( 'echo' => false ) );
@@ -4577,6 +4582,9 @@ function admin_levels() {
 
 				// Signup for another blog?
 				$allow_multi = $this->get_setting('multiple_signup');
+				$registeration = get_site_option('registration');
+				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+
 				if( $allow_multi ) {
 					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}

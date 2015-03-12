@@ -108,8 +108,8 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			// Avoid rendering the form if its already been done
 			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['reserved_message'] ) ) {
 				$content .= $_SESSION['new_blog_details']['reserved_message'];
-//							unset( $_SESSION['new_blog_details']);
-//							unset( $_SESSION['upgraded_blog_details']);
+//				unset( $_SESSION['new_blog_details']);
+//				unset( $_SESSION['upgraded_blog_details']);
 				return $content;
 			}
 

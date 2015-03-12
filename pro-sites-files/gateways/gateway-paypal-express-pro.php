@@ -2626,6 +2626,3 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 //register the gateway
 psts_register_gateway( 'ProSites_Gateway_PayPalExpressPro', __( 'Paypal Express/Pro', 'psts' ), __( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase. Enabling the optional PayPal Pro allows you to seamlessly accept credit cards on your site, and gives you the most professional look with a widely accepted payment method.', 'psts' ) );
-?>
-
-                        
