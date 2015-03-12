@@ -23,7 +23,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$params = array();
 			parse_str( $_POST['data'], $params);
 			$period = (int) $_POST['period'];
-			$level = (int) $_POST['level'];
+			$level = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
 			$_POST = $params;
 
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
@@ -58,8 +58,8 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$_SESSION['new_blog_details']['email'] = $user_email;
 				$_SESSION['new_blog_details']['blogname'] = $blogname;
 				$_SESSION['new_blog_details']['title'] = $blog_title;
-				$_SESSION['new_blog_details']['level'] = $period;
-				$_SESSION['new_blog_details']['period'] = $level;
+				$_SESSION['new_blog_details']['level'] = $level;
+				$_SESSION['new_blog_details']['period'] = $period;
 
 				$username_available  = true;
 				$email_available     = true;
@@ -101,7 +101,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						if ( !is_subdomain_install() ) {
 							$site_name = $current_site->domain . $current_site->path . $blogname;
 						} else {
-							$site_name = $blogname . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
+							$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
 						}
 
 						if( $trial_active ) {
@@ -122,11 +122,18 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							$ajax_response['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment has been processed your site will become active with your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
 						}
 
-						// Keep this in session because we'll use it again
-						$_SESSION['new_blog_details']['site_name'] = $blog_title;
-						$_SESSION['new_blog_details']['reserved_message'] = $ajax_response['reserved_message'];
+						// FREE basic site
+						if( 'free' == $_SESSION['new_blog_details']['level'] ) {
+							if( isset( $ajax_response['reserved_message'] ) ) {
+								unset( $ajax_response['reserved_message'] );
+							}
+							ProSites_Helper_Registration::activate_blog( $activation_key, false, false, false );
+							$ajax_response['show_finish'] = true;
+							$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_free_confirmation();
+						}
 
-						$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( '', '' );
+						// Keep this in session because we'll use it again
+						$_SESSION['new_blog_details']['reserved_message'] = $ajax_response['reserved_message'];
 					}
 				} else {
 					// We had registration errors, redraw the form displaying errors
@@ -156,6 +163,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					}
 				}
 
+				$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( '', '' );
 				$ajax_response['username_available'] = $username_available;
 				$ajax_response['email_available'] = $email_available;
 				$ajax_response['blogname_available'] = $blogname_available;
@@ -169,7 +177,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				);
 
 				// Buffer used to isolate AJAX response from unexpected output
-				ob_end_clean();
+				@ob_end_clean();
 				ob_start();
 				$xmlResponse = new WP_Ajax_Response( $response );
 				$xmlResponse->send();

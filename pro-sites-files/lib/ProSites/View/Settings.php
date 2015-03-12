@@ -131,12 +131,29 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-						    class="pay-for-signup"><?php echo __( 'Allow Signup on Checkout', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
+						    class="pay-for-signup"><?php echo __( 'Signup on Checkout<br /><small>Disables WordPress Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]"
 							              value="1"<?php checked( $psts->get_setting( 'show_signup' ) ); ?> />
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row"
+							class="free-signup"><?php echo __( 'Allow Free Signup<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow user to sign up for a standard non-Pro Sites blog.', 'psts' ) ); ?></th>
+						<td>
+							<label><input type="checkbox" name="psts[free_signup]"
+									value="1"<?php checked( $psts->get_setting( 'free_signup' ) ); ?> />
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"
+							class="multiple-signup"><?php echo __( 'Allow multiple blogs<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow single users to register multiple blogs.', 'psts' ) ); ?></th>
+						<td>
+							<label><input type="checkbox" name="psts[multiple_signup]"
+									value="1"<?php checked( $psts->get_setting( 'multiple_signup' ) ); ?> />
+						</td>
+					</tr>
+
 					<tr valign="top">
 						<th scope="row"
 						    class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>

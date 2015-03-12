@@ -139,8 +139,13 @@ class ProSites {
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
 		//handle signup pages
+		add_action('init','ProSites_Helper_ProSite::redirect_signup_page' );
 		add_filter( 'prosites_render_checkout_page_period', 'ProSites_View_Front_Gateway::select_current_period', 10, 2 );
 		add_filter( 'prosites_render_checkout_page_level', 'ProSites_View_Front_Gateway::select_current_level', 10, 2 );
+		// Dismissed signup prompt
+		if ( isset( $_GET['psts_dismiss'] ) ) {
+			update_option( 'psts_signed_up', 0 );
+		}
 
 //		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
 //		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
@@ -174,8 +179,8 @@ class ProSites {
 		add_filter( 'bp_core_signup_send_activation_key', array( $this, 'disable_user_activation_mail' ), 10 );
 
 		//Redirect to checkout page after signup
-		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
-		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
+//		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
+//		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
 
 		//Register styles
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );
@@ -302,6 +307,9 @@ class ProSites {
 			'hide_adminmenu'           => 0,
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
+			'show_signup'              => 1,
+			'free_signup'              => 0,
+			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
 			'trial_level'              => 1,
@@ -429,7 +437,8 @@ Thanks!", 'psts' ),
 			),
 			'uh_level'                 => 1,
 			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
-			'co_pricing'               => 'disabled'
+			'co_pricing'               => 'disabled',
+			'plans_table_enabled'      => 1,
 		);
 	}
 
@@ -457,6 +466,7 @@ Thanks!", 'psts' ),
 		  term varchar(25) NULL DEFAULT NULL,
 		  amount varchar(10) NULL DEFAULT NULL,
 		  is_recurring tinyint(1) NULL DEFAULT 1,
+		  meta longtext NOT NULL,
 		  PRIMARY KEY  (blog_ID),
 		  KEY  (blog_ID,level,expire)
 		);";
@@ -536,7 +546,8 @@ Thanks!", 'psts' ),
 
 		//3.5 upgrade - modify pro_sites table
 		if ( version_compare( $this->get_setting( 'version' ), '3.5', '<=' ) ) {
-			$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
+			// Using dbDelta above, but add other code here.
+			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
 		}
 
 		$this->update_setting( 'version', $this->version );
@@ -866,10 +877,10 @@ Thanks!", 'psts' ),
 		do_action( 'psts_page_after_pricing_settings' );
 
 		//checkout page settings
-		$psts_pricing_page_old = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
-			&$this,
-			'pricing_table_settings'
-		) );
+//		$psts_pricing_page_old = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
+//			&$this,
+//			'pricing_table_settings'
+//		) );
 
 		//register plugin style
 		add_action( 'admin_print_styles-' . $psts_main_page, array( &$this, 'load_psts_style' ) );
@@ -1836,10 +1847,10 @@ Thanks!", 'psts' ),
 
 		// Change trial status
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-		if ( $trialing && ! 'Trial' == $gateway ) {
+		if( $trialing && ! 'Trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 		}
-		if ( 'Trial' == $gateway ) {
+		if( 'Trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 		}
 
@@ -1865,7 +1876,7 @@ Thanks!", 'psts' ),
 			}
 			$new_expire = $blog_expire - $withdraw;
 		} else {
-			$new_expire = strtotime( '-1 day', time() );
+			$new_expire = strtotime('-1 day', time() );
 		}
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
@@ -2508,7 +2519,7 @@ _gaq.push(["_trackTrans"]);
 		<script type="text/javascript">
 			jQuery(document).ready(function () {
 				jQuery('input.psts_confirm').click(function () {
-					var answer = confirm("<?php _e('Are you sure you really want to do this?', 'psts'); ?>");
+					var answer = confirm("<?php _e('Are you sure you really want to do this?', 'psts'); ?>")
 					if (answer) {
 						return true;
 					} else {
@@ -4420,9 +4431,17 @@ function admin_levels() {
 		}
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 //		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
-		if ( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
-//			$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
-//			$content .= wp_login_form( array( 'echo' => false ) );
+		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
+
+			$show_signup = $this->get_setting( 'show_signup' );
+			$registeration = get_site_option('registration');
+			$show_signup = 'all' == $registeration ? $show_signup : false;
+
+			if( ! is_user_logged_in() && ! $show_signup ) {
+				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
+				$content .= wp_login_form( array( 'echo' => false ) );
+				return $content;
+			}
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
 
 			return $content;
@@ -4592,6 +4611,15 @@ function admin_levels() {
 					$content .= '<div class="alignright"><a href="' . add_query_arg( array( 'blogs-start' => $next_start ), get_permalink() ) . '">Next</a></div>';
 				}
 				$content .= '</div>';
+
+				// Signup for another blog?
+				$allow_multi = $this->get_setting('multiple_signup');
+				$registeration = get_site_option('registration');
+				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+
+				if( $allow_multi ) {
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				}
 			}
 
 			//show message if no valid blogs

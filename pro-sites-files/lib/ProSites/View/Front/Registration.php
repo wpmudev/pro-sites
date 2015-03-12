@@ -108,17 +108,18 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$errors = new WP_Error();
 			}
 
-			// Avoid rendering the form if its already been done
-			if ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['reserved_message'] ) ) {
-				$content = $_SESSION['new_blog_details']['reserved_message'];
+			$content = '';
 
+			// Avoid rendering the form if its already been done
+			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['reserved_message'] ) ) {
+				$content .= $_SESSION['new_blog_details']['reserved_message'];
 //				unset( $_SESSION['new_blog_details']);
 //				unset( $_SESSION['upgraded_blog_details']);
 				return $content;
 			}
 
-			$content = '<div id="prosites-signup-form-checkout" class="hidden">';
-			$action  = '';
+			$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
+			$action = '';
 
 			$active_signup = get_site_option( 'registration', 'none' );
 			$active_signup = apply_filters( 'wpmu_active_signup', $active_signup );
