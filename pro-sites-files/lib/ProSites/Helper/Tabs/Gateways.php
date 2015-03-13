@@ -40,7 +40,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 
 			$tabs = array(
 				'gateway_prefs' => array_merge( $section_options, array(
-					'title' => __( 'Multi-Gateway Preferences', 'psts' ),
+					'title' => __( 'Gateway Settings', 'psts' ),
 					'desc'               => array(
 						__( 'Choose how Pro Sites should handle multiple active payment gateways', 'psts' ),
 					),

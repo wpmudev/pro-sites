@@ -496,7 +496,7 @@ class ProSites_Gateway_Stripe {
 			}
 
 			// Keep it to this blog and this subscription
-			if( $subscription->id == $subscription_id ) {
+			if( !empty( $subscription ) && $subscription->id == $subscription_id ) {
 				$next_amount = $invoice_object->total / 100;
 
 				if ( isset( $invoice_object->next_payment_attempt ) ) {
@@ -1142,7 +1142,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return bool
 	 */
-	public static function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false, $is_recurring = true ) {
+	public static function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false, $is_recurring = true, $args = array() ) {
 		global $psts;
 
 		$current_plan = self::get_current_plan( $blog_id );
@@ -1166,7 +1166,7 @@ class ProSites_Gateway_Stripe {
 		$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
 
 		//send receipt email - this needs to be done AFTER extend is called
-		$psts->email_notification( $blog_id, 'receipt' );
+		$psts->email_notification( $blog_id, 'receipt', false, $args );
 
 		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
 
@@ -1197,7 +1197,7 @@ class ProSites_Gateway_Stripe {
 
 			$customer_id = $event_json->data->object->customer;
 			$subscription = self::get_subscription( $event_json );
-
+			
 			$event_type = $event_json->type;
 			//If invoice has been created, activate user blog trial
 			if ( 'invoiceitem.updated' == $event_type ||
@@ -1252,6 +1252,8 @@ class ProSites_Gateway_Stripe {
 						$plan_end = $subscription->period_end;
 						$plan_amount = $subscription->plan_amount;
 						$amount = $subscription->subscription_amount;
+						$setup_fee_amt = $subscription->setup_fee;
+						$has_setup_fee = ! empty( $setup_fee_amt );
 						break;
 
 					case 'customer.subscription.created' :
@@ -1296,7 +1298,11 @@ class ProSites_Gateway_Stripe {
 				switch ( $event_type ) {
 					case 'invoice.payment_succeeded' :
 						$psts->log_action( $blog_id, sprintf( __( 'Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts' ), $event_type, $amount_formatted, $date, $charge_id ) );
-						self::maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end, true );
+						$args = array();
+						if( $has_setup_fee ) {
+							$args['setup_amount'] = $setup_fee_amt;
+						}
+						self::maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end, true, true, $args );
 						break;
 
 					case 'customer.subscription.created' :
@@ -1435,6 +1441,7 @@ class ProSites_Gateway_Stripe {
 			$subscription->paid = $object->paid;
 			$subscription->currency = $object->currency;
 			$subscription->last_charge = $object->charge;
+			$subscription->invoice_total = $object->total / 100;
 		}
 
 		if( $from_sub ) {
@@ -1459,6 +1466,10 @@ class ProSites_Gateway_Stripe {
 		$subscription->trial_start = isset( $subscription->trial_start ) ? $subscription->trial_start : false;
 		$subscription->subscription_amount = isset( $subscription->amount ) ? ( $subscription->amount / 100 ) : ( $subscription->plan->amount / 100 );
 		$subscription->plan_amount = $subscription->is_trial ? ( $subscription->plan->amount / 100 ) : $subscription->subscription_amount;
+
+		// Get setup fee
+		$subscription->setup_fee = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
+		$subscription->has_setup_fee = empty( $subscription->setup_fee ) ? false : true;
 
 		return $subscription;
 	}
@@ -1847,6 +1858,7 @@ class ProSites_Gateway_Stripe {
 
 				if ( $has_coupon || $has_setup_fee ) {
 
+					$lifetime = 'once';
 					if ( $has_coupon ) {
 						//apply coupon
 						$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $_SESSION['COUPON_CODE'] );
@@ -1876,7 +1888,7 @@ class ProSites_Gateway_Stripe {
 					}
 
 					if( $recurring ) {
-						$recurringAmmount = 'forever' == $lifetime ? $coupon_value : $paymentAmount;
+						$recurringAmmount = 'forever' == $lifetime && $has_coupon ? $coupon_value : $paymentAmount;
 						if ( $_POST['period'] == 1 ) {
 							$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $initAmount ), $psts->format_currency( $currency, $recurringAmmount ) );
 						} else {
@@ -1964,7 +1976,8 @@ class ProSites_Gateway_Stripe {
 								'metadata'    => array(
 									'domain' => ! empty( $domain ) ? $domain : '',
 									'period' => $_POST['period'],
-									'level'  => $_POST['level']
+									'level'  => $_POST['level'],
+									'setup_fee' => 'yes',
 								)
 							);
 							if( ! $domain ) {

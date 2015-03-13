@@ -286,7 +286,7 @@ class ProSites {
 			'rebrand'                  => __( 'Pro Site', 'psts' ),
 			'lbl_signup'               => __( 'Pro Upgrade', 'psts' ),
 			'lbl_curr'                 => __( 'Your Account', 'psts' ),
-			'gateways_enabled'         => array( 'ProSites_Gateway_PayPalExpressPro' ),
+			'gateways_enabled'         => array(),
 			'modules_enabled'          => array(),
 			'enabled_periods'          => array( 1, 3, 12 ),
 			'hide_adminmenu'           => 0,
@@ -1324,6 +1324,12 @@ Thanks!", 'psts' ),
 				$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 				$amount = $trialing ? 0.0 : $result->amount;
 				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+
+				if( ! empty( $args ) && isset( $args['setup_amount'] ) ) {
+					$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					$payment_info .= sprintf( '<hr />' );
+					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+				}
 
 				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
 					$trial_info = "\n" . __( '*** PLEASE NOTE ***', 'psts' ) . "\n";

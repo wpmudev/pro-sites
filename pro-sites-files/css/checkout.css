@@ -866,6 +866,10 @@ ul.pricing-column ul.feature-section li {
 	font-weight: bold;
 }
 
+.pricing-column .price .setup-fee .whole {
+    font-size: 1.3em;
+}
+
 .pricing-column .price .dot,
 .pricing-column .price .decimal {
 	vertical-align: baseline;
