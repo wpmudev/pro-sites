@@ -31,7 +31,7 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 				return 'trial' == $gateway_key ? __('Trial', 'psts') : $gateway_key;
 			}
 		}
-		
+
 		public static function is_only_active( $gateway_key ) {
 			$gateways = self::get_gateways();
 			$gateway_keys = array_keys( $gateways );

@@ -38,8 +38,6 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_settings_process', array( 'ProSites_Gateway_Stripe', 'settings_process' ), 10, 1 );
 
 		//checkout stuff
-		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
-		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );
 		add_filter( 'psts_force_ssl', array( 'ProSites_Gateway_Stripe', 'force_ssl' ) );
 
 		//handle webhook notifications

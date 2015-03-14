@@ -6,7 +6,7 @@ Pro Sites (Gateway: Paypal Express/Pro Payment Gateway)
 
 class ProSites_Gateway_PayPalExpressPro {
 
-	var $complete_message = false;
+	public static $complete_message = false;
 
 	public static function get_slug() {
 		return 'paypal';
@@ -22,8 +22,6 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 
 		//checkout stuff
-		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), 10, 2 );
-		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );
 		add_filter( 'psts_force_ssl', array( &$this, 'force_ssl' ) );
 
 		//handle IPN notifications
@@ -879,708 +877,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		update_blog_option( $from_id, 'psts_paypal_profile_id', $trans_meta );
 	}
 
-	function process_checkout( $blog_id, $domain ) {
-		global $current_site, $current_user, $psts, $wpdb;
-
-		//If free level is selected, activate a trial
-		if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
-			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
-
-				$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
-
-				$esc_domain = esc_url( $domain );
-
-				//Set complete message
-				$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
-
-				return;
-			}
-
-		}
-		//prepare vars
-		$currency    = $psts->get_setting( "pypl_currency", 'USD' );
-		$discountAmt = false;
-		$trial_days  = $psts->get_setting( 'trial_days', 0 );
-		$is_trial    = $psts->is_trial_allowed( $blog_id );
-		$setup_fee   = (float) $psts->get_setting( 'setup_fee', 0 );
-		$trial_desc  = ( $is_trial ) ? $this->get_free_trial_desc( $trial_days ) : '';
-		$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
-		$has_coupon  = false;
-		//Current site name as per the payment procedure
-		$current_site_name = ! empty ( $domain ) ? $domain : $current_site->site_name;
-
-		if ( isset( $_POST['pypl_checkout_x'] ) || isset( $_POST['pypl_checkout'] )
-		     || isset( $_POST['cc_checkout'] ) || isset( $_GET['token'] )
-		) {
-			//prepare vars
-			if ( isset( $_GET['token'] ) ) {
-				//Get the value from session if user is returning from paypal site after making payment as $_POST would be empty
-				$_POST['level']  = $_SESSION['LEVEL'];
-				$_POST['period'] = $_SESSION['PERIOD'];
-			}
-
-			$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
-			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
-			$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'] ) ) ? true : false;
-
-			if ( $has_setup_fee ) {
-				$initAmount += $setup_fee;
-			}
-
-			if ( $has_coupon || $has_setup_fee ) {
-				if ( $has_coupon ) {
-					$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
-					$amount_off   = ( $paymentAmount - $coupon_value['new_total'] );
-					$initAmount -= $amount_off;
-				}
-
-				if ( $recurring ) {
-					if ( $_POST['period'] == 1 ) {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month%3$s, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $initAmount ), $psts->format_currency( $currency, $paymentAmount ), $trial_desc );
-					} else {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first %2$s month period%5$s, then %3$s every %4$s months', 'psts' ), $psts->format_currency( $currency, $initAmount ), $_POST['period'], $psts->format_currency( $currency, $paymentAmount ), $_POST['period'], $trial_desc );
-					}
-				} else {
-					$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
-					if ( $_POST['period'] == 1 ) {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for 1 month (non recurring)', 'psts' ), $psts->format_currency( $currency, $initAmount ), $currency );
-					} else {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for %3$s months (non recurring)', 'psts' ), $psts->format_currency( $currency, $initAmount ), $currency, $_POST['period'] );
-					}
-				}
-			} else {
-				if ( $recurring ) {
-					if ( $_POST['period'] == 1 ) {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s each month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
-					} else {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s every %3$s months', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency, $_POST['period'] );
-					}
-				} else {
-					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
-					if ( $_POST['period'] == 1 ) {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for 1 month (non recurring)', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
-					} else {
-						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for %3$s months (non recurring)', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency, $_POST['period'] );
-					}
-				}
-			}
-
-			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
-		}
-		//!process paypal express checkout
-		if ( isset( $_POST['pypl_checkout_x'] ) || isset( $_POST['pypl_checkout'] ) ) {
-			//check for level
-			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
-				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-
-				return;
-			}
-			if ( $is_trial ) {
-				$resArray = $this->SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $domain );
-			} else {
-				if ( ! empty( $blog_id ) ) {
-					$resArray = $this->SetExpressCheckout( $initAmount, $desc, $blog_id );
-				} elseif ( ! empty( $domain ) ) {
-					$resArray = $this->SetExpressCheckout( $initAmount, $desc, '', $domain );
-				}
-
-			}
-			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-				$token              = $resArray["TOKEN"];
-				$_SESSION['TOKEN']  = $token;
-				$_SESSION['PERIOD'] = $_POST['period'];
-				$_SESSION['LEVEL']  = $_POST['level'];
-				$this->RedirectToPayPal( $token );
-			} else {
-				$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), $this->parse_error_string( $resArray ) ) );
-			}
-		}
-
-		/* ------------------- PayPal Checkout ----------------- */
-		//!check for return from Express Checkout
-		if ( isset( $_GET['token'] ) && isset( $_SESSION['PERIOD'] ) && isset( $_SESSION['LEVEL'] ) ) {
-			//if PAYERID is not sent back with request then get it via API (like when creating a free trial)
-			if ( ! isset( $_GET['PayerID'] ) ) {
-				$details = $this->GetExpressCheckoutDetails( $_GET['token'] );
-				if ( isset( $details['PAYERID'] ) ) {
-					$_GET['PayerID'] = $details['PAYERID'];
-				}
-			}
-			//check for modifiying
-			if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-				$modify = $psts->get_expire( $blog_id );
-
-				//check for a upgrade and get new first payment date
-				if ( $upgrade = $psts->calc_upgrade( $blog_id, $initAmount, $_SESSION['LEVEL'], $_SESSION['PERIOD'] ) ) {
-					$modify = $upgrade;
-				} else {
-					$upgrade = false;
-				}
-			} else {
-				$modify = false;
-			}
-
-			if ( ! $recurring ) {
-				$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
-				$resArray   = $this->DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $domain );
-
-				if ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) {
-					$payment_status   = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
-					$paymentAmount    = $resArray['PAYMENTINFO_0_AMT'];
-					$init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'];
-
-					if ( ! $modify ) {
-						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
-					} else {
-						$psts->log_action( $blog_id, sprintf( __( 'User creating modifying subscription via PayPal Express: Payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
-					}
-
-					//just in case, try to cancel any old subscription
-					if ( $profile_id = $this->get_profile_id( $blog_id ) ) {
-						$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
-					}
-
-					//now get the details of the transaction to see if initial payment went through already
-					if ( $resArray['PAYMENTINFO_0_PAYMENTSTATUS'] == 'Completed' || $resArray['PAYMENTINFO_0_PAYMENTSTATUS'] == 'Processed' ) {
-						$old_expire = $psts->get_expire( $blog_id );
-						$new_expire = ( $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $psts->get_level_setting( $_SESSION['LEVEL'], 'price_' . $_SESSION['PERIOD'] ), $new_expire, false );
-						$psts->email_notification( $blog_id, 'success' );
-						$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
-
-						if ( $modify ) {
-							if ( $_SESSION['LEVEL'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
-								$psts->record_stat( $blog_id, 'upgrade' );
-							} else {
-								$psts->record_stat( $blog_id, 'modify' );
-							}
-						} else {
-							$psts->record_stat( $blog_id, 'signup' );
-						}
-
-						do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
-
-						if ( empty( $this->complete_message ) ) {
-							$this->complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-						}
-					} else {
-						update_blog_option( $blog_id, 'psts_waiting_step', 1 );
-					}
-				}
-			} elseif ( $modify ) {
-				//! create the recurring profile
-				$resArray = $this->CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], $modify );
-				if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-					$new_profile_id = $resArray["PROFILEID"];
-
-					$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $modify );
-					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: New subscription created (%1$s), first payment will be made on %2$s - %3$s', 'psts' ), $desc, $end_date, $new_profile_id ) );
-
-					//cancel old subscription
-					$old_gateway = $wpdb->get_var( "SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
-					if ( $profile_id = $this->get_profile_id( $blog_id ) ) {
-						$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $desc, $end_date ) );
-						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: Old subscription canceled - %s', 'psts' ), $profile_id ) );
-						}
-					} else {
-						$this->manual_cancel_email( $blog_id, $old_gateway ); //send email for old paypal system
-					}
-
-					if ( $_SESSION['LEVEL'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
-						$psts->record_stat( $blog_id, 'upgrade' );
-					} else {
-						$psts->record_stat( $blog_id, 'modify' );
-					}
-
-					$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount, false, true );
-
-					//use coupon
-					if ( $has_coupon ) {
-						$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
-					}
-
-					//save new profile_id
-					$this->set_profile_id( $blog_id, $new_profile_id );
-
-					//save new period/term
-					$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET term = %d WHERE blog_ID = %d", $_SESSION['PERIOD'], $blog_id ) );
-
-					//show confirmation page
-					$this->complete_message = sprintf( __( 'Your PayPal subscription modification was successful for %s.', 'psts' ), $desc );
-
-					//display GA ecommerce in footer
-					if ( ! $is_trial ) {
-						$psts->create_ga_ecommerce( $blog_id, $_SESSION['PERIOD'], $initAmount, $_SESSION['LEVEL'] );
-					}
-
-					//show instructions for old gateways
-					if ( $old_gateway == 'PayPal' ) {
-						$this->complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
-						$this->complete_message .= '<p><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) . '"><img src="' . $psts->plugin_url . 'images/cancel_subscribe_gen.gif" /></a><br /><small>' . __( 'You can also cancel following <a href="https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing">these steps</a>.', 'psts' ) . '</small></p>';
-					} else if ( $old_gateway == 'Amazon' ) {
-						$this->complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
-						$this->complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
-					}
-
-					unset( $_SESSION['COUPON_CODE'] );
-					unset( $_SESSION['PERIOD'] );
-					unset( $_SESSION['LEVEL'] );
-				} else {
-					$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), $this->parse_error_string( $resArray ) ) );
-					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), $this->parse_error_string( $resArray ) ) );
-				}
-			} else { //new or expired signup
-				$ack_success = true;
-				//Set payerID if missing
-				if ( ! isset( $_GET['PayerID'] ) ) {
-					$details = $this->GetExpressCheckoutDetails( $_GET['token'] );
-					if ( isset( $details['PAYERID'] ) ) {
-						$_GET['PayerID'] = $details['PAYERID'];
-					}
-				}
-				$payment_status = '';
-				if ( ! $is_trial ) {
-					$resArray         = $this->DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $domain );
-					$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
-					if ( isset( $resArray['PAYMENTINFO_0_ACK'] ) && ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) ) {
-						$payment_status = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
-						$paymentAmount  = $resArray['PAYMENTINFO_0_AMT'];
-						$ack_success    = true;
-					}
-				}
-				if ( $is_trial || $ack_success ) {
-					if ( ! $is_trial ) {
-						if ( ! empty( $blog_id ) ) {
-							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
-						} else {
-							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
-						}
-					}
-
-					//use coupon
-					if ( $has_coupon ) {
-						$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
-					}
-
-					//just in case, try to cancel any old subscription
-					if ( ! empty( $blog_id ) && ( $profile_id = $this->get_profile_id( $blog_id ) ) ) {
-						$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
-					}
-					//create the recurring profile
-					$resArray = $this->CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $domain );
-					if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
-						$blog_id = $psts->activate_user_blog( $domain, true, $_POST['period'], $_POST['level'] );
-
-						if ( ! empty( $blog_id ) ) {
-							//save new profile_id
-							$this->set_profile_id( $blog_id, $resArray["PROFILEID"] );
-
-							//update the profile id in paypal so that future payments are applied to the proper blog id
-							$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $_SESSION['LEVEL'] . '_' . $_SESSION['PERIOD'] . '_' . $initAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-							$this->UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
-
-							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
-
-						} else {
-							//Store in signup meta for domain
-							$this->set_profile_id( '', $resArray["PROFILEID"], $domain );
-							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
-
-						}
-					} elseif ( ! empty( $resArray['ACK'] ) ) {
-						//If payment was declined, or user returned
-						$psts->errors->add( 'general', sprintf( __( 'There was a problem processing the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), $this->parse_error_string( $resArray ) ) );
-						$psts->log_action( $blog_id, sprintf( __( 'User creating subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), $this->parse_error_string( $resArray ) ), $domain );
-					} else {
-						$this->complete_message = __( 'Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . $this->parse_error_string( $resArray ) . '</strong>"';
-						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), $this->parse_error_string( $resArray ) ), $domain );
-					}
-					//now get the details of the transaction to see if initial payment went through already
-					if ( $is_trial || $payment_status == 'Completed' || $payment_status == 'Processed' ) {
-
-						//If we have domain details, activate the blog, It will be extended later in the same code block
-						if ( ! empty( $domain ) ) {
-							$blog_id = $psts->activate_user_blog( $domain );
-						}
-
-						//If we have blog id, Extend the blog expiry
-						if ( $blog_id ) {
-							if ( $is_trial ) {
-								$psts->extend( $blog_id, $_SESSION['PERIOD'], 'Trial', $_SESSION['LEVEL'], '', strtotime( '+ ' . $trial_days . ' days' ) );
-							} else {
-								$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount );
-							}
-						}
-						$psts->record_stat( $blog_id, 'signup' );
-						$psts->email_notification( $blog_id, 'success' );
-
-						//record last payment
-						if ( ! $is_trial ) {
-							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
-						}
-
-						// Added for affiliate system link
-						do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
-
-						if ( empty( $this->complete_message ) ) {
-							$this->complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-						}
-					} else {
-						//If we have blog id
-						if ( ! empty ( $blog_id ) ) {
-							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
-						} else {
-							//Update Domain meta
-							$signup_meta = '';
-							$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
-							if ( ! empty( $signup ) ) {
-								$signup_meta = maybe_unserialize( $signup->meta );
-							}
-							$signup_meta['psts_waiting_step'] = 1;
-							$wpdb->update(
-								$wpdb->signups,
-								array(
-									'meta' => serialize( $signup_meta ), // string
-								),
-								array(
-									'domain' => $domain
-								)
-							);
-						}
-
-					}
-
-					//display GA ecommerce in footer
-					if ( ! $is_trial ) {
-						$psts->create_ga_ecommerce( $blog_id, $_SESSION['PERIOD'], $paymentAmount, $_SESSION['LEVEL'] );
-					}
-
-					unset( $_SESSION['COUPON_CODE'] );
-					unset( $_SESSION['PERIOD'] );
-					unset( $_SESSION['LEVEL'] );
-				} else {
-					$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), $this->parse_error_string( $resArray ) ) );
-					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), $this->parse_error_string( $resArray ) ), $domain );
-				}
-			}
-		}
-
-		/*! ------------ CC Checkout ----------------- */
-		if ( isset( $_POST['cc_checkout'] ) ) {
-
-			//check for level
-			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
-				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-
-				return;
-			}
-
-			//process form
-			if ( isset( $_POST['cc_form'] ) ) {
-				do_action( 'psts_cc_form_before_process', $this, $psts, $blog_id );
-
-				//clean up $_POST
-				$cc_cardtype  = isset( $_POST['cc_card-type'] ) ? $_POST['cc_card-type'] : '';
-				$cc_number    = isset( $_POST['cc_number'] ) ? stripslashes( $_POST['cc_number'] ) : '';
-				$cc_month     = isset( $_POST['cc_month'] ) ? $_POST['cc_month'] : '';
-				$cc_year      = isset( $_POST['cc_year'] ) ? $_POST['cc_year'] : '';
-				$cc_firstname = isset( $_POST['cc_firstname'] ) ? stripslashes( $_POST['cc_firstname'] ) : '';
-				$cc_lastname  = isset( $_POST['cc_lastname'] ) ? stripslashes( $_POST['cc_lastname'] ) : '';
-				$cc_address   = isset( $_POST['cc_address'] ) ? stripslashes( $_POST['cc_address'] ) : '';
-				$cc_address2  = isset( $_POST['cc_address2'] ) ? stripslashes( $_POST['cc_address2'] ) : '';
-				$cc_city      = isset( $_POST['cc_city'] ) ? stripslashes( $_POST['cc_city'] ) : '';
-				$cc_state     = isset( $_POST['cc_state'] ) ? stripslashes( $_POST['cc_state'] ) : '';
-				$cc_zip       = isset( $_POST['cc_zip'] ) ? stripslashes( $_POST['cc_zip'] ) : '';
-				$cc_country   = isset( $_POST['cc_country'] ) ? stripslashes( $_POST['cc_country'] ) : '';
-
-				$cc_number        = preg_replace( '/[^0-9]/', '', $cc_number ); //strip any slashes
-				$_POST['cc_cvv2'] = preg_replace( '/[^0-9]/', '', $_POST['cc_cvv2'] );
-				//check nonce
-				if ( ! $this->check_nonce() ) {
-					$psts->errors->add( 'general', __( 'Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ) );
-				}
-
-				if ( empty( $cc_cardtype ) ) {
-					$psts->errors->add( 'card-type', __( 'Please choose a Card Type.', 'psts' ) );
-				}
-
-				if ( empty( $cc_number ) ) {
-					$psts->errors->add( 'number', __( 'Please enter a valid Credit Card Number.', 'psts' ) );
-				}
-
-				if ( empty( $cc_month ) || empty( $cc_year ) ) {
-					$psts->errors->add( 'expiration', __( 'Please choose an expiration date.', 'psts' ) );
-				}
-
-				if ( strlen( $_POST['cc_cvv2'] ) < 3 || strlen( $_POST['cc_cvv2'] ) > 4 ) {
-					$psts->errors->add( 'cvv2', __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) );
-				}
-
-				if ( empty( $cc_firstname ) ) {
-					$psts->errors->add( 'firstname', __( 'Please enter your First Name.', 'psts' ) );
-				}
-
-				if ( empty( $cc_lastname ) ) {
-					$psts->errors->add( 'lastname', __( 'Please enter your Last Name.', 'psts' ) );
-				}
-
-				if ( empty( $cc_address ) ) {
-					$psts->errors->add( 'address', __( 'Please enter your billing Street Address.', 'psts' ) );
-				}
-
-				if ( empty( $_POST['cc_city'] ) ) {
-					$psts->errors->add( 'city', __( 'Please enter your billing City.', 'psts' ) );
-				}
-
-				if ( ( $cc_country == 'US' || $cc_country == 'CA' ) && empty( $cc_state ) ) {
-					$psts->errors->add( 'state', __( 'Please enter your billing State/Province.', 'psts' ) );
-				}
-
-				if ( empty( $cc_zip ) ) {
-					$psts->errors->add( 'zip', __( 'Please enter your billing Zip/Postal Code.', 'psts' ) );
-				}
-
-				if ( empty( $cc_country ) || strlen( $cc_country ) != 2 ) {
-					$psts->errors->add( 'country', __( 'Please enter your billing Country.', 'psts' ) );
-				}
-
-				//no errors
-				if ( ! $psts->errors->get_error_code() ) {
-					//check for modifiying
-					if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-						$modify = $psts->get_expire( $blog_id );
-						//check for a upgrade and get new first payment date
-						if ( $upgrade = $psts->calc_upgrade( $blog_id, $initAmount, @$_SESSION['LEVEL'], @$_SESSION['PERIOD'] ) ) {
-							$modify = $upgrade;
-						} else {
-							$upgrade = false;
-						}
-					} else {
-						$modify = false;
-					}
-
-					if ( ! $recurring ) {
-						$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
-						$resArray   = $this->DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email );
-
-						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-							$init_transaction = $resArray["TRANSACTIONID"];
-							$paymentAmount    = $resArray['AMT'];
-
-							if ( ! $modify ) {
-								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Direct Payment: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
-							} else {
-								$psts->log_action( $blog_id, sprintf( __( 'User creating modifying subscription via PayPal Direct Payment: Payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
-							}
-
-							//just in case, try to cancel any old subscription
-							if ( $profile_id = $this->get_profile_id( $blog_id ) ) {
-								$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
-							}
-
-							$old_expire = $psts->get_expire( $blog_id );
-							$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-							$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] ), $new_expire, false );
-							$psts->email_notification( $blog_id, 'success' );
-							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
-
-							if ( $modify ) {
-								if ( $_POST['level'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
-									$psts->record_stat( $blog_id, 'upgrade' );
-								} else {
-									$psts->record_stat( $blog_id, 'modify' );
-								}
-							} else {
-								$psts->record_stat( $blog_id, 'signup' );
-							}
-
-							do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level'] );
-
-							if ( empty( $this->complete_message ) ) {
-								$this->complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-							}
-						} else {
-							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
-						}
-					} elseif ( $modify ) {
-						$old_profile = false;
-						if ( $profile_id = $this->get_profile_id( $blog_id ) ) {
-							$old_profile = $this->GetRecurringPaymentsProfileDetails( $profile_id );
-							if ( strtotime( $old_profile['PROFILESTARTDATE'] ) > gmdate( 'U' ) && (int) $old_profile['TRIALAMTPAID'] == 0 ) {
-								$is_trial = true;
-							}
-						}
-
-						//create the recurring profile
-						$resArray = $this->CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $modify );
-						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-							$new_profile_id = $resArray["PROFILEID"];
-
-							$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $modify );
-							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: New subscription created (%1$s), first payment will be made on %2$s - %3$s', 'psts' ), $desc, $end_date, $new_profile_id ) );
-
-							//cancel old subscription
-							$old_gateway = $wpdb->get_var( "SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
-							if ( $old_profile ) {
-								$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $desc, $end_date ) );
-								if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-									$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: Old subscription canceled - %s', 'psts' ), $profile_id ) );
-								}
-							} else {
-								$this->manual_cancel_email( $blog_id, $old_gateway ); //send email for old paypal system
-							}
-
-							//extend
-							$psts->extend( $blog_id, $_POST['period'], ( $is_trial ? 'Trial' : self::get_slug() ), $_POST['level'], ( $is_trial ? '' : $paymentAmount ), ( $is_trial ? $psts->get_expire( $blog_id ) : false ) );
-
-							//use coupon
-							if ( $has_coupon ) {
-								$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
-							}
-
-							//save new profile_id
-							$this->set_profile_id( $blog_id, $new_profile_id );
-
-							//show confirmation page
-							$this->complete_message = sprintf( __( 'Your Credit Card subscription modification was successful for %s.', 'psts' ), $desc );
-
-							//display GA ecommerce in footer
-							$psts->create_ga_ecommerce( $blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country );
-
-							//show instructions for old gateways
-							if ( $old_gateway == 'PayPal' ) {
-								$this->complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
-								$this->complete_message .= '<p><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) . '"><img src="' . $psts->plugin_url . 'images/cancel_subscribe_gen.gif" /></a><br /><small>' . __( 'You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts' ) . '</small></p>';
-							} else if ( $old_gateway == 'Amazon' ) {
-								$this->complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
-								$this->complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
-							}
-
-							unset( $_SESSION['COUPON_CODE'] );
-
-						} else {
-							$psts->errors->add( 'general', sprintf( __( 'There was a problem with your Credit Card information:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), $this->parse_error_string( $resArray ) ) );
-							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: PayPal returned a problem with Credit Card info: %s', 'psts' ), $this->parse_error_string( $resArray ) ) );
-						}
-
-					} else { //new or expired signup
-
-						//attempt initial direct payment
-						$success = $init_transaction = false;
-						if ( ! $is_trial ) {
-							$resArray = $this->DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
-							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-								$init_transaction = $resArray["TRANSACTIONID"];
-								$success          = true;
-							}
-						}
-						if ( $is_trial || $success ) {
-							//just in case, try to cancel any old subscription
-							if ( ! empty( $blog_id ) && $profile_id = $this->get_profile_id( $blog_id ) ) {
-								$resArray = $this->ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
-							}
-
-							if ( $init_transaction && ! empty( $blog_id ) ) {
-								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
-							} elseif ( $init_transaction && ! empty ( $domain ) ) {
-								$psts->log_action( '', sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
-							}
-
-							//use coupon
-							if ( $has_coupon ) {
-								$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id, $domain );
-							}
-
-							//now attempt to create the subscription
-							$resArray = $this->CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
-
-							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-								$blog_id = $psts->activate_user_blog( $domain, true, $_POST['period'], $_POST['level'] );
-
-								if ( ! empty( $blog_id ) ) {
-									//save new profile_id
-									$this->set_profile_id( $blog_id, $resArray["PROFILEID"] );
-
-									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-									$this->UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
-
-									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
-
-								} else {
-									//Store in signup meta for domain
-									$this->set_profile_id( '', $resArray["PROFILEID"], $domain );
-									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
-
-								}
-
-							} else {
-								$this->complete_message = __( 'Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . $this->parse_error_string( $resArray ) . '</strong>"';
-								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), $this->parse_error_string( $resArray ) ), $domain );
-							}
-							if ( ! empty( $blog_id ) ) {
-								$psts->email_notification( $blog_id, 'success' );
-								$psts->record_stat( $blog_id, 'signup' );
-							}
-							//now get the details of the transaction to see if initial payment went through
-							if ( $init_transaction ) {
-								$result = $this->GetTransactionDetails( $init_transaction );
-								if ( $result['PAYMENTSTATUS'] == 'Completed' || $result['PAYMENTSTATUS'] == 'Processed' ) {
-									//Activate the domain , user signup for
-									if ( ! empty( $domain ) ) {
-										//Activate the blog
-										$blog_id = $psts->activate_user_blog( $domain );
-									}
-									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount );
-
-									//record last payment
-									$psts->record_transaction( $blog_id, $init_transaction, $result['AMT'] );
-
-									// Added for affiliate system link
-									do_action( 'supporter_payment_processed', $blog_id, $result['AMT'], $_POST['period'], $_POST['level'] );
-
-									if ( empty( $this->complete_message ) ) {
-										$this->complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
-									}
-								} else {
-									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
-								}
-							} else {
-								$psts->extend( $blog_id, $_POST['period'], 'Trial', $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
-
-								if ( empty( $this->complete_message ) ) {
-									$this->complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
-								}
-							}
-
-							//display GA ecommerce in footer
-							if ( ! $is_trial ) {
-								$psts->create_ga_ecommerce( $blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country );
-							}
-
-							unset( $_SESSION['COUPON_CODE'] );
-
-						} else {
-							$psts->errors->add( 'general', sprintf( __( 'There was a problem with your credit card information:<br />"<strong>%s</strong>"<br />Please check all fields and try again.', 'psts' ), $this->parse_error_string( $resArray ) ) );
-						}
-
-					}
-
-				} else {
-					$psts->errors->add( 'general', __( 'There was a problem with your credit card information. Please check all fields and try again.', 'psts' ) );
-				}
-			}
-		}
-	}
-
 	//js to be printed only on checkout page
 	function checkout_js() {
 		?>
 		<script type="text/javascript">
 			jQuery(document).ready(function ($) {
 				$('form').submit(function () {
-					$('#cc_checkout').hide();
+					$('#cc_paypal_checkout').hide();
 					$('#paypal_processing').show();
 				});
 				$("a#pypl_cancel").click(function (e) {
@@ -1781,12 +1084,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
 		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off">';
 
-		//print the checkout grid
-//		$content .= $psts->checkout_grid( $blog_id, $domain );
-
 		$content .= '<div id="psts-paypal-checkout">
 			<h2>' . __( 'Checkout With PayPal', 'psts' ) . '</h2>
-			<input type="image" src="' . $button_url . '" border="0" name="pypl_checkout" alt="' . __( 'PayPal - The safer, easier way to pay online!', 'psts' ) . '">
+			<div id="psts-paypal-processcard-error"></div>
+			<input type="image" src="' . $button_url . '" border="0" name="paypal_checkout" alt="' . __( 'PayPal - The safer, easier way to pay online!', 'psts' ) . '">
 			</div>';
 
 		if ( $psts->get_setting( 'pypl_enable_pro' ) ) {
@@ -1929,7 +1230,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				</tr>
 		  </tbody></table>
 			<p>
-			<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" />
+			<input type="submit" id="cc_paypal_checkout" name="cc_paypal_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" />
 			<span id="paypal_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</span>
 		  </p>
 				</div>';
@@ -1992,14 +1293,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
 			// get custom field values
-			@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp ) = explode( '_', $custom );
+			@list( $pre, $blog_id, $activation_key, $level, $period, $amount, $currency, $timestamp ) = explode( ':', $custom );
+
 			// process PayPal response
 			$new_status = false;
-			//Lookup for blog id in signup table to confirm if its a domain or blog id
-			$domain = $wpdb->get_var( $wpdb->prepare( "SELECT `domain` FROM $wpdb->signups WHERE domain = %s", $blog_id ) );
-			if ( $domain ) {
-				$blog_id = '';
-			}
+
 			$profile_string = ( isset( $_POST['recurring_payment_id'] ) ) ? ' - ' . $_POST['recurring_payment_id'] : '';
 
 			$payment_status = ( isset( $_POST['initial_payment_status'] ) ) ? $_POST['initial_payment_status'] : $_POST['payment_status'];
@@ -2007,28 +1305,28 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			switch ( $payment_status ) {
 
 				case 'Canceled-Reversal':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: A reversal has been canceled; for example, when you win a dispute and the funds for the reversal have been returned to you.', 'psts' ), $payment_status ) . $profile_string, $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: A reversal has been canceled; for example, when you win a dispute and the funds for the reversal have been returned to you.', 'psts' ), $payment_status ) . $profile_string );
 					break;
 
 				case 'Expired':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The authorization period for this payment has been reached.', 'psts' ), $payment_status ) . $profile_string, $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The authorization period for this payment has been reached.', 'psts' ), $payment_status ) . $profile_string );
 					break;
 
 				case 'Voided':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: An authorization for this transaction has been voided.', 'psts' ), $payment_status ) . $profile_string, $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: An authorization for this transaction has been voided.', 'psts' ), $payment_status ) . $profile_string );
 					break;
 
 				case 'Failed':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The payment has failed. This happens only if the payment was made from your customer\'s bank account.', 'psts' ), $payment_status ) . $profile_string, $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The payment has failed. This happens only if the payment was made from your customer\'s bank account.', 'psts' ), $payment_status ) . $profile_string );
 					break;
 
 				case 'Partially-Refunded':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The payment has been partially refunded with %s.', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ) ) . $profile_string, $domain );
-					$psts->record_refund_transaction( $blog_id, $_POST['txn_id'], abs( $_POST['mc_gross'] ), $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The payment has been partially refunded with %s.', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ) ) . $profile_string );
+					$psts->record_refund_transaction( $blog_id, $_POST['txn_id'], abs( $_POST['mc_gross'] ) );
 					break;
 
 				case 'In-Progress':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The transaction has not terminated, e.g. an authorization may be awaiting completion.', 'psts' ), $payment_status ) . $profile_string, $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: The transaction has not terminated, e.g. an authorization may be awaiting completion.', 'psts' ), $payment_status ) . $profile_string );
 					break;
 
 				case 'Reversed':
@@ -2045,17 +1343,21 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						'other'                    => __( 'A reversal has occurred on this transaction due to an unknown reason.', 'psts' )
 					);
 					$status .= $reverse_reasons[ $_POST["reason_code"] ];
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s', 'psts' ), $payment_status, $status ) . $profile_string, $domain );
+
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s', 'psts' ), $payment_status, $status ) . $profile_string );
+
 					$psts->withdraw( $blog_id, $period );
 					$psts->record_refund_transaction( $blog_id, $_POST['txn_id'], abs( $_POST['mc_gross'] ) );
 					break;
 
 				case 'Refunded':
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: You refunded the payment with %s.', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ) ) . $profile_string, $domain );
-					$psts->record_refund_transaction( $blog_id, $_POST['txn_id'], abs( $_POST['mc_gross'] ), $domain );
+
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: You refunded the payment with %s.', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ) ) . $profile_string );
+					$psts->record_refund_transaction( $blog_id, $_POST['txn_id'], abs( $_POST['mc_gross'] ) );
 					break;
 
 				case 'Denied':
+
 					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: You denied the payment when it was marked as pending.', 'psts' ), $payment_status ) . $profile_string );
 					$psts->withdraw( $blog_id, $period );
 					break;
@@ -2065,9 +1367,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					// case: successful payment
 					$is_trialing = ( isset( $_POST['period_type'] ) && trim( $_POST['period_type'] ) == 'Trial' ) ? true : false;
 					$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
-					$blog_id     = $psts->activate_user_blog( $domain, false, $period, $level );
+
+					//Activate the blog
+					$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trialing, $period, $level );
+
 					//receipts and record new transaction
 					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) ) {
+
 						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
 							$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ), $_POST['txn_type'], $_POST['txn_id'] ) . $profile_string );
@@ -2107,7 +1413,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						'*'              => ''
 					);
 					$reason      = @$_POST['pending_reason'];
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, $_POST['txn_id'], $pending_str[ $reason ] ) . $profile_string, $domain );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, $_POST['txn_id'], $pending_str[ $reason ] ) . $profile_string );
 					break;
 
 				default:
@@ -2127,7 +1433,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			//new subscriptions (after cancelation)
 			if ( $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
 
-				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string, $domain );
+				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string );
 
 				//save new profile_id
 				$this->set_profile_id( $blog_id, $_POST['recurring_payment_id'] );
@@ -2169,7 +1475,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 
 	//record last payment for Blog id or domain
-	function set_profile_id( $blog_id, $profile_id, $domain = false ) {
+	public static function set_profile_id( $blog_id, $profile_id, $domain = false ) {
 		global $psts;
 		if ( ! empty( $blog_id ) ) {
 			$trans_meta = get_blog_option( $blog_id, 'psts_paypal_profile_id' );
@@ -2213,13 +1519,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 	}
 
-	function get_free_trial_desc( $trial_days ) {
+	public static function get_free_trial_desc( $trial_days ) {
 		return ' (billed after ' . $trial_days . ' day free trial)';
 	}
 
 	/**** PayPal API methods *****/
 
-	function SetExpressCheckout( $paymentAmount, $desc, $blog_id = '', $domain = false ) {
+	public static function SetExpressCheckout( $paymentAmount, $desc, $blog_id = '', $domain = '', $path = '' ) {
 		global $psts;
 
 		$recurring = $psts->get_setting( 'recurring_subscriptions' );
@@ -2241,7 +1547,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( ! empty( $blog_id ) ) {
 			$nvpstr .= "&RETURNURL=" . urlencode( $psts->checkout_url( $blog_id ) . '&action=complete' );
 			$nvpstr .= "&CANCELURL=" . urlencode( $psts->checkout_url( $blog_id ) . '&action=canceled' );
-		} elseif ( ! empty( $domain ) ) {
+		} elseif ( ! empty( $domain ) && ! empty( $path ) ) {
 			$nvpstr .= "&RETURNURL=" . urlencode( $psts->checkout_url( '', $domain ) . '&action=complete' );
 			$nvpstr .= "&CANCELURL=" . urlencode( $psts->checkout_url( '', $domain ) . '&action=canceled' );
 		}
@@ -2252,12 +1558,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&HDRBACKCOLOR=" . urlencode( $psts->get_setting( 'pypl_header_back' ) );
 		$nvpstr .= "&PAYFLOWCOLOR=" . urlencode( $psts->get_setting( 'pypl_page_back' ) );
 
-		$resArray = $this->api_call( "SetExpressCheckout", $nvpstr );
+		$resArray = self::api_call( "SetExpressCheckout", $nvpstr );
 
 		return $resArray;
 	}
 
-	function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $domain = '' ) {
+	function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '' ) {
 		global $psts;
 
 		$nvpstr = "&TOKEN=" . urlencode( $token );
@@ -2270,19 +1576,18 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&PAYMENTACTION=Sale";
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 		$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
-		if ( $blog_id ) {
-			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		} else {
-			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		}
+
+		$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ':' . $level . ':' . $frequency . ':' . $paymentAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
+
 		$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
 		$resArray = $this->api_call( "DoExpressCheckoutPayment", $nvpstr );
 
 		return $resArray;
 	}
 
-	function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $domain = false ) {
+	public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '' ) {
 		global $psts;
+
 		$trial_days = $psts->get_setting( 'trial_days', 0 );
 		$has_trial  = $psts->is_trial_allowed( $blog_id );
 
@@ -2312,35 +1617,31 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$nvpstr .= "&TRIALBILLINGFREQUENCY=" . $trial_days;
 			$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 			$nvpstr .= "&TRIALAMT=0.00";
-			$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : $this->startDate( $trial_days, 'days' ) );
+			$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
 		} //handle modification
 		elseif ( $modify ) { // expiration is in the future\
 			$nvpstr .= "&TRIALBILLINGPERIOD=Month";
 			$nvpstr .= "&TRIALBILLINGFREQUENCY=$frequency";
 			$nvpstr .= "&TRIALTOTA_LBILLINGCYCLES=1";
 			$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
-			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? $this->modStartDate( $modify ) : $this->startDate( $frequency ) );
+			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 		} else {
-			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? $this->modStartDate( $modify ) : $this->startDate( $frequency ) );
+			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 		}
-
 
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 		$nvpstr .= "&BILLINGPERIOD=Month";
 		$nvpstr .= "&BILLINGFREQUENCY=$frequency";
 		$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 		$nvpstr .= "&MAXFAILEDPAYMENTS=1";
-		if ( ! empty( $blog_id ) ) {
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		} else {
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		}
-		$resArray = $this->api_call( "CreateRecurringPaymentsProfile", $nvpstr );
+		$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ':' . $level . ':' . $frequency . ':' . $paymentAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
+
+		$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 		return $resArray;
 	}
 
-	function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $domain = false ) {
+	function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
 		global $psts;
 
 		$trial_days = $psts->get_setting( 'trial_days', 0 );
@@ -2390,11 +1691,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&BILLINGFREQUENCY=$frequency";
 		$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 		$nvpstr .= "&MAXFAILEDPAYMENTS=1";
-		if ( ! empty( $blog_id ) ) {
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		} else {
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		}
+		$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ':' . $level . ':' . $frequency . ':' . $paymentAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
 		$nvpstr .= "&CREDITCARDTYPE=$cctype";
 		$nvpstr .= "&ACCT=$acct";
 		$nvpstr .= "&EXPDATE=$expdate";
@@ -2414,7 +1711,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $domain = false ) {
+	function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
 		global $psts;
 
 		$nvpstr = "&AMT=$paymentAmount";
@@ -2425,11 +1722,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&PAYMENTACTION=Sale";
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 		$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
-		if ( ! empty( $blog_id ) ) {
-			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		} else {
-			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $domain . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time();
-		}
+
+		$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ':' . $level . ':' . $frequency . ':' . $paymentAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();;
+
 		$nvpstr .= "&CREDITCARDTYPE=$cctype";
 		$nvpstr .= "&ACCT=$acct";
 		$nvpstr .= "&EXPDATE=$expdate";
@@ -2484,12 +1779,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function UpdateRecurringPaymentsProfile( $profile_id, $custom ) {
+	public static function UpdateRecurringPaymentsProfile( $profile_id, $custom ) {
 
 		$nvpstr = "&PROFILEID=" . $profile_id;
 		$nvpstr .= "&PROFILEREFERENCE=$custom";
 
-		$resArray = $this->api_call( "UpdateRecurringPaymentsProfile", $nvpstr );
+		$resArray = self::api_call( "UpdateRecurringPaymentsProfile", $nvpstr );
 
 		return $resArray;
 	}
@@ -2515,7 +1810,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function api_call( $methodName, $nvpStr ) {
+	public static function api_call( $methodName, $nvpStr ) {
 		global $psts;
 
 		//set api urls
@@ -2546,13 +1841,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			return false;
 		} else {
 			//convert NVPResponse to an Associative Array
-			$nvpResArray = $this->deformatNVP( $response['body'] );
+			$nvpResArray = self::deformatNVP( $response['body'] );
 
 			return $nvpResArray;
 		}
 	}
 
-	function RedirectToPayPal( $token ) {
+	public static function RedirectToPayPal( $token ) {
 		global $psts;
 
 		//set api urls
@@ -2569,13 +1864,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 
 	//This function will take NVPString and convert it to an Associative Array and it will decode the response.
-	function deformatNVP( $nvpstr ) {
+	public static function deformatNVP( $nvpstr ) {
 		parse_str( $nvpstr, $nvpArray );
 
 		return $nvpArray;
 	}
 
-	function parse_error_string( $resArray, $sep = ', ' ) {
+	public static function parse_error_string( $resArray, $sep = ', ' ) {
 		$errors = array();
 		for ( $i = 0; $i < 10; $i ++ ) {
 			if ( isset( $resArray["L_LONGMESSAGE$i"] ) ) {
@@ -2586,13 +1881,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return implode( $sep, $errors );
 	}
 
-	function startDate( $frequency, $period = 'month' ) {
+	public static function startDate( $frequency, $period = 'month' ) {
 		$result = strtotime( "+$frequency $period" );
 
 		return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $result ) );
 	}
 
-	function modStartDate( $expire_stamp ) {
+	public static function modStartDate( $expire_stamp ) {
 		return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $expire_stamp ) );
 	}
 
@@ -2622,11 +1917,48 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
 		$button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
 
-		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off" id="paypal-payment-form">';
+		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : 1;
+		$level  = isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ? (int) $_SESSION['new_blog_details']['level'] : 0;
+		$level  = isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['level'] ) ? (int) $_SESSION['upgraded_blog_details']['level'] : $level;
+
+		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off" id="paypal-payment-form">
+
+			<input type="hidden" name="level" value="' . $level . '" />
+			<input type="hidden" name="period" value="' . $period . '" />';
+
+		if ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) {
+			$content .= '<input type="hidden" name="new_blog" value="1" />';
+		}
+
+		if ( isset( $_GET['bid'] ) ) {
+			$content .= '<input type="hidden" name="bid" value="' . (int) $_GET['bid'] . '" />';
+		}
+
+		// This is a new blog
+		if ( isset( $_SESSION['blog_activation_key'] ) ) {
+			$content .= '<input type="hidden" name="activation" value="' . $_SESSION['blog_activation_key'] . '" />';
+
+			if ( isset( $_SESSION['new_blog_details'] ) ) {
+				$user_name  = $_SESSION['new_blog_details']['username'];
+				$user_email = $_SESSION['new_blog_details']['email'];
+				$blogname   = $_SESSION['new_blog_details']['blogname'];
+				$blog_title = $_SESSION['new_blog_details']['title'];
+
+				$content .= '<input type="hidden" name="blog_username" value="' . $_SESSION['new_blog_details']['username'] . '" />';
+				$content .= '<input type="hidden" name="blog_email" value="' . $_SESSION['new_blog_details']['email'] . '" />';
+				$content .= '<input type="hidden" name="blog_name" value="' . $_SESSION['new_blog_details']['blogname'] . '" />';
+				$content .= '<input type="hidden" name="blog_title" value="' . $_SESSION['new_blog_details']['title'] . '" />';
+			}
+		}
 
 		$content .= '<div id="psts-paypal-checkout">
-			<h2>' . __( 'Checkout With PayPal', 'psts' ) . '</h2>
-			<input type="image" src="' . $button_url . '" border="0" name="pypl_checkout" alt="' . __( 'PayPal - The safer, easier way to pay online!', 'psts' ) . '">
+			<h2>' . __( 'Checkout With PayPal', 'psts' ) . '</h2>';
+		$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'general' ) : false;
+		if ( $errmsg ) {
+			$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
+		}
+
+		$content .= '<input type="image" src="' . $button_url . '" border="0" name="paypal_checkout" alt="' . __( 'PayPal - The safer, easier way to pay online!', 'psts' ) . '">
 			</div>';
 
 		if ( $psts->get_setting( 'pypl_enable_pro' ) ) {
@@ -2647,10 +1979,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$content .= '<div id="psts-cc-checkout">
 			<h2>' . __( 'Or Pay Directly By Credit Card', 'psts' ) . '</h2>';
-			$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'processcard' ) : false;
-			if ( $errmsg ) {
-				$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
-			}
 			$content .= self::nonce_field();
 			$content .= '<input type="hidden" name="cc_form" value="1" />
 			<table id="psts-cc-table">
@@ -2789,7 +2117,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
         </tbody>
     </table>
 	<p>
-		<input type="submit" id="cc_checkout" name="cc_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button" />
+		<input type="submit" id="cc_paypal_checkout" name="cc_paypal_checkout" value="' . __( 'Subscribe', 'psts' ) . ' &raquo;" class="submit-button" />
 		<div id="paypal_processing" style="display: none;float: right;"><img src="' . $img_base . 'loading.gif" /> ' . __( 'Processing...', 'psts' ) . '</div>
     </p>
 	</div>';
@@ -2802,6 +2130,767 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	public static function process_checkout_form( $blog_id, $domain ) {
 
+		global $current_site, $current_user, $psts, $wpdb;
+
+		$blog_id = ! empty( $blog_id ) ? $blog_id : ! empty( $_POST['bid'] ) ? (int) $_POST['bid'] : 0;
+
+		//Get domain details, if activation is set, runs when user submits the form for blog signup
+		if ( empty( $domain ) && ! empty( $_POST['activation'] ) ) {
+
+			$signup_details = $wpdb->get_row( $wpdb->prepare( "SELECT `domain`, `path` FROM $wpdb->signups WHERE activation_key = %s", $_POST['activation'] ) );
+
+			if ( $signup_details ) {
+
+				$domain = $signup_details->domain;
+				$path   = $signup_details->path;
+
+				//To be used when user returns from paypal site and blog needs to be activated
+				$_SESSION['domain']     = $domain;
+				$_SESSION['path']       = $path;
+				$_SESSION['activation'] = $_POST['activation'];
+
+			}
+		}
+
+		//After user is redirect back from paypal
+		if ( isset( $_GET['token'] ) ) {
+			//Get the value from session if user is returning from paypal site after making payment as $_POST would be empty
+			$_POST['level']  = ! empty( $_SESSION['LEVEL'] ) ? $_SESSION['LEVEL'] : '';
+			$_POST['period'] = ! empty( $_SESSION['PERIOD'] ) ? $_SESSION['PERIOD'] : '';
+		}
+
+		//if either user submitted the form
+		if ( isset( $_POST['paypal_checkout_x'] ) ||
+		     isset( $_POST['paypal_checkout'] ) ||
+		     isset( $_POST['cc_paypal_checkout'] ) ||
+		     isset( $_GET['token'] )
+		) {
+
+			$site_name = $current_site->site_name;
+			$img_base  = $psts->plugin_url . 'images/';
+
+			if ( ! empty( $domain ) ) {
+				$site_name = ! empty ( $_POST['blogname'] ) ? $_POST['blogname'] : ! empty ( $_POST['signup_email'] ) ? $_POST['signup_email'] : '';
+			}
+
+			//Check for level
+			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
+				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+			}
+
+			//prepare vars
+			$currency = $psts->get_setting( "pypl_currency", 'USD' );
+
+			$discountAmt = false;
+
+			$trial_days = $psts->get_setting( 'trial_days', 0 );
+
+			$is_trial = $psts->is_trial_allowed( $blog_id );
+
+			$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
+
+			$trial_desc = ( $is_trial ) ? ProSites_Gateway_PayPalExpressPro::get_free_trial_desc( $trial_days ) : '';
+
+			$recurring = $psts->get_setting( 'recurring_subscriptions', true );
+
+			$has_coupon = false;
+
+			//If free level is selected, activate a trial
+			if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
+				if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
+
+					$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
+
+					$esc_domain = esc_url( $domain );
+
+					//Set complete message
+					self::$complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
+
+					return;
+				}
+
+			}
+
+			//Current site name as per the payment procedure
+			$current_site_name = ! empty ( $domain ) ? $domain : ( !empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : $current_site->site_name );
+
+			$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
+			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
+			$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'] ) ) ? true : false;
+
+			if ( $has_setup_fee ) {
+				$initAmount += $setup_fee;
+			}
+
+			if ( $has_coupon || $has_setup_fee ) {
+				if ( $has_coupon ) {
+					$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
+					$amount_off   = ( $paymentAmount - $coupon_value['new_total'] );
+					$initAmount -= $amount_off;
+				}
+
+				if ( $recurring ) {
+					if ( $_POST['period'] == 1 ) {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month%3$s, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $initAmount ), $psts->format_currency( $currency, $paymentAmount ), $trial_desc );
+					} else {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first %2$s month period%5$s, then %3$s every %4$s months', 'psts' ), $psts->format_currency( $currency, $initAmount ), $_POST['period'], $psts->format_currency( $currency, $paymentAmount ), $_POST['period'], $trial_desc );
+					}
+				} else {
+					$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
+					if ( $_POST['period'] == 1 ) {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for 1 month (non recurring)', 'psts' ), $psts->format_currency( $currency, $initAmount ), $currency );
+					} else {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for %3$s months (non recurring)', 'psts' ), $psts->format_currency( $currency, $initAmount ), $currency, $_POST['period'] );
+					}
+				}
+			} else {
+				if ( $recurring ) {
+					if ( $_POST['period'] == 1 ) {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s each month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
+					} else {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s every %3$s months', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency, $_POST['period'] );
+					}
+				} else {
+					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
+					if ( $_POST['period'] == 1 ) {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for 1 month (non recurring)', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
+					} else {
+						$desc = $current_site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s for %3$s months (non recurring)', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency, $_POST['period'] );
+					}
+				}
+			}
+
+			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
+		}
+		//!process paypal express checkout
+		if ( isset( $_POST['paypal_checkout_x'] ) || isset( $_POST['paypal_checkout'] ) ) {
+			//check for level
+			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
+				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+
+				return;
+			}
+			if ( $is_trial ) {
+				$resArray = self::SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $domain, $path );
+			} else {
+				if ( ! empty( $blog_id ) ) {
+					$resArray = self::SetExpressCheckout( $initAmount, $desc, $blog_id );
+				} elseif ( ! empty( $domain ) ) {
+					$resArray = self::SetExpressCheckout( $initAmount, $desc, '', $domain, $path );
+				}
+
+			}
+			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+				$token              = $resArray["TOKEN"];
+				$_SESSION['TOKEN']  = $token;
+				$_SESSION['PERIOD'] = $_POST['period'];
+				$_SESSION['LEVEL']  = $_POST['level'];
+				self::RedirectToPayPal( $token );
+			} else {
+				$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+			}
+		}
+
+		/* ------------------- PayPal Checkout ----------------- */
+		//!check for return from Express Checkout
+		if ( isset( $_GET['token'] ) && isset( $_SESSION['PERIOD'] ) && isset( $_SESSION['LEVEL'] ) ) {
+			//if PAYERID is not sent back with request then get it via API (like when creating a free trial)
+			if ( ! isset( $_GET['PayerID'] ) ) {
+				$details = self::GetExpressCheckoutDetails( $_GET['token'] );
+				if ( isset( $details['PAYERID'] ) ) {
+					$_GET['PayerID'] = $details['PAYERID'];
+				}
+			}
+			//check for modifiying
+			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+				$modify = $psts->get_expire( $blog_id );
+
+				//check for a upgrade and get new first payment date
+				if ( $upgrade = $psts->calc_upgrade( $blog_id, $initAmount, $_SESSION['LEVEL'], $_SESSION['PERIOD'] ) ) {
+					$modify = $upgrade;
+				} else {
+					$upgrade = false;
+				}
+			} else {
+				$modify = false;
+			}
+
+			//One time payment
+			if ( ! $recurring ) {
+				$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
+				$resArray   = self::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $domain, $path );
+
+				if ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) {
+					$payment_status   = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
+					$paymentAmount    = $resArray['PAYMENTINFO_0_AMT'];
+					$init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'];
+
+					if ( ! $modify ) {
+						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+					} else {
+						$psts->log_action( $blog_id, sprintf( __( 'User creating modifying subscription via PayPal Express: Payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+					}
+
+					//just in case, try to cancel any old subscription
+					if ( $profile_id = self::get_profile_id( $blog_id ) ) {
+						$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+					}
+
+					//now get the details of the transaction to see if initial payment went through already
+					if ( $resArray['PAYMENTINFO_0_PAYMENTSTATUS'] == 'Completed' || $resArray['PAYMENTINFO_0_PAYMENTSTATUS'] == 'Processed' ) {
+						$old_expire = $psts->get_expire( $blog_id );
+						$new_expire = ( $old_expire > time() ) ? $old_expire : false;
+						$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $psts->get_level_setting( $_SESSION['LEVEL'], 'price_' . $_SESSION['PERIOD'] ), $new_expire, false );
+						$psts->email_notification( $blog_id, 'success' );
+						$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
+
+						if ( $modify ) {
+							if ( $_SESSION['LEVEL'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
+								$psts->record_stat( $blog_id, 'upgrade' );
+							} else {
+								$psts->record_stat( $blog_id, 'modify' );
+							}
+						} else {
+							$psts->record_stat( $blog_id, 'signup' );
+						}
+
+						do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+
+						if ( empty( self::$complete_message ) ) {
+							self::$complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
+						}
+					} else {
+						update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+					}
+				}
+			} elseif ( $modify ) {
+				//Level Upgrade
+				//! create the recurring profile
+				$resArray = self::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], $modify );
+				if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+					$new_profile_id = $resArray["PROFILEID"];
+
+					$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $modify );
+					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: New subscription created (%1$s), first payment will be made on %2$s - %3$s', 'psts' ), $desc, $end_date, $new_profile_id ) );
+
+					//cancel old subscription
+					$old_gateway = $wpdb->get_var( "SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
+					if ( $profile_id = self::get_profile_id( $blog_id ) ) {
+						$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $desc, $end_date ) );
+						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: Old subscription canceled - %s', 'psts' ), $profile_id ) );
+						}
+					} else {
+						self::manual_cancel_email( $blog_id, $old_gateway ); //send email for old paypal system
+					}
+
+					if ( $_SESSION['LEVEL'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
+						$psts->record_stat( $blog_id, 'upgrade' );
+					} else {
+						$psts->record_stat( $blog_id, 'modify' );
+					}
+
+					$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount, false, true );
+
+					//use coupon
+					if ( $has_coupon ) {
+						$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
+					}
+
+					//save new profile_id
+					self::set_profile_id( $blog_id, $new_profile_id );
+
+					//save new period/term
+					$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET term = %d WHERE blog_ID = %d", $_SESSION['PERIOD'], $blog_id ) );
+
+					//show confirmation page
+					self::$complete_message = sprintf( __( 'Your PayPal subscription modification was successful for %s.', 'psts' ), $desc );
+
+					//display GA ecommerce in footer
+					if ( ! $is_trial ) {
+						$psts->create_ga_ecommerce( $blog_id, $_SESSION['PERIOD'], $initAmount, $_SESSION['LEVEL'] );
+					}
+
+					//show instructions for old gateways
+					if ( $old_gateway == 'PayPal' ) {
+						self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
+						self::$complete_message .= '<p><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) . '"><img src="' . $psts->plugin_url . 'images/cancel_subscribe_gen.gif" /></a><br /><small>' . __( 'You can also cancel following <a href="https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing">these steps</a>.', 'psts' ) . '</small></p>';
+					} else if ( $old_gateway == 'Amazon' ) {
+						self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
+						self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
+					}
+
+					unset( $_SESSION['COUPON_CODE'] );
+					unset( $_SESSION['PERIOD'] );
+					unset( $_SESSION['LEVEL'] );
+				} else {
+					$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
+				}
+			} else {
+
+				//new or expired signup
+				$ack_success    = true;
+				$payment_status = '';
+
+				//Set payerID if missing
+				if ( ! isset( $_GET['PayerID'] ) ) {
+
+					$details = self::GetExpressCheckoutDetails( $_GET['token'] );
+
+					if ( isset( $details['PAYERID'] ) ) {
+						$_GET['PayerID'] = $details['PAYERID'];
+					}
+
+				}
+
+				if ( ! $is_trial ) {
+					//if no trial is set
+					$resArray = self::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $domain, $path );
+
+					$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
+
+					//Get payment status
+					if ( isset( $resArray['PAYMENTINFO_0_ACK'] ) && ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) ) {
+						$payment_status = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
+						$paymentAmount  = $resArray['PAYMENTINFO_0_AMT'];
+						$ack_success    = true;
+					}
+				}
+
+				if ( $is_trial || $ack_success ) {
+					if ( ! $is_trial ) {
+						if ( ! empty( $blog_id ) ) {
+							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+						} else {
+							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
+						}
+					}
+
+					//use coupon
+					if ( $has_coupon ) {
+						$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
+					}
+
+					//just in case, try to cancel any old subscription
+					if ( ! empty( $blog_id ) && ( $profile_id = self::get_profile_id( $blog_id ) ) ) {
+						$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+					}
+
+					$domain         = ! empty( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : '' );
+					$path           = ! empty( $path ) ? $path : ( ! empty( $_SESSION['path'] ) ? $_SESSION['path'] : '' );
+					$activation_key = ! empty( $_SESSION['blog_activation_key'] ) ? $_SESSION['blog_activation_key'] : '';
+
+					//create the recurring profile
+					$resArray = self::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
+
+					//If Profile is created
+					if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
+
+						$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+
+						if ( ! empty( $blog_id ) ) {
+							//save new profile_id
+							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
+
+							//update the profile id in paypal so that future payments are applied to the proper blog id
+							$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ":" . $_SESSION['LEVEL'] . ':' . $_SESSION['PERIOD'] . ':' . $initAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
+							self::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
+
+							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
+
+						} else {
+							//Store in signup meta for domain
+							self::set_profile_id( '', $resArray["PROFILEID"], $domain );
+							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
+
+						}
+					} elseif ( ! empty( $resArray['ACK'] ) ) {
+						//If payment was declined, or user returned
+						$psts->errors->add( 'general', sprintf( __( 'There was a problem processing the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+						$psts->log_action( $blog_id, sprintf( __( 'User creating subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+					} else {
+						self::$complete_message = __( 'Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . self::parse_error_string( $resArray ) . '</strong>"';
+						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+					}
+					//now get the details of the transaction to see if initial payment went through already
+					if ( $is_trial || $payment_status == 'Completed' || $payment_status == 'Processed' ) {
+
+						//If we have domain details, activate the blog, It will be extended later in the same code block
+						if ( ! empty( $domain ) ) {
+							$blog_id = $blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+						}
+
+						//If we have blog id, Extend the blog expiry
+						if ( $blog_id ) {
+							if ( $is_trial ) {
+								$psts->extend( $blog_id, $_SESSION['PERIOD'], 'Trial', $_SESSION['LEVEL'], '', strtotime( '+ ' . $trial_days . ' days' ) );
+							} else {
+								$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount );
+							}
+						}
+						$psts->record_stat( $blog_id, 'signup' );
+						$psts->email_notification( $blog_id, 'success' );
+
+						//record last payment
+						if ( ! $is_trial ) {
+							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
+						}
+
+						// Added for affiliate system link
+						do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+
+						if ( empty( self::$complete_message ) ) {
+							self::$complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
+						}
+					} else {
+						//If we have blog id
+						if ( ! empty ( $blog_id ) ) {
+							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+						} else {
+							//Update Domain meta
+							$signup_meta = '';
+							$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
+							if ( ! empty( $signup ) ) {
+								$signup_meta = maybe_unserialize( $signup->meta );
+							}
+							$signup_meta['psts_waiting_step'] = 1;
+							$wpdb->update(
+								$wpdb->signups,
+								array(
+									'meta' => serialize( $signup_meta ), // string
+								),
+								array(
+									'domain' => $domain
+								)
+							);
+						}
+
+					}
+
+					//display GA ecommerce in footer
+					if ( ! $is_trial ) {
+						$psts->create_ga_ecommerce( $blog_id, $_SESSION['PERIOD'], $paymentAmount, $_SESSION['LEVEL'] );
+					}
+
+					unset( $_SESSION['COUPON_CODE'] );
+					unset( $_SESSION['PERIOD'] );
+					unset( $_SESSION['LEVEL'] );
+				} else {
+					$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+				}
+			}
+		}
+
+		/*! ------------ CC Checkout ----------------- */
+		if ( isset( $_POST['cc_paypal_checkout'] ) ) {
+
+			//check for level
+			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
+				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+
+				return;
+			}
+
+			//process form
+			if ( isset( $_POST['cc_form'] ) ) {
+//				do_action( 'psts_cc_form_before_process', self, $psts, $blog_id );
+
+				//clean up $_POST
+				$cc_cardtype  = isset( $_POST['cc_card-type'] ) ? $_POST['cc_card-type'] : '';
+				$cc_number    = isset( $_POST['cc_number'] ) ? stripslashes( $_POST['cc_number'] ) : '';
+				$cc_month     = isset( $_POST['cc_month'] ) ? $_POST['cc_month'] : '';
+				$cc_year      = isset( $_POST['cc_year'] ) ? $_POST['cc_year'] : '';
+				$cc_firstname = isset( $_POST['cc_firstname'] ) ? stripslashes( $_POST['cc_firstname'] ) : '';
+				$cc_lastname  = isset( $_POST['cc_lastname'] ) ? stripslashes( $_POST['cc_lastname'] ) : '';
+				$cc_address   = isset( $_POST['cc_address'] ) ? stripslashes( $_POST['cc_address'] ) : '';
+				$cc_address2  = isset( $_POST['cc_address2'] ) ? stripslashes( $_POST['cc_address2'] ) : '';
+				$cc_city      = isset( $_POST['cc_city'] ) ? stripslashes( $_POST['cc_city'] ) : '';
+				$cc_state     = isset( $_POST['cc_state'] ) ? stripslashes( $_POST['cc_state'] ) : '';
+				$cc_zip       = isset( $_POST['cc_zip'] ) ? stripslashes( $_POST['cc_zip'] ) : '';
+				$cc_country   = isset( $_POST['cc_country'] ) ? stripslashes( $_POST['cc_country'] ) : '';
+
+				$cc_number        = preg_replace( '/[^0-9]/', '', $cc_number ); //strip any slashes
+				$_POST['cc_cvv2'] = preg_replace( '/[^0-9]/', '', $_POST['cc_cvv2'] );
+				//check nonce
+				if ( ! self::check_nonce() ) {
+					$psts->errors->add( 'general', __( 'Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ) );
+				}
+
+				if ( empty( $cc_cardtype ) ) {
+					$psts->errors->add( 'card-type', __( 'Please choose a Card Type.', 'psts' ) );
+				}
+
+				if ( empty( $cc_number ) ) {
+					$psts->errors->add( 'number', __( 'Please enter a valid Credit Card Number.', 'psts' ) );
+				}
+
+				if ( empty( $cc_month ) || empty( $cc_year ) ) {
+					$psts->errors->add( 'expiration', __( 'Please choose an expiration date.', 'psts' ) );
+				}
+
+				if ( strlen( $_POST['cc_cvv2'] ) < 3 || strlen( $_POST['cc_cvv2'] ) > 4 ) {
+					$psts->errors->add( 'cvv2', __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) );
+				}
+
+				if ( empty( $cc_firstname ) ) {
+					$psts->errors->add( 'firstname', __( 'Please enter your First Name.', 'psts' ) );
+				}
+
+				if ( empty( $cc_lastname ) ) {
+					$psts->errors->add( 'lastname', __( 'Please enter your Last Name.', 'psts' ) );
+				}
+
+				if ( empty( $cc_address ) ) {
+					$psts->errors->add( 'address', __( 'Please enter your billing Street Address.', 'psts' ) );
+				}
+
+				if ( empty( $_POST['cc_city'] ) ) {
+					$psts->errors->add( 'city', __( 'Please enter your billing City.', 'psts' ) );
+				}
+
+				if ( ( $cc_country == 'US' || $cc_country == 'CA' ) && empty( $cc_state ) ) {
+					$psts->errors->add( 'state', __( 'Please enter your billing State/Province.', 'psts' ) );
+				}
+
+				if ( empty( $cc_zip ) ) {
+					$psts->errors->add( 'zip', __( 'Please enter your billing Zip/Postal Code.', 'psts' ) );
+				}
+
+				if ( empty( $cc_country ) || strlen( $cc_country ) != 2 ) {
+					$psts->errors->add( 'country', __( 'Please enter your billing Country.', 'psts' ) );
+				}
+
+				//no errors
+				if ( ! $psts->errors->get_error_code() ) {
+					//check for modifiying
+					if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+						$modify = $psts->get_expire( $blog_id );
+						//check for a upgrade and get new first payment date
+						if ( $upgrade = $psts->calc_upgrade( $blog_id, $initAmount, @$_SESSION['LEVEL'], @$_SESSION['PERIOD'] ) ) {
+							$modify = $upgrade;
+						} else {
+							$upgrade = false;
+						}
+					} else {
+						$modify = false;
+					}
+
+					if ( ! $recurring ) {
+						$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
+						$resArray   = self::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email );
+
+						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+							$init_transaction = $resArray["TRANSACTIONID"];
+							$paymentAmount    = $resArray['AMT'];
+
+							if ( ! $modify ) {
+								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Direct Payment: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+							} else {
+								$psts->log_action( $blog_id, sprintf( __( 'User creating modifying subscription via PayPal Direct Payment: Payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+							}
+
+							//just in case, try to cancel any old subscription
+							if ( $profile_id = self::get_profile_id( $blog_id ) ) {
+								$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+							}
+
+							$old_expire = $psts->get_expire( $blog_id );
+							$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
+							$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] ), $new_expire, false );
+							$psts->email_notification( $blog_id, 'success' );
+							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
+
+							if ( $modify ) {
+								if ( $_POST['level'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
+									$psts->record_stat( $blog_id, 'upgrade' );
+								} else {
+									$psts->record_stat( $blog_id, 'modify' );
+								}
+							} else {
+								$psts->record_stat( $blog_id, 'signup' );
+							}
+
+							do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level'] );
+
+							if ( empty( self::$complete_message ) ) {
+								self::$complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
+							}
+						} else {
+							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+						}
+					} elseif ( $modify ) {
+						$old_profile = false;
+						if ( $profile_id = self::get_profile_id( $blog_id ) ) {
+							$old_profile = self::GetRecurringPaymentsProfileDetails( $profile_id );
+							if ( strtotime( $old_profile['PROFILESTARTDATE'] ) > gmdate( 'U' ) && (int) $old_profile['TRIALAMTPAID'] == 0 ) {
+								$is_trial = true;
+							}
+						}
+
+						//create the recurring profile
+						$resArray = self::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $modify );
+						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+							$new_profile_id = $resArray["PROFILEID"];
+
+							$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $modify );
+							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: New subscription created (%1$s), first payment will be made on %2$s - %3$s', 'psts' ), $desc, $end_date, $new_profile_id ) );
+
+							//cancel old subscription
+							$old_gateway = $wpdb->get_var( "SELECT gateway FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
+							if ( $old_profile ) {
+								$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %1$s subscription has been modified. This previous subscription has been canceled, and your new subscription (%2$s) will begin on %3$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $desc, $end_date ) );
+								if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+									$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: Old subscription canceled - %s', 'psts' ), $profile_id ) );
+								}
+							} else {
+								self::manual_cancel_email( $blog_id, $old_gateway ); //send email for old paypal system
+							}
+
+							//extend
+							$psts->extend( $blog_id, $_POST['period'], ( $is_trial ? 'Trial' : self::get_slug() ), $_POST['level'], ( $is_trial ? '' : $paymentAmount ), ( $is_trial ? $psts->get_expire( $blog_id ) : false ) );
+
+							//use coupon
+							if ( $has_coupon ) {
+								$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
+							}
+
+							//save new profile_id
+							self::set_profile_id( $blog_id, $new_profile_id );
+
+							//show confirmation page
+							self::$complete_message = sprintf( __( 'Your Credit Card subscription modification was successful for %s.', 'psts' ), $desc );
+
+							//display GA ecommerce in footer
+							$psts->create_ga_ecommerce( $blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country );
+
+							//show instructions for old gateways
+							if ( $old_gateway == 'PayPal' ) {
+								self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
+								self::$complete_message .= '<p><a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) . '"><img src="' . $psts->plugin_url . 'images/cancel_subscribe_gen.gif" /></a><br /><small>' . __( 'You can also cancel following <a href="https://www.paypal.com/helpcenter/main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!795521328?t=solutionTab&ft=homeTab&ps=&solutionId=27715&locale=en_US&_dyncharset=UTF-8&countrycode=US&cmd=_help-ext">these steps</a>.', 'psts' ) . '</small></p>';
+							} else if ( $old_gateway == 'Amazon' ) {
+								self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
+								self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
+							}
+
+							unset( $_SESSION['COUPON_CODE'] );
+
+						} else {
+							$psts->errors->add( 'general', sprintf( __( 'There was a problem with your Credit Card information:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: PayPal returned a problem with Credit Card info: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
+						}
+
+					} else { //new or expired signup
+
+						//attempt initial direct payment
+						$success = $init_transaction = false;
+						if ( ! $is_trial ) {
+							$resArray = self::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
+							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+								$init_transaction = $resArray["TRANSACTIONID"];
+								$success          = true;
+							}
+						}
+						if ( $is_trial || $success ) {
+							//just in case, try to cancel any old subscription
+							if ( ! empty( $blog_id ) && $profile_id = self::get_profile_id( $blog_id ) ) {
+								$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+							}
+
+							if ( $init_transaction && ! empty( $blog_id ) ) {
+								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
+							} elseif ( $init_transaction && ! empty ( $domain ) ) {
+								$psts->log_action( '', sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
+							}
+
+							//use coupon
+							if ( $has_coupon ) {
+								$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id, $domain );
+							}
+
+							//now attempt to create the subscription
+							$resArray = self::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
+
+							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+								$blog_id = $psts->activate_user_blog( $domain, true, $_POST['period'], $_POST['level'] );
+
+								var_dump( $blog_id );exit;
+								if ( ! empty( $blog_id ) ) {
+									//save new profile_id
+									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
+
+									//update the profile id in paypal so that future payments are applied to the proper blog id
+									$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . '' . ':' . $_POST['level'] . ':' . $_POST['period'] . ':' . $initAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
+									self::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
+
+									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
+
+								} else {
+									//Store in signup meta for domain
+									self::set_profile_id( '', $resArray["PROFILEID"], $domain );
+									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
+
+								}
+
+							} else {
+								self::$complete_message = __( 'Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . self::parse_error_string( $resArray ) . '</strong>"';
+								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+							}
+
+							if ( ! empty( $blog_id ) ) {
+								$psts->email_notification( $blog_id, 'success' );
+								$psts->record_stat( $blog_id, 'signup' );
+							}
+							//now get the details of the transaction to see if initial payment went through
+							if ( $init_transaction ) {
+								$result = self::GetTransactionDetails( $init_transaction );
+								if ( $result['PAYMENTSTATUS'] == 'Completed' || $result['PAYMENTSTATUS'] == 'Processed' ) {
+									//Activate the domain , user signup for
+									if ( ! empty( $domain ) ) {
+										//Activate the blog
+										$blog_id = $psts->activate_user_blog( $domain );
+									}
+									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount );
+
+									//record last payment
+									$psts->record_transaction( $blog_id, $init_transaction, $result['AMT'] );
+
+									// Added for affiliate system link
+									do_action( 'supporter_payment_processed', $blog_id, $result['AMT'], $_POST['period'], $_POST['level'] );
+
+									if ( empty( self::$complete_message ) ) {
+										self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
+									}
+								} else {
+									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+								}
+							} else {
+								$psts->extend( $blog_id, $_POST['period'], 'Trial', $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
+
+								if ( empty( self::$complete_message ) ) {
+									self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
+								}
+							}
+
+							//display GA ecommerce in footer
+							if ( ! $is_trial ) {
+								$psts->create_ga_ecommerce( $blog_id, $_POST['period'], $initAmount, $_POST['level'], $cc_city, $cc_state, $cc_country );
+							}
+
+							unset( $_SESSION['COUPON_CODE'] );
+
+						} else {
+							$psts->errors->add( 'general', sprintf( __( 'There was a problem with your credit card information:<br />"<strong>%s</strong>"<br />Please check all fields and try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+						}
+
+					}
+
+				} else {
+					$psts->errors->add( 'general', __( 'There was a problem with your credit card information. Please check all fields and try again.', 'psts' ) );
+				}
+			}
+		}
 	}
 
 	public static function get_existing_user_information() {

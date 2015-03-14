@@ -604,12 +604,6 @@ jQuery(document).ready(function ($) {
             $('#prosites-signup-form-checkout').replaceWith(response.reserved_message);
             $('.input_available').remove();
         }
-        //console.log( response.form );
-        //if (response.valid) {
-        //    $('.pricing-column .coupon-box').addClass('coupon-valid');
-        //} else {
-        //    $('.pricing-column .coupon-box').addClass('coupon-invalid');
-        //}
 
     }
 

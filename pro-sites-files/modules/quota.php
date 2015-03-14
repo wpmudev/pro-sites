@@ -138,8 +138,7 @@ class ProSites_Module_Quota {
 				</tr>
 			</table>
 			<p>
-				<span
-					class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
+				<span class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
 					<pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span><br/></p>
 		</div>
 		<!--		</div>-->

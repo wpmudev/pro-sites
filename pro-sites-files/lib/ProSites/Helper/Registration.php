@@ -30,7 +30,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$key = substr( md5( time() . rand() . $domain ), 0, 16 );
 			$meta = serialize($meta);
 
-			$wpdb->insert( $wpdb->signups, array(
+			$result = $wpdb->insert( $wpdb->signups, array(
 				'domain' => $domain,
 				'path' => $path,
 				'title' => $title,
