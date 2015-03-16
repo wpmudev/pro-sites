@@ -268,9 +268,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			if ( is_pro_site( $blog_id ) && ! isset( $_GET['action'] ) ) {
 				// EXISTING DETAILS
-
-				$plan_content = self::render_current_plan_information( $blog_id, $domain, $gateways, $gateway_details['order'] );
-				$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
+				if( isset( $gateways ) && isset( $gateway_details ) ) {
+					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
+					$plan_content = self::render_current_plan_information( $blog_id, $domain, $gateways, $gateway_order );
+					$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
+				}
 			} else {
 				// NOTIFICATIONS ONLY
 

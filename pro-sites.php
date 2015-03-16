@@ -2906,7 +2906,7 @@ if ( $active_pro_sites ) {
 	$week_data = array();
 	$start     = time();
 	for ( $i = 1; $i <= 26; $i ++ ) { //Only show 6 months of weekly data
-		$week_start = '';
+		$week_start = $start;
 		if ( $i == 1 ) {
 			$week_start                           = strtotime( "-$i week", $start );
 			$week_start_date                      = date( 'Y-m-d', $week_start );
