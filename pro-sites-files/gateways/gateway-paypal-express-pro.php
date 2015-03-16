@@ -1382,6 +1382,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							if ( ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
+							error_log("what has been happening");
 
 							//in case of new member send notification
 							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && $_POST['txn_type'] == 'express_checkout' ) {
@@ -2197,9 +2198,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			//If free level is selected, activate a trial
 			if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
+
 				if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
 
-					$psts->activate_user_blog( $domain, true, $_POST['level'], $_POST['period'] );
+					ProSites_Helper_Registration::activate_blog( $_SESSION['activation'], $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
 
 					$esc_domain = esc_url( $domain );
 
@@ -2432,6 +2434,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				//new or expired signup
 				$ack_success    = true;
 				$payment_status = '';
+				$domain         = ! empty( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : '' );
+				$path           = ! empty( $path ) ? $path : ( ! empty( $_SESSION['path'] ) ? $_SESSION['path'] : '' );
+				$activation_key = ! empty( $_SESSION['blog_activation_key'] ) ? $_SESSION['blog_activation_key'] : '';
 
 				//Set payerID if missing
 				if ( ! isset( $_GET['PayerID'] ) ) {
@@ -2446,7 +2451,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				if ( ! $is_trial ) {
 					//if no trial is set
-					$resArray = self::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $domain, $path );
+					$resArray = self::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
 
 					$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
 
@@ -2476,10 +2481,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( ! empty( $blog_id ) && ( $profile_id = self::get_profile_id( $blog_id ) ) ) {
 						$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 					}
-
-					$domain         = ! empty( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : '' );
-					$path           = ! empty( $path ) ? $path : ( ! empty( $_SESSION['path'] ) ? $_SESSION['path'] : '' );
-					$activation_key = ! empty( $_SESSION['blog_activation_key'] ) ? $_SESSION['blog_activation_key'] : '';
 
 					//create the recurring profile
 					$resArray = self::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
@@ -2519,6 +2520,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//If we have domain details, activate the blog, It will be extended later in the same code block
 						if ( ! empty( $domain ) ) {
 							$blog_id = $blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+						}
+						if ( isset( $_SESSION['new_blog_details'] ) ) {
+							$_SESSION['new_blog_details']['blog_id']         = $blog_id;
+							$_SESSION['new_blog_details']['payment_success'] = true;
 						}
 
 						//If we have blog id, Extend the blog expiry
@@ -2786,7 +2791,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//attempt initial direct payment
 						$success = $init_transaction = false;
 						if ( ! $is_trial ) {
-							$resArray = self::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
+							$resArray = self::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
 								$success          = true;
@@ -2810,12 +2815,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//now attempt to create the subscription
-							$resArray = self::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $domain );
+							$resArray = self::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
 
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-								$blog_id = $psts->activate_user_blog( $domain, true, $_POST['period'], $_POST['level'] );
+								$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
 
-								var_dump( $blog_id );exit;
 								if ( ! empty( $blog_id ) ) {
 									//save new profile_id
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
@@ -2825,6 +2829,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
+
+									if ( isset( $_SESSION['new_blog_details'] ) ) {
+										$_SESSION['new_blog_details']['blog_id']         = $blog_id;
+										$_SESSION['new_blog_details']['payment_success'] = true;
+									}
 
 								} else {
 									//Store in signup meta for domain
@@ -2893,12 +2902,157 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 	}
 
-	public static function get_existing_user_information() {
+	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
 
-		$content = '';
+		global $psts;
+		$args = array();
+		$img_base  = $psts->plugin_url . 'images/';
+
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if( $trialing ) {
+			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
+		}
+
+		// Pending information
+		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
+			$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
+		}
+
+		// Successful payment
+		if ( self::$complete_message ) {
+			$args['complete_message'] = '<div id="psts-complete-msg">' . self::$complete_message . '</div>';
+			$args['thanks_message'] = '<p>' . $psts->get_setting( 'pypl_thankyou' ) . '</p>';
+
+			//If Checking out on signup, there wouldn't be a blogid probably
+//			if ( ! empty ( $domain ) ) {
+//				//Hardcoded, TODO: Search for alternative
+//				$admin_url = is_ssl() ? trailingslashit( "https://$domain" ) . 'wp-admin/' : trailingslashit( "http://$domain" ) . 'wp-admin/';
+//				$args['visit_site_message'] = '<p><a href="' . $admin_url . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
+//			} else {
+			$args['visit_site_message'] = '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Go to your site &raquo;', 'psts' ) . '</a></p>';
+//			}
+			self::$complete_message = false;
+		}
+
+		// Cancellation message
+		if( self::$cancel_message ) {
+			$args['cancel'] = true;
+			$args['cancellation_message'] = self::$cancel_message;
+			self::$cancel_message = false;
+		}
+
+		// Existing customer information --- only if $get_all is true (default)
+		$customer_id = self::get_customer_data( $blog_id )->customer_id;
+		if ( ! empty( $customer_id ) && $get_all ) {
+
+			// Move to render info class
+			$end_date     = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+			$level        = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
+
+			$is_recurring = $psts->is_blog_recurring( $blog_id );
+			$args['recurring'] = $is_recurring;
+
+			$args['level'] = $level;
+			$args['expires'] = $end_date;
+
+			// All good, keep populating the array.
+			if( ! isset( $args['cancel'] ) ) {
+
+				// Get the last valid card
+				if ( isset( $customer_object->cards->data[0] ) && isset( $customer_object->default_card ) ) {
+					foreach ( $customer_object->cards->data as $tmpcard ) {
+						if ( $tmpcard->id == $customer_object->default_card ) {
+							$card = $tmpcard;
+							break;
+						}
+					}
+				} elseif ( isset( $customer_object->active_card ) ) { //for API pre 2013-07-25
+					$card = $customer_object->active_card;
+				}
+				$args['card_type'] = $card->brand;
+				$args['card_reminder'] = $card->last4;
+				$args['card_digit_location'] = 'end';
+				$args['card_expire_month'] = $card->exp_month;
+				$args['card_expire_year'] = $card->exp_year;
+
+				// Get the period
+				$plan_parts = explode( '_', $customer_object->subscriptions->data[0]->plan->id );
+				$period     = array_pop( $plan_parts );
+				$args['period'] = $period;
+
+				if ( isset( $existing_invoice_object->data[0] ) && $customer_object->subscriptions->data[0]->status != 'trialing' ) {
+					$args['last_payment_date'] = $existing_invoice_object->data[0]->date;
+				}
+				// Get next payment date
+				if ( isset( $invoice_object->next_payment_attempt ) ) {
+					$args['next_payment_date'] = $invoice_object->next_payment_attempt;
+				}
+				// Cancellation link
+				if( $is_recurring ) {
+					if ( is_pro_site( $blog_id ) ) {
+						$args['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+						$cancel_label = __( 'Cancel Your Subscription', 'psts' );
+						// CSS class of <a> is important to handle confirmations
+						$args['cancel_link'] = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' .esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
+					}
+				}
+
+				// Receipt form
+				$args['receipt_form'] = $psts->receipt_form( $blog_id );
+
+			}
+
+			// Show all is true
+			$args['all_fields'] = true;
+		}
+
+		return empty( $args ) ? false : $args;
 
 
 		return empty( $content ) ? false : $content;
+	}
+
+	/**
+	 * Get stripe customer id, one of the two arguments is required
+	 *
+	 * @param $blog_id
+	 * @param bool|string $domain DEPRECATED
+	 * @param bool|string $email
+	 *
+	 * @return bool
+	 */
+	public static function get_customer_data( $blog_id, $domain = false, $email = false ) {
+		global $wpdb, $psts;
+
+		// We might have to return an empty object...
+		if ( empty( $blog_id ) && empty( $domain ) ) {
+
+			// Try to get existing Stripe user by email
+			if( ! empty( $email ) ) {
+				$data = false;
+				$user = get_user_by( 'email', $email );
+				if( $user ) {
+					$blogs_of_user = get_blogs_of_user( $user->ID );
+					foreach ( $blogs_of_user as $blog_of_user ) {
+						$data = self::get_customer_data( $blog_of_user->userblog_id );
+						if ( ! empty( $data ) ) {
+							break;
+						}
+					}
+				}
+				if( $data ) {
+					$data->subscription_id = false;
+					return $data;
+				}
+			}
+
+			// Create a fake object so that it doesn't fail when properties are called.
+			$customer = new stdClass();
+			$customer->customer_id = false;
+			$customer->subscription_id = false;
+			return $customer;
+		}
+		return "I'm here at 3076";
 	}
 
 }
