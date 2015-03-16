@@ -1469,7 +1469,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 	}
 
-	function get_profile_id( $blog_id, $history = false, $domain = false ) {
+	public static function get_profile_id( $blog_id, $history = false, $domain = false ) {
 		global $psts;
 		$trans_meta = '';
 		if ( ! empty( $blog_id ) ) {
@@ -1721,10 +1721,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function GetExpressCheckoutDetails( $token ) {
+	public static function GetExpressCheckoutDetails( $token ) {
 		$nvpstr = "&TOKEN=" . $token;
 
-		return $this->api_call( 'GetExpressCheckoutDetails', $nvpstr );
+		return self::api_call( 'GetExpressCheckoutDetails', $nvpstr );
 	}
 
 	function GetTransactionDetails( $transaction_id ) {
@@ -1745,13 +1745,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function ManageRecurringPaymentsProfileStatus( $profile_id, $action, $note ) {
+	public static function ManageRecurringPaymentsProfileStatus( $profile_id, $action, $note ) {
 
 		$nvpstr = "&PROFILEID=" . $profile_id;
 		$nvpstr .= "&ACTION=$action"; //Should be Cancel, Suspend, Reactivate
 		$nvpstr .= "&NOTE=" . urlencode( html_entity_decode( $note, ENT_COMPAT, "UTF-8" ) );
 
-		$resArray = $this->api_call( "ManageRecurringPaymentsProfileStatus", $nvpstr );
+		$resArray = self::api_call( "ManageRecurringPaymentsProfileStatus", $nvpstr );
 
 		return $resArray;
 	}

@@ -86,8 +86,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$level_id = isset( $column['level_id'] ) ? $column['level_id'] : 0;
 
 				// Has a chosen plan been given? Note: Period should already be set.
-				if( ! empty( self::$selected_level ) && 0 != $key ) {
-					$col_class = $key == (int) self::$selected_level ? $col_class . ' chosen-plan' : $col_class;
+				if( ! empty( self::$selected_level ) && 0 != $level_id ) {
+					$col_class = $level_id == (int) self::$selected_level ? $col_class . ' chosen-plan' : $col_class;
 				}
 
 				$content .= '<ul class="pricing-column psts-level-' . esc_attr( $level_id ) . ' ' . esc_attr( $col_class ) . '" style="' . esc_attr( $style ) . '">';

@@ -136,10 +136,13 @@ class ProSites {
 //		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
 //		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
-		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
+		add_filter( 'update_welcome_email', array(
+			'ProSites_Helper_Registration',
+			'alter_welcome_for_existing_users'
+		), 10, 6 );
 
 		//handle signup pages
-		add_action('init','ProSites_Helper_ProSite::redirect_signup_page' );
+		add_action( 'init', 'ProSites_Helper_ProSite::redirect_signup_page' );
 		add_filter( 'prosites_render_checkout_page_period', 'ProSites_View_Front_Gateway::select_current_period', 10, 2 );
 		add_filter( 'prosites_render_checkout_page_level', 'ProSites_View_Front_Gateway::select_current_level', 10, 2 );
 		// Dismissed signup prompt
@@ -226,18 +229,18 @@ class ProSites {
 		 * @todo: Temporary until gateways are adopted into new structure
 		 */
 		$class_overrides = array(
-			'ProSites_Gateway_2Checkout' => 'gateways/gateway-2checkout.php',
-			'ProSites_Gateway_Manual' => 'gateways/gateway-manual.php',
+			'ProSites_Gateway_2Checkout'        => 'gateways/gateway-2checkout.php',
+			'ProSites_Gateway_Manual'           => 'gateways/gateway-manual.php',
 			'ProSites_Gateway_PayPalExpressPro' => 'gateways/gateway-paypal-express-pro.php',
-			'ProSites_Gateway_Stripe' => 'gateways/gateway-stripe.php',
+			'ProSites_Gateway_Stripe'           => 'gateways/gateway-stripe.php',
 		);
-		$override_keys = array_keys( $class_overrides );
+		$override_keys   = array_keys( $class_overrides );
 
 		$pattern = '/' . implode( '|', $included_classes ) . '/';
 
 		if ( preg_match( $pattern, $class ) ) {
 
-			if( ! in_array( $class, $override_keys ) ) {
+			if ( ! in_array( $class, $override_keys ) ) {
 				$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
 			} else {
 				$filename = $basedir . '/pro-sites-files/' . $class_overrides[ $class ];
@@ -1357,7 +1360,7 @@ Thanks!", 'psts' ),
 				$amount   = $trialing ? 0.0 : $result->amount;
 				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
-				if( ! empty( $args ) && isset( $args['setup_amount'] ) ) {
+				if ( ! empty( $args ) && isset( $args['setup_amount'] ) ) {
 					$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 					$payment_info .= sprintf( '<hr />' );
 					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
@@ -1769,13 +1772,13 @@ Thanks!", 'psts' ),
 
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
-		$now    = time();
+		$now = time();
 		//	$exists = $this->get_expire( $blog_id ); // not reliable
 		$exists = false;
 		if ( ! empty( $blog_id ) ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 		}
-		$term   = $extend;
+		$term = $extend;
 
 		if ( $expires !== false ) {
 			// expiration is set (e.g. for trials)
@@ -1870,10 +1873,10 @@ Thanks!", 'psts' ),
 
 		// Change trial status
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-		if( $trialing && ! 'Trial' == $gateway ) {
+		if ( $trialing && ! 'Trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 		}
-		if( 'Trial' == $gateway ) {
+		if ( 'Trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 		}
 
@@ -1899,7 +1902,7 @@ Thanks!", 'psts' ),
 			}
 			$new_expire = $blog_expire - $withdraw;
 		} else {
-			$new_expire = strtotime('-1 day', time() );
+			$new_expire = strtotime( '-1 day', time() );
 		}
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
@@ -4448,27 +4451,31 @@ function admin_levels() {
 
 	//outputs the checkout form
 	function checkout_output( $content ) {
-		$x = '';
+		$x       = '';
+		$blog_id = '';
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
 			return $content;
 		}
+
 		//make sure logged in, Or if user comes just after signup, check session for domain name
-//		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
-		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
+		if ( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
 
-			$show_signup = $this->get_setting( 'show_signup' );
-			$registeration = get_site_option('registration');
-			$show_signup = 'all' == $registeration ? $show_signup : false;
+			$show_signup   = $this->get_setting( 'show_signup' );
+			$registeration = get_site_option( 'registration' );
+			$show_signup   = 'all' == $registeration ? $show_signup : false;
 
-			if( ! is_user_logged_in() && ! $show_signup ) {
+			if ( ! is_user_logged_in() && ! $show_signup ) {
 				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
 				$content .= wp_login_form( array( 'echo' => false ) );
+
 				return $content;
+			} else {
+
 			}
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
 
-			return $content;
+//			return $content;
 		}
 		$current_user_id = get_current_user_id();
 		//get allowed roles for checkout
@@ -4637,11 +4644,11 @@ function admin_levels() {
 				$content .= '</div>';
 
 				// Signup for another blog?
-				$allow_multi = $this->get_setting('multiple_signup');
-				$registeration = get_site_option('registration');
-				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+				$allow_multi   = $this->get_setting( 'multiple_signup' );
+				$registeration = get_site_option( 'registration' );
+				$allow_multi   = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
-				if( $allow_multi ) {
+				if ( $allow_multi ) {
 					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 			}

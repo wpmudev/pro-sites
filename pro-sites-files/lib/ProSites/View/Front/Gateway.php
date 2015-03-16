@@ -258,7 +258,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
 
-			// No existing details for a new signup
+			// No existing details for a new signup, new blog signup
 			if ( ! is_user_logged_in() || isset( $_SESSION['new_blog_details'] ) ) {
 				$pre_content = '';
 
