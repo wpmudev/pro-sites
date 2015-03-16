@@ -585,3 +585,4 @@ $this->currencies = array(
 	"YER" => array( "Yemen, Rials", "fdfc" ),
 	"ZWD" => array( "Zimbabwe, Zimbabwe Dollars", "5a, 24" )
 );
+

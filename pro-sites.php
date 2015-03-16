@@ -216,13 +216,30 @@ class ProSites {
 			'^ProSites_Helper',
 			'^ProSites_View',
 			'^ProSites_Model',
+			'^ProSites_Gateway',
 		);
+
+		/**
+		 * @todo: Temporary until gateways are adopted into new structure
+		 */
+		$class_overrides = array(
+			'ProSites_Gateway_2Checkout' => 'gateways/gateway-2checkout.php',
+			'ProSites_Gateway_Manual' => 'gateways/gateway-manual.php',
+			'ProSites_Gateway_PayPalExpressPro' => 'gateways/gateway-paypal-express-pro.php',
+			'ProSites_Gateway_Stripe' => 'gateways/gateway-stripe.php',
+		);
+		$override_keys = array_keys( $class_overrides );
 
 		$pattern = '/' . implode( '|', $included_classes ) . '/';
 
 		if ( preg_match( $pattern, $class ) ) {
 
-			$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+			if( ! in_array( $class, $override_keys ) ) {
+				$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+			} else {
+				$filename = $basedir . '/pro-sites-files/' . $class_overrides[ $class ];
+			}
+
 			$filename = apply_filters( 'prosites_class_file_override', $filename );
 
 			if ( is_readable( $filename ) ) {
@@ -1921,12 +1938,13 @@ Thanks!", 'psts' ),
 		}
 
 		// get the currency symbol
-		$symbol = @$this->currencies[ $currency ][1];
+		$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
 		// if many symbols are found, rebuild the full symbol
-		$symbols = explode( ', ', $symbol );
+		$symbols = explode( ',', $symbol );
 		if ( is_array( $symbols ) ) {
 			$symbol = "";
 			foreach ( $symbols as $temp ) {
+				$temp = trim( $temp );
 				$symbol .= '&#x' . $temp . ';';
 			}
 		} else {
@@ -4638,6 +4656,10 @@ function admin_levels() {
 		// create new PDF document
 		$pdf = new TCPDF( PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false );
 
+		// Note: If uncommenting below, please remove previous call.
+		// Can use the following to change language symbols to appropriate standard, e.g. ISO-638-2 languages.
+		// $pdf = new TCPDF( PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, false, 'ISO-639-2', false );
+
 		// set document information
 		$pdf->SetCreator( 'Pro Sites' );
 		$pdf->SetTitle( __( 'Payment Receipt', 'psts' ) );
@@ -5154,6 +5176,8 @@ function admin_levels() {
 //load the class
 global $psts;
 $psts = new ProSites();
+// Load Gateway Currencies
+ProSites_Helper_Gateway::load_gateway_currencies();
 
 define ( "MONTHLY", 1 );
 define ( "QUARTERLY", 3 );
@@ -5245,4 +5269,3 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
-

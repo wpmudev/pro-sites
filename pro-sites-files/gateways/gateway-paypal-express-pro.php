@@ -2622,6 +2622,38 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return empty( $content ) ? false : $content;
 	}
 
+	public static function get_supported_currencies() {
+
+		return array(
+			'AUD' => array( 'Australian Dollar', '24' ),
+			'BRL' => array( 'Brazilian Real', '52, 24' ),
+			'CAD' => array( 'Canadian Dollar', '24' ),
+			'CHF' => array( 'Swiss Franc', '43, 48, 46' ),
+			'CZK' => array( 'Czech Koruna', '4b, 10d' ),
+			'DKK' => array( 'Danish Krone', '6b, 72' ),
+			'EUR' => array( 'Euro', '20ac' ),
+			'GBP' => array( 'British Pound', 'a3' ),
+			'HKD' => array( 'Hong Kong Dollar', '24' ),
+			'HUF' => array( 'Hungarian Forint', '46, 74' ),
+			'ILS' => array( 'Israeli New Sheqel', '20aa' ),
+			'JPY' => array( 'Japanese Yen', 'a5' ),
+			'MXN' => array( 'Mexican Peso', '24' ),
+			'MYR' => array( 'Malaysian Ringgit', '52, 4d' ),
+			'NOK' => array( 'Norwegian Krone', '6b, 72' ),
+			'NZD' => array( 'New Zealand Dollar', '24' ),
+			'PHP' => array( 'Philippine Peso', '20b1' ),
+			'PLN' => array( 'Polish Złoty', '7a, 142' ),
+			'SEK' => array( 'Swedish Krona', '6b, 72' ),
+			'SGD' => array( 'Singapore Dollar', '24' ),
+			'THB' => array( 'Thai Baht', 'e3f' ),
+			'TRY' => array( 'Turkish Lira', '20a4' ),
+			'TWD' => array( 'New Taiwan Dollar', '4e, 54, 24' ),
+			'USD' => array( 'United States Dollar', '24' ),
+		);
+
+	}
+
+
 }
 
 //register the gateway
