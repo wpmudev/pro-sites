@@ -6,7 +6,8 @@ Pro Sites (Gateway: Paypal Express/Pro Payment Gateway)
 
 class ProSites_Gateway_PayPalExpressPro {
 
-	public static $complete_message = false;
+	private static $complete_message = false;
+	private static $cancel_message = false;
 
 	public static function get_slug() {
 		return 'paypal';
@@ -125,35 +126,10 @@ class ProSites_Gateway_PayPalExpressPro {
 					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
 					<td><select name="psts[pypl_currency]" class="chosen">
 							<?php
-							$currency     = $psts->get_setting( 'pypl_currency' );
-							$sel_currency = empty( $currency ) ? $psts->get_setting( 'currency' ) : $currency;
-							$currencies   = array(
-								'AUD' => 'AUD - Australian Dollar',
-								'BRL' => 'BRL - Brazilian Real',
-								'CAD' => 'CAD - Canadian Dollar',
-								'CHF' => 'CHF - Swiss Franc',
-								'CZK' => 'CZK - Czech Koruna',
-								'DKK' => 'DKK - Danish Krone',
-								'EUR' => 'EUR - Euro',
-								'GBP' => 'GBP - Pound Sterling',
-								'ILS' => 'ILS - Israeli Shekel',
-								'HKD' => 'HKD - Hong Kong Dollar',
-								'HUF' => 'HUF - Hungarian Forint',
-								'JPY' => 'JPY - Japanese Yen',
-								'MYR' => 'MYR - Malaysian Ringgits',
-								'MXN' => 'MXN - Mexican Peso',
-								'NOK' => 'NOK - Norwegian Krone',
-								'NZD' => 'NZD - New Zealand Dollar',
-								'PHP' => 'PHP - Philippine Pesos',
-								'PLN' => 'PLN - Polish Zloty',
-								'RUB' => 'RUB - Russian Rubles',
-								'SEK' => 'SEK - Swedish Krona',
-								'SGD' => 'SGD - Singapore Dollar',
-								'TWD' => 'TWD - Taiwan New Dollars',
-								'THB' => 'THB - Thai Baht',
-								'TRY' => 'TRY - Turkish lira',
-								'USD' => 'USD - U.S. Dollar'
-							);
+							$currency = $psts->get_setting('currency');
+							$paypal_currency = ProSites_Helper_Gateway::supports_currency( $currency, 'paypal');
+							$sel_currency = empty( $paypal_currency ) ? $psts->get_setting( 'pypl_currency' ) : $paypal_currency;
+							$supported_currencies   = self::get_supported_currencies();
 
 							foreach ( $currencies as $k => $v ) {
 								echo '		<option value="' . $k . '"' . selected( $k, $sel_currency, false ) . '>' . esc_attr( $v ) . '</option>' . "\n";
@@ -2133,7 +2109,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		global $current_site, $current_user, $psts, $wpdb;
 
-		$blog_id = ! empty( $blog_id ) ? $blog_id : ! empty( $_POST['bid'] ) ? (int) $_POST['bid'] : 0;
+		$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_POST['bid'] ) ? (int) $_POST['bid'] : 0 );
 
 		//Get domain details, if activation is set, runs when user submits the form for blog signup
 		if ( empty( $domain ) && ! empty( $_POST['activation'] ) ) {
@@ -2935,7 +2911,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		// Cancellation message
-		if( self::$cancel_message ) {
+		if( isset(self::$cancel_message) && self::$cancel_message ) {
 			$args['cancel'] = true;
 			$args['cancellation_message'] = self::$cancel_message;
 			self::$cancel_message = false;
@@ -3055,6 +3031,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return "I'm here at 3076";
 	}
 
+	/**
+	 * Returns an array of currencies supported by Paypal
+	 * @return array
+	 */
 	public static function get_supported_currencies() {
 
 		return array(

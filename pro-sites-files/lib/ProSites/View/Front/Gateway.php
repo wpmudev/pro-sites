@@ -162,7 +162,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$allow_multi   = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if ( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
 			}
@@ -189,7 +189,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$gateway_details['secondary'] = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
 				$use_manual                   = $psts->get_setting( 'gateway_pref_use_manual' );
 
-				if( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
+				if ( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
 					$gateway_details['manual'] = 'manual';
 				} else {
 					$gateway_details['manual'] = '';
@@ -262,12 +262,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( ! is_user_logged_in() || isset( $_SESSION['new_blog_details'] ) ) {
 				$pre_content = '';
 
-				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) ||
-				    ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] )) {
+				if ( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) ||
+				     ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] )
+				) {
 					$pre_content .= self::render_payment_submitted();
 				}
 
-				if( ! empty( $pre_content ) ) {
+				if ( ! empty( $pre_content ) ) {
 					return $pre_content;
 				} else {
 					return $content;
