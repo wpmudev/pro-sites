@@ -219,13 +219,30 @@ class ProSites {
 			'^ProSites_Helper',
 			'^ProSites_View',
 			'^ProSites_Model',
+			'^ProSites_Gateway',
 		);
+
+		/**
+		 * @todo: Temporary until gateways are adopted into new structure
+		 */
+		$class_overrides = array(
+			'ProSites_Gateway_2Checkout' => 'gateways/gateway-2checkout.php',
+			'ProSites_Gateway_Manual' => 'gateways/gateway-manual.php',
+			'ProSites_Gateway_PayPalExpressPro' => 'gateways/gateway-paypal-express-pro.php',
+			'ProSites_Gateway_Stripe' => 'gateways/gateway-stripe.php',
+		);
+		$override_keys = array_keys( $class_overrides );
 
 		$pattern = '/' . implode( '|', $included_classes ) . '/';
 
 		if ( preg_match( $pattern, $class ) ) {
 
-			$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+			if( ! in_array( $class, $override_keys ) ) {
+				$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+			} else {
+				$filename = $basedir . '/pro-sites-files/' . $class_overrides[ $class ];
+			}
+
 			$filename = apply_filters( 'prosites_class_file_override', $filename );
 
 			if ( is_readable( $filename ) ) {
@@ -301,7 +318,7 @@ class ProSites {
 			'rebrand'                  => __( 'Pro Site', 'psts' ),
 			'lbl_signup'               => __( 'Pro Upgrade', 'psts' ),
 			'lbl_curr'                 => __( 'Your Account', 'psts' ),
-			'gateways_enabled'         => array( 'ProSites_Gateway_PayPalExpressPro' ),
+			'gateways_enabled'         => array(),
 			'modules_enabled'          => array(),
 			'enabled_periods'          => array( 1, 3, 12 ),
 			'hide_adminmenu'           => 0,
@@ -1340,6 +1357,12 @@ Thanks!", 'psts' ),
 				$amount   = $trialing ? 0.0 : $result->amount;
 				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
+				if( ! empty( $args ) && isset( $args['setup_amount'] ) ) {
+					$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					$payment_info .= sprintf( '<hr />' );
+					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+				}
+
 				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
 					$trial_info = "\n" . __( '*** PLEASE NOTE ***', 'psts' ) . "\n";
 					$trial_info .= sprintf( __( 'You will not be charged for your subscription until your trial ends on %s. If applicable, this does not apply to setup fees and other upfront costs.', 'psts' ), date_i18n( get_option( 'date_format' ), $result->expire ) );
@@ -1930,12 +1953,13 @@ Thanks!", 'psts' ),
 		}
 
 		// get the currency symbol
-		$symbol = @$this->currencies[ $currency ][1];
+		$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
 		// if many symbols are found, rebuild the full symbol
-		$symbols = explode( ', ', $symbol );
+		$symbols = explode( ',', $symbol );
 		if ( is_array( $symbols ) ) {
 			$symbol = "";
 			foreach ( $symbols as $temp ) {
+				$temp = trim( $temp );
 				$symbol .= '&#x' . $temp . ';';
 			}
 		} else {
@@ -4663,6 +4687,10 @@ function admin_levels() {
 		// create new PDF document
 		$pdf = new TCPDF( PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false );
 
+		// Note: If uncommenting below, please remove previous call.
+		// Can use the following to change language symbols to appropriate standard, e.g. ISO-638-2 languages.
+		// $pdf = new TCPDF( PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, false, 'ISO-639-2', false );
+
 		// set document information
 		$pdf->SetCreator( 'Pro Sites' );
 		$pdf->SetTitle( __( 'Payment Receipt', 'psts' ) );
@@ -5182,6 +5210,8 @@ function admin_levels() {
 //load the class
 global $psts;
 $psts = new ProSites();
+// Load Gateway Currencies
+ProSites_Helper_Gateway::load_gateway_currencies();
 
 define ( "MONTHLY", 1 );
 define ( "QUARTERLY", 3 );
@@ -5273,4 +5303,3 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
-

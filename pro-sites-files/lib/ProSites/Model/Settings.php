@@ -31,9 +31,22 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 
 				//merge settings
 				$old_settings = get_site_option( 'psts_settings' );
+
+				// update levels?
+				$update_gateway_levels = false;
+				if( isset( $_POST['psts']['currency'] ) ) {
+					$new_currency = sanitize_text_field( $_POST['psts']['currency'] );
+					if( strtolower( $old_settings['currency'] ) != strtolower( $new_currency ) ) {
+						$update_gateway_levels = true;
+					}
+				}
+
 				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $active_tab ) );
 				update_site_option( 'psts_settings', $settings );
 
+				if( $update_gateway_levels ) {
+					do_action( 'update_site_option_psts_levels' );
+				}
 				do_action( 'psts_settings_process', $active_tab );
 				do_action( 'supporter_settings_process' ); //deprecated
 

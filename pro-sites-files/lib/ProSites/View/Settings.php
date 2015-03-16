@@ -395,16 +395,52 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Currency Symbol', 'psts' ) ?></th>
+						<th scope="row"><?php _e( 'Currency', 'psts' ) ?></th>
 						<td>
 							<select id="psts-currency-select" name="psts[currency]" class="chosen">
 								<?php
-								foreach ( $psts->currencies as $key => $value ) {
+								$super = array( '&#8304;', '&#185;', '&#178;', '&#179;', '&#8308;', '&#8309;', '&#8310;', '&#8311;', '&#8312;', '&#8313;' );
+								$gateways = ProSites_Helper_Gateway::get_gateways();
+
+								$count = 0;
+								$supported_key = '';
+								foreach( $gateways as $key => $gateway ) {
+									if( 'manual' == $key ) {
+										continue;
+									}
+									$count++;
+									$gateways[ $key ]['idx'] = $count;
+									if( $count > 1 ) {
+										$supported_key .= '<sup> | </sup>';
+									}
+									$supported_key .= '<sup>' . $count . ' - ' . $gateway['name'] . '</sup>';
+
+								}
+//								supports_currency
+//								foreach ( $psts->currencies as $key => $value ) {
+								$all_currencies = ProSites_Model_Data::$currencies;
+								ksort( $all_currencies );
+								foreach ( $all_currencies as $key => $currency ) {
+
+									$supported_by = '';
+									foreach( $gateways as $slug => $gateway ) {
+										if( ProSites_Helper_Gateway::supports_currency( $key, $slug ) ) {
+											if( strlen( $supported_by ) > 0 ) {
+												$supported_by .= '&#x207B;';
+											}
+											$supported_by .= $super[ $gateway['idx'] ];
+										}
+									}
 									?>
-									<option value="<?php echo $key; ?>"<?php selected( $psts->get_setting( 'currency' ), $key ); ?>><?php echo esc_attr( $value[0] ) . ' - ' . $psts->format_currency( $key ); ?></option><?php
+									<option value="<?php echo $key; ?>"<?php selected( $psts->get_setting( 'currency' ), $key ); ?>><?php echo esc_attr( strtoupper( $key ) ) . '' . $supported_by . ' - ' . esc_attr( $currency['name'] ) . ' - ' . $psts->format_currency( $key ); ?></option><?php
 								}
 								?>
 							</select>
+							<div>
+								<?php echo $supported_key; ?><br />
+								<?php echo sprintf( '<sup>%s</sup>', esc_html__( 'Note: Where a currency is not supported by your gateway it may revert to your merchant account currency. (e.g. Stripe)', 'psts' ) ); ?>
+								<?php echo sprintf( '<sup><br />%s</sup>', esc_html__( 'Note: Updating your site currency might take time to load, please be patient.', 'psts' ) ); ?>
+							</div>
 						</td>
 					</tr>
 					<tr valign="top">

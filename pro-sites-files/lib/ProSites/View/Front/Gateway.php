@@ -189,7 +189,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$gateway_details['secondary'] = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
 				$use_manual                   = $psts->get_setting( 'gateway_pref_use_manual' );
 
-				if ( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && $use_manual ) {
+				if( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
 					$gateway_details['manual'] = 'manual';
 				} else {
 					$gateway_details['manual'] = '';

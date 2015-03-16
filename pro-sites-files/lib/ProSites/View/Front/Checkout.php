@@ -9,6 +9,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts;
+			$x = '';
 
 			// If its in session, get it
 			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ) {
@@ -301,11 +302,20 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		}
 
 		private static function get_header_details( $level = false ) {
+			global $psts;
+
+			$recurring = $psts->get_setting( 'recurring_subscriptions', 1 );
 
 			$periods = array(
-				'price_1' => __('per 1 month', 'psts' ),
-				'price_3' => __('per 3 months', 'psts' ),
-				'price_12' => __('per 12 months', 'psts' ),
+				'price_1' => __('every month', 'psts' ),
+				'price_3' => __('every 3 months', 'psts' ),
+				'price_12' => __('every 12 months', 'psts' ),
+			);
+
+			$periods_non_recurring = array(
+				'price_1' => __('for 1 month', 'psts' ),
+				'price_3' => __('for 3 months', 'psts' ),
+				'price_12' => __('for 12 months', 'psts' ),
 			);
 
 			$payment_type = array(
@@ -383,6 +393,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					}
 
 					$display_style = self::$default_period != $period_key ? ' hide' : '';
+
+					if( ! $recurring ) {
+						$period = $periods_non_recurring[ $period_key ];
+					}
 
 					// Get level price and format it
 					$price = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ] );

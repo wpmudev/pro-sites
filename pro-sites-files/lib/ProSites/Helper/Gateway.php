@@ -9,6 +9,7 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 
 			$gateways = array();
 			$active_gateways = (array) $psts->get_setting( 'gateways_enabled' );
+
 			foreach( $active_gateways as $active_gateway ) {
 				if( method_exists( $active_gateway, 'get_name' ) ) {
 					$name = call_user_func( $active_gateway . '::get_name' );
@@ -18,6 +19,7 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 					);
 				}
 			}
+
 			return $gateways;
 		}
 
@@ -47,6 +49,27 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 			} else {
 				return false;
 			}
+		}
+
+		public static function load_gateway_currencies() {
+			$gateways = ProSites_Helper_Gateway::get_gateways();
+
+			foreach( $gateways as $key => $gateway ) {
+				ProSites_Model_Data::load_currencies( $key, $gateway );
+			}
+
+		}
+
+		public static function supports_currency( $currency_code, $gateway_slug ) {
+			$currencies = ProSites_Model_Data::$currencies;
+			$found = false;
+
+			$c_keys = array_keys( $currencies );
+			if( in_array( $currency_code, $c_keys ) ) {
+				$found = in_array( $gateway_slug, $currencies[ $currency_code ]['supported_by'] );
+			}
+
+			return $found;
 		}
 
 	}

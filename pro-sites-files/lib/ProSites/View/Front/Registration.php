@@ -60,45 +60,22 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			$period = isset( $_GET['period'] ) ? (int) $_GET['period'] : (int) $_POST['period'];
 
 			?>
-			<input type="hidden" name="level" value="<?php echo esc_attr( $level ) ?>"/>
-			<input type="hidden" name="period" value="<?php echo esc_attr( $period ) ?>"/>
-			<input type="hidden" name="registration_step" value="<?php echo esc_attr( $step ) ?>"/>
+			<input type="hidden" name="level" value="<?php echo esc_attr( $level ) ?>" />
+			<input type="hidden" name="period" value="<?php echo esc_attr( $period ) ?>" />
+			<input type="hidden" name="registration_step" value="<?php echo esc_attr( $step ) ?>" />
 		<?php
 
 		}
 
-		public static function render_signup_finished() {
-
-			$username  = sanitize_text_field( $_POST['user_name'] );
-			$email     = sanitize_email( $_POST['user_email'] );
-			$blog_name = sanitize_text_field( $_POST['blogname'] );
-			$blog_id   = get_id_from_blogname( $blog_name );
-			switch_to_blog( $blog_id );
-
-			$content = '';
-			$content = ProSites_View_Front_Checkout::render_checkout_page( $content, $blog_id );
-
-			restore_current_blog();
-
-			echo $content;
-
-			?>
-			<div class="psts-registration-final">
-				<p>If this is your first site you will receive an activation email at the address provided
-					(<?php echo esc_html( $email ); ?>). Before you can login you will <strong>need to
-						activate</strong> your username - <?php echo esc_html( $username ); ?>.</p>
-
-				<p>Check your inbox and click the activation link given. If you do not activate your site within two
-					days, you will have to sign up again.</p>
-
-				<p>If you did not receive your email please wait a little longer; check your spam folder and double
-					check that the email address you provided is correct.</p>
-			</div>
-		<?php
-
-		}
-
-
+		/**
+		 * Renders the user/site signup form.
+		 *
+		 * OR the completed message.
+		 *
+		 * @param bool $errors
+		 *
+		 * @return string
+		 */
 		public static function render_signup_form( $errors = false ) {
 			global $psts;
 			$current_site = get_current_site();
@@ -110,11 +87,21 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			$content = '';
 
-			// Avoid rendering the form if its already been done
+			/**
+			 * Avoid rendering the form if its already been done.
+			 *
+			 * This means registration is completed. Trial is activated (non-recurring) or user provided
+			 * payment information for trial (recurring) or normal recurring plan.
+			 */
 			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['reserved_message'] ) ) {
+
+				// This variable is populated by ProSites_Model_Registration::ajax_check_prosite_blog()
 				$content .= $_SESSION['new_blog_details']['reserved_message'];
-//				unset( $_SESSION['new_blog_details']);
-//				unset( $_SESSION['upgraded_blog_details']);
+
+				// Debugging only.
+				// unset( $_SESSION['new_blog_details']);
+				// unset( $_SESSION['upgraded_blog_details']);
+
 				return $content;
 			}
 
@@ -156,24 +143,11 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 				$content .= '<form method="post" id="prosites-user-register">';
 
-
 				// USER SECTION
 				ob_start();
 				do_action( 'signup_hidden_fields', 'validate-user' );
 				$content .= ob_get_clean();
 				$content .= self::render_user_section( $errors, $user_name, $user_email );
-
-				/// DO SOMETHING WITH THIS ----> $active_signup = apply_filters( 'wpmu_active_signup', $active_signup );
-				/// AND THIS ---->
-				//			do_action( 'preprocess_signup_form' );
-				//			if ( is_user_logged_in() && ( $active_signup == 'all' || $active_signup == 'blog' ) )
-				//				signup_another_blog($newblogname);
-				//			elseif ( is_user_logged_in() == false && ( $active_signup == 'all' || $active_signup == 'user' ) )
-				//				signup_user( $newblogname, $user_email );
-				//			elseif ( is_user_logged_in() == false && ( $active_signup == 'blog' ) )
-				//				_e( 'Sorry, new registrations are not allowed at this time.' );
-				//			else
-				//				_e( 'You are logged in already. No need to register again!' );
 
 				// BLOG SECTION
 				ob_start();
@@ -282,7 +256,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			$content .= '<div id="privacy">
         		<p class="privacy-intro">
-            		<label for="blog_public_on">' . esc_html__( 'Privacy:', 'psts' ) . '</label> ' .
+            		<label for="blog_public_on">' . esc_html__('Privacy:', 'psts') . '</label> ' .
 			            esc_html__( 'Allow search engines to index this site.', 'psts' ) .
 			            '<br style="clear:both" />
 	                <label class="checkbox" for="blog_public_on">
@@ -374,5 +348,3 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 	}
 
 }
-
-
