@@ -4475,7 +4475,7 @@ function admin_levels() {
 			}
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
 
-//			return $content;
+			return $content;
 		}
 		$current_user_id = get_current_user_id();
 		//get allowed roles for checkout

@@ -126,12 +126,12 @@ class ProSites_Gateway_PayPalExpressPro {
 					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
 					<td><select name="psts[pypl_currency]" class="chosen">
 							<?php
-							$currency = $psts->get_setting('currency');
-							$paypal_currency = ProSites_Helper_Gateway::supports_currency( $currency, 'paypal');
-							$sel_currency = empty( $paypal_currency ) ? $psts->get_setting( 'pypl_currency' ) : $paypal_currency;
-							$supported_currencies   = self::get_supported_currencies();
+							$currency             = $psts->get_setting( 'currency' );
+							$paypal_currency      = ProSites_Helper_Gateway::supports_currency( $currency, 'paypal' );
+							$sel_currency         = empty( $paypal_currency ) ? $psts->get_setting( 'pypl_currency' ) : $paypal_currency;
+							$supported_currencies = self::get_supported_currencies();
 
-							foreach ( $currencies as $k => $v ) {
+							foreach ( $supported_currencies as $k => $v ) {
 								echo '		<option value="' . $k . '"' . selected( $k, $sel_currency, false ) . '>' . esc_attr( $v ) . '</option>' . "\n";
 							}
 							?>
@@ -262,7 +262,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	 * Check nonce value
 	 * @return bool
 	 */
-	function check_nonce() {
+	public static function check_nonce() {
 
 		if ( empty( $_SESSION['_psts_nonce'] ) ) {
 			return false;
@@ -1358,7 +1358,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							if ( ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
-							error_log("what has been happening");
+							error_log( "what has been happening" );
 
 							//in case of new member send notification
 							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && $_POST['txn_type'] == 'express_checkout' ) {
@@ -1618,7 +1618,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $resArray;
 	}
 
-	function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
+	public static function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
 		global $psts;
 
 		$trial_days = $psts->get_setting( 'trial_days', 0 );
@@ -1651,16 +1651,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$nvpstr .= "&TRIALBILLINGFREQUENCY=" . $trial_days;
 			$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 			$nvpstr .= "&TRIALAMT=0.00";
-			$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : $this->startDate( $trial_days, 'days' ) );
+			$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
 			//handle modifications
 		} elseif ( $modify ) { // expiration is in the future
 			$nvpstr .= "&TRIALBILLINGPERIOD=Month";
 			$nvpstr .= "&TRIALBILLINGFREQUENCY=$frequency";
 			$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 			$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
-			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? $this->modStartDate( $modify ) : $this->startDate( $frequency ) );
+			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 		} else {
-			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? $this->modStartDate( $modify ) : $this->startDate( $frequency ) );
+			$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 		}
 
 		$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
@@ -1683,7 +1683,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$nvpstr .= "&COUNTRYCODE=$countrycode";
 		$nvpstr .= "&EMAIL=$email";
 
-		$resArray = $this->api_call( "CreateRecurringPaymentsProfile", $nvpstr );
+		$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 		return $resArray;
 	}
@@ -2190,11 +2190,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//Current site name as per the payment procedure
-			$current_site_name = ! empty ( $domain ) ? $domain : ( !empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : $current_site->site_name );
+			$current_site_name = ! empty ( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : $current_site->site_name );
 
 			$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
 			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
-			$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'] ) ) ? true : false;
+			$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && ProSites_Helper_Coupons::check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
 
 			if ( $has_setup_fee ) {
 				$initAmount += $setup_fee;
@@ -2202,9 +2202,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			if ( $has_coupon || $has_setup_fee ) {
 				if ( $has_coupon ) {
-					$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
-					$amount_off   = ( $paymentAmount - $coupon_value['new_total'] );
+					$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $_SESSION['COUPON_CODE'] );
+
+					$coupon_value = $adjusted_values[ $_POST['level'] ][ 'price_' . $_POST['period'] ];
+					$amount_off   = $paymentAmount - $coupon_value;
 					$initAmount -= $amount_off;
+					$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 				}
 
 				if ( $recurring ) {
@@ -2495,7 +2498,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//If we have domain details, activate the blog, It will be extended later in the same code block
 						if ( ! empty( $domain ) ) {
-							$blog_id = $blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+							$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
 						}
 						if ( isset( $_SESSION['new_blog_details'] ) ) {
 							$_SESSION['new_blog_details']['blog_id']         = $blog_id;
@@ -2765,7 +2768,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					} else { //new or expired signup
 
 						//attempt initial direct payment
-						$success = $init_transaction = false;
+						$success        = $init_transaction = false;
+						$domain         = ! empty( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : '' );
+						$path           = ! empty( $path ) ? $path : ( ! empty( $_SESSION['path'] ) ? $_SESSION['path'] : '' );
+						$activation_key = ! empty( $_SESSION['blog_activation_key'] ) ? $_SESSION['blog_activation_key'] : '';
+
 						if ( ! $is_trial ) {
 							$resArray = self::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
@@ -2794,7 +2801,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$resArray = self::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
 
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-								$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+								$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 
 								if ( ! empty( $blog_id ) ) {
 									//save new profile_id
@@ -2834,7 +2841,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									//Activate the domain , user signup for
 									if ( ! empty( $domain ) ) {
 										//Activate the blog
-										$blog_id = $psts->activate_user_blog( $domain );
+										$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
 									}
 									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount );
 
@@ -2881,11 +2888,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
 
 		global $psts;
-		$args = array();
-		$img_base  = $psts->plugin_url . 'images/';
+		$args     = array();
+		$img_base = $psts->plugin_url . 'images/';
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-		if( $trialing ) {
+		if ( $trialing ) {
 			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
 		}
 
@@ -2897,7 +2904,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		// Successful payment
 		if ( self::$complete_message ) {
 			$args['complete_message'] = '<div id="psts-complete-msg">' . self::$complete_message . '</div>';
-			$args['thanks_message'] = '<p>' . $psts->get_setting( 'pypl_thankyou' ) . '</p>';
+			$args['thanks_message']   = '<p>' . $psts->get_setting( 'pypl_thankyou' ) . '</p>';
 
 			//If Checking out on signup, there wouldn't be a blogid probably
 //			if ( ! empty ( $domain ) ) {
@@ -2911,10 +2918,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		// Cancellation message
-		if( isset(self::$cancel_message) && self::$cancel_message ) {
-			$args['cancel'] = true;
+		if ( isset( self::$cancel_message ) && self::$cancel_message ) {
+			$args['cancel']               = true;
 			$args['cancellation_message'] = self::$cancel_message;
-			self::$cancel_message = false;
+			self::$cancel_message         = false;
 		}
 
 		// Existing customer information --- only if $get_all is true (default)
@@ -2922,17 +2929,17 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( ! empty( $customer_id ) && $get_all ) {
 
 			// Move to render info class
-			$end_date     = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-			$level        = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
+			$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+			$level    = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
 
-			$is_recurring = $psts->is_blog_recurring( $blog_id );
+			$is_recurring      = $psts->is_blog_recurring( $blog_id );
 			$args['recurring'] = $is_recurring;
 
-			$args['level'] = $level;
+			$args['level']   = $level;
 			$args['expires'] = $end_date;
 
 			// All good, keep populating the array.
-			if( ! isset( $args['cancel'] ) ) {
+			if ( ! isset( $args['cancel'] ) ) {
 
 				// Get the last valid card
 				if ( isset( $customer_object->cards->data[0] ) && isset( $customer_object->default_card ) ) {
@@ -2945,15 +2952,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				} elseif ( isset( $customer_object->active_card ) ) { //for API pre 2013-07-25
 					$card = $customer_object->active_card;
 				}
-				$args['card_type'] = $card->brand;
-				$args['card_reminder'] = $card->last4;
+				$args['card_type']           = $card->brand;
+				$args['card_reminder']       = $card->last4;
 				$args['card_digit_location'] = 'end';
-				$args['card_expire_month'] = $card->exp_month;
-				$args['card_expire_year'] = $card->exp_year;
+				$args['card_expire_month']   = $card->exp_month;
+				$args['card_expire_year']    = $card->exp_year;
 
 				// Get the period
-				$plan_parts = explode( '_', $customer_object->subscriptions->data[0]->plan->id );
-				$period     = array_pop( $plan_parts );
+				$plan_parts     = explode( '_', $customer_object->subscriptions->data[0]->plan->id );
+				$period         = array_pop( $plan_parts );
 				$args['period'] = $period;
 
 				if ( isset( $existing_invoice_object->data[0] ) && $customer_object->subscriptions->data[0]->status != 'trialing' ) {
@@ -2964,12 +2971,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$args['next_payment_date'] = $invoice_object->next_payment_attempt;
 				}
 				// Cancellation link
-				if( $is_recurring ) {
+				if ( $is_recurring ) {
 					if ( is_pro_site( $blog_id ) ) {
 						$args['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-						$cancel_label = __( 'Cancel Your Subscription', 'psts' );
+						$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
 						// CSS class of <a> is important to handle confirmations
-						$args['cancel_link'] = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' .esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
+						$args['cancel_link'] = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
 					}
 				}
 
@@ -3004,10 +3011,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( empty( $blog_id ) && empty( $domain ) ) {
 
 			// Try to get existing Stripe user by email
-			if( ! empty( $email ) ) {
+			if ( ! empty( $email ) ) {
 				$data = false;
 				$user = get_user_by( 'email', $email );
-				if( $user ) {
+				if ( $user ) {
 					$blogs_of_user = get_blogs_of_user( $user->ID );
 					foreach ( $blogs_of_user as $blog_of_user ) {
 						$data = self::get_customer_data( $blog_of_user->userblog_id );
@@ -3016,19 +3023,22 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 					}
 				}
-				if( $data ) {
+				if ( $data ) {
 					$data->subscription_id = false;
+
 					return $data;
 				}
 			}
 
 			// Create a fake object so that it doesn't fail when properties are called.
-			$customer = new stdClass();
-			$customer->customer_id = false;
+			$customer                  = new stdClass();
+			$customer->customer_id     = false;
 			$customer->subscription_id = false;
+
 			return $customer;
 		}
-		return "I'm here at 3076";
+
+		return "";
 	}
 
 	/**

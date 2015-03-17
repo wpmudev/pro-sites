@@ -153,7 +153,7 @@ class ProSites_Gateway_Stripe {
 
 		self::get_stripe_plans();
 		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency = $psts->get_setting( 'currency', $stripe_currency );
+		$currency        = $psts->get_setting( 'currency', $stripe_currency );
 
 		$levels  = (array) get_site_option( 'psts_levels' );
 		$periods = array( 1, 3, 12 );
@@ -187,64 +187,64 @@ class ProSites_Gateway_Stripe {
 		?>
 
 		<div class="inside">
-				<p class="description"><?php _e( "Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club cards directly on your site. You don't need a merchant account or gateway. Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account. Credit cards go directly to Stripe's secure environment, and never hit your servers so you can avoid most PCI requirements.", 'psts' ); ?>
-					<a href="https://stripe.com/" target="_blank"><?php _e( 'More Info &raquo;', 'psts' ) ?></a></p>
+			<p class="description"><?php _e( "Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club cards directly on your site. You don't need a merchant account or gateway. Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account. Credit cards go directly to Stripe's secure environment, and never hit your servers so you can avoid most PCI requirements.", 'psts' ); ?>
+				<a href="https://stripe.com/" target="_blank"><?php _e( 'More Info &raquo;', 'psts' ) ?></a></p>
 
-				<p><?php printf( __( 'To use Stripe you must <a href="https://manage.stripe.com/#account/webhooks" target="_blank">enter this webook url</a> (<strong>%s</strong>) in your account.', 'psts' ), network_site_url( 'wp-admin/admin-ajax.php?action=psts_stripe_webhook', 'admin' ) ); ?></p>
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Stripe Mode', 'psts' ) ?></th>
-						<td>
-							<select name="psts[stripe_ssl]" class="chosen">
-								<option value="1"<?php selected( $psts->get_setting( 'stripe_ssl' ), 1 ); ?>><?php _e( 'Force SSL (Live Site)', 'psts' ) ?></option>
-								<option value="0"<?php selected( $psts->get_setting( 'stripe_ssl' ), 0 ); ?>><?php _e( 'No SSL (Testing)', 'psts' ) ?></option>
-							</select><br/>
+			<p><?php printf( __( 'To use Stripe you must <a href="https://manage.stripe.com/#account/webhooks" target="_blank">enter this webook url</a> (<strong>%s</strong>) in your account.', 'psts' ), network_site_url( 'wp-admin/admin-ajax.php?action=psts_stripe_webhook', 'admin' ) ); ?></p>
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Stripe Mode', 'psts' ) ?></th>
+					<td>
+						<select name="psts[stripe_ssl]" class="chosen">
+							<option value="1"<?php selected( $psts->get_setting( 'stripe_ssl' ), 1 ); ?>><?php _e( 'Force SSL (Live Site)', 'psts' ) ?></option>
+							<option value="0"<?php selected( $psts->get_setting( 'stripe_ssl' ), 0 ); ?>><?php _e( 'No SSL (Testing)', 'psts' ) ?></option>
+						</select><br/>
 							<span class="description"><?php _e( 'When in live mode Stripe recommends you have an SSL certificate setup for your main blog/site where the checkout form will be displayed.', 'psts' ); ?>
 								<a href="https://stripe.com/help/ssl" target="_blank"><?php _e( 'More Info &raquo;', 'psts' ) ?></a></span>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php _e( 'Stripe API Credentials', 'psts' ) ?></th>
-						<td>
-							<p><label><?php _e( 'Secret key', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "stripe_secret_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_secret_key]" type="text"/>
-								</label></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Stripe API Credentials', 'psts' ) ?></th>
+					<td>
+						<p><label><?php _e( 'Secret key', 'psts' ) ?><br/>
+								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_secret_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_secret_key]" type="text"/>
+							</label></p>
 
-							<p><label><?php _e( 'Publishable key', 'psts' ) ?><br/>
-									<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_publishable_key]" type="text"/>
-								</label></p><br/>
-							<span class="description"><?php _e( 'You must login to Stripe to <a target="_blank" href="https://manage.stripe.com/#account/apikeys">get your API credentials</a>. You can enter your test credentials, then live ones when ready. When switching from test to live API credentials, if you were testing on a site that will be used in live mode, you need to manually clear the associated row from the *_pro_sites_stripe_customers table for the given blogid to prevent errors on checkout or management of the site.', 'psts' ) ?></span>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ) . $psts->help_text( __( 'The currency must match the currency of your Stripe account.', 'psts' ) ); ?></th>
-						<td>
-							<select name="psts[stripe_currency]" class="chosen">
-								<?php
-								$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
-								$currencies   = array(
-									"AUD" => 'AUD - Australian Dollar',
-									"CAD" => 'CAD - Canadian Dollar',
-									"EUR" => 'EUR - Euro',
-									"GBP" => 'GBP - Pounds Sterling',
-									"USD" => 'USD - U.S. Dollar',
-								);
+						<p><label><?php _e( 'Publishable key', 'psts' ) ?><br/>
+								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_publishable_key]" type="text"/>
+							</label></p><br/>
+						<span class="description"><?php _e( 'You must login to Stripe to <a target="_blank" href="https://manage.stripe.com/#account/apikeys">get your API credentials</a>. You can enter your test credentials, then live ones when ready. When switching from test to live API credentials, if you were testing on a site that will be used in live mode, you need to manually clear the associated row from the *_pro_sites_stripe_customers table for the given blogid to prevent errors on checkout or management of the site.', 'psts' ) ?></span>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row" class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ) . $psts->help_text( __( 'The currency must match the currency of your Stripe account.', 'psts' ) ); ?></th>
+					<td>
+						<select name="psts[stripe_currency]" class="chosen">
+							<?php
+							$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
+							$currencies   = array(
+								"AUD" => 'AUD - Australian Dollar',
+								"CAD" => 'CAD - Canadian Dollar',
+								"EUR" => 'EUR - Euro',
+								"GBP" => 'GBP - Pounds Sterling',
+								"USD" => 'USD - U.S. Dollar',
+							);
 
-								foreach ( $currencies as $k => $v ) {
-									echo '		<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
-								}
-								?>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-stripe-thankyou"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text( __( 'Displayed on successful checkout. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
-						<td>
-							<textarea name="psts[stripe_thankyou]" type="text" rows="4" wrap="soft" id="stripe_thankyou" style="width: 100%"/><?php echo esc_textarea( $psts->get_setting( 'stripe_thankyou' ) ); ?></textarea>
-						</td>
-					</tr>
-				</table>
-			</div>
+							foreach ( $currencies as $k => $v ) {
+								echo '		<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
+							}
+							?>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row" class="psts-help-div psts-stripe-thankyou"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text( __( 'Displayed on successful checkout. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
+					<td>
+						<textarea name="psts[stripe_thankyou]" type="text" rows="4" wrap="soft" id="stripe_thankyou" style="width: 100%"/><?php echo esc_textarea( $psts->get_setting( 'stripe_thankyou' ) ); ?></textarea>
+					</td>
+				</tr>
+			</table>
+		</div>
 	<?php
 	}
 
@@ -834,7 +834,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency = $psts->get_setting( 'currency', $stripe_currency );
+		$currency        = $psts->get_setting( 'currency', $stripe_currency );
 
 		if ( ! $new_levels ) {
 			$new_levels = (array) get_site_option( 'psts_levels' );
@@ -987,7 +987,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 		try {
 			$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-			$currency = $psts->get_setting( 'currency', $stripe_currency );
+			$currency        = $psts->get_setting( 'currency', $stripe_currency );
 
 			Stripe_Plan::create( array(
 				"amount"         => round( $level_price * 100 ),
@@ -1648,9 +1648,6 @@ class ProSites_Gateway_Stripe {
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Card Number:', 'psts' ) . '&nbsp;</td>
 							<td>';
-//								if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
 		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br />
 								<img class="accepted-cards" src="' . esc_url( $img_base . 'stripe-cards.png' ) . '" />
 							</td>
@@ -1864,7 +1861,7 @@ class ProSites_Gateway_Stripe {
 				// Note, Stripe will revert to merchant currency if a currency is
 				// not supported. Bonus!
 				$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-				$currency      = $psts->get_setting( 'currency', $stripe_currency );
+				$currency        = $psts->get_setting( 'currency', $stripe_currency );
 
 				$amount_off    = false;
 				$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
