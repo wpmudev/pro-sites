@@ -57,10 +57,11 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				}
 			}
 
+			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
+
 			// If the blog has already been activated, we still need some information from the signup table
 			if( is_wp_error( $result ) ) {
 				$result = array();
-				$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
 
 				if ( empty( $signup ) ) {
 					return 0;
@@ -78,6 +79,31 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			}
 
 			/**
+			 * Update coupon information
+			 */
+			if( ! empty( $signup ) ) {
+				$blog_id = $result['blog_id'];
+				$signup_meta = maybe_unserialize( $signup->meta );
+
+				// Unlikely that this will have a coupon, but make sure
+				$used = (array) get_blog_option( $blog_id, 'psts_used_coupons' );
+
+				// Is there a coupon stored in the signup_meta?
+				if( isset( $signup_meta['psts_used_coupons'] ) && ! empty( $signup_meta['psts_used_coupons'] ) && is_array( $signup_meta['psts_used_coupons'] ) ) {
+					// Merge and make sure we don't record the same coupon twice
+					$used = array_merge( $used, $signup_meta['psts_used_coupons'] );
+					$used = array_unique( $used );
+					// Remove from signup meta
+					unset( $signup_meta['psts_used_coupons'] );
+					$psts->update_signup_meta( $signup_meta, $key );
+				}
+				if( ! empty( $used ) ) {
+					// Add to blog options
+					update_blog_option( $blog_id, 'psts_used_coupons', $used );
+				}
+			}
+
+			/**
 			 * @todo: Make sure we dont over extend
 			 */
 			//Set Trial
@@ -92,9 +118,6 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				 */
 				//update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 			}
-
-//			// Clear SESSION
-//			$_SESSION['new_blog_details'] = array();
 
 			return $result['blog_id'];
 		}

@@ -1273,6 +1273,8 @@ class ProSites_Gateway_Stripe {
 						$amount        = $subscription->subscription_amount;
 						$setup_fee_amt = $subscription->setup_fee;
 						$has_setup_fee = ! empty( $setup_fee_amt );
+						$discount_amount = $subscription->discount_amount;
+						$has_discount = $subscription->has_discount;
 						break;
 
 					case 'customer.subscription.created' :
@@ -1320,6 +1322,9 @@ class ProSites_Gateway_Stripe {
 						$args = array();
 						if ( $has_setup_fee ) {
 							$args['setup_amount'] = $setup_fee_amt;
+						}
+						if( $has_discount ) {
+							$args['discount_amount'] = $discount_amount;
 						}
 						self::maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end, true, true, $args );
 						break;
@@ -1444,6 +1449,7 @@ class ProSites_Gateway_Stripe {
 
 		// Get the subscription first
 		$subscription = false;
+		$coupon = false;
 
 		if ( $from_invoice ) {
 			foreach ( $object->lines->data as $line_item ) {
@@ -1454,6 +1460,9 @@ class ProSites_Gateway_Stripe {
 			}
 			if ( ! $subscription ) {
 				return false;
+			}
+			if( isset( $object->discount) && isset( $object->discount->coupon ) ) {
+				$coupon = $object->discount->coupon;
 			}
 			// Get fields from Invoice
 			$subscription->customer_id   = $object->customer;
@@ -1486,8 +1495,20 @@ class ProSites_Gateway_Stripe {
 		$subscription->subscription_amount = isset( $subscription->amount ) ? ( $subscription->amount / 100 ) : ( $subscription->plan->amount / 100 );
 		$subscription->plan_amount         = $subscription->is_trial ? ( $subscription->plan->amount / 100 ) : $subscription->subscription_amount;
 
+		$subscription->discount_amount = 0;
+		if( $coupon ) {
+			$subscription->discount_amount = $coupon->amount_off / 100;
+		}
+		$subscription->has_discount = empty( $coupon ) ? false : true;
+
 		// Get setup fee
-		$subscription->setup_fee     = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
+		if( ! $coupon ) {
+			$subscription->setup_fee     = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
+		} else {
+			$invoice_total = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
+			// Adjust calculation by adding the discount back...
+			$subscription->setup_fee = $invoice_total + $subscription->discount_amount;
+		}
 		$subscription->has_setup_fee = empty( $subscription->setup_fee ) ? false : true;
 
 		return $subscription;
@@ -1901,6 +1922,7 @@ class ProSites_Gateway_Stripe {
 							$cpn = Stripe_Coupon::create( array(
 								'amount_off'      => ( $amount_off * 100 ),
 								'duration'        => $lifetime,
+								'currency'        => $currency,
 								'max_redemptions' => 1,
 							) );
 						} catch ( Exception $e ) {

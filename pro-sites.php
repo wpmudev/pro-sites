@@ -1342,10 +1342,19 @@ Thanks!", 'psts' ),
 				$amount = $trialing ? 0.0 : $result->amount;
 				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
-				if( ! empty( $args ) && isset( $args['setup_amount'] ) ) {
-					$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+				if( ! empty( $args ) ) {
+					if( isset( $args['setup_amount'] ) ) {
+						$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					} else {
+						$args['setup_amount'] = 0;
+					}
+					if( isset( $args['discount_amount'] ) ) {
+						$payment_info .= sprintf( __( 'Discount: -%s', 'psts' ), $this->format_currency( false, abs( $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					} else {
+						$args['discount_amount'] = 0;
+					}
 					$payment_info .= sprintf( '<hr />' );
-					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] - $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 				}
 
 				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
@@ -1932,13 +1941,19 @@ Thanks!", 'psts' ),
 
 	//display currency symbol
 	function format_currency( $currency = '', $amount = false ) {
-
 		if ( ! $currency ) {
 			$currency = $this->get_setting( 'currency', 'USD' );
 		}
 
 		// get the currency symbol
-		$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
+		$currencies = @ProSites_Model_Data::$currencies;
+		if( empty( $currencies) ) {
+			$currencies = $this->currencies;
+			$symbol = @$currencies[ $currency ][1];
+		} else {
+			$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
+		}
+
 		// if many symbols are found, rebuild the full symbol
 		$symbols = explode( ',', $symbol );
 		if ( is_array( $symbols ) ) {
