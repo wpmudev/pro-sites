@@ -123,10 +123,7 @@ class ProSites {
 		// Change signup...
 		add_filter( 'register', array( &$this, 'prosites_signup_url' ) );
 
-		add_filter( 'psts_primary_checkout_table', array(
-			'ProSites_View_Front_Checkout',
-			'render_checkout_page'
-		), 10, 3 );
+		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
 		// Add Registration AJAX handler
 		ProSites_Model_Registration::add_ajax_hook();
 
@@ -136,13 +133,10 @@ class ProSites {
 //		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
 //		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
-		add_filter( 'update_welcome_email', array(
-			'ProSites_Helper_Registration',
-			'alter_welcome_for_existing_users'
-		), 10, 6 );
+		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
 		//handle signup pages
-		add_action( 'init', 'ProSites_Helper_ProSite::redirect_signup_page' );
+		add_action('init','ProSites_Helper_ProSite::redirect_signup_page' );
 		add_filter( 'prosites_render_checkout_page_period', 'ProSites_View_Front_Gateway::select_current_period', 10, 2 );
 		add_filter( 'prosites_render_checkout_page_level', 'ProSites_View_Front_Gateway::select_current_level', 10, 2 );
 		// Dismissed signup prompt
@@ -229,18 +223,18 @@ class ProSites {
 		 * @todo: Temporary until gateways are adopted into new structure
 		 */
 		$class_overrides = array(
-			'ProSites_Gateway_2Checkout'        => 'gateways/gateway-2checkout.php',
-			'ProSites_Gateway_Manual'           => 'gateways/gateway-manual.php',
+			'ProSites_Gateway_2Checkout' => 'gateways/gateway-2checkout.php',
+			'ProSites_Gateway_Manual' => 'gateways/gateway-manual.php',
 			'ProSites_Gateway_PayPalExpressPro' => 'gateways/gateway-paypal-express-pro.php',
-			'ProSites_Gateway_Stripe'           => 'gateways/gateway-stripe.php',
+			'ProSites_Gateway_Stripe' => 'gateways/gateway-stripe.php',
 		);
-		$override_keys   = array_keys( $class_overrides );
+		$override_keys = array_keys( $class_overrides );
 
 		$pattern = '/' . implode( '|', $included_classes ) . '/';
 
 		if ( preg_match( $pattern, $class ) ) {
 
-			if ( ! in_array( $class, $override_keys ) ) {
+			if( ! in_array( $class, $override_keys ) ) {
 				$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
 			} else {
 				$filename = $basedir . '/pro-sites-files/' . $class_overrides[ $class ];
@@ -292,24 +286,12 @@ class ProSites {
 
 	private function setup_ajax_hooks() {
 
-		add_action( 'wp_ajax_apply_coupon_to_checkout', array(
-			'ProSites_Helper_Coupons',
-			'apply_coupon_to_checkout'
-		) );
+		add_action( 'wp_ajax_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
 		// Adding _nopriv_ for future buy on register
-		add_action( 'wp_ajax_nopriv_apply_coupon_to_checkout', array(
-			'ProSites_Helper_Coupons',
-			'apply_coupon_to_checkout'
-		) );
+		add_action( 'wp_ajax_nopriv_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
 
-		add_action( 'wp_ajax_nopriv_create_prosite_blog', array(
-			'ProSites_Model_Registration',
-			'ajax_create_prosite_blog'
-		) );
-		add_action( 'wp_ajax_nopriv_check_prosite_blog', array(
-			'ProSites_Model_Registration',
-			'ajax_check_prosite_blog'
-		) );
+		add_action( 'wp_ajax_nopriv_create_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_create_prosite_blog' ) );
+		add_action( 'wp_ajax_nopriv_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
 	}
 
 	public static function get_default_settings_array() {
@@ -393,8 +375,8 @@ Please update your payment information or change your payment method as soon as 
 http://mysite.com/contact/
 
 Many thanks again for being a member!", 'psts' ),
-			'extension_subject'        => __( 'You have been given free Pro Site membership.', 'psts' ),
-			'extension_msg'            => __( "We have given you free Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
+			'extension_subject'           => __( 'You have been given free Pro Site membership.', 'psts' ),
+			'extension_msg'               => __( "We have given you free Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
 
 These benefits will be available to you until: ENDDATE.
 
@@ -540,7 +522,7 @@ Thanks!", 'psts' ),
 		//our default settings
 		$default_settings = ProSites::get_default_settings_array();
 
-		$settings = wp_parse_args( ( array ) get_site_option( 'psts_settings' ), $default_settings );
+		$settings         = wp_parse_args( ( array ) get_site_option( 'psts_settings' ), $default_settings );
 		update_site_option( 'psts_settings', $settings );
 
 		//default level
@@ -675,7 +657,7 @@ Thanks!", 'psts' ),
 		global $wpdb;
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-		if ( ! $trialing ) {
+		if( ! $trialing ) {
 			$trialing = empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
 		}
 
@@ -1165,15 +1147,15 @@ Thanks!", 'psts' ),
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 
-		$scheme   = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
+		$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
 		$ajax_url = admin_url( "admin-ajax.php", $scheme );
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
-			'ajax_url'       => $ajax_url,
-			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts' ),
-			'button_signup'  => __( "Sign Up", 'psts' ),
-			'button_choose'  => __( "Choose Plan", 'psts' ),
-			'button_chosen'  => __( "Chosen Plan", 'psts' ),
-			'logged_in'      => is_user_logged_in(),
+			'ajax_url' => $ajax_url,
+			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
+			'button_signup' => __( "Sign Up", 'psts' ),
+			'button_choose' => __( "Choose Plan", 'psts' ),
+			'button_chosen' => __( "Chosen Plan", 'psts' ),
+			'logged_in' => is_user_logged_in(),
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
@@ -1357,13 +1339,22 @@ Thanks!", 'psts' ),
 				}
 
 				$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-				$amount   = $trialing ? 0.0 : $result->amount;
+				$amount = $trialing ? 0.0 : $result->amount;
 				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
-				if ( ! empty( $args ) && isset( $args['setup_amount'] ) ) {
-					$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+				if( ! empty( $args ) ) {
+					if( isset( $args['setup_amount'] ) ) {
+						$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					} else {
+						$args['setup_amount'] = 0;
+					}
+					if( isset( $args['discount_amount'] ) ) {
+						$payment_info .= sprintf( __( 'Discount: -%s', 'psts' ), $this->format_currency( false, abs( $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					} else {
+						$args['discount_amount'] = 0;
+					}
 					$payment_info .= sprintf( '<hr />' );
-					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] - $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 				}
 
 				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
@@ -1451,7 +1442,7 @@ Thanks!", 'psts' ),
 	 */
 	public function send_extension_email( $blog_id, $new_expire, $level, $manual_notify ) {
 
-		if ( $manual_notify ) {
+		if( $manual_notify ) {
 			$args = array();
 			if ( '9999999999' == $new_expire ) {
 				$args['indefinite'] = true;
@@ -1772,13 +1763,13 @@ Thanks!", 'psts' ),
 
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
-		$now = time();
+		$now    = time();
 		//	$exists = $this->get_expire( $blog_id ); // not reliable
 		$exists = false;
 		if ( ! empty( $blog_id ) ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 		}
-		$term = $extend;
+		$term   = $extend;
 
 		if ( $expires !== false ) {
 			// expiration is set (e.g. for trials)
@@ -1873,10 +1864,10 @@ Thanks!", 'psts' ),
 
 		// Change trial status
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-		if ( $trialing && ! 'Trial' == $gateway ) {
+		if( $trialing && ! 'Trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 		}
-		if ( 'Trial' == $gateway ) {
+		if( 'Trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 		}
 
@@ -1902,7 +1893,7 @@ Thanks!", 'psts' ),
 			}
 			$new_expire = $blog_expire - $withdraw;
 		} else {
-			$new_expire = strtotime( '-1 day', time() );
+			$new_expire = strtotime('-1 day', time() );
 		}
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
@@ -1933,9 +1924,9 @@ Thanks!", 'psts' ),
 	}
 
 	/**
-	 * get coupon value. Returns array(discount, new_total) or false for invalid code
-	 * @todo: remove this after cleaning up
-	 */
+	* get coupon value. Returns array(discount, new_total) or false for invalid code
+	* @todo: remove this after cleaning up
+	*/
 	function coupon_value( $code, $total ) {
 		return ProSites_Helper_Coupons::coupon_value( $code, $total );
 	}
@@ -1950,13 +1941,19 @@ Thanks!", 'psts' ),
 
 	//display currency symbol
 	function format_currency( $currency = '', $amount = false ) {
-
 		if ( ! $currency ) {
 			$currency = $this->get_setting( 'currency', 'USD' );
 		}
 
 		// get the currency symbol
-		$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
+		$currencies = @ProSites_Model_Data::$currencies;
+		if( empty( $currencies) ) {
+			$currencies = $this->currencies;
+			$symbol = @$currencies[ $currency ][1];
+		} else {
+			$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
+		}
+
 		// if many symbols are found, rebuild the full symbol
 		$symbols = explode( ',', $symbol );
 		if ( is_array( $symbols ) ) {
@@ -2924,7 +2921,7 @@ if ( $active_pro_sites ) {
 	$week_data = array();
 	$start     = time();
 	for ( $i = 1; $i <= 26; $i ++ ) { //Only show 6 months of weekly data
-		$week_start = '';
+		$week_start = $start;
 		if ( $i == 1 ) {
 			$week_start                           = strtotime( "-$i week", $start );
 			$week_start_date                      = date( 'Y-m-d', $week_start );
