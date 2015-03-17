@@ -38,8 +38,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
+			// How many gateways can we use at checkout?
+			$available_gateways = empty( $primary_gateway ) ? 0 : 1;
+			$available_gateways = empty( $secondary_gateway ) ? $available_gateways : $available_gateways + 1;
+			$available_gateways = empty( $manual_gateway ) ? $available_gateways : $available_gateways + 1;
+
 			// Render tabs
-			if( $tabbed && count( $gateways ) > 1 ) {
+			if( $tabbed && $available_gateways > 1 ) {
 				$content .= '<ul>';
 				if( ! empty( $primary_gateway ) ) {
 					$content .= '<li><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
@@ -184,6 +189,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$gateway_details['secondary']  = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
 				$use_manual = $psts->get_setting( 'gateway_pref_use_manual' );
 
+				$gateway_details['primary'] = ! empty( $gateway_details['primary'] ) && 'none' != $gateway_details['primary'] ? $gateway_details['primary'] : '';
+				$gateway_details['secondary'] = ! empty( $gateway_details['secondary'] ) && 'none' != $gateway_details['secondary'] ? $gateway_details['secondary'] : '';
+
 				if( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
 					$gateway_details['manual'] = 'manual';
 				} else {
@@ -255,8 +263,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$pre_content = '';
 
 				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) ||
-				    ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] )) {
+				    ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] ) ) {
 					$pre_content .= self::render_payment_submitted();
+				}
+
+				// Check manual payments
+				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['manual_submitted'] ) && true === $_SESSION['new_blog_details']['manual_submitted'] ) ) {
+					$pre_content .= self::render_manual_submitted();
 				}
 
 				if( ! empty( $pre_content ) ) {
@@ -281,6 +294,34 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			return $plan_content . $content;
 
+		}
+
+		public static function render_manual_submitted () {
+			global $psts;
+
+			$content = '<div id="psts-payment-info-received">';
+
+			$email = $_SESSION['new_blog_details']['email'];
+			$blogname = $_SESSION['new_blog_details']['blogname'];
+			$blog_title = $_SESSION['new_blog_details']['title'];
+
+			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
+
+			$content .= '<p>' . esc_html__( 'Thank you for submitting your request for manual payment. We will review your information and email you once your site has been activated or extended.', 'psts' ) . '</p>';
+
+			$content .= '<p>' . sprintf( esc_html__( 'The email address we have for you is: %s', 'psts' ), $email ) . '</p>';
+
+			$content .= '</div>';
+
+			ob_start();
+			do_action( 'signup_pending' );
+			$content .= ob_get_clean();
+
+			unset( $_SESSION['new_blog_details'] );
+			unset( $_SESSION['upgraded_blog_details'] );
+			unset( $_SESSION['blog_activation_key'] );
+
+			return $content;
 		}
 
 		public static function render_free_confirmation() {
@@ -359,7 +400,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
-			if( ! $show_trial ) {
+
+			if ( ! $show_trial ) {
 				$content .= '<p>' . esc_html__( 'Your payment is being processed and you should soon receive an email with your site details.', 'psts' ) . '</p>';
 			} else {
 				$content .= '<p>' . esc_html__( 'Your site trial has been setup and you should soon receive an email with your site details. Once your trial finishes you will be prompted to upgrade manually.', 'psts' ) . '</p>';

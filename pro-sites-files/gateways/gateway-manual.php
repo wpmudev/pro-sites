@@ -6,7 +6,7 @@ Pro Sites (Gateway: Manual Payments Gateway)
 
 class ProSites_Gateway_Manual {
 
-	var $complete_message = false;
+	public static $complete_message = false;
 
 	public static function get_slug() {
 		return 'manual';
@@ -84,52 +84,6 @@ class ProSites_Gateway_Manual {
 		return $payment_info;
 	}
 
-	function process_checkout( $blog_id, $domain = '' ) {
-		global $psts, $current_user;
-
-		//Check if form was submitted
-		if ( ! isset ( $_POST['psts_mp_submit'] ) ) {
-			return;
-		}
-		//check for level
-		if ( ! isset( $_POST['level'] ) || ! isset( $_POST['period'] ) ) {
-			$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-
-			return;
-		}
-		//Activate Trial Blog for any selected level or period
-		if ( empty( $blog_id ) ) {
-			$blog_id = $psts->activate_user_blog( $domain, 'trial' );
-		}
-
-		$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
-		$message = sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $current_user->user_login ) . "\n\n";
-		$message .= __( 'Level: ', 'psts' ) . intval( $_POST['level'] ) . ' - ' . $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) . "\n";
-		$message .= __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), intval( $_POST['period'] ) ) . "\n";
-		$message .= sprintf( __( "User Email: %s", 'psts' ), $current_user->user_email ) . "\n";
-		$message .= sprintf( __( "Site Address: %s", 'psts' ), get_home_url( $blog_id ) ) . "\n";
-		$message .= sprintf( __( "Manage Site: %s", 'psts' ), network_admin_url( 'admin.php?page=psts&bid=' . $blog_id ) ) . "\n\n";
-
-		if ( ! empty( $_POST['psts_mp_text'] ) ) {
-			$message .= __( 'User-Entered Comments:', 'psts' ) . "\n";
-			$message .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
-		}
-
-		wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
-
-		//Complete Message displayed on checkout screen for manual payment
-		if ( ! empty ( $domain ) && 0 != $_POST['level'] ) {
-			//If user has selected a paid level
-			$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $domain . '">' . $domain . '</a>, we have been notified of your payment request.', 'psts' );
-		} elseif ( ! empty ( $domain ) && 0 == $_POST['level'] ) {
-			//If user has selected a free blog signup
-			$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $domain . '">' . $domain . '</a>', 'psts' );
-		} else {
-			//If user is paying for a existing blog
-			$this->complete_message = __( 'Thank you, we have been notified of your request.', 'psts' );
-		}
-	}
-
 	/**
 	 * Checkout Screen for Manual Payment
 	 *
@@ -139,7 +93,7 @@ class ProSites_Gateway_Manual {
 	 *
 	 * @return string
 	 */
-	function checkout_screen( $content, $blog_id, $domain = '' ) {
+	public static function checkout_screen( $content, $blog_id, $domain = '' ) {
 		global $psts, $wpdb, $current_site, $current_user;
 
 		if ( ! $blog_id && ! $domain ) {
@@ -156,8 +110,8 @@ class ProSites_Gateway_Manual {
 		}
 
 		//if transaction was successful display a complete message and skip the rest
-		if ( $this->complete_message ) {
-			$content = '<div id="psts-complete-msg">' . $this->complete_message . '</div>';
+		if ( self::$complete_message ) {
+			$content = '<div id="psts-complete-msg">' . self::$complete_message . '</div>';
 
 			return $content;
 		}
@@ -224,21 +178,111 @@ class ProSites_Gateway_Manual {
 	}
 
 	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = false ) {
+		global $psts;
+		$content = '';
 
+		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : 1;
+		$level  = isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ? (int) $_SESSION['new_blog_details']['level'] : 0;
+		$level  = isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['level'] ) ? (int) $_SESSION['upgraded_blog_details']['level'] : $level;
 
-		$content = __( 'Manual Gateway', 'psts' );
+		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post">';
+
+		$content .= '<input type="hidden" name="level" value="' . $level . '" />
+					<input type="hidden" name="period" value="' . $period . '" />';
+
+		$name = self::get_name();
+		$name = array_pop( $name );
+		$content .= '<div id="psts-manual-checkout"><h2>' . $name . '</h2>';
+
+		$content .= '<div id="psts-manual-instructions">' . do_shortcode( $psts->get_setting( 'mp_instructions' ) ) . '</div>';
+
+		if ( $psts->get_setting( 'mp_show_form' ) ) {
+			$prefill = isset( $_POST['psts_mp_text'] ) ? esc_textarea( stripslashes( $_POST['psts_mp_text'] ) ) : '';
+			$content .= '<textarea id="psts-manual-textarea" name="psts_mp_text">' . $prefill . '</textarea>';
+		}
+		$content .= '<p><input id="psts-manual-submit" type="submit" name="psts_mp_submit" value="' . esc_attr__( 'Submit', 'psts' ) . '"></p>';
+		$content .= '</div></form>';
 
 		return $content;
 	}
 
 	public static function process_checkout_form( $blog_id, $domain ) {
+		global $psts;
+
+		if ( isset( $_POST['psts_mp_submit'] ) ) {
+
+			//check for level
+			if ( ! isset( $_POST['level'] ) || ! isset( $_POST['period'] ) ) {
+				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+				return;
+			}
+
+			if ( is_user_logged_in() ) {
+				$user = wp_get_current_user();
+				$email = $user->user_email;
+				$username = $user->user_login;
+			} else if( isset( $_SESSION['new_blog_details'] ) ) {
+				if( isset( $_SESSION['new_blog_details']['email'] ) ) {
+					$email = sanitize_email( $_SESSION['new_blog_details']['email'] );
+				}
+				if( isset( $_SESSION['new_blog_details']['username'] ) ) {
+					$username = sanitize_text_field( $_SESSION['new_blog_details']['username'] );
+				}
+			}
+			if( empty( $email ) ) {
+				$psts->errors->add( 'general', __( 'No valid email given.', 'psts' ) );
+				return;
+			}
+
+			// Get the blog id... try the session or get it from the database
+			$blog_id = isset( $_SESSION['upgraded_blog_details']['blog_id'] ) ? $_SESSION['upgraded_blog_details']['blog_id'] : 0;
+			$blog_id = ! empty( $blog_id ) ? $blog_id : isset( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : isset( $_SESSION['new_blog_details']['blogname'] ) ? get_id_from_blogname( $_SESSION['new_blog_details']['blogname'] ) : 0;
+
+			switch_to_blog( $blog_id );
+			$blog_admin_url = admin_url();
+			restore_current_blog();
+
+			if( $blog_admin_url == admin_url() ) {
+				$blog_admin_url = __( 'Not activated yet.', 'psts' );
+			}
+
+			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
+			$message = sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $username ) . "\n\n";
+			$message .= __( 'Level: ', 'psts' ) . intval( $_POST['level'] ) . ' - ' . $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) . "\n";
+			$message .= __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), intval( $_POST['period'] ) ) . "\n";
+			$message .= sprintf( __( "User Email: %s", 'psts' ), $email ) . "\n";
+			$message .= sprintf( __( "Site Address: %s", 'psts' ), get_home_url() ) . "\n";
+			$message .= sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ) . "\n\n";
+
+			if ( ! empty( $_POST['psts_mp_text'] ) ) {
+				$message .= __( 'User-Entered Comments:', 'psts' ) . "\n";
+				$message .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
+			}
+
+			wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+
+			$_SESSION['new_blog_details']['reserved_message'] = __( 'Manual payment request submitted.', 'psts' );
+			// Payment pending...
+			$_SESSION['new_blog_details']['manual_submitted'] = true;
+
+		}
 
 	}
 
-	public static function get_existing_user_information() {
+	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
+		global $psts;
+		$args     = array();
+		$img_base = $psts->plugin_url . 'images/';
 
-		$content = '';
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if ( $trialing ) {
+			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
+		}
 
+		// Pending information
+		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
+			$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
+		}
 
 		return empty( $content ) ? false : $content;
 	}
