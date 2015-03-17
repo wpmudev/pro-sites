@@ -43,8 +43,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
+			// How many gateways can we use at checkout?
+			$available_gateways = empty( $primary_gateway ) ? 0 : 1;
+			$available_gateways = empty( $secondary_gateway ) ? $available_gateways : $available_gateways + 1;
+			$available_gateways = empty( $manual_gateway ) ? $available_gateways : $available_gateways + 1;
+
 			// Render tabs
-			if ( $tabbed && count( $gateways ) > 1 ) {
+			if ( $tabbed && $available_gateways > 1 ) {
 				$content .= '<ul>';
 				if ( ! empty( $primary_gateway ) ) {
 					$content .= '<li><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
@@ -162,7 +167,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$allow_multi   = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if ( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
 			}
@@ -188,6 +193,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$gateway_details['primary']   = $psts->get_setting( 'gateway_pref_primary', $keys[0] );
 				$gateway_details['secondary'] = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
 				$use_manual                   = $psts->get_setting( 'gateway_pref_use_manual' );
+
+				$gateway_details['primary']   = ! empty( $gateway_details['primary'] ) && 'none' != $gateway_details['primary'] ? $gateway_details['primary'] : '';
+				$gateway_details['secondary'] = ! empty( $gateway_details['secondary'] ) && 'none' != $gateway_details['secondary'] ? $gateway_details['secondary'] : '';
 
 				if ( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
 					$gateway_details['manual'] = 'manual';
@@ -258,7 +266,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
 
-			// No existing details for a new signup, new blog signup
+			// No existing details for a new signup
 			if ( ! is_user_logged_in() || isset( $_SESSION['new_blog_details'] ) ) {
 				$pre_content = '';
 
@@ -266,6 +274,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				     ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] )
 				) {
 					$pre_content .= self::render_payment_submitted();
+				}
+
+				// Check manual payments
+				if ( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['manual_submitted'] ) && true === $_SESSION['new_blog_details']['manual_submitted'] ) ) {
+					$pre_content .= self::render_manual_submitted();
 				}
 
 				if ( ! empty( $pre_content ) ) {
@@ -277,9 +290,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			if ( is_pro_site( $blog_id ) && ! isset( $_GET['action'] ) ) {
 				// EXISTING DETAILS
-				if( isset( $gateways ) && isset( $gateway_details ) ) {
+				if ( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
-					$plan_content = self::render_current_plan_information( $blog_id, $domain, $gateways, $gateway_order );
+					$plan_content  = self::render_current_plan_information( $blog_id, $domain, $gateways, $gateway_order );
 					$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
 				}
 			} else {
@@ -290,6 +303,34 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			return $plan_content . $content;
 
+		}
+
+		public static function render_manual_submitted() {
+			global $psts;
+
+			$content = '<div id="psts-payment-info-received">';
+
+			$email      = $_SESSION['new_blog_details']['email'];
+			$blogname   = $_SESSION['new_blog_details']['blogname'];
+			$blog_title = $_SESSION['new_blog_details']['title'];
+
+			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
+
+			$content .= '<p>' . esc_html__( 'Thank you for submitting your request for manual payment. We will review your information and email you once your site has been activated or extended.', 'psts' ) . '</p>';
+
+			$content .= '<p>' . sprintf( esc_html__( 'The email address we have for you is: %s', 'psts' ), $email ) . '</p>';
+
+			$content .= '</div>';
+
+			ob_start();
+			do_action( 'signup_pending' );
+			$content .= ob_get_clean();
+
+			unset( $_SESSION['new_blog_details'] );
+			unset( $_SESSION['upgraded_blog_details'] );
+			unset( $_SESSION['blog_activation_key'] );
+
+			return $content;
 		}
 
 		public static function render_free_confirmation() {
