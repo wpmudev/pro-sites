@@ -41,6 +41,19 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				'meta' => $meta
 			) );
 
+			// Activate the user and attempt a login (because we want WP cookies!)
+			$user_id = username_exists( $user );
+			if ( ! $user_id ) {
+				$password = wp_generate_password( 12, false );
+				$user_id = wpmu_create_user( $user, $password, $user_email );
+				$creds = array(
+					'user_login' => $user,
+					'user_password' => $password,
+					'remember' => true,
+				);
+				$user = wp_signon( $creds );
+			}
+
 			$_SESSION['blog_activation_key'] = $key;
 			return $key;
 		}
@@ -82,25 +95,25 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			 * Update coupon information
 			 */
 			if( ! empty( $signup ) ) {
-				$blog_id = $result['blog_id'];
-				$signup_meta = maybe_unserialize( $signup->meta );
-
-				// Unlikely that this will have a coupon, but make sure
-				$used = (array) get_blog_option( $blog_id, 'psts_used_coupons' );
-
-				// Is there a coupon stored in the signup_meta?
-				if( isset( $signup_meta['psts_used_coupons'] ) && ! empty( $signup_meta['psts_used_coupons'] ) && is_array( $signup_meta['psts_used_coupons'] ) ) {
-					// Merge and make sure we don't record the same coupon twice
-					$used = array_merge( $used, $signup_meta['psts_used_coupons'] );
-					$used = array_unique( $used );
-					// Remove from signup meta
-					unset( $signup_meta['psts_used_coupons'] );
-					$psts->update_signup_meta( $signup_meta, $key );
-				}
-				if( ! empty( $used ) ) {
-					// Add to blog options
-					update_blog_option( $blog_id, 'psts_used_coupons', $used );
-				}
+//				$blog_id = $result['blog_id'];
+//				$signup_meta = maybe_unserialize( $signup->meta );
+//
+//				// Unlikely that this will have a coupon, but make sure
+//				$used = (array) get_blog_option( $blog_id, 'psts_used_coupons' );
+//
+//				// Is there a coupon stored in the signup_meta?
+//				if( isset( $signup_meta['psts_used_coupons'] ) && ! empty( $signup_meta['psts_used_coupons'] ) && is_array( $signup_meta['psts_used_coupons'] ) ) {
+//					// Merge and make sure we don't record the same coupon twice
+//					$used = array_merge( $used, $signup_meta['psts_used_coupons'] );
+//					$used = array_unique( $used );
+//					// Remove from signup meta
+//					unset( $signup_meta['psts_used_coupons'] );
+//					$psts->update_signup_meta( $signup_meta, $key );
+//				}
+//				if( ! empty( $used ) ) {
+//					// Add to blog options
+//					update_blog_option( $blog_id, 'psts_used_coupons', $used );
+//				}
 			}
 
 			/**

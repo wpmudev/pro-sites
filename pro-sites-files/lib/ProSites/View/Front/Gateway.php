@@ -85,17 +85,17 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 		}
 
 		public static function render_current_plan_information( $blog_id, $domain, $gateways, $gateway_order ) {
-			global $psts, $wpdb, $current_site, $current_user;
+			global $psts, $wpdb, $current_site, $current_user, $current_prosite_blog;
 
 			$site_name = $current_site->site_name;
 			$img_base  = $psts->plugin_url . 'images/';
-			$info_retrieved = false;
+			$info_retrieved = array();
 			$content = '';
 
 			if( empty( $blog_id ) && isset( $_GET['bid'] ) ) {
 				$blog_id = (int) $_GET['bid'];
 			}
-
+			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
 			if( empty( $blog_id ) ) {
 				return '';
 			}
@@ -103,21 +103,31 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Is this a trial, if not, get the normal gateway data?
 			$sql = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 			$result = $wpdb->get_row( $sql );
+
 			if( ! empty( $result ) && 'Trial' == $result->gateway ) {
 				$info_retrieved = ProSites_Gateway_Trial::get_existing_user_information( $blog_id, $domain );
 			} else {
 				foreach ( $gateway_order as $key ) {
+					// @todo: replace the called method with hooks with different names in the gateways (filter is from ProSites_Helper_ProSite::get_blog_info() )
 					if ( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 						$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
 					}
 				}
 			}
 
+			$generic_info = ProSites_Helper_ProSite::get_blog_info( $blog_id );
+			$info_retrieved = array_merge( $generic_info, $info_retrieved );
+
 			// Notifications
 			$content .= self::get_notifications_only( $info_retrieved );
 
 			// Output level information
 			if( ! empty( $info_retrieved ) && empty( $info_retrieved['complete_message'] ) ) {
+
+				// Manual payments
+				if( ! empty( $info_retrieved['last_payment_gateway'] ) && 'manual' == strtolower( $info_retrieved['last_payment_gateway'] ) ) {
+					$content .= '<div id="psts-general-error" class="psts-warning psts-manual-payment-notify">' . __( 'Your site is currently using manual payments and will not automatically renew. Please upgrade your site or contact us with your renewal request.', 'psts' ) . '</div>';
+				}
 
 				$content .= '<ul class="psts-info-list">';
 				//level
@@ -143,6 +153,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				// Is recurring?
 				if( empty( $info_retrieved['recurring'] ) ) {
 					$content .= '<li class="psts-expiry">' . esc_html__( 'Plan expires on:', 'psts' ) . ' <strong>' . $info_retrieved['expires'] . '</strong></li>';
+				} else if ( ! empty( $info_retrieved['recurring'] ) && empty( $info_retrieved['next_payment_date'] ) ) {
+					$content .= '<li class="psts-expiry">' . esc_html__( 'Renewal due on:', 'psts' ) . ' <strong>' . $info_retrieved['expires'] . '</strong></li>';
 				}
 
 				$content .= '</ul>';
@@ -150,6 +162,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				// Cancel link?
 				if( ! empty( $info_retrieved['cancel_link'] ) ) {
 					$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
+				} else if( ! empty( $info_retrieved['cancel_info_link'] ) ) {
+					$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_info_link'] . $info_retrieved['cancel_info'] . '</div>';
 				}
 				// Receipt form
 				if( ! empty( $info_retrieved['receipt_form'] ) ) {
@@ -380,6 +394,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content = '<div id="psts-payment-info-received">';
 
+			$email = '';
 			if( ! is_user_logged_in() ) {
 				if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['email'] ) ) {
 					$email = $_SESSION['new_blog_details']['email'];
@@ -390,16 +405,16 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			// Get the blog id... try the session or get it from the database
-			$blog_id = isset( $_SESSION['upgraded_blog_details']['blog_id'] ) ? $_SESSION['upgraded_blog_details']['blog_id'] : 0;
-			$blog_id = ! empty( $blog_id ) ? $blog_id : ( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : isset( $_SESSION['new_blog_details']['blogname'] ) ? get_id_from_blogname( $_SESSION['new_blog_details']['blogname'] ) : 0;
+			$upgrade_blog_id = isset( $_SESSION['upgraded_blog_details']['blog_id'] ) ? $_SESSION['upgraded_blog_details']['blog_id'] : 0;
+			$new_blog_id = isset( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : 0;
+			$new_blog_name = isset( $_SESSION['new_blog_details']['blogname'] ) ? $_SESSION['new_blog_details']['blogname'] : '';
+			$blog_id = ! empty( $upgrade_blog_id ) ? $upgrade_blog_id : ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $new_blog_name ) ? get_id_from_blogname( $new_blog_name ) : 0;
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
 			restore_current_blog();
 
-
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
-
 
 			if ( ! $show_trial ) {
 				$content .= '<p>' . esc_html__( 'Your payment is being processed and you should soon receive an email with your site details.', 'psts' ) . '</p>';
@@ -407,6 +422,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '<p>' . esc_html__( 'Your site trial has been setup and you should soon receive an email with your site details. Once your trial finishes you will be prompted to upgrade manually.', 'psts' ) . '</p>';
 			}
 
+			$username = '';
+			$userpass = '';
 			if( isset( $_SESSION['new_blog_details']['username'] ) && isset( $_SESSION['new_blog_details']['user_pass'] ) ) {
 				$username = $_SESSION['new_blog_details']['username'];
 				$userpass = strrev( $_SESSION['new_blog_details']['user_pass'] );
@@ -468,6 +485,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 			return $level;
 		}
+
 
 	}
 

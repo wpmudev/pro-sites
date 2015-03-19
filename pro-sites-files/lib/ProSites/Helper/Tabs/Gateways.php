@@ -46,13 +46,13 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 					),
 					'class' => 'prosites-gateway-pref',
 				) ),
-				'twocheckout' => array_merge( $section_options, array(
-					'title' => __( '2Checkout', 'psts' ),
-					'desc'               => array(
-						__( "Accept Credit Cards, PayPal, and Debit Cards", 'psts' ) .
-						' <a href="https://www.2checkout.com" target="_blank">' . __( 'More Info &raquo;', 'psts' ) . '</a>',
-					),
-				) ),
+//				'twocheckout' => array_merge( $section_options, array(
+//					'title' => __( '2Checkout', 'psts' ),
+//					'desc'               => array(
+//						__( "Accept Credit Cards, PayPal, and Debit Cards", 'psts' ) .
+//						' <a href="https://www.2checkout.com" target="_blank">' . __( 'More Info &raquo;', 'psts' ) . '</a>',
+//					),
+//				) ),
 				'paypal' => array_merge( $section_options, array(
 					'title' => __( 'PayPal Express/Pro', 'psts' ),
 					'desc'               => array(

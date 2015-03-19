@@ -397,7 +397,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Currency', 'psts' ) ?></th>
 						<td>
-							<select id="psts-currency-select" name="psts[currency]" class="chosen">
+							<select id="psts-currency-select" name="psts[currency]" class="chosen" data-placeholder="<?php echo esc_attr__( 'Enable gateways', 'psts' ); ?>">
 								<?php
 								$super = array( '&#8304;', '&#185;', '&#178;', '&#179;', '&#8308;', '&#8309;', '&#8310;', '&#8311;', '&#8312;', '&#8313;' );
 								$gateways = ProSites_Helper_Gateway::get_gateways();

@@ -195,10 +195,6 @@ class ProSites {
 
 		$this->setup_ajax_hooks();
 
-		//Start Session if not there already, required for sign up.
-		if ( ! session_id() ) {
-			session_start();
-		}
 	}
 
 //------------------------------------------------------------------------//
@@ -376,7 +372,7 @@ http://mysite.com/contact/
 
 Many thanks again for being a member!", 'psts' ),
 			'extension_subject'           => __( 'You have been given free Pro Site membership.', 'psts' ),
-			'extension_msg'               => __( "We have given you free Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
+			'extension_msg'               => __( "We have given you Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
 
 These benefits will be available to you until: ENDDATE.
 
@@ -624,7 +620,7 @@ Thanks!", 'psts' ),
 	function trial_notice() {
 		global $wpdb, $blog_id;
 		//get allowed roles for checkout
-		$checkout_roles = $this->get_setting( 'checkout_roles' );
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
 
 		//check If user is allowed
 		$current_user_id = get_current_user_id();
@@ -917,7 +913,7 @@ Thanks!", 'psts' ),
 	function plug_pages() {
 
 		//get allowed roles for checkout
-		$checkout_roles = $this->get_setting( 'checkout_roles' );
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
 
 		//check If user is allowed
 		$current_user_id = get_current_user_id();
@@ -989,7 +985,7 @@ Thanks!", 'psts' ),
 			return;
 		}
 		//get allowed roles for checkout
-		$checkout_roles = $this->get_setting( 'checkout_roles' );
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
 
 		//check If user is allowed
 		$current_user_id = get_current_user_id();
@@ -1180,9 +1176,8 @@ Thanks!", 'psts' ),
 		}
 
 		// Set domain if in session
-		if ( ! empty( $_SESSION['domain'] ) ) {
-			$domain = $_SESSION['domain'];
-		}
+		$domain = ProSites_Helper_Session::session( 'domain' );
+
 		if ( $blog_id || $domain ) {
 
 			add_filter( 'the_title', array( &$this, 'page_title_output' ), 99, 2 );
@@ -1195,19 +1190,19 @@ Thanks!", 'psts' ),
 
 			//clear coupon if link clicked
 			if ( isset( $_GET['remove_coupon'] ) ) {
-				unset( $_SESSION['COUPON_CODE'] );
+				ProSites_Helper_Session::session( 'COUPON_CODE', null, true );
 			}
 
 			//check for coupon session variable
-			if ( isset( $_SESSION['COUPON_CODE'] ) ) {
-				if ( $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, intval( @$_POST['level'] ), $_POST['period'], '' ) ) {
+			if ( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
+				if ( $this->check_coupon( $session_coupon, $blog_id, intval( @$_POST['level'] ), $_POST['period'], '' ) ) {
 					$coupon = true;
 				} else {
 					if ( isset( $_POST['level'] ) && is_numeric( $_POST['level'] ) ) {
 						$this->errors->add( 'coupon', __( 'Sorry, the coupon code you entered is not valid for your chosen level.', 'psts' ) );
 					} else {
 						$this->errors->add( 'coupon', __( 'Whoops! The coupon code you entered is not valid.', 'psts' ) );
-						unset( $_SESSION['COUPON_CODE'] );
+						ProSites_Helper_Session::session( 'COUPON_CODE', null, true );
 					}
 				}
 			}
@@ -1216,7 +1211,7 @@ Thanks!", 'psts' ),
 				$code   = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $_POST['coupon_code'] ) );
 				$coupon = $this->check_coupon( $code, $blog_id );
 				if ( $coupon ) {
-					$_SESSION['COUPON_CODE'] = $code;
+					ProSites_Helper_Session::session( 'COUPON_CODE', $code );
 					$this->log_action( $blog_id, __( "User added a valid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code, $domain );
 				} else {
 					$this->errors->add( 'coupon', __( 'Whoops! The coupon code you entered is not valid.', 'psts' ) );
@@ -1233,7 +1228,7 @@ Thanks!", 'psts' ),
 			if ( isset( $_GET['coupon'] ) ) {
 				$code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $_GET['coupon'] ) );
 				if ( $this->check_coupon( $code ) ) {
-					$_SESSION['COUPON_CODE'] = $code;
+					ProSites_Helper_Session::session( 'COUPON_CODE', $code );
 				}
 			}
 		}
@@ -2178,11 +2173,9 @@ Thanks!", 'psts' ),
 			'wp-color-picker',
 			'jquery'
 		), $this->version );
-
-		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
-			'wp-color-picker',
-			'jquery'
-		), $this->version );
+		wp_localize_script( 'psts-js', 'prosites_admin', array(
+			'currency_select_placeholder' => __( 'Enable gateways', 'psts' ),
+		));
 
 		wp_register_script( 'psts-js-levels', $this->plugin_url . 'js/psts-admin-levels.js', array(
 			'jquery',
@@ -2538,6 +2531,11 @@ _gaq.push(["_trackTrans"]);
 			$blog_id = false;
 		}
 
+		$activation_key = false;
+		if ( isset( $_GET['activation_key'] ) ) {
+			$activation_key = $_GET['activation_key'];
+		}
+
 		?>
 		<div class="wrap">
 		<script type="text/javascript">
@@ -2556,7 +2554,13 @@ _gaq.push(["_trackTrans"]);
 		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/modify.png'; ?>"/></div>
 		<h2><?php _e( 'Pro Sites Management', 'psts' ); ?></h2>
 
-		<?php if ( $blog_id ) { ?>
+		<?php
+		if( $activation_key ) {
+			$result = ProSites_Helper_Registration::activate_blog( $activation_key );
+			$blog_id = $result;
+		}
+
+		if ( $blog_id ) { ?>
 			<h3><?php _e( 'Manage Site', 'psts' ) ?>
 			<?php
 			if ( $name = get_blog_option( $blog_id, 'blogname' ) ) {
@@ -2812,6 +2816,18 @@ _gaq.push(["_trackTrans"]);
 									<th scope="row"><?php _e( 'Blog ID:', 'psts' ) ?></th>
 									<td><input type="text" size="17" name="bid" value=""/>
 										<input class="button-secondary" type="submit" value="<?php _e( 'Continue &raquo;', 'psts' ) ?>"/>
+									</td>
+								</tr>
+							</table>
+						</form>
+						<hr />
+						<form method="get" action="">
+							<table class="form-table">
+								<input type="hidden" name="page" value="psts"/>
+								<tr valign="top">
+									<th scope="row"><?php _e( 'Activation Key:', 'psts' ) ?></th>
+									<td><input type="text" size="17" name="activation_key" value=""/>
+										<input class="button-secondary" type="submit" value="<?php _e( 'Activate Blog &raquo;', 'psts' ) ?>"/>
 									</td>
 								</tr>
 							</table>
@@ -3830,7 +3846,7 @@ function admin_levels() {
 						<td><?php
 
 							$roles          = get_editable_roles();
-							$checkout_roles = $this->get_setting( 'checkout_roles', 'not_set' );
+							$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
 
 							foreach ( $roles as $role_key => $role ) {
 								$checked = '';
@@ -4149,9 +4165,9 @@ function admin_levels() {
 		$content = apply_filters( 'psts_before_checkout_gridcoupon-submit', $content, $blog_id );
 
 		//add coupon line
-		if ( isset( $_SESSION['COUPON_CODE'] ) ) {
-			$coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], 100 );
-			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $_SESSION['COUPON_CODE'] ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
+		if ( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
+			$coupon_value = $this->coupon_value( $session_coupon, 100 );
+			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $session_coupon ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
 		} else if ( $errmsg = $this->errors->get_error_message( 'coupon' ) ) {
 			$content .= '<div id="psts-coupon-error" class="psts-error">' . $errmsg . '</div>';
 		}
@@ -4202,7 +4218,8 @@ function admin_levels() {
 				$selected      = ( $sel_period == 1 && $sel_level == $level ) ? ' opt-selected' : '';
 				$upgrade_price = ( $recurring ) ? $data['price_1'] : $this->calc_upgrade_cost( $blog_id, $level, 1, $data['price_1'] );
 
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $level, 1 ) && $coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], $data['price_1'] ) ) {
+				$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+				if ( isset( $session_coupon ) && $this->check_coupon( $session_coupon, $blog_id, $level, 1 ) && $coupon_value = $this->coupon_value( $session_coupon, $data['price_1'] ) ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_1'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $coupon_value['new_total'] ) . '</span>';
 				} elseif ( $upgrade_price != $data['price_1'] ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_1'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $upgrade_price ) . '</span>';
@@ -4236,7 +4253,8 @@ function admin_levels() {
 				$selected      = ( $sel_period == 3 && $sel_level == $level ) ? ' opt-selected' : '';
 				$upgrade_price = ( $recurring ) ? $data['price_3'] : $this->calc_upgrade_cost( $blog_id, $level, 3, $data['price_3'] );
 
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $level, 3 ) && $coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], $data['price_3'] ) ) {
+				$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+				if ( isset( $session_coupon ) && $this->check_coupon( $session_coupon, $blog_id, $level, 3 ) && $coupon_value = $this->coupon_value( $session_coupon, $data['price_3'] ) ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_3'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $coupon_value['new_total'] ) . '</span>';
 					$price        = $coupon_value['new_total'];
 				} elseif ( $upgrade_price != $data['price_3'] ) {
@@ -4268,7 +4286,8 @@ function admin_levels() {
 				$selected      = ( $sel_period == 12 && $sel_level == $level ) ? ' opt-selected' : '';
 				$upgrade_price = ( $recurring ) ? $data['price_12'] : $this->calc_upgrade_cost( $blog_id, $level, 12, $data['price_12'] );
 
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $level, 12 ) && $coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], $data['price_12'] ) ) {
+				$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+				if ( isset( $session_coupon ) && $this->check_coupon( $session_coupon, $blog_id, $level, 12 ) && $coupon_value = $this->coupon_value( $session_coupon, $data['price_12'] ) ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_12'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $coupon_value['new_total'] ) . '</span>';
 					$price        = $coupon_value['new_total'];
 				} elseif ( $upgrade_price != $data['price_12'] ) {
@@ -4336,7 +4355,8 @@ function admin_levels() {
 		//coupon form - if you want to hide the coupon box add define('PSTS_DISABLE_COUPON_FORM', true); to your wp-config.php file
 		if ( ! ( defined( 'PSTS_DISABLE_COUPON_FORM' ) && PSTS_DISABLE_COUPON_FORM ) ) {
 			$coupons = get_site_option( 'psts_coupons' );
-			if ( is_array( $coupons ) && count( $coupons ) && ! isset( $_SESSION['COUPON_CODE'] ) ) {
+			$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+			if ( is_array( $coupons ) && count( $coupons ) && ! isset( $session_coupon ) ) {
 				$content .= '<div id="psts-coupon-block">
 		      <small><a id="psts-coupon-link" href="#">' . __( 'Have a coupon code?', 'psts' ) . '</a></small>
 		      <div id="psts-coupon-code" class="alignright" style="display: none;">
@@ -4439,7 +4459,7 @@ function admin_levels() {
 
 	//outputs the checkout form
 	function checkout_output( $content ) {
-		$x = '';
+		$has_blog = false;
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
 			return $content;
@@ -4463,7 +4483,7 @@ function admin_levels() {
 		}
 		$current_user_id = get_current_user_id();
 		//get allowed roles for checkout
-		$checkout_roles = $this->get_setting( 'checkout_roles' );
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
 
 		//set blog_id
 		if (isset($_POST['bid'])){
@@ -4544,9 +4564,12 @@ function admin_levels() {
 			}
 
 			// user has edit permission for one blog, load checkout page
+			global $current_prosite_blog;
+			$current_prosite_blog = false;
 			if( count($blogs)==1 ) {
 				$all_blog_ids = array_keys($blogs);
 				$blog_id = intval($all_blog_ids[0]);
+				$current_prosite_blog = $blog_id;
 			}
 		}
 
@@ -4580,11 +4603,11 @@ function admin_levels() {
 			 */
 			//this is the main hook for gateways to add all their code
 //			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
-		} elseif ( isset( $_SESSION['domain'] ) ) {
+		} elseif ( $session_domain = ProSites_Helper_Session::session( 'domain' ) ) {
 			//after signup
 
 			//this is the main hook for new checkout page
-			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $_SESSION['domain'] );
+			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $session_domain );
 			/**
 			 * @todo: Moved this to the Checkout class
 			 */
@@ -4631,7 +4654,8 @@ function admin_levels() {
 			}
 
 			//show message if no valid blogs
-			if ( ! $has_blog && ! isset( $_SESSION['domain'] ) ) {
+			$session_domain = ProSites_Helper_Session::session( 'domain' );
+			if ( ! $has_blog && ! isset( $session_domain ) ) {
 				$content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
 			}
 		}
@@ -4889,8 +4913,9 @@ function admin_levels() {
 		//Check if blog is in trial or inactive, set session values and redirect to checkout page
 		$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
 		if ( ! $signup->active ) {
-			$_SESSION['domain'] = $domain;
-			$_SESSION['meta']   = $signup->meta;  ?>
+			ProSites_Helper_Session::session( 'domain', $domain );
+			ProSites_Helper_Session::session( 'meta', $signup->meta );
+			?>
 			<!--redirect to checkout url-->
 			<script type="text/javascript">
 				window.location = '<?php echo $this->checkout_url(); ?>';
@@ -4960,7 +4985,7 @@ function admin_levels() {
 		}
 
 		// Unset Domain name from session if its still there
-		unset( $_SESSION['domain'] );
+		ProSites_Helper_Session::session( 'domain', null, true );
 
 		if ( isset( $result['blog_id'] ) ) {
 			return $result['blog_id'];
@@ -5022,23 +5047,11 @@ function admin_levels() {
 	 * Fetches meta for a ProSite
 	 *
 	 * @param int $blog_id
-	 * @param bool $default
 	 *
 	 * @return bool|mixed|string
 	 */
 	public static function get_prosite_meta( $blog_id = 0 ) {
-		if ( empty( $blog_id ) ) {
-			return false;
-		}
-
-		global $wpdb;
-		$meta = false;
-		$result = $wpdb->get_row( $wpdb->prepare( "SELECT meta FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id ) );
-		if ( ! empty( $result ) ) {
-			$meta = maybe_unserialize( $result->meta );
-		}
-
-		return $meta;
+		return ProSites_Helper_ProSite::get_prosite_meta( $blog_id );
 	}
 
 	/**
@@ -5050,22 +5063,7 @@ function admin_levels() {
 	 * @return bool
 	 */
 	public static function update_prosite_meta( $blog_id = 0, $meta = array() ) {
-		if ( false === $meta || empty( $blog_id ) ) {
-			return false;
-		}
-		global $wpdb;
-
-		$updated = $wpdb->update(
-			$wpdb->base_prefix . 'pro_sites',
-			array(
-				'meta' => serialize( $meta ),
-			),
-			array(
-				'blog_ID' => $blog_id
-			)
-		);
-
-		return $updated;
+		return ProSites_Helper_ProSite::update_prosite_meta( $blog_id, $meta );
 	}
 
 	/**

@@ -158,8 +158,6 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 					'add_args' => array( 'page' => 'psts-coupons'),
 				);
 
-				$x = '';
-
 				$coupon_navigation = paginate_links( $nav_args );
 				$page_link         = ( $apage > 1 ) ? '&amp;apage=' . $apage : '';
 				?>
