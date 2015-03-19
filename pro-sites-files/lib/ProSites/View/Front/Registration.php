@@ -97,10 +97,9 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 				// This variable is populated by ProSites_Model_Registration::ajax_check_prosite_blog()
 				$content .= $_SESSION['new_blog_details']['reserved_message'];
-
 				// Debugging only.
-				// unset( $_SESSION['new_blog_details']);
-				// unset( $_SESSION['upgraded_blog_details']);
+//				 unset( $_SESSION['new_blog_details']);
+//				 unset( $_SESSION['upgraded_blog_details']);
 
 				return $content;
 			}

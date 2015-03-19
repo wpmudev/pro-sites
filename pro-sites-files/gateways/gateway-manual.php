@@ -182,6 +182,7 @@ class ProSites_Gateway_Manual {
 		$content = '';
 
 		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : 1;
+
 		$level  = isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ? (int) $_SESSION['new_blog_details']['level'] : 0;
 		$level  = isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['level'] ) ? (int) $_SESSION['upgraded_blog_details']['level'] : $level;
 
@@ -246,11 +247,16 @@ class ProSites_Gateway_Manual {
 				$blog_admin_url = __( 'Not activated yet.', 'psts' );
 			}
 
+			$activation_key = '';
+			if( isset( $_SESSION['blog_activation_key'] ) ) {
+				$activation_key = $_SESSION['blog_activation_key'];
+			}
 			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
 			$message = sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $username ) . "\n\n";
 			$message .= __( 'Level: ', 'psts' ) . intval( $_POST['level'] ) . ' - ' . $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) . "\n";
 			$message .= __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), intval( $_POST['period'] ) ) . "\n";
 			$message .= sprintf( __( "User Email: %s", 'psts' ), $email ) . "\n";
+			$message .= sprintf( __( "Activation Key: %s", 'psts' ), $activation_key ) . "\n";
 			$message .= sprintf( __( "Site Address: %s", 'psts' ), get_home_url() ) . "\n";
 			$message .= sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ) . "\n\n";
 
@@ -284,7 +290,7 @@ class ProSites_Gateway_Manual {
 			$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
 		}
 
-		return empty( $content ) ? false : $content;
+		return empty( $content ) ? array() : $content;
 	}
 
 

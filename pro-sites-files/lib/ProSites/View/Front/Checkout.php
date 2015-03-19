@@ -8,8 +8,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static $selected_level = 0;
 
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
-			global $psts;
-			$x = '';
+			global $psts, $current_prosite_blog;
 
 			// If its in session, get it
 			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ) {
@@ -17,14 +16,20 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$selected_level = (int) $_SESSION['new_blog_details']['level'];
 			}
 
-			self::$default_period = apply_filters( 'prosites_render_checkout_page_period', $selected_period, $blog_id );
-			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
-
 			// User is not logged in and this is not a new registration.
 			// Get them to sign up! (or login)
-			if( empty( $blog_id ) && ! isset( $_SESSION['new_blog_details'] ) ) {
+			if( empty( $blog_id ) && ! isset( $_SESSION['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
 				self::$new_signup = true;
 			}
+			// Get blog_id from the session...
+			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['blog_id'] ) ) {
+				$blog_id = $_SESSION['new_blog_details']['blog_id'];
+			}
+			// Or if we're at checkout and already have a blog (1 blog only!)
+			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
+
+			self::$default_period = apply_filters( 'prosites_render_checkout_page_period', $selected_period, $blog_id );
+			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
 
 			// Are the tables enabled?
 			$plans_table_enabled = $psts->get_setting('plans_table_enabled');

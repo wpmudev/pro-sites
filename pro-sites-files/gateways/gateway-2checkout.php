@@ -1541,7 +1541,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			$content = '';
 
 
-			return empty( $content ) ? false : $content;
+			return empty( $content ) ? array() : $content;
 		}
 
 	}

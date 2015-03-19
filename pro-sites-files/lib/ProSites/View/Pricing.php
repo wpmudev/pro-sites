@@ -622,7 +622,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 													?>
 													<td scope="row">
 														<?php
-														$x = '';
 														if ( is_array( $level_list ) && count( $level_list ) ) {
 															foreach( $level_list as $level_id => $level ) {
 																?>

@@ -1224,14 +1224,12 @@ class ProSites_Gateway_Stripe {
 			) {
 				// Create generic class from Stripe\Subscription class
 
-
 				if ( ! empty( $subscription->blog_id ) ) {
 					$blog_id = $subscription->blog_id;
 				} else if ( ! empty( $subscription ) ) {
 					// activate to get ID
 					$blog_id = ProSites_Helper_Registration::activate_blog( $subscription->activation, $subscription->is_trial, $subscription->period, $subscription->level, $subscription->trial_end );
 					// set new ID
-
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id );
 				}
 
@@ -1779,6 +1777,7 @@ class ProSites_Gateway_Stripe {
 			$success        = '';
 			$plan           = self::get_plan_id( $_POST['level'], $_POST['period'] );
 			$customer_id    = '';
+			$current_plan_level = 0;
 			$activation_key = isset( $_POST['activation'] ) ? $_POST['activation'] : '';
 			$email          = ! empty ( $_POST['user_email'] ) ? $_POST['user_email'] : ( ! empty( $_POST['signup_email'] ) ? $_POST['signup_email'] : ( ! empty( $_POST['blog_email'] ) ? $_POST['blog_email'] : '' ) );
 			$blog_id        = ! empty( $blog_id ) ? $blog_id : isset( $_POST['bid'] ) ? (int) $_POST['bid'] : 0;
@@ -1786,6 +1785,9 @@ class ProSites_Gateway_Stripe {
 			if ( ! empty( $blog_id ) ) {
 				$customer_id = self::get_customer_data( $blog_id )->customer_id;
 				$email       = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
+				if ( $current_plan = self::get_current_plan( $blog_id ) ) {
+					list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
+				}
 			} else {
 				if ( empty( $email ) && isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['user_email'] ) ) {
 					$email = $_SESSION['new_blog_details']['user_email'];
@@ -2301,13 +2303,18 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Pending information
+		/**
+		 * @todo: Hook psts_blog_info_pending (Front/Gateway.php)
+		 */
 		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
 			$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
 		}
 
 		// Successful payment
 		if ( self::$complete_message ) {
+			// @todo: Hook psts_blog_info_complete_message
 			$args['complete_message'] = '<div id="psts-complete-msg">' . self::$complete_message . '</div>';
+			// @todo: Hook psts_blog_info_thanks_message
 			$args['thanks_message']   = '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
 
 			//If Checking out on signup, there wouldn't be a blogid probably
@@ -2416,7 +2423,7 @@ class ProSites_Gateway_Stripe {
 			$args['all_fields'] = true;
 		}
 
-		return empty( $args ) ? false : $args;
+		return empty( $args ) ? array() : $args;
 	}
 
 	public static function get_merchant_countries() {
