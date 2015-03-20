@@ -2409,161 +2409,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
 				}
 			} else {
-
-				//new or expired signup
-				$ack_success    = true;
-				$payment_status = '';
-				$domain         = ! empty( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : '' );
-				$path           = ! empty( $path ) ? $path : ( ! empty( $_SESSION['path'] ) ? $_SESSION['path'] : '' );
-				$activation_key = ! empty( $_SESSION['blog_activation_key'] ) ? $_SESSION['blog_activation_key'] : '';
-
-				//Set payerID if missing
-				if ( ! isset( $_GET['PayerID'] ) ) {
-
-					$details = self::GetExpressCheckoutDetails( $_GET['token'] );
-
-					if ( isset( $details['PAYERID'] ) ) {
-						$_GET['PayerID'] = $details['PAYERID'];
-					}
-
-				}
-
-				if ( ! $is_trial ) {
-					//if no trial is set
-					$resArray = self::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
-
-					$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
-
-					//Get payment status
-					if ( isset( $resArray['PAYMENTINFO_0_ACK'] ) && ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) ) {
-						$payment_status = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
-						$paymentAmount  = $resArray['PAYMENTINFO_0_AMT'];
-						$ack_success    = true;
-					}
-				}
-
-				if ( $is_trial || $ack_success ) {
-					if ( ! $is_trial ) {
-						if ( ! empty( $blog_id ) ) {
-							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
-						} else {
-							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
-						}
-					}
-
-					//use coupon
-					if ( $has_coupon ) {
-						$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
-					}
-
-					//just in case, try to cancel any old subscription
-					if ( ! empty( $blog_id ) && ( $profile_id = self::get_profile_id( $blog_id ) ) ) {
-						$resArray = self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
-					}
-
-					//create the recurring profile
-					$resArray = self::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
-
-					//If Profile is created
-					if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
-
-						$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
-
-						if ( ! empty( $blog_id ) ) {
-							//save new profile_id
-							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
-
-							//update the profile id in paypal so that future payments are applied to the proper blog id
-							$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ":" . $_SESSION['LEVEL'] . ':' . $_SESSION['PERIOD'] . ':' . $initAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
-							self::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
-
-							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
-
-						} else {
-							//Store in signup meta for domain
-							self::set_profile_id( '', $resArray["PROFILEID"], $domain );
-							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
-
-						}
-					} elseif ( ! empty( $resArray['ACK'] ) ) {
-						//If payment was declined, or user returned
-						$psts->errors->add( 'general', sprintf( __( 'There was a problem processing the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
-						$psts->log_action( $blog_id, sprintf( __( 'User creating subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
-					} else {
-						self::$complete_message = __( 'Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . self::parse_error_string( $resArray ) . '</strong>"';
-						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
-					}
-					//now get the details of the transaction to see if initial payment went through already
-					if ( $is_trial || $payment_status == 'Completed' || $payment_status == 'Processed' ) {
-
-						//If we have domain details, activate the blog, It will be extended later in the same code block
-						if ( ! empty( $domain ) ) {
-							$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
-						}
-						if ( isset( $_SESSION['new_blog_details'] ) ) {
-							$_SESSION['new_blog_details']['blog_id']         = $blog_id;
-							$_SESSION['new_blog_details']['payment_success'] = true;
-						}
-
-						//If we have blog id, Extend the blog expiry
-						if ( $blog_id ) {
-							if ( $is_trial ) {
-								$psts->extend( $blog_id, $_SESSION['PERIOD'], 'Trial', $_SESSION['LEVEL'], '', strtotime( '+ ' . $trial_days . ' days' ) );
-							} else {
-								$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount );
-							}
-						}
-						$psts->record_stat( $blog_id, 'signup' );
-						$psts->email_notification( $blog_id, 'success' );
-
-						//record last payment
-						if ( ! $is_trial ) {
-							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
-						}
-
-						// Added for affiliate system link
-						do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
-
-						if ( empty( self::$complete_message ) ) {
-							self::$complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
-						}
-					} else {
-						//If we have blog id
-						if ( ! empty ( $blog_id ) ) {
-							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
-						} else {
-							//Update Domain meta
-							$signup_meta = '';
-							$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
-							if ( ! empty( $signup ) ) {
-								$signup_meta = maybe_unserialize( $signup->meta );
-							}
-							$signup_meta['psts_waiting_step'] = 1;
-							$wpdb->update(
-								$wpdb->signups,
-								array(
-									'meta' => serialize( $signup_meta ), // string
-								),
-								array(
-									'domain' => $domain
-								)
-							);
-						}
-
-					}
-
-					//display GA ecommerce in footer
-					if ( ! $is_trial ) {
-						$psts->create_ga_ecommerce( $blog_id, $_SESSION['PERIOD'], $paymentAmount, $_SESSION['LEVEL'] );
-					}
-
-					unset( $_SESSION['COUPON_CODE'] );
-					unset( $_SESSION['PERIOD'] );
-					unset( $_SESSION['LEVEL'] );
-				} else {
-					$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
-					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
-				}
+				//Handle the new signups
+				ProSites_Gateway_PayPalExpressPro::new_signup( $is_trial, $trial_days, $initAmount, $domain, $path, $desc, $blog_id, $has_coupon );
 			}
 		}
 
@@ -2733,7 +2580,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//extend
-							$psts->extend( $blog_id, $_POST['period'], ( $is_trial ? 'Trial' : self::get_slug() ), $_POST['level'], ( $is_trial ? '' : $paymentAmount ), ( $is_trial ? $psts->get_expire( $blog_id ) : false ) );
+							$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], ( $is_trial ? '' : $paymentAmount ), ( $is_trial ? $psts->get_expire( $blog_id ) : false ) );
 
 							//use coupon
 							if ( $has_coupon ) {
@@ -2858,7 +2705,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 								}
 							} else {
-								$psts->extend( $blog_id, $_POST['period'], 'Trial', $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
+								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 								if ( empty( self::$complete_message ) ) {
 									self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
@@ -2882,6 +2729,181 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$psts->errors->add( 'general', __( 'There was a problem with your credit card information. Please check all fields and try again.', 'psts' ) );
 				}
 			}
+		}
+	}
+
+	/**
+	 * Process New Blog Signup on successful payment
+	 * @param bool $is_trial
+	 * @param int $trial_days
+	 * @param int $initAmount
+	 * @param string $domain
+	 * @param string $path
+	 * @param string $desc
+	 * @param string $blog_id
+	 * @param bool $has_coupon
+	 */
+	function new_signup( $is_trial = true, $trial_days = 0, $initAmount = 0, $domain = '', $path = '', $desc = '', $blog_id = '', $has_coupon = false ){
+
+		global $psts, $wpdb;
+
+		//new or expired signup
+		$ack_success    = true;
+		$payment_status = '';
+		$domain         = ! empty( $domain ) ? $domain : ( ! empty( $_SESSION['domain'] ) ? $_SESSION['domain'] : '' );
+		$path           = ! empty( $path ) ? $path : ( ! empty( $_SESSION['path'] ) ? $_SESSION['path'] : '' );
+		$activation_key = ! empty( $_SESSION['blog_activation_key'] ) ? $_SESSION['blog_activation_key'] : '';
+
+		//Set payerID if missing
+		if ( ! isset( $_GET['PayerID'] ) ) {
+
+			$details = self::GetExpressCheckoutDetails( $_GET['token'] );
+
+			if ( isset( $details['PAYERID'] ) ) {
+				$_GET['PayerID'] = $details['PAYERID'];
+			}
+
+		}
+
+		if ( ! $is_trial ) {
+			//if no trial is set
+			$resArray = self::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
+
+			$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
+
+			//Get payment status
+			if ( isset( $resArray['PAYMENTINFO_0_ACK'] ) && ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) ) {
+				$payment_status = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
+				$paymentAmount  = $resArray['PAYMENTINFO_0_AMT'];
+				$ack_success    = true;
+			}
+		}
+
+		if ( $is_trial || $ack_success ) {
+			if ( ! $is_trial ) {
+				if ( ! empty( $blog_id ) ) {
+					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+				} else {
+					$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
+				}
+			}
+
+			//use coupon
+			if ( $has_coupon ) {
+				$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id );
+			}
+
+			//just in case, try to cancel any old subscription
+			if ( ! empty( $blog_id ) && ( $profile_id = self::get_profile_id( $blog_id ) ) ) {
+				self::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+			}
+
+			//create the recurring profile
+			$resArray = self::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_SESSION['PERIOD'], $desc, $blog_id, $_SESSION['LEVEL'], '', $activation_key );
+
+			//If Profile is created
+			if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
+
+				$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+
+				if ( ! empty( $blog_id ) ) {
+					//save new profile_id
+					self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
+
+					//update the profile id in paypal so that future payments are applied to the proper blog id
+					$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ":" . $_SESSION['LEVEL'] . ':' . $_SESSION['PERIOD'] . ':' . $initAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
+					self::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
+
+					$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
+
+				} else {
+					//Store in signup meta for domain
+					self::set_profile_id( '', $resArray["PROFILEID"], $domain );
+					$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
+
+				}
+			} elseif ( ! empty( $resArray['ACK'] ) ) {
+				//If payment was declined, or user returned
+				$psts->errors->add( 'general', sprintf( __( 'There was a problem processing the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+				$psts->log_action( $blog_id, sprintf( __( 'User creating subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+			} else {
+				self::$complete_message = __( 'Your initial PayPal transaction was successful, but there was a problem creating the subscription so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . self::parse_error_string( $resArray ) . '</strong>"';
+				$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+			}
+			//now get the details of the transaction to see if initial payment went through already
+			if ( $is_trial || $payment_status == 'Completed' || $payment_status == 'Processed' ) {
+
+				//If we have domain details, activate the blog, It will be extended later in the same code block
+				if ( ! empty( $domain ) ) {
+					$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+				}
+				if ( isset( $_SESSION['new_blog_details'] ) ) {
+					$_SESSION['new_blog_details']['blog_id']         = $blog_id;
+					$_SESSION['new_blog_details']['payment_success'] = true;
+				}
+
+				//If we have blog id, Extend the blog expiry
+				if ( $blog_id ) {
+					if ( $is_trial ) {
+						$paymentAmount = '';
+						$trial = strtotime( '+ ' . $trial_days . ' days' );
+
+					}else {
+						$trial = '';
+					}
+					//Extend the Blog expiry as per Trial or not
+					$psts->extend( $blog_id, $_SESSION['PERIOD'], self::get_slug(), $_SESSION['LEVEL'], $paymentAmount, $trial );
+				}
+				$psts->record_stat( $blog_id, 'signup' );
+				$psts->email_notification( $blog_id, 'success' );
+
+				//record last payment
+				if ( ! $is_trial ) {
+					$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
+				}
+
+				// Added for affiliate system link
+				do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_SESSION['PERIOD'], $_SESSION['LEVEL'] );
+
+				if ( empty( self::$complete_message ) ) {
+					self::$complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
+				}
+			} else {
+				//If we have blog id
+				if ( ! empty ( $blog_id ) ) {
+					update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+				} else {
+					//Update Domain meta
+					$signup_meta = '';
+					$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
+					if ( ! empty( $signup ) ) {
+						$signup_meta = maybe_unserialize( $signup->meta );
+					}
+					$signup_meta['psts_waiting_step'] = 1;
+					$wpdb->update(
+						$wpdb->signups,
+						array(
+							'meta' => serialize( $signup_meta ), // string
+						),
+						array(
+							'domain' => $domain
+						)
+					);
+				}
+
+			}
+
+			//display GA ecommerce in footer
+			if ( ! $is_trial ) {
+				$psts->create_ga_ecommerce( $blog_id, $_SESSION['PERIOD'], $paymentAmount, $_SESSION['LEVEL'] );
+			}
+
+			unset( $_SESSION['COUPON_CODE'] );
+			unset( $_SESSION['PERIOD'] );
+			unset( $_SESSION['LEVEL'] );
+		} else {
+			$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+			$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
 		}
 	}
 
