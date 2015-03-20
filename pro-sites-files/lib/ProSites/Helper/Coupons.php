@@ -151,7 +151,7 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				@$coupons[ $coupon_code ]['used'] ++;
 				update_site_option( 'psts_coupons', $coupons );
 
-				unset( $_SESSION['COUPON_CODE'] );
+				ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
 
 				if ( ! empty( $blog_id ) ) {
 					//If it's a existing blog, check for previous used coupons
@@ -312,10 +312,10 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				$valid_coupon = self::check_coupon( $coupon_code );
 				if( ! empty( $valid_coupon ) ) {
 					$ajax_response['valid'] = true;
-					$_SESSION['COUPON_CODE'] = $coupon_code;
+					ProSites_Helper_Session::session( 'COUPON_CODE', $coupon_code );
 				} else {
 					$ajax_response['valid'] = false;
-					unset( $_SESSION['COUPON_CODE'] );
+					ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
 				}
 
 //				$ajax_response['value'] = self::coupon_value( $coupon_code, '200' );

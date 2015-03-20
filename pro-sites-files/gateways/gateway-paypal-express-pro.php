@@ -1358,7 +1358,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							if ( ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
-							error_log( "what has been happening" );
 
 							//in case of new member send notification
 							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && $_POST['txn_type'] == 'express_checkout' ) {
@@ -1884,7 +1883,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 *
 	 * @return string|void
 	 */
-	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
+	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
 
 		global $psts, $current_site;
 		$content   = '';
@@ -2105,7 +2104,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $content;
 	}
 
-	public static function process_checkout_form( $blog_id, $domain ) {
+	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 
 		global $current_site, $current_user, $psts, $wpdb;
 

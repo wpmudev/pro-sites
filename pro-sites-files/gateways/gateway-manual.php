@@ -177,14 +177,19 @@ class ProSites_Gateway_Manual {
 		);
 	}
 
-	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = false ) {
+	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = false ) {
 		global $psts;
 		$content = '';
 
+		$session_keys = array( 'new_blog_details', 'upgraded_blog_details' );
+		foreach( $session_keys as $key ) {
+			$render_data[ $key ] = isset( $render_data[ $key ] ) ? $render_data[ $key ] : ProSites_Helper_Session::session( $key );
+		}
+
 		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : 1;
 
-		$level  = isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ? (int) $_SESSION['new_blog_details']['level'] : 0;
-		$level  = isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['level'] ) ? (int) $_SESSION['upgraded_blog_details']['level'] : $level;
+		$level  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
+		$level  = isset( $render_data['upgraded_blog_details'] ) && isset( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
 
 		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post">';
 
@@ -207,8 +212,13 @@ class ProSites_Gateway_Manual {
 		return $content;
 	}
 
-	public static function process_checkout_form( $blog_id, $domain ) {
+	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 		global $psts;
+
+		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
+		foreach( $session_keys as $key ) {
+			$process_data[ $key ] = isset( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
+		}
 
 		if ( isset( $_POST['psts_mp_submit'] ) ) {
 
@@ -222,12 +232,12 @@ class ProSites_Gateway_Manual {
 				$user = wp_get_current_user();
 				$email = $user->user_email;
 				$username = $user->user_login;
-			} else if( isset( $_SESSION['new_blog_details'] ) ) {
-				if( isset( $_SESSION['new_blog_details']['email'] ) ) {
-					$email = sanitize_email( $_SESSION['new_blog_details']['email'] );
+			} else if( isset( $process_data['new_blog_details'] ) ) {
+				if( isset( $process_data['new_blog_details']['email'] ) ) {
+					$email = sanitize_email( $process_data['new_blog_details']['email'] );
 				}
-				if( isset( $_SESSION['new_blog_details']['username'] ) ) {
-					$username = sanitize_text_field( $_SESSION['new_blog_details']['username'] );
+				if( isset( $process_data['new_blog_details']['username'] ) ) {
+					$username = sanitize_text_field( $process_data['new_blog_details']['username'] );
 				}
 			}
 			if( empty( $email ) ) {
@@ -236,8 +246,8 @@ class ProSites_Gateway_Manual {
 			}
 
 			// Get the blog id... try the session or get it from the database
-			$blog_id = isset( $_SESSION['upgraded_blog_details']['blog_id'] ) ? $_SESSION['upgraded_blog_details']['blog_id'] : 0;
-			$blog_id = ! empty( $blog_id ) ? $blog_id : isset( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : isset( $_SESSION['new_blog_details']['blogname'] ) ? get_id_from_blogname( $_SESSION['new_blog_details']['blogname'] ) : 0;
+			$blog_id = isset( $process_data['upgraded_blog_details']['blog_id'] ) ? $process_data['upgraded_blog_details']['blog_id'] : 0;
+			$blog_id = ! empty( $blog_id ) ? $blog_id : isset( $process_data['new_blog_details']['blog_id'] ) ? $process_data['new_blog_details']['blog_id'] : isset( $process_data['new_blog_details']['blogname'] ) ? get_id_from_blogname( $process_data['new_blog_details']['blogname'] ) : 0;
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
@@ -248,8 +258,8 @@ class ProSites_Gateway_Manual {
 			}
 
 			$activation_key = '';
-			if( isset( $_SESSION['blog_activation_key'] ) ) {
-				$activation_key = $_SESSION['blog_activation_key'];
+			if( isset( $process_data['activation_key'] ) ) {
+				$activation_key = $process_data['activation_key'];
 			}
 			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
 			$message = sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $username ) . "\n\n";
@@ -267,9 +277,9 @@ class ProSites_Gateway_Manual {
 
 			wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
 
-			$_SESSION['new_blog_details']['reserved_message'] = __( 'Manual payment request submitted.', 'psts' );
+			ProSites_Helper_Session::session( array('new_blog_details', 'reserved_message'), __( 'Manual payment request submitted.', 'psts' ) );
 			// Payment pending...
-			$_SESSION['new_blog_details']['manual_submitted'] = true;
+			ProSites_Helper_Session::session( array('new_blog_details', 'manual_submitted'), true );
 
 		}
 

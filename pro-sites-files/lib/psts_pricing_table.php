@@ -82,10 +82,11 @@ class ProSites_Pricing_Table {
 
 		$content = apply_filters( 'psts_before_checkout_grid_coupon', $content, $this->blog_id );
 
-		if ( isset( $_SESSION['COUPON_CODE'] ) ) {
+		$coupon_code = ProSites_Helper_Session::session( 'COUPON_CODE' );
+		if ( isset( $coupon_code ) ) {
 
-			$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], 100 );
-			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $_SESSION['COUPON_CODE'] ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
+			$coupon_value = $psts->coupon_value( $coupon_code, 100 );
+			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $coupon_code ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
 
 		} else if ( $errmsg = $psts->errors->get_error_message( 'coupon' ) ) {
 			$content .= '<div id="psts-coupon-error" class="psts-error">' . $errmsg . '</div>';
@@ -150,7 +151,8 @@ class ProSites_Pricing_Table {
 			$content = '<div class="coupon-wrapper">';
 			$coupons = get_site_option( 'psts_coupons' );
 
-			if ( is_array( $coupons ) && count( $coupons ) && ! isset ( $_SESSION ['COUPON_CODE'] ) ) {
+			$coupon_code = ProSites_Helper_Session::session( 'COUPON_CODE' );
+			if ( is_array( $coupons ) && count( $coupons ) && ! isset ( $coupon_code ) ) {
 				$content .= '<div id="psts-coupon-block">
                                 <small><a id="psts-coupon-link" href="#">' . __( 'Have a coupon code?', 'psts' ) . '</a></small>
 					            <div id="psts-coupon-code" style="display: none;">
@@ -179,8 +181,9 @@ class ProSites_Pricing_Table {
 		$discount_price_level = $price;
 		$recurring            = $psts->get_setting( 'recurring_subscriptions', true );
 		$upgrade_price        = ( $recurring ) ? $level_prices[ $period ] : $psts->calc_upgrade_cost( $this->blog_id, $level, $period, $level_prices[ $period ] );
+		$coupon_code          = ProSites_Helper_Session::session( 'COUPON_CODE' );
 
-		if ( isset ( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $this->blog_id, $level, $period ) && $coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $level_prices [ $period ] ) ) {
+		if ( isset ( $coupon_code ) && $psts->check_coupon( $coupon_code, $this->blog_id, $level, $period ) && $coupon_value = $psts->coupon_value( $coupon_code, $level_prices [ $period ] ) ) {
 			$level_discount_price = $psts->format_currency( false, $coupon_value ['new_total'] );
 			$discount_price_level = '<del>' . $level_price . '</del><strong class="coupon">' . $level_discount_price . '</strong>';
 		} elseif ( $upgrade_price != $level_prices[ $period ] ) {

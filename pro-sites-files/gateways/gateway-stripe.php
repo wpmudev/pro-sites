@@ -1564,13 +1564,19 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return string
 	 */
-	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
+	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
 		global $psts, $wpdb, $current_site, $current_user;
 
 		$content = '';
 
 		$site_name = $current_site->site_name;
 		$img_base  = $psts->plugin_url . 'images/';
+
+		// Try stateless, or get from session
+		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'activation_key' );
+		foreach( $session_keys as $key ) {
+			$render_data[ $key ] = isset( $render_data[ $key ] ) ? $render_data[ $key ] : ProSites_Helper_Session::session( $key );
+		}
 
 //		$cancel_status  = get_blog_option( $blog_id, 'psts_stripe_canceled' );
 //		$cancel_content = '';
@@ -1605,8 +1611,8 @@ class ProSites_Gateway_Stripe {
 		}
 
 		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : 1;
-		$level  = isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ? (int) $_SESSION['new_blog_details']['level'] : 0;
-		$level  = isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['level'] ) ? (int) $_SESSION['upgraded_blog_details']['level'] : $level;
+		$level  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
+		$level  = isset( $render_data['upgraded_blog_details'] ) && isset( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
 
 		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="stripe-payment-form">
 
@@ -1622,19 +1628,19 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// This is a new blog
-		if ( isset( $_SESSION['blog_activation_key'] ) ) {
-			$content .= '<input type="hidden" name="activation" value="' . $_SESSION['blog_activation_key'] . '" />';
+		if ( isset( $render_data['activation_key'] ) ) {
+			$content .= '<input type="hidden" name="activation" value="' . $render_data['activation_key'] . '" />';
 
-			if ( isset( $_SESSION['new_blog_details'] ) ) {
-				$user_name  = $_SESSION['new_blog_details']['username'];
-				$user_email = $_SESSION['new_blog_details']['email'];
-				$blogname   = $_SESSION['new_blog_details']['blogname'];
-				$blog_title = $_SESSION['new_blog_details']['title'];
+			if ( isset( $render_data['new_blog_details'] ) ) {
+				$user_name  = $render_data['new_blog_details']['username'];
+				$user_email = $render_data['new_blog_details']['email'];
+				$blogname   = $render_data['new_blog_details']['blogname'];
+				$blog_title = $render_data['new_blog_details']['title'];
 
-				$content .= '<input type="hidden" name="blog_username" value="' . $_SESSION['new_blog_details']['username'] . '" />';
-				$content .= '<input type="hidden" name="blog_email" value="' . $_SESSION['new_blog_details']['email'] . '" />';
-				$content .= '<input type="hidden" name="blog_name" value="' . $_SESSION['new_blog_details']['blogname'] . '" />';
-				$content .= '<input type="hidden" name="blog_title" value="' . $_SESSION['new_blog_details']['title'] . '" />';
+				$content .= '<input type="hidden" name="blog_username" value="' . $render_data['new_blog_details']['username'] . '" />';
+				$content .= '<input type="hidden" name="blog_email" value="' . $render_data['new_blog_details']['email'] . '" />';
+				$content .= '<input type="hidden" name="blog_name" value="' . $render_data['new_blog_details']['blogname'] . '" />';
+				$content .= '<input type="hidden" name="blog_title" value="' . $render_data['new_blog_details']['title'] . '" />';
 			}
 		}
 
@@ -1723,11 +1729,16 @@ class ProSites_Gateway_Stripe {
 	 * @param $blog_id
 	 * @param $domain
 	 */
-	public static function process_checkout_form( $blog_id, $domain ) {
+	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 		global $psts, $current_user, $current_site;
 
 		$site_name = $current_site->site_name;
 		$img_base  = $psts->plugin_url . 'images/';
+
+		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
+		foreach( $session_keys as $key ) {
+			$process_data[ $key ] = isset( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
+		}
 
 		if ( ! empty( $domain ) ) {
 			$site_name = ! empty ( $_POST['blogname'] ) ? $_POST['blogname'] : ! empty ( $_POST['signup_email'] ) ? $_POST['signup_email'] : '';
@@ -1789,8 +1800,8 @@ class ProSites_Gateway_Stripe {
 					list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
 				}
 			} else {
-				if ( empty( $email ) && isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['user_email'] ) ) {
-					$email = $_SESSION['new_blog_details']['user_email'];
+				if ( empty( $email ) && isset( $process_data['new_blog_details'] ) && isset( $process_data['new_blog_details']['user_email'] ) ) {
+					$email = $process_data['new_blog_details']['user_email'];
 				}
 				$customer_id = self::get_customer_data( false, false, $email )->customer_id;
 			}
@@ -1891,7 +1902,7 @@ class ProSites_Gateway_Stripe {
 				$trial_days    = $psts->get_setting( 'trial_days', 0 );
 				$cp_code       = false;
 				$setup_fee     = (float) $psts->get_setting( 'setup_fee', 0 );
-				$has_coupon    = ( isset( $_SESSION['COUPON_CODE'] ) && ProSites_Helper_Coupons::check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
+				$has_coupon    = ( isset( $process_data['COUPON_CODE'] ) && ProSites_Helper_Coupons::check_coupon( $process_data['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
 				$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
 				$recurring     = $psts->get_setting( 'recurring_subscriptions', 1 );
 
@@ -1904,10 +1915,10 @@ class ProSites_Gateway_Stripe {
 					$lifetime = 'once';
 					if ( $has_coupon ) {
 						//apply coupon
-						$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $_SESSION['COUPON_CODE'] );
-						$coupon_obj      = ProSites_Helper_Coupons::get_coupon( $_SESSION['COUPON_CODE'] );
+						$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $process_data['COUPON_CODE'] );
+						$coupon_obj      = ProSites_Helper_Coupons::get_coupon( $process_data['COUPON_CODE'] );
 						$lifetime        = isset( $coupon_obj['lifetime'] ) && 'indefinite' == $coupon_obj['lifetime'] ? 'forever' : 'once';
-						//	$coupon_value = $psts->coupon_value( $_SESSION['COUPON_CODE'], $paymentAmount );
+						//	$coupon_value = $psts->coupon_value( $process_data['COUPON_CODE'], $paymentAmount );
 						$coupon_value = $adjusted_values[ $_POST['level'] ][ 'price_' . $_POST['period'] ];
 						// $amount_off   = $paymentAmount - $coupon_value['new_total'];
 						$amount_off = $paymentAmount - $coupon_value;
@@ -1986,7 +1997,7 @@ class ProSites_Gateway_Stripe {
 
 					// If this is a trial before the subscription starts
 					if ( $psts->is_trial_allowed( $blog_id ) ) {
-						if ( isset( $_SESSION['new_blog_details'] ) || ! $psts->is_existing( $blog_id ) ) {
+						if ( isset( $process_data['new_blog_details'] ) || ! $psts->is_existing( $blog_id ) ) {
 							//customer is new - add trial days
 							$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
 						} elseif ( is_pro_trial( $blog_id ) && $psts->get_expire( $blog_id ) > time() ) {
@@ -2113,15 +2124,15 @@ class ProSites_Gateway_Stripe {
 							$expire     = $trial ? $plan->trial_end : $result->current_period_end;
 							$blog_id    = ProSites_Helper_Registration::activate_blog( $activation_key, $trial, $period, $level, $expire );
 
-							if ( isset( $_SESSION['new_blog_details'] ) ) {
-								$_SESSION['new_blog_details']['blog_id']         = $blog_id;
-								$_SESSION['new_blog_details']['payment_success'] = true;
+							if ( isset( $process_data['new_blog_details'] ) ) {
+								ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
+								ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );
 							} else {
-								$_SESSION['upgraded_blog_details']                    = array();
-								$_SESSION['upgraded_blog_details']['blog_id']         = $blog_id;
-								$_SESSION['upgraded_blog_details']['level']           = $level;
-								$_SESSION['upgraded_blog_details']['period']          = $period;
-								$_SESSION['upgraded_blog_details']['payment_success'] = true;
+								ProSites_Helper_Session::session( 'upgrade_blog_details', array() );
+								ProSites_Helper_Session::session( array('upgrade_blog_details','blog_id'), $blog_id );
+								ProSites_Helper_Session::session( array('upgrade_blog_details','level'), $level );
+								ProSites_Helper_Session::session( array('upgrade_blog_details','period'), $period );
+								ProSites_Helper_Session::session( array('upgrade_blog_details','payment_success'), true );
 							}
 							self::set_customer_data( $blog_id, $customer_id, $sub_id );
 						}
@@ -2182,9 +2193,9 @@ class ProSites_Gateway_Stripe {
 							$period  = (int) $_POST['period'];
 							$level   = (int) $_POST['level'];
 							$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, false, $period, $level );
-							if ( isset( $_SESSION['new_blog_details'] ) ) {
-								$_SESSION['new_blog_details']['blog_id']         = $blog_id;
-								$_SESSION['new_blog_details']['payment_success'] = true;
+							if ( isset( $process_data['new_blog_details'] ) ) {
+								ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
+								ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );
 							}
 							self::set_customer_data( $blog_id, $customer_id, $result->id );
 						}
@@ -2231,7 +2242,7 @@ class ProSites_Gateway_Stripe {
 						);
 					}
 
-					$psts->use_coupon( $_SESSION['COUPON_CODE'], $blog_id, $domain );
+					$psts->use_coupon( $process_data['COUPON_CODE'], $blog_id, $domain );
 				}
 
 				if ( $new || $psts->is_blog_canceled( $blog_id ) ) {
@@ -2256,10 +2267,10 @@ class ProSites_Gateway_Stripe {
 					update_blog_option( $blog_id, 'psts_stripe_waiting', 1 );
 				} else {
 
-					if ( isset( $_SESSION['blog_activation_key'] ) ) {
+					if ( isset( $process_data['activation_key'] ) ) {
 
 						//Update signup meta
-						$key                                 = $_SESSION['blog_activation_key'];
+						$key                                 = $process_data['activation_key'];
 						$signup_meta                         = '';
 						$signup_meta                         = $psts->get_signup_meta( $key );
 						$signup_meta['psts_stripe_canceled'] = 0;

@@ -1524,15 +1524,14 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			);
 		}
 
-		public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
-
+		public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
 
 			$content = __( '2CheckOut Gateway', 'psts' );
 
 			return $content;
 		}
 
-		public static function process_checkout_form( $blog_id, $domain ) {
+		public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 
 		}
 

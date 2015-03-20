@@ -3,7 +3,8 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 
 	class ProSites_Helper_Session {
 
-		public static $token = 'prosites_';
+		private static $token = 'prosites_';
+		private static $add_time = '+1 hour';
 
 		/**
 		 * IMPORTANT: Only works for logged in users.
@@ -14,13 +15,17 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 		 * @param null $value
 		 * @param bool $unset
 		 * @param bool $duration
+		 * @param bool $force_session
+		 * @param bool $token_update
 		 *
 		 * @return bool|null|string
 		 */
-		public static function session( $key, $value = null, $unset = false, $duration = false ) {
+		public static function session( $key, $value = null, $unset = false, $duration = false, $force_session = false, $token_update = false ) {
+
+			$session_value = null;
 
 			// WordPress 4.0+ only
-			if ( class_exists( 'WP_Session_Tokens' ) && is_user_logged_in() ) {
+			if ( class_exists( 'WP_Session_Tokens' ) && is_user_logged_in() && ( ! $force_session || ( $force_session && $token_update ) ) ) {
 				$user_id = get_current_user_id();
 
 				$session     = WP_Session_Tokens::get_instance( $user_id );
@@ -30,7 +35,7 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 
 				if ( empty( $duration ) ) {
 					// Default 1 hr
-					$duration = strtotime( '+1 hour', time() );
+					$duration = strtotime( self::$add_time, time() );
 				}
 
 				$session_data = $session->get( self::$token );
@@ -42,9 +47,11 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 
 				if ( null === $value && ! $unset ) {
 					if ( is_array( $key ) ) {
-						return self::_get_val( $session_data, $key );
+						$session_value = self::_get_val( $session_data, $key );
+					} else if( true !== $key ){
+						$session_value = isset( $session_data[ $key ] ) ? $session_data[ $key ] : null;
 					} else {
-						return isset( $session_data[ $key ] ) ? $session_data[ $key ] : null;
+						$session_value = isset( $session_data ) ? $session_data : null;
 					}
 				} else {
 					if ( ! $unset ) {
@@ -62,7 +69,7 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 					}
 					$session->update( self::$token, $session_data );
 
-					return $value;
+					$session_value = $value;
 				}
 			} else {
 				// Pre WordPress 4.0
@@ -71,11 +78,13 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 				if ( ! session_id() ) {
 					session_start();
 				}
-				if ( null == $value && ! $unset ) {
+				if ( null === $value && ! $unset ) {
 					if ( is_array( $key ) ) {
-						return self::_get_val( $_SESSION, $key );
+						$session_value = self::_get_val( $_SESSION, $key );
+					} else if( true !== $key ) {
+						$session_value = isset( $_SESSION[ $key ] ) ? $_SESSION[ $key ] : null;
 					} else {
-						return isset( $_SESSION[ $key ] ) ? $_SESSION[ $key ] : null;
+						$session_value = isset( $_SESSION ) ? $_SESSION : null;
 					}
 				} else {
 					if ( ! $unset ) {
@@ -91,9 +100,26 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 							unset( $_SESSION[ $key ] );
 						}
 					}
-					return $value;
+					$session_value = $value;
 				}
 			}
+
+			// Try from $_SESSION then attempt to update token
+			if( ! $force_session && empty( $session_value ) && null === $value ) {
+				$session_value = self::session( $key, $value, $unset, $duration, true );
+				// Update token if we can
+				self::session( $key, $session_value, $unset, $duration, true, true );
+			}
+
+			return $session_value;
+
+		}
+
+		public static function unset_session( $key ) {
+			// Attempt to clear token...
+			self::session( $key, null, true );
+			// And $_SESSION if it still exists
+			unset( $_SESSION[ $key ] );
 		}
 
 		private static function _get_val( $arr, $index ) {
@@ -134,7 +160,6 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 				}
 			}
 		}
-
 
 	}
 

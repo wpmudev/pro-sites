@@ -126,11 +126,8 @@ class ProSites {
 		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
 		// Add Registration AJAX handler
 		ProSites_Model_Registration::add_ajax_hook();
+		add_filter( 'prosite_register_blog_pre_validation', array( 'ProSites_Model_Registration', 'cleanup_unused_user' ), 10, 3 );
 
-//		add_action( 'signup_extra_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
-//		add_action( 'signup_hidden_fields', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
-//		add_action( 'signup_header', array( 'ProSites_View_Front_Registration', 'render_registration_fields' ) );
-//		add_action( 'before_signup_form', array( 'ProSites_View_Front_Registration', 'render_registration_header' ), 1 );
 //		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
@@ -1190,7 +1187,7 @@ Thanks!", 'psts' ),
 
 			//clear coupon if link clicked
 			if ( isset( $_GET['remove_coupon'] ) ) {
-				ProSites_Helper_Session::session( 'COUPON_CODE', null, true );
+				ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
 			}
 
 			//check for coupon session variable
@@ -1202,7 +1199,7 @@ Thanks!", 'psts' ),
 						$this->errors->add( 'coupon', __( 'Sorry, the coupon code you entered is not valid for your chosen level.', 'psts' ) );
 					} else {
 						$this->errors->add( 'coupon', __( 'Whoops! The coupon code you entered is not valid.', 'psts' ) );
-						ProSites_Helper_Session::session( 'COUPON_CODE', null, true );
+						ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
 					}
 				}
 			}
@@ -4464,9 +4461,11 @@ function admin_levels() {
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
 			return $content;
 		}
+
 		//make sure logged in, Or if user comes just after signup, check session for domain name
-//		if ( ! is_user_logged_in() && ( ! isset( $_SESSION ) || ! isset( $_SESSION['domain'] ) ) ) {
-		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) ) {
+		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
+
+		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$registeration = get_site_option('registration');
@@ -4985,7 +4984,7 @@ function admin_levels() {
 		}
 
 		// Unset Domain name from session if its still there
-		ProSites_Helper_Session::session( 'domain', null, true );
+		ProSites_Helper_Session::unset_session( 'domain' );
 
 		if ( isset( $result['blog_id'] ) ) {
 			return $result['blog_id'];

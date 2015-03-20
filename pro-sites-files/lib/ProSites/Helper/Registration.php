@@ -24,9 +24,6 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 		public static function signup_blog( $domain, $path, $title, $user, $user_email, $meta = array() )  {
 			global $wpdb;
 
-			// Reset the session if the user is signing up another blog
-			$_SESSION['blog_activation_key'] = false;
-
 			$key = substr( md5( time() . rand() . $domain ), 0, 16 );
 			$meta = serialize($meta);
 
@@ -41,7 +38,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				'meta' => $meta
 			) );
 
-			// Activate the user and attempt a login (because we want WP cookies!)
+			// Activate the user and attempt a login (because we want WP sessions)
 			$user_id = username_exists( $user );
 			if ( ! $user_id ) {
 				$password = wp_generate_password( 12, false );
@@ -54,7 +51,6 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				$user = wp_signon( $creds );
 			}
 
-			$_SESSION['blog_activation_key'] = $key;
 			return $key;
 		}
 
@@ -63,12 +59,6 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 			// Activate the user signup
 			$result = wpmu_activate_signup( $key );
-
-			if( ! is_wp_error( $result ) ) {
-				if( isset( $_SESSION['new_blog_details'] ) && is_array( $_SESSION['new_blog_details'] ) ) {
-					$_SESSION['new_blog_details']['user_pass'] = strrev( $result['password'] );
-				}
-			}
 
 			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
 
@@ -132,7 +122,8 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				//update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 			}
 
-			return $result['blog_id'];
+			// Contains $result['password'] for new users
+			return $result;
 		}
 
 		public static function is_trial( $blog_id ) {

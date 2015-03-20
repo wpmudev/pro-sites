@@ -3,86 +3,29 @@
 if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 	class ProSites_View_Front_Registration {
 
-		public static function render_registration_header() {
-			global $psts;
-
-			if ( ( ! isset( $_GET['level'] ) && ! isset( $_GET['period'] ) ) && ( ! isset( $_POST['level'] ) && ! isset( $_POST['period'] ) ) ) {
-				return false;
-			}
-
-			$level  = isset( $_GET['level'] ) ? (int) $_GET['level'] : (int) $_POST['level'];
-			$period = isset( $_GET['period'] ) ? (int) $_GET['period'] : (int) $_POST['period'];
-
-			$step = isset( $_POST['registration_step'] ) ? (int) $_POST['registration_step'] : 0;
-			$step += 1;
-
-			$level_list    = get_site_option( 'psts_levels' );
-			$level_name    = $level_list[ $level ]['name'];
-			$prosite_brand = $psts->get_setting( 'rebrand', 'Pro Site' );
-
-			switch ( $step ) {
-				case 1:
-					$content = '<div class="widecolumn"><div class="psts-registration-page mu_register">' .
-					           '<h2>' . sprintf( esc_html__( '%s Signup', 'psts' ), $prosite_brand ) . '</h2>' .
-					           '<p>' . sprintf( esc_html__( 'You are about to sign up for a "%s" plan with a renewal period of every %d month(s).', 'psts' ), $level_name, $period ) . '</p>' .
-					           '<p>' . esc_html__( 'Please enter your username below', 'psts' ) . '</p>' .
-					           '</div></div>';
-					break;
-				case 2:
-					$content = '<div class="widecolumn"><div class="psts-registration-page mu_register">' .
-					           sprintf( '<h2>' . esc_html__( '%s Signup', 'psts' ) . '</h2>', $prosite_brand ) .
-					           '<p>' . sprintf( esc_html__( 'You are about to sign up for a "%s" plan with a renewal period of every %d month(s).', 'psts' ), $level_name, $period ) . '</p>' .
-					           '<p>' . esc_html__( 'Please add your site details below', 'psts' ) . '</p>' .
-					           '</div></div>';
-					break;
-				case 3:
-					$content = '<div class="widecolumn"><div class="psts-registration-page mu_register">'
-					           . sprintf( '<h2>' . esc_html__( '%s Signup', 'psts' ) . '</h2>', $prosite_brand )
-					           . sprintf( esc_html__( 'Almost finished signing up for a "%s" plan with a renewal period of every %d month(s).', 'psts' ), $level_name, $period ) .
-					           '</div></div>';
-					break;
-			}
-
-			echo $content;
-
-		}
-
-		public static function render_registration_fields( $errors ) {
-			global $psts;
-			if ( ( ! isset( $_GET['level'] ) && ! isset( $_GET['period'] ) ) && ( ! isset( $_POST['level'] ) && ! isset( $_POST['period'] ) ) ) {
-				return false;
-			}
-
-			$step = isset( $_POST['registration_step'] ) ? (int) $_POST['registration_step'] : 0;
-			$step += 1;
-
-			$level  = isset( $_GET['level'] ) ? (int) $_GET['level'] : (int) $_POST['level'];
-			$period = isset( $_GET['period'] ) ? (int) $_GET['period'] : (int) $_POST['period'];
-
-			?>
-			<input type="hidden" name="level" value="<?php echo esc_attr( $level ) ?>" />
-			<input type="hidden" name="period" value="<?php echo esc_attr( $period ) ?>" />
-			<input type="hidden" name="registration_step" value="<?php echo esc_attr( $step ) ?>" />
-		<?php
-
-		}
-
 		/**
 		 * Renders the user/site signup form.
 		 *
 		 * OR the completed message.
 		 *
+		 * @param mixed $render_data
 		 * @param bool $errors
 		 *
 		 * @return string
 		 */
-		public static function render_signup_form( $errors = false ) {
+		public static function render_signup_form( $render_data = array(), $errors = false ) {
 			global $psts;
 			$current_site = get_current_site();
-			$img_base     = $psts->plugin_url . 'images/';
+			$img_base  = $psts->plugin_url . 'images/';
 
-			if ( ! $errors ) {
+			if( ! $errors ) {
 				$errors = new WP_Error();
+			}
+
+			// Try going stateless, or check the session
+			if( empty( $render_data ) ) {
+				$render_data = array();
+				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
 			}
 
 			$content = '';
@@ -93,12 +36,12 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			 * This means registration is completed. Trial is activated (non-recurring) or user provided
 			 * payment information for trial (recurring) or normal recurring plan.
 			 */
-			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['reserved_message'] ) ) {
+			if( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['reserved_message'] ) ) {
 
 				// This variable is populated by ProSites_Model_Registration::ajax_check_prosite_blog()
-				$content .= $_SESSION['new_blog_details']['reserved_message'];
+				$content .= $render_data['new_blog_details']['reserved_message'];
 				// Debugging only.
-//				 unset( $_SESSION['new_blog_details']);
+//				ProSites_Helper_Session::unset_session( 'new_blog_details' );
 //				 unset( $_SESSION['upgraded_blog_details']);
 
 				return $content;
@@ -111,15 +54,14 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			$active_signup = apply_filters( 'wpmu_active_signup', $active_signup );
 
 			// Determine action...
-			if ( is_user_logged_in() && ( $active_signup == 'all' || $active_signup == 'blog' ) ) {
+			if ( is_user_logged_in() && ( $active_signup == 'all' || $active_signup == 'blog' ) )
 				$action = 'another_blog';
-			} elseif ( is_user_logged_in() == false && ( $active_signup == 'all' || $active_signup == 'user' ) ) {
+			elseif ( is_user_logged_in() == false && ( $active_signup == 'all' || $active_signup == 'user' ) )
 				$action = 'sign_up';
-			} elseif ( is_user_logged_in() == false && ( $active_signup == 'blog' ) ) {
+			elseif ( is_user_logged_in() == false && ( $active_signup == 'blog' ) )
 				$action = 'no_register';
-			} else {
+			else
 				$action = 'no_new_blog';
-			}
 
 			// WP hook
 			// Render regardless if user can sign up
@@ -127,7 +69,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			do_action( 'preprocess_signup_form' );
 			$content .= ob_get_clean();
 
-			if ( 'sign_up' == $action || 'another_blog' == $action ) {
+			if( 'sign_up' == $action || 'another_blog' == $action ) {
 
 				// Need to first check if user can sign up
 				// WP hook
@@ -135,7 +77,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				do_action( 'before_signup_form' );
 				$content .= ob_get_clean();
 
-				$user_name  = '';
+				$user_name = '';
 				$user_email = '';
 
 				$content .= '<h2>' . esc_html__( 'Setup your site', 'psts' ) . '</h2>';
@@ -146,14 +88,14 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				ob_start();
 				do_action( 'signup_hidden_fields', 'validate-user' );
 				$content .= ob_get_clean();
-				$content .= self::render_user_section( $errors, $user_name, $user_email );
+				$content .= self::render_user_section( $render_data, $errors, $user_name, $user_email );
 
 				// BLOG SECTION
 				ob_start();
 				do_action( 'signup_hidden_fields', 'validate-site' );
 				// do_action( 'signup_hidden_fields', 'create-another-site' );
 				$content .= ob_get_clean();
-				$content .= self::render_blog_section( $errors );
+				$content .= self::render_blog_section( $render_data, $errors );
 
 				$content .= '<div><input type="button" id="check-prosite-blog" value="' . esc_attr__( 'Reserve your site', 'psts' ) . '" /></div>';
 				$content .= '<div class="hidden" id="registration_processing">
@@ -175,15 +117,15 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 		}
 
-		private static function render_user_section( $errors, $user_name, $user_email ) {
+		private static function render_user_section( $render_data = array(), $errors, $user_name, $user_email ) {
 
 			$content = '<div>';
 
-			if ( ! is_user_logged_in() ) {
+			if( ! is_user_logged_in() ) {
 
 				$content .= '<div class="username"><label for="user_name">' . __( 'Username:' ) . '</label>';
-				if ( $errmsg = $errors->get_error_message( 'user_name' ) ) {
-					$content .= '<p class="error">' . $errmsg . '</p>';
+				if ( $errmsg = $errors->get_error_message('user_name') ) {
+					$content .= '<p class="error">' .$errmsg. '</p>';
 				}
 
 				$content .= '<input name="user_name" type="text" id="user_name" value="' . esc_attr( $user_name ) . '" maxlength="60" />';
@@ -191,15 +133,15 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= '</div>';
 
 				$content .= '<div class="email"><label for="user_email">' . __( 'Email&nbsp;Address:', 'psts' ) . '</label>';
-				if ( $errmsg = $errors->get_error_message( 'user_email' ) ) {
-					$content .= '<p class="error">' . $errmsg . '</p>';
+				if ( $errmsg = $errors->get_error_message('user_email') ) {
+					$content .= '<p class="error">' . $errmsg  . '</p>';
 				}
 
-				$content .= '<input name="user_email" type="email" id="user_email" value="' . esc_attr( $user_email ) . '" maxlength="200" /><br />';
-				$content .= __( 'We send your registration email to this address. (Double-check your email address before continuing.)' );
+				$content .= '<input name="user_email" type="email" id="user_email" value="' . esc_attr($user_email) . '" maxlength="200" /><br />';
+				$content .= __('We send your registration email to this address. (Double-check your email address before continuing.)');
 				$content .= '</div>';
 
-				if ( $errmsg = $errors->get_error_message( 'generic' ) ) {
+				if ( $errmsg = $errors->get_error_message('generic') ) {
 					$content .= '<p class="error">' . $errmsg . '</p>';
 				}
 				ob_start();
@@ -217,20 +159,20 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			return $content;
 		}
 
-		private static function render_blog_section( $errors, $blogname = '', $blog_title = '' ) {
+		private static function render_blog_section( $render_data = array(), $errors, $blogname = '', $blog_title = '' ) {
 			$current_site = get_current_site();
-			$content      = '<div>';
+			$content = '<div>';
 
 			// Blog name
 //			if ( !is_subdomain_install() ) {
-			$content .= '<div class="blogname"><label for="blogname">' . __( 'Your Site: ' ) . '</label>';
+			$content .= '<div class="blogname"><label for="blogname">' . __('Your Site: ') . '</label>';
 //			} else {
 //				$content .= '<label for="blogname">' . __('Site Domain:') . '</label>';
 //			}
-			if ( $errmsg = $errors->get_error_message( 'blogname' ) ) {
+			if ( $errmsg = $errors->get_error_message('blogname') ) {
 				$content .= '<p class="error">' . $errmsg . '</p>';
 			}
-			if ( ! is_subdomain_install() ) {
+			if ( !is_subdomain_install() ) {
 				$content .= '<span class="prefix_address">' . $current_site->domain . $current_site->path . '</span><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /></div>';
 			} else {
 				$content .= '<input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span></div>';
@@ -244,14 +186,14 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 //				$content .= '<p>(<strong>' . sprintf( __('Your address will be %s.', 'psts' ), $site ) . '</strong>) ' . __( 'Must be at least 4 characters, letters and numbers only. It cannot be changed, so choose carefully!', 'psts' ) . '</p>';
 //			}
 
-			$content .= '<div class="blog_title"><label for="blog_title">' . esc_html__( 'Site Title:', 'psts' ) . '</label>';
-			if ( $errmsg = $errors->get_error_message( 'blog_title' ) ) {
+			$content .= '<div class="blog_title"><label for="blog_title">' . esc_html__('Site Title:', 'psts' ) . '</label>';
+			if ( $errmsg = $errors->get_error_message('blog_title') ) {
 				$content .= '<p class="error">' . $errmsg . '</p>';
 			}
-			$content .= '<input name="blog_title" type="text" id="blog_title" value="' . esc_attr( $blog_title ) . '" /></div>';
+			$content .= '<input name="blog_title" type="text" id="blog_title" value="'.esc_attr( $blog_title ) . '" /></div>';
 
-			$yes_checked = ! isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1' ? 'checked="checked"' : '';
-			$no_checked  = isset( $_POST['blog_public'] ) && $_POST['blog_public'] == '0' ? 'checked="checked"' : '';
+			$yes_checked = !isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1' ? 'checked="checked"' : '';
+			$no_checked = isset( $_POST['blog_public'] ) && $_POST['blog_public'] == '0' ? 'checked="checked"' : '';
 
 			$content .= '<div id="privacy">
         		<p class="privacy-intro">
@@ -259,11 +201,11 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			            esc_html__( 'Allow search engines to index this site.', 'psts' ) .
 			            '<br style="clear:both" />
 	                <label class="checkbox" for="blog_public_on">
-		                <input type="radio" id="blog_public_on" name="blog_public" value="1" ' . $yes_checked . '/>
+		                <input type="radio" id="blog_public_on" name="blog_public" value="1" ' . $yes_checked  . '/>
 		                <strong>' . esc_html__( 'Yes', 'psts' ) . '</strong>
 	                </label>
 	                <label class="checkbox" for="blog_public_off">
-		                <input type="radio" id="blog_public_off" name="blog_public" value="0" ' . $no_checked . '/>
+		                <input type="radio" id="blog_public_off" name="blog_public" value="0" ' . $no_checked  . '/>
 		                <strong>' . esc_html__( 'No', 'psts' ) . '</strong>
 	                </label>
         		</p>
@@ -277,70 +219,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			return $content;
 
-		}
-
-		private static function show_blog_form( $blogname = '', $blog_title = '', $errors = '' ) {
-			$current_site = get_current_site();
-			// Blog name
-			if ( ! is_subdomain_install() ) {
-				echo '<label for="blogname">' . __( 'Site Name:' ) . '</label>';
-			} else {
-				echo '<label for="blogname">' . __( 'Site Domain:' ) . '</label>';
-			}
-
-			if ( $errmsg = $errors->get_error_message( 'blogname' ) ) { ?>
-				<p class="error"><?php echo $errmsg ?></p>
-			<?php }
-
-			if ( ! is_subdomain_install() ) {
-				echo '<span class="prefix_address">' . $current_site->domain . $current_site->path . '</span><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><br />';
-			} else {
-				echo '<input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span><br />';
-			}
-
-			if ( ! is_user_logged_in() ) {
-				if ( ! is_subdomain_install() ) {
-					$site = $current_site->domain . $current_site->path . __( 'sitename' );
-				} else {
-					$site = __( 'domain' ) . '.' . $site_domain . $current_site->path;
-				}
-				echo '<p>(<strong>' . sprintf( __( 'Your address will be %s.' ), $site ) . '</strong>) ' . __( 'Must be at least 4 characters, letters and numbers only. It cannot be changed, so choose carefully!' ) . '</p>';
-			}
-
-			// Blog Title
-			?>
-			<label for="blog_title"><?php _e( 'Site Title:' ) ?></label>
-			<?php if ( $errmsg = $errors->get_error_message( 'blog_title' ) ) { ?>
-				<p class="error"><?php echo $errmsg ?></p>
-			<?php }
-			echo '<input name="blog_title" type="text" id="blog_title" value="' . esc_attr( $blog_title ) . '" />';
-			?>
-
-			<div id="privacy">
-				<p class="privacy-intro">
-					<label for="blog_public_on"><?php _e( 'Privacy:' ) ?></label>
-					<?php _e( 'Allow search engines to index this site.' ); ?>
-					<br style="clear:both"/>
-					<label class="checkbox" for="blog_public_on">
-						<input type="radio" id="blog_public_on" name="blog_public" value="1" <?php if ( ! isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1') { ?>checked="checked"<?php } ?> />
-						<strong><?php _e( 'Yes' ); ?></strong>
-					</label>
-					<label class="checkbox" for="blog_public_off">
-						<input type="radio" id="blog_public_off" name="blog_public" value="0" <?php if (isset( $_POST['blog_public'] ) && $_POST['blog_public'] == '0') { ?>checked="checked"<?php } ?> />
-						<strong><?php _e( 'No' ); ?></strong>
-					</label>
-				</p>
-			</div>
-
-			<?php
-			/**
-			 * Fires after the site sign-up form.
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param array $errors An array possibly containing 'blogname' or 'blog_title' errors.
-			 */
-			do_action( 'signup_blogform', $errors );
 		}
 
 
