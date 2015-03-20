@@ -3,8 +3,17 @@
 if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 	class ProSites_View_Front_Gateway {
 
-		public static function render_checkout( $blog_id, $domain ) {
+		public static function render_checkout( $render_data = array(), $blog_id = false, $domain = false ) {
 			global $psts;
+
+			// Try going stateless, or check the session
+			if( empty( $render_data ) ) {
+				$render_data = array();
+				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+			}
+			if( ! isset( $render_data['upgraded_blog_details'] ) ) {
+				$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
+			}
 
 			$content = '';
 
@@ -23,18 +32,21 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			 * -------------
 			 */
 			if( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' ) ) {
-				$primary_args = call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_checkout_form', $blog_id, $domain );
+				$primary_args = call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' ) ) {
-				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $blog_id, $domain );
+				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
-				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $blog_id, $domain );
+				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 
 			$tabbed = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
-			$hidden_class = ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['blogname'] ) ) || isset( $_SESSION['upgraded_blog_details'] ) ? '' : $hidden_class;
+			/**
+			 * @todo Deal with upgraded_blog_details session
+			 */
+			$hidden_class = ( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
@@ -61,21 +73,21 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Primary
 			if( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
-				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $primary_args, $blog_id, $domain );
+				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
 				$content .= '</div>';
 			}
 
 			// Secondary
 			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
-				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $secondary_args, $blog_id, $domain, false );
+				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 				$content .= '</div>';
 			}
 
 			// Manual
 			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
-				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $manual_args, $blog_id, $domain, false );
+				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
 				$content .= '</div>';
 			}
 			$content .= '</div>';
@@ -84,7 +96,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		}
 
-		public static function render_current_plan_information( $blog_id, $domain, $gateways, $gateway_order ) {
+		public static function render_current_plan_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
 			global $psts, $wpdb, $current_site, $current_user, $current_prosite_blog;
 
 			$site_name = $current_site->site_name;
@@ -248,7 +260,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			return $content;
 		}
 
-		public static function render_notification_information( $blog_id, $domain, $gateways, $gateway_order ) {
+		public static function render_notification_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
 			$content = '';
 			$info_retrieved = '';
 
@@ -272,17 +284,21 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
 
+			$session_data = array();
+			$session_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+			$session_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
+
 			// No existing details for a new signup
-			if( ! is_user_logged_in() || isset( $_SESSION['new_blog_details'] ) ) {
+			if( ! is_user_logged_in() || isset( $session_data['new_blog_details'] ) ) {
 				$pre_content = '';
 
-				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['payment_success'] ) && true === $_SESSION['new_blog_details']['payment_success'] ) ||
-				    ( isset( $_SESSION['upgraded_blog_details'] ) && isset( $_SESSION['upgraded_blog_details']['payment_success'] ) && true === $_SESSION['upgraded_blog_details']['payment_success'] ) ) {
+				if( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
+				    ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] ) ) {
 					$pre_content .= self::render_payment_submitted();
 				}
 
 				// Check manual payments
-				if( ( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['manual_submitted'] ) && true === $_SESSION['new_blog_details']['manual_submitted'] ) ) {
+				if( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['manual_submitted'] ) && true === $session_data['new_blog_details']['manual_submitted'] ) ) {
 					$pre_content .= self::render_manual_submitted();
 				}
 
@@ -297,27 +313,33 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				// EXISTING DETAILS
 				if( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
-					$plan_content = self::render_current_plan_information( $blog_id, $domain, $gateways, $gateway_order );
+					$plan_content = self::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
 					$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
 				}
 			} else {
 				// NOTIFICATIONS ONLY
 
-				$plan_content = self::render_notification_information( $blog_id, $domain, $gateways, $gateway_details['order'] );
+				$plan_content = self::render_notification_information( array(), $blog_id, $domain, $gateways, $gateway_details['order'] );
 			}
 
 			return $plan_content . $content;
 
 		}
 
-		public static function render_manual_submitted () {
+		public static function render_manual_submitted ( $render_data = array() ) {
 			global $psts;
+
+			// Try going stateless, or check the session
+			if( empty( $render_data ) ) {
+				$render_data = array();
+				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+			}
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$email = $_SESSION['new_blog_details']['email'];
-			$blogname = $_SESSION['new_blog_details']['blogname'];
-			$blog_title = $_SESSION['new_blog_details']['title'];
+			$email = $render_data['new_blog_details']['email'];
+			$blogname = $render_data['new_blog_details']['blogname'];
+			$blog_title = $render_data['new_blog_details']['title'];
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
@@ -331,24 +353,30 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			do_action( 'signup_pending' );
 			$content .= ob_get_clean();
 
-			unset( $_SESSION['new_blog_details'] );
-			unset( $_SESSION['upgraded_blog_details'] );
-			unset( $_SESSION['blog_activation_key'] );
+			ProSites_Helper_Session::unset_session( 'new_blog_details' );
+			ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+			ProSites_Helper_Session::unset_session( 'activation_key' );
 
 			return $content;
 		}
 
-		public static function render_free_confirmation() {
+		public static function render_free_confirmation( $render_data = array() ) {
 			global $psts;
+
+			// Try going stateless, or check the session
+			if( empty( $render_data ) ) {
+				$render_data = array();
+				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+			}
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$username = $_SESSION['new_blog_details']['username'];
-			$userpass = __( '(password emailed to you)', 'psts' );
-			$email = $_SESSION['new_blog_details']['email'];
-			$blogname = $_SESSION['new_blog_details']['blogname'];
-			$blog_title = $_SESSION['new_blog_details']['title'];
-			$blog_id = $_SESSION['new_blog_details']['blog_id'];
+			$username = $render_data['new_blog_details']['username'];
+			$userpass = isset( $render_data['new_blog_details']['user_pass'] ) ? isset( $render_data['new_blog_details']['user_pass'] ) : __( '(password emailed to you)', 'psts' );
+			$email = $render_data['new_blog_details']['email'];
+			$blogname = $render_data['new_blog_details']['blogname'];
+			$blog_title = $render_data['new_blog_details']['title'];
+			$blog_id = $render_data['new_blog_details']['blog_id'];
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
@@ -381,33 +409,45 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			do_action( 'signup_finished' );
 			$content .= ob_get_clean();
 
-			unset( $_SESSION['new_blog_details'] );
-			unset( $_SESSION['upgraded_blog_details'] );
-			unset( $_SESSION['blog_activation_key'] );
+			ProSites_Helper_Session::unset_session( 'new_blog_details' );
+			ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+			ProSites_Helper_Session::unset_session( 'activation_key' );
 
 			return $content;
 
 		}
 
-		public static function render_payment_submitted( $show_trial = false ) {
+		public static function render_payment_submitted( $render_data = array(), $show_trial = false ) {
 			global $psts;
+
+			// Try going stateless, or check the session
+			if( empty( $render_data ) ) {
+				$render_data = array();
+				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+			}
+			if( ! isset( $render_data['upgraded_blog_details'] ) ) {
+				$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
+			}
 
 			$content = '<div id="psts-payment-info-received">';
 
 			$email = '';
 			if( ! is_user_logged_in() ) {
-				if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['email'] ) ) {
-					$email = $_SESSION['new_blog_details']['email'];
+				if( isset( $render_data['new_blog_detail'] ) && isset( $render_data['new_blog_details']['email'] ) ) {
+					$email = $render_data['new_blog_details']['email'];
 				}
 			} else {
 				$user = wp_get_current_user();
 				$email = $user->user_email;
 			}
 
+			/**
+			 * @todo: update $_SESSION for 'upgraded_blog_details'
+			 */
 			// Get the blog id... try the session or get it from the database
-			$upgrade_blog_id = isset( $_SESSION['upgraded_blog_details']['blog_id'] ) ? $_SESSION['upgraded_blog_details']['blog_id'] : 0;
-			$new_blog_id = isset( $_SESSION['new_blog_details']['blog_id'] ) ? $_SESSION['new_blog_details']['blog_id'] : 0;
-			$new_blog_name = isset( $_SESSION['new_blog_details']['blogname'] ) ? $_SESSION['new_blog_details']['blogname'] : '';
+			$upgrade_blog_id = isset( $render_data['upgraded_blog_details']['blog_id'] ) ? $render_data['upgraded_blog_details']['blog_id'] : 0;
+			$new_blog_id = isset( $render_data['new_blog_details']['blog_id'] ) ? $render_data['new_blog_details']['blog_id'] : 0;
+			$new_blog_name = isset( $render_data['new_blog_details']['blogname'] ) ? $render_data['new_blog_details']['blogname'] : '';
 			$blog_id = ! empty( $upgrade_blog_id ) ? $upgrade_blog_id : ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $new_blog_name ) ? get_id_from_blogname( $new_blog_name ) : 0;
 
 			switch_to_blog( $blog_id );
@@ -424,9 +464,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$username = '';
 			$userpass = '';
-			if( isset( $_SESSION['new_blog_details']['username'] ) && isset( $_SESSION['new_blog_details']['user_pass'] ) ) {
-				$username = $_SESSION['new_blog_details']['username'];
-				$userpass = strrev( $_SESSION['new_blog_details']['user_pass'] );
+			if( isset( $render_data['new_blog_details']['username'] ) && isset( $render_data['new_blog_details']['user_pass'] ) ) {
+				$username = $render_data['new_blog_details']['username'];
+				$userpass = strrev( $render_data['new_blog_details']['user_pass'] );
 			} else {
 				$user = wp_get_current_user();
 				$username = $user->user_login;
@@ -455,9 +495,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '</div>';
 
-			unset( $_SESSION['new_blog_details'] );
-			unset( $_SESSION['upgraded_blog_details'] );
-			unset( $_SESSION['blog_activation_key'] );
+			ProSites_Helper_Session::unset_session( 'new_blog_details' );
+			ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+			ProSites_Helper_Session::unset_session( 'activation_key' );
 
 			return $content;
 		}

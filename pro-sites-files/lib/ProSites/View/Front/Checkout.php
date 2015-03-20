@@ -10,20 +10,21 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts, $current_prosite_blog;
 
+			$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 			// If its in session, get it
-			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['level'] ) ) {
-				$selected_period = 'price_' . ( (int) $_SESSION['new_blog_details']['period'] );
-				$selected_level = (int) $_SESSION['new_blog_details']['level'];
+			if( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['level'] ) ) {
+				$selected_period = 'price_' . ( (int) $session_data['new_blog_details']['period'] );
+				$selected_level = (int) $session_data['new_blog_details']['level'];
 			}
 
 			// User is not logged in and this is not a new registration.
 			// Get them to sign up! (or login)
-			if( empty( $blog_id ) && ! isset( $_SESSION['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
+			if( empty( $blog_id ) && ! isset( $session_data['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
 				self::$new_signup = true;
 			}
 			// Get blog_id from the session...
-			if( isset( $_SESSION['new_blog_details'] ) && isset( $_SESSION['new_blog_details']['blog_id'] ) ) {
-				$blog_id = $_SESSION['new_blog_details']['blog_id'];
+			if( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['blog_id'] ) ) {
+				$blog_id = $session_data['new_blog_details']['blog_id'];
 			}
 			// Or if we're at checkout and already have a blog (1 blog only!)
 			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
@@ -58,7 +59,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			// Hook for the gateways
 //			$content = apply_filters( 'psts_checkout_output', $content, $blog_id, $domain );
-			$content .= ProSites_View_Front_Gateway::render_checkout( $blog_id, $domain );
+			$content .= ProSites_View_Front_Gateway::render_checkout( array(), $blog_id, $domain );
 
 			return apply_filters( 'prosites_render_checkout_page', $content, $blog_id, $domain );
 
@@ -553,9 +554,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		public static function render_free( $style, $blog_id ) {
 			global $psts;
+
+			$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
+
 			$free_text = $psts->get_setting('free_msg');
 			$content = '';
-			if ( ! isset( $_GET['bid'] ) && empty( $blog_id ) && ! isset( $_SESSION['new_blog_details']['blogname'] ) ) {
+			if ( ! isset( $_GET['bid'] ) && empty( $blog_id ) && ! isset( $session_data['new_blog_details']['blogname'] ) ) {
 				$content = '<div class="free-plan-link" style="' . esc_attr( $style ) . '"><a>' . esc_html( $free_text ) . '</a></div>';
 			} else {
 				if( empty( $blog_id ) && ! empty( $_GET['bid'] ) ) {

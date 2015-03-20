@@ -2603,14 +2603,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		);
 	}
 
-	public static function render_gateway( $args, $blog_id, $domain, $prefer_cc = true ) {
+	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
 
 		$content =  __( 'PayPal Gateway', 'psts' );
 
 		return $content;
 	}
 
-	public static function process_checkout_form( $blog_id, $domain ) {
+	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 
 	}
 
