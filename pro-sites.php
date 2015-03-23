@@ -1367,7 +1367,7 @@ Thanks!", 'psts' ),
 					$payment_info .= sprintf( '<hr />' );
 					if( $zero_cost_change ) {
 						// No cost to upgrade
-						$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( 0 ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false,  0 ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 					} else {
 						$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] + $args['plan_change_amount'] - $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 					}
