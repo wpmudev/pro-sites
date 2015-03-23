@@ -1173,7 +1173,8 @@ class ProSites_Gateway_Stripe {
 				return false;
 			}
 
-			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300; //last extended + 5 minutes
+			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 60;
+//			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300; //last extended + 5 minutes
 
 			if ( time() < $extend_window ) {
 				/* blog has already been extended by another webhook within the past
@@ -1271,7 +1272,10 @@ class ProSites_Gateway_Stripe {
 						$plan_amount   = $subscription->plan_amount;
 						$amount        = $subscription->subscription_amount;
 						$setup_fee_amt = $subscription->setup_fee;
-						$has_setup_fee = ! empty( $setup_fee_amt );
+						$has_setup_fee = $subscription->has_setup_fee;
+						$plan_change_amount = $subscription->plan_change_amount;
+						$has_plan_change = $subscription->plan_change;
+						$plan_change_mode = $subscription->plan_change_mode;
 						$discount_amount = $subscription->discount_amount;
 						$has_discount = $subscription->has_discount;
 						break;
@@ -1318,6 +1322,8 @@ class ProSites_Gateway_Stripe {
 				switch ( $event_type ) {
 					case 'invoice.payment_succeeded' :
 						$psts->log_action( $blog_id, sprintf( __( 'Stripe webhook "%s" received: The %s payment was successfully received. Date: "%s", Charge ID "%s"', 'psts' ), $event_type, $amount_formatted, $date, $charge_id ) );
+
+						$charge_amount = $plan_amount;
 						$args = array();
 						if ( $has_setup_fee ) {
 							$args['setup_amount'] = $setup_fee_amt;
@@ -1325,7 +1331,12 @@ class ProSites_Gateway_Stripe {
 						if( $has_discount ) {
 							$args['discount_amount'] = $discount_amount;
 						}
-						self::maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end, true, true, $args );
+						if( $has_plan_change ) {
+							$args['plan_change_amount'] = $plan_change_amount;
+							$args['plan_change_mode'] = $plan_change_mode;
+						}
+
+						self::maybe_extend( $blog_id, $period, $gateway, $level, $charge_amount, $plan_end, true, true, $args );
 						break;
 
 					case 'customer.subscription.created' :
@@ -1351,6 +1362,7 @@ class ProSites_Gateway_Stripe {
 						}
 
 						$psts->log_action( $blog_id, sprintf( __( 'Stripe webhook "%s" received. The customer\'s subscription was successfully updated to %2$s %3$s: %4$s every %5$s %6$s.', 'psts' ), $event_type, $site_name, $psts->get_level_setting( $level, 'name' ), $psts->format_currency( false, $plan_amount ), number_format_i18n( $period ), $period_string ) );
+
 						self::maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end );
 						break;
 
@@ -1446,20 +1458,40 @@ class ProSites_Gateway_Stripe {
 			return false;
 		}
 
-		// Get the subscription first
 		$subscription = false;
 		$coupon = false;
+		$has_setup = false;
+		$setup_fee_amount = 0;
+		$plan_change = false;
 
 		if ( $from_invoice ) {
+			$last_line_item = false;
+
+			if( isset( $object->metadata->plan_change ) && 'yes' == $object->metadata->plan_change ) {
+				$plan_change = true;
+			}
 			foreach ( $object->lines->data as $line_item ) {
+				$last_line_item = $line_item;
 				if ( 'subscription' == $line_item->type ) {
 					$subscription = $line_item;
-					break;
+				}
+				if( isset( $line_item->metadata->setup_fee ) && 'yes' == $line_item->metadata->setup_fee ) {
+					$has_setup = true;
+					$setup_fee_amount = $line_item->amount / 100;
 				}
 			}
-			if ( ! $subscription ) {
+			if ( ! $subscription && ! $last_line_item ) {
 				return false;
 			}
+			if( ! $subscription ) {
+				if( 'invoiceitem' == $line_item->type && isset( $line_item->subscription ) && isset( $line_item->period ) && isset( $line_item->plan ) ) {
+					$customer = Stripe_Customer::retrieve( $object->customer );
+					$subscription = $customer->subscriptions->retrieve( $line_item->subscription );
+				} else {
+					return false;
+				}
+			}
+
 			if( isset( $object->discount) && isset( $object->discount->coupon ) ) {
 				$coupon = $object->discount->coupon;
 			}
@@ -1501,14 +1533,20 @@ class ProSites_Gateway_Stripe {
 		$subscription->has_discount = empty( $coupon ) ? false : true;
 
 		// Get setup fee
-		if( ! $coupon ) {
-			$subscription->setup_fee     = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
-		} else {
-			$invoice_total = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
-			// Adjust calculation by adding the discount back...
-			$subscription->setup_fee = $invoice_total + $subscription->discount_amount;
+		$subscription->setup_fee = $setup_fee_amount;
+		$subscription->has_setup_fee = $has_setup;
+
+		$subscription->plan_change_amount = isset( $subscription->invoice_total ) ? $subscription->invoice_total - $subscription->subscription_amount : 0;
+		if( $coupon && $plan_change ) {
+			$subscription->plan_change_amount + $subscription->discount_amount;
 		}
-		$subscription->has_setup_fee = empty( $subscription->setup_fee ) ? false : true;
+		$subscription->plan_change = $plan_change;
+		//inverse
+		if( $subscription->plan_change_amount < 0 ) {
+			$subscription->plan_change_mode = 'upgrade';
+		} else {
+			$subscription->plan_change_mode = 'downgrade';
+		}
 
 		return $subscription;
 	}
@@ -2074,7 +2112,9 @@ class ProSites_Gateway_Stripe {
 							try {
 								$sub          = $c->subscriptions->retrieve( $customer_data->subscription_id );
 								$sub_id       = $sub->id;
+								$prev_plan    = $sub->plan->id;
 								$sub->plan    = isset( $args['plan'] ) ? $args['plan'] : $sub->plan;
+								$changed_plan = $sub->plan;
 								$sub->prorate = isset( $args['prorate'] ) ? $args['prorate'] : $sub->prorate;
 								if ( isset( $args['coupon'] ) ) {
 									$sub->coupon = $args['coupon'];
@@ -2099,6 +2139,22 @@ class ProSites_Gateway_Stripe {
 								}
 
 								$sub->save();
+
+								// As per Stripe API, to charge immediately, apply an invoice now
+								if( $prev_plan != $changed_plan ) {
+									$customer_args = array(
+										'customer'     => $customer_id,
+										'subscription' => $sub_id,
+										'metadata'     => array(
+											'plan_change' => 'yes',
+										),
+									);
+									$invoice = Stripe_Invoice::create( $customer_args );
+									$invoice = $invoice->pay();
+
+								}
+
+
 							} catch ( Exception $e ) {
 								// Fall through...
 							}
