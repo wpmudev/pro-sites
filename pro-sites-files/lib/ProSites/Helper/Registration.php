@@ -52,8 +52,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 					'remember' => true,
 				);
 				$user = wp_signon( $creds );
-
-				error_log( "\n\n\n" . $password . "\n\n\n" );
+				
 			}
 
 			$result = array(
