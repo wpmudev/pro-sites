@@ -463,10 +463,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			$username = '';
-			$userpass = '';
-			if( isset( $render_data['new_blog_details']['username'] ) && isset( $render_data['new_blog_details']['user_pass'] ) ) {
+			$userpass = isset( $render_data['new_blog_details']['user_pass'] ) ? $render_data['new_blog_details']['user_pass'] : '';
+			if( isset( $render_data['new_blog_details']['username'] ) ) {
 				$username = $render_data['new_blog_details']['username'];
-				$userpass = strrev( $render_data['new_blog_details']['user_pass'] );
 			} else {
 				$user = wp_get_current_user();
 				$username = $user->user_login;
@@ -475,7 +474,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
 			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
 			// Any passwords for existing users here will be wrong, so just don't display it.
-			if( ! is_user_logged_in() ) {
+			if( ! empty( $userpass ) ) {
 				$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
 			}
 			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';

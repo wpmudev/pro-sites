@@ -99,7 +99,11 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 						// Create the signup
 						$meta = apply_filters( 'add_signup_meta', $signup_meta );
-						$blog_data['activation_key'] = ProSites_Helper_Registration::signup_blog($domain, $path, $blog_title, $user_name, $user_email, $meta);
+						$result = ProSites_Helper_Registration::signup_blog($domain, $path, $blog_title, $user_name, $user_email, $meta);
+						$blog_data['activation_key'] = $result['activation_key'];
+						if( isset( $result['user_pass'] ) && ! empty( $result['user_pass'] ) ) {
+							$blog_data['new_blog_details']['user_pass'] = $result['user_pass'];
+						}
 
 						$trial_days = $psts->get_setting( 'trial_days', 0 );
 						$trial_active = ! empty( $trial_days );
@@ -118,7 +122,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment information has been verified your trial period will begin. When your trial ends you will be automatically upgraded to your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
 							} else {
 								// Non-recurring sites really should not do anything at checkout other than activate.
-								$result = ProSites_Helper_Registration::activate_blog( $blog_data['activation_key'], true, $period, $level );
+								$result = ProSites_Helper_Registration::activate_blog( $blog_data, true, $period, $level );
 								$blog_id = $result['blog_id'];
 								if( isset( $result['password'] ) ) {
 									$blog_data['new_blog_details']['user_pass'] = $result['password'];
@@ -138,7 +142,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							if( isset( $blog_data['new_blog_details']['reserved_message'] ) ) {
 								unset( $blog_data['new_blog_details']['reserved_message'] );
 							}
-							$result = ProSites_Helper_Registration::activate_blog( $blog_data['activation_key'], false, false, false );
+							$result = ProSites_Helper_Registration::activate_blog( $blog_data, false, false, false );
 							$blog_data['new_blog_details']['blog_id'] = $result['blog_id'];
 							if( isset( $result['password'] ) ) {
 								$blog_data['new_blog_details']['user_pass'] = $result['password'];

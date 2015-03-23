@@ -1227,10 +1227,11 @@ class ProSites_Gateway_Stripe {
 				// Create generic class from Stripe\Subscription class
 
 				if ( ! empty( $subscription->blog_id ) ) {
-					$blog_id = $subscription->blog_id;
+					$blog_id = (int) $subscription->blog_id;
 				} else if ( ! empty( $subscription ) ) {
 					// activate to get ID
-					$blog_id = ProSites_Helper_Registration::activate_blog( $subscription->activation, $subscription->is_trial, $subscription->period, $subscription->level, $subscription->trial_end );
+					$result = ProSites_Helper_Registration::activate_blog( $subscription->activation, $subscription->is_trial, $subscription->period, $subscription->level, $subscription->trial_end );
+					$blog_id = $result['blog_id'];
 					// set new ID
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id );
 				}
@@ -1483,7 +1484,7 @@ class ProSites_Gateway_Stripe {
 		$subscription->period     = isset( $subscription->metadata->period ) ? $subscription->metadata->period : false;
 		$subscription->level      = isset( $subscription->metadata->level ) ? $subscription->metadata->level : false;
 		$subscription->activation = isset( $subscription->metadata->activation ) ? $subscription->metadata->activation : false;
-		$subscription->blog_id    = isset( $subscription->metadata->blog_id ) ? $subscription->metadata->blog_id : false;
+		$subscription->blog_id    = isset( $subscription->metadata->blog_id ) ? (int) $subscription->metadata->blog_id : false;
 		if ( empty( $subscription->blog_id ) ) {
 			$subscription->blog_id = ProSites_Helper_ProSite::get_blog_id( $subscription->activation );
 		}
@@ -2127,7 +2128,8 @@ class ProSites_Gateway_Stripe {
 							$level      = array_pop( $plan_parts );
 							$trial      = isset( $plan->status ) && 'trialing' == $plan->status ? true : false;
 							$expire     = $trial ? $plan->trial_end : $result->current_period_end;
-							$blog_id    = ProSites_Helper_Registration::activate_blog( $activation_key, $trial, $period, $level, $expire );
+							$result     = ProSites_Helper_Registration::activate_blog( $activation_key, $trial, $period, $level, $expire );
+							$blog_id    = $result['blog_id'];
 
 							if ( isset( $process_data['new_blog_details'] ) ) {
 								ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
@@ -2197,7 +2199,8 @@ class ProSites_Gateway_Stripe {
 						if ( $result ) {
 							$period  = (int) $_POST['period'];
 							$level   = (int) $_POST['level'];
-							$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, false, $period, $level );
+							$result  = ProSites_Helper_Registration::activate_blog( $activation_key, false, $period, $level );
+							$blog_id = $result['blog_id'];
 							if ( isset( $process_data['new_blog_details'] ) ) {
 								ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
 								ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );

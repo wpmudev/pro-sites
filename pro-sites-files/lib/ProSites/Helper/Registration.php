@@ -4,6 +4,8 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 	class ProSites_Helper_Registration {
 
+		public static $temp_pass = false;
+
 		/**
 		 * Add a blog to *_signups table.
 		 *
@@ -38,6 +40,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				'meta' => $meta
 			) );
 
+			$password = false;
 			// Activate the user and attempt a login (because we want WP sessions)
 			$user_id = username_exists( $user );
 			if ( ! $user_id ) {
@@ -49,13 +52,41 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 					'remember' => true,
 				);
 				$user = wp_signon( $creds );
+
+				error_log( "\n\n\n" . $password . "\n\n\n" );
 			}
 
-			return $key;
+			$result = array(
+				'activation_key' => $key,
+				'user_pass' => $password,
+			);
+
+			return $result;
 		}
 
-		public static function activate_blog( $key, $trial = false, $period = 1, $level = 1, $expire = false ) {
+		public static function activate_blog( $data, $trial = false, $period = 1, $level = 1, $expire = false ) {
 			global $psts, $wpdb;
+
+			$user_pass = false;
+
+			if( ! is_array( $data ) ) {
+				$key = $data;
+			} else {
+				$key = isset( $data['activation_key'] ) ? $data['activation_key'] : false;
+				$user_pass = isset( $data['new_blog_details']['user_pass'] ) ? $data['new_blog_details']['user_pass'] : false;
+			}
+			if( empty( $key ) ) {
+				return false;
+			}
+
+			// In case we're in session
+			$session_data[ 'new_blog_details' ] = ProSites_Helper_Session::session( 'new_blog_details' );
+			$user_pass = empty( $user_pass ) && isset( $session_data['new_blog_details']['user_pass'] ) ? $session_data['new_blog_details']['user_pass'] : $user_pass;
+
+			if( ! empty( $user_pass ) ) {
+				self::$temp_pass = $user_pass;
+				add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'update_welcome_email' ), 10, 6 );
+			}
 
 			// Activate the user signup
 			$result = wpmu_activate_signup( $key );
@@ -78,7 +109,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 					$blog_id = domain_exists( $domain, $signup->path, $wpdb->siteid );
 				}
 				$result['user_id'] = $user_id;
-				$result['blog_id'] = $blog_id;
+				$result['blog_id'] = (int) $blog_id;
 			}
 
 			/**
@@ -122,6 +153,9 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				//update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 			}
 
+			if( ! empty( $user_pass ) ) {
+				$result['password'] = $user_pass;
+			}
 			// Contains $result['password'] for new users
 			return $result;
 		}
@@ -162,6 +196,13 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 			if( count( $blogs_of_user )  > 1 ) {
 				$welcome_email = str_replace( $password, __( '(your current password)', 'psts' ), $welcome_email );
+			}
+			return $welcome_email;
+		}
+
+		public static function update_welcome_email( $welcome_email, $blog_id, $user_id, $password, $title, $meta ) {
+			if( ! empty( self::$temp_pass ) ) {
+				$welcome_email = str_replace( $password, self::$temp_pass, $welcome_email );
 			}
 			return $welcome_email;
 		}
