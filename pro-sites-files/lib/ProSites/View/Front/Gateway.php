@@ -41,6 +41,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 
+			// If site modified, apply this filter... has to happen after form processing.
+			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
+			if( isset( $render_data['plan_updated'] ) ) {
+				add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
+			}
+
 			$tabbed = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
 			/**
@@ -497,6 +503,51 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			ProSites_Helper_Session::unset_session( 'new_blog_details' );
 			ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
 			ProSites_Helper_Session::unset_session( 'activation_key' );
+
+			return $content;
+		}
+
+		public static function render_account_modified( $content, $blog_id, $domain ) {
+			global $psts;
+
+			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
+
+			// Exit as if this never happened
+			if( ! isset( $render_data['plan_updated'] ) || false == $render_data['plan_updated']['render'] ) {
+				return $content;
+			}
+
+			$level_list = get_site_option( 'psts_levels' );
+
+			$periods = array(
+				1 => __( 'monthly', 'psts' ),
+				3 => __( 'quarterly', 'psts' ),
+				12 => __( 'anually', 'psts' ),
+			);
+
+			$previous = '<strong>' . $level_list[ $render_data['plan_updated']['prev_level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['prev_period'] ] . ')';
+			$current = '<strong>' . $level_list[ $render_data['plan_updated']['level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['period'] ] . ')';
+
+			$blog_id = (int) $render_data['plan_updated']['blog_id'];
+
+			$content = '<div id="psts-payment-info-received">';
+
+			$user = wp_get_current_user();
+			$email = $user->user_email;
+
+			$content .= '<h2>' . esc_html__( 'Plan updated...', 'psts' ) . '</h2>';
+			$content .= '<p>' . sprintf( esc_html__( 'Your plan was successfully modified from %s to %s. You will receive a receipt email shortly to confirm this action.', 'psts' ), $previous, $current ) . '</p>';
+			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';
+			$content .= '<ul>' .
+			            '<li>' . esc_html__( 'Wait a little bit longer.', 'psts' ) . '</li>' .
+			            '<li>' . esc_html__( 'Check your spam folder just in case it ended up in there.', 'psts' ) . '</li>' .
+			            '<li>' . esc_html__( 'Make sure that your email address is correct (' . $email . ')', 'psts' ) . '</li>' .
+			            '</ul>';
+			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
+			$content .= '<a href="' . $psts->checkout_url( $blog_id ) . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';
+			$content .= '</div>';
+
+			ProSites_Helper_Session::unset_session( 'plan_updated' );
 
 			return $content;
 		}

@@ -2152,6 +2152,23 @@ class ProSites_Gateway_Stripe {
 									$invoice = Stripe_Invoice::create( $customer_args );
 									$invoice = $invoice->pay();
 
+									$plan_parts = explode( '_', $changed_plan );
+									$new_period = array_pop( $plan_parts );
+									$new_level = array_pop( $plan_parts );
+									$plan_parts = explode( '_', $prev_plan );
+									$prev_period = array_pop( $plan_parts );
+									$prev_level = array_pop( $plan_parts );
+
+									$updated = array(
+										'render'      => true,
+										'blog_id'     => $blog_id,
+										'level'       => $new_level,
+										'period'      => $new_period,
+										'prev_level'  => $prev_level,
+										'prev_period' => $prev_period,
+									);
+									ProSites_Helper_Session::session( 'plan_updated', $updated );
+
 								}
 
 
@@ -2345,6 +2362,7 @@ class ProSites_Gateway_Stripe {
 
 				update_blog_option( $blog_id, 'psts_stripe_waiting', 1 );
 				if ( empty( self::$complete_message ) ) {
+					// Message is redundant now, but still used as a flag.
 					self::$complete_message = __( 'Your payment was successfully recorded! You should be receiving an email receipt shortly.', 'psts' );
 				}
 
