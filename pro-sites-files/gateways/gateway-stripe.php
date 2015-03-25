@@ -1173,20 +1173,24 @@ class ProSites_Gateway_Stripe {
 				return false;
 			}
 
-			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 60;
-//			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300; //last extended + 5 minutes
+			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300; //last extended + 5 minutes
 
 			if ( time() < $extend_window ) {
 				/* blog has already been extended by another webhook within the past
-					 5 minutes - don't extend again */
+					 5 minutes - don't extend again, but send receipt if its a payment */
+				if( $is_payment ) {
+					$psts->email_notification( $blog_id, 'receipt', false, $args );
+				}
 				return false;
 			}
 		}
 
 		$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
 
-		//send receipt email - this needs to be done AFTER extend is called
-		$psts->email_notification( $blog_id, 'receipt', false, $args );
+		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
+		if( $is_payment ) {
+			$psts->email_notification( $blog_id, 'receipt', false, $args );
+		}
 
 		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
 
@@ -1271,6 +1275,7 @@ class ProSites_Gateway_Stripe {
 						$plan_end      = $subscription->period_end;
 						$plan_amount   = $subscription->plan_amount;
 						$amount        = $subscription->subscription_amount;
+						$invoice_items = $subscription->invoice_items;
 						$setup_fee_amt = $subscription->setup_fee;
 						$has_setup_fee = $subscription->has_setup_fee;
 						$plan_change_amount = $subscription->plan_change_amount;
@@ -1325,15 +1330,18 @@ class ProSites_Gateway_Stripe {
 
 						$charge_amount = $plan_amount;
 						$args = array();
-						if ( $has_setup_fee ) {
-							$args['setup_amount'] = $setup_fee_amt;
-						}
-						if( $has_discount ) {
-							$args['discount_amount'] = $discount_amount;
-						}
-						if( $has_plan_change ) {
-							$args['plan_change_amount'] = $plan_change_amount;
-							$args['plan_change_mode'] = $plan_change_mode;
+//						if ( $has_setup_fee ) {
+//							$args['setup_amount'] = $setup_fee_amt;
+//						}
+//						if( $has_discount ) {
+//							$args['discount_amount'] = $discount_amount;
+//						}
+//						if( $has_plan_change ) {
+//							$args['plan_change_amount'] = $plan_change_amount;
+//							$args['plan_change_mode'] = $plan_change_mode;
+//						}
+						if( $invoice_items ) {
+							$args['items'] = $invoice_items;
 						}
 
 						self::maybe_extend( $blog_id, $period, $gateway, $level, $charge_amount, $plan_end, true, true, $args );
@@ -1463,8 +1471,10 @@ class ProSites_Gateway_Stripe {
 		$has_setup = false;
 		$setup_fee_amount = 0;
 		$plan_change = false;
+		$invoice_items = false;
 
 		if ( $from_invoice ) {
+			$invoice_items = new ProSites_Model_Receipt();
 			$last_line_item = false;
 
 			if( isset( $object->metadata->plan_change ) && 'yes' == $object->metadata->plan_change ) {
@@ -1472,12 +1482,24 @@ class ProSites_Gateway_Stripe {
 			}
 			foreach ( $object->lines->data as $line_item ) {
 				$last_line_item = $line_item;
+				// Get subscription
 				if ( 'subscription' == $line_item->type ) {
 					$subscription = $line_item;
+					continue;
 				}
+				// Get setup fee
 				if( isset( $line_item->metadata->setup_fee ) && 'yes' == $line_item->metadata->setup_fee ) {
 					$has_setup = true;
 					$setup_fee_amount = $line_item->amount / 100;
+					$invoice_items->add_item( $setup_fee_amount, $line_item->description );
+					continue;
+				}
+				// Get upgrades/downgrades
+				if( $plan_change && $line_item->proration ) {
+					$plan_name = $line_item->plan->name;
+					$amount = $line_item->amount/100;
+					$invoice_items->add_item( $amount, sprintf( __( 'Plan Adjustments: %s', 'psts' ), $plan_name ) );
+					continue;
 				}
 			}
 			if ( ! $subscription && ! $last_line_item ) {
@@ -1529,8 +1551,19 @@ class ProSites_Gateway_Stripe {
 		$subscription->discount_amount = 0;
 		if( $coupon ) {
 			$subscription->discount_amount = $coupon->amount_off / 100;
+			if( $invoice_items ) {
+				$invoice_items->add_item( $subscription->discount_amount, __( 'Coupon Applied', 'psts' ) );
+			}
 		}
 		$subscription->has_discount = empty( $coupon ) ? false : true;
+
+		$item_count = 0;
+		if( $invoice_items ) {
+			// Get array and add to subscription
+			$invoice_items               = $invoice_items->get_items();
+			$item_count                  = count( $invoice_items );
+		}
+		$subscription->invoice_items = $item_count > 0 ? $invoice_items : false;
 
 		// Get setup fee
 		$subscription->setup_fee = $setup_fee_amount;
