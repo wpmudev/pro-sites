@@ -1745,6 +1745,9 @@ class ProSites_Gateway_Stripe {
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Card Number:', 'psts' ) . '&nbsp;</td>
 							<td>';
+//								if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
+//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
+//								}
 		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br />
 								<img class="accepted-cards" src="' . esc_url( $img_base . 'stripe-cards.png' ) . '" />
 							</td>
