@@ -26,6 +26,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			if( empty( $render_data ) ) {
 				$render_data = array();
 				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+				$render_data['transaction_completed'] = ProSites_Helper_Session::session( 'transaction_completed' );
 			}
 
 			$content = '';
@@ -36,15 +37,19 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			 * This means registration is completed. Trial is activated (non-recurring) or user provided
 			 * payment information for trial (recurring) or normal recurring plan.
 			 */
-			if( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['reserved_message'] ) ) {
+			if( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['reserved_message'] ) || isset( $render_data['transaction_completed'] ) ) {
 
-				// This variable is populated by ProSites_Model_Registration::ajax_check_prosite_blog()
-				$content .= $render_data['new_blog_details']['reserved_message'];
-				// Debugging only.
+				if( isset( $render_data['new_blog_details'] ) ) {
+					// This variable is populated by ProSites_Model_Registration::ajax_check_prosite_blog()
+					$content .= $render_data['new_blog_details']['reserved_message'];
+					// Debugging only.
 //				ProSites_Helper_Session::unset_session( 'new_blog_details' );
-//				 unset( $_SESSION['upgraded_blog_details']);
-
-				return $content;
+//				ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+					return $content;
+				} else {
+					$content = $render_data['transaction_completed']['message'];
+					return $content;
+				}
 			}
 
 			$content .= '<div id="prosites-signup-form-checkout" class="hidden">';

@@ -567,6 +567,10 @@ Thanks!", 'psts' ),
 	function has_setup_fee( $blog_id, $level ) {
 		$setup_fee_amt = ( float ) $this->get_setting( 'setup_fee', 0 );
 
+		if( empty( $blog_id ) && 0 < $setup_fee_amt ) {
+			return true;
+		}
+
 		if ( 0 == $setup_fee_amt ) {
 			return false;
 		} //setup fee not set or is 0
@@ -1318,8 +1322,14 @@ Thanks!", 'psts' ),
 				} else {
 					$term = $result->term;
 				}
+				$level = $result->level;
 
 				$payment_info = '';
+
+				// Get current plan
+				$level_list = get_site_option( 'psts_levels' );
+				$level_name = $level_list[ $level ]['name'];
+				$payment_info .= sprintf( __( 'Current Plan: %s', 'psts' ), $level_name ) . "\n\n";
 
 				if ( $result->gateway ) {
 					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
@@ -1335,18 +1345,55 @@ Thanks!", 'psts' ),
 				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
 				if( ! empty( $args ) ) {
-					if( isset( $args['setup_amount'] ) ) {
-						$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+
+					if( isset( $args['items'] ) ) {
+						$items = $args['items'];
+						$items_total = ProSites_Model_Receipt::get_items_total( $items );
+						foreach( $items as $item ) {
+							$symbol = $item['amount'] > 0 ? '' : '-';
+							$payment_info .= sprintf( '%s: %s%s', $item['description'], $symbol, $this->format_currency( false, abs( $item['amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						}
+						$payment_info .= '<hr />';
+						$symbol = $items_total > 0 ? '' : '-';
+						$payment_info .= sprintf( __( 'Total Paid: %s%s', 'psts' ), $symbol, $this->format_currency( false, abs( $items_total ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 					} else {
-						$args['setup_amount'] = 0;
+						/**
+						 * @todo Remove prior to release
+						 */
+						if( isset( $args['setup_amount'] ) ) {
+							$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						} else {
+							$args['setup_amount'] = 0;
+						}
+						if( isset( $args['discount_amount'] ) ) {
+							$payment_info .= sprintf( __( 'Discount: -%s', 'psts' ), $this->format_currency( false, abs( $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						} else {
+							$args['discount_amount'] = 0;
+						}
+
+						$zero_cost_change = false;
+						if( isset( $args['plan_change_amount'] ) ) {
+							switch( $args['plan_change_mode'] ) {
+								case 'upgrade':
+									$payment_info .= sprintf( __( 'Plan Modified: %s', 'psts' ), $this->format_currency( false, abs( $args['plan_change_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+									break;
+								case 'downgrade':
+									$payment_info .= sprintf( __( 'Plan Modified: -%s', 'psts' ), $this->format_currency( false, abs( $args['plan_change_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+									break;
+							}
+							$zero_cost_change = 0 > ( $amount + $args['setup_amount'] + $args['plan_change_amount'] - $args['discount_amount'] );
+						} else {
+							$args['plan_change_amount'] = 0;
+						}
+						$payment_info .= sprintf( '<hr />' );
+						if( $zero_cost_change ) {
+							// No cost to upgrade
+							$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false,  0 ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						} else {
+							$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] + $args['plan_change_amount'] - $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						}
+
 					}
-					if( isset( $args['discount_amount'] ) ) {
-						$payment_info .= sprintf( __( 'Discount: -%s', 'psts' ), $this->format_currency( false, abs( $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
-					} else {
-						$args['discount_amount'] = 0;
-					}
-					$payment_info .= sprintf( '<hr />' );
-					$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] - $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 				}
 
 				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
