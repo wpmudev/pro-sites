@@ -75,6 +75,9 @@ class ProSites {
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
 
+		// Force sessions to activate
+		add_action( 'init', array( 'ProSites_Helper_Session', 'attempt_force_sessions' ) );
+
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
@@ -1123,8 +1126,8 @@ Thanks!", 'psts' ),
 			return;
 		}
 
-		//force ssl on the checkout page if required by gateway
-		if ( apply_filters( 'psts_force_ssl', false ) && ! is_ssl() ) {
+		//force ssl on the checkout page if required by gateway force if admin is forced (because user will be logged in)
+		if ( ( apply_filters( 'psts_force_ssl', false ) && ! is_ssl() ) || ( force_ssl_admin() && ! is_ssl() ) ) {
 			wp_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 			exit();
 		}
@@ -1236,6 +1239,7 @@ Thanks!", 'psts' ),
 	}
 
 	function check() {
+
 		global $blog_id, $wpdb;
 		if ( is_pro_site( $blog_id ) ) {
 			do_action( 'psts_active' );

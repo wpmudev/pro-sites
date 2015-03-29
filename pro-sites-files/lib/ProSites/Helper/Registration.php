@@ -41,18 +41,21 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			) );
 
 			$password = false;
+
 			// Activate the user and attempt a login (because we want WP sessions)
 			$user_id = username_exists( $user );
+
 			if ( ! $user_id ) {
 				$password = wp_generate_password( 12, false );
 				$user_id = wpmu_create_user( $user, $password, $user_email );
+
 				$creds = array(
 					'user_login' => $user,
 					'user_password' => $password,
 					'remember' => true,
 				);
+
 				$user = wp_signon( $creds );
-				
 			}
 
 			$result = array(
