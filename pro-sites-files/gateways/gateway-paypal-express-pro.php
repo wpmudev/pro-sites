@@ -1798,9 +1798,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 						$blog_id = !empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
 
-						echo "<pre>";
-						print_r( $blog_id );
-						echo "</pre>";
 						if ( ! empty( $blog_id ) ) {
 							//save new profile_id
 							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
