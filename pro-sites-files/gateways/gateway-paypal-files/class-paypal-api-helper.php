@@ -380,4 +380,3 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		}
 	}
 }
-?>
