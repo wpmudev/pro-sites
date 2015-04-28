@@ -1534,7 +1534,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 
 			}
-
 			//Current site name as per the payment procedure
 			$current_site_name = ! empty ( $domain ) ? $domain : ( ! empty( $process_data['domain'] ) ? $process_data['domain'] : $current_site->site_name );
 
