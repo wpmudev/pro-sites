@@ -42,6 +42,10 @@ class ProSites {
 	var $level = array();
 	var $checkout_processed = false;
 	var $tcpdf = array(); //Array for PDF settings
+
+	//setup error var
+	var $errors = '';
+
 	public static $plugin_file = __FILE__;
 
 	function __construct() {
@@ -191,6 +195,8 @@ class ProSites {
 		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 4 );
 
 		$this->setup_ajax_hooks();
+
+		$this->errors = new WP_Error();
 
 	}
 
@@ -1140,6 +1146,10 @@ Thanks!", 'psts' ),
 		 * Responsible for checkout page
 		 */
 		add_filter( 'the_content', array( &$this, 'checkout_output' ), 15 );
+		/**
+		 * @todo: come back to this one
+		 */
+		do_action( 'psts_checkout_page_load'); //for gateway plugins to hook into
 
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
@@ -1219,11 +1229,6 @@ Thanks!", 'psts' ),
 					$this->log_action( $blog_id, __( "User attempted to add an invalid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code, $domain );
 				}
 			}
-
-			/**
-			 * @todo: come back to this one
-			 */
-//			do_action( 'psts_checkout_page_load', $blog_id, $domain ); //for gateway plugins to hook into
 		} else {
 			//code for unique coupon links
 			if ( isset( $_GET['coupon'] ) ) {

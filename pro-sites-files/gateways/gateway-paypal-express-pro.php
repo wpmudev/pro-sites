@@ -58,6 +58,8 @@ class ProSites_Gateway_PayPalExpressPro {
 		if ( ! defined( 'PSTS_PYPL_PREFIX' ) ) {
 			define( 'PSTS_PYPL_PREFIX', 'psts' );
 		}
+
+		add_action( 'psts_checkout_page_load', array( $this, 'process_checkout_form' ) );
 	}
 
 	function do_scripts() {
@@ -1426,9 +1428,27 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $content;
 	}
 
-	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
+	public static function process_checkout_form() {
 
 		global $current_site, $current_user, $psts, $wpdb;
+
+		$blog_id = $domain = '';
+
+		// Try going stateless, or check the session
+		if( empty( $render_data ) ) {
+			$render_data = array();
+			$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+		}
+		if( ! isset( $render_data['upgraded_blog_details'] ) ) {
+			$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
+		}
+
+		// Get blog_id from the session...
+		if( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blog_id'] ) ) {
+			$blog_id = $render_data['new_blog_details']['blog_id'];
+		}
+		// Or if we're at checkout and already have a blog (1 blog only!)
+		$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
 
 		$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_POST['bid'] ) ? (int) $_POST['bid'] : 0 );
 		$path    = '';
@@ -1501,7 +1521,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			//If free level is selected, activate a trial
 			if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
-
 				if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
 
 					ProSites_Helper_Registration::activate_blog( $process_data['activation'], $is_trial, $process_data['PERIOD'], $process_data['LEVEL'] );
@@ -1570,7 +1589,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 		}
-		//!process paypal express checkout
+		//Runs just after the paypal button click, process paypal express checkout
 		if ( isset( $_POST['paypal_checkout_x'] ) || isset( $_POST['paypal_checkout'] ) ) {
 			//check for level
 			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
