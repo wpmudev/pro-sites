@@ -1428,38 +1428,34 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		return $content;
 	}
 
+	/**
+	 * Handles the form processing for Paypal button and express payments
+	 */
 	public static function process_checkout_form() {
 
 		global $current_site, $current_user, $psts, $wpdb;
 
-		$blog_id = $domain = '';
+		$blog_id     = $domain = $path = '';
+		$discountAmt = $has_coupon = false;
 
+		/**
+		 * Get all the data
+		 */
 		// Try going stateless, or check the session
-		if( empty( $render_data ) ) {
-			$render_data = array();
-			$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
-		}
-		if( ! isset( $render_data['upgraded_blog_details'] ) ) {
-			$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
-		}
-
-		// Get blog_id from the session...
-		if( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blog_id'] ) ) {
-			$blog_id = $render_data['new_blog_details']['blog_id'];
-		}
-		// Or if we're at checkout and already have a blog (1 blog only!)
-		$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
-
-		$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_POST['bid'] ) ? (int) $_POST['bid'] : 0 );
-		$path    = '';
-
+		$process_data = array();
 		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
 		foreach ( $session_keys as $key ) {
 			$process_data[ $key ] = isset( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
 		}
 
+		// Get blog_id from the session
+		if ( isset( $process_data['new_blog_details'] ) && isset( $process_data['new_blog_details']['blog_id'] ) ) {
+			$blog_id = $process_data['new_blog_details']['blog_id'];
+		}
+		$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_POST['bid'] ) ? (int) $_POST['bid'] : 0 );
+
 		//Get domain details, if activation is set, runs when user submits the form for blog signup
-		if ( empty( $domain ) && ! empty( $_POST['activation'] ) ) {
+		if ( ! empty( $_POST['activation'] ) ) {
 
 			$signup_details = $wpdb->get_row( $wpdb->prepare( "SELECT `domain`, `path` FROM $wpdb->signups WHERE activation_key = %s", $_POST['activation'] ) );
 
@@ -1476,26 +1472,19 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 		}
 
-		//After user is redirect back from paypal
+		//After user is redirected back from Paypal
 		if ( isset( $_GET['token'] ) ) {
 			//Get the value from session if user is returning from paypal site after making payment as $_POST would be empty
 			$_POST['level']  = ! empty( $process_data['new_blog_details'] ) ? $process_data['new_blog_details']['level'] : '';
 			$_POST['period'] = ! empty( $process_data['new_blog_details'] ) ? $process_data['new_blog_details']['period'] : '';
 		}
 
-		//User submitted the form, $_POST is available
+		//Process The submitted form and redirect user to Paypal for payment or process when the user comes back
 		if ( isset( $_POST['paypal_checkout_x'] ) ||
 		     isset( $_POST['paypal_checkout'] ) ||
 		     isset( $_POST['cc_paypal_checkout'] ) ||
 		     isset( $_GET['token'] )
 		) {
-
-			$site_name = $current_site->site_name;
-			$img_base  = $psts->plugin_url . 'images/';
-
-			if ( ! empty( $domain ) ) {
-				$site_name = ! empty ( $_POST['blogname'] ) ? $_POST['blogname'] : ! empty ( $_POST['signup_email'] ) ? $_POST['signup_email'] : '';
-			}
 
 			//Check for level
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
@@ -1503,29 +1492,18 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//prepare vars
-			$currency = $psts->get_setting( "pypl_currency", 'USD' );
-
-			$discountAmt = false;
-
+			$currency   = $psts->get_setting( "pypl_currency", 'USD' );
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
-
-			$is_trial = $psts->is_trial_allowed( $blog_id );
-
-			$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
-
+			$is_trial   = $psts->is_trial_allowed( $blog_id );
+			$setup_fee  = (float) $psts->get_setting( 'setup_fee', 0 );
 			$trial_desc = ( $is_trial ) ? ProSites_Gateway_PayPalExpressPro::get_free_trial_desc( $trial_days ) : '';
-
-			$recurring = $psts->get_setting( 'recurring_subscriptions', true );
-
-			$has_coupon = false;
+			$recurring  = $psts->get_setting( 'recurring_subscriptions', true );
 
 			//If free level is selected, activate a trial
 			if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
 				if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
-
-					ProSites_Helper_Registration::activate_blog( $process_data['activation'], $is_trial, $process_data['PERIOD'], $process_data['LEVEL'] );
-
 					$esc_domain = esc_url( $domain );
+					ProSites_Helper_Registration::activate_blog( $process_data['activation'], $is_trial, $process_data['PERIOD'], $process_data['LEVEL'] );
 
 					//Set complete message
 					self::$complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
@@ -1675,6 +1653,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$psts->email_notification( $blog_id, 'success' );
 						$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
 
+						echo "Inside activation";
 						if ( $modify ) {
 							if ( $process_data['LEVEL'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
 								$psts->record_stat( $blog_id, 'upgrade' );
@@ -1814,7 +1793,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
 
 						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
-						$blog_id = !empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
+						$blog_id      = ! empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
 
 						if ( ! empty( $blog_id ) ) {
 							//save new profile_id
