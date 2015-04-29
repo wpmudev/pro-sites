@@ -409,7 +409,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
-			if( ! empty( $blog_admin_url ) ) {
+			if( ! empty( $blog_admin_url ) && !is_user_logged_in() ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 
@@ -498,7 +498,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
 
-			if( ! empty( $blog_admin_url ) ) {
+			if( ! empty( $blog_admin_url ) && !is_user_logged_in() ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 

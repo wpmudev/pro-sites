@@ -1826,9 +1826,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						if ( ! empty( $domain ) ) {
 							$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 						}
-						if ( isset( $_SESSION['new_blog_details'] ) ) {
-							$_SESSION['new_blog_details']['blog_id']         = $blog_id;
-							$_SESSION['new_blog_details']['payment_success'] = true;
+						if ( isset( $process_data['new_blog_details'] ) ) {
+							ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
+							ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );
 						}
 
 						//If we have blog id, Extend the blog expiry
@@ -2143,9 +2143,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
 
-									if ( isset( $render_data['new_blog_details'] ) ) {
-										$render_data['new_blog_details']['blog_id']         = $blog_id;
-										$render_data['new_blog_details']['payment_success'] = true;
+									if ( isset( $process_data['new_blog_details'] ) ) {
+										ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
+										ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );
 									}
 
 								} else {
@@ -2188,7 +2188,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 								}
 							} else {
-								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
+								echo "Extending again";
+//								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 								if ( empty( self::$complete_message ) ) {
 									self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );

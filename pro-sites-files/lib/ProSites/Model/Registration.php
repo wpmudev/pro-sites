@@ -25,10 +25,11 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			// replace $_POST with array data
 			$params = array();
-			parse_str( $_POST['data'], $params);
+			parse_str( $_POST['data'], $params );
+
 			$period = (int) $_POST['period'];
-			$level = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
-			$_POST = $params;
+			$level  = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
+			$_POST  = $params;
 
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
 			$ajax_response = array();
@@ -61,13 +62,13 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				}
 
 				// Replaced session vars to make it semi-stateless, will pick these up in a session later
-				$blog_data['new_blog_details'] = array();
+				$blog_data['new_blog_details']             = array();
 				$blog_data['new_blog_details']['username'] = $user_name;
-				$blog_data['new_blog_details']['email'] = $user_email;
+				$blog_data['new_blog_details']['email']    = $user_email;
 				$blog_data['new_blog_details']['blogname'] = $blogname;
-				$blog_data['new_blog_details']['title'] = $blog_title;
-				$blog_data['new_blog_details']['level'] = $level;
-				$blog_data['new_blog_details']['period'] = $period;
+				$blog_data['new_blog_details']['title']    = $blog_title;
+				$blog_data['new_blog_details']['level']    = $level;
+				$blog_data['new_blog_details']['period']   = $period;
 
 				$username_available  = true;
 				$email_available     = true;
@@ -86,22 +87,23 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 						/** User is validated using register_new_user so that we can use the hooks and make them available,
 						 * but we still need to actually create and activate the signup to get the $user_id. */
-						$blog = $blog_validation;
-						$domain = $blog['domain'];
-						$path = $blog['path'];
-						$blogname = $blog['blogname'];
+						$blog       = $blog_validation;
+						$domain     = $blog['domain'];
+						$path       = $blog['path'];
+						$blogname   = $blog['blogname'];
 						$blog_title = $blog['blog_title'];
-						$errors = $blog['errors'];
+						$errors     = $blog['errors'];
 
 						// Privacy setting
 						$public = (int) $_POST['blog_public'];
 						$signup_meta = array ('lang_id' => 1, 'public' => $public);
 
 						// Create the signup
-						$meta = apply_filters( 'add_signup_meta', $signup_meta );
-						$result = ProSites_Helper_Registration::signup_blog($domain, $path, $blog_title, $user_name, $user_email, $meta);
+						$meta                        = apply_filters( 'add_signup_meta', $signup_meta );
+						$result                      = ProSites_Helper_Registration::signup_blog( $domain, $path, $blog_title, $user_name, $user_email, $meta );
 						$blog_data['activation_key'] = $result['activation_key'];
-						if( isset( $result['user_pass'] ) && ! empty( $result['user_pass'] ) ) {
+
+						if ( isset( $result['user_pass'] ) && ! empty( $result['user_pass'] ) ) {
 							$blog_data['new_blog_details']['user_pass'] = $result['user_pass'];
 						}
 
