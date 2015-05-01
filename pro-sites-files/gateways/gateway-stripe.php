@@ -152,8 +152,6 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		self::get_stripe_plans();
-		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $stripe_currency );
 
 		$levels  = (array) get_site_option( 'psts_levels' );
 		$periods = array( 1, 3, 12 );
@@ -260,6 +258,25 @@ class ProSites_Gateway_Stripe {
 			self::update_psts_levels( 'psts_levels', get_site_option( 'psts_levels' ), get_site_option( 'psts_levels' ) );
 		}
 
+	}
+
+
+	/**
+	 * Get the currency to use for Stripe transactions.
+	 *
+	 * At all stages attempt to use the Site Currency and ultimately fallback to the Stripe currency set in the gateway
+	 * settings. Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
+	 *
+	 * @return mixed|void
+	 */
+	public static function currency() {
+		global $psts;
+
+		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
+		$currency        = $psts->get_setting( 'currency', $stripe_currency );
+		$currency        = ProSites_Helper_Gateway::supports_currency( $currency, 'stripe' ) ? $currency : $stripe_currency;
+
+		return $currency;
 	}
 
 	/**
@@ -401,7 +418,7 @@ class ProSites_Gateway_Stripe {
 				$prev_billing = date_i18n( get_option( 'date_format' ), $invoice_object->date );
 				echo '<li>' . sprintf( __( 'Last Payment Date: <strong>%s</strong>', 'psts' ), $prev_billing ) . '</li>';
 				$total = $invoice_object->total / 100;
-				echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( $psts->get_setting( "stripe_currency", 'USD' ), $total ) ) . '</li>';
+				echo '<li>' . sprintf( __( 'Last Payment Amount: <strong>%s</strong>', 'psts' ), $psts->format_currency( self::currency(), $total ) ) . '</li>';
 				echo '<li>' . sprintf( __( 'Last Payment Invoice ID: <strong>%s</strong>', 'psts' ), $invoice_object->id ) . '</li>';
 			}
 
@@ -833,8 +850,7 @@ class ProSites_Gateway_Stripe {
 	public static function update_psts_levels( $option = '', $new_levels = false, $old_levels = false ) {
 		global $psts;
 
-		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $stripe_currency );
+		$currency        = self::currency();
 
 		if ( ! $new_levels ) {
 			$new_levels = (array) get_site_option( 'psts_levels' );
@@ -986,8 +1002,7 @@ class ProSites_Gateway_Stripe {
 	public static function add_plan( $stripe_plan_id, $int, $int_count, $name, $level_price ) {
 		global $psts;
 		try {
-			$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-			$currency        = $psts->get_setting( 'currency', $stripe_currency );
+			$currency = self::currency();
 
 			Stripe_Plan::create( array(
 				"amount"         => round( $level_price * 100 ),
@@ -1972,11 +1987,7 @@ class ProSites_Gateway_Stripe {
 
 				//prepare vars
 
-				// Attempt to use the site's currency. Or Stripe if none defined.
-				// Note, Stripe will revert to merchant currency if a currency is
-				// not supported. Bonus!
-				$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-				$currency        = $psts->get_setting( 'currency', $stripe_currency );
+				$currency = self::currency();
 
 				$amount_off    = false;
 				$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
