@@ -46,6 +46,7 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 			} else {
 				$symbol = '&#x' . $symbol . ';';
 			}
+			$symbol = apply_filters( 'prosite_currency_symbol', $symbol, $currency );
 
 			//check decimal option
 			if ( $psts->get_setting( 'curr_decimal' ) === '0' ) {
@@ -73,14 +74,23 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 				$amount = $left;
 			}
 
+			$symbol_position = $psts->get_setting( 'curr_symbol_position', 1 );
+			/*
+			 * 1 - Left Tight
+			 * 2 - Left Space
+			 * 3 - Right Tight
+			 * 4 - Right Space
+			 */
+			$symbol_position = apply_filters( 'prosite_currency_symbol_position', $symbol_position, $currency );
+
 			//format currency amount according to preference
-			if ( $psts->get_setting( 'curr_symbol_position' ) == 1 || ! $psts->get_setting( 'curr_symbol_position' ) ) {
+			if ( $symbol_position == 1 ) {
 				return $symbol . $amount;
-			} else if ( $psts->get_setting( 'curr_symbol_position' ) == 2 ) {
+			} else if ( $symbol_position == 2 ) {
 				return $symbol . ' ' . $amount;
-			} else if ( $psts->get_setting( 'curr_symbol_position' ) == 3 ) {
+			} else if ( $symbol_position == 3 ) {
 				return $amount . $symbol;
-			} else if ( $psts->get_setting( 'curr_symbol_position' ) == 4 ) {
+			} else if ( $symbol_position == 4 ) {
 				return $amount . ' ' . $symbol;
 			}
 
