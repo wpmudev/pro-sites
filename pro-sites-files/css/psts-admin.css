@@ -44,6 +44,14 @@
     width: 0;
 }
 
+select.chosen {
+    min-width: 150px;
+}
+
+select.chosen.narrow {
+    min-width: 60px;
+}
+
 /** Help Tip **/
 .help_tip {
     margin-left: 4px;
@@ -73,6 +81,9 @@
 input[name="uses"] {
     width: 100px;
 }
+input[name="coupon_code"] {
+    max-width: 125px;
+}
 
 .coupon-code .help_tip,
 .coupon-life .help_tip,
@@ -80,6 +91,7 @@ input[name="uses"] {
 .allowed-users .help_tip,
 .coupon-period .help_tip {
     top: 3px;
+    width:auto;
 }
 
 .coupon-code .psts-help-text-wrapper {
@@ -104,6 +116,15 @@ input[name="uses"] {
 }
 
 /** Chosen Style **/
+#add_coupon .chosen {
+    min-width: 115px;
+    width: 115px;
+}
+#add_coupon .chosen.narrow {
+    min-width: 40px;
+    width: 40px;
+}
+
 #add_coupon .chosen-container-multi .chosen-choices li.search-field input[type="text"] {
     height: 24px;
     width: auto !important;
@@ -903,14 +924,6 @@ input[name="uses"] {
 
 .psts-settings .chosen-container {
     margin-bottom: 10px;
-}
-
-select.chosen {
-    min-width: 150px;
-}
-
-select.chosen.narrow {
-    min-width: 60px;
 }
 
 table.widefat.prosites-premium-plugins tbody tr th,
