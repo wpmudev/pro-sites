@@ -118,9 +118,9 @@ class ProSites_Gateway_PayPalExpressPro {
 		<!--			</h3>-->
 
 		<div class="inside">
-			<p><?php _e( 'Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info &raquo;</a>', 'psts' ); ?></p>
+			<p><?php _e( 'Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://www.paypal.com/webapps/mpp/express-checkout">More Info &raquo;</a>', 'psts' ); ?></p>
 
-			<p><?php printf( __( 'To use PayPal Express Checkout or Pro you must <a href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_admin_IPNSetup#id089EG030E5Z" target="_blank">manually turn on IPN notifications</a> and enter your IPN url (<strong>%s</strong>) in your PayPal profile (you must also do this in your sandbox account when testing).', 'psts' ), network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) ); ?></p>
+			<p><?php printf( __( 'To use PayPal Express Checkout or Pro you must <a href=https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNSetup/#id089EG030E5Z" target="_blank">manually turn on IPN notifications</a> and enter your IPN url (<strong>%s</strong>) in your PayPal profile (you must also do this in your sandbox account when testing).', 'psts' ), network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) ); ?></p>
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
@@ -170,7 +170,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				<tr>
 					<th scope="row"><?php _e( 'PayPal API Credentials', 'psts' ) ?></th>
 					<td>
-						<span class="description"><?php _e( 'You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECAPICredentials">Instructions &raquo;</a>', 'psts' ) ?></span>
+						<span class="description"><?php _e( 'You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://developer.paypal.com/docs/classic/api/apiCredentials/#creating-classic-api-credentials">Instructions &raquo;</a>', 'psts' ) ?></span>
 
 						<p><label><?php _e( 'API Username', 'psts' ) ?><br/>
 								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_user" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[pypl_api_user]" type="text"/>

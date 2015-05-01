@@ -545,11 +545,18 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		}
 
 		public static function render_login() {
-			$content = '<div class="login-existing">
-						<a href="' . esc_url( wp_login_url( get_permalink()  ) ) . '" title="' .
-			           esc_attr__( 'Login', 'psts' ) . '">' . esc_html__( 'Login to view or upgrade your existing plan.', 'psts' ) . '</a></div>';
-//			$content .= wp_login_form( array( 'echo' => false ) );
-//			return $content;
+			$content = sprintf( '<div class="login-existing">
+					%s <a class="login-toggle" href="%s" title="%s">%s</a>
+					<!-- Login Form -->
+					%s
+				</div>',
+				esc_html__( 'Already have a site?', 'psts' ), // Catchphrase
+				esc_url( wp_login_url( get_permalink() ) ), // Login URL
+				esc_attr__( 'Login', 'psts' ), // Anchor Title
+				esc_html__( 'Login now.', 'psts' ), // Anchor Text
+				wp_login_form( array( 'echo' => false ) ) // Login Form
+			);
+			return $content;
 		}
 
 		public static function render_free( $style, $blog_id ) {

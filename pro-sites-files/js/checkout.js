@@ -396,10 +396,9 @@ jQuery(document).ready(function ($) {
         }
 
         // Hide login link if its visible
+        $('.login-existing form').hide();
         $('.login-existing').hide();
 
-        //console.log( action );
-        //console.log( new_blog );
         if( prosites_checkout.logged_in ) {
             button_text = prosites_checkout.button_choose;
         } else {
@@ -606,5 +605,11 @@ jQuery(document).ready(function ($) {
         }
 
     }
+
+    $('.login-existing .login-toggle').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $('.login-existing form').toggle();
+    });
 
 });
