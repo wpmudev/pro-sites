@@ -1848,6 +1848,7 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 
+		//Process Checkout
 		if ( isset( $_POST['cc_stripe_checkout'] ) && 1 == (int) $_POST['cc_stripe_checkout'] ) {
 
 			//check for level
@@ -1868,13 +1869,16 @@ class ProSites_Gateway_Stripe {
 			$email          = ! empty ( $_POST['user_email'] ) ? $_POST['user_email'] : ( ! empty( $_POST['signup_email'] ) ? $_POST['signup_email'] : ( ! empty( $_POST['blog_email'] ) ? $_POST['blog_email'] : '' ) );
 			$blog_id        = ! empty( $blog_id ) ? $blog_id : isset( $_POST['bid'] ) ? (int) $_POST['bid'] : 0;
 
+			//If there is a blog id, fetch existing customer details (Upgrade)
 			if ( ! empty( $blog_id ) ) {
 				$customer_id = self::get_customer_data( $blog_id )->customer_id;
 				$email       = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
+				//Get current plan for the user
 				if ( $current_plan = self::get_current_plan( $blog_id ) ) {
 					list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
 				}
 			} else {
+				//New Signup
 				if ( empty( $email ) && isset( $process_data['new_blog_details'] ) && isset( $process_data['new_blog_details']['user_email'] ) ) {
 					$email = $process_data['new_blog_details']['user_email'];
 				}
@@ -1887,6 +1891,8 @@ class ProSites_Gateway_Stripe {
 				return;
 			}
 
+			//Create s Stripe profile for the customer with all the available details,
+			//If customer already exists, retrieve customer from stripe
 			try {
 
 				if ( ! $customer_id ) {
@@ -2001,6 +2007,7 @@ class ProSites_Gateway_Stripe {
 						$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 
 						$cpn = false;
+						//Create a stripe coupon if it doesn't exists already
 						try {
 							$cpn = Stripe_Coupon::create( array(
 								'amount_off'      => ( $amount_off * 100 ),
@@ -2017,6 +2024,7 @@ class ProSites_Gateway_Stripe {
 						$cp_code = $cpn->id;
 					}
 
+					//Check if it's a recurring subscription
 					if ( $recurring ) {
 						$recurringAmmount = 'forever' == $lifetime && $has_coupon ? $coupon_value : $paymentAmount;
 						if ( $_POST['period'] == 1 ) {
@@ -2042,6 +2050,7 @@ class ProSites_Gateway_Stripe {
 						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s every %3$s months', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency, $_POST['period'] );
 					}
 				} else {
+					//New Signups
 					if ( ! empty( $blog_id ) ) {
 						$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
 					}
@@ -2095,7 +2104,7 @@ class ProSites_Gateway_Stripe {
 						$args['metadata']['activation'] = $_POST['activation'];
 					}
 
-					// Invoice for the setup fee
+					// Create Stripe Invoice for the setup fee
 					if ( $has_setup_fee ) {
 						try {
 							$customer_args = array(

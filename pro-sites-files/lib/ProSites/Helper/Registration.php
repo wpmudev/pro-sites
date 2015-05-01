@@ -30,14 +30,14 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$meta = serialize($meta);
 
 			$result = $wpdb->insert( $wpdb->signups, array(
-				'domain' => $domain,
-				'path' => $path,
-				'title' => $title,
-				'user_login' => $user,
-				'user_email' => $user_email,
-				'registered' => current_time('mysql', true),
+				'domain'         => $domain,
+				'path'           => $path,
+				'title'          => $title,
+				'user_login'     => $user,
+				'user_email'     => $user_email,
+				'registered'     => current_time( 'mysql', true ),
 				'activation_key' => $key,
-				'meta' => $meta
+				'meta'           => $meta
 			) );
 
 			$password = false;
@@ -47,15 +47,15 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 			if ( ! $user_id ) {
 				$password = wp_generate_password( 12, false );
-				$user_id = wpmu_create_user( $user, $password, $user_email );
+				$user_id  = wpmu_create_user( $user, $password, $user_email );
 
-				$creds = array(
-					'user_login' => $user,
+				$creds    = array(
+					'user_login'    => $user,
 					'user_password' => $password,
-					'remember' => true,
+					'remember'      => true,
 				);
+				$user     = wp_signon( $creds );
 
-				$user = wp_signon( $creds );
 			}
 
 			$result = array(

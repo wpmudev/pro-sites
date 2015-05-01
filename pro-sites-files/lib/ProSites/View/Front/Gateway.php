@@ -15,7 +15,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 			}
 
-			$content = '';
+			$content = $secondary_args = '';
 
 			// Add existing account filter
 			add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::prepend_plan_details', 10, 3 );
@@ -38,9 +38,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' ) ) {
 				$primary_args = call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
-			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' ) ) {
-				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
-			}
+//			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' ) ) {
+//				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
+//			}
 			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
 				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
@@ -88,7 +88,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			// Secondary
-			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
+			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) && isset( $secondary_args) ) {
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
 				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 				$content .= '</div>';
@@ -409,7 +409,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
-			if( ! empty( $blog_admin_url ) ) {
+			if( ! empty( $blog_admin_url ) && !is_user_logged_in() ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 
@@ -498,7 +498,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
 
-			if( ! empty( $blog_admin_url ) ) {
+			if( ! empty( $blog_admin_url ) && !is_user_logged_in() ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 
