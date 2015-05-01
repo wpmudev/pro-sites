@@ -395,7 +395,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Currency', 'psts' ) ?></th>
+						<th scope="row"><?php _e( 'Currency', 'psts' ); ?><?php echo $psts->help_text( esc_html__( 'This is the currency that customers will be charged in. Your gateway currency is a fall-back option.', 'psts' ), 'site-currency' );?></th>
 						<td>
 							<select id="psts-currency-select" name="psts[currency]" class="chosen" data-placeholder="<?php echo esc_attr__( 'Enable gateways', 'psts' ); ?>">
 								<?php

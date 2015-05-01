@@ -1084,3 +1084,9 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 #prosites-level-list.feature-table .prosite-level-placeholder {
     height: 100px;
 }
+
+/** Help text wrappers */
+.psts-help-text-wrapper.site-currency {
+    top: 100px;
+    left: 13px;
+}

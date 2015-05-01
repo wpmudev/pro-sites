@@ -5145,11 +5145,11 @@ function admin_levels() {
 		return apply_filters( 'psts_prevent_dismiss', false );
 	}
 
-	function help_text( $message = '' ) {
+	function help_text( $message = '', $class = 'period-desc' ) {
 		if( empty( $message ) ){
 			return false;
 		}
-		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class . '"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
 	}
 
 	/**
