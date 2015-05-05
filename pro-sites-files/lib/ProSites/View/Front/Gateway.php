@@ -293,6 +293,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$plan_content    = '';
 			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
+			$is_pro_site     = is_pro_site( $blog_id );
 
 			$session_data = array();
 			$session_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
@@ -319,16 +320,19 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			}
 
-			if ( is_pro_site( $blog_id ) && ! isset( $_GET['action'] ) ) {
+			if ( $is_pro_site &&
+			     ( ! isset( $_GET['action'] )
+			       //For paypal, after redirection, on page refresh
+			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) )
+			) {
 				// EXISTING DETAILS
 				if( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
 					$plan_content = self::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
 					$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
 				}
-			} else {
+			}else {
 				// NOTIFICATIONS ONLY
-
 				$plan_content = self::render_notification_information( array(), $blog_id, $domain, $gateways, $gateway_details['order'] );
 			}
 

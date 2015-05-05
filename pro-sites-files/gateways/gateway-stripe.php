@@ -1854,10 +1854,8 @@ class ProSites_Gateway_Stripe {
 			//check for level
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-				//	return;
 			} else if ( ! isset( $_POST['stripeToken'] ) && empty( $_POST['wp_password'] ) ) {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
-				//	return;
 			}
 
 			$error          = '';
@@ -1884,7 +1882,6 @@ class ProSites_Gateway_Stripe {
 				}
 				$customer_id = self::get_customer_data( false, false, $email )->customer_id;
 			}
-
 			if ( ! self::plan_exists( $plan ) ) {
 				$psts->errors->add( 'general', sprintf( __( 'Stripe plan %1$s does not exist.', 'psts' ), $plan ) );
 
@@ -2210,7 +2207,6 @@ class ProSites_Gateway_Stripe {
 									ProSites_Helper_Session::session( 'plan_updated', $updated );
 
 								}
-
 
 							} catch ( Exception $e ) {
 								// Fall through...
