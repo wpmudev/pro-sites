@@ -1489,8 +1489,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		//Process The submitted form and redirect user to Paypal for payment or process when the user comes back
-		if ( isset( $_POST['paypal_checkout_x'] ) ||
-		     isset( $_POST['paypal_checkout'] ) ||
+		if ( isset( $_POST['paypal_checkout'] ) ||
 		     isset( $_POST['cc_paypal_checkout'] ) ||
 		     isset( $_GET['token'] )
 		) {
@@ -1579,7 +1578,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 		}
 		//Runs just after the paypal button click, process paypal express checkout
-		if ( isset( $_POST['paypal_checkout_x'] ) || isset( $_POST['paypal_checkout'] ) ) {
+		if ( isset( $_POST['paypal_checkout'] ) || isset( $_POST['cc_paypal_checkout'] ) ) {
 			//check for level
 			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
@@ -1598,10 +1597,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 				$token              = $resArray["TOKEN"];
-				//Not used Probably
-//				$_SESSION['TOKEN']  = $token;
-//				$_SESSION['PERIOD'] = $_POST['period'];
-//				$_SESSION['LEVEL']  = $_POST['level'];
 				PaypalApiHelper::RedirectToPayPal( $token );
 			} else {
 				$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );

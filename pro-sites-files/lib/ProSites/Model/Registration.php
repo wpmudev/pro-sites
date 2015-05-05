@@ -187,8 +187,11 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				}
 
 				// If WP 4.0+ and user is logged in it will use WP_Session_Tokens, else $_SESSION
+				echo "<pre>";
+				print_r( $blog_data );
+				echo "</pre>";
 				ProSites_Helper_Session::session( 'new_blog_details', $blog_data['new_blog_details'] );
-				ProSites_Helper_Session::session( 'activation_key', $blog_data['activation_key'] );
+				ProSites_Helper_Session::session( 'activation', $blog_data['activation'] );
 
 				$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( $blog_data );
 				$ajax_response['username_available'] = $username_available;
