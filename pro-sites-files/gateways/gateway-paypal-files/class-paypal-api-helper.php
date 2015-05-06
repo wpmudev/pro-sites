@@ -51,7 +51,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '' ) {
+		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '' ) {
 			global $psts;
 
 			$nvpstr = "&TOKEN=" . urlencode( $token );
@@ -68,7 +68,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ':' . $level . ':' . $frequency . ':' . $paymentAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
 
 			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
-			$resArray = $this->api_call( "DoExpressCheckoutPayment", $nvpstr );
+			$resArray = self::api_call( "DoExpressCheckoutPayment", $nvpstr );
 
 			return $resArray;
 		}
@@ -340,14 +340,19 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			//set api urls
 			if ( $psts->get_setting( 'pypl_status' ) == 'live' ) {
-				$paypalURL = "https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=";
+				$paypalURL = "https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout";
 			} else {
-				$paypalURL = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&token=";
+				$paypalURL = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
 			}
 
 			// Redirect to paypal.com here
-			$url = $paypalURL . $token;
-			wp_redirect( $url );
+			$paypalURL = add_query_arg(
+				array(
+					'token'  => $token
+				),
+				$paypalURL
+			);
+			wp_redirect( $paypalURL );
 			exit;
 		}
 
