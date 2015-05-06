@@ -33,14 +33,17 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			/**
 			 * Process forms
+			 *
+			 * Do not call process checkout form for Paypal, as it is called using add_action
+			 * psts_checkout_page_load, because it requires redirection to Paypal, and the following hooks are called late
 			 * -------------
 			 */
-			if( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' ) ) {
+			if( ! empty( $primary_gateway ) && 'paypal' != $primary_gateway && method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' ) ) {
 				$primary_args = call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
-//			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' ) ) {
-//				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
-//			}
+			if( ! empty( $secondary_gateway ) && 'paypal' != $secondary_gateway && method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' ) ) {
+				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
+			}
 			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
 				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
