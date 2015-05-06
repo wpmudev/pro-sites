@@ -20,9 +20,14 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 		 *
 		 * @return bool|null|string
 		 */
-		public static function session( $key, $value = null, $unset = false, $duration = false, $force_session = false, $token_update = false ) {
+		public static function session( $key = true, $value = null, $unset = false, $duration = false, $force_session = false, $token_update = false ) {
 
 			$session_value = null;
+
+			// Make sure session is started
+			if ( ! session_id() ) {
+				session_start();
+			}
 
 			// WordPress 4.0+ only
 			if ( class_exists( 'WP_Session_Tokens' ) && is_user_logged_in() && ( ! $force_session || ( $force_session && $token_update ) ) ) {
@@ -75,9 +80,6 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 				// Pre WordPress 4.0
 				// Rely on $_SESSION vars. May require some plugins or server configuration
 				// to work properly.
-				if ( ! session_id() ) {
-					session_start();
-				}
 				if ( null === $value && ! $unset ) {
 					if ( is_array( $key ) ) {
 						$session_value = self::_get_val( $_SESSION, $key );
@@ -159,6 +161,11 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 					unset( $temp[ $key ] );
 				}
 			}
+		}
+
+		public static function attempt_force_sessions() {
+			// Activate Sessions by putting in a false var
+			ProSites_Helper_Session::session('psts_sessions_active', true);
 		}
 
 	}

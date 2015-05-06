@@ -79,6 +79,9 @@ class ProSites {
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
 
+		// Force sessions to activate
+		add_action( 'init', array( 'ProSites_Helper_Session', 'attempt_force_sessions' ) );
+
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
@@ -1129,8 +1132,8 @@ Thanks!", 'psts' ),
 			return;
 		}
 
-		//force ssl on the checkout page if required by gateway
-		if ( apply_filters( 'psts_force_ssl', false ) && ! is_ssl() ) {
+		//force ssl on the checkout page if required by gateway force if admin is forced (because user will be logged in)
+		if ( ( apply_filters( 'psts_force_ssl', false ) && ! is_ssl() ) || ( force_ssl_admin() && ! is_ssl() ) ) {
 			wp_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 			exit();
 		}
@@ -1241,6 +1244,7 @@ Thanks!", 'psts' ),
 	}
 
 	function check() {
+
 		global $blog_id, $wpdb;
 		if ( is_pro_site( $blog_id ) ) {
 			do_action( 'psts_active' );
@@ -1360,7 +1364,7 @@ Thanks!", 'psts' ),
 						}
 						$payment_info .= '<hr />';
 						$symbol = $items_total > 0 ? '' : '-';
-						$payment_info .= sprintf( __( 'Total Paid: %s%s', 'psts' ), $symbol, $this->format_currency( false, abs( $items_total ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						$payment_info .= sprintf( __( 'Total Paid: %s%s', 'psts' ), $symbol, $this->format_currency( false, $amount + abs( $items_total ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 					} else {
 						/**
 						 * @todo Remove prior to release
@@ -1985,6 +1989,7 @@ Thanks!", 'psts' ),
 
 	//display currency symbol
 	function format_currency( $currency = '', $amount = false ) {
+
 		if ( ! $currency ) {
 			$currency = $this->get_setting( 'currency', 'USD' );
 		}
@@ -2009,6 +2014,7 @@ Thanks!", 'psts' ),
 		} else {
 			$symbol = '&#x' . $symbol . ';';
 		}
+		$symbol = apply_filters( 'prosite_currency_symbol', $symbol, $currency );
 
 		//check decimal option
 		if ( $this->get_setting( 'curr_decimal' ) === '0' ) {
@@ -2019,29 +2025,38 @@ Thanks!", 'psts' ),
 			$zero          = '0.00';
 		}
 
+		$symbol_position = $this->get_setting( 'curr_symbol_position', 1 );
+		/*
+		 * 1 - Left Tight
+		 * 2 - Left Space
+		 * 3 - Right Tight
+		 * 4 - Right Space
+		 */
+		$symbol_position = apply_filters( 'prosite_currency_symbol_position', $symbol_position, $currency );
+
 		//format currency amount according to preference
 		if ( $amount ) {
 
-			if ( $this->get_setting( 'curr_symbol_position' ) == 1 || ! $this->get_setting( 'curr_symbol_position' ) ) {
+			if ( $symbol_position ) {
 				return $symbol . @number_format_i18n( $amount, $decimal_place );
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 2 ) {
+			} else if ( $symbol_position == 2 ) {
 				return $symbol . ' ' . number_format_i18n( $amount, $decimal_place );
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 3 ) {
+			} else if ( $symbol_position == 3 ) {
 				return number_format_i18n( $amount, $decimal_place ) . $symbol;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 4 ) {
+			} else if ( $symbol_position == 4 ) {
 				return number_format_i18n( $amount, $decimal_place ) . ' ' . $symbol;
 			}
 
 		} else if ( $amount === false ) {
 			return $symbol;
 		} else {
-			if ( $this->get_setting( 'curr_symbol_position' ) == 1 || ! $this->get_setting( 'curr_symbol_position' ) ) {
+			if ( $symbol_position ) {
 				return $symbol . $zero;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 2 ) {
+			} else if ( $symbol_position == 2 ) {
 				return $symbol . ' ' . $zero;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 3 ) {
+			} else if ( $symbol_position == 3 ) {
 				return $zero . $symbol;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 4 ) {
+			} else if ( $symbol_position == 4 ) {
 				return $zero . ' ' . $symbol;
 			}
 		}
@@ -5141,11 +5156,11 @@ function admin_levels() {
 		return apply_filters( 'psts_prevent_dismiss', false );
 	}
 
-	function help_text( $message = '' ) {
+	function help_text( $message = '', $class = 'period-desc' ) {
 		if( empty( $message ) ){
 			return false;
 		}
-		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class . '"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
 	}
 
 	/**

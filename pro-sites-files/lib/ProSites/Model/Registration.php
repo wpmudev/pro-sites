@@ -20,6 +20,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			$blog_data = array();
 
+			// Add ajax session var
+			ProSites_Helper_Session::session('psts_ajax_session_activated', true );
+
 			// Introduce a fake error because we don't want to actually create the blog yet.
 			add_filter( 'registration_errors', array( 'ProSites_Model_Registration', 'prosite_blog_check_only' ), 10, 3 );
 
@@ -202,6 +205,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					'id'     => 1, // success status
 					'data'   => json_encode( $ajax_response ),
 				);
+
+				// No longer need ajax session
+				ProSites_Helper_Session::unset_session( 'psts_ajax_session_activated' );
 
 				// Buffer used to isolate AJAX response from unexpected output
 				@ob_end_clean();

@@ -1150,7 +1150,10 @@ ul.pricing-column.not-chosen-plan .button-box button {
 
 .login-existing {
     /*text-align: right;*/
-    /*font-size: 0.9em;*/
+    font-size: 0.9em;
+}
+.login-existing form {
+    display: none;
 }
 
 /* === ALTER CLASSIC === */
@@ -1235,6 +1238,10 @@ ul.pricing-column.not-chosen-plan .button-box button {
     float:left;
     margin-left: 5px;
     z-index: 10;
+}
+
+.login-existing {
+
 }
 
 /* === DARK MODE === */

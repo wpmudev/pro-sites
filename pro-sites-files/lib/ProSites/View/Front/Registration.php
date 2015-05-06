@@ -43,8 +43,8 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 					// This variable is populated by ProSites_Model_Registration::ajax_check_prosite_blog()
 					$content .= $render_data['new_blog_details']['reserved_message'];
 					// Debugging only.
-//				ProSites_Helper_Session::unset_session( 'new_blog_details' );
-//				ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+				//ProSites_Helper_Session::unset_session( 'new_blog_details' );
+				//ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
 					return $content;
 				} else {
 					$content = $render_data['transaction_completed']['message'];

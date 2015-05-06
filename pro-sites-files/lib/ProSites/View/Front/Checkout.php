@@ -330,14 +330,14 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				'price_12' => __('Annually', 'psts' ),
 			);
 
-			$plan_text = array(
+			$plan_text = apply_filters( 'prosites_pricing_labels', array(
 				'payment_type' => __( 'Payment period', 'psts' ),
 				'setup' => __( 'Plus a One Time %s Setup Fee', 'psts' ),
 				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>, ', 'psts' ),
 				'saving' => __( 'saving you <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
 				'monthly_alt' => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
-			);
+			), $level );
 
 			if( empty( $level ) ) {
 
@@ -365,7 +365,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				$level_details = array();
 
-				$level_details['title'] = $level_list[ $level ]['name'];
+				$level_details['title'] = apply_filters( 'prosites_pricing_level_title', $level_list[ $level ]['name'], $level );
 
 				// Is this the featured level?
 				if( $featured_level == $level ) {
@@ -373,6 +373,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				} else {
 					$level_details['featured'] = false;
 				}
+				$level_details['featured'] = apply_filters( 'prosites_pricing_level_featured', $level_details['featured'], $level );
 
 				if( ! empty( $setup_fee_amount ) ) {
 					$setup_fee = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
@@ -422,7 +423,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$formatted_calculated = '<div class="monthly-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly_calculated ) . '</div>';
 					$formatted_savings = '<div class="savings-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $difference ) . '</div>';
 
-					$summary_msg = $plan_text['monthly'];
+					$summary_msg = sprintf( $plan_text['monthly'] );
 
 					if( $months > 1 ) {
 						$summary_msg = sprintf( $plan_text['summary'], $formatted_calculated );
@@ -431,13 +432,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						}
 						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . $summary_msg . '</div>';
 					} else {
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . $plan_text['monthly_alt'] . '</div>';
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . esc_html( $plan_text['monthly_alt'] ) . '</div>';
 					}
 
 					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
 				}
 
-				$level_details['summary'] = $content;
+				$level_details['summary'] = apply_filters( 'prosites_pricing_summary_text', $content, $level );
 
 				return $level_details;
 			}
@@ -545,11 +546,18 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		}
 
 		public static function render_login() {
-			$content = '<div class="login-existing">
-						<a href="' . esc_url( wp_login_url( get_permalink()  ) ) . '" title="' .
-			           esc_attr__( 'Login', 'psts' ) . '">' . esc_html__( 'Login to view or upgrade your existing plan.', 'psts' ) . '</a></div>';
-//			$content .= wp_login_form( array( 'echo' => false ) );
-//			return $content;
+			$content = sprintf( '<div class="login-existing">
+					%s <a class="login-toggle" href="%s" title="%s">%s</a>
+					<!-- Login Form -->
+					%s
+				</div>',
+				esc_html__( 'Already have a site?', 'psts' ), // Catchphrase
+				esc_url( wp_login_url( get_permalink() ) ), // Login URL
+				esc_attr__( 'Login', 'psts' ), // Anchor Title
+				esc_html__( 'Login now.', 'psts' ), // Anchor Text
+				wp_login_form( array( 'echo' => false ) ) // Login Form
+			);
+			return $content;
 		}
 
 		public static function render_free( $style, $blog_id ) {
