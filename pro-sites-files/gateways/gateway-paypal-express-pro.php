@@ -2372,6 +2372,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	}
 
 	/**
+	 * Don't process PayPal on gateway render.
+	 *
+	 * It is called using 'psts_checkout_page_load' action because it requires redirection to Paypal
+	 * @return bool
+	 */
+	public static function process_on_render() {
+		return false;
+	}
+
+	/**
 	 * Returns an array of currencies supported by Paypal
 	 * @return array
 	 */
