@@ -1490,6 +1490,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		//Process The submitted form and redirect user to Paypal for payment or process when the user comes back
 		if ( isset( $_POST['paypal_checkout'] ) ||
+		     isset( $_POST['paypal_checkout_x'] ) ||
 		     isset( $_POST['cc_paypal_checkout'] ) ||
 		     isset( $_GET['token'] )
 		) {
@@ -1578,11 +1579,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 		}
 		//Runs just after the paypal button click, process paypal express checkout
-		if ( isset( $_POST['paypal_checkout'] ) || isset( $_POST['cc_paypal_checkout'] ) ) {
+		if ( isset( $_POST['paypal_checkout'] ) || isset( $_POST['cc_paypal_checkout'] ) || isset( $_POST['paypal_checkout_x'] ) ) {
 			//check for level
 			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
-
 				return;
 			}
 			if ( $is_trial ) {
