@@ -251,7 +251,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr = "&PROFILEID=" . $profile_id;
 
-			$resArray = $this->api_call( "GetRecurringPaymentsProfileDetails", $nvpstr );
+			$resArray = self::api_call( "GetRecurringPaymentsProfileDetails", $nvpstr );
 
 			return $resArray;
 		}
@@ -265,6 +265,28 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$resArray = self::api_call( "ManageRecurringPaymentsProfileStatus", $nvpstr );
 
 			return $resArray;
+		}
+		/**
+		 * Retrieve the details of a previously created recurring payments profile.
+		 *
+		 * @access	public
+		 * @param	array	call config data
+		 * @return	array
+		 */
+
+
+		public static function GetRecurringPaymentsProfileStatus( $profile_id ) {
+
+			$PayPalResult = self::GetRecurringPaymentsProfileDetails( $profile_id );
+			$PayPalErrors = $PayPalResult['ERRORS'];
+			$ProfileStatus = isset($PayPalResult['STATUS']) ? $PayPalResult['STATUS'] : 'Unknown';
+
+			$ResponseArray = array(
+				'PayPalResult' => $PayPalResult,
+				'ProfileStatus' => $ProfileStatus
+			);
+
+			return $ResponseArray;
 		}
 
 		public static function UpdateRecurringPaymentsProfile( $profile_id, $custom ) {

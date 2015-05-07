@@ -1121,6 +1121,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$psts->record_stat( $blog_id, 'cancel' );
 
 				$psts->email_notification( $blog_id, 'canceled' );
+				update_blog_option( $blog_id, 'psts_is_canceled', 1 );
 
 				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
 				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
@@ -2242,6 +2243,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$img_base = $psts->plugin_url . 'images/';
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if ( get_blog_option( $blog_id, 'psts_is_canceled' ) ) {
+			$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+			echo '<strong>' . __( 'The Subscription Has Been Cancelled in Paypal', 'psts' ) . '</strong>';
+			echo sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date );
+		}
 		if ( $trialing ) {
 			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
 		}
