@@ -1437,6 +1437,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		$domain = $path = '';
 		$discountAmt = $has_coupon = false;
+		$new_blog = true;
 
 		//Blog id, Level Period
 		$blog_id = ! empty( $_POST['bid'] ) ? $_POST['bid'] : 0;
@@ -1457,10 +1458,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_GET['bid'] ) ? (int) $_GET['bid'] : 0 );
 
 		//Get domain details, if activation is set, runs when user submits the form for blog signup
-		if ( ! empty( $_POST['activation'] ) ) {
+		if ( ! empty( $_POST['activation'] ) || ! empty( $process_data['activation_key'] ) ) {
+
+			$activation_key = ! empty( $_POST['activation'] ) ? $_POST['activation'] : $process_data['activation_key'];
 
 			//For New Signup
-			$signup_details = $wpdb->get_row( $wpdb->prepare( "SELECT `domain`, `path` FROM $wpdb->signups WHERE activation_key = %s", $_POST['activation'] ) );
+			$signup_details = $wpdb->get_row( $wpdb->prepare( "SELECT `domain`, `path` FROM $wpdb->signups WHERE activation_key = %s", $activation_key ) );
 
 			if ( $signup_details ) {
 
@@ -1468,22 +1471,29 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$path   = $signup_details->path;
 
 				//Store values in session or custom variable, to be used after user returns from Paypal Payment
-				ProSites_Helper_Session::session( array( 'new_blog_details', 'domain' ), $domain );
-				ProSites_Helper_Session::session( array( 'new_blog_details', 'path' ), $path );
-				ProSites_Helper_Session::session( array( 'new_blog_details', 'activation' ), $_POST['activation'] );
-
+				$process_data['new_blog_details']['domain'] = $domain;
+				$process_data['new_blog_details']['path'] = $path;
+				$process_data['activation_key'] = $activation_key;
 			}
 		}
 		//Set Level and period in upgraded blog details, if blog id is set, for upgrades
 		if ( ! empty( $blog_id ) ) {
-			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'level' ), $level );
-			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'period' ), $period );
+			$new_blog = false;
+			$process_data['upgraded_blog_details']['level'] = $level;
+			$process_data['upgraded_blog_details']['period'] = $period;
 		}
+
+		$signup_type = $new_blog ? 'new_blog_details' : 'upgraded_blog_details';
+
+		// Update the session data with the changed process data.
+		ProSites_Helper_Session::session( 'new_blog_details', $process_data['new_blog_details'] );
+		ProSites_Helper_Session::session( 'upgraded_blog_details', $process_data['upgraded_blog_details'] );
+		ProSites_Helper_Session::session( 'activation_key', $process_data['activation_key'] );
+
 
 		//After user is redirected back from Paypal
 		if ( isset( $_GET['token'] ) ) {
 			//Check if blog id is set, If yes -> Upgrade, else  -> New Setup
-			$signup_type     = ! empty( $blog_id ) ? 'upgraded_blog_details' : 'new_blog_details';
 			$_POST['level']  = ! empty( $process_data[ $signup_type ] ) ? $process_data[ $signup_type ]['level'] : '';
 			$_POST['period'] = ! empty( $process_data[ $signup_type ] ) ? $process_data[ $signup_type ]['period'] : '';
 		}
@@ -1512,7 +1522,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
 				if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
 					$esc_domain = esc_url( $domain );
-					ProSites_Helper_Registration::activate_blog( $process_data['activation'], $is_trial, $process_data['PERIOD'], $process_data['LEVEL'] );
+					ProSites_Helper_Registration::activate_blog( $process_data['activation_key'], $is_trial, $process_data[ $signup_type ]['period'], $process_data[ $signup_type ]['level'] );
 
 					//Set complete message
 					self::$complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
@@ -1522,7 +1532,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			}
 			//Current site name as per the payment procedure
-			$current_site_name = ! empty ( $domain ) ? $domain : ( ! empty( $process_data['domain'] ) ? $process_data['domain'] : $current_site->site_name );
+			$current_site_name = ! empty ( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : $current_site->site_name );
 
 			$paymentAmount = $initAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
 			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
@@ -1595,7 +1605,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 
 			}
-			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
+			if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
 				$token              = $resArray["TOKEN"];
 				PaypalApiHelper::RedirectToPayPal( $token );
 			} else {
@@ -1607,8 +1617,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		//!check for return from Express Checkout
 		if ( isset( $_GET['token'] ) && isset( $_POST['period'] ) && isset( $_POST['level'] ) ) {
 
-			$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data['domain'] ) ? $process_data['domain'] : '' );
-			$path           = ! empty( $path ) ? $path : ( ! empty( $process_data['path'] ) ? $process_data['path'] : '' );
+			$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
+			$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
 			$activation_key = ! empty( $process_data['activation_key'] ) ? $process_data['activation_key'] : '';
 
 			//if PAYERID is not sent back with request then get it via API (like when creating a free trial)
@@ -1660,7 +1670,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
 
 						if ( $modify ) {
-							if ( $process_data['LEVEL'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
+							if ( $process_data[ $signup_type ]['level'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
 								$psts->record_stat( $blog_id, 'upgrade' );
 							} else {
 								$psts->record_stat( $blog_id, 'modify' );
@@ -2108,8 +2118,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//attempt initial direct payment
 						$success        = $init_transaction = false;
-						$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data['domain'] ) ? $process_data['domain'] : '' );
-						$path           = ! empty( $path ) ? $path : ( ! empty( $process_data['path'] ) ? $process_data['path'] : '' );
+						$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
+						$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
 						$activation_key = ! empty( $process_data['activation'] ) ? $process_data['activation'] : '';
 
 						if ( ! $is_trial ) {

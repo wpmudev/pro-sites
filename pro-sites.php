@@ -1363,8 +1363,9 @@ Thanks!", 'psts' ),
 							$payment_info .= sprintf( '%s: %s%s', $item['description'], $symbol, $this->format_currency( false, abs( $item['amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 						}
 						$payment_info .= '<hr />';
-						$symbol = $items_total > 0 ? '' : '-';
-						$payment_info .= sprintf( __( 'Total Paid: %s%s', 'psts' ), $symbol, $this->format_currency( false, $amount + abs( $items_total ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						$items_total = $items_total > 0 ? $items_total : 0;
+						$symbol = $items_total >= 0 ? '' : '-';
+						$payment_info .= sprintf( __( 'Total Paid: %s%s', 'psts' ), $symbol, $this->format_currency( false, $items_total ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 					} else {
 						/**
 						 * @todo Remove prior to release

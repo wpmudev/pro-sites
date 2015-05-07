@@ -33,10 +33,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			/**
 			 * Process forms
-			 *
-			 * Do not call process checkout form for Paypal, as it is called using add_action
-			 * psts_checkout_page_load, because it requires redirection to Paypal, and the following hooks are called late
-			 * -------------
 			 */
 			if( ! empty( $primary_gateway ) &&
 			    method_exists( $gateways[ $primary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_on_render' ) &&
@@ -329,7 +325,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			if ( $is_pro_site &&
 			     ( ! isset( $_GET['action'] )
-			       //For paypal, after redirection, on page refresh
+			       //For gateways after redirection, upon page refresh
 			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) )
 			) {
 				// EXISTING DETAILS
