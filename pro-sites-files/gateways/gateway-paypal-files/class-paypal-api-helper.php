@@ -5,7 +5,7 @@
 if ( ! class_exists( 'PaypalApiHelper' ) ) {
 	class PaypalApiHelper {
 
-		public static function SetExpressCheckout( $paymentAmount, $desc, $blog_id = '', $domain = '', $path = '' ) {
+		public static function SetExpressCheckout( $paymentAmount, $desc, $blog_id = '', $path = '' ) {
 			global $psts;
 
 			$recurring = $psts->get_setting( 'recurring_subscriptions' );
@@ -18,7 +18,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&PAYMENTREQUEST_0_DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			}
 
-			$checkout_url = urlencode( $psts->checkout_url( $blog_id, $domain ) );
+			$checkout_url = urlencode( $psts->checkout_url( $blog_id ) );
 			$checkout_url = add_query_arg(
 				array(
 					'action' => 'complete'

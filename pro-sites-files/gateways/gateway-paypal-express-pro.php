@@ -1600,12 +1600,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				return;
 			}
 			if ( $is_trial ) {
-				$resArray = PaypalApiHelper::SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $domain, $path );
+				$resArray = PaypalApiHelper::SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $path );
 			} else {
 				if ( ! empty( $blog_id ) ) {
 					$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, $blog_id );
 				} elseif ( ! empty( $domain ) ) {
-					$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, '', $domain, $path );
+					$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, '', $path );
 				}
 
 			}
@@ -1843,7 +1843,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//If we have domain details, activate the blog, It will be extended later in the same code block
 							if ( ! empty( $domain ) ) {
-								$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+								$signup_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 							}
 							if ( isset( $process_data['new_blog_details'] ) ) {
 								ProSites_Helper_Session::session( array( 'new_blog_details', 'blog_id' ), $blog_id );
@@ -1854,7 +1854,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//If we have blog id, Extend the blog expiry
-							if ( $blog_id ) {
+							if ( !empty( $signup_details['blog_id'] ) ) {
+								$blog_id = $signup_details['blog_id'];
 								if ( $is_trial ) {
 									$paymentAmount = '';
 									$trial         = strtotime( '+ ' . $trial_days . ' days' );
@@ -1908,10 +1909,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						if ( ! $is_trial ) {
 							$psts->create_ga_ecommerce( $blog_id, $_POST['period'], $paymentAmount, $_POST['period'] );
 						}
-
-						unset( $_SESSION['COUPON_CODE'] );
-						unset( $_SESSION['PERIOD'] );
-						unset( $_SESSION['LEVEL'] );
 					} else {
 						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
