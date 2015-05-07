@@ -1543,6 +1543,10 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			return empty( $content ) ? array() : $content;
 		}
 
+		public static function process_on_render() {
+			return true;
+		}
+
 	}
 
 

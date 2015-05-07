@@ -2548,6 +2548,10 @@ class ProSites_Gateway_Stripe {
 		return empty( $args ) ? array() : $args;
 	}
 
+	public static function process_on_render() {
+		return true;
+	}
+
 	public static function get_merchant_countries() {
 		return array(
 			'AU' => 'Australia',

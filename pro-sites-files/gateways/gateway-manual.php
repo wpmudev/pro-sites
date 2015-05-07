@@ -285,6 +285,10 @@ class ProSites_Gateway_Manual {
 
 	}
 
+	public static function process_on_render() {
+		return true;
+	}
+
 	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
 		global $psts;
 		$args     = array();

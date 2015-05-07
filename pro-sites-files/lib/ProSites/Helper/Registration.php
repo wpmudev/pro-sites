@@ -31,10 +31,10 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 			$result = $wpdb->insert( $wpdb->signups, array(
 				'domain'         => $domain,
-				'path'           => $path,
-				'title'          => $title,
-				'user_login'     => $user,
-				'user_email'     => $user_email,
+				'path'           => sanitize_text_field( $path ),
+				'title'          => sanitize_text_field( $title ),
+				'user_login'     => sanitize_text_field( $user ),
+				'user_email'     => sanitize_email( $user_email ),
 				'registered'     => current_time( 'mysql', true ),
 				'activation_key' => $key,
 				'meta'           => $meta
