@@ -4,7 +4,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 	class ProSites_View_Front_Gateway {
 
 		public static function render_checkout( $render_data = array(), $blog_id = false, $domain = false ) {
-			global $psts;
+			global $psts, $wpdb;
 
 			// Try going stateless, or check the session
 			if( empty( $render_data ) ) {
@@ -17,11 +17,33 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content = $primary_args = $secondary_args = '';
 
-			// Add existing account filter
-			add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::prepend_plan_details', 10, 3 );
-
 			$gateways = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
+
+			//Handle Subscription Cancel, call respective gateway function for the blog id
+			if ( isset( $_GET['action'] ) && $_GET['action'] == 'cancel' && wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
+
+				//Get blog id
+				$blog_id = ! empty( $_GET['bid'] ) ? $_GET['bid'] : '';
+
+				//If there is blog id
+				if ( ! empty( $blog_id ) ) {
+
+					//Get gateway details
+					$sql    = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
+					$result = $wpdb->get_row( $sql );
+					$gateway = !empty( $result-> gateway ) ? $result->gateway : '';
+					if ( ! empty( $gateway ) ) {
+						//Check if a respective gateway class exists, and call cancel subscription function
+						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
+							call_user_func( $gateways[ $gateway ]['class'] . '::cancel_subscription', $blog_id, true );
+						}
+					}
+				}
+			}
+
+			// Add existing account filter
+			add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::prepend_plan_details', 10, 3 );
 
 			$primary_gateway = $gateway_details['primary'];
 

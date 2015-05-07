@@ -15,7 +15,8 @@ class ProSites_Gateway_PayPalExpressPro {
 
 	function __construct() {
 		global $psts;
-		//setup the Stripe API
+
+		//Paypal Functions
 		if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			require_once( $psts->plugin_dir . "gateways/gateway-paypal-files/class-paypal-api-helper.php" );
 		}
@@ -23,8 +24,6 @@ class ProSites_Gateway_PayPalExpressPro {
 			add_action( 'wp_enqueue_scripts', array( &$this, 'do_scripts' ) );
 		}
 
-		//settings
-//		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 
 		//checkout stuff
@@ -47,7 +46,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_filter( 'psts_next_payment', array( &$this, 'next_payment' ) );
 
 		//cancel subscriptions on blog deletion
-		add_action( 'delete_blog', array( &$this, 'cancel_blog_subscription' ) );
+		add_action( 'delete_blog', array( &$this, 'cancel_subscription' ) );
 
 		/* This sets the default prefix to the paypal custom field,
 		 * in case you use the same account for multiple IPN requiring scripts,
@@ -112,11 +111,6 @@ class ProSites_Gateway_PayPalExpressPro {
 	function settings() {
 		global $psts;
 		?>
-		<!--		<div class="postbox">-->
-		<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Paypal Express/Pro', 'psts' ) ?><!--</span> --->
-		<!--				<span class="description">--><?php //_e( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts' ); ?><!--</span>-->
-		<!--			</h3>-->
-
 		<div class="inside">
 			<p><?php _e( 'Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info &raquo;</a>', 'psts' ); ?></p>
 
@@ -1112,11 +1106,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		exit;
 	}
 
-	function cancel_blog_subscription( $blog_id ) {
-		global $psts;
+	public static function cancel_subscription( $blog_id, $display_message = false ) {
+		global $psts, $current_user, $current_site;
+
+		$site_name = $current_site->site_name;
 
 		//check if pro/express user
-		if ( $profile_id = $this->get_profile_id( $blog_id ) ) {
+		if ( $profile_id = self::get_profile_id( $blog_id ) ) {
 
 			$resArray = PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', __( 'Your subscription was canceled because the blog was deleted.', 'psts' ) );
 
@@ -1126,7 +1122,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				$psts->email_notification( $blog_id, 'canceled' );
 
-				$psts->log_action( $blog_id, __( 'Subscription successfully canceled because the blog was deleted.', 'psts' ) );
+				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
+
+				//Do not display message for add action
+				if ( $display_message ) {
+					self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
+
+				}
 			}
 		}
 	}
@@ -1435,7 +1438,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		global $current_site, $current_user, $psts, $wpdb;
 
-		$domain = $path = '';
+		$domain      = $path = '';
 		$discountAmt = $has_coupon = false;
 
 		//Blog id, Level Period
@@ -1583,6 +1586,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			//check for level
 			if ( ! isset( $_POST['period'] ) || ! isset( $_POST['level'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+
 				return;
 			}
 			if ( $is_trial ) {
@@ -1596,7 +1600,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			}
 			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-				$token              = $resArray["TOKEN"];
+				$token = $resArray["TOKEN"];
 				PaypalApiHelper::RedirectToPayPal( $token );
 			} else {
 				$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
@@ -1623,8 +1627,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) ) {
 				//If Site is not in trial already
 //				if ( ! is_pro_trial( $blog_id ) ) {
-					$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
-					$modify = $modify ? $modify : $psts->get_expire( $blog_id );
+				$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
+				$modify = $modify ? $modify : $psts->get_expire( $blog_id );
 //				}
 			} else {
 				$modify = false;
@@ -1744,7 +1748,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 				} else {
 					//Handle the new signups
-					$ack_success = true;
+					$ack_success    = true;
 					$payment_status = '';
 
 					//Set payerID if missing
@@ -2153,8 +2157,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
 
 									if ( isset( $process_data['new_blog_details'] ) ) {
-										ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
-										ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );
+										ProSites_Helper_Session::session( array(
+											'new_blog_details',
+											'blog_id'
+										), $blog_id );
+										ProSites_Helper_Session::session( array(
+											'new_blog_details',
+											'payment_success'
+										), true );
 									}
 
 								} else {
@@ -2405,8 +2415,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		);
 
 	}
-
-
 }
 
 //register the gateway

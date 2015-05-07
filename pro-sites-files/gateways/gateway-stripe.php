@@ -61,7 +61,7 @@ class ProSites_Gateway_Stripe {
 		add_filter( 'psts_next_payment', array( 'ProSites_Gateway_Stripe', 'next_payment' ) );
 
 		//cancel subscriptions on blog deletion
-		add_action( 'delete_blog', array( 'ProSites_Gateway_Stripe', 'cancel_blog_subscription' ) );
+		add_action( 'delete_blog', array( 'ProSites_Gateway_Stripe', 'cancel_subscription' ) );
 
 		//display admin notices
 		add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
@@ -1602,8 +1602,10 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @param $blog_id
 	 */
-	public static function cancel_blog_subscription( $blog_id ) {
-		global $psts;
+	public static function cancel_subscription( $blog_id, $display_message = false ) {
+		global $psts, $current_user, $current_site;
+
+		$site_name = $current_site->site_name;
 
 		$error       = '';
 		$customer_id = self::get_customer_data( $blog_id )->customer_id;
@@ -1624,7 +1626,16 @@ class ProSites_Gateway_Stripe {
 				$psts->record_stat( $blog_id, 'cancel' );
 				$psts->email_notification( $blog_id, 'canceled' );
 				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
-				$psts->log_action( $blog_id, __( 'Subscription successfully canceled because the blog was deleted.', 'psts' ) );
+
+				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
+
+				//Do not display message for add action
+				if ( $display_message ) {
+					self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
+				}
+			} else {
+				self::$cancel_message = '<div id="message" class="error fade"><p>' . __( 'There was a problem canceling your subscription, please contact us for help: ', 'psts' ) . $error . '</p></div>';
 			}
 		}
 	}
@@ -1832,35 +1843,6 @@ class ProSites_Gateway_Stripe {
 
 		if ( ! empty( $domain ) ) {
 			$site_name = ! empty ( $_POST['blogname'] ) ? $_POST['blogname'] : ! empty ( $_POST['signup_email'] ) ? $_POST['signup_email'] : '';
-		}
-
-		// Cancel subscription
-		if ( isset( $_GET['action'] ) && $_GET['action'] == 'cancel' && wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
-			$error = '';
-
-			try {
-				$customer_data = self::get_customer_data( $blog_id );
-				$customer_id   = $customer_data->customer_id;
-				$sub_id        = $customer_data->subscription_id;
-				$cu            = Stripe_Customer::retrieve( $customer_id );
-				// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
-				$cu->subscriptions->retrieve( $sub_id )->cancel();
-			} catch ( Exception $e ) {
-				$error = $e->getMessage();
-			}
-
-			if ( $error != '' ) {
-				self::$cancel_message = '<div id="message" class="error fade"><p>' . __( 'There was a problem canceling your subscription, please contact us for help: ', 'psts' ) . $error . '</p></div>';
-			} else {
-				//record stat
-				$psts->record_stat( $blog_id, 'cancel' );
-				$psts->email_notification( $blog_id, 'canceled' );
-				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
-
-				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
-				self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
-			}
 		}
 
 		//Process Checkout
@@ -2732,6 +2714,11 @@ class ProSites_Gateway_Stripe {
 			'ZMW' => array( 'Zambian Kwacha', '4B' ),
 		);
 	}
+
+	/**
+	 * Cancel the existing subscription for user
+	 * @param $blog_id
+	 */
 
 }
 
