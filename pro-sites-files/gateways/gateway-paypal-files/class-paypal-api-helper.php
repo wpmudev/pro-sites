@@ -247,7 +247,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		function GetRecurringPaymentsProfileDetails( $profile_id ) {
+		public static function GetRecurringPaymentsProfileDetails( $profile_id ) {
 
 			$nvpstr = "&PROFILEID=" . $profile_id;
 
