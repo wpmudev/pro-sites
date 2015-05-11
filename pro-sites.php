@@ -1066,9 +1066,9 @@ Thanks!", 'psts' ),
 		}
 
 		if ( $blog_id ) {
-			$url .= '?bid=' . $blog_id;
+			$url = add_query_arg( array( 'bid' => $blog_id ), $url );
 		} elseif ( $domain ) {
-			$url .= '?domain=' . $domain;
+			$url = add_query_arg( array( 'domain' => $domain ), $url );
 		}
 
 		return $url;

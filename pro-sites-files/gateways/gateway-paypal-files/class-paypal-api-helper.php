@@ -5,7 +5,7 @@
 if ( ! class_exists( 'PaypalApiHelper' ) ) {
 	class PaypalApiHelper {
 
-		public static function SetExpressCheckout( $paymentAmount, $desc, $blog_id = '', $path = '' ) {
+		public static function SetExpressCheckout( $paymentAmount, $desc, $blog_id = '', $domain = '', $path = '' ) {
 			global $psts;
 
 			$recurring = $psts->get_setting( 'recurring_subscriptions' );
@@ -18,7 +18,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&PAYMENTREQUEST_0_DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			}
 
-			$checkout_url = urlencode( $psts->checkout_url( $blog_id ) );
+			$checkout_url = $psts->checkout_url( $blog_id, $domain );
 			$checkout_url = add_query_arg(
 				array(
 					'action' => 'complete'
@@ -37,8 +37,8 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&LOCALECODE=" . $psts->get_setting( 'pypl_site' );
 			$nvpstr .= "&NOSHIPPING=1";
 			$nvpstr .= "&ALLOWNOTE=0";
-			$nvpstr .= "&RETURNURL=" . $checkout_url;
-			$nvpstr .= "&CANCELURL=" . $cancel_url;
+			$nvpstr .= "&RETURNURL=" . urlencode( $checkout_url );
+			$nvpstr .= "&CANCELURL=" . urlencode( $cancel_url );
 
 			//formatting
 			$nvpstr .= "&HDRIMG=" . urlencode( $psts->get_setting( 'pypl_header_img' ) );
@@ -85,7 +85,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			//apply setup fee (if applicable)
 			$setup_fee = $psts->get_setting( 'setup_fee', 0 );
 
-			if ( empty( $blog_id ) && ! empty ( $domain ) ) {
+			if ( empty( $blog_id ) ) {
 				if ( $level != 0 ) {
 					$has_setup_fee = false;
 				} else {

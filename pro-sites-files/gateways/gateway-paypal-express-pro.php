@@ -6,6 +6,7 @@ Pro Sites (Gateway: Paypal Express/Pro Payment Gateway)
 
 class ProSites_Gateway_PayPalExpressPro {
 
+	public static $pending_str = array();
 	private static $complete_message = false;
 	private static $cancel_message = false;
 
@@ -59,6 +60,20 @@ class ProSites_Gateway_PayPalExpressPro {
 		}
 
 		add_action( 'psts_checkout_page_load', array( $this, 'process_checkout_form' ) );
+		self::$pending_str = array(
+			'address'        => __( 'The payment is pending because your customer did not include a confirmed shipping address and your Payment Receiving Preferences is set such that you want to manually accept or deny each of these payments. To change your preference, go to the Preferences  section of your Profile.', 'psts' ),
+			'authorization'  => __( 'The payment is pending because it has been authorized but not settled. You must capture the funds first.', 'psts' ),
+			'echeck'         => __( 'The payment is pending because it was made by an eCheck that has not yet cleared.', 'psts' ),
+			'intl'           => __( 'The payment is pending because you hold a non-U.S. account and do not have a withdrawal mechanism. You must manually accept or deny this payment from your Account Overview.', 'psts' ),
+			'multi-currency' => __( 'You do not have a balance in the currency sent, and you do not have your Payment Receiving Preferences set to automatically convert and accept this payment. You must manually accept or deny this payment.', 'psts' ),
+			'order'          => __( 'The payment is pending because it is part of an order that has been authorized but not settled.', 'psts' ),
+			'paymentreview'  => __( 'The payment is pending while it is being reviewed by PayPal for risk.', 'psts' ),
+			'unilateral'     => __( 'The payment is pending because it was made to an email address that is not yet registered or confirmed.', 'psts' ),
+			'upgrade'        => __( 'The payment is pending because it was made via credit card and you must upgrade your account to Business or Premier status in order to receive the funds. It can also mean that you have reached the monthly limit for transactions on your account.', 'psts' ),
+			'verify'         => __( 'The payment is pending because you are not yet verified. You must verify your account before you can accept this payment.', 'psts' ),
+			'other'          => __( 'The payment is pending for an unknown reason. For more information, contact PayPal customer service.', 'psts' ),
+			'*'              => ''
+		);
 	}
 
 	function do_scripts() {
@@ -952,6 +967,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$profile_string = ( isset( $_POST['recurring_payment_id'] ) ) ? ' - ' . $_POST['recurring_payment_id'] : '';
 
 			$payment_status = ( isset( $_POST['initial_payment_status'] ) ) ? $_POST['initial_payment_status'] : $_POST['payment_status'];
+			error_log( 955 );
+			error_log( json_encode( $payment_status ) );
 
 			switch ( $payment_status ) {
 
@@ -1049,22 +1066,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				case 'Pending':
 					// case: payment is pending
-					$pending_str = array(
-						'address'        => __( 'The payment is pending because your customer did not include a confirmed shipping address and your Payment Receiving Preferences is set such that you want to manually accept or deny each of these payments. To change your preference, go to the Preferences  section of your Profile.', 'psts' ),
-						'authorization'  => __( 'The payment is pending because it has been authorized but not settled. You must capture the funds first.', 'psts' ),
-						'echeck'         => __( 'The payment is pending because it was made by an eCheck that has not yet cleared.', 'psts' ),
-						'intl'           => __( 'The payment is pending because you hold a non-U.S. account and do not have a withdrawal mechanism. You must manually accept or deny this payment from your Account Overview.', 'psts' ),
-						'multi-currency' => __( 'You do not have a balance in the currency sent, and you do not have your Payment Receiving Preferences set to automatically convert and accept this payment. You must manually accept or deny this payment.', 'psts' ),
-						'order'          => __( 'The payment is pending because it is part of an order that has been authorized but not settled.', 'psts' ),
-						'paymentreview'  => __( 'The payment is pending while it is being reviewed by PayPal for risk.', 'psts' ),
-						'unilateral'     => __( 'The payment is pending because it was made to an email address that is not yet registered or confirmed.', 'psts' ),
-						'upgrade'        => __( 'The payment is pending because it was made via credit card and you must upgrade your account to Business or Premier status in order to receive the funds. It can also mean that you have reached the monthly limit for transactions on your account.', 'psts' ),
-						'verify'         => __( 'The payment is pending because you are not yet verified. You must verify your account before you can accept this payment.', 'psts' ),
-						'other'          => __( 'The payment is pending for an unknown reason. For more information, contact PayPal customer service.', 'psts' ),
-						'*'              => ''
-					);
 					$reason      = @$_POST['pending_reason'];
-					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, $_POST['txn_id'], $pending_str[ $reason ] ) . $profile_string );
+					$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, $_POST['txn_id'], self::$pending_str[ $reason ] ) . $profile_string );
 					break;
 
 				default:
@@ -1601,15 +1604,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				return;
 			}
 			if ( $is_trial ) {
-				$resArray = PaypalApiHelper::SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $path );
+				$resArray = PaypalApiHelper::SetExpressCheckout( ( $initAmount - $paymentAmount ), $desc, $blog_id, $domain, $path );
 			} else {
-				if ( ! empty( $blog_id ) ) {
-					$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, $blog_id );
-				} elseif ( ! empty( $domain ) ) {
-					$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, '', $path );
-				}
-
+				$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, $blog_id, $domain );
 			}
+
 			if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
 				$token = $resArray["TOKEN"];
 				PaypalApiHelper::RedirectToPayPal( $token );
@@ -1636,11 +1635,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			//check for modifiying
 			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) ) {
-				//If Site is not in trial already
-//				if ( ! is_pro_trial( $blog_id ) ) {
 				$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
 				$modify = $modify ? $modify : $psts->get_expire( $blog_id );
-//				}
 			} else {
 				$modify = false;
 			}
@@ -1774,7 +1770,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 
 					if ( ! $is_trial ) {
-						//if no trial is set
+						//if no trial is set, initate the payment
 						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key );
 
 						$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
@@ -1784,6 +1780,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$payment_status = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
 							$paymentAmount  = $resArray['PAYMENTINFO_0_AMT'];
 							$ack_success    = true;
+
+						}
+						//Activate blog
+						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+						$blog_id      = ! empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
+						if( $payment_status == 'Pending' ) {
+							//log reason
+							if( !empty( $resArray['PAYMENTINFO_0_PENDINGREASON'] ) ) {
+								$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
+							}
 						}
 					}
 
@@ -1812,6 +1818,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//If Profile is created
 						if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
 
+							//Blog might be already active
 							$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 							$blog_id      = ! empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
 
@@ -1844,23 +1851,18 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//If we have domain details, activate the blog, It will be extended later in the same code block
 							if ( ! empty( $domain ) ) {
-								$signup_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+								$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 							}
 							if ( isset( $process_data['new_blog_details'] ) ) {
 								ProSites_Helper_Session::session( array( 'new_blog_details', 'blog_id' ), $blog_id );
-								ProSites_Helper_Session::session( array(
-									'new_blog_details',
-									'payment_success'
-								), true );
+								ProSites_Helper_Session::session( array('new_blog_details', 'payment_success'), true );
 							}
-
 							//If we have blog id, Extend the blog expiry
-							if ( ! empty( $signup_details['blog_id'] ) ) {
-								$blog_id = $signup_details['blog_id'];
+							if ( ! empty( $blog_id ) ) {
+								//If trial is allowed, set expiry date to n number of days from today, where n is number of days for trial
 								if ( $is_trial ) {
 									$paymentAmount = '';
 									$trial         = strtotime( '+ ' . $trial_days . ' days' );
-
 								} else {
 									$trial = '';
 								}
@@ -1885,6 +1887,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							//If we have blog id
 							if ( ! empty ( $blog_id ) ) {
 								update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+								//Extend the Blog expiry as per Trial or not
+								$psts->extend( $blog_id, '', self::get_slug(), $_POST['level'], $paymentAmount, false );
 							} else {
 								//Update Domain meta
 								$signup_meta = '';
@@ -2215,7 +2219,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 								}
 							} else {
-//								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
+								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 								if ( empty( self::$complete_message ) ) {
 									self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
