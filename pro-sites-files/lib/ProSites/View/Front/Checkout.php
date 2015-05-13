@@ -375,12 +375,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 				$level_details['featured'] = apply_filters( 'prosites_pricing_level_featured', $level_details['featured'], $level );
 
-				if( ! empty( $setup_fee_amount ) ) {
-					$setup_fee = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
-				}
 				$setup_msg = '';
 				if( ! empty( $setup_fee_amount ) ) {
+					$setup_fee = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
+					$setup_fee_plain = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount, true );
 					$setup_msg = '<div class="setup-fee">' . sprintf( $plan_text['setup'], $setup_fee ) . '</div>';
+					$setup_msg .= '<div class="price-plain hidden setup-fee-plain">' . $setup_fee_plain . '</div>';
 				}
 
 				$level_details['breakdown'] = array();
@@ -407,11 +407,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					// Get level price and format it
 					$price = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ] );
+					$price_plain = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ], true );
 					$period_content = '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
 					$period_content .= '<div class="plan-price original-amount">' . $price . '</div>';
 					$period_content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
 					$period_content .= ! empty( $setup_msg ) ? $setup_msg : '';
 					$period_content .= '</div>';
+					$period_content .= '<div class="price-plain hidden plan-' . $level . '' . $months . '-plain">' . $price_plain . '</div>';
 					$level_details['breakdown'][ $period_key ] = str_replace( 'hide', '', $period_content );
 					$content .= $period_content;
 
@@ -420,8 +422,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$monthly_calculated = $level_list[ $level ][ $period_key ] / $months * 1.0;
 					$difference = ( $monthly_price - $monthly_calculated ) * $months;
 
-					$formatted_calculated = '<div class="monthly-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly_calculated ) . '</div>';
-					$formatted_savings = '<div class="savings-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $difference ) . '</div>';
+					$formatted_calculated = '<div class="monthly-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly_calculated, true ) . '</div>';
+					$formatted_savings = '<div class="savings-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $difference, true ) . '</div>';
 
 					$summary_msg = sprintf( $plan_text['monthly'] );
 

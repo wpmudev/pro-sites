@@ -67,7 +67,10 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
-				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
+				/*
+				 * @todo: Add this back soon.
+				 */
+				//$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 
 			// If site modified, apply this filter... has to happen after form processing.
@@ -207,14 +210,16 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '</ul>';
 
 				// Cancel link?
-				if( ! empty( $info_retrieved['cancel_link'] ) ) {
-					$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
-				} else if( ! empty( $info_retrieved['cancel_info_link'] ) ) {
-					$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_info_link'] . $info_retrieved['cancel_info'] . '</div>';
-				}
-				// Receipt form
-				if( ! empty( $info_retrieved['receipt_form'] ) ) {
-					$content .= '<div class="psts-receipt-link">' . $info_retrieved['receipt_form'] . '</div>';
+				if( empty( $info_retrieved['cancellation_message'] ) ) {
+					if ( ! empty( $info_retrieved['cancel_link'] ) ) {
+						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
+					} else if ( ! empty( $info_retrieved['cancel_info_link'] ) ) {
+						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_info_link'] . $info_retrieved['cancel_info'] . '</div>';
+					}
+					// Receipt form
+					if ( ! empty( $info_retrieved['receipt_form'] ) ) {
+						$content .= '<div class="psts-receipt-link">' . $info_retrieved['receipt_form'] . '</div>';
+					}
 				}
 
 				// Signup for another blog?

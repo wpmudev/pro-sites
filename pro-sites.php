@@ -85,6 +85,9 @@ class ProSites {
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
+		// TAX integration
+		ProSites_Helper_Tax::init_tax();
+
 		/**
 		 * Temporary loading for modules
 		 *
