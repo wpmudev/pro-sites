@@ -67,7 +67,10 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
-				$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
+				/*
+				 * @todo: Add this back soon.
+				 */
+				//$manual_args = call_user_func( $gateways[ $manual_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
 
 			// If site modified, apply this filter... has to happen after form processing.

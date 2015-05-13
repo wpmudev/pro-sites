@@ -29,10 +29,13 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 			wp_enqueue_script( 'chosen' );
 		}
 
-		public static function rich_currency_format( $amount ) {
+		public static function rich_currency_format( $amount, $plain = false ) {
 			global $psts;
-				$currency = $psts->get_setting( 'currency', 'USD' );
+			$currency = $psts->get_setting( 'currency', 'USD' );
 
+			if( $plain ) {
+				return $psts->format_currency( $currency, $amount );
+			}
 
 			// get the currency symbol
 			$symbol = @$psts->currencies[ $currency ][1];
