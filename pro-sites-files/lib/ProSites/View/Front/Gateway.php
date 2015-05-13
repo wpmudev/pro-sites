@@ -208,14 +208,15 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				// Cancel link?
 				if( empty( $info_retrieved['cancellation_message'] ) ) {
-					if( ! empty( $info_retrieved['cancel_link'] ) ) {
+					if ( ! empty( $info_retrieved['cancel_link'] ) ) {
 						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
-					} else if( ! empty( $info_retrieved['cancel_info_link'] ) ) {
+					} else if ( ! empty( $info_retrieved['cancel_info_link'] ) ) {
 						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_info_link'] . $info_retrieved['cancel_info'] . '</div>';
 					}
 					// Receipt form
-					if( ! empty( $info_retrieved['receipt_form'] ) ) {
+					if ( ! empty( $info_retrieved['receipt_form'] ) ) {
 						$content .= '<div class="psts-receipt-link">' . $info_retrieved['receipt_form'] . '</div>';
+					}
 				}
 
 				// Signup for another blog?
