@@ -1455,7 +1455,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$process_data = array();
 		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
 		foreach ( $session_keys as $key ) {
-			$process_data[ $key ] = isset( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
+			$process_data[ $key ] = !empty( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
 		}
 
 		// Get blog_id from the session
@@ -1480,8 +1480,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				//Store values in session or custom variable, to be used after user returns from Paypal Payment
 				$process_data['new_blog_details']['domain'] = $domain;
 				$process_data['new_blog_details']['path']   = $path;
-				$process_data['activation_key']             = $activation_key;
 			}
+			$process_data['activation_key'] = $activation_key;
 		}
 		//Set Level and period in upgraded blog details, if blog id is set, for upgrades
 		if ( ! empty( $blog_id ) ) {
@@ -1623,7 +1623,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
 			$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
-			$activation_key = ! empty( $process_data['activation_key'] ) ? $process_data['activation_key'] : '';
+			$activation_key = ! empty( $process_data['activation_key'] ) ? $process_data['activation_key'] : $activation_key;
 
 			//if PAYERID is not sent back with request then get it via API (like when creating a free trial)
 			if ( ! isset( $_GET['PayerID'] ) ) {
@@ -1789,6 +1789,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							//log reason
 							if( !empty( $resArray['PAYMENTINFO_0_PENDINGREASON'] ) ) {
 								$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
+								//Store Payment status and reason
+								update_site_option('psts_payment_status', $payment_status );
+								update_site_option('psts_pending_reason', self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] );
 							}
 						}
 					}
@@ -1886,9 +1889,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						} else {
 							//If we have blog id
 							if ( ! empty ( $blog_id ) ) {
+								//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
+								$expiry    = strtotime( '+ 4 Hours');
+								echo $expiry;
 								update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+
 								//Extend the Blog expiry as per Trial or not
-								$psts->extend( $blog_id, '', self::get_slug(), $_POST['level'], $paymentAmount, false );
+								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount, $expiry );
 							} else {
 								//Update Domain meta
 								$signup_meta = '';
@@ -2130,17 +2137,20 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						if ( ! $is_trial ) {
 							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
+							//Check if transaction was successful, store payment status after blog is activated
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
 								$success          = true;
 							}
 						}
+						//If Is trial or the payment transaction was successful
 						if ( $is_trial || $success ) {
 							//just in case, try to cancel any old subscription
 							if ( ! empty( $blog_id ) && $profile_id = self::get_profile_id( $blog_id ) ) {
 								$resArray = PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 							}
 
+							//If transaction id is set ( No trial )
 							if ( $init_transaction && ! empty( $blog_id ) ) {
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
 							} elseif ( $init_transaction && ! empty ( $domain ) ) {
@@ -2155,6 +2165,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							//now attempt to create the subscription
 							$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
 
+							//If recurring profile was created successfully
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 
@@ -2168,15 +2179,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
 
+									//Store blog id and payment status in session
 									if ( isset( $process_data['new_blog_details'] ) ) {
-										ProSites_Helper_Session::session( array(
-											'new_blog_details',
-											'blog_id'
-										), $blog_id );
-										ProSites_Helper_Session::session( array(
-											'new_blog_details',
-											'payment_success'
-										), true );
+										ProSites_Helper_Session::session( array( 'new_blog_details', 'blog_id' ), $blog_id );
+										ProSites_Helper_Session::session( array( 'new_blog_details', 'payment_success' ), true );
 									}
 
 								} else {
