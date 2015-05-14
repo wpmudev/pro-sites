@@ -69,12 +69,12 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 			$left = '<span class="whole">' . $left . '</span>';
 
 			$right = count( $amount ) > 1 ? $amount[1] : '';
-			$right = ! empty( $right ) ? '<span class="decimal">' . $right . '</span>' : '';
+			$right = ! empty( $right ) ? '<span class="decimal">' . $right . '</span>' : '<span class="decimal hidden"></span>';
 
-			if( ! empty( $right ) ) {
+			if( ! empty( $amount[1] ) ) {
 				$amount = $left . '<span class="dot">.</span>' . $right;
 			} else {
-				$amount = $left;
+				$amount = $left . '<span class="dot hidden">.</span>' . $right;
 			}
 
 			$symbol_position = $psts->get_setting( 'curr_symbol_position', 1 );

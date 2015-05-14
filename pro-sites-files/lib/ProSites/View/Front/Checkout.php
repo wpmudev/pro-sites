@@ -49,6 +49,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 			$content .= self::render_tables_wrapper( 'post' );
 
+			$content = apply_filters( 'prosites_post_pricing_table_content', $content );
+
 			if( self::$new_signup && ! is_user_logged_in() ) {
 				$content .= self::render_login();
 			}
@@ -410,10 +412,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$price_plain = ProSites_Helper_UI::rich_currency_format( $level_list[ $level ][ $period_key ], true );
 					$period_content = '<div class="price ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">';
 					$period_content .= '<div class="plan-price original-amount">' . $price . '</div>';
+					$period_content .= '<div class="price-plain hidden plan-' . $level . '' . $months . '-plain">' . $price_plain . '</div>';
 					$period_content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
 					$period_content .= ! empty( $setup_msg ) ? $setup_msg : '';
 					$period_content .= '</div>';
-					$period_content .= '<div class="price-plain hidden plan-' . $level . '' . $months . '-plain">' . $price_plain . '</div>';
 					$level_details['breakdown'][ $period_key ] = str_replace( 'hide', '', $period_content );
 					$content .= $period_content;
 
@@ -422,8 +424,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$monthly_calculated = $level_list[ $level ][ $period_key ] / $months * 1.0;
 					$difference = ( $monthly_price - $monthly_calculated ) * $months;
 
-					$formatted_calculated = '<div class="monthly-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly_calculated, true ) . '</div>';
-					$formatted_savings = '<div class="savings-price original-amount">' . ProSites_Helper_UI::rich_currency_format( $difference, true ) . '</div>';
+					$calculated_monthly = ProSites_Helper_UI::rich_currency_format( $monthly_calculated, true );
+					$calculated_saving = ProSites_Helper_UI::rich_currency_format( $difference, true );
+					$formatted_calculated = '<div class="monthly-price original-amount">' . $calculated_monthly . '</div>';
+					$formatted_calculated .= '<div class="monthly-price-hidden hidden">' . $calculated_monthly . '</div>';
+					$formatted_savings = '<div class="savings-price original-amount">' . $calculated_saving . '</div>';
+					$formatted_savings .= '<div class="savings-price-hidden hidden">' . $calculated_saving . '</div>';
 
 					$summary_msg = sprintf( $plan_text['monthly'] );
 
