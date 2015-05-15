@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5';
+	var $version = '3.5.1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -464,6 +464,7 @@ Thanks!", 'psts' ),
 			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_daily_stats` TO `{$wpdb->base_prefix}pro_sites_daily_stats`" );
 			delete_site_option( "supporter_installed" );
 		}
+		define( 'DO_NOT_UPGRADE_GLOBAL_TABLES', false );
 
 		$table1 = "CREATE TABLE {$wpdb->base_prefix}pro_sites (
 		  blog_ID bigint(20) NOT NULL,
@@ -474,6 +475,7 @@ Thanks!", 'psts' ),
 		  amount varchar(10) NULL DEFAULT NULL,
 		  is_recurring tinyint(1) NULL DEFAULT 1,
 		  meta longtext NOT NULL,
+		  identifier varchar(50) NULL,
 		  PRIMARY KEY  (blog_ID),
 		  KEY  (blog_ID,level,expire)
 		);";
