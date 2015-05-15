@@ -1715,7 +1715,8 @@ class ProSites_Gateway_Stripe {
 		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="stripe-payment-form">
 
 			<input type="hidden" name="level" value="' . $level . '" />
-			<input type="hidden" name="period" value="' . $period . '" />';
+			<input type="hidden" name="period" value="' . $period . '" />
+			<input type="hidden" name="tax-type" value="none" />';
 
 		if ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) {
 			$content .= '<input type="hidden" name="new_blog" value="1" />';
