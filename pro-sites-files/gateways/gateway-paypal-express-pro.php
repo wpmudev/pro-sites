@@ -1042,7 +1042,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
 
 					//Activate the blog
-					$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trialing, $period, $level );
+					if( empty( $blog_id ) ) {
+						$result = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trialing, $period, $level );
+						$blog_id = !empty( $result['blog_id']) ? $result['blog_id'] :'';
+					}
+					error_log("Line 1046 ");
+					error_log( json_encode($blog_id) );
 
 					//receipts and record new transaction
 					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) ) {
