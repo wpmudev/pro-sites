@@ -913,7 +913,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 * Handle the IPN sent by Paypal
 	 */
 	function ipn_handler() {
-		global $psts, $wpdb;
+		global $psts;
+
 		if ( ! isset( $_POST['rp_invoice_id'] ) && ! isset( $_POST['custom'] ) ) {
 
 			die( 'Error: Missing POST variables. Identification is not possible.' );
@@ -958,8 +959,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
+
 			// get custom field values
-			@list( $pre, $blog_id, $activation_key, $level, $period, $amount, $currency, $timestamp ) = explode( ':', $custom );
+			@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key ) = explode( '_', $custom );
+
+			if( empty( $blog_id ) || $blog_id == 0 ) {
+				//Get it from Pro sites table, if not there, try to get it from signup table
+				$blog_id = self::blog_id_from_activation_key( $activation_key );
+			}
 
 			// process PayPal response
 			$new_status = false;
@@ -967,8 +974,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$profile_string = ( isset( $_POST['recurring_payment_id'] ) ) ? ' - ' . $_POST['recurring_payment_id'] : '';
 
 			$payment_status = ( isset( $_POST['initial_payment_status'] ) ) ? $_POST['initial_payment_status'] : $_POST['payment_status'];
-			error_log( 955 );
-			error_log( json_encode( $payment_status ) );
 
 			switch ( $payment_status ) {
 
@@ -1595,6 +1600,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 		}
+
 		//Runs just after the paypal button click, process paypal express checkout
 		if ( isset( $_POST['paypal_checkout'] ) || isset( $_POST['cc_paypal_checkout'] ) || isset( $_POST['paypal_checkout_x'] ) ) {
 			//check for level
@@ -1623,7 +1629,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
 			$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
-			$activation_key = ! empty( $process_data['activation_key'] ) ? $process_data['activation_key'] : $activation_key;
+			$activation_key = ! empty( $process_data['activation_key'] ) ? $process_data['activation_key'] : '';
 
 			//if PAYERID is not sent back with request then get it via API (like when creating a free trial)
 			if ( ! isset( $_GET['PayerID'] ) ) {
@@ -1785,10 +1791,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//Activate blog
 						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 						$blog_id      = ! empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
+
+						//If payment is pending for some reason, store the details, to display it on Checkout screen later
 						if( $payment_status == 'Pending' ) {
 							//log reason
 							if( !empty( $resArray['PAYMENTINFO_0_PENDINGREASON'] ) ) {
+
 								$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
+
 								//Store Payment status and reason
 								update_site_option('psts_payment_status', $payment_status );
 								update_site_option('psts_pending_reason', self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] );
@@ -1799,6 +1809,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( $is_trial || $ack_success ) {
 						if ( ! $is_trial ) {
 							if ( ! empty( $blog_id ) ) {
+								//Store transaction detail
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
 							} else {
 								$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ), $domain );
@@ -1818,6 +1829,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//create the recurring profile
 						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key );
 
+
 						//If Profile is created
 						if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
 
@@ -1829,11 +1841,17 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								//save new profile_id
 								self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
-								//update the profile id in paypal so that future payments are applied to the proper blog id
-								$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . $activation_key . ":" . $_POST['level'] . ':' . $_POST['period'] . ':' . $initAmount . ':' . $psts->get_setting( 'pypl_currency' ) . ':' . time();
-								PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
+								//update the blog id in paypal custom so that future payments are applied to the proper blog id
+								$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+								$updated = PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
+
+								//Store Payment , for rendering the confirmation on checkout page
+								if ( isset( $process_data['new_blog_details'] ) ) {
+									ProSites_Helper_Session::session( array( 'new_blog_details', 'blog_id' ), $blog_id );
+									ProSites_Helper_Session::session( array('new_blog_details', 'payment_success'), true );
+								}
 
 							} else {
 								//Store in signup meta for domain
@@ -1855,10 +1873,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							//If we have domain details, activate the blog, It will be extended later in the same code block
 							if ( ! empty( $domain ) ) {
 								$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
-							}
-							if ( isset( $process_data['new_blog_details'] ) ) {
-								ProSites_Helper_Session::session( array( 'new_blog_details', 'blog_id' ), $blog_id );
-								ProSites_Helper_Session::session( array('new_blog_details', 'payment_success'), true );
 							}
 							//If we have blog id, Extend the blog expiry
 							if ( ! empty( $blog_id ) ) {
@@ -1891,7 +1905,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							if ( ! empty ( $blog_id ) ) {
 								//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
 								$expiry    = strtotime( '+ 4 Hours');
-								echo $expiry;
 								update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 
 								//Extend the Blog expiry as per Trial or not
@@ -1915,6 +1928,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								);
 							}
 
+						}
+
+						if( !empty( $blog_id ) ) {
+							//Store activation key in Pro sites table
+							self::set_blog_identifier( $activation_key, $blog_id );
 						}
 
 						//display GA ecommerce in footer
@@ -1941,7 +1959,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			//process form
 			if ( isset( $_POST['cc_form'] ) ) {
-//				do_action( 'psts_cc_form_before_process', self, $psts, $blog_id );
 
 				//clean up $_POST
 				$cc_cardtype  = isset( $_POST['cc_card-type'] ) ? $_POST['cc_card-type'] : '';
@@ -2010,9 +2027,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				//no errors
 				if ( ! $psts->errors->get_error_code() ) {
-					//check for modifiying
+					//check for modifying
 					if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
 						$modify = $psts->get_expire( $blog_id );
+
 						//check for a upgrade and get new first payment date
 						if ( $upgrade = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] ) ) {
 							$modify = $upgrade;
@@ -2042,10 +2060,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$resArray = PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 							}
 
+							//Calculate the new expiry and extend the blog expiry
 							$old_expire = $psts->get_expire( $blog_id );
 							$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
+
 							$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] ), $new_expire, false );
+
+							//Notify blog user
 							$psts->email_notification( $blog_id, 'success' );
+
+							//Update Log
 							$psts->record_transaction( $blog_id, $init_transaction, $paymentAmount );
 
 							if ( $modify ) {
@@ -2055,7 +2079,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									$psts->record_stat( $blog_id, 'modify' );
 								}
 							} else {
+								//New Signup
 								$psts->record_stat( $blog_id, 'signup' );
+
+								//Update Activation Key
+								self::set_blog_identifier( $activation_key, $blog_id );
 							}
 
 							do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level'] );
@@ -2185,6 +2213,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 										ProSites_Helper_Session::session( array( 'new_blog_details', 'payment_success' ), true );
 									}
 
+									//Store activation key in Pro Sites table
+									self::set_blog_identifier( $activation_key, $blog_id );
+
 								} else {
 									//Store in signup meta for domain
 									self::set_profile_id( '', $resArray["PROFILEID"], $domain );
@@ -2256,6 +2287,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		global $psts, $wpdb;
 		$args = array();
+		$prev_billing = $next_billing = '';
 
 		if ( ! $blog_id ) {
 			return;
@@ -2463,6 +2495,43 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			'USD' => array( 'United States Dollar', '24' ),
 		);
 
+	}
+
+	/**
+	 * Update activation key in Pro sites table,
+	 * used for fetching blog id from activation key for Paypal IPN
+	 *
+	 * @param $key (Activation Key)
+	 * @param $blog_id
+	 *
+	 * @return bool
+	 */
+	public static function set_blog_identifier( $key, $blog_id ) {
+		global $wpdb;
+		if ( empty ( $blog_id ) || empty( $key ) ) {
+			return false;
+		}
+		//Store activation key in Pro Sites table
+		$query = "UPDATE {$wpdb->base_prefix}pro_sites SET identifier='%s' WHERE blog_id='%d'";
+		return $wpdb->query( $wpdb->prepare( $query, $key, $blog_id ) );
+	}
+
+	/**
+	 * Checks pro site table for blog id against matching activation key, if not found
+	 * fetches it from signup table, or return null
+	 *
+	 * @param $activation_key
+	 */
+	public static function blog_id_from_activation_key( $activation_key ) {
+		global $wpdb;
+		$query   = "SELECT blog_id from {$wpdb->base_prefix}pro_sites WHERE identifier='%s'";
+		$blog_id = $wpdb->get_var( $wpdb->prepare( $query, $activation_key ) );
+
+		//Try to get it from signup table
+		if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
+			$blog_id = ProSites_Helper_ProSite::get_blog_id( $activation_key );
+		}
+		return $blog_id;
 	}
 }
 
