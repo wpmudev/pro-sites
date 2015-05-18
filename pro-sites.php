@@ -284,6 +284,9 @@ class ProSites {
 		} else {
 			wp_die( __( 'There was an issue determining where Pro Sites is installed. Please reinstall.', 'psts' ) );
 		}
+		//Text Domain
+		define('PSTS_TEXT_DOMAIN', 'psts');
+		define('PSTS_PREFIX', 'psts');
 
 		//load data structures
 		require_once( $this->plugin_dir . 'data.php' );

@@ -1042,15 +1042,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
 
 					//Activate the blog
-					if( empty( $blog_id ) ) {
+					if( empty( $blog_id ) || $blog_id === 0 ) {
 						$result = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trialing, $period, $level );
 						$blog_id = !empty( $result['blog_id']) ? $result['blog_id'] :'';
 					}
-					error_log("Line 1046 ");
-					error_log( json_encode($blog_id) );
 
 					//receipts and record new transaction
-					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) ) {
+					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) && $blog_id !== 0 ) {
 
 						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
 							$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
@@ -1805,9 +1803,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 								$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
 
-								//Store Payment status and reason
-								update_site_option('psts_payment_status', $payment_status );
-								update_site_option('psts_pending_reason', self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] );
+								//Store Payment status and reason in pro site meta
+								$payment_details = array(
+									'payment_status'    => $payment_status,
+									'pending_reason'    => self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ]
+								);
+								update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
+
 							}
 						}
 					}
@@ -2306,12 +2308,18 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 
 		if ( $trialing ) {
-			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
+			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', PSTS_TEXT_DOMAIN ) . '</div>';
 		}
 
 		//Check if payment is not yet confirmed
 		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
-			$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
+			//Fetch, if payment status is pending and reason is stored
+			$psts_payment_details = get_user_meta(get_current_user_id(), 'psts_payment_details', true);
+			if( !empty( $psts_payment_details ) ) {
+				$args['pending'] = '<div id="psts-general-error" class="psts-warning message">' . $psts_payment_details['pending_reason'] . __('<br /> If you have enabled payment review for PayPal, make sure you accept the payment to avail the premium services.', PSTS_TEXT_DOMAIN ) . '</div>';
+			}else{
+				$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', PSTS_TEXT_DOMAIN ) . '</div>';
+			}
 		}
 
 		//Check if its a recurring subscription or not
