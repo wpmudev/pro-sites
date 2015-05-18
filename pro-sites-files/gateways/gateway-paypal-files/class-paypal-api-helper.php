@@ -110,7 +110,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			elseif ( $modify ) { // expiration is in the future\
 				$nvpstr .= "&TRIALBILLINGPERIOD=Month";
 				$nvpstr .= "&TRIALBILLINGFREQUENCY=$frequency";
-				$nvpstr .= "&TRIALTOTA_LBILLINGCYCLES=1";
+				$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 				$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
 				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 			} else {
