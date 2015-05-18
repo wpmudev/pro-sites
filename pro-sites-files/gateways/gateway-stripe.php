@@ -1863,7 +1863,7 @@ class ProSites_Gateway_Stripe {
 			$current_plan_level = 0;
 			$activation_key = isset( $_POST['activation'] ) ? $_POST['activation'] : '';
 			$email          = ! empty ( $_POST['user_email'] ) ? $_POST['user_email'] : ( ! empty( $_POST['signup_email'] ) ? $_POST['signup_email'] : ( ! empty( $_POST['blog_email'] ) ? $_POST['blog_email'] : '' ) );
-			$blog_id        = ! empty( $blog_id ) ? $blog_id : isset( $_POST['bid'] ) ? (int) $_POST['bid'] : 0;
+			$blog_id        = ! empty( $blog_id ) ? $blog_id : isset( $_REQUEST['bid'] ) ? (int) $_REQUEST['bid'] : 0;
 
 			//If there is a blog id, fetch existing customer details (Upgrade)
 			if ( ! empty( $blog_id ) ) {
@@ -2268,6 +2268,8 @@ class ProSites_Gateway_Stripe {
 
 						if ( ! empty( $blog_id ) ) {
 							$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
+							//If activation key is empty
+							$activation_key = !empty( $activation_key ) ? $activation_key : ProSites_Helper_ProSite::get_activation_key( $blog_id );
 						}
 
 						$customer_args = array(
@@ -2302,8 +2304,8 @@ class ProSites_Gateway_Stripe {
 						if ( $result ) {
 							$period  = (int) $_POST['period'];
 							$level   = (int) $_POST['level'];
-							$result  = ProSites_Helper_Registration::activate_blog( $activation_key, false, $period, $level );
-							$blog_id = $result['blog_id'];
+							$signup_details  = ProSites_Helper_Registration::activate_blog( $activation_key, false, $period, $level );
+							$blog_id = $signup_details['blog_id'];
 							if ( isset( $process_data['new_blog_details'] ) ) {
 								ProSites_Helper_Session::session( array('new_blog_details','blog_id'), $blog_id );
 								ProSites_Helper_Session::session( array('new_blog_details','payment_success'), true );

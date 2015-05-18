@@ -2293,7 +2293,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		global $psts, $wpdb;
 		$args = array();
-		$prev_billing = $next_billing = '';
+		$prev_billing = $next_billing = $content = '';
 
 		if ( ! $blog_id ) {
 			return;
