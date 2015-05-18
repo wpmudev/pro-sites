@@ -99,6 +99,8 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
 			}
 
+			echo "Has Trial";
+			var_dump( $has_trial );
 			//handle free trials
 			if ( $has_trial ) {
 				$nvpstr .= "&TRIALBILLINGPERIOD=Day";
@@ -110,7 +112,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			elseif ( $modify ) { // expiration is in the future\
 				$nvpstr .= "&TRIALBILLINGPERIOD=Month";
 				$nvpstr .= "&TRIALBILLINGFREQUENCY=$frequency";
-				$nvpstr .= "&TRIALTOTA_LBILLINGCYCLES=1";
+				$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 				$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
 				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 			} else {

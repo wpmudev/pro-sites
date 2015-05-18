@@ -1457,8 +1457,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		//Blog id, Level Period
 		$blog_id = ! empty( $_POST['bid'] ) ? $_POST['bid'] : 0;
-		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : 1;
-		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : 1;
+		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : '';
+		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : '';
 
 		// Try going stateless, or check the session
 		$process_data = array();
@@ -1495,8 +1495,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		//Set Level and period in upgraded blog details, if blog id is set, for upgrades
 		if ( ! empty( $blog_id ) ) {
 			$new_blog                                        = false;
-			$process_data['upgraded_blog_details']['level']  = $level;
-			$process_data['upgraded_blog_details']['period'] = $period;
+			if( !empty( $level ) && !empty( $period ) ) {
+				$process_data['upgraded_blog_details']['level']  = $level;
+				$process_data['upgraded_blog_details']['period'] = $period;
+			}
 		}
 
 		$signup_type = $new_blog ? 'new_blog_details' : 'upgraded_blog_details';
@@ -1755,10 +1757,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
 							self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
 						}
-
-						unset( $_SESSION['COUPON_CODE'] );
-						unset( $_SESSION['PERIOD'] );
-						unset( $_SESSION['LEVEL'] );
 					} else {
 						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 						$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
