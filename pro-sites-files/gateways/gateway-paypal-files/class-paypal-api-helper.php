@@ -99,8 +99,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
 			}
 
-			echo "Has Trial";
-			var_dump( $has_trial );
 			//handle free trials
 			if ( $has_trial ) {
 				$nvpstr .= "&TRIALBILLINGPERIOD=Day";
