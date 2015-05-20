@@ -2113,6 +2113,11 @@ Thanks!", 'psts' ),
 	function calc_upgrade_cost( $blog_id, $new_level, $new_period, $new_amt ) {
 		global $wpdb;
 
+		//If no blog id is set, or value is 0, return the amount
+		if ( empty( $blog_id ) || $blog_id === 0 ) {
+			return $new_amt;
+		}
+
 		$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 
 		if ( ! $old ) {
