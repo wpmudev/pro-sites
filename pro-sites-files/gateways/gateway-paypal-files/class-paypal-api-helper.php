@@ -73,7 +73,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '' ) {
+		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '' ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
@@ -120,6 +120,11 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 			$nvpstr .= "&BILLINGPERIOD=Month";
 			$nvpstr .= "&BILLINGFREQUENCY=$frequency";
+
+			//Non recurring subscription with trial
+			if( !empty( $total_billing_cycle )  && $total_billing_cycle == 1 ) {
+				$nvpstr .= "&TOTALBILLINGCYCLES=$total_billing_cycle";
+			}
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
 			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
@@ -129,7 +134,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		public static function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
+		public static function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '', $total_billing_cycle = '' ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
@@ -177,6 +182,12 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 			$nvpstr .= "&BILLINGPERIOD=Month";
 			$nvpstr .= "&BILLINGFREQUENCY=$frequency";
+
+			//Non recurring subscription with trial
+			if( !empty( $total_billing_cycle )  && $total_billing_cycle == 1 ) {
+				$nvpstr .= "&TOTALBILLINGCYCLES=$total_billing_cycle";
+			}
+
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
 			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key ;
@@ -199,7 +210,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
+		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
 			global $psts;
 
 			$nvpstr = "&AMT=$paymentAmount";
@@ -227,7 +238,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&COUNTRYCODE=$countrycode";
 			$nvpstr .= "&EMAIL=$email";
 
-			$resArray = $this->api_call( "DoDirectPayment", $nvpstr );
+			$resArray = self::api_call( "DoDirectPayment", $nvpstr );
 
 			return $resArray;
 		}
