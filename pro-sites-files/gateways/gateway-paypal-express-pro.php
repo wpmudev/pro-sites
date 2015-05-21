@@ -1241,7 +1241,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			<input type="hidden" name="level" value="' . $level . '" />
 			<input type="hidden" name="period" value="' . $period . '" />
-			<input type="hidden" name="tax-type" value="none" />';
+			<input type="hidden" name="tax-type" value="none" />
+			<input type="hidden" name="tax-country" value="none" />';
+
 
 		if ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) {
 			$content .= '<input type="hidden" name="new_blog" value="1" />';
@@ -1466,6 +1468,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$blog_id = ! empty( $_POST['bid'] ) ? $_POST['bid'] : 0;
 		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : '';
 		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : '';
+
+		// Tax
+		$tax_country = apply_filters( 'prosite_checkout_tax_country', $_POST['tax-country'], $_POST['tax-type'] );
+		$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $_POST['tax-type'], $_POST['tax-country'] );
+		$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $_POST['tax-type'], $_POST['tax-country'] );
 
 		// Try going stateless, or check the session
 		$process_data = array();

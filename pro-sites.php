@@ -105,6 +105,12 @@ class ProSites {
 			}
 		}
 
+		/**
+		 * @todo make Taxamo load as module above (above needs changing first)
+		 */
+		ProSites_Module_Taxamo::init();
+
+
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
 
@@ -222,6 +228,7 @@ class ProSites {
 			'^ProSites_View',
 			'^ProSites_Model',
 			'^ProSites_Gateway',
+			'^ProSites_Module',
 		);
 
 		/**

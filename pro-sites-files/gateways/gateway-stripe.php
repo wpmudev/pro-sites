@@ -1716,7 +1716,8 @@ class ProSites_Gateway_Stripe {
 
 			<input type="hidden" name="level" value="' . $level . '" />
 			<input type="hidden" name="period" value="' . $period . '" />
-			<input type="hidden" name="tax-type" value="none" />';
+			<input type="hidden" name="tax-type" value="none" />
+			<input type="hidden" name="tax-country" value="none" />';
 
 		if ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) {
 			$content .= '<input type="hidden" name="new_blog" value="1" />';
@@ -1855,6 +1856,11 @@ class ProSites_Gateway_Stripe {
 			} else if ( ! isset( $_POST['stripeToken'] ) && empty( $_POST['wp_password'] ) ) {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 			}
+
+			// Tax
+			$tax_country = apply_filters( 'prosite_checkout_tax_country', $_POST['tax-country'], $_POST['tax-type'] );
+			$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $_POST['tax-type'], $_POST['tax-country'] );
+			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $_POST['tax-type'], $_POST['tax-country'] );
 
 			$error          = '';
 			$success        = '';

@@ -531,7 +531,7 @@ ul.pricing-column li, .pricing-column ul li {
 #prosites-checkout-table {
 	width: 100%;
 	position:relative;
-	margin: 10px 0 50px 0;
+	margin: 10px 0 10px 0;
 	padding-top:1px;
 }
 
@@ -1099,7 +1099,6 @@ ul.pricing-column.not-chosen-plan .button-box button {
 
 #prosites-checkout-table .login-existing {
     clear: both;
-    margin-top: 20px;
 }
 
 .input_available {
@@ -1151,6 +1150,7 @@ ul.pricing-column.not-chosen-plan .button-box button {
 .login-existing {
     /*text-align: right;*/
     font-size: 0.9em;
+    margin-top: 20px;
 }
 .login-existing form {
     display: none;
@@ -1240,12 +1240,13 @@ ul.pricing-column.not-chosen-plan .button-box button {
     z-index: 10;
 }
 
-.login-existing {
-
-}
-
 .tax-checkout-notice {
     border: 1px solid #b6b6b6;
+    font-size: 0.8em;
+    text-align: center;
+}
+.tax-checkout-warning {
+    border: 1px solid #ff6666;
     font-size: 0.8em;
     text-align: center;
 }
