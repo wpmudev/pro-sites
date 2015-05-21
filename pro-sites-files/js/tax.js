@@ -4,13 +4,41 @@ jQuery( document ).ready( function ( $ ) {
         integrate_taxamo( data );
     } );
 
+
     /**
      * Better change things if the user changes country
      */
     Taxamo.subscribe( 'taxamo.country.detected', function ( data ) {
+        //$( '[name="tax-country"]' ).val( data );
+        //console.log( data );
+
+        $( '.tax-checkout-warning' ).remove();
+
+        if ( !data.tax_country_code ) {
+            $( '[name="tax-country"]' ).val( data.evidence.by_ip.resolved_country_code );
+        } else {
+            $( '[name="tax-country"]' ).val( data.tax_country_code );
+        }
+
         integrate_taxamo( data );
+        taxamo_scan_prices();
+
+        // Incompatible data....
+        if ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) {
+            // Warning message re fraud, VPN, calculation by CC.
+            $( '.tax-checkout-notice' ).after( '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>' );
+        }
+
+
     } );
 
+    function taxamo_scan_prices() {
+        Taxamo.scanPrices( '.price-plain, .monthly-price-hidden, .savings-price-hidden', {
+            "priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
+            "noTaxTitle": "", //set titles to false to disable title attribute update
+            "taxTitle": ""
+        } );
+    }
 
     /**
      * Are we using Taxamo?
@@ -19,7 +47,7 @@ jQuery( document ).ready( function ( $ ) {
      */
     function is_taxamo() {
 
-        if( Taxamo.calculatedLocation !== undefined || typeof Taxamo.calculatedLocation !== 'undefined' ) {
+        if ( Taxamo.calculatedLocation !== undefined || typeof Taxamo.calculatedLocation !== 'undefined' ) {
             return Taxamo.calculatedLocation.tax_supported
         } else {
             return false;
@@ -31,10 +59,10 @@ jQuery( document ).ready( function ( $ ) {
     function integrate_taxamo( data ) {
         var use_taxamo = is_taxamo();
 
-        if( use_taxamo ) {
+        if ( use_taxamo ) {
 
             // Set Taxamo
-            if( $( '[name="tax-type"]' ).val() != 'taxamo' ) {
+            if ( $( '[name="tax-type"]' ).val() != 'taxamo' ) {
                 $( '[name="tax-type"]' ).attr( 'data-old', $( '[name="tax-type"]' ).val() );
             }
             $( '[name="tax-type"]' ).val( 'taxamo' );
@@ -81,9 +109,12 @@ jQuery( document ).ready( function ( $ ) {
                     if ( 0 < amount[ 0 ] ) {
                         var amount_string = $( $( value ).prev() ).html();
                         //var tax_base = $( value ).find( '.tax-base' ).html();
-                        var replace_value = $( value ).attr('taxamo-amount-str');
+                        var replace_value = $( value ).attr( 'taxamo-amount-str' );
                         amount_string = amount_string.replace( replace_value, amount );
-                        $( $( value ).prev() ).html( amount_string );
+                        if( 'yes' != $( $( value ).prev() ).attr( 'data-updated' ) ) {
+                            $( $( value ).prev() ).html( amount_string );
+                        }
+                        $( $( value ).prev() ).attr( 'data-updated', 'yes' );
                     }
                 }
             } );
@@ -91,14 +122,14 @@ jQuery( document ).ready( function ( $ ) {
         } else {
 
             // Reset tax type
-            if( typeof ($( '[name="tax-type"]' ).attr( 'data-old' )) !== 'undefined' ) {
+            if ( typeof ($( '[name="tax-type"]' ).attr( 'data-old' )) !== 'undefined' ) {
                 $( '[name="tax-type"]' ).val( $( '[name="tax-type"]' ).attr( 'data-old' ) );
             }
 
             // Update Primary Display Prices
             $( '.tax-checkout-notice' ).addClass( 'hidden' );
             $.each( $( '.price-plain.hidden' ), function ( index, value ) {
-                var amount = $( value ).attr('taxamo-amount-str');
+                var amount = $( value ).attr( 'taxamo-amount-str' );
                 //console.log( amount );
                 if ( typeof amount !== 'undefined' ) {
                     amount = amount.split( '.' );
@@ -121,9 +152,10 @@ jQuery( document ).ready( function ( $ ) {
 
             // Reset monthly savings prices
             $.each( $( '.monthly-price-hidden, .savings-price-hidden' ), function ( index, value ) {
-                var original = $( value ).attr('taxamo-original-content');
+                var original = $( value ).attr( 'taxamo-original-content' );
                 if ( typeof original !== 'undefined' ) {
                     $( $( value ).prev() ).html( original );
+                    $( $( value ).prev() ).attr( 'data-updated', '' );
                 }
             } );
 
@@ -135,9 +167,9 @@ jQuery( document ).ready( function ( $ ) {
 
     function get_countries_array( dictionary ) {
         var countries = [];
-        $.each( dictionary, function( key, value ) {
-            countries.push( value['tax_number_country_code'] );
-        } ) ;
+        $.each( dictionary, function ( key, value ) {
+            countries.push( value[ 'tax_number_country_code' ] );
+        } );
         return countries;
     }
 

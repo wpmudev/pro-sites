@@ -45,10 +45,10 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			$taxamo .= '<script type="text/javascript">
 				Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
 				Taxamo.setCurrencyCode(\'AUD\');
-				Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
-				"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
-				"noTaxTitle": "", //set titles to false to disable title attribute update
-				"taxTitle": ""});
+				//Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
+				//"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
+				//"noTaxTitle": "", //set titles to false to disable title attribute update
+				//"taxTitle": ""});
 				//Taxamo.detectButtons();
 				Taxamo.detectCountry();
 				Taxamo.setBillingCountry(\'AU\');
@@ -63,6 +63,12 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			global $psts;
 
 			wp_enqueue_script( 'psts-tax', $psts->plugin_url . 'js/tax.js', array( 'jquery' ), $psts->version );
+
+			$translation_array = apply_filters( 'prosites_tax_script_translations', array(
+				'taxamo_missmatch' => __( 'EU VAT Warning: Your location evidence is not matching. You may be using a VPN or have provided inaccurate information. Your credit card will be used to determine your location upon checkout and the amount you are charged may include tax not shown here. Please make sure you have provided accurate information.', 'psts' ),
+			) );
+
+			wp_localize_script( 'psts-tax', 'psts_tax', $translation_array );
 		}
 
 		public static function tax_checkout_notice( $content ) {

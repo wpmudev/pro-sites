@@ -15,10 +15,9 @@ class ProSites_Gateway_Manual {
 	function __construct() {
 		//settings
 //		add_action( 'psts_gateway_settings', array( &$this, 'settings' ) );
-
 		//checkout stuff
 		add_filter( 'psts_checkout_output', array( &$this, 'checkout_screen' ), 10, 3 );
-		add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
+		//add_action( 'psts_checkout_page_load', array( &$this, 'process_checkout' ), '', 2 );
 	}
 
 	function settings() {

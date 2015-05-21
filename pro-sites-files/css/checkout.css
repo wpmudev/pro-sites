@@ -1245,6 +1245,11 @@ ul.pricing-column.not-chosen-plan .button-box button {
     font-size: 0.8em;
     text-align: center;
 }
+.tax-checkout-warning {
+    border: 1px solid #ff6666;
+    font-size: 0.8em;
+    text-align: center;
+}
 
 /* === DARK MODE === */
 
