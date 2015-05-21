@@ -33,9 +33,13 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 		}
 
 		public static function setup_hooks() {
+
+			// @todo split out taxamo and make it conditional
 			add_action( 'wp_enqueue_scripts', array( 'ProSites_Helper_Tax', 'enqueue_tax_scripts' ) );
 			add_filter( 'prosites_render_checkout_page', array( 'ProSites_Helper_Tax', 'append_tax_api' ), 10, 3 );
 			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'tax_checkout_notice' ) );
+
+			do_action( 'prosites_tax_hooks_loaded' );
 		}
 
 		public static function append_tax_api( $content, $blog_id, $domain ) {
@@ -44,14 +48,18 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			$taxamo = 	'<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>';
 			$taxamo .= '<script type="text/javascript">
 				Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
-				Taxamo.setCurrencyCode(\'AUD\');
-				//Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
-				//"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
-				//"noTaxTitle": "", //set titles to false to disable title attribute update
-				//"taxTitle": ""});
-				//Taxamo.detectButtons();
-				Taxamo.detectCountry();
-				Taxamo.setBillingCountry(\'AU\');
+				tokenOK = false;
+		        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
+		        if( tokenOK ) {
+					Taxamo.setCurrencyCode(\'AUD\');
+					//Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
+					//"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
+					//"noTaxTitle": "", //set titles to false to disable title attribute update
+					//"taxTitle": ""});
+					//Taxamo.detectButtons();
+					Taxamo.detectCountry();
+					Taxamo.setBillingCountry(\'AU\');
+				}
 				</script>';
 
 			$content = $content . $taxamo;

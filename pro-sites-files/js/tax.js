@@ -1,36 +1,46 @@
 jQuery( document ).ready( function ( $ ) {
 
-    Taxamo.subscribe( 'taxamo.prices.updated', function ( data ) {
-        integrate_taxamo( data );
-    } );
+    if( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
+        Taxamo.subscribe( 'taxamo.prices.updated', function ( data ) {
+            integrate_taxamo( data );
+        } );
+    }
 
 
     /**
      * Better change things if the user changes country
      */
-    Taxamo.subscribe( 'taxamo.country.detected', function ( data ) {
-        //$( '[name="tax-country"]' ).val( data );
-        //console.log( data );
+    if( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
+        Taxamo.subscribe( 'taxamo.country.detected', function ( data ) {
+            //$( '[name="tax-country"]' ).val( data );
+            //console.log( data );
 
-        $( '.tax-checkout-warning' ).remove();
+            $( '.tax-checkout-warning' ).remove();
 
-        if ( !data.tax_country_code ) {
-            $( '[name="tax-country"]' ).val( data.evidence.by_ip.resolved_country_code );
-        } else {
-            $( '[name="tax-country"]' ).val( data.tax_country_code );
-        }
+            if ( !data.tax_country_code ) {
+                $( '[name="tax-country"]' ).val( data.evidence.by_ip.resolved_country_code );
+            } else {
+                $( '[name="tax-country"]' ).val( data.tax_country_code );
+            }
 
-        integrate_taxamo( data );
-        taxamo_scan_prices();
+            integrate_taxamo( data );
+            taxamo_scan_prices();
 
-        // Incompatible data....
-        if ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) {
-            // Warning message re fraud, VPN, calculation by CC.
-            $( '.tax-checkout-notice' ).after( '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>' );
-        }
+            // Incompatible data....
+            if ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) {
+                // Warning message re fraud, VPN, calculation by CC.
+                $( '.tax-checkout-notice' ).after( '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>' );
+            }
 
 
-    } );
+        } );
+    }
+
+    function taxamo_token_ok() {
+        tokenOK = false;
+        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
+        return tokenOK;
+    }
 
     function taxamo_scan_prices() {
         Taxamo.scanPrices( '.price-plain, .monthly-price-hidden, .savings-price-hidden', {
@@ -46,6 +56,13 @@ jQuery( document ).ready( function ( $ ) {
      * If its an EU location (tax_supported) return true, else false.
      */
     function is_taxamo() {
+
+        if( ! taxamo_token_ok() ) {
+            console.log( "NOOOO" );
+            return false;
+        };
+
+        console.log('YES!');
 
         if ( Taxamo.calculatedLocation !== undefined || typeof Taxamo.calculatedLocation !== 'undefined' ) {
             return Taxamo.calculatedLocation.tax_supported

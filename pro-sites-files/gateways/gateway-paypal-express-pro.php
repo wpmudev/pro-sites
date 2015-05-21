@@ -1462,6 +1462,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : '';
 		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : '';
 
+		// Tax
+		$tax_country = apply_filters( 'prosite_checkout_tax_country', $_POST['tax-country'], $_POST['tax-type'] );
+		$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $_POST['tax-type'], $_POST['tax-country'] );
+		$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $_POST['tax-type'], $_POST['tax-country'] );
+
 		// Try going stateless, or check the session
 		$process_data = array();
 		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );

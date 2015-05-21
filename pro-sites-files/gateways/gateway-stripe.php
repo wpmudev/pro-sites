@@ -1857,6 +1857,11 @@ class ProSites_Gateway_Stripe {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 			}
 
+			// Tax
+			$tax_country = apply_filters( 'prosite_checkout_tax_country', $_POST['tax-country'], $_POST['tax-type'] );
+			$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $_POST['tax-type'], $_POST['tax-country'] );
+			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $_POST['tax-type'], $_POST['tax-country'] );
+
 			$error          = '';
 			$success        = '';
 			$plan           = self::get_plan_id( $_POST['level'], $_POST['period'] );
