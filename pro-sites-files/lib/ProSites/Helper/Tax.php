@@ -50,7 +50,7 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 				Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
 				tokenOK = false;
 		        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
-		        if( tokenOK ) {
+		        //if( tokenOK ) {
 					Taxamo.setCurrencyCode(\'AUD\');
 					//Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
 					//"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
@@ -58,8 +58,8 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 					//"taxTitle": ""});
 					//Taxamo.detectButtons();
 					Taxamo.detectCountry();
-					Taxamo.setBillingCountry(\'AU\');
-				}
+					//Taxamo.setBillingCountry(\'AU\');
+				//}
 				</script>';
 
 			$content = $content . $taxamo;

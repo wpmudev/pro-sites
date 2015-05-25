@@ -1,6 +1,7 @@
 jQuery( document ).ready( function ( $ ) {
 
-    if( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
+    //if ( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
+    if ( typeof Taxamo !== "undefined" ) {
         Taxamo.subscribe( 'taxamo.prices.updated', function ( data ) {
             integrate_taxamo( data );
         } );
@@ -10,7 +11,8 @@ jQuery( document ).ready( function ( $ ) {
     /**
      * Better change things if the user changes country
      */
-    if( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
+    //if ( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
+    if ( typeof Taxamo !== "undefined" ) {
         Taxamo.subscribe( 'taxamo.country.detected', function ( data ) {
             //$( '[name="tax-country"]' ).val( data );
             //console.log( data );
@@ -26,19 +28,39 @@ jQuery( document ).ready( function ( $ ) {
             integrate_taxamo( data );
             taxamo_scan_prices();
 
-            // Incompatible data....
+            // Incompatible evidence....
             if ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) {
                 // Warning message re fraud, VPN, calculation by CC.
                 $( '.tax-checkout-notice' ).after( '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>' );
             }
 
-
         } );
     }
 
+
+    function taxamo_update_evidence() {
+
+        if( ! Taxamo.calculatedLocation ) {
+            return false;
+        }
+
+        var data = Taxamo.calculatedLocation;
+        var evidence_data = {};
+        evidence_data.billing_country_code = data.billing_country_code;
+        evidence_data.buyer_ip = data.buyer_ip;
+        evidence_data.evidence = data.evidence;
+        evidence_data.country_name = data.country_name;
+        evidence_data.tax_country_code = data.tax_country_code;
+        evidence_data.tax_supported = data.tax_supported;
+        evidence_data.tax_percentage = $( '.price-plain .tax-rate' ).html();
+        $( '[name="tax-evidence"]' ).val( JSON.stringify( evidence_data ) );
+        console.log( $( '[name="tax-evidence"]' ).val() );
+    }
     function taxamo_token_ok() {
         tokenOK = false;
-        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
+        Taxamo.verifyToken( function ( data ) {
+            tokenOK = data.tokenOK;
+        } );
         return tokenOK;
     }
 
@@ -56,13 +78,6 @@ jQuery( document ).ready( function ( $ ) {
      * If its an EU location (tax_supported) return true, else false.
      */
     function is_taxamo() {
-
-        if( ! taxamo_token_ok() ) {
-            console.log( "NOOOO" );
-            return false;
-        };
-
-        console.log('YES!');
 
         if ( Taxamo.calculatedLocation !== undefined || typeof Taxamo.calculatedLocation !== 'undefined' ) {
             return Taxamo.calculatedLocation.tax_supported
@@ -128,7 +143,7 @@ jQuery( document ).ready( function ( $ ) {
                         //var tax_base = $( value ).find( '.tax-base' ).html();
                         var replace_value = $( value ).attr( 'taxamo-amount-str' );
                         amount_string = amount_string.replace( replace_value, amount );
-                        if( 'yes' != $( $( value ).prev() ).attr( 'data-updated' ) ) {
+                        if ( 'yes' != $( $( value ).prev() ).attr( 'data-updated' ) ) {
                             $( $( value ).prev() ).html( amount_string );
                         }
                         $( $( value ).prev() ).attr( 'data-updated', 'yes' );
@@ -178,7 +193,7 @@ jQuery( document ).ready( function ( $ ) {
 
         }
 
-
+        taxamo_update_evidence();
     }
 
 

@@ -31,18 +31,24 @@ if( !class_exists( 'ProSites_Module_Taxamo' ) ) {
 				}
 			}
 
-			add_filter( 'prosite_checkout_tax_apply', array( get_class(), 'apply_tax' ), 10, 3 );
-			add_filter( 'prosite_checkout_tax_percentage', array( get_class(), 'tax_percentage' ), 10, 3 );
+			add_filter( 'prosite_checkout_tax_apply', array( get_class(), 'apply_tax' ), 10, 4 );
+			add_filter( 'prosite_checkout_tax_percentage', array( get_class(), 'tax_percentage' ), 10, 4 );
 
 		}
 
-		public static function apply_tax( $apply, $type, $country ) {
-			// @todo Use API to check evidence
+		public static function apply_tax( $apply, $type, $country, $data ) {
+			$data = json_decode( $data );
+			if( isset( $data->tax_supported ) && 'taxamo' == $type ) {
+				return $data->tax_supported;
+			}
 			return $apply;
 		}
 
-		public static function tax_percentage( $percentage, $type, $country ) {
-			// @todo Use API to calculate percentage
+		public static function tax_percentage( $percentage, $type, $country, $data ) {
+			$data = json_decode( $data );
+			if( isset( $data->tax_percentage ) && 'taxamo' == $type ) {
+				return $data->tax_percentage;
+			}
 			return $percentage;
 		}
 
