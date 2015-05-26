@@ -57,6 +57,12 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 						__( 'These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts' ),
 					),
 				) ),
+				'taxes'            => array_merge( $section_options, array(
+					'title' => __( 'TAX Settings', 'psts' ),
+					'desc'               => array(
+						__( 'Setting up TAX for compliance and legal requirements.', 'psts' ),
+					),
+				) ),
 				'ads'                => array_merge( $section_options, array(
 					'title' => __( 'Advertising', 'psts' ),
 					'desc'               => array(

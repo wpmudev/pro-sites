@@ -44,10 +44,16 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 		public static function append_tax_api( $content, $blog_id, $domain ) {
 
-			// Move this to its own class later
-			$taxamo = 	'<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>';
-			$taxamo .= '<script type="text/javascript">
-				Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
+			global $psts;
+
+			$token = $psts->get_setting( 'taxamo_token' );
+			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
+			if( ! empty( $token ) && ! empty( $taxamo_enabled ) ) {
+				// Move this to its own class later
+				$taxamo = '<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>';
+				$taxamo .= '<script type="text/javascript">
+				//Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
+				Taxamo.initialize(\'' . $token . '\');
 				tokenOK = false;
 		        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
 		        //if( tokenOK ) {
@@ -62,7 +68,8 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 				//}
 				</script>';
 
-			$content = $content . $taxamo;
+				$content = $content . $taxamo;
+			}
 
 			return apply_filters( 'prosites_checkout_append_tax', $content );
 		}
