@@ -8,9 +8,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static $selected_level = 0;
 
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
-			global $psts, $current_prosite_blog;
+			global $psts, $current_prosite_blog, $wpdb;
 
-			$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
+			$session_data = ProSites_Helper_Session::session();
 			// If its in session, get it
 			if( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['level'] ) ) {
 				$selected_period = 'price_' . ( (int) $session_data['new_blog_details']['period'] );
@@ -26,8 +26,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			if( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['blog_id'] ) ) {
 				$blog_id = $session_data['new_blog_details']['blog_id'];
 			}
+
 			// Or if we're at checkout and already have a blog (1 blog only!)
 			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
+			//If no blog id, get it from pro sites table, using activation key
+			if( empty( $blog_id ) ) {
+				$blog_id = $wpdb->get_var("SELECT blog_id FROM {$wpdb->base_prefix}pro_sites WHERE identifier='" . $session_data['activation_key'] ."'" );
+			}
 
 			self::$default_period = apply_filters( 'prosites_render_checkout_page_period', $selected_period, $blog_id );
 			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
