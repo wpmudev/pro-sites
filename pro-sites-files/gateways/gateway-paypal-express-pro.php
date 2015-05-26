@@ -2229,13 +2229,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$psts->errors->add( 'country', $error_message['country'] );
 				}
 
-				echo "Any error";
-				var_dump( ! $psts->errors->get_error_code() );
 				//All fields are Proper, process Card
 				if ( ! $psts->errors->get_error_code() ) {
 					//check for modifying
-					echo "If is a pro site and not in trial";
-					var_dump( is_pro_site( $blog_id ));
 					if ( is_pro_site( $blog_id ) ) {
 						$modify = $psts->get_expire( $blog_id );
 
@@ -2245,24 +2241,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						} else {
 							$upgrade = false;
 						}
-						var_dump( $upgrade );
 					} else {
 						$modify = false;
 					}
 
-
-					echo "Not Recurring Modify and Not trial";
-					var_dump( !$recurring );
-					var_dump( $modify );
-					var_dump( !$is_trial  );
 					if ( ! $recurring ) {
 						//Only Upgrades or signup without trial
 						if ( $modify || ! $is_trial ) {
 							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email );
 
-							echo "<pre>";
-							print_r( $resArray );
-							echo "</pre>";
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
 								$paymentAmount    = $resArray['AMT'];

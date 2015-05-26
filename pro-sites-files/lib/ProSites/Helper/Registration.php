@@ -209,6 +209,25 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			return $welcome_email;
 		}
 
+		/**
+		 * Update activation key for the blog id in pro sites table
+		 * @param $blog_id
+		 * @param $activation_key
+		 */
+		public static function update_activation_key( $blog_id, $activation_key ) {
+			global $wpdb;
+			$wpdb->update(
+				$wpdb->base_prefix . 'pro_sites',
+				array(
+					'identifier' => $activation_key,
+				),
+				array(
+					'blog_ID' => $blog_id
+				)
+			);
+		}
+
+
 	}
 
 }
