@@ -49,8 +49,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&HDRBACKCOLOR=" . urlencode( $psts->get_setting( 'pypl_header_back' ) );
 			$nvpstr .= "&PAYFLOWCOLOR=" . urlencode( $psts->get_setting( 'pypl_page_back' ) );
 
-			error_log("Line 49");
-			error_log( $nvpstr );
 			$resArray = self::api_call( "SetExpressCheckout", $nvpstr );
 
 			return $resArray;
@@ -75,8 +73,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
 			$resArray = self::api_call( "DoExpressCheckoutPayment", $nvpstr );
 
-			error_log("Line 75");
-			error_log( $nvpstr );
 			return $resArray;
 		}
 
@@ -136,8 +132,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
 			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
 
-			error_log("Line 76");
-			error_log( $nvpstr );
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
@@ -219,7 +213,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '' ) {
+		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $activation_key = '' ) {
 			global $psts;
 
 			$nvpstr = "&AMT=$paymentAmount";
@@ -247,8 +241,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&COUNTRYCODE=$countrycode";
 			$nvpstr .= "&EMAIL=$email";
 
-			error_log("Line 250");
-			error_log( $nvpstr );
 			$resArray = self::api_call( "DoDirectPayment", $nvpstr );
 
 			return $resArray;
