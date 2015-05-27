@@ -1,5 +1,11 @@
 jQuery( document ).ready( function ( $ ) {
 
+
+    $('[name="tax-evidence-update"]' ).on( 'click', function(target){
+        alert('boss!');
+    });
+
+
     //if ( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
     if ( typeof Taxamo !== "undefined" ) {
         Taxamo.subscribe( 'taxamo.prices.updated', function ( data ) {
@@ -31,10 +37,18 @@ jQuery( document ).ready( function ( $ ) {
             // Incompatible evidence....
             if ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) {
                 // Warning message re fraud, VPN, calculation by CC.
-                $( '.tax-checkout-notice' ).after( '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>' );
+
+                var evidence = '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>';
+                $( '.tax-checkout-notice' ).after( evidence );
+                $( '.tax-checkout-evidence' ).removeClass( 'hidden' );
             }
 
         } );
+    }
+
+
+    function add_additional_evidence( imsi ) {
+
     }
 
 

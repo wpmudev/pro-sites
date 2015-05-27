@@ -1,7 +1,5 @@
 <?php
 
-
-
 if ( ! class_exists( 'ProSites_Helper_Geolocation' ) ) {
 
 	class ProSites_Helper_Geolocation {
@@ -36,6 +34,10 @@ if ( ! class_exists( 'ProSites_Helper_Geolocation' ) ) {
 			'SI' => array( 'Slovenia', 'SVN' ),
 			'SE' => array( 'Sweden', 'SWE' ),
 		);
+
+		public static function get_EU_countries() {
+			return self::$EU_countries;
+		}
 
 		public static function getIPInfo( $ip = false ) {
 

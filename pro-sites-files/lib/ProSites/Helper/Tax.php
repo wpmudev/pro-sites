@@ -40,6 +40,10 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'tax_checkout_notice' ) );
 			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'eu_tax_warning_notice' ) );
 
+			// Hook IMSI helper
+			add_action( 'wp_ajax_validate_imsi', array( 'ProSites_Helper_IMSI', 'validate_imsi_ajax' ) );
+			add_action( 'wp_ajax_nopriv_validate_imsi', array( 'ProSites_Helper_IMSI', 'validate_imsi_ajax' ) );
+
 			do_action( 'prosites_tax_hooks_loaded' );
 		}
 
@@ -81,7 +85,10 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			wp_enqueue_script( 'psts-tax', $psts->plugin_url . 'js/tax.js', array( 'jquery' ), $psts->version );
 
 			$translation_array = apply_filters( 'prosites_tax_script_translations', array(
-				'taxamo_missmatch' => __( 'EU VAT Warning: Your location evidence is not matching. You may be using a VPN or have provided inaccurate information. Your credit card will be used to determine your location upon checkout and the amount you are charged may include tax not shown here. Please make sure you have provided accurate information.', 'psts' ),
+				'taxamo_missmatch' => __( 'EU VAT: Your location evidence is not matching. Additional evidence required. If you are travelling in another country or using a VPN, please provide as much information as possible and ensure that it is accurate.', 'psts' ),
+				'taxamo_imsi' => __( 'SIM card IMSI number', 'psts' ),
+				'taxamo_imsi_help' => __( 'Available from your carrier upon request.', 'psts' ),
+				'taxamo_vat_number' => __( 'VAT#', 'psts' ),
 			) );
 
 			wp_localize_script( 'psts-tax', 'psts_tax', $translation_array );
@@ -89,9 +96,30 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 		public static function tax_checkout_notice( $content ) {
 
-			return $content . '<div class="tax-checkout-notice hidden">' .
-			       sprintf( __( 'Note: Amounts displayed includes taxes of %s%%.', 'psts' ), '<span class="tax-percentage"></span>' ).
+			global $psts;
+
+			$token = $psts->get_setting( 'taxamo_token' );
+			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
+			$use_taxamo = false;
+			if( ! empty( $token ) && ! empty( $taxamo_enabled ) ) {
+				$use_taxamo = true;
+			}
+
+			$new_content = $content . '<div class="tax-checkout-notice hidden">' .
+				sprintf( __( 'Note: Amounts displayed includes taxes of %s%%.', 'psts' ), '<span class="tax-percentage"></span>' ) .
 				'</div>';
+
+			if( $use_taxamo ) {
+				$new_content .= '<div class="tax-checkout-evidence hidden">' .
+	                sprintf( __( 'SIM card IMSI number (available from carrier upon request)', 'psts' ) ) .
+	                '<br /><input type="textbox" name="tax-evidence-imsi" /><br />' .
+	                sprintf( __( 'VAT number (if available)', 'psts' ) ) .
+	                '<br /><input type="textbox" name="tax-evidence-vatnumber" /><br />' .
+	                '<input type="button" name="tax-evidence-update" value="' . __( 'Update Evidence', 'psts' ) . '" />' .
+	                '</div>';
+			}
+
+			return $new_content;
 		}
 
 		public static function eu_tax_warning_notice( $content ) {
