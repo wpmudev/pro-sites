@@ -166,7 +166,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$meta = ProSites::get_prosite_meta( $blog_id );
 
 			if ( $meta ) {
-				return ! isset( $meta['trialing'] ) && empty( $meta['trialing'] ) ? false : true;
+				return !empty( $meta['trialing'] ) && $meta['trialing'] == 1 ? true : false;
 			} else {
 				return false;
 			}

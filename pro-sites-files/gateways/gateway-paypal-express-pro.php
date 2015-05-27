@@ -1478,8 +1478,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( isset( $process_data['new_blog_details'] ) && isset( $process_data['new_blog_details']['blog_id'] ) ) {
 			$blog_id = $process_data['new_blog_details']['blog_id'];
 		}
-		$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_GET['bid'] ) ? (int) $_GET['bid'] : 0 );
-
+		$blog_id        = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_GET['bid'] ) ? (int) $_GET['bid'] : 0 );
+		$activation_key = '';
 		//Get domain details, if activation is set, runs when user submits the form for blog signup
 		if ( ! empty( $_POST['activation'] ) || ! empty( $process_data['activation_key'] ) ) {
 
@@ -1624,16 +1624,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
-		}
 
-		//check for modifying
-		if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-			$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
-			$modify = $modify ? $modify : $psts->get_expire( $blog_id );
-		} else {
-			$modify = false;
+			//check for modifying
+			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+				$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
+				$modify = $modify ? $modify : $psts->get_expire( $blog_id );
+			} else {
+				$modify = false;
+			}
 		}
-		var_dump( $modify );
 
 		//Runs just after the paypal button click, process paypal express checkout
 		if ( isset( $_POST['paypal_checkout'] ) || isset( $_POST['paypal_checkout_x'] ) ) {
@@ -2310,8 +2309,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//If recurring profile was created successfully
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-								$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
-								$blog_id = !empty( $site_details['blog_id'] ) ? $site_details['blog_id'] : '';
+
+								if( empty( $blog_id ) ) {
+									$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+									$blog_id      = ! empty( $site_details['blog_id'] ) ? $site_details['blog_id'] : '';
+								}
 
 								if ( ! empty( $blog_id ) ) {
 									//save new profile_id
@@ -2469,7 +2471,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$activation_key = ! empty( $process_data['activation'] ) ? $process_data['activation'] : '';
 
 						if ( ! $is_trial ) {
-							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
+							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key );
 							//Check if transaction was successful, store payment status after blog is activated
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
@@ -2935,6 +2937,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		);
 		update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
 
+		/** @Todo: Add condition, to avoid it running for every update query
+		 **/
 		//Update Gateway, as site is under trial gateway currently
 		$wpdb->update(
 			$wpdb->base_prefix . 'pro_sites',
@@ -2945,6 +2949,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				'blog_ID' => $blog_id
 			)
 		);
+		//Remove tiraling status
+		$meta = ProSites::get_prosite_meta( $blog_id );
+		if( !empty( $meta ) && !empty( $meta['trialing'] ) ) {
+			$meta['trialing'] = 0;
+			ProSites::update_prosite_meta($blog_id, $meta);
+		}
 	}
 }
 
