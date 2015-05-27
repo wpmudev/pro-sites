@@ -1233,10 +1233,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		//If there were any errors in checkout
 		if ( ! empty( $_POST['errors'] ) ) {
-			$psts->errors = $_POST['errors'];
-			echo "<pre> Error";
-			print_r( $psts->errors );
-			echo "</pre>";
+			if( is_wp_error($_POST['errors'])) {
+				$error_messages = $_POST['errors']->get_error_messages();
+				if( !empty($error_messages ) ) {
+					$psts->errors = $_POST['errors'];
+				}
+			}
 		}
 		$content .= '<form action="' . $psts->checkout_url( $blog_id ) . '" method="post" autocomplete="off" id="paypal-payment-form">
 
@@ -1406,9 +1408,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				<td class="pypl_label" align="right">' . __( 'Country:', 'psts' ) . '*&nbsp;</td>
 				<td>' . $checkout_errors['country'] .
 			            '<select name="cc_country">';
-							foreach ( $psts->countries as $key => $value ) {
-								$content .= '<option value="' . $key . '"' . ( ( $cc_country == $key ) ? ' selected="selected"' : '' ) . '>' . esc_attr( $value ) . '</option>';
-							}
+			foreach ( $psts->countries as $key => $value ) {
+				$content .= '<option value="' . $key . '"' . ( ( $cc_country == $key ) ? ' selected="selected"' : '' ) . '>' . esc_attr( $value ) . '</option>';
+			}
 			$content .= '</select>
 				</td>
 			</tr>
