@@ -29,8 +29,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			// Or if we're at checkout and already have a blog (1 blog only!)
 			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
+
 			//If no blog id, get it from pro sites table, using activation key
-			if( empty( $blog_id ) ) {
+			if ( empty( $blog_id ) && ! empty( $session_data['activation_key'] ) ) {
 				$blog_id = $wpdb->get_var("SELECT blog_id FROM {$wpdb->base_prefix}pro_sites WHERE identifier='" . $session_data['activation_key'] ."'" );
 			}
 

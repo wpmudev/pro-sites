@@ -1227,6 +1227,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
 
 		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : '';
+		$period = empty( $period ) ? ( ! empty( $render_data['new_blog_details'] ) ? $render_data['new_blog_details']['period'] : '' ) : $period;
 		$level  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
 		$level  = isset( $render_data['upgraded_blog_details'] ) && isset( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
 
@@ -1564,6 +1565,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			if ( $has_setup_fee ) {
 				$initAmount += $setup_fee;
 			}
+
 			if ( $has_coupon || $has_setup_fee ) {
 
 				$lifetime = 'once';
@@ -1589,6 +1591,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first %2$s month period, then %3$s every %4$s months', 'psts' ), $psts->format_currency( $currency, $initAmount ), $_POST['period'], $psts->format_currency( $currency, $recurringAmmount ), $_POST['period'] );
 					}
 				} else {
+
 					if ( ! empty( $blog_id ) ) {
 						$initAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $initAmount );
 					}
@@ -1619,6 +1622,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 		}
+
+		//check for modifying
+		if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+			$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
+			$modify = $modify ? $modify : $psts->get_expire( $blog_id );
+		} else {
+			$modify = false;
+		}
+		var_dump( $modify );
 
 		//Runs just after the paypal button click, process paypal express checkout
 		if ( isset( $_POST['paypal_checkout'] ) || isset( $_POST['paypal_checkout_x'] ) ) {
@@ -1664,14 +1676,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
 			$activation_key = ! empty( $process_data['activation_key'] ) ? $process_data['activation_key'] : '';
 
-			//check for modifiying
-			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) ) {
-				$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
-				$modify = $modify ? $modify : $psts->get_expire( $blog_id );
-			} else {
-				$modify = false;
-			}
-
 			//Non Recurring - Handle One time payment for new signups and upgrades, Paypal doesn't supports trial for one time payments, so we create a subscription
 			// with 1 billing cycle
 			if ( ! $recurring ) {
@@ -1707,7 +1711,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//just in case, try to cancel any old subscription
 						if ( $profile_id = self::get_profile_id( $blog_id ) ) {
-							$resArray = PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+							PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 						}
 
 						//now get the details of the transaction to see if initial payment went through already
@@ -1737,19 +1741,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//If payment is pending for some reason, store the details, to display it on Checkout screen later
 							if ( $payment_status == 'Pending' ) {
-								//log reason
-								if ( ! empty( $resArray['PAYMENTINFO_0_PENDINGREASON'] ) ) {
-
-									$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
-
-									//Store Payment status and reason in pro site meta
-									$payment_details = array(
-										'payment_status' => $payment_status,
-										'pending_reason' => self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ]
-									);
-									update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
-
-								}
+								self::update_pending_reason($blog_id, $payment_status, $resArray['PAYMENTINFO_0_PENDINGREASON'], $_GET['PayerID']);
 							}
 							if ( ! empty ( $blog_id ) ) {
 								//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
@@ -1976,19 +1968,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//If payment is pending for some reason, store the details, to display it on Checkout screen later
 						if ( $payment_status == 'Pending' ) {
-							//log reason
-							if ( ! empty( $resArray['PAYMENTINFO_0_PENDINGREASON'] ) ) {
-
-								$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
-
-								//Store Payment status and reason in pro site meta
-								$payment_details = array(
-									'payment_status' => $payment_status,
-									'pending_reason' => self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ]
-								);
-								update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
-
-							}
+							self::update_pending_reason($blog_id, $payment_status, $resArray['PAYMENTINFO_0_PENDINGREASON'], $_GET['PayerID']);
 						}
 					}
 
@@ -2231,19 +2211,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				//All fields are Proper, process Card
 				if ( ! $psts->errors->get_error_code() ) {
-					//check for modifying
-					if ( is_pro_site( $blog_id ) ) {
-						$modify = $psts->get_expire( $blog_id );
-
-						//check for a upgrade and get new first payment date
-						if ( $upgrade = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] ) ) {
-							$modify = $upgrade;
-						} else {
-							$upgrade = false;
-						}
-					} else {
-						$modify = false;
-					}
 
 					if ( ! $recurring ) {
 						//Only Upgrades or signup without trial
@@ -2272,9 +2239,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$old_expire = $psts->get_expire( $blog_id );
 								$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
 
-								echo "<pre>";
-								print_r( $new_expire );
-								echo "</pre>";
 								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] ), $new_expire, false );
 
 								//Notify blog user
@@ -2328,7 +2292,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							//Non Recurring signup with trial - Direct Payment, Create a subscription with total 1 billing cycle
 							//just in case, try to cancel any old subscription
 							if ( ! empty( $blog_id ) && $profile_id = self::get_profile_id( $blog_id ) ) {
-								$resArray = PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
+								PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 							}
 
 							//use coupon
@@ -2340,6 +2304,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $initAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, 1 );
 
 							$init_transaction = ! empty( $resArray["TRANSACTIONID"] ) ? $resArray["TRANSACTIONID"] : '';
+
 							//If recurring profile was created successfully
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
@@ -2386,8 +2351,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							if ( $init_transaction ) {
 								$result = PaypalApiHelper::GetTransactionDetails( $init_transaction );
 
+								$payment_status = $result['PAYMENTSTATUS'];
+								$pending_reason = $result['PENDINGREASON'];
 								//Check if payment was Successful
-								if ( $result['PAYMENTSTATUS'] == 'Completed' || $result['PAYMENTSTATUS'] == 'Processed' ) {
+								if ( $payment_status == 'Completed' || $payment_status == 'Processed' ) {
 
 									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount );
 
@@ -2400,20 +2367,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									if ( empty( self::$complete_message ) ) {
 										self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
 									}
-								} elseif ( $result['PAYMENTSTATUS'] == 'Pending' ) {
-									//log reason
-									if ( ! empty( $result['PAYMENTINFO_0_PENDINGREASON'] ) && !empty( $blog_id )) {
-
-										$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ] ) . '. Payer ID: ' . $_GET['PayerID'] );
-
-										//Store Payment status and reason in pro site meta
-										$payment_details = array(
-											'payment_status' => $payment_status,
-											'pending_reason' => self::$pending_str[ $resArray['PAYMENTINFO_0_PENDINGREASON'] ]
-										);
-										update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
-
-									}
+								} elseif ( $payment_status == 'Pending' ) {
+									self::update_pending_reason($blog_id, $payment_status, $pending_reason, $result['PAYERID']);
 									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 								}
 							} else {
@@ -2588,7 +2543,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							//now get the details of the transaction to see if initial payment went through
 							if ( $init_transaction ) {
 								$result = PaypalApiHelper::GetTransactionDetails( $init_transaction );
-								if ( $result['PAYMENTSTATUS'] == 'Completed' || $result['PAYMENTSTATUS'] == 'Processed' ) {
+
+								$payment_status = $result['PAYMENTSTATUS'];
+								$pending_reason = $result['PENDINGREASON'];
+
+								if ( $payment_status == 'Completed' || $payment_status == 'Processed' ) {
 									//Activate the domain , user signup for
 									if ( ! empty( $domain ) ) {
 										//Activate the blog
@@ -2605,8 +2564,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									if ( empty( self::$complete_message ) ) {
 										self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
 									}
-								} else {
+								}else{
 									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+									if( $payment_status == 'Pending' ){
+										//log reason
+										if ( ! empty( $pending_reason ) && !empty( $blog_id )) {
+											self::update_pending_reason($blog_id, $payment_status, $pending_reason, $result['PAYERID']);
+										}
+									}
 								}
 							} else {
 								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
@@ -2658,8 +2623,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( ! empty( $blog_id ) && 1 == get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 			//Fetch, if payment status is pending and reason is stored
 			$psts_payment_details = get_user_meta( get_current_user_id(), 'psts_payment_details', true );
-			if ( ! empty( $psts_payment_details ) ) {
-				$args['pending'] = '<div id="psts-general-error" class="psts-warning message">' . $psts_payment_details['pending_reason'] . __( '<br /> If you have enabled payment review for PayPal, make sure you accept the payment to avail the premium services.', PSTS_TEXT_DOMAIN ) . '</div>';
+			if ( ! empty( $psts_payment_details['pending_reason'] ) ) {
+				$args['pending'] = '<div id="psts-general-error" class="psts-warning message">' . $psts_payment_details['pending_reason'] . __( '<br/>If you have enabled payment review for PayPal, make sure you accept the payment to avail the premium services.', PSTS_TEXT_DOMAIN ) . '</div>';
 			} else {
 				$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', PSTS_TEXT_DOMAIN ) . '</div>';
 			}
@@ -2720,7 +2685,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$month                       = substr( $resArray['EXPDATE'], 0, 2 );
 					$year                        = substr( $resArray['EXPDATE'], 2, 4 );
 					$args['card_type']           = $resArray['CREDITCARDTYPE'];
-					$args['card_acct']           = $resArray['ACCT'];
+					$args['card_reminder']       = $resArray['ACCT'];
 					$args['card_digit_location'] = 'end';
 					$args['card_expire_month']   = $month;
 					$args['card_expire_year']    = $year;
@@ -2947,6 +2912,36 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$sel_currency = $supported ? $currency : $psts->get_setting( 'pypl_currency' );
 
 		return $sel_currency;
+	}
+
+	/**
+	 * Update Pending reason for Payment
+	 * @param $blog_id
+	 * @param $payment_status
+	 * @param $pending_reason
+	 * @param $payerid
+	 */
+	private static function update_pending_reason($blog_id, $payment_status, $pending_reason, $payerid ) {
+		global $psts, $wpdb;
+		$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, $pending_reason ) . '. Payer ID: ' . $payerid );
+
+		//Store Payment status and reason in pro site meta
+		$payment_details = array(
+			'payment_status' => $payment_status,
+			'pending_reason' => self::$pending_str[ $pending_reason ]
+		);
+		update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
+
+		//Update Gateway, as site is under trial gateway currently
+		$wpdb->update(
+			$wpdb->base_prefix . 'pro_sites',
+			array(
+				'gateway' => self::get_slug(),
+			),
+			array(
+				'blog_ID' => $blog_id
+			)
+		);
 	}
 }
 

@@ -455,6 +455,12 @@ jQuery(document).ready(function ($) {
         $('.gateways [name=level]').val(level);
         $('#prosites-checkout-table').attr('data-level', level);
 
+	    //Update Period as well
+	    var period_class = $( '.period-selector select').val();
+	    var period = parseInt( period_class.replace( 'price_', '' ) );
+	    $('.gateways [name=period]').val(period);
+	    $('#prosites-checkout-table').attr('data-period', period);
+
     });
 
     $('#gateways').tabs();
