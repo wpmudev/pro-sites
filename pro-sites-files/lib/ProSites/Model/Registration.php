@@ -133,6 +133,8 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 									$blog_data['new_blog_details']['user_pass'] = $result['password'];
 								}
 								ProSites_Helper_Registration::set_trial( $blog_id, 1 );
+								//Update Activation Key for blog
+								ProSites_Helper_Registration::update_activation_key( $blog_id, $blog_data['activation_key']);
 								$psts->record_stat( $blog_id, 'signup' );
 								$ajax_response['show_finish'] = true;
 								$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_payment_submitted( $blog_data, true );

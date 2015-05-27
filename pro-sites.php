@@ -607,9 +607,10 @@ Thanks!", 'psts' ),
 			return false;
 		} //customer is downgrading. don't apply setup fee
 
-		if ( is_pro_site( $blog_id ) && ! $this->get_setting( 'apply_setup_fee_upgrade', false ) ) {
+
+		if ( ! self::is_trial( $blog_id ) && is_pro_site( $blog_id ) && ! $this->get_setting( 'apply_setup_fee_upgrade', false ) ) {
 			return false;
-		} //this is a pro site and admin doesn't want setup fees applied to upgrades
+		} //this is a pro site, not in trial, and admin doesn't want setup fees applied to upgrades
 
 		return true;
 	}
@@ -2131,9 +2132,16 @@ Thanks!", 'psts' ),
 			return $new_amt;
 		}
 
-		if ( $new_level <= $old->level && $new_period <= $old->term ) // if customer is downgrading no need to charge them
+		if ( $new_level < $old->level && $new_period < $old->term ) // if customer is downgrading no need to charge them
 		{
 			return 0;
+		}elseif( $new_level == $old->level && $new_period == $old->term ) {
+			if( is_pro_trial( $blog_id ) ) {
+				//Non Recurring, with trial (Level and Period is assigned)
+				return $new_amt;
+			}else{
+				return 0;
+			}
 		}
 
 		if ( $old->expire < time() ) {
