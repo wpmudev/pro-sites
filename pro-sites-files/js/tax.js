@@ -2,7 +2,39 @@ jQuery( document ).ready( function ( $ ) {
 
 
     $('[name="tax-evidence-update"]' ).on( 'click', function(target){
-        alert('boss!');
+
+        var imsi = $('[name="tax-evidence-imsi"]' ).val();
+
+        if( imsi.length == 15 ) {
+            // Lets validate
+            $.post(
+                prosites_checkout.ajax_url, {
+                    action: 'validate_imsi',
+                    'imsi': imsi
+                }
+            ).done( function( data, status ) {
+
+                    var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
+                    var imsi_data = $.parseJSON( response.imsi_data );
+                    //console.log( response );
+                    //console.log( imsi_data );
+                    var network = imsi_data.operator.network;
+                    if( network.length = 0 ) {
+                        network = imsi_data.operator.brand;
+                    }
+                    var evidence = {
+                        'evidence-type': 'other_commercially_relevant_info',
+                        'evidence_value': 'MCC:' + imsi_data.mcc + ', MNC:' + imsi_data.operator_code + ', Network:' + network,
+                        'resolved_country_code': imsi_data.country_code,
+                        'used': true
+                    }
+                    //console.log( evidence );
+                    Taxamo.calculatedLocation.evidence.other_commercially_relevant_info = evidence;
+
+            } );
+        }
+
+
     });
 
 

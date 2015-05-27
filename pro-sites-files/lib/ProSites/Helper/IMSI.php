@@ -4,23 +4,28 @@ if ( ! class_exists( 'ProSites_Helper_IMSI' ) ) {
 
 	class ProSites_Helper_IMSI {
 
+		public static function init() {
+
+		}
+
 		private static function validate_imsi( $imsi ) {
 
-			$eu_countries = ProSites_Helper_Geolocation::get_EU_countries();
-
+			$eu_countries = array_keys( ProSites_Helper_Geolocation::get_EU_countries() );
 			$data = false;
 
 			// If its a valid MCC and MNC
-			$operator = self::check_mcc( $imsi );
+			$operator = self::check_mnc( $imsi );
+
 			if ( $operator ) {
 				$mcc_list = self::get_mcc_list();
 
-				$data               = new stdClass;
-				$data->mcc          = self::get_mcc( $imsi );
-				$data->country_name = $mcc_list[ $data->mcc ]['country'];
-				$data->country_code = $mcc_list[ $data->mcc ]['country_code'];
-				$data->operator     = $operator;
-				$data->is_EU        = in_array( $data->country_code, $eu_countries );
+				$data                = new stdClass;
+				$data->mcc           = self::get_mcc( $imsi );
+				$data->country_name  = $mcc_list[ $data->mcc ]['country'];
+				$data->country_code  = $mcc_list[ $data->mcc ]['country_code'];
+				$data->operator_code = $operator[0];
+				$data->operator      = $operator[1];
+				$data->is_EU         = in_array( $data->country_code, $eu_countries );
 
 				return $data;
 			} else {
@@ -32,7 +37,6 @@ if ( ! class_exists( 'ProSites_Helper_IMSI' ) ) {
 		private static function check_mcc( $imsi ) {
 			$mcc_list = self::get_mcc_list();
 			$mcc      = self::get_mcc( $imsi );
-
 			return in_array( $mcc, array_keys( $mcc_list ) );
 		}
 
@@ -51,20 +55,22 @@ if ( ! class_exists( 'ProSites_Helper_IMSI' ) ) {
 			$mnc       = in_array( $mnc2, $operators ) ? $mnc2 : ( in_array( $mnc3, $operators ) ? $mnc3 : false );
 
 			if ( ! empty( $mnc ) && 'Operational' == $mcc_list[ $mcc ]['operators'][ $mnc ]['status'] ) {
-				return $mcc_list[ $mcc ]['operators'][ $mnc ];
+				return array( $mnc, $mcc_list[ $mcc ]['operators'][ $mnc ] );
 			} else {
 				return false;
 			}
 		}
 
 		private static function get_mcc( $imsi ) {
-			$mcc = substr( $imsi, 0, 3 );
+			return substr( $imsi, 0, 3 );
 		}
-		
-		private static function validate_imsi_ajax() {
+
+		public static function validate_imsi_ajax() {
 			$imsi          = sanitize_text_field( $_POST['imsi'] );
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
 			$ajax_response = array();
+
+
 
 			if ( $doing_ajax ) {
 				$imsi_data = self::validate_imsi( $imsi );

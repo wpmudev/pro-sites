@@ -41,6 +41,7 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'eu_tax_warning_notice' ) );
 
 			// Hook IMSI helper
+			ProSites_Helper_IMSI::init();
 			add_action( 'wp_ajax_validate_imsi', array( 'ProSites_Helper_IMSI', 'validate_imsi_ajax' ) );
 			add_action( 'wp_ajax_nopriv_validate_imsi', array( 'ProSites_Helper_IMSI', 'validate_imsi_ajax' ) );
 
