@@ -10,6 +10,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts, $current_prosite_blog, $wpdb;
 
+			// Prepare for location based TAX (Taxamo does its own checking client side)
+			ProSites_Helper_Geolocation::init_geolocation();
+
 			$session_data = ProSites_Helper_Session::session();
 			// If its in session, get it
 			if( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['level'] ) ) {

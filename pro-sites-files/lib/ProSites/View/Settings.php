@@ -471,6 +471,44 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 		}
 
 		/**
+		 * 'Payment Settings'
+		 *
+		 * @return string
+		 */
+		public static function render_tab_taxes() {
+			global $psts;
+
+			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
+			?>
+			<div class="inside">
+				<!--<table class="form-table">-->
+				<!--</table>-->
+				<!--<hr />-->
+				<h3 class="psts-settings-title"><br />EU VAT - Taxamo Integration</h3>
+				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT requirements. Taxamo pricing starts at €0.20c per transaction when switching to LIVE mode.</div>
+				<table class="form-table">
+					<tr valign="top">
+						<th scope="row"
+							class="pay-for-signup"><?php echo __( 'Enable Taxamo', 'psts' ); ?></th>
+						<td>
+							<label><input type="checkbox" name="psts[taxamo_status]"
+									value="1"<?php checked( $psts->get_setting( 'taxamo_status' ) ); ?> />
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"
+							class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo API Token', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
+						<td>
+							<input type="text" name="psts[taxamo_token]"
+								value="<?php echo esc_attr( $psts->get_setting( 'taxamo_token' ) ); ?>"/>
+						</td>
+					</tr>
+				</table>
+			</div>
+		<?php
+		}
+
+		/**
 		 * 'Advertising'
 		 *
 		 * @return string

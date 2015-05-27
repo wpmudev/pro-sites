@@ -38,19 +38,26 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			add_action( 'wp_enqueue_scripts', array( 'ProSites_Helper_Tax', 'enqueue_tax_scripts' ) );
 			add_filter( 'prosites_render_checkout_page', array( 'ProSites_Helper_Tax', 'append_tax_api' ), 10, 3 );
 			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'tax_checkout_notice' ) );
+			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'eu_tax_warning_notice' ) );
 
 			do_action( 'prosites_tax_hooks_loaded' );
 		}
 
 		public static function append_tax_api( $content, $blog_id, $domain ) {
 
-			// Move this to its own class later
-			$taxamo = 	'<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>';
-			$taxamo .= '<script type="text/javascript">
-				Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
+			global $psts;
+
+			$token = $psts->get_setting( 'taxamo_token' );
+			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
+			if( ! empty( $token ) && ! empty( $taxamo_enabled ) ) {
+				// Move this to its own class later
+				$taxamo = '<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>';
+				$taxamo .= '<script type="text/javascript">
+				//Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
+				Taxamo.initialize(\'' . $token . '\');
 				tokenOK = false;
 		        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
-		        if( tokenOK ) {
+		        //if( tokenOK ) {
 					Taxamo.setCurrencyCode(\'AUD\');
 					//Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
 					//"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
@@ -58,11 +65,12 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 					//"taxTitle": ""});
 					//Taxamo.detectButtons();
 					Taxamo.detectCountry();
-					Taxamo.setBillingCountry(\'AU\');
-				}
+					//Taxamo.setBillingCountry(\'AU\');
+				//}
 				</script>';
 
-			$content = $content . $taxamo;
+				$content = $content . $taxamo;
+			}
 
 			return apply_filters( 'prosites_checkout_append_tax', $content );
 		}
@@ -84,6 +92,23 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			return $content . '<div class="tax-checkout-notice hidden">' .
 			       sprintf( __( 'Note: Amounts displayed includes taxes of %s%%.', 'psts' ), '<span class="tax-percentage"></span>' ).
 				'</div>';
+		}
+
+		public static function eu_tax_warning_notice( $content ) {
+
+			global $psts;
+
+			$token = $psts->get_setting( 'taxamo_token' );
+			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
+			$geodata = ProSites_Helper_Geolocation::get_geodata();
+			if( ( empty( $token ) || empty( $taxamo_enabled ) ) && $geodata->is_EU ) {
+				return $content . '<div class="tax-checkout-warning">' .
+				       __( 'It appears that you are in an European Union country. Unfortunately we do not currently support sites for EU countries.', 'psts' ).
+				       '</div>';
+
+			}
+
+			return $content;
 		}
 
 	}

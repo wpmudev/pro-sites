@@ -25,6 +25,9 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 						$_POST['psts']['apply_setup_fee_upgrade'] = isset( $_POST['psts']['apply_setup_fee_upgrade'] ) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox
 						$_POST['psts']['checkout_roles']          = isset( $_POST['psts']['checkout_roles'] ) ? $_POST['psts']['checkout_roles'] : ''; //handle checkbox
 						break;
+					case 'taxes':
+						$_POST['psts']['taxamo_status']           = isset( $_POST['psts']['taxamo_status'] ) ? $_POST['psts']['taxamo_status'] : 0; //handle checkbox
+						break;
 				}
 
 				$_POST['psts']['pt_sortthemes']           = isset( $_POST['psts']['pt_sortthemes'] ) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox

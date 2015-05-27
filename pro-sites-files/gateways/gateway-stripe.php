@@ -1717,7 +1717,8 @@ class ProSites_Gateway_Stripe {
 			<input type="hidden" name="level" value="' . $level . '" />
 			<input type="hidden" name="period" value="' . $period . '" />
 			<input type="hidden" name="tax-type" value="none" />
-			<input type="hidden" name="tax-country" value="none" />';
+			<input type="hidden" name="tax-country" value="none" />
+			<input type="hidden" name="tax-evidence" value="" />';
 
 		if ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) {
 			$content .= '<input type="hidden" name="new_blog" value="1" />';
@@ -1858,9 +1859,12 @@ class ProSites_Gateway_Stripe {
 			}
 
 			// Tax
-			$tax_country = apply_filters( 'prosite_checkout_tax_country', $_POST['tax-country'], $_POST['tax-type'] );
-			$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $_POST['tax-type'], $_POST['tax-country'] );
-			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $_POST['tax-type'], $_POST['tax-country'] );
+			$tax_country = isset( $_POST['tax-country'] ) ? sanitize_text_field( $_POST['tax-country'] ) : '';
+			$tax_type = isset( $_POST['tax-type'] ) ? sanitize_text_field( $_POST['tax-type'] ) : '';
+			$tax_evidence = isset( $_POST['tax-evidence'] ) ? $_POST['tax-evidence'] : '';
+			$tax_country = apply_filters( 'prosite_checkout_tax_country', $tax_country, $tax_type, $tax_evidence );
+			$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $tax_type, $tax_country, $tax_evidence );
+			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $tax_type, $tax_country, $tax_evidence );
 
 			$error          = '';
 			$success        = '';
