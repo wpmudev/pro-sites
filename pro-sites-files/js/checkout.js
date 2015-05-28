@@ -610,6 +610,8 @@ jQuery(document).ready(function ($) {
             $('.input_available').remove();
         }
 
+        $.event.trigger( 'psts:gateways_refreshed' );
+
     }
 
     $('.login-existing .login-toggle').on('click', function(e) {

@@ -1858,13 +1858,14 @@ class ProSites_Gateway_Stripe {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 			}
 
-			// Tax
-			$tax_country = isset( $_POST['tax-country'] ) ? sanitize_text_field( $_POST['tax-country'] ) : '';
-			$tax_type = isset( $_POST['tax-type'] ) ? sanitize_text_field( $_POST['tax-type'] ) : '';
-			$tax_evidence = isset( $_POST['tax-evidence'] ) ? $_POST['tax-evidence'] : '';
-			$tax_country = apply_filters( 'prosite_checkout_tax_country', $tax_country, $tax_type, $tax_evidence );
-			$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $tax_type, $tax_country, $tax_evidence );
-			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $tax_type, $tax_country, $tax_evidence );
+			// TAX Object
+			if( ProSites_Helper_Session::session( 'tax_object') ) {
+				$tax_object = ProSites_Helper_Session::session( 'tax_object' );
+			} else {
+				$tax_object = ProSites_Helper_Tax::get_tax_object();
+				ProSites_Helper_Session::session( 'tax_object', $tax_object );
+			}
+			$evidence_string = ProSites_Helper_Tax::get_evidence_string( $tax_object );
 
 			$error          = '';
 			$success        = '';
@@ -2075,6 +2076,12 @@ class ProSites_Gateway_Stripe {
 						"prorate" => true,
 					);
 
+					// Apply tax?
+					if( $tax_object->apply_tax ) {
+						$args['tax_percent'] = $tax_object->tax_rate * 100;
+					}
+
+
 					// If there is a coupon, add its reference
 					if ( $cp_code ) {
 						$args["coupon"] = $cp_code;
@@ -2097,6 +2104,11 @@ class ProSites_Gateway_Stripe {
 						'period' => $_POST['period'],
 						'level'  => $_POST['level']
 					);
+
+					if( $tax_object->apply_tax ) {
+						$args['metadata']['tax_evidence'] = $evidence_string;
+					}
+
 					if ( ! $domain ) {
 						unset( $args['metadata']['domain'] );
 					}
@@ -2108,11 +2120,18 @@ class ProSites_Gateway_Stripe {
 					// Create Stripe Invoice for the setup fee
 					if ( $has_setup_fee ) {
 						try {
+
+							$description = __( 'One-time setup fee', 'psts' );
+							if( $tax_object->apply_tax ) {
+								$setup_fee += $setup_fee * $tax_object->tax_rate;
+								$description = sprintf( __( 'One-time setup fee (including %s%% tax [%s]).', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
+							}
+
 							$customer_args = array(
 								'customer'    => $customer_id,
 								'amount'      => ( $setup_fee * 100 ),
 								'currency'    => $currency,
-								'description' => __( 'One-time setup fee', 'psts' ),
+								'description' => $description,
 								'metadata'    => array(
 									'domain'    => ! empty( $domain ) ? $domain : '',
 									'period'    => $_POST['period'],
@@ -2120,6 +2139,11 @@ class ProSites_Gateway_Stripe {
 									'setup_fee' => 'yes',
 								)
 							);
+
+							if( $tax_object->apply_tax ) {
+								$customer_args['metadata']['tax_evidence'] = $evidence_string;
+							}
+
 							if ( ! $domain ) {
 								unset( $customer_args['metadata']['domain'] );
 							}
@@ -2177,6 +2201,12 @@ class ProSites_Gateway_Stripe {
 								$sub->metadata->blog_id = $blog_id;
 								if ( isset( $args['metadata']['domain'] ) ) {
 									$sub->metadata->domain = $args['metadata']['domain'];
+								}
+
+								// Apply tax?
+								if( $tax_object->apply_tax ) {
+									$sub->tax_percent = $tax_object->tax_rate * 100;
+									$sub->metadata->tax_evidence = $evidence_string;
 								}
 
 								$sub->save();
@@ -2282,9 +2312,16 @@ class ProSites_Gateway_Stripe {
 							$activation_key = !empty( $activation_key ) ? $activation_key : ProSites_Helper_ProSite::get_activation_key( $blog_id );
 						}
 
+						if ( $tax_object-> apply_tax ) {
+							$amount = $initAmount + ( $initAmount & $tax_object->tax_rate );
+							$desc += sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
+						} else {
+							$amount = $initAmount;
+						}
+
 						$customer_args = array(
 							'customer'    => $customer_id,
-							'amount'      => ( $initAmount * 100 ),
+							'amount'      => ( $amount * 100 ),
 							'currency'    => $currency,
 							'description' => $desc,
 							'metadata'    => array(
@@ -2293,6 +2330,11 @@ class ProSites_Gateway_Stripe {
 								'level'  => $_POST['level']
 							)
 						);
+
+						if( $tax_object->apply_tax ) {
+							$customer_args['metadata']['tax_evidence'] = $evidence_string;
+						}
+
 						if ( ! $domain ) {
 							unset( $customer_args['metadata']['domain'] );
 						}
