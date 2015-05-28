@@ -1,39 +1,108 @@
+// Taxamo Module: Additional
+var Taxamo = (function(my) {
+    "use strict";
+    var $ = my.$ || jQuery || null;
+
+    var imsi_evidence = false;
+
+    my.detectIMSI = function( imsi ) {
+        $.post(
+            prosites_checkout.ajax_url, {
+                action: 'validate_imsi',
+                'imsi': imsi
+            }
+        ).done( function( data, status ) {
+
+                var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
+                var imsi_data = $.parseJSON( response.imsi_data );
+
+                var evidence = null;
+
+                if( imsi_data && imsi_data.is_EU !== false ) {
+                    var network = imsi_data.operator.network;
+                    if( network.length == 0 ) {
+                        network = imsi_data.operator.brand;
+                    }
+                    evidence = {
+                        'resolved_country_code': imsi_data.country_code,
+                        'used': true,
+                        'evidence_value': 'MCC:' + imsi_data.mcc + ', MNC:' + imsi_data.operator_code + ', Network:' + network,
+                        'evidence-type': 'other_commercially_relevant_info'
+                    }
+                }
+
+                imsi_evidence = evidence;
+                my.updateEvidence();
+
+            } );
+    };
+
+    my.updateEvidence = function() {
+        var evidence_count = 0;
+        var matching_reference = [];
+        var matching_key = [];
+
+        if ( my.calculatedLocation && imsi_evidence && my.calculatedLocation.billing_country_code == imsi_evidence.resolved_country_code ) {
+            evidence_count = 1;
+
+            $.each( my.calculatedLocation.countries, function( key, item ) {
+                if( item && item.cca2 == imsi_evidence.resolved_country_code ) {
+                    evidence_count += 1;
+                    matching_key.push( key );
+                    matching_reference.push( item );
+                }
+            } );
+
+            if( evidence_count > 1 ) {
+                my.calculatedLocation.countries.other_commercially_relevant_info = matching_reference[0];
+            } else {
+                my.calculatedLocation.countries.other_commercially_relevant_info = null;
+            }
+
+            my.calculatedLocation.evidence.other_commercially_relevant_info = imsi_evidence;
+
+            if( evidence_count > 1 ) {
+                $.each( matching_key, function( key, item ) {
+                    my.calculatedLocation.evidence[item].used = true;
+                } );
+
+                if( my.calculatedLocation.countries.other_commercially_relevant_info.tax_supported ) {
+                    my.calculatedLocation.tax_country_code = my.calculatedLocation.countries.other_commercially_relevant_info.cca2;
+                    my.calculatedLocation.tax_supported = true;
+                }
+            }
+
+        } else {
+
+            if( my.calculatedLocation.evidence.by_ip.resolved_country_code != my.calculatedLocation.evidence.by_billing.resolved_country_code ) {
+                my.calculatedLocation.evidence.other_commercially_relevant_info = null;
+                my.calculatedLocation.tax_country_code = null;
+                my.calculatedLocation.tax_supported = null;
+            }
+        }
+
+        // Force country selection overlay to show
+        var old = parseInt( my.calculatedLocation.countries.by_ip.tax_supported );
+        my.calculatedLocation.countries.by_ip.tax_supported = old == 1 ? true : false;
+
+        my.publishEvent('taxamo.country.detected_post', my.calculatedLocation );
+
+    }
+
+    return my;
+})(Taxamo || {});
+
+
 jQuery( document ).ready( function ( $ ) {
 
 
     $('[name="tax-evidence-update"]' ).on( 'click', function(target){
 
         var imsi = $('[name="tax-evidence-imsi"]' ).val();
-
         if( imsi.length == 15 ) {
             // Lets validate
-            $.post(
-                prosites_checkout.ajax_url, {
-                    action: 'validate_imsi',
-                    'imsi': imsi
-                }
-            ).done( function( data, status ) {
-
-                    var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
-                    var imsi_data = $.parseJSON( response.imsi_data );
-                    //console.log( response );
-                    //console.log( imsi_data );
-                    var network = imsi_data.operator.network;
-                    if( network.length = 0 ) {
-                        network = imsi_data.operator.brand;
-                    }
-                    var evidence = {
-                        'evidence-type': 'other_commercially_relevant_info',
-                        'evidence_value': 'MCC:' + imsi_data.mcc + ', MNC:' + imsi_data.operator_code + ', Network:' + network,
-                        'resolved_country_code': imsi_data.country_code,
-                        'used': true
-                    }
-                    //console.log( evidence );
-                    Taxamo.calculatedLocation.evidence.other_commercially_relevant_info = evidence;
-
-            } );
+            Taxamo.detectIMSI( imsi );
         }
-
 
     });
 
@@ -45,16 +114,19 @@ jQuery( document ).ready( function ( $ ) {
         } );
     }
 
-
     /**
      * Better change things if the user changes country
      */
     //if ( typeof Taxamo !== "undefined" && taxamo_token_ok() ) {
     if ( typeof Taxamo !== "undefined" ) {
         Taxamo.subscribe( 'taxamo.country.detected', function ( data ) {
-            //$( '[name="tax-country"]' ).val( data );
-            //console.log( data );
+            // Use additional Taxamo module
+            var imsi = $('[name="tax-evidence-imsi"]' ).val();
 
+            Taxamo.detectIMSI( imsi );
+        } );
+        // Use the additional module's detection
+        Taxamo.subscribe( 'taxamo.country.detected_post', function ( data ) {
             $( '.tax-checkout-warning' ).remove();
 
             if ( !data.tax_country_code ) {
@@ -66,13 +138,20 @@ jQuery( document ).ready( function ( $ ) {
             integrate_taxamo( data );
             taxamo_scan_prices();
 
+            // @todo Check this
             // Incompatible evidence....
-            if ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) {
-                // Warning message re fraud, VPN, calculation by CC.
-
-                var evidence = '<div class="tax-checkout-warning">' + psts_tax.taxamo_missmatch + '</div>';
-                $( '.tax-checkout-notice' ).after( evidence );
+            if ( data.billing_country_code != '00' && ( data.evidence.by_ip.resolved_country_code != data.evidence.by_billing.resolved_country_code ) &&
+                    (
+                        (
+                            data.evidence.other_commercially_relevant_info && data.evidence.other_commercially_relevant_info.resolved_country_code != data.evidence.by_billing.resolved_country_code
+                        ) || (
+                            data.evidence.other_commercially_relevant_info === null
+                        )
+                    )
+            ) {
                 $( '.tax-checkout-evidence' ).removeClass( 'hidden' );
+            } else {
+                $( '.tax-checkout-evidence' ).addClass( 'hidden' );
             }
 
         } );
