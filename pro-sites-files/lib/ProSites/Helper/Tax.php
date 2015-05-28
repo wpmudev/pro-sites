@@ -58,22 +58,12 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 				// Move this to its own class later
 				$taxamo = '<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>';
 				$taxamo .= '<script type="text/javascript">
-				//Taxamo.initialize(\'public_test_gm0VCBeZX2VDy2Sh1wX2daKbDBlRu0XZ6ePj0NjxMVA\');
-				Taxamo.initialize(\'' . $token . '\');
-				tokenOK = false;
-		        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
-		        //if( tokenOK ) {
-					Taxamo.setCurrencyCode(\'AUD\');
-					//Taxamo.scanPrices(\'.price-plain, .monthly-price-hidden, .savings-price-hidden\', {
-					//"priceTemplate": "<div class=\"tax-total\">${totalAmount}</div><div class=\"tax-amount\">${taxAmount}</div><div class=\"tax-rate\">${taxRate}</div><div class=\"tax-base\">${amount}</div>",
-					//"noTaxTitle": "", //set titles to false to disable title attribute update
-					//"taxTitle": ""});
-					//Taxamo.detectButtons();
+					Taxamo.initialize(\'' . $token . '\');
+					tokenOK = false;
+			        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
+			        Taxamo.setBillingCountry(\'00\');
 					Taxamo.detectCountry();
-					//Taxamo.setBillingCountry(\'AU\');
-				//}
 				</script>';
-
 				$content = $content . $taxamo;
 			}
 
@@ -87,9 +77,6 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 			$translation_array = apply_filters( 'prosites_tax_script_translations', array(
 				'taxamo_missmatch' => __( 'EU VAT: Your location evidence is not matching. Additional evidence required. If you are travelling in another country or using a VPN, please provide as much information as possible and ensure that it is accurate.', 'psts' ),
-				'taxamo_imsi' => __( 'SIM card IMSI number', 'psts' ),
-				'taxamo_imsi_help' => __( 'Available from your carrier upon request.', 'psts' ),
-				'taxamo_vat_number' => __( 'VAT#', 'psts' ),
 			) );
 
 			wp_localize_script( 'psts-tax', 'psts_tax', $translation_array );
@@ -112,10 +99,12 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 			if( $use_taxamo ) {
 				$new_content .= '<div class="tax-checkout-evidence hidden">' .
-	                sprintf( __( 'SIM card IMSI number (available from carrier upon request)', 'psts' ) ) .
-	                '<br /><input type="textbox" name="tax-evidence-imsi" /><br />' .
-	                sprintf( __( 'VAT number (if available)', 'psts' ) ) .
-	                '<br /><input type="textbox" name="tax-evidence-vatnumber" /><br />' .
+	                __( 'EU VAT: Your location evidence is not matching. Additional evidence required. If you are travelling in another country or using a VPN, please provide as much information as possible and ensure that it is accurate.', 'psts' ) .
+	                '<br />' .
+	                sprintf( '<strong>%s</strong>%s', __( 'SIM card IMSI number', 'psts'), __( '(available from carrier upon request)', 'psts' ) ) .
+	                '<br /><input type="textbox" name="tax-evidence-imsi" />' .
+	                //sprintf( __( 'VAT number (if available)', 'psts' ) ) .
+	                //'<br /><input type="textbox" name="tax-evidence-vatnumber" /><br />' .
 	                '<input type="button" name="tax-evidence-update" value="' . __( 'Update Evidence', 'psts' ) . '" />' .
 	                '</div>';
 			}
