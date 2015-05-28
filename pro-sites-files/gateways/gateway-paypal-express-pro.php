@@ -1635,9 +1635,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$force_recurring = false;
 			}
 
-			echo "<pre> Blog ID";
-			print_r( $blog_id );
-			echo "</pre>";exit;
 			$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, $blog_id, $domain, $force_recurring );
 
 			if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
