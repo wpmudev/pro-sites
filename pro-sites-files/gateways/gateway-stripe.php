@@ -2121,17 +2121,11 @@ class ProSites_Gateway_Stripe {
 					if ( $has_setup_fee ) {
 						try {
 
-							$description = __( 'One-time setup fee', 'psts' );
-							if( $tax_object->apply_tax ) {
-								$setup_fee += $setup_fee * $tax_object->tax_rate;
-								$description = sprintf( __( 'One-time setup fee (including %s%% tax [%s]).', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
-							}
-
 							$customer_args = array(
 								'customer'    => $customer_id,
 								'amount'      => ( $setup_fee * 100 ),
 								'currency'    => $currency,
-								'description' => $description,
+								'description' => __( 'One-time setup fee', 'psts' ),
 								'metadata'    => array(
 									'domain'    => ! empty( $domain ) ? $domain : '',
 									'period'    => $_POST['period'],
