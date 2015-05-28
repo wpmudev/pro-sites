@@ -2205,9 +2205,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//Only Upgrades or signup without trial
 						if ( $modify || ! $is_trial ) {
 							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email );
-							echo "<pre>";
-							print_r( $resArray );
-							echo "</pre>";
 
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
@@ -2591,8 +2588,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$psts->errors->add( 'general', __( 'There was a problem with your credit card information. Please check all fields and try again.', 'psts' ) );
 				}
 			}
+		};
+		//If there are any errors, store them in $_POST
+		$error_codes = $psts->errors->get_error_codes();
+		if ( is_wp_error( $psts->errors ) && ! empty( $error_codes ) ) {
+			$_POST['errors'] = $psts->errors;
 		}
-		$_POST['errors'] = is_wp_error( $psts->errors ) ? $psts->errors : '';
 	}
 
 	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
