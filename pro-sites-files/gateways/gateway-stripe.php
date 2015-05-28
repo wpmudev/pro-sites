@@ -1235,6 +1235,8 @@ class ProSites_Gateway_Stripe {
 			$customer_id  = $event_json->data->object->customer;
 			$subscription = self::get_subscription( $event_json );
 
+			self::record_transactions( $event_json );
+
 			$event_type = $event_json->type;
 			//If invoice has been created, activate user blog trial
 			if ( 'invoiceitem.updated' == $event_type ||
@@ -1420,6 +1422,38 @@ class ProSites_Gateway_Stripe {
 		}
 
 	}
+
+	public static function record_transactions( $obj ) {
+
+		$obj = $obj->data->object;
+
+		$date = $obj->date;
+		$transaction = $obj->charge;
+		$total = $obj->total / 100.0;
+		$sub_total = $obj->subtotal / 100.0;
+		$tax_percent = $obj->tax_percent;
+		$tax_amount = $obj->tax / 100.0;
+
+		$line_items = array();
+		$evidence = '';
+		foreach( $obj->lines->data as $item ) {
+			$line_items[] = array(
+				'custom_id' => $item->description,
+				'line_key' => $item->id,
+				'amount' => $item->amount / 100,
+			);
+			if( empty( $evidence ) ) {
+				$evidence = json_decode( $item->metadata->tax_evidence );
+			}
+		}
+
+		$currency = self::currency();
+
+		ProSites_Module_Taxamo::record_transaction( $transaction, $date, $line_items, $total, $sub_total, $tax_amount, $tax_percent, $currency, $evidence );
+
+
+	}
+
 
 	/**
 	 * Sets the Subscription's meta to include the $blod_id

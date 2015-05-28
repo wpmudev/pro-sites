@@ -157,7 +157,7 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 		public static function get_evidence_string( $object ) {
 
-			return apply_filters( 'prosites_get_tax_evidence_sting', json_encode( $object-> evidence ), $object );
+			return apply_filters( 'prosites_get_tax_evidence_string', json_encode( $object-> evidence ), $object );
 
 		}
 
