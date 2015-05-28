@@ -1611,13 +1611,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 
-			//check for modifying
-			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
-				$modify = $psts->calc_upgrade( $blog_id, $initAmount, $_POST['level'], $_POST['period'] );
-				$modify = $modify ? $modify : $psts->get_expire( $blog_id );
-			} else {
-				$modify = false;
-			}
+			$modify = self::is_modifying( $blog_id, $_POST, $initAmount );
 		}
 
 		//Runs just after the paypal button click, process paypal express checkout
@@ -2007,7 +2001,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 								//update the blog id in paypal custom so that future payments are applied to the proper blog id
 								$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
-								$updated = PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
+								PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
 
@@ -2335,7 +2329,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . '' . ':' . $_POST['level'] . ':' . $_POST['period'] . ':' . $initAmount . ':' . self::currency() . ':' . time();
+									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
 									PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -2529,7 +2523,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom = PSTS_PYPL_PREFIX . ':' . $blog_id . ':' . '' . ':' . $_POST['level'] . ':' . $_POST['period'] . ':' . $initAmount . ':' . self::currency() . ':' . time();
+									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
 									PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -2971,6 +2965,50 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$meta['trialing'] = 0;
 			ProSites::update_prosite_meta( $blog_id, $meta );
 		}
+	}
+
+	/**
+	 * Check if user is upgrading or downgrading
+	 *
+	 * @param $blog_id
+	 * @param $post
+	 */
+	private static function is_modifying( $blog_id, $post, $initAmount ) {
+		global $psts;
+
+		$modify = '';
+		$level  = ! empty( $post['level'] ) ? $post['level'] : '';
+		$period = ! empty( $post['period'] ) ? $post['period'] : '';
+		if ( empty( $blog_id ) || empty( $level ) || empty( $period ) ) {
+			return false;
+		}
+		//Check if there is existing profile id
+		$profile_id = self::get_profile_id( $blog_id );
+		if ( ! empty( $profile_id ) ) {
+			//Get details from Paypal
+			$profile_details = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $profile_id );
+
+			//Check if there is any profile reference
+			$profile_ref = ! empty( $profile_details['PROFILEREFERENCE'] ) ? $profile_details['PROFILEREFERENCE'] : '';
+			if ( ! empty( $profile_ref ) ) {
+				//Get Existing plan details from reference
+				list( $pre, $blog_id, $prev_level, $prev_period, $amount, $currency, $timestamp, $activation_key ) = explode( '_', $profile_ref );
+			}
+			if ( $period != $prev_period || $level != $prev_level ) {
+				$modify = true;
+			}
+		}
+		if ( empty( $modify ) ) {
+			//check for modifying
+			if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+				$modify = $psts->calc_upgrade( $blog_id, $initAmount, $level, $period );
+				$modify = $modify ? $modify : $psts->get_expire( $blog_id );
+			} else {
+				$modify = false;
+			}
+		}
+
+		return $modify;
 	}
 }
 
