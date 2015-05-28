@@ -1689,6 +1689,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								'prev_period' => ! empty( $current->term ) ? $current->term : '',
 							);
 							ProSites_Helper_Session::session( 'plan_updated', $updated );
+
 						} else {
 							//New Signup, Activate blog
 							$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
@@ -1716,6 +1717,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								} else {
 									$psts->record_stat( $blog_id, 'modify' );
 								}
+								$updated = array(
+									'render'      => true,
+									'blog_id'     => $blog_id,
+									'level'       => $_POST['level'],
+									'period'      => $_POST['period'],
+									'prev_level'  => ! empty( $current->level ) ? $current->level : '',
+									'prev_period' => ! empty( $current->term ) ? $current->term : '',
+								);
+								ProSites_Helper_Session::session( 'plan_updated', $updated );
 							} else {
 								$psts->record_stat( $blog_id, 'signup' );
 							}
@@ -2212,6 +2222,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 								if ( $modify ) {
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Direct Payment: Initial payment successful (%1$s) - Transaction ID: %2$s', 'psts' ), $desc, $init_transaction ) );
+									$updated = array(
+										'render'      => true,
+										'blog_id'     => $blog_id,
+										'level'       => $_POST['level'],
+										'period'      => $_POST['period'],
+										'prev_level'  => ! empty( $current->level ) ? $current->level : '',
+										'prev_period' => ! empty( $current->term ) ? $current->term : '',
+									);
+									ProSites_Helper_Session::session( 'plan_updated', $updated );
 								} else {
 									//New Signup, Activate blog
 									$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
@@ -2239,6 +2258,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								if ( $modify ) {
 									if ( $_POST['level'] > ( $old_level = $psts->get_level( $blog_id ) ) ) {
 										$psts->record_stat( $blog_id, 'upgrade' );
+										$updated = array(
+											'render'      => true,
+											'blog_id'     => $blog_id,
+											'level'       => $_POST['level'],
+											'period'      => $_POST['period'],
+											'prev_level'  => ! empty( $current->level ) ? $current->level : '',
+											'prev_period' => ! empty( $current->term ) ? $current->term : '',
+										);
+										ProSites_Helper_Session::session( 'plan_updated', $updated );
 									} else {
 										$psts->record_stat( $blog_id, 'modify' );
 									}
@@ -2455,7 +2483,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$success        = $init_transaction = false;
 						$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
 						$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
-						$activation_key = ! empty( $process_data['activation'] ) ? $process_data['activation'] : '';
 
 						if ( ! $is_trial ) {
 							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key );
@@ -2489,7 +2516,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 							//If recurring profile was created successfully
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
-								$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+								$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+								$blog_id      = ! empty( $site_details['blog_id'] ) ? $site_details['blog_id'] : $blog_id;
 
 								if ( ! empty( $blog_id ) ) {
 
@@ -2540,11 +2568,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$pending_reason = $result['PENDINGREASON'];
 
 								if ( $payment_status == 'Completed' || $payment_status == 'Processed' ) {
-									//Activate the domain , user signup for
-									if ( ! empty( $domain ) ) {
-										//Activate the blog
-										$blog_id = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
-									}
 									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount );
 
 									//record last payment
