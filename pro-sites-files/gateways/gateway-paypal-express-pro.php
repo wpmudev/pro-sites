@@ -1440,7 +1440,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$new_blog    = true;
 
 		//Blog id, Level Period
-		$blog_id = ! empty( $_POST['bid'] ) ? $_POST['bid'] : 0;
+		$blog_id = ! empty( $_REQUEST['bid'] ) ? $_REQUEST['bid'] : 0;
 		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : '';
 		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : '';
 
@@ -1635,6 +1635,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$force_recurring = false;
 			}
 
+			echo "<pre> Blog ID";
+			print_r( $blog_id );
+			echo "</pre>";exit;
 			$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount, $desc, $blog_id, $domain, $force_recurring );
 
 			if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
@@ -2200,10 +2203,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				//All fields are Proper, process Card
 				if ( ! $psts->errors->get_error_code() ) {
 
+
 					if ( ! $recurring ) {
 						//Only Upgrades or signup without trial
 						if ( $modify || ! $is_trial ) {
 							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email );
+							echo "<pre>";
+							print_r( $resArray );
+							echo "</pre>";
 
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
