@@ -512,6 +512,8 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 						</td>
 					</tr>
 				</table>
+				<p class="description"><?php echo sprintf( __( 'Create an account at Taxamo.com. You can then get your API keys from the <a href="%s">API Access</a> page.', 'psts'), esc_url('https://dashboard.taxamo.com/merchant/app.html#/account/api') ); ?></p>
+				<p class="description"><?php echo sprintf( __( 'Please also add your site domain to the "Web API referers" section on the <a href="%s">JavaScript API</a> page for Taxamo integration to work.', 'psts'), esc_url('https://dashboard.taxamo.com/merchant/app.html#/account/api/javascript') ); ?></p>
 			</div>
 		<?php
 		}
