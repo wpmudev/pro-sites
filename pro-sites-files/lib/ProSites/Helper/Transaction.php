@@ -27,8 +27,9 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 		public static function record( $transaction ) {
 
 			// Record locally...
+			self::record_to_database( $transaction );
 
-			// Allow hooks
+			// Allow hooks (used for taxamo and for receipt)
 			do_action( 'prosites_transaction_record', $transaction );
 		}
 
@@ -79,6 +80,51 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 
 			// Hook it in case we add different TAX services
 			return apply_filters( 'prosites_tax_ip_from_data', '', $data, $object );
+		}
+
+		public static function record_to_database( $transaction ) {
+
+			global $wpdb;
+
+			// Prepare for caluclating if we need to
+			$tax_rate = isset( $transaction->tax_percent ) ? $transaction->tax_percent : 0;
+			$total = isset( $transaction->total ) ? $transaction->total : false;
+			$subtotal = isset( $transaction->subtotal ) ? $transaction->subtotal : false;
+			$tax = isset( $transaction->tax ) ? $transaction->tax : false;
+
+			// Calculate!
+			if( false === $total && $subtotal ) {
+				$total = ( $subtotal * $tax_rate ) + $subtotal;
+			}
+			if( false === $subtotal && $total ) {
+				// Explanation
+				// $total = ( $subtotal * $tax_rate ) + $subtotal;
+				// $total = $subtotal * ( $tax_rate + 1 ); // substitution
+				// $total / ( $tax_rate + 1 ) = $subtotal
+				$subtotal = $total / ( $tax_rate + 1 );
+			}
+			if( false === $tax && $total && $subtotal ) {
+				$tax = $total - $subtotal;
+			}
+
+			$sql = $wpdb->prepare(
+				"INSERT INTO {$wpdb->base_prefix}pro_sites_transactions(transaction_id, transaction_date, items, total, sub_total, tax_amount, tax_percentage, country, currency, meta)
+				 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s )",
+				$transaction->invoice_number,
+				$transaction->invoice_date,
+				maybe_serialize( $transaction->transaction_lines ),
+				$total,
+				$subtotal,
+				$tax,
+				$tax_rate,
+				$transaction->billing_country_code,
+				$transaction->currency_code,
+				maybe_serialize( $transaction->evidence )
+			);
+
+			// ... and record.
+			$wpdb->query( $sql );
+
 		}
 
 

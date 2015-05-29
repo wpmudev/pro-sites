@@ -50,6 +50,9 @@ class ProSites {
 
 	function __construct() {
 
+		// @todo get rid of this line
+		//$this->update_setting( 'version', '3.5.0.1' );
+
 		// Creates the class autoloader.
 		spl_autoload_register( array( $this, 'class_loader' ) );
 
@@ -206,12 +209,12 @@ class ProSites {
 		// Hooking here until the models get reworked.
 		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 4 );
 
+		// New receipt
+		add_action( 'prosites_transaction_record', array( get_class(), 'send_receipt' ) );
+
 		$this->setup_ajax_hooks();
 
 		$this->errors = new WP_Error();
-
-		// @todo get rid of this line
-		//$this->update_setting( 'version', '3.5.0.1' );
 
 	}
 
@@ -524,16 +527,19 @@ Thanks!", 'psts' ),
 		);";
 
 		$table4 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_transactions (
-		  transaction_id bigint(20) NOT NULL,
+		  id bigint(20) unsigned NOT NULL auto_increment,
+		  transaction_id varchar(255) NOT NULL,
 		  transaction_date DATE NOT NULL,
 		  items longtext NOT NULL,
-		  total decimal NOT NULL DEFAULT 0,
-		  sub_total decimal NOT NULL DEFAULT 0,
-		  tax_amount decimal NOT NULL DEFAULT 0,
-		  tax_percentage decimal NOT NULL DEFAULT 0,
-		  meta longtext NOT NULL,
-		  PRIMARY KEY  (transaction_id),
-		  KEY  (transaction_id, transaction_date )
+		  total decimal(13,4) NOT NULL DEFAULT 0,
+		  sub_total decimal(13,4) NOT NULL DEFAULT 0,
+		  tax_amount decimal(13,4) NOT NULL DEFAULT 0,
+		  tax_percentage decimal(4,2) NOT NULL DEFAULT 0,
+		  country varchar(3) NULL,
+		  currency varchar(3) NULL,
+		  meta longtext NULL,
+		  PRIMARY KEY  (id),
+		  KEY  (id, transaction_id)
 		);";
 
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
@@ -1357,6 +1363,9 @@ Thanks!", 'psts' ),
 				break;
 
 			case 'receipt':
+
+				// NOTE: Stripe no longer uses this
+
 				//grab default payment info
 				$result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
@@ -1518,6 +1527,23 @@ Thanks!", 'psts' ),
 				break;
 		}
 	}
+
+	public static function send_receipt( $transaction ) {
+
+		// Get the user
+		if ( isset( $transaction->username ) ) {
+			$user = get_user_by( 'login', $transaction->username );
+		} elseif ( isset( $transaction->email ) ) {
+			$user = get_user_by( 'email', $transaction->email );
+		}
+
+
+
+
+
+
+	}
+
 
 	/**
 	 * @todo: Rework this into a model
