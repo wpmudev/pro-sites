@@ -24,11 +24,61 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 
 	class ProSites_Helper_Transaction {
 
-		public static function record( $transaction_id, $date, $line_items, $total, $sub_total = 0, $tax_amount = 0, $tax_percentage = false ) {
+		public static function record( $transaction ) {
 
+			// Record locally...
 
+			// Allow hooks
+			do_action( 'prosites_transaction_record', $transaction );
+		}
 
+		public static function object_from_data( $data, $gateway ) {
 
+			$object = new stdClass();
+			return apply_filters( 'prosites_transaction_object_create', $object, $data, $gateway );
+
+		}
+
+		public static function evidence_from_json( $json ) {
+
+			$data = json_decode( $json );
+
+			// Wrong JSON, bail
+			if ( ! $data && ! isset( $data->tax_type ) ) {
+				return null;
+			}
+
+			$evidence = new stdClass();
+
+			// Hook it in case we add different TAX services
+			return apply_filters( 'prosites_tax_evidence_from_json_data', $evidence, $data );
+
+		}
+
+		public static function country_code_from_data( $json, $object ) {
+
+			$data = json_decode( $json );
+
+			// Wrong JSON, bail
+			if ( ! $data && ! isset( $data->tax_type ) ) {
+				return null;
+			}
+
+			// Hook it in case we add different TAX services
+			return apply_filters( 'prosites_tax_country_from_data', '', $data, $object );
+		}
+
+		public static function country_ip_from_data( $json, $object ) {
+
+			$data = json_decode( $json );
+
+			// Wrong JSON, bail
+			if ( ! $data && ! isset( $data->tax_type ) ) {
+				return null;
+			}
+
+			// Hook it in case we add different TAX services
+			return apply_filters( 'prosites_tax_ip_from_data', '', $data, $object );
 		}
 
 

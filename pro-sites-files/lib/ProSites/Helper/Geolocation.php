@@ -88,7 +88,7 @@ if ( ! class_exists( 'ProSites_Helper_Geolocation' ) ) {
 					getenv('REMOTE_ADDR');
 		}
 
-		private static function is_EU( $country_code ) {
+		public static function is_EU( $country_code ) {
 			return in_array( $country_code, array_keys( self::$EU_countries ) );
 		}
 

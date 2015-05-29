@@ -66,6 +66,9 @@ class ProSites_Gateway_Stripe {
 		//display admin notices
 		add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 
+		//transaction hooks
+		add_filter( 'prosites_transaction_object_create', array( 'ProSites_Gateway_Stripe', 'create_transaction_object' ), 10, 3 );
+
 		//update install script if necessary
 		if ( $psts->get_setting( 'stripe_version' ) != $psts->version ) {
 			$this->install();
@@ -1231,13 +1234,15 @@ class ProSites_Gateway_Stripe {
 			if ( ! isset( $event_json->data->object->customer ) ) {
 				return false;
 			}
+			$event_type = $event_json->type;
 
 			$customer_id  = $event_json->data->object->customer;
 			$subscription = self::get_subscription( $event_json );
 
-			self::record_transactions( $event_json );
+			if( 'invoice.payment_succeeded' == $event_type ) {
+				self::record_transaction( $event_json );
+			}
 
-			$event_type = $event_json->type;
 			//If invoice has been created, activate user blog trial
 			if ( 'invoiceitem.updated' == $event_type ||
 			     'invoiceitem.created' == $event_type ||
@@ -1423,35 +1428,57 @@ class ProSites_Gateway_Stripe {
 
 	}
 
-	public static function record_transactions( $obj ) {
+	public static function record_transaction( $data ) {
+		$data    = $data->data->object;
 
-		$obj = $obj->data->object;
+		// Get the object
+		$object = ProSites_Helper_Transaction::object_from_data( $data, get_class() );
 
-		$date = $obj->date;
-		$transaction = $obj->charge;
-		$total = $obj->total / 100.0;
-		$sub_total = $obj->subtotal / 100.0;
-		$tax_percent = $obj->tax_percent;
-		$tax_amount = $obj->tax / 100.0;
+		// Record the object
+		ProSites_Helper_Transaction::record( $object );
 
-		$line_items = array();
-		$evidence = '';
-		foreach( $obj->lines->data as $item ) {
-			$line_items[] = array(
-				'custom_id' => $item->description,
-				'line_key' => $item->id,
-				'amount' => $item->amount / 100,
-			);
-			if( empty( $evidence ) ) {
-				$evidence = json_decode( $item->metadata->tax_evidence );
-			}
+	}
+
+	public static function create_transaction_object( $object, $data, $gateway ) {
+
+		if( get_class() !== $gateway ) {
+			return $object;
 		}
 
-		$currency = self::currency();
+		// Basic
+		$object->invoice_number = $data->id;
+		$object->invoice_date = date ( 'Y-m-d', $data->date );
+		//$object->original_transaction_key = $data->charge;
+		$object->currency_code = strtoupper( $data->currency );
 
-		ProSites_Module_Taxamo::record_transaction( $transaction, $date, $line_items, $total, $sub_total, $tax_amount, $tax_percent, $currency, $evidence );
+		// Line Items
+		$lines = array();
+		foreach( $data->lines->data as $line ) {
+			$line_obj = new stdClass();
+			$line_obj->custom_id = $line_obj->id = $line->id;
+			$line_obj->amount = $line->amount / 100;
+			$line_obj->quantity = $line->quantity;
+			$line_obj->description = isset( $line->description ) ? $line->description : ( isset( $line->plan ) && isset( $line->plan->name ) ? $line->plan->name : '' );
+			$lines[] = $line_obj;
+		}
+		$object->transaction_lines = $lines;
 
+		// Evidence -> evidence_from_json()
+		try {
+			$object->evidence = ProSites_Helper_Transaction::evidence_from_json( $data->lines->data[0]->metadata->tax_evidence );
+			$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
+			$object->tax_country_code = $object->billing_country_code;
+			$object->force_country_code = $object->billing_country_code;
+			$object->buyer_ip = ProSites_Helper_Transaction::country_ip_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
+		} catch (Exception $e) {
+			$object->evidence = null;
+		}
 
+		if ( ! isset( $object->buyer_ip ) ) {
+			$object->buyer_ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+		return $object;
 	}
 
 

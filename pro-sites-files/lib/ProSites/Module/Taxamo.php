@@ -36,7 +36,14 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 
 			add_filter( 'prosites_get_tax_object', array( get_class(), 'get_tax_object' ) );
 			add_filter( 'prosites_get_tax_evidence_string', array( get_class(), 'get_evidence_string' ), 10, 2 );
+			add_filter( 'prosites_tax_evidence_from_json_data', array(
+				get_class(),
+				'get_evidence_from_json_data'
+			), 10, 2 );
+			add_filter( 'prosites_tax_country_from_data', array( get_class(), 'get_country_from_data' ), 10, 3 );
+			add_filter( 'prosites_tax_ip_from_data', array( get_class(), 'get_ip_from_data' ), 10, 3 );
 
+			add_action( 'prosites_transaction_record', array( get_class(), 'record_transaction' ) );
 
 		}
 
@@ -56,54 +63,126 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 		public static function get_evidence_string( $evidence_string, $object ) {
 
 			if ( 'taxamo' == $object->type ) {
-				$used = array();
+				$pieces = array();
 				foreach ( $object->evidence as $evidence ) {
-					if ( $evidence->used ) {
-						$used[] = array(
-							'country_code' => $evidence->resolved_country_code,
-							'value'        => $evidence->evidence_value,
-							'type'         => $evidence->evidence_type,
-						);
-					}
+					//if ( $evidence->used ) {
+					$pieces[] = $evidence;
+					//}
 				}
 
-				return json_encode( $used );
-
+				$evidence_string = json_encode( array(
+					'tax_type' => $object->type,
+					'evidence' => $pieces,
+				) );
 			}
 
 			return $evidence_string;
 		}
 
-		public static function record_transaction( $transaction, $date, $line_items, $total, $sub_total, $tax_amount, $tax_percent, $currency, $evidence ) {
-			//global $psts;
-			//
-			//$token  = $psts->get_setting( 'taxamo_private_token' );
-			//
-			//$taxamo = new Taxamo( new APIClient( $token, 'https://api.taxamo.com' ) );
-			//
-			//$item_array = array();
-			//foreach( $line_items as $item ) {
-			//	//error_log( print_r( $item, true ) );
-			//
-			//	$new_item = new Input_transaction_line();
-			//	$new_item->amount = $item->amount;
-			//	$new_item->line_key = $item->line_key;
-			//	$new_item->custom_id = $item->custom_id;
-			//
-			//	$item_array[] = $new_item;
-			//
-			//}
-			//
-			//$transaction = new Input_transaction();
-			//$transaction->currency_code = $currency;
-			//
-			////propagate customer's IP address when calling API server-side
-			//$transaction->buyer_ip = $_SERVER['REMOTE_ADDR'];
-			//$transaction->billing_country_code = $evidence[0]->country_code;
-			//$transaction->force_country_code = $evidence[1]->country_code;
-			//$transaction->transaction_lines = $item_array;
-			//
-			//$resp = $taxamo->createTransaction(array('transaction' => $transaction));
+		public static function get_evidence_from_json_data( $evidence, $data ) {
+
+			if ( 'taxamo' != $data->tax_type ) {
+				return $evidence;
+			}
+
+			foreach ( $data->evidence as $piece ) {
+
+				$obj_key = str_replace( '-', '_', $piece->evidence_type );
+
+				$evidence->$obj_key                        = new stdClass();
+				$evidence->$obj_key->used                  = $piece->used;
+				$evidence->$obj_key->resolved_country_code = $piece->resolved_country_code;
+				$evidence->$obj_key->evidence_type         = $piece->evidence_type;
+				$evidence->$obj_key->evidence_value            = $piece->evidence_value;
+			}
+
+			return $evidence;
+
+		}
+
+		public static function get_country_from_data( $country_code, $data, $object ) {
+
+			if ( 'taxamo' != $data->tax_type ) {
+				return $country_code;
+			}
+
+			if ( isset( $object->evidence ) && isset( $object->evidence->by_billing ) ) {
+				$country_code = $object->evidence->by_billing->resolved_country_code;
+			} else {
+				// Don't reinvent the wheel!
+				$evidence     = self::get_evidence_from_json_data( new stdClass(), $data );
+				$country_code = $evidence->by_billing->resolved_country_code;
+			}
+
+			return $country_code;
+		}
+
+		public static function get_ip_from_data( $ip, $data, $object ) {
+
+			if ( 'taxamo' != $data->tax_type ) {
+				return $ip;
+			}
+
+			if ( isset( $object->evidence ) && isset( $object->evidence->by_ip ) ) {
+				$ip = $object->evidence->by_ip->evidence_value;
+			} else {
+				// Don't reinvent the wheel!
+				$evidence = self::get_evidence_from_json_data( new stdClass(), $data );
+				if( isset( $evidence->by_ip ) ) {
+					$ip = $evidence->by_ip->evidence_value;
+				}
+			}
+
+			return $ip;
+		}
+
+		public static function record_transaction( $transaction ) {
+			global $psts;
+
+			$token = $psts->get_setting( 'taxamo_private_token' );
+
+			if ( $token && isset( $transaction->billing_country_code ) && ProSites_Helper_Geolocation::is_EU( $transaction->billing_country_code ) ) {
+
+				$taxamo = new Taxamo( new APIClient( $token, 'https://api.taxamo.com' ) );
+
+				// Convert to Taxamo types (because of Swagger lib)
+				$t = new Input_transaction();
+
+				// Add easy items
+				foreach( $transaction as $key => $value ) {
+					if( ! is_object( $value ) ) {
+						$t->$key = $value;
+					}
+				}
+
+				// Convert line items
+				$lines = array();
+				foreach( $transaction->transaction_lines as $line ) {
+					$l = new Input_transaction_line();
+					foreach( $line as $key => $value ) {
+						if( ! is_object( $value ) ) {
+							$l->$key = $value;
+						}
+					}
+					$lines[] = $l;
+				}
+				$t->transaction_lines = $lines;
+				//
+				//// Evidence
+				$t->evidence = new Evidence();
+				foreach( $transaction->evidence as $ek => $ev ) {
+					$t->evidence->$ek = new Evidence_schema();
+					foreach( $ev as $k => $v ) {
+						$t->evidence->$ek->$k = $v;
+					}
+				}
+
+				$resp = $taxamo->createTransaction( array( 'transaction' => $t ) );
+				if( isset( $resp ) && isset( $resp->transaction ) && isset( $resp->transaction->key ) ) {
+					$taxamo->confirmTransaction($resp->transaction->key, null);
+				}
+
+			}
 
 		}
 
