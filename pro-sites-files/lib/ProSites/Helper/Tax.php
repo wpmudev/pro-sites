@@ -61,7 +61,8 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 					Taxamo.initialize(\'' . $token . '\');
 					tokenOK = false;
 			        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
-			        Taxamo.setBillingCountry(\'00\');
+			        //Taxamo.setBillingCountry(\'00\');
+			        Taxamo.setFirstLoad( true );
 					Taxamo.detectCountry();
 				</script>';
 				$content = $content . $taxamo;
@@ -77,6 +78,12 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 			$translation_array = apply_filters( 'prosites_tax_script_translations', array(
 				'taxamo_missmatch' => __( 'EU VAT: Your location evidence is not matching. Additional evidence required. If you are travelling in another country or using a VPN, please provide as much information as possible and ensure that it is accurate.', 'psts' ),
+				'taxamo_imsi_short' => __( 'Your IMSI number for your SIM card must be 15 characters long.', 'psts' ),
+				'taxamo_imsi_invalid' => __( 'The IMSI number you provided is invalid for a EU country.', 'psts' ),
+				'taxamo_overlay_non_eu' => __( 'Resident of non-EU country.', 'psts' ),
+				'taxamo_overlay_detected' => __( 'Detected VAT country:', 'psts' ),
+				'taxamo_overlay_learn_more' => __( 'Learn more.', 'psts' ),
+				'taxamo_overlay_country_set' => __( 'VAT country is set to:', 'psts' ),
 			) );
 
 			wp_localize_script( 'psts-tax', 'psts_tax', $translation_array );
@@ -128,6 +135,32 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 			return $content;
 		}
+
+		public static function get_tax_object() {
+
+			$evidence = json_decode( str_replace( '\"', '"', $_POST['tax-evidence'] ) );
+			$type = sanitize_text_field( $_POST['tax-type'] );
+			$country = sanitize_text_field( $_POST['tax-country'] );
+
+			$obj = new stdClass();
+			$obj->country = $country;
+			$obj->type = $type;
+			$obj->tax_rate = false;
+			$obj->apply_tax = false;
+			$obj->ip = false;
+			$obj->evidence = $evidence;
+
+			$tax_object = apply_filters( 'prosites_get_tax_object', $obj );
+
+			return $tax_object;
+		}
+
+		public static function get_evidence_string( $object ) {
+
+			return apply_filters( 'prosites_get_tax_evidence_string', json_encode( $object-> evidence ), $object );
+
+		}
+
 
 	}
 

@@ -497,10 +497,18 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo API Token', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
+							class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo Public Key', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[taxamo_token]"
 								value="<?php echo esc_attr( $psts->get_setting( 'taxamo_token' ) ); ?>"/>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"
+							class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo Private Key', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
+						<td>
+							<input type="text" name="psts[taxamo_private_token]"
+								value="<?php echo esc_attr( $psts->get_setting( 'taxamo_private_token' ) ); ?>"/>
 						</td>
 					</tr>
 				</table>

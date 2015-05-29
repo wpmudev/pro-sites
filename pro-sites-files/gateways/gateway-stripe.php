@@ -1235,6 +1235,8 @@ class ProSites_Gateway_Stripe {
 			$customer_id  = $event_json->data->object->customer;
 			$subscription = self::get_subscription( $event_json );
 
+			self::record_transactions( $event_json );
+
 			$event_type = $event_json->type;
 			//If invoice has been created, activate user blog trial
 			if ( 'invoiceitem.updated' == $event_type ||
@@ -1420,6 +1422,38 @@ class ProSites_Gateway_Stripe {
 		}
 
 	}
+
+	public static function record_transactions( $obj ) {
+
+		$obj = $obj->data->object;
+
+		$date = $obj->date;
+		$transaction = $obj->charge;
+		$total = $obj->total / 100.0;
+		$sub_total = $obj->subtotal / 100.0;
+		$tax_percent = $obj->tax_percent;
+		$tax_amount = $obj->tax / 100.0;
+
+		$line_items = array();
+		$evidence = '';
+		foreach( $obj->lines->data as $item ) {
+			$line_items[] = array(
+				'custom_id' => $item->description,
+				'line_key' => $item->id,
+				'amount' => $item->amount / 100,
+			);
+			if( empty( $evidence ) ) {
+				$evidence = json_decode( $item->metadata->tax_evidence );
+			}
+		}
+
+		$currency = self::currency();
+
+		ProSites_Module_Taxamo::record_transaction( $transaction, $date, $line_items, $total, $sub_total, $tax_amount, $tax_percent, $currency, $evidence );
+
+
+	}
+
 
 	/**
 	 * Sets the Subscription's meta to include the $blod_id
@@ -1858,13 +1892,14 @@ class ProSites_Gateway_Stripe {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 			}
 
-			// Tax
-			$tax_country = isset( $_POST['tax-country'] ) ? sanitize_text_field( $_POST['tax-country'] ) : '';
-			$tax_type = isset( $_POST['tax-type'] ) ? sanitize_text_field( $_POST['tax-type'] ) : '';
-			$tax_evidence = isset( $_POST['tax-evidence'] ) ? $_POST['tax-evidence'] : '';
-			$tax_country = apply_filters( 'prosite_checkout_tax_country', $tax_country, $tax_type, $tax_evidence );
-			$apply_tax = apply_filters( 'prosite_checkout_tax_apply', false, $tax_type, $tax_country, $tax_evidence );
-			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $tax_type, $tax_country, $tax_evidence );
+			// TAX Object
+			if( ProSites_Helper_Session::session( 'tax_object') ) {
+				$tax_object = ProSites_Helper_Session::session( 'tax_object' );
+			} else {
+				$tax_object = ProSites_Helper_Tax::get_tax_object();
+				ProSites_Helper_Session::session( 'tax_object', $tax_object );
+			}
+			$evidence_string = ProSites_Helper_Tax::get_evidence_string( $tax_object );
 
 			$error          = '';
 			$success        = '';
@@ -2075,6 +2110,12 @@ class ProSites_Gateway_Stripe {
 						"prorate" => true,
 					);
 
+					// Apply tax?
+					if( $tax_object->apply_tax ) {
+						$args['tax_percent'] = $tax_object->tax_rate * 100;
+					}
+
+
 					// If there is a coupon, add its reference
 					if ( $cp_code ) {
 						$args["coupon"] = $cp_code;
@@ -2097,6 +2138,11 @@ class ProSites_Gateway_Stripe {
 						'period' => $_POST['period'],
 						'level'  => $_POST['level']
 					);
+
+					if( $tax_object->apply_tax ) {
+						$args['metadata']['tax_evidence'] = $evidence_string;
+					}
+
 					if ( ! $domain ) {
 						unset( $args['metadata']['domain'] );
 					}
@@ -2108,6 +2154,7 @@ class ProSites_Gateway_Stripe {
 					// Create Stripe Invoice for the setup fee
 					if ( $has_setup_fee ) {
 						try {
+
 							$customer_args = array(
 								'customer'    => $customer_id,
 								'amount'      => ( $setup_fee * 100 ),
@@ -2120,6 +2167,11 @@ class ProSites_Gateway_Stripe {
 									'setup_fee' => 'yes',
 								)
 							);
+
+							if( $tax_object->apply_tax ) {
+								$customer_args['metadata']['tax_evidence'] = $evidence_string;
+							}
+
 							if ( ! $domain ) {
 								unset( $customer_args['metadata']['domain'] );
 							}
@@ -2177,6 +2229,12 @@ class ProSites_Gateway_Stripe {
 								$sub->metadata->blog_id = $blog_id;
 								if ( isset( $args['metadata']['domain'] ) ) {
 									$sub->metadata->domain = $args['metadata']['domain'];
+								}
+
+								// Apply tax?
+								if( $tax_object->apply_tax ) {
+									$sub->tax_percent = $tax_object->tax_rate * 100;
+									$sub->metadata->tax_evidence = $evidence_string;
 								}
 
 								$sub->save();
@@ -2303,9 +2361,16 @@ class ProSites_Gateway_Stripe {
 							$activation_key = !empty( $activation_key ) ? $activation_key : ProSites_Helper_ProSite::get_activation_key( $blog_id );
 						}
 
+						if ( $tax_object-> apply_tax ) {
+							$amount = $initAmount + ( $initAmount & $tax_object->tax_rate );
+							$desc += sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
+						} else {
+							$amount = $initAmount;
+						}
+
 						$customer_args = array(
 							'customer'    => $customer_id,
-							'amount'      => ( $initAmount * 100 ),
+							'amount'      => ( $amount * 100 ),
 							'currency'    => $currency,
 							'description' => $desc,
 							'metadata'    => array(
@@ -2314,6 +2379,11 @@ class ProSites_Gateway_Stripe {
 								'level'  => $_POST['level']
 							)
 						);
+
+						if( $tax_object->apply_tax ) {
+							$customer_args['metadata']['tax_evidence'] = $evidence_string;
+						}
+
 						if ( ! $domain ) {
 							unset( $customer_args['metadata']['domain'] );
 						}

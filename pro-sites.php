@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5
+Version: 3.5.0.2
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1';
+	var $version = '3.5.0.2';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -209,6 +209,9 @@ class ProSites {
 		$this->setup_ajax_hooks();
 
 		$this->errors = new WP_Error();
+
+		// @todo get rid of this line
+		//$this->update_setting( 'version', '3.5.0.1' );
 
 	}
 
@@ -520,11 +523,25 @@ Thanks!", 'psts' ),
 		  PRIMARY KEY  (id)
 		);";
 
+		$table4 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_transactions (
+		  transaction_id bigint(20) NOT NULL,
+		  transaction_date DATE NOT NULL,
+		  items longtext NOT NULL,
+		  total decimal NOT NULL DEFAULT 0,
+		  sub_total decimal NOT NULL DEFAULT 0,
+		  tax_amount decimal NOT NULL DEFAULT 0,
+		  tax_percentage decimal NOT NULL DEFAULT 0,
+		  meta longtext NOT NULL,
+		  PRIMARY KEY  (transaction_id),
+		  KEY  (transaction_id, transaction_date )
+		);";
+
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $table1 );
 			dbDelta( $table2 );
 			dbDelta( $table3 );
+			dbDelta( $table4 );
 		}
 
 		// add stats cron job action only to main site (or it may be running all the time!)
