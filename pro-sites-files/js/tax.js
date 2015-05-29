@@ -43,7 +43,7 @@ var Taxamo = (function(my) {
                         'resolved_country_code': imsi_data.country_code,
                         'used': true,
                         'evidence_value': 'MCC:' + imsi_data.mcc + ', MNC:' + imsi_data.operator_code + ', Network:' + network,
-                        'evidence-type': 'other_commercially_relevant_info'
+                        'evidence_type': 'other_commercially_relevant_info'
                     }
                     valid_imsi = true;
                 } else {
