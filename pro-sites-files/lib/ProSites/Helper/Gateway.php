@@ -34,6 +34,19 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 			}
 		}
 
+		public static function get_nice_name_from_class( $classname ) {
+			$gateways = self::get_gateways();
+
+			$nicename = '';
+			foreach( $gateways as $gateway ) {
+				if( $gateway['class'] == $classname ) {
+					$nicename = $gateway['name'];
+				}
+			}
+
+			return $nicename;
+		}
+
 		public static function is_only_active( $gateway_key ) {
 			$gateways = self::get_gateways();
 			$gateway_keys = array_keys( $gateways );
