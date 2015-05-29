@@ -81,7 +81,7 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 
 		public static function get_evidence_from_json_data( $evidence, $data ) {
 
-			if ( 'taxamo' != $data->tax_type ) {
+			if ( ! isset( $data->tax_type ) || 'taxamo' != $data->tax_type ) {
 				return $evidence;
 			}
 
@@ -102,7 +102,7 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 
 		public static function get_country_from_data( $country_code, $data, $object ) {
 
-			if ( 'taxamo' != $data->tax_type ) {
+			if ( ! isset( $data->tax_type ) || 'taxamo' != $data->tax_type ) {
 				return $country_code;
 			}
 
@@ -119,7 +119,7 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 
 		public static function get_ip_from_data( $ip, $data, $object ) {
 
-			if ( 'taxamo' != $data->tax_type ) {
+			if ( ! isset( $data->tax_type ) || 'taxamo' != $data->tax_type ) {
 				return $ip;
 			}
 
@@ -148,9 +148,10 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 				// Convert to Taxamo types (because of Swagger lib)
 				$t = new Input_transaction();
 
-				// Add easy items
+				// Add easy items (and avoid custom ones)
+				$t_types = array_keys( get_object_vars( $t ) );
 				foreach( $transaction as $key => $value ) {
-					if( ! is_object( $value ) ) {
+					if( ! is_object( $value ) && in_array( $key, $t_types ) ) {
 						$t->$key = $value;
 					}
 				}

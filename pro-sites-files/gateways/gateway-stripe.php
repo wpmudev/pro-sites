@@ -1195,7 +1195,7 @@ class ProSites_Gateway_Stripe {
 				/* blog has already been extended by another webhook within the past
 					 5 minutes - don't extend again, but send receipt if its a payment */
 				if( $is_payment ) {
-					$psts->email_notification( $blog_id, 'receipt', false, $args );
+					//$psts->email_notification( $blog_id, 'receipt', false, $args );
 				}
 				return false;
 			}
@@ -1205,7 +1205,7 @@ class ProSites_Gateway_Stripe {
 
 		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
 		if( $is_payment ) {
-			$psts->email_notification( $blog_id, 'receipt', false, $args );
+			//$psts->email_notification( $blog_id, 'receipt', false, $args );
 		}
 
 		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
@@ -1453,6 +1453,9 @@ class ProSites_Gateway_Stripe {
 
 		// Line Items
 		$lines = array();
+		$customer_id = '';
+		$sub_id = '';
+
 		foreach( $data->lines->data as $line ) {
 			$line_obj = new stdClass();
 			$line_obj->custom_id = $line_obj->id = $line->id;
@@ -1460,8 +1463,28 @@ class ProSites_Gateway_Stripe {
 			$line_obj->quantity = $line->quantity;
 			$line_obj->description = isset( $line->description ) ? $line->description : ( isset( $line->plan ) && isset( $line->plan->name ) ? $line->plan->name : '' );
 			$lines[] = $line_obj;
+			if( isset( $line->customer_id ) ) {
+				$customer_id = $line->customer_id;
+			}
+			if( isset( $line->type) && 'subscription' == $line->type ) {
+				$sub_id = $line->id;
+				$object->level = $line->metadata->level;
+				$object->period = $line->metadata->period;
+			}
 		}
 		$object->transaction_lines = $lines;
+
+		// Customer
+		try {
+			$cu = Stripe_Customer::retrieve( $customer_id );
+			$object->username = $cu->metadata->user;
+			$object->email = $cu->email;
+			$sub = $cu->subscriptions->retrieve( $sub_id );
+			$object->blog_id = $sub->metadata->blog_id;
+			$object->sub_id = $sub_id;
+		} catch ( Exception $e ) {
+			$error = $e->getMessage();
+		}
 
 		// Evidence -> evidence_from_json()
 		try {
@@ -1477,6 +1500,13 @@ class ProSites_Gateway_Stripe {
 		if ( ! isset( $object->buyer_ip ) ) {
 			$object->buyer_ip = $_SERVER['REMOTE_ADDR'];
 		}
+
+		// General (used for transaction recording)
+		$object->total = $data->total / 100;
+		$object->tax_percent = $data->tax_percent / 100;
+		$object->subtotal = $data->subtotal / 100;  // optional
+		$object->tax = $data->tax / 100; // optional
+		$object->gateway = get_class();
 
 		return $object;
 	}
@@ -2350,7 +2380,7 @@ class ProSites_Gateway_Stripe {
 						$old_expire = $psts->get_expire( $blog_id );
 						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
 						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, false );
-						$psts->email_notification( $blog_id, 'receipt' );
+						//$psts->email_notification( $blog_id, 'receipt' );
 
 						if ( isset( $current_plan_level ) ) {
 							if ( $current_plan_level > $_POST['level'] ) {
@@ -2448,7 +2478,7 @@ class ProSites_Gateway_Stripe {
 						$old_expire = $psts->get_expire( $blog_id );
 						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
 						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, false );
-						$psts->email_notification( $blog_id, 'receipt' );
+						//$psts->email_notification( $blog_id, 'receipt' );
 
 						if ( isset( $current_plan_level ) ) {
 							if ( $current_plan_level > $_POST['level'] ) {
