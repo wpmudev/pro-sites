@@ -138,6 +138,7 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 
 		public static function get_tax_object() {
 
+			/** @todo: add Check for $_POST, as it generates warning otherwise **/
 			$evidence = json_decode( str_replace( '\"', '"', $_POST['tax-evidence'] ) );
 			$type = sanitize_text_field( $_POST['tax-type'] );
 			$country = sanitize_text_field( $_POST['tax-country'] );

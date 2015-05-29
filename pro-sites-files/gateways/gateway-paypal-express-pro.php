@@ -46,6 +46,9 @@ class ProSites_Gateway_PayPalExpressPro {
 		//return next payment date for emails
 		add_filter( 'psts_next_payment', array( &$this, 'next_payment' ) );
 
+		//transaction hooks
+		add_filter( 'prosites_transaction_object_create', array( 'ProSites_Gateway_PayPalExpressPro', 'create_transaction_object' ), 10, 3 );
+
 		//cancel subscriptions on blog deletion
 		add_action( 'delete_blog', array( &$this, 'cancel_subscription' ) );
 
@@ -955,7 +958,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
 
 			// get custom field values
-			@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key ) = explode( '_', $custom );
+			@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key, $evidence_str ) = explode( '_', $custom );
 
 			if ( empty( $blog_id ) || $blog_id == 0 ) {
 				//Get it from Pro sites table, if not there, try to get it from signup table
@@ -1063,7 +1066,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$psts->email_notification( $blog_id, 'receipt' );
 						}
 					}
-
+					//Record Transaction, Send txn id
+					self::record_transaction( $_POST['txn_id'], $evidence_str );
 					break;
 
 				case 'Pending':
@@ -1438,21 +1442,21 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$domain      = $path = '';
 		$discountAmt = $has_coupon = false;
 		$new_blog    = true;
+		$tax_amt     = 0;
 
 		//Blog id, Level Period
 		$blog_id = ! empty( $_REQUEST['bid'] ) ? $_REQUEST['bid'] : 0;
 		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : '';
 		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : '';
 
-		// Tax
-		if ( ! empty( $_POST['tax-country'] ) && ! empty( $_POST['tax-type'] ) ) {
-			$tax_country    = isset( $_POST['tax-country'] ) ? sanitize_text_field( $_POST['tax-country'] ) : '';
-			$tax_type       = isset( $_POST['tax-type'] ) ? sanitize_text_field( $_POST['tax-type'] ) : '';
-			$tax_evidence   = isset( $_POST['tax-evidence'] ) ? $_POST['tax-evidence'] : '';
-			$tax_country    = apply_filters( 'prosite_checkout_tax_country', $tax_country, $tax_type, $tax_evidence );
-			$apply_tax      = apply_filters( 'prosite_checkout_tax_apply', false, $tax_type, $tax_country, $tax_evidence );
-			$tax_percentage = apply_filters( 'prosite_checkout_tax_percentage', 0, $tax_type, $tax_country, $tax_evidence );
+		// TAX Object
+		$tax_object = ProSites_Helper_Session::session( 'tax_object' );
+		if ( empty( $tax_object ) || empty( $tax_object->evidence ) ) {
+			$tax_object = ProSites_Helper_Tax::get_tax_object();
+			ProSites_Helper_Session::session( 'tax_object', $tax_object );
 		}
+		$evidence_string = ProSites_Helper_Tax::get_evidence_string( $tax_object );
+
 		// Try going stateless, or check the session
 		$process_data = array();
 		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
@@ -1570,10 +1574,20 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$initAmount -= $amount_off;
 					$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 				}
+				//Check if tax is applicable
+				if ( $tax_object->apply_tax ) {
+					$tax_amt_init = $initAmount * $tax_object->tax_rate;
+					$tax_amt_init = ! empty( $tax_amt_init ) ? round( $tax_amt_init ) : $tax_amt_init;
+					$initAmount   = $initAmount + $tax_amt_init;
+
+					$tax_amt_payment   = $paymentAmount * $tax_object->tax_rate;
+					$tax_amt_payment   = ! empty( $tax_amt_payment ) ? round( $tax_amt_payment ) : $tax_amt_payment;
+					$paymentAmountDesc = $paymentAmount + $tax_amt_payment;
+				}
 
 				//Check if it's a recurring subscription
 				if ( $recurring ) {
-					$recurringAmmount = 'forever' == $lifetime && $has_coupon ? $coupon_value : $paymentAmount;
+					$recurringAmmount = 'forever' == $lifetime && $has_coupon ? $coupon_value : $paymentAmountDesc;
 					if ( $_POST['period'] == 1 ) {
 						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $initAmount ), $psts->format_currency( $currency, $recurringAmmount ) );
 					} else {
@@ -1607,6 +1621,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				} else {
 					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for %2$s months', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $_POST['period'] );
 				}
+			}
+
+			//Update Description for Tax
+			if( $tax_object->apply_tax ) {
+				$desc .= sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
 			}
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
@@ -1664,7 +1683,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				//Non recurring Upgrades, Non Recurring signup without trial
 				if ( $modify || ! $is_trial ) {
-					$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $domain, $path );
+					$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_payment, $evidence_string );
 
 					if ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) {
 						$payment_status   = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
@@ -1771,7 +1790,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 							//update the blog id in paypal custom so that future payments are applied to the proper blog id
-							$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
+							$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
 							PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
@@ -1943,7 +1962,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 					if ( ! $is_trial ) {
 						//if no trial is set, initiate the payment
-						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key );
+						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_payment, $evidence_string );
 
 						$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
 
@@ -1987,7 +2006,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//create the recurring profile
 						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key );
 
-
 						//If Profile is created
 						if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
 
@@ -2000,7 +2018,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 								//update the blog id in paypal custom so that future payments are applied to the proper blog id
-								$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
+								$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
 								PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
@@ -2329,7 +2347,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
+									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
 									PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -2523,7 +2541,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
+									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
 									PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -3009,6 +3027,95 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		return $modify;
+	}
+
+	/**
+	 * Get the evidence string from $data, Calls object_form_data to format the evidence string
+	 * @param $data
+	 */
+	private static function record_transaction( $txn_id, $evidence_str ) {
+
+		//Fetch Details From Paypal for the transaction ID
+		$transaction_details = PaypalApiHelper::GetTransactionDetails( $txn_id );
+
+		// Get the object
+		$object = ProSites_Helper_Transaction::object_from_data( $transaction_details, get_class() );
+
+		// Record the object
+		ProSites_Helper_Transaction::record( $object );
+
+	}
+
+	private static function create_transaction_object( $object, $data, $gateway ) {
+
+		if( get_class() !== $gateway ) {
+			return $object;
+		}
+
+		// Basic
+		$object->invoice_number = $data->id;
+		$object->invoice_date = date ( 'Y-m-d', $data->date );
+		//$object->original_transaction_key = $data->charge;
+		$object->currency_code = strtoupper( $data->currency );
+
+		// Line Items
+		$lines = array();
+		$customer_id = '';
+		$sub_id = '';
+
+		foreach( $data->lines->data as $line ) {
+			$line_obj = new stdClass();
+			$line_obj->custom_id = $line_obj->id = $line->id;
+			$line_obj->amount = $line->amount / 100;
+			$line_obj->quantity = $line->quantity;
+			$line_obj->description = isset( $line->description ) ? $line->description : ( isset( $line->plan ) && isset( $line->plan->name ) ? $line->plan->name : '' );
+			$lines[] = $line_obj;
+			if( isset( $line->customer_id ) ) {
+				$customer_id = $line->customer_id;
+			}
+			if( isset( $line->type) && 'subscription' == $line->type ) {
+				$sub_id = $line->id;
+				$object->level = $line->metadata->level;
+				$object->period = $line->metadata->period;
+			}
+		}
+		$object->transaction_lines = $lines;
+
+		// Customer
+		try {
+			$cu = Stripe_Customer::retrieve( $customer_id );
+			$object->username = $cu->metadata->user;
+			$object->email = $cu->email;
+			$sub = $cu->subscriptions->retrieve( $sub_id );
+			$object->blog_id = $sub->metadata->blog_id;
+			$object->sub_id = $sub_id;
+		} catch ( Exception $e ) {
+			$error = $e->getMessage();
+		}
+
+		// Evidence -> evidence_from_json()
+		try {
+			$object->evidence = ProSites_Helper_Transaction::evidence_from_json( $data->lines->data[0]->metadata->tax_evidence );
+			$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
+			$object->tax_country_code = $object->billing_country_code;
+			$object->force_country_code = $object->billing_country_code;
+			$object->buyer_ip = ProSites_Helper_Transaction::country_ip_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
+		} catch (Exception $e) {
+			$object->evidence = null;
+		}
+
+		if ( ! isset( $object->buyer_ip ) ) {
+			$object->buyer_ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+		// General (used for transaction recording)
+		$object->total = $data->total / 100;
+		$object->tax_percent = $data->tax_percent / 100;
+		$object->subtotal = $data->subtotal / 100;  // optional
+		$object->tax = $data->tax / 100; // optional
+		$object->gateway = get_class();
+
+		return $object;
 	}
 }
 

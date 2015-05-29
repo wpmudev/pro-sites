@@ -54,7 +54,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '' ) {
+		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $activation_key = '', $tax = false, $evidence ) {
 			global $psts;
 
 			$nvpstr = "&TOKEN=" . urlencode( $token );
@@ -68,15 +68,19 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 
-			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key . '_' . $evidence;
 
 			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
+
+			if( $tax ) {
+				$nvpstr .= "&PAYMENTREQUEST_0_TAXAMT=" . $tax;
+			}
 			$resArray = self::api_call( "DoExpressCheckoutPayment", $nvpstr );
 
 			return $resArray;
 		}
 
-		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '' ) {
+		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '', $tax = false, $evidence = '' ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
@@ -130,14 +134,19 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key . '_' . $evidence;
+
+			//Tax Calculated for each payment
+			if( $tax ) {
+				$nvpstr .= "&TAXAMT=" . $tax;
+			}
 
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
 		}
 
-		public static function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '', $total_billing_cycle = '' ) {
+		public static function CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $modify = false, $activation_key = '', $total_billing_cycle = '', $tax = false, $evidence = '' ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
@@ -193,7 +202,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key ;
+			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key . '_' . $evidence;
 			$nvpstr .= "&CREDITCARDTYPE=$cctype";
 			$nvpstr .= "&ACCT=$acct";
 			$nvpstr .= "&EXPDATE=$expdate";
@@ -208,12 +217,17 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&COUNTRYCODE=$countrycode";
 			$nvpstr .= "&EMAIL=$email";
 
+			//Tax Calculated for payment
+			if( $tax ) {
+				$nvpstr .= "&TAXAMT=" . $tax;
+			}
+
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
 		}
 
-		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $activation_key = '' ) {
+		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $activation_key = '', $tax = false, $evidence = '' ) {
 			global $psts;
 
 			$nvpstr = "&AMT=$paymentAmount";
@@ -225,7 +239,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 
-			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key . '_' . $evidence;
 
 			$nvpstr .= "&CREDITCARDTYPE=$cctype";
 			$nvpstr .= "&ACCT=$acct";
@@ -240,6 +254,10 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&ZIP=$zip";
 			$nvpstr .= "&COUNTRYCODE=$countrycode";
 			$nvpstr .= "&EMAIL=$email";
+			//Tax Calculated for payment
+			if( $tax ) {
+				$nvpstr .= "&TAXAMT=" . $tax;
+			}
 
 			$resArray = self::api_call( "DoDirectPayment", $nvpstr );
 

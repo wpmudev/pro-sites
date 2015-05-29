@@ -1950,12 +1950,12 @@ class ProSites_Gateway_Stripe {
 			}
 
 			// TAX Object
-			if( ProSites_Helper_Session::session( 'tax_object') ) {
-				$tax_object = ProSites_Helper_Session::session( 'tax_object' );
-			} else {
+			$tax_object = ProSites_Helper_Session::session( 'tax_object' );
+			if ( empty( $tax_object ) || empty( $tax_object->evidence ) ) {
 				$tax_object = ProSites_Helper_Tax::get_tax_object();
 				ProSites_Helper_Session::session( 'tax_object', $tax_object );
 			}
+
 			$evidence_string = ProSites_Helper_Tax::get_evidence_string( $tax_object );
 
 			$error          = '';
@@ -2419,7 +2419,7 @@ class ProSites_Gateway_Stripe {
 						}
 
 						if ( $tax_object-> apply_tax ) {
-							$amount = $initAmount + ( $initAmount & $tax_object->tax_rate );
+							$amount = $initAmount + ( $initAmount * $tax_object->tax_rate );
 							$desc += sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
 						} else {
 							$amount = $initAmount;
