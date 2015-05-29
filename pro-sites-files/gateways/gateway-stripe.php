@@ -2257,6 +2257,27 @@ class ProSites_Gateway_Stripe {
 							self::set_customer_data( $blog_id, $customer_id, $sub_id );
 						}
 
+						if ( $current_plan = self::get_current_plan( $blog_id ) ) {
+							list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
+						}
+
+						//Extend the Blog Subscription
+						$old_expire = $psts->get_expire( $blog_id );
+						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
+						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, false );
+						$psts->email_notification( $blog_id, 'receipt' );
+
+						if ( isset( $current_plan_level ) ) {
+							if ( $current_plan_level > $_POST['level'] ) {
+								$psts->record_stat( $blog_id, 'upgrade' );
+							} else {
+								$psts->record_stat( $blog_id, 'modify' );
+							}
+						} else {
+							$psts->record_stat( $blog_id, 'signup' );
+						}
+
+
 						// Update the sub with the new blog id (old subscriptions will update later).
 						if ( ! empty( $blog_id ) ) {
 							$sub                    = $c->subscriptions->retrieve( $sub_id );
