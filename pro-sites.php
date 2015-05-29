@@ -1529,18 +1529,94 @@ Thanks!", 'psts' ),
 	}
 
 	public static function send_receipt( $transaction ) {
+		global $psts, $wpdb;
+
+		// used in all emails
+		$search_replace = array(
+			'LEVEL'       => $psts->get_level_setting( $psts->get_level( $transaction->blog_id ), 'name' ),
+			'SITEURL'     => get_home_url( $transaction->blog_id ),
+			'SITENAME'    => get_blog_option( $transaction->blog_id, 'blogname' ),
+			'CHECKOUTURL' => $psts->checkout_url( $transaction->blog_id )
+		);
+		// send emails as html (fixes some formatting issues with currencies)
+		$mail_headers = array( 'Content-Type: text/html' );
 
 		// Get the user
 		if ( isset( $transaction->username ) ) {
 			$user = get_user_by( 'login', $transaction->username );
+			$email = $user->user_email;
 		} elseif ( isset( $transaction->email ) ) {
 			$user = get_user_by( 'email', $transaction->email );
+			$email = $transaction->email;
+		}
+		if ( ! $user ) {
+			$email = get_blog_option( $transaction->blog_id, 'admin_email' );
 		}
 
+		// Get current plan
+		$level_list = get_site_option( 'psts_levels' );
+		$level_name = $level_list[ $transaction->level ]['name'];
+		$gateway = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
+		$result = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
+		$term = $result->term;
 
+		if ( $term == 1 || $term == 3 || $term == 12 ) {
+			$term = sprintf( __( 'Every %s Month(s)', 'psts' ), $result->term );
+		} else {
+			$term = false;
+		}
 
+		$payment_info = sprintf( __( 'Current Plan: %s', 'psts' ), $level_name ) . "\n";
+		$payment_info .= sprintf( __( 'Payment Method: %s', 'psts' ), $gateway ) . "\n";
+		if ( $term ) {
+			$payment_info .= sprintf( __( 'Payment Term: %s', 'psts' ), $term ) . "\n<hr />";
+		}
+		$payment_info .= sprintf( __( 'Transaction/Invoice #: %s', 'psts' ), $transaction->invoice_number) . "\n";
+		$payment_info .= sprintf( __( 'Transaction/Invoice Date: %s', 'psts' ), $transaction->invoice_date) . "\n\n";
+		$payment_info .= '<strong>' . __( 'Transaction Details:', 'psts' ) . "</strong>\n\n";
 
+		foreach( $transaction->transaction_lines as $line ) {
+			$payment_info .= esc_html( $line->description  ) . '&nbsp;&nbsp;';
+			$payment_info .= esc_html( $psts->format_currency( $transaction->currency_code, $line->amount )  ) . "&nbsp;&nbsp;\n";
+		}
 
+		$tax_rate = isset( $transaction->tax_percent ) ? $transaction->tax_percent : 0;
+		$total = isset( $transaction->total ) ? $transaction->total : false;
+		$subtotal = isset( $transaction->subtotal ) ? $transaction->subtotal : false;
+		$tax = isset( $transaction->tax ) ? $transaction->tax : false;
+
+		if( false === $total && $subtotal ) {
+			$total = ( $subtotal * $tax_rate ) + $subtotal;
+		}
+		if( false === $subtotal && $total ) {
+			$subtotal = $total / ( $tax_rate + 1 );
+		}
+		if( false === $tax && $total && $subtotal ) {
+			$tax = $total - $subtotal;
+		}
+
+		if ( empty( $tax_rate ) ) {
+			$payment_info .= "\n<strong>" . sprintf( __( 'Total: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $total ) ) . "</strong>\n\n";
+		} else {
+			$payment_info .= "\n" . sprintf( __( 'Sub-Total: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $subtotal ) ) . "\n";
+			$payment_info .= sprintf( __( 'Tax Rate: %s%%', 'psts' ), ($tax_rate * 100) ) . "\n";
+			$payment_info .= sprintf( __( 'Tax Amount: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $tax ) ) . "\n";
+			$payment_info .= '<strong>' . sprintf( __( 'Total: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $total ) ) . "</strong>\n\n";
+		}
+
+		$payment_info .= '<hr />';
+
+		$search_replace['PAYMENTINFO'] = apply_filters( 'psts_payment_info', $payment_info, $transaction->blog_id );
+
+		$e = array(
+			'msg'     => $psts->get_setting( 'receipt_msg' ),
+			'subject' => $psts->get_setting( 'receipt_subject' )
+		);
+		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
+
+		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $psts->pdf_receipt( $e['msg'] ) );
+
+		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 
 	}
 
