@@ -1772,10 +1772,10 @@ class ProSites_Gateway_Stripe {
 				$blogname   = $render_data['new_blog_details']['blogname'];
 				$blog_title = $render_data['new_blog_details']['title'];
 
-				$content .= '<input type="hidden" name="blog_username" value="' . $render_data['new_blog_details']['username'] . '" />';
-				$content .= '<input type="hidden" name="blog_email" value="' . $render_data['new_blog_details']['email'] . '" />';
-				$content .= '<input type="hidden" name="blog_name" value="' . $render_data['new_blog_details']['blogname'] . '" />';
-				$content .= '<input type="hidden" name="blog_title" value="' . $render_data['new_blog_details']['title'] . '" />';
+				$content .= '<input type="hidden" name="blog_username" value="' . $user_name . '" />';
+				$content .= '<input type="hidden" name="blog_email" value="' . $user_email . '" />';
+				$content .= '<input type="hidden" name="blog_name" value="' . $blogname . '" />';
+				$content .= '<input type="hidden" name="blog_title" value="' . $blog_title . '" />';
 			}
 		}
 
