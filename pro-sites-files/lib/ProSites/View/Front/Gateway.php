@@ -428,11 +428,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
-			$content .= '<p>' . esc_html__( 'Your basic site has been setup and you should soon receive an email with your site details. You can always upgrade your site by logging in and viewing your account.', 'psts' ) . '</p>';
+			$content .= '<p>' . esc_html__( 'Your basic site has been setup and you should soon receive an email with your site details and password. You can always upgrade your site by logging in and viewing your account.', 'psts' ) . '</p>';
 
 			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
 			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
-			$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
+			//$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
 			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
 
 			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';

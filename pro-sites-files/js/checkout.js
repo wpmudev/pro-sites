@@ -27,7 +27,6 @@ jQuery(document).ready(function ($) {
     };
 
     $('div.pblg-checkout-opt').click(function ( e ) {
-
         var target = e.currentTarget;
         //var values = $('input', this).val().split(':');
         var level_parent = $(target).parents('tr')[0];
@@ -408,6 +407,7 @@ jQuery(document).ready(function ($) {
         // Reset button text
         $('.choose-plan-button').html( button_text );
 
+        $('#gateways' ).addClass('hidden');
 
         if( prosites_checkout.logged_in && ! new_blog ) {
             $('.checkout-gateways.hidden').removeClass('hidden');
