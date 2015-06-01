@@ -407,8 +407,6 @@ jQuery(document).ready(function ($) {
         // Reset button text
         $('.choose-plan-button').html( button_text );
 
-        $('#gateways' ).addClass('hidden');
-
         if( prosites_checkout.logged_in && ! new_blog ) {
             $('.checkout-gateways.hidden').removeClass('hidden');
         } else {
@@ -429,9 +427,9 @@ jQuery(document).ready(function ($) {
 
         if( free_link ) {
             level = 'free';
-            if( site_registered ) {
+            //if( site_registered ) {
                 $('.gateways.checkout-gateways').addClass('hidden');
-            }
+            //}
         } else {
             if( site_registered ) {
                 $('.gateways.checkout-gateways').removeClass('hidden');
