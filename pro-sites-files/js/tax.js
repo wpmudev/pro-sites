@@ -225,13 +225,17 @@ var Taxamo = (function(my) {
     }
 
     my.getEvidenceData = function() {
-        var the_evidence = Taxamo.$.cookie( 'taxamo_evidence' );
-        if( the_evidence ) {
-            the_evidence = JSON.parse( the_evidence );
+        if( Taxamo.$ !== undefined ) {
+            var the_evidence = Taxamo.$.cookie( 'taxamo_evidence' ) || {};
+            if( the_evidence ) {
+                the_evidence = JSON.parse( the_evidence );
+            } else {
+                the_evidence = {};
+            }
+            return the_evidence;
         } else {
-            the_evidence = {};
+            return {};
         }
-        return the_evidence;
     }
 
     my.saveEvidenceData = function( the_evidence ) {

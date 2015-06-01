@@ -185,5 +185,24 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 		}
 
+		/**
+		 *  Get the AJAX url.
+		 *
+		 *  Integrates with DomainMapping.
+		 */
+		public static function admin_ajax_url() {
+			$path = "admin-ajax.php";
+			$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
+
+			if( class_exists( 'domain_map') ) {
+				global $dm_map;
+				return $dm_map->domain_mapping_admin_url( admin_url( $path, $scheme ), '/', false );
+			} else{
+				return admin_url( path, $scheme );
+			}
+
+		}
+
+
 	}
 }

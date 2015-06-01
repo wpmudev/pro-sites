@@ -1196,10 +1196,8 @@ Thanks!", 'psts' ),
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 
-		$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
-		$ajax_url = admin_url( "admin-ajax.php", $scheme );
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
-			'ajax_url' => $ajax_url,
+			'ajax_url' => ProSites_Helper_ProSite::admin_ajax_url(),
 			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
 			'button_signup' => __( "Sign Up", 'psts' ),
 			'button_choose' => __( "Choose Plan", 'psts' ),
