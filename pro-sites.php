@@ -1067,7 +1067,7 @@ Thanks!", 'psts' ),
 			if ( $expire > 2147483647 ) {
 				$expire = __( "Permanent", "psts" );
 			} else {
-				$expire = $expire ? date( "Y-m-d", $expire ) : __( "N/A", "psts" );
+				$expire = $expire ? date( "Y-m-d", intval( $expire ) ) : __( "N/A", "psts" );
 			}
 			$sup_title .= " [{$expire}]";
 			$wp_admin_bar->add_menu( array(
