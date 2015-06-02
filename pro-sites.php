@@ -3129,6 +3129,19 @@ if ( $active_pro_sites ) {
 
 	}
 	$month_data = array_reverse( $month_data, true );
+	$fix = array_keys( $month_data );
+	if( 0 > $fix[0] ) {
+		$three_or_four_ago = $fix[1] - (60*60*24*30*4);
+		unset( $month_data[$fix[0]] );
+		$data = array();
+		$data[ $three_or_four_ago ] = array(
+			'signups' => 0,
+			'mods' => 0,
+			'upgrades' => 0,
+			'cancels' => 0,
+		);
+		$month_data = $data + $month_data;
+	}
 
 	foreach ( $month_data as $month => $nums ) {
 		$month = $month * 1000;
@@ -3138,6 +3151,7 @@ if ( $active_pro_sites ) {
 		$m3[] = '[' . $month . ', ' . $nums['mods'] . ']';
 		$m4[] = '[' . $month . ', ' . $nums['cancels'] . ']';
 	}
+
 	$m1 = implode( ', ', (array) $m1 );
 	$m2 = implode( ', ', (array) $m2 );
 	$m3 = implode( ', ', (array) $m3 );
