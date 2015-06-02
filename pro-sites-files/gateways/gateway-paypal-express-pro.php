@@ -1074,7 +1074,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						if ( ! empty( $blog_meta['evidence'] ) && ! empty( $_POST['txn_id'] ) ) {
 							$evidence_string = ! empty( $blog_meta['evidence'][ $_POST['txn_id'] ] ) ? $blog_meta['evidence'][ $_POST['txn_id'] ] : '';
 						}
-						error_log( json_encode( $_POST));
 						//Record Transaction, Send txn id
 						self::record_transaction( $_POST['txn_id'], $evidence_string );
 					}
@@ -2138,16 +2137,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							self::set_blog_identifier( $activation_key, $blog_id );
 							//Store evidence for DoExpressCheckout transaction
 							if ( ! empty( $init_transaction ) ) {
-								error_log("Transaction ID");
-								error_log( $init_transaction);
 								//Update Evidence string in table
 								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
 							}
 							//Store Evidence string for the transaction ID, for createrecurring profile
 							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
 							if ( ! empty( $txn_id ) ) {
-								error_log("Transaction ID");
-								error_log( $txn_id);
 								//Update Evidence string in table
 								self::update_evidence( $blog_id, $txn_id, $evidence_string );
 							}
@@ -3116,7 +3111,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( get_class() !== $gateway ) {
 			return $object;
 		}
-		error_log( json_encode( $data));
 
 		// Basic
 		$object->invoice_number = $data['TRANSACTIONID'];
