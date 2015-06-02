@@ -1542,10 +1542,10 @@ Thanks!", 'psts' ),
 		$mail_headers = array( 'Content-Type: text/html' );
 
 		// Get the user
-		if ( isset( $transaction->username ) ) {
+		if ( !empty( $transaction->username ) ) {
 			$user = get_user_by( 'login', $transaction->username );
 			$email = $user->user_email;
-		} elseif ( isset( $transaction->email ) ) {
+		} elseif ( !empty( $transaction->email ) ) {
 			$user = get_user_by( 'email', $transaction->email );
 			$email = $transaction->email;
 		}

@@ -138,6 +138,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 * @return bool
 		 */
 		public static function update_prosite_meta( $blog_id = 0, $meta = array() ) {
+
 			if ( false === $meta || empty( $blog_id ) ) {
 				return false;
 			}
@@ -146,7 +147,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			$updated = $wpdb->update(
 				$wpdb->base_prefix . 'pro_sites',
 				array(
-					'meta' => serialize( $meta ),
+					'meta' => maybe_serialize( $meta ),
 				),
 				array(
 					'blog_ID' => $blog_id

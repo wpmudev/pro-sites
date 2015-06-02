@@ -47,7 +47,10 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_filter( 'psts_next_payment', array( &$this, 'next_payment' ) );
 
 		//transaction hooks
-		add_filter( 'prosites_transaction_object_create', array( 'ProSites_Gateway_PayPalExpressPro', 'create_transaction_object' ), 10, 3 );
+		add_filter( 'prosites_transaction_object_create', array(
+			'ProSites_Gateway_PayPalExpressPro',
+			'create_transaction_object'
+		), 10, 3 );
 
 		//cancel subscriptions on blog deletion
 		add_action( 'delete_blog', array( &$this, 'cancel_subscription' ) );
@@ -1035,8 +1038,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				case 'Completed':
 				case 'Processed':
 					// case: successful payment
-					$is_trialing = ( isset( $_POST['period_type'] ) && trim( $_POST['period_type'] ) == 'Trial' ) ? true : false;
-					$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
+					$evidence_string = '';
+					$is_trialing     = ( isset( $_POST['period_type'] ) && trim( $_POST['period_type'] ) == 'Trial' ) ? true : false;
+					$recurring       = $psts->get_setting( 'recurring_subscriptions', true );
 
 					//Activate the blog
 					if ( empty( $blog_id ) || $blog_id === 0 ) {
@@ -1065,9 +1069,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 							$psts->email_notification( $blog_id, 'receipt' );
 						}
+						//Get evidence string from db
+						$blog_meta = ProSites_Helper_ProSite::get_prosite_meta( $blog_id );
+						if ( ! empty( $blog_meta['evidence'] ) && ! empty( $_POST['txn_id'] ) ) {
+							$evidence_string = ! empty( $blog_meta['evidence'][ $_POST['txn_id'] ] ) ? $blog_meta['evidence'][ $_POST['txn_id'] ] : '';
+						}
+						error_log( json_encode( $_POST));
+						//Record Transaction, Send txn id
+						self::record_transaction( $_POST['txn_id'], $evidence_string );
 					}
-					//Record Transaction, Send txn id
-					self::record_transaction( $_POST['txn_id'], $evidence_str );
 					break;
 
 				case 'Pending':
@@ -1237,9 +1247,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		//If there were any errors in checkout
 		if ( ! empty( $_POST['errors'] ) ) {
-			if( is_wp_error($_POST['errors'])) {
+			if ( is_wp_error( $_POST['errors'] ) ) {
 				$error_messages = $_POST['errors']->get_error_messages();
-				if( !empty($error_messages ) ) {
+				if ( ! empty( $error_messages ) ) {
 					$psts->errors = $_POST['errors'];
 				}
 			}
@@ -1624,7 +1634,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//Update Description for Tax
-			if( $tax_object->apply_tax ) {
+			if ( $tax_object->apply_tax ) {
 				$desc .= sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
 			}
 
@@ -1683,7 +1693,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				//Non recurring Upgrades, Non Recurring signup without trial
 				if ( $modify || ! $is_trial ) {
-					$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_payment, $evidence_string );
+					$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key );
 
 					if ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) {
 						$payment_status   = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
@@ -1712,7 +1722,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//just in case, try to cancel any old subscription
-						if ( $profile_id = self::get_profile_id( $blog_id ) ) {
+						if ( ! empty( $blog_id ) && $profile_id = self::get_profile_id( $blog_id ) ) {
 							PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 						}
 
@@ -1768,6 +1778,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							'level'   => $level,
 							'period'  => $period
 						) );
+						if ( ! empty( $init_transaction ) ) {
+							//Update Evidence string in table
+							self::update_evidence( $blog_id, $init_transaction, $evidence_string );
+						}
+
 					}//End of Check if transaction was successful, for non recurring signup and upgrade
 					//End of if no trial, or non recurring upgrade
 				} else {
@@ -1776,7 +1791,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$payment_status = '';
 
 					//create the recurring profile, with 1 total billing cycle
-					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $initAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, 1 );
+					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $initAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, 1, $tax_amt_payment );
 
 					//If Profile is created
 					if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
@@ -1790,7 +1805,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 							//update the blog id in paypal custom so that future payments are applied to the proper blog id
-							$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
+							$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
 							PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
@@ -1801,6 +1816,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								'level'   => $level,
 								'period'  => $period
 							) );
+
+							//Store Evidence string for the transaction ID
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+							if ( ! empty( $txn_id ) ) {
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $txn_id, $evidence_string );
+							}
 
 						} else {
 							//Store in signup meta for domain
@@ -1822,8 +1844,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( $is_trial || $payment_status == 'Completed' || $payment_status == 'Processed' ) {
 
 						//If we have domain details, activate the blog, It will be extended later in the same code block
-						if ( ! empty( $domain ) ) {
-							$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
+						if ( empty( $blog_id ) && ! empty( $site_details ) ) {
+							$blog_id = ! empty( $site_details['blog_id'] ) ? $site_details['blog_id'] : $blog_id;
 						}
 						//If we have blog id, Extend the blog expiry
 						if ( ! empty( $blog_id ) ) {
@@ -1879,9 +1902,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							'level'   => $level,
 							'period'  => $period
 						) );
-
-						//Store activation key in Pro sites table
-						self::set_blog_identifier( $activation_key, $blog_id );
 					}
 				}
 				//End of Non Recurring subscriptions
@@ -1890,7 +1910,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				//Upgrade
 				if ( $modify ) {
 					//! create the recurring profile
-					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify );
+					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment );
 					if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 						$new_profile_id = $resArray["PROFILEID"];
 
@@ -1951,6 +1971,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
 							self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
 						}
+						//Store Evidence string for the transaction ID
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+						if ( ! empty( $txn_id ) ) {
+							//Update Evidence string in table
+							self::update_evidence( $blog_id, $txn_id, $evidence_string );
+						}
 					} else {
 						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 						$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
@@ -1962,7 +1988,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 					if ( ! $is_trial ) {
 						//if no trial is set, initiate the payment
-						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_payment, $evidence_string );
+						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key );
 
 						$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
 
@@ -2004,7 +2030,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//create the recurring profile
-						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key );
+						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, '', $tax_amt_payment );
 
 						//If Profile is created
 						if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
@@ -2018,7 +2044,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 								//update the blog id in paypal custom so that future payments are applied to the proper blog id
-								$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
+								$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
 								PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
@@ -2110,6 +2136,21 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						if ( ! empty( $blog_id ) ) {
 							//Store activation key in Pro sites table
 							self::set_blog_identifier( $activation_key, $blog_id );
+							//Store evidence for DoExpressCheckout transaction
+							if ( ! empty( $init_transaction ) ) {
+								error_log("Transaction ID");
+								error_log( $init_transaction);
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
+							}
+							//Store Evidence string for the transaction ID, for createrecurring profile
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+							if ( ! empty( $txn_id ) ) {
+								error_log("Transaction ID");
+								error_log( $txn_id);
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $txn_id, $evidence_string );
+							}
 						}
 
 						//display GA ecommerce in footer
@@ -2226,7 +2267,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( ! $recurring ) {
 						//Only Upgrades or signup without trial
 						if ( $modify || ! $is_trial ) {
-							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email );
+							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key, $tax_amt_payment );
 
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
@@ -2282,15 +2323,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									} else {
 										$psts->record_stat( $blog_id, 'modify' );
 									}
-									$updated = array(
-										'render'      => true,
-										'blog_id'     => $blog_id,
-										'level'       => $_POST['level'],
-										'period'      => $_POST['period'],
-										'prev_level'  => ! empty( $current->level ) ? $current->level : '',
-										'prev_period' => ! empty( $current->term ) ? $current->term : '',
-									);
-									ProSites_Helper_Session::session( 'plan_updated', $updated );
 								} else {
 									//New Signup
 									$psts->record_stat( $blog_id, 'signup' );
@@ -2310,7 +2342,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								if ( empty( self::$complete_message ) ) {
 									self::$complete_message = __( 'Your PayPal subscription was successful! You should be receiving an email receipt shortly.', 'psts' );
 								}
-								//Set Payment Success in session var
+								//Store Evidence string for the transaction ID
+								if ( ! empty( $init_transaction ) ) {
+									//Update Evidence string in table
+									self::update_evidence( $blog_id, $init_transaction, $evidence_string );
+								}
 							} elseif ( $resArray['ACK'] == 'Failure' && ! empty( $resArray['L_SHORTMESSAGE0'] ) ) {
 								$psts->errors->add( 'general', $resArray['L_SHORTMESSAGE0'] );
 							} else {
@@ -2330,7 +2366,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//now attempt to create the subscription
-							$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $initAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, 1 );
+							$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $initAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, 1, $tax_amt_payment );
 
 							$init_transaction = ! empty( $resArray["TRANSACTIONID"] ) ? $resArray["TRANSACTIONID"] : '';
 
@@ -2347,7 +2383,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
+									$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
 									PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -2361,7 +2397,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 									//Store activation key in Pro Sites table
 									self::set_blog_identifier( $activation_key, $blog_id );
-									//Store Payment Success
 
 								} else {
 									//Store in signup meta for domain
@@ -2401,8 +2436,17 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									}
 								} elseif ( $payment_status == 'Pending' ) {
 									self::update_pending_reason( $blog_id, $payment_status, $pending_reason, $result['PAYERID'] );
+
+									//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
+									$expiry = strtotime( '+ 4 Hours' );
+
+									//Extend the Blog expiry as per Trial or not
+									$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount, $expiry );
+
 									update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 								}
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
 							} else {
 								//Set Trial
 								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
@@ -2423,7 +2467,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//create the recurring profile
-						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $modify );
+						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $modify, $activation_key, '', $tax_amt_payment );
 						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 							$new_profile_id = $resArray["PROFILEID"];
 
@@ -2483,6 +2527,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::$complete_message .= '<p><strong>' . __( 'Because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones! Note this is the only time you will have to do this.', 'psts' ) . '</strong></p>';
 								self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
 							}
+							//Store Evidence string for the transaction ID
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+							if ( ! empty( $txn_id ) ) {
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $txn_id, $evidence_string );
+							}
 
 						} else {
 							$psts->errors->add( 'general', sprintf( __( 'There was a problem with your Credit Card information:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
@@ -2492,12 +2542,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					} else { //new or expired signup
 
 						//attempt initial direct payment
-						$success        = $init_transaction = false;
-						$domain         = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
-						$path           = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
+						$success = $init_transaction = false;
+						$domain  = ! empty( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : '' );
+						$path    = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
 
 						if ( ! $is_trial ) {
-							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key );
+							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key, $tax_amt_payment );
 							//Check if transaction was successful, store payment status after blog is activated
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
@@ -2524,7 +2574,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//now attempt to create the subscription
-							$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key );
+							$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, '', $tax_amt_payment );
 
 							//If recurring profile was created successfully
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
@@ -2541,7 +2591,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
 									//update the profile id in paypal so that future payments are applied to the proper blog id
-									$custom  = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key . '_' . $evidence;
+									$custom = PSTS_PYPL_PREFIX . '_' . $blog_id . "_" . $_POST['level'] . '_' . $_POST['period'] . '_' . $initAmount . '_' . self::currency() . '_' . time() . '_' . $activation_key;
 									PaypalApiHelper::UpdateRecurringPaymentsProfile( $resArray["PROFILEID"], $custom );
 
 									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
@@ -2598,14 +2648,26 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 										if ( ! empty( $pending_reason ) && ! empty( $blog_id ) ) {
 											self::update_pending_reason( $blog_id, $payment_status, $pending_reason, $result['PAYERID'] );
 										}
+										$expiry = strtotime( '+ 4 Hours' );
+
+										//Extend the Blog expiry as per Trial or not
+										$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $paymentAmount, $expiry );
 									}
 								}
+								//Store Evidence string for the transaction ID
+								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
 							} else {
 								$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 								if ( empty( self::$complete_message ) ) {
 									self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
 								}
+							}
+							//Store Evidence string for the transaction ID
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+							if ( ! empty( $txn_id ) ) {
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $txn_id, $evidence_string );
 							}
 
 							//display GA ecommerce in footer
@@ -3031,12 +3093,15 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	/**
 	 * Get the evidence string from $data, Calls object_form_data to format the evidence string
+	 *
 	 * @param $data
 	 */
 	private static function record_transaction( $txn_id, $evidence_str ) {
 
 		//Fetch Details From Paypal for the transaction ID
 		$transaction_details = PaypalApiHelper::GetTransactionDetails( $txn_id );
+
+		$transaction_details['evidence_string'] = $evidence_str;
 
 		// Get the object
 		$object = ProSites_Helper_Transaction::object_from_data( $transaction_details, get_class() );
@@ -3046,76 +3111,84 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	}
 
-	private static function create_transaction_object( $object, $data, $gateway ) {
+	public static function create_transaction_object( $object, $data, $gateway ) {
 
-		if( get_class() !== $gateway ) {
+		if ( get_class() !== $gateway ) {
 			return $object;
 		}
+		error_log( json_encode( $data));
 
 		// Basic
-		$object->invoice_number = $data->id;
-		$object->invoice_date = date ( 'Y-m-d', $data->date );
-		//$object->original_transaction_key = $data->charge;
-		$object->currency_code = strtoupper( $data->currency );
+		$object->invoice_number = $data['TRANSACTIONID'];
 
-		// Line Items
-		$lines = array();
-		$customer_id = '';
-		$sub_id = '';
+		$date = new DateTime( $data['TIMESTAMP'] );
+		$object->invoice_date = $date->format( 'Y-m-d' );
 
-		foreach( $data->lines->data as $line ) {
-			$line_obj = new stdClass();
-			$line_obj->custom_id = $line_obj->id = $line->id;
-			$line_obj->amount = $line->amount / 100;
-			$line_obj->quantity = $line->quantity;
-			$line_obj->description = isset( $line->description ) ? $line->description : ( isset( $line->plan ) && isset( $line->plan->name ) ? $line->plan->name : '' );
-			$lines[] = $line_obj;
-			if( isset( $line->customer_id ) ) {
-				$customer_id = $line->customer_id;
-			}
-			if( isset( $line->type) && 'subscription' == $line->type ) {
-				$sub_id = $line->id;
-				$object->level = $line->metadata->level;
-				$object->period = $line->metadata->period;
-			}
-		}
-		$object->transaction_lines = $lines;
+		$object->currency_code = strtoupper( $data['CURRENCYCODE'] );
 
 		// Customer
-		try {
-			$cu = Stripe_Customer::retrieve( $customer_id );
-			$object->username = $cu->metadata->user;
-			$object->email = $cu->email;
-			$sub = $cu->subscriptions->retrieve( $sub_id );
-			$object->blog_id = $sub->metadata->blog_id;
-			$object->sub_id = $sub_id;
-		} catch ( Exception $e ) {
-			$error = $e->getMessage();
+		$object->username = '';
+		$object->email    = $data['EMAIL'];
+
+		// get custom field values
+		$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
+		@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key, $evidence_str ) = explode( '_', $custom );
+
+		if ( empty( $blog_id ) || $blog_id == 0 ) {
+			//Get it from Pro sites table, if not there, try to get it from signup table
+			$blog_id = self::blog_id_from_activation_key( $activation_key );
 		}
+		$object->blog_id = $blog_id;
+		$object->sub_id   = '';
 
 		// Evidence -> evidence_from_json()
 		try {
-			$object->evidence = ProSites_Helper_Transaction::evidence_from_json( $data->lines->data[0]->metadata->tax_evidence );
-			$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
-			$object->tax_country_code = $object->billing_country_code;
-			$object->force_country_code = $object->billing_country_code;
-			$object->buyer_ip = ProSites_Helper_Transaction::country_ip_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
-		} catch (Exception $e) {
+			$object->evidence             = ProSites_Helper_Transaction::evidence_from_json( $data['evidence_string'] );
+			$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $data['evidence_string'], $object );
+			$object->tax_country_code     = $object->billing_country_code;
+			$object->force_country_code   = $object->billing_country_code;
+			$object->buyer_ip             = ProSites_Helper_Transaction::country_ip_from_data( $data['evidence_string'], $object );
+		} catch ( Exception $e ) {
 			$object->evidence = null;
 		}
+
+		//Line Object
+		$line_obj              = new stdClass();
+		$line_obj->custom_id   = $data['TRANSACTIONID'];
+		$line_obj->amount      = $data['AMT'];
+		$line_obj->quantity    = $data['L_QTY0'];
+		$line_obj->description = $data['SUBJECT'];
+		$lines[]               = $line_obj;
+
+		$object->level  = $level;
+		$object->period = $period;
+
+		$object->transaction_lines = $lines;
 
 		if ( ! isset( $object->buyer_ip ) ) {
 			$object->buyer_ip = $_SERVER['REMOTE_ADDR'];
 		}
 
 		// General (used for transaction recording)
-		$object->total = $data->total / 100;
-		$object->tax_percent = $data->tax_percent / 100;
-		$object->subtotal = $data->subtotal / 100;  // optional
-		$object->tax = $data->tax / 100; // optional
-		$object->gateway = get_class();
+		$object->total       = $data['AMT'];
+		$object->tax_percent = '';
+		$object->subtotal    = '';  // optional
+		$object->tax         = $data['TAXAMT']; // optional
+		$object->gateway     = get_class();
 
 		return $object;
+	}
+
+	private static function update_evidence( $blog_id, $transaction_id, $evidence ) {
+		$blog_meta = ProSites_Helper_ProSite::get_prosite_meta( $blog_id );
+		if ( empty( $blog_meta ) ) {
+			$blog_meta = array();
+		}
+		if ( empty( $blog_meta['evidence'] ) ) {
+			$blog_meta['evidence'] = array();
+		}
+		$blog_meta['evidence'][ $transaction_id ] = $evidence;
+		ProSites_Helper_ProSite::update_prosite_meta( $blog_id, $blog_meta );
 	}
 }
 
