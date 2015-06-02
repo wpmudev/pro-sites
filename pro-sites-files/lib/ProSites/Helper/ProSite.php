@@ -188,7 +188,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		/**
 		 *  Get the AJAX url.
 		 *
-		 *  Integrates with DomainMapping.
+		 *  Fixes potential issue with Domain Mapping plugin.
 		 */
 		public static function admin_ajax_url() {
 			$path = "admin-ajax.php";
@@ -198,7 +198,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 				global $dm_map;
 				return $dm_map->domain_mapping_admin_url( admin_url( $path, $scheme ), '/', false );
 			} else{
-				return admin_url( path, $scheme );
+				return admin_url( $path, $scheme );
 			}
 
 		}

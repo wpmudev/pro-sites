@@ -18,6 +18,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content = $primary_args = $secondary_args = '';
 
 			$gateways = ProSites_Helper_Gateway::get_gateways();
+			if( empty( $gateways ) ) {
+
+			}
 			$gateway_details = self::get_gateway_details( $gateways );
 
 			//Handle Subscription Cancel, call respective gateway function for the blog id
@@ -45,13 +48,23 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Add existing account filter
 			add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::prepend_plan_details', 10, 3 );
 
-			$primary_gateway = $gateway_details['primary'];
+			$primary_gateway = isset( $gateway_details['primary'] ) ? $gateway_details['primary'] : false;
 
 			//Check if a secondary gateway is enabled
 			$secondary_gateway = ! empty( $gateway_details['secondary'] ) && $gateway_details['secondary'] !== 'none' ? $gateway_details['secondary'] : '';
 
 			//Check if manual gateway is enabled
-			$manual_gateway = ! empty( $gateways[ $gateway_details['manual'] ] ) ? $gateway_details['manual'] : '';
+			$manual_gateway = isset( $gateway_details['manual'] ) && ! empty( $gateways[ $gateway_details['manual'] ] ) ? $gateway_details['manual'] : '';
+
+			// Force manual if no gateways are defined
+			if( empty( $primary_gateway ) ) {
+				if( empty( $manual_gateway ) ) {
+					$primary_gateway = 'manual';
+				} else {
+					$primary_gateway = 'manual';
+					$manual_gateway = '';
+				}
+			}
 
 			/**
 			 * Process forms
@@ -136,6 +149,10 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		public static function render_current_plan_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
 			global $psts, $wpdb, $current_site, $current_user, $current_prosite_blog;
+
+			if( empty( $gateway_order ) ) {
+				return '';
+			}
 
 			$site_name = $current_site->site_name;
 			$img_base  = $psts->plugin_url . 'images/';
@@ -249,7 +266,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$gateway_details['secondary'] = '';
 				$gateway_details['manual'] = '';
 				reset( $gateways );
-			} else {
+			} elseif ( $active_count > 1 ) {
 				$keys = array_keys( $gateways );
 				$gateway_details['primary'] = $psts->get_setting( 'gateway_pref_primary', $keys[0] );
 				$gateway_details['secondary']  = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
