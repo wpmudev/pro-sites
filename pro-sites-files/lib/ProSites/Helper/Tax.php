@@ -62,8 +62,8 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 					tokenOK = false;
 			        Taxamo.verifyToken(function(data){ tokenOK = data.tokenOK; });
 			        //Taxamo.setBillingCountry(\'00\');
-			        Taxamo.setFirstLoad( true );
-					Taxamo.detectCountry();
+			        //Taxamo.setFirstLoad( true );
+			        Taxamo.detectCountry();
 				</script>';
 				$content = $content . $taxamo;
 			}

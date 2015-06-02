@@ -166,7 +166,7 @@ var Taxamo = (function(my) {
         $(button1).attr('href', '');
         $(button1).attr('style', "color: #428bca !important; text-decoration: none !important; font-weight: bold;")
 
-        if (data.tax_country_code != null && !data.countries.by_billing.tax_supported) {
+        if (data.tax_country_code != null && ( data.countries.by_billing && ! data.countries.by_billing.tax_supported )) {
             if (!data.tax_supported) {
                 content += psts_tax.taxamo_overlay_non_eu;
             } else {
@@ -225,13 +225,17 @@ var Taxamo = (function(my) {
     }
 
     my.getEvidenceData = function() {
-        var the_evidence = Taxamo.$.cookie( 'taxamo_evidence' );
-        if( the_evidence ) {
-            the_evidence = JSON.parse( the_evidence );
+        if( Taxamo.$ !== undefined ) {
+            var the_evidence = Taxamo.$.cookie( 'taxamo_evidence' ) || false;
+            if( the_evidence ) {
+                the_evidence = JSON.parse( the_evidence );
+            } else {
+                the_evidence = {};
+            }
+            return the_evidence;
         } else {
-            the_evidence = {};
+            return {};
         }
-        return the_evidence;
     }
 
     my.saveEvidenceData = function( the_evidence ) {
@@ -477,7 +481,6 @@ jQuery( document ).ready( function ( $ ) {
             $( '.tax-checkout-notice' ).addClass( 'hidden' );
             $.each( $( '.price-plain.hidden' ), function ( index, value ) {
                 var amount = $( value ).attr( 'taxamo-amount-str' );
-                //console.log( amount );
                 if ( typeof amount !== 'undefined' ) {
                     amount = amount.split( '.' );
 

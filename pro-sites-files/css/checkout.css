@@ -1140,6 +1140,7 @@ ul.pricing-column.not-chosen-plan .button-box button {
     position:relative;
     top: 3px;
     clear:both;
+    cursor: pointer;
 
     -webkit-hyphens: none;
     -moz-hyphens: none;

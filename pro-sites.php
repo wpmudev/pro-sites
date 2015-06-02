@@ -1067,7 +1067,7 @@ Thanks!", 'psts' ),
 			if ( $expire > 2147483647 ) {
 				$expire = __( "Permanent", "psts" );
 			} else {
-				$expire = $expire ? date( "Y-m-d", $expire ) : __( "N/A", "psts" );
+				$expire = $expire ? date( "Y-m-d", intval( $expire ) ) : __( "N/A", "psts" );
 			}
 			$sup_title .= " [{$expire}]";
 			$wp_admin_bar->add_menu( array(
@@ -1196,10 +1196,8 @@ Thanks!", 'psts' ),
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 
-		$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
-		$ajax_url = admin_url( "admin-ajax.php", $scheme );
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
-			'ajax_url' => $ajax_url,
+			'ajax_url' => ProSites_Helper_ProSite::admin_ajax_url(),
 			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
 			'button_signup' => __( "Sign Up", 'psts' ),
 			'button_choose' => __( "Choose Plan", 'psts' ),
@@ -3131,6 +3129,19 @@ if ( $active_pro_sites ) {
 
 	}
 	$month_data = array_reverse( $month_data, true );
+	$fix = array_keys( $month_data );
+	if( 0 > $fix[0] ) {
+		$three_or_four_ago = $fix[1] - (60*60*24*30*4);
+		unset( $month_data[$fix[0]] );
+		$data = array();
+		$data[ $three_or_four_ago ] = array(
+			'signups' => 0,
+			'mods' => 0,
+			'upgrades' => 0,
+			'cancels' => 0,
+		);
+		$month_data = $data + $month_data;
+	}
 
 	foreach ( $month_data as $month => $nums ) {
 		$month = $month * 1000;
@@ -3140,6 +3151,7 @@ if ( $active_pro_sites ) {
 		$m3[] = '[' . $month . ', ' . $nums['mods'] . ']';
 		$m4[] = '[' . $month . ', ' . $nums['cancels'] . ']';
 	}
+
 	$m1 = implode( ', ', (array) $m1 );
 	$m2 = implode( ', ', (array) $m2 );
 	$m3 = implode( ', ', (array) $m3 );

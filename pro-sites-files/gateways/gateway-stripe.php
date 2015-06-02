@@ -141,9 +141,19 @@ class ProSites_Gateway_Stripe {
 	 * @todo Future: Move to a parent gateway class
 	 */
 	function admin_notices() {
+		global $psts;
 		$blog_id = get_current_blog_id();
 		if ( 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
-			echo '<div class="updated"><p><strong>' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</strong></p></div>';
+			$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+			$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+			$level    = $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' );
+
+			$trial_message = sprintf( __('You are currently signed up for your chosen plan, %s. The first payment is due on %s. Enjoy your free trial.', 'psts' ), $level, $end_date );
+			$change_message = __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' );
+
+			$message = $trialing ? $trial_message : $change_message;
+
+			echo '<div class="updated"><p><strong>' . esc_html( $message ) . '</strong></p></div>';
 		}
 	}
 

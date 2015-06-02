@@ -1090,3 +1090,8 @@ table.widefat.prosites-premium-plugins tbody tr th p {
     top: 100px;
     left: 13px;
 }
+
+/** Fix WP Footer... at least on ProSites pages. */
+#wpfooter {
+    position:relative;
+}
