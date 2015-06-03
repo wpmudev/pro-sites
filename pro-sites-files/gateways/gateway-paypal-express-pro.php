@@ -1586,17 +1586,17 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				//Check if tax is applicable
 				if ( $tax_object->apply_tax ) {
 					$tax_amt_init = $initAmount * $tax_object->tax_rate;
-					$tax_amt_init = ! empty( $tax_amt_init ) ? round( $tax_amt_init ) : $tax_amt_init;
+					$tax_amt_init = ! empty( $tax_amt_init ) ? round( $tax_amt_init, 2 ) : $tax_amt_init;
 					$initAmount   = $initAmount + $tax_amt_init;
 
 					$tax_amt_payment   = $paymentAmount * $tax_object->tax_rate;
-					$tax_amt_payment   = ! empty( $tax_amt_payment ) ? round( $tax_amt_payment ) : $tax_amt_payment;
-					$paymentAmountDesc = $paymentAmount + $tax_amt_payment;
+					$tax_amt_payment   = ! empty( $tax_amt_payment ) ? round( $tax_amt_payment, 2 ) : $tax_amt_payment;
+					$paymentAmount = $paymentAmount + $tax_amt_payment;
 				}
 
 				//Check if it's a recurring subscription
 				if ( $recurring ) {
-					$recurringAmmount = 'forever' == $lifetime && $has_coupon ? $coupon_value : $paymentAmountDesc;
+					$recurringAmmount = 'forever' == $lifetime && $has_coupon ? $coupon_value : $paymentAmount;
 					if ( $_POST['period'] == 1 ) {
 						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $initAmount ), $psts->format_currency( $currency, $recurringAmmount ) );
 					} else {
@@ -1692,7 +1692,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				//Non recurring Upgrades, Non Recurring signup without trial
 				if ( $modify || ! $is_trial ) {
-					$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key );
+					$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_init );
 
 					if ( $resArray['PAYMENTINFO_0_ACK'] == 'Success' || $resArray['PAYMENTINFO_0_ACK'] == 'SuccessWithWarning' ) {
 						$payment_status   = $resArray['PAYMENTINFO_0_PAYMENTSTATUS'];
@@ -1786,7 +1786,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					//End of if no trial, or non recurring upgrade
 				} else {
 					//If there is a trial, create a subscription with total 1 billing cycle
-					$ack_success    = true;
+					$ack_success    = false;
 					$payment_status = '';
 
 					//create the recurring profile, with 1 total billing cycle
@@ -1982,12 +1982,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 				} else {
 					//Handle the new signups
-					$ack_success    = true;
+					$ack_success    = false;
 					$payment_status = '';
 
 					if ( ! $is_trial ) {
-						//if no trial is set, initiate the payment
-						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key );
+						//if no trial is set, initiate the payment (Charge setup fee and first month amount )
+						$resArray = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_init );
 
 						$init_transaction = isset( $resArray['PAYMENTINFO_0_TRANSACTIONID'] ) ? $init_transaction = $resArray['PAYMENTINFO_0_TRANSACTIONID'] : '';
 
@@ -2141,7 +2141,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
 							}
 							//Store Evidence string for the transaction ID, for createrecurring profile
-							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['CORRELATIONID'] ) ? $resArray['CORRELATIONID'] : '' );
 							if ( ! empty( $txn_id ) ) {
 								//Update Evidence string in table
 								self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2262,7 +2262,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( ! $recurring ) {
 						//Only Upgrades or signup without trial
 						if ( $modify || ! $is_trial ) {
-							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key, $tax_amt_payment );
+							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key, $tax_amt_init );
 
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
@@ -2542,7 +2542,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$path    = ! empty( $path ) ? $path : ( ! empty( $process_data[ $signup_type ]['path'] ) ? $process_data[ $signup_type ]['path'] : '' );
 
 						if ( ! $is_trial ) {
-							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key, $tax_amt_payment );
+							$resArray = PaypalApiHelper::DoDirectPayment( $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $activation_key, $tax_amt_init );
 							//Check if transaction was successful, store payment status after blog is activated
 							if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 								$init_transaction = $resArray["TRANSACTIONID"];
@@ -3094,7 +3094,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	private static function record_transaction( $txn_id, $evidence_str ) {
 
 		//Fetch Details From Paypal for the transaction ID
-		$transaction_details = PaypalApiHelper::GetTransactionDetails( $txn_id );
+		$transaction_details = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $txn_id );
 
 		$transaction_details['evidence_string'] = $evidence_str;
 

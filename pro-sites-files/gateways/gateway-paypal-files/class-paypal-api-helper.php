@@ -54,8 +54,9 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $activation_key = '' ) {
+		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $activation_key = '', $tax = '' ) {
 			global $psts;
+			$item_amt = $paymentAmount-$tax;
 
 			$nvpstr = "&TOKEN=" . urlencode( $token );
 			$nvpstr .= "&PAYERID=" . urlencode( $payer_id );
@@ -63,6 +64,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&BUTTONSOURCE=incsub_SP";
 			}
 			$nvpstr .= "&PAYMENTREQUEST_0_AMT=$paymentAmount";
+			$nvpstr .= "&PAYMENTREQUEST_0_ITEMAMT=$item_amt";
 			$nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
 			$nvpstr .= "&PAYMENTACTION=Sale";
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
@@ -72,6 +74,9 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
 
+			if ( ! empty( $tax ) ) {
+				$nvpstr .= "&PAYMENTREQUEST_0_TAXAMT=" . $tax;
+			}
 			$resArray = self::api_call( "DoExpressCheckoutPayment", $nvpstr );
 
 			return $resArray;
