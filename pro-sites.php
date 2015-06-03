@@ -2223,6 +2223,10 @@ Thanks!", 'psts' ),
 		if ( $left <= 0 || empty( $old->amount ) || $old->amount <= 0 ) {
 			return false;
 		}
+		if( $new_amt === 0 ) {
+			error_log("Pro Sites: Amount can't be zero");
+			return false;
+		}
 		$prorate_amt   = $duration > 0 ? $old->amount * ( $left / $duration ) : 0; //Avoid Divison by zero
 		$new_duration  = $new_period * 30.4166 * 24 * 60 * 60; //number of seconds in the period
 		$first_payment = ( $prorate_amt / ( $new_amt / $new_duration ) ) + time(); //return timestamp of first payment date

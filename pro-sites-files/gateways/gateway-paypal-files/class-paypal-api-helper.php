@@ -51,12 +51,15 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$resArray = self::api_call( "SetExpressCheckout", $nvpstr );
 
+			error_log( "54" );
+			error_log( $nvpstr );
+
 			return $resArray;
 		}
 
 		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $activation_key = '', $tax = '' ) {
 			global $psts;
-			$item_amt = $paymentAmount-$tax;
+			$item_amt = $paymentAmount - $tax;
 
 			$nvpstr = "&TOKEN=" . urlencode( $token );
 			$nvpstr .= "&PAYERID=" . urlencode( $payer_id );
@@ -79,6 +82,9 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 			$resArray = self::api_call( "DoExpressCheckoutPayment", $nvpstr );
 
+			error_log( "84" );
+			error_log( $nvpstr );
+
 			return $resArray;
 		}
 
@@ -91,21 +97,25 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr = "&TOKEN=" . $token;
 			$nvpstr .= "&AMT=$paymentAmount";
 
-			//apply setup fee (if applicable)
-			$setup_fee = $psts->get_setting( 'setup_fee', 0 );
-
-			if ( empty( $blog_id ) ) {
-				if ( $level != 0 ) {
-					$has_setup_fee = false;
-				} else {
-					$has_setup_fee = true;
-				}
+			if ( ! empty( $initAmount ) ) {
+				$nvpstr .= "&INITAMT=" . $initAmount;
 			} else {
-				$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
-			}
+				//apply setup fee (if applicable)
+				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
 
-			if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
-				$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
+				if ( empty( $blog_id ) ) {
+					if ( $level != 0 ) {
+						$has_setup_fee = false;
+					} else {
+						$has_setup_fee = true;
+					}
+				} else {
+					$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
+				}
+
+				if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
+					$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
+				}
 			}
 
 			//handle free trials
@@ -114,14 +124,15 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TRIALBILLINGFREQUENCY=" . $trial_days;
 				$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 				$nvpstr .= "&TRIALAMT=0.00";
-				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
 			} //handle modification
 			elseif ( $modify ) { // expiration is in the future\
 				$nvpstr .= "&TRIALBILLINGPERIOD=Month";
 				$nvpstr .= "&TRIALBILLINGFREQUENCY=$frequency";
 				$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 				$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
-				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
+			}
+			if ( $has_trial ) {
+				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
 			} else {
 				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 			}
@@ -131,7 +142,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&BILLINGFREQUENCY=$frequency";
 
 			//Non recurring subscription with trial
-			if( !empty( $total_billing_cycle )  && $total_billing_cycle == 1 ) {
+			if ( ! empty( $total_billing_cycle ) && $total_billing_cycle == 1 ) {
 				$nvpstr .= "&TOTALBILLINGCYCLES=$total_billing_cycle";
 			}
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
@@ -139,10 +150,12 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
 
 			//Tax Calculated for each payment
-			if( $tax ) {
+			if ( $tax ) {
 				$nvpstr .= "&TAXAMT=" . $tax;
 			}
 
+			error_log( "150" );
+			error_log( $nvpstr );
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
@@ -156,24 +169,27 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr = "&AMT=$paymentAmount";
 
-			//apply setup fee (if applicable)
-			$setup_fee     = $psts->get_setting( 'setup_fee', 0 );
-			$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
-
-			if ( empty( $blog_id ) && ! empty ( $domain ) ) {
-				if ( $level != 0 ) {
-					$has_setup_fee = false;
-				} else {
-					$has_setup_fee = true;
-				}
+			if ( ! empty( $initAmount ) ) {
+				$nvpstr .= "&INITAMT=" . $initAmount;
 			} else {
-				$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
-			}
+				//apply setup fee (if applicable)
+				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
 
-			if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
-				$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
-			}
+				if ( empty( $blog_id ) ) {
+					if ( $level != 0 ) {
+						$has_setup_fee = false;
+					} else {
+						$has_setup_fee = true;
+					}
+				} else {
+					$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
+				}
 
+				if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
+					$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
+				}
+
+			}
 			//handle free trials
 			if ( $has_trial ) {
 
@@ -181,14 +197,15 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TRIALBILLINGFREQUENCY=" . $trial_days;
 				$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 				$nvpstr .= "&TRIALAMT=0.00";
-				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
 				//handle modifications
 			} elseif ( $modify ) { // expiration is in the future
 				$nvpstr .= "&TRIALBILLINGPERIOD=Month";
 				$nvpstr .= "&TRIALBILLINGFREQUENCY=$frequency";
 				$nvpstr .= "&TRIALTOTALBILLINGCYCLES=1";
 				$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
-				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
+			}
+			if ( $has_trial ) {
+				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
 			} else {
 				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
 			}
@@ -198,7 +215,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&BILLINGFREQUENCY=$frequency";
 
 			//Non recurring subscription with trial
-			if( !empty( $total_billing_cycle )  && $total_billing_cycle == 1 ) {
+			if ( ! empty( $total_billing_cycle ) && $total_billing_cycle == 1 ) {
 				$nvpstr .= "&TOTALBILLINGCYCLES=$total_billing_cycle";
 			}
 
@@ -220,10 +237,12 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&EMAIL=$email";
 
 			//Tax Calculated for payment
-			if( $tax ) {
+			if ( $tax ) {
 				$nvpstr .= "&TAXAMT=" . $tax;
 			}
 
+			error_log( "233" );
+			error_log( $nvpstr );
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
@@ -257,11 +276,14 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&COUNTRYCODE=$countrycode";
 			$nvpstr .= "&EMAIL=$email";
 			//Tax Calculated for payment
-			if( $tax ) {
+			if ( $tax ) {
 				$nvpstr .= "&TAXAMT=" . $tax;
 			}
 
 			$resArray = self::api_call( "DoDirectPayment", $nvpstr );
+
+			error_log( "274" );
+			error_log( $nvpstr );
 
 			return $resArray;
 		}
@@ -300,23 +322,26 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			return $resArray;
 		}
+
 		/**
 		 * Retrieve the details of a previously created recurring payments profile.
 		 *
-		 * @access	public
-		 * @param	array	call config data
-		 * @return	array
+		 * @access    public
+		 *
+		 * @param    array    call config data
+		 *
+		 * @return    array
 		 */
 
 
 		public static function GetRecurringPaymentsProfileStatus( $profile_id ) {
 
-			$PayPalResult = self::GetRecurringPaymentsProfileDetails( $profile_id );
-			$PayPalErrors = $PayPalResult['ERRORS'];
-			$ProfileStatus = isset($PayPalResult['STATUS']) ? $PayPalResult['STATUS'] : 'Unknown';
+			$PayPalResult  = self::GetRecurringPaymentsProfileDetails( $profile_id );
+			$PayPalErrors  = $PayPalResult['ERRORS'];
+			$ProfileStatus = isset( $PayPalResult['STATUS'] ) ? $PayPalResult['STATUS'] : 'Unknown';
 
 			$ResponseArray = array(
-				'PayPalResult' => $PayPalResult,
+				'PayPalResult'  => $PayPalResult,
 				'ProfileStatus' => $ProfileStatus
 			);
 
@@ -404,7 +429,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			// Redirect to paypal.com here
 			$paypalURL = add_query_arg(
 				array(
-					'token'  => $token
+					'token' => $token
 				),
 				$paypalURL
 			);
