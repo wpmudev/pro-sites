@@ -1579,7 +1579,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$site_name = ! empty ( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : $current_site->site_name );
 
 			$initAmount    = 0;
-			$paymentAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
+			$paymentAmountInitial = $paymentAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
 			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
 			$has_coupon    = ( isset( $process_data['COUPON_CODE'] ) && ProSites_Helper_Coupons::check_coupon( $process_data['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
 
@@ -1626,7 +1626,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 					if ( ! empty( $blog_id ) ) {
 						//Calculate Upgrade or downgrade cost
-						$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount - $tax_amt_payment );
+						$paymentAmountInitial = $paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount - $tax_amt_payment );
 						//Calculate tax
 						if ( $tax_object->apply_tax ) {
 							$tax_amt_payment = $paymentAmount * $tax_object->tax_rate;
@@ -1818,7 +1818,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				} else {
 					//If there is a trial, create a subscription with total 1 billing cycle
 					//create the recurring profile, with 1 total billing cycle
-					$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, 1, $tax_amt_payment );
+					$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, 1, $tax_amt_payment );
 					$profile_status = ! empty( $resArray['PROFILESTATUS'] ) ? $resArray['PROFILESTATUS'] : '';
 
 					//If Profile is created
@@ -1942,7 +1942,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				//Upgrade
 				if ( $modify ) {
 					//! create the recurring profile
-					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment );
+					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment );
 					if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 						$new_profile_id = $resArray["PROFILEID"];
 
@@ -2028,7 +2028,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 
 					//create the recurring profile
-					$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, '', $tax_amt_payment );
+					$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, '', $tax_amt_payment );
 					$profile_status = ! empty( $resArray['PROFILESTATUS'] ) ? $resArray['PROFILESTATUS'] : '';
 
 					//If Profile is created
@@ -2352,7 +2352,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//now attempt to create the subscription
-							$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, 1, $tax_amt_payment );
+							$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, 1, $tax_amt_payment );
 							$profile_status = ! empty( $resArray['PROFILESTATUS'] ) ? $resArray['PROFILESTATUS'] : '';
 
 							//If recurring profile was created successfully
@@ -2436,7 +2436,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//create the recurring profile
-						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $modify, $activation_key, '', $tax_amt_payment );
+						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, $modify, $activation_key, '', $tax_amt_payment );
 						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 							$new_profile_id = $resArray["PROFILEID"];
 
@@ -2520,7 +2520,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//now attempt to create the subscription
-						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmount, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, '', $tax_amt_payment );
+						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, '', $tax_amt_payment );
 						$profile_status = ! empty( $resArray['PROFILESTATUS'] ) ? $resArray['PROFILESTATUS'] : '';
 						//If recurring profile was created successfully
 						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
