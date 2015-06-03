@@ -957,8 +957,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					die( __( 'There was a problem verifying the IPN string with PayPal. Please try again.', 'psts' ) );
 				}
 			}
-			error_log("IPN recieved");
-			error_log(json_encode($_POST));
+			error_log( "IPN recieved" );
+			error_log( json_encode( $_POST ) );
 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
 
@@ -1072,7 +1072,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$psts->email_notification( $blog_id, 'receipt' );
 						}
 						//Check IPN transaction type
-						$is_recurring = ( !empty( $_POST['txn_type'] ) && strpos($_POST['txn_type'], 'recurring') !== false ) ? true : false;
+						$is_recurring = ( ! empty( $_POST['txn_type'] ) && strpos( $_POST['txn_type'], 'recurring' ) !== false ) ? true : false;
 
 						//Get evidence string from db
 						$blog_meta = ProSites_Helper_ProSite::get_prosite_meta( $blog_id );
@@ -1086,13 +1086,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 						}
-						if( !$recurring ) {
+						if ( ! $recurring ) {
 							//Record Transaction, Send txn id
 							self::record_transaction( $_POST['txn_id'], $evidence_string, $is_recurring, false );
-						}else{
+						} else {
 							//Received only when recurring profile is created
-							if( !empty( $_POST['initial_payment_txn_id'] ) ) {
-								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, $profile_string );
+							if ( ! empty( $_POST['initial_payment_txn_id'] ) ) {
+								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, array( 'level'  => $level, 'period' => $period, 'ipn' => $_POST ) );
 							}
 						}
 					}
@@ -1578,10 +1578,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			//Current site name as per the payment procedure
 			$site_name = ! empty ( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : $current_site->site_name );
 
-			$initAmount    = 0;
+			$initAmount           = 0;
 			$paymentAmountInitial = $paymentAmount = $psts->get_level_setting( $_POST['level'], 'price_' . $_POST['period'] );
-			$has_setup_fee = $psts->has_setup_fee( $blog_id, $_POST['level'] );
-			$has_coupon    = ( isset( $process_data['COUPON_CODE'] ) && ProSites_Helper_Coupons::check_coupon( $process_data['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
+			$has_setup_fee        = $psts->has_setup_fee( $blog_id, $_POST['level'] );
+			$has_coupon           = ( isset( $process_data['COUPON_CODE'] ) && ProSites_Helper_Coupons::check_coupon( $process_data['COUPON_CODE'], $blog_id, $_POST['level'], $_POST['period'], $domain ) ) ? true : false;
 
 			//Add setup fee to init amount
 			if ( $has_setup_fee ) {
@@ -1890,7 +1890,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//If we have blog id
 						if ( ! empty ( $blog_id ) ) {
 
-							self::update_pending_reason( $blog_id, $profile_status, '' , $_GET['PayerID'], __( "Initial Amount not confirmed for recurrinf subscription, Please check your associated Paypal account." ) );
+							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial Amount not confirmed for recurrinf subscription, Please check your associated Paypal account." ) );
 
 							//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
 							$expiry = strtotime( '+ 4 Hours' );
@@ -1929,7 +1929,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//@Todo: check this, as there ain't going to be a transaction id, so better use the profile id
 						//Store Evidence string for the transaction ID
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2005,7 +2005,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 						//@Todo: check this, as there ain't going to be a transaction id, so better use the profile id
 						//Store Evidence string for the transaction ID
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2102,7 +2102,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					} else {
 						//If we have blog id
 						if ( ! empty ( $blog_id ) ) {
-							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial Amount not confirmed for recurring subscription, Please check your associated Paypal account." ));
+							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial Amount not confirmed for recurring subscription, Please check your associated Paypal account." ) );
 							//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
 							$expiry = strtotime( '+ 4 Hours' );
 							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
@@ -2136,7 +2136,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//@todo: Use Profile ID instead
 						//Store Evidence string for the transaction ID, for create recurring profile
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2418,8 +2418,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 								update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 							}
-							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
-							if( !empty($txn_id ) ) {
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+							if ( ! empty( $txn_id ) ) {
 								//Update Evidence string in table
 								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
 							}
@@ -2497,7 +2497,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
 							}
 							//Store Evidence string for the transaction ID
-							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 							if ( ! empty( $txn_id ) ) {
 								//Update Evidence string in table
 								self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2520,7 +2520,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//now attempt to create the subscription
-						$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, '', $tax_amt_payment );
+						$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileDirect( $paymentAmountInitial, $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $cc_cardtype, $cc_number, $cc_month . $cc_year, $_POST['cc_cvv2'], $cc_firstname, $cc_lastname, $cc_address, $cc_address2, $cc_city, $cc_state, $cc_zip, $cc_country, $current_user->user_email, '', $activation_key, '', $tax_amt_payment );
 						$profile_status = ! empty( $resArray['PROFILESTATUS'] ) ? $resArray['PROFILESTATUS'] : '';
 						//If recurring profile was created successfully
 						if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
@@ -2585,7 +2585,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//Store Evidence string for the transaction ID
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2940,7 +2940,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		//Store Payment status and reason in pro site meta
 		$payment_details = array(
 			'payment_status' => $payment_status,
-			'pending_reason' => !empty( $pending_reason ) ? self::$pending_str[ $pending_reason ] : $pending_profile
+			'pending_reason' => ! empty( $pending_reason ) ? self::$pending_str[ $pending_reason ] : $pending_profile
 		);
 		update_user_meta( get_current_user_id(), 'psts_payment_details', $payment_details );
 
@@ -3016,21 +3016,36 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 * @param $initial_payment - True only for recurring subs initial payment
 	 */
 
-	private static function record_transaction( $txn_id, $evidence_str, $initial_payment = false, $profile_id = '' ) {
-		//Fetch Details From Paypal for the transaction ID
-		$transaction_details = PaypalApiHelper::GetTransactionDetails( $txn_id );
+	private static function record_transaction( $txn_id, $evidence_str, $initial_payment = false, $plan_details = array() ) {
+		$data = array();
 
-		if( !empty( $profile_id ) ) {
-			//Not working currently, we get some details in IPN, but not all
-			$recurring_profile = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $profile_id );
+		//If not initial payment, then store the transaction details directly
+		if ( ! $initial_payment ) {
+			//Fetch Details From Paypal for the transaction ID
+			$data = PaypalApiHelper::GetTransactionDetails( $txn_id );
+		} else {
+			//If it's a initial payment, then we consider it as setup fee
+			$data['setup_details'] = PaypalApiHelper::GetTransactionDetails( $txn_id );
+			if ( ! empty( $plan_details['ipn'] ) ) {
+				//These details are used for actual billing details
+				$data['CURRENCYCODE']  = $plan_details['ipn']['currency_code'];
+				$data['TRANSACTIONID'] = $plan_details['ipn']['initial_payment_txn_id'];
+				$data['TIMESTAMP']     = $plan_details['ipn']['time_created'];
+
+				//It might be problematic, since the paypal login email can be differenr then signup email
+				$data['EMAIL']         = $plan_details['ipn']['payer_email'];
+				$data['rp_invoice_id'] = $plan_details['ipn']['rp_invoice_id'];
+				$data['AMT']           = $plan_details['ipn']['amount'];
+				$data['SUBJECT']       = $plan_details['ipn']['product_name'];
+			}
 		}
 
-		$transaction_details['evidence_string'] = $evidence_str;
+		$data['evidence_string'] = $evidence_str;
 		error_log( "Transaction details" );
-		error_log(json_encode($transaction_details));
+		error_log( json_encode( $data ) );
 
 		// Get the object
-		$object = ProSites_Helper_Transaction::object_from_data( $transaction_details, get_class() );
+		$object = ProSites_Helper_Transaction::object_from_data( $data, get_class() );
 
 		// Record the object
 		ProSites_Helper_Transaction::record( $object );
@@ -3077,13 +3092,23 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$object->evidence = null;
 		}
 
-		//Line Object
+		//Line Object For Subscription payment
 		$line_obj              = new stdClass();
 		$line_obj->custom_id   = $data['TRANSACTIONID'];
 		$line_obj->amount      = $data['AMT'];
-		$line_obj->quantity    = !empty( $data['L_QTY0'] ) ? $data['L_QTY0'] : 1;
+		$line_obj->quantity    = ! empty( $data['L_QTY0'] ) ? $data['L_QTY0'] : 1;
 		$line_obj->description = $data['SUBJECT'];
 		$lines[]               = $line_obj;
+
+		//If there is setup fee
+		if( !empty( $data['setup_details']) ) {
+			$line_obj              = new stdClass();
+			$line_obj->custom_id   = $data['setup_details']['TRANSACTIONID'];
+			$line_obj->amount      = $data['setup_details']['AMT'];
+			$line_obj->quantity    = '';
+			$line_obj->description = "One-time Setup Fee";
+			$lines[]               = $line_obj;
+		}
 
 		$object->level  = $level;
 		$object->period = $period;
