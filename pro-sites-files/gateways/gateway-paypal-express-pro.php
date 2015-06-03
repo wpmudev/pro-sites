@@ -3052,6 +3052,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	}
 
+	/**
+	 * Creates Transaction object for Paypal, which is tored in DB
+	 * @param $object
+	 * @param $data
+	 * @param $gateway
+	 *
+	 * @return mixed
+	 */
 	public static function create_transaction_object( $object, $data, $gateway ) {
 
 		if ( get_class() !== $gateway ) {
@@ -3119,11 +3127,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$object->buyer_ip = $_SERVER['REMOTE_ADDR'];
 		}
 
+		//@Todo: Calculate subtotal, tax and other details
+
 		// General (used for transaction recording)
 		$object->total       = $data['AMT'];
 		$object->tax_percent = '';
 		$object->subtotal    = '';  // optional
-		$object->tax         = $data['TAXAMT']; // optional
+		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ''; // optional
 		$object->gateway     = get_class();
 
 		return $object;

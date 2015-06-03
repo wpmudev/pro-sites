@@ -51,9 +51,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$resArray = self::api_call( "SetExpressCheckout", $nvpstr );
 
-			error_log( "54" );
-			error_log( $nvpstr );
-
 			return $resArray;
 		}
 
@@ -81,9 +78,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&PAYMENTREQUEST_0_TAXAMT=" . $tax;
 			}
 			$resArray = self::api_call( "DoExpressCheckoutPayment", $nvpstr );
-
-			error_log( "84" );
-			error_log( $nvpstr );
 
 			return $resArray;
 		}
@@ -154,8 +148,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TAXAMT=" . $tax;
 			}
 
-			error_log( "150" );
-			error_log( $nvpstr );
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
@@ -241,8 +233,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TAXAMT=" . $tax;
 			}
 
-			error_log( "233" );
-			error_log( $nvpstr );
 			$resArray = self::api_call( "CreateRecurringPaymentsProfile", $nvpstr );
 
 			return $resArray;
@@ -281,9 +271,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 
 			$resArray = self::api_call( "DoDirectPayment", $nvpstr );
-
-			error_log( "274" );
-			error_log( $nvpstr );
 
 			return $resArray;
 		}
