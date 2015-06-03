@@ -957,6 +957,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					die( __( 'There was a problem verifying the IPN string with PayPal. Please try again.', 'psts' ) );
 				}
 			}
+			error_log("IPN recieved");
+			error_log(json_encode($_POST));
 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
 
@@ -1069,13 +1071,30 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 							$psts->email_notification( $blog_id, 'receipt' );
 						}
+						//Check IPN transaction type
+						$is_recurring = ( !empty( $_POST['txn_type'] ) && strpos($_POST['txn_type'], 'recurring') !== false ) ? true : false;
+
 						//Get evidence string from db
 						$blog_meta = ProSites_Helper_ProSite::get_prosite_meta( $blog_id );
-						if ( ! empty( $blog_meta['evidence'] ) && ! empty( $_POST['txn_id'] ) ) {
-							$evidence_string = ! empty( $blog_meta['evidence'][ $_POST['txn_id'] ] ) ? $blog_meta['evidence'][ $_POST['txn_id'] ] : '';
+						if ( ! empty( $blog_meta['evidence'] ) ) {
+
+							if ( ! $recurring && ! empty( $_POST['txn_id'] ) ) {
+								$evidence_string = ! empty( $blog_meta['evidence'][ $_POST['txn_id'] ] ) ? $blog_meta['evidence'][ $_POST['txn_id'] ] : '';
+							} elseif ( ! empty( $profile_string ) ) {
+								//For recurring subscriptions
+								$evidence_string = ! empty( $blog_meta['evidence'][ $profile_string ] ) ? $blog_meta['evidence'][ $profile_string ] : '';
+							}
+
 						}
-						//Record Transaction, Send txn id
-						self::record_transaction( $_POST['txn_id'], $evidence_string );
+						if( !$recurring ) {
+							//Record Transaction, Send txn id
+							self::record_transaction( $_POST['txn_id'], $evidence_string, $is_recurring, false );
+						}else{
+							//Received only when recurring profile is created
+							if( !empty( $_POST['initial_payment_txn_id'] ) ) {
+								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, $profile_string );
+							}
+						}
 					}
 					break;
 
@@ -2992,14 +3011,23 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	/**
 	 * Get the evidence string from $data, Calls object_form_data to format the evidence string
 	 *
-	 * @param $data
+	 * @param $txn_id
+	 * @param $evidence_str
+	 * @param $initial_payment - True only for recurring subs initial payment
 	 */
-	private static function record_transaction( $txn_id, $evidence_str ) {
 
+	private static function record_transaction( $txn_id, $evidence_str, $initial_payment = false, $profile_id = '' ) {
 		//Fetch Details From Paypal for the transaction ID
-		$transaction_details = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $txn_id );
+		$transaction_details = PaypalApiHelper::GetTransactionDetails( $txn_id );
+
+		if( !empty( $profile_id ) ) {
+			//Not working currently, we get some details in IPN, but not all
+			$recurring_profile = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $profile_id );
+		}
 
 		$transaction_details['evidence_string'] = $evidence_str;
+		error_log( "Transaction details" );
+		error_log(json_encode($transaction_details));
 
 		// Get the object
 		$object = ProSites_Helper_Transaction::object_from_data( $transaction_details, get_class() );
@@ -3053,7 +3081,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$line_obj              = new stdClass();
 		$line_obj->custom_id   = $data['TRANSACTIONID'];
 		$line_obj->amount      = $data['AMT'];
-		$line_obj->quantity    = $data['L_QTY0'];
+		$line_obj->quantity    = !empty( $data['L_QTY0'] ) ? $data['L_QTY0'] : 1;
 		$line_obj->description = $data['SUBJECT'];
 		$lines[]               = $line_obj;
 
