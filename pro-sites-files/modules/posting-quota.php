@@ -70,37 +70,39 @@ class ProSites_Module_PostingQuota {
 					$quota_settings = $psts->get_setting( "pq_quotas" );
 					$post_types     = get_post_types( array( 'show_ui' => true ), 'objects', 'and' );
 					$user           = get_user_by( 'id', get_current_user_id() );
-					foreach ( $post_types as $post_type ) {
-						//Check publish permissions for user
-						if ( ! current_user_can( $post_type->cap->publish_posts ) ) {
-							continue;
+					if( is_array( $post_types ) ) {
+						foreach ( $post_types as $post_type ) {
+							//Check publish permissions for user
+							if ( ! current_user_can( $post_type->cap->publish_posts ) ) {
+								continue;
+							}
+							$quota     = isset( $quota_settings[ $post_type->name ]['quota'] ) ? $quota_settings[ $post_type->name ]['quota'] : 'unlimited';
+							$quota_msg = isset( $quota_settings[ $post_type->name ]['message'] ) ? $quota_settings[ $post_type->name ]['message'] : sprintf( __( "You've reached the publishing limit, To publish more %s, please upgrade to LEVEL &raquo;", 'psts' ), $post_type->label );
+							?>
+							<tr valign="top">
+								<th scope="row"><?php printf( __( '%s Quota', 'psts' ), $post_type->label ); ?></th>
+							</tr>
+							<tr>
+								<td><?php printf( __( 'Publish Limit', 'psts' ), $post_type->label ); ?></td>
+								<td>
+									<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen">
+										<option value="unlimited"<?php selected( $quota, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
+										<?php
+										for ( $counter = 1; $counter <= 1000; $counter ++ ) {
+											echo '<option value="' . $counter . '"' . ( $counter == $quota ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+										}
+										?>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td class="upgrade-message"><?php echo __( 'Upgrade message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed on the respective add post, page or media screen for sites that have used up their quota. "LEVEL" will be replaced with the needed level name', 'psts' ) . '</div></div>'; ?></td>
+								<td>
+									<input type="text" name="psts[pq_quotas][<?php echo $post_type->name; ?>][message]" value="<?php echo esc_attr( $quota_msg ); ?>" style="width: 90%"/>
+								</td>
+							</tr>
+						<?php
 						}
-						$quota     = isset( $quota_settings[ $post_type->name ]['quota'] ) ? $quota_settings[ $post_type->name ]['quota'] : 'unlimited';
-						$quota_msg = isset( $quota_settings[ $post_type->name ]['message'] ) ? $quota_settings[ $post_type->name ]['message'] : sprintf( __( "You've reached the publishing limit, To publish more %s, please upgrade to LEVEL &raquo;", 'psts' ), $post_type->label );
-						?>
-						<tr valign="top">
-							<th scope="row"><?php printf( __( '%s Quota', 'psts' ), $post_type->label ); ?></th>
-						</tr>
-						<tr>
-							<td><?php printf( __( 'Publish Limit', 'psts' ), $post_type->label ); ?></td>
-							<td>
-								<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen">
-									<option value="unlimited"<?php selected( $quota, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
-									<?php
-									for ( $counter = 1; $counter <= 1000; $counter ++ ) {
-										echo '<option value="' . $counter . '"' . ( $counter == $quota ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
-									}
-									?>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td class="upgrade-message"><?php echo __( 'Upgrade message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed on the respective add post, page or media screen for sites that have used up their quota. "LEVEL" will be replaced with the needed level name', 'psts' ) . '</div></div>'; ?></td>
-							<td>
-								<input type="text" name="psts[pq_quotas][<?php echo $post_type->name; ?>][message]" value="<?php echo esc_attr( $quota_msg ); ?>" style="width: 90%"/>
-							</td>
-						</tr>
-					<?php
 					}
 					?>
 				</table>
@@ -258,7 +260,7 @@ class ProSites_Module_PostingQuota {
 
 		//Return Upload posting limit for the specified level
 		$required_level = $psts->get_setting( 'pq_level', 1 );
-		$quota_settings = $psts->get_setting( "pq_quotas" );
+		$quota_settings = (array) $psts->get_setting( "pq_quotas" );
 
 		$text = "<ul>" . __( "Publish Limits: ", 'psts' );
 		//If specified level value is same or less than required level, show the limits
