@@ -1910,7 +1910,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//@Todo: check this, as there ain't going to be a transaction id, so better use the profile id
 						//Store Evidence string for the transaction ID
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -1986,7 +1986,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 						//@Todo: check this, as there ain't going to be a transaction id, so better use the profile id
 						//Store Evidence string for the transaction ID
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2117,7 +2117,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 						//@todo: Use Profile ID instead
 						//Store Evidence string for the transaction ID, for create recurring profile
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( ! empty( $resArray['CORRELATIONID'] ) ? $resArray['CORRELATIONID'] : '' );
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2399,8 +2399,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 								update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 							}
-							//Update Evidence string in table
-							self::update_evidence( $blog_id, $init_transaction, $evidence_string );
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
+							if( !empty($txn_id ) ) {
+								//Update Evidence string in table
+								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
+							}
 						}
 
 						//End of Non Recurring subscription with trial - Direct Payment
@@ -2475,7 +2478,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::$complete_message .= '<p>' . __( 'To view your subscriptions, simply go to <a target="_blank" href="https://payments.amazon.com/">https://payments.amazon.com/</a>, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.', 'psts' ) . '</p>';
 							}
 							//Store Evidence string for the transaction ID
-							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+							$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 							if ( ! empty( $txn_id ) ) {
 								//Update Evidence string in table
 								self::update_evidence( $blog_id, $txn_id, $evidence_string );
@@ -2563,7 +2566,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						//Store Evidence string for the transaction ID
-						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : '';
+						$txn_id = ! empty( $resArray['TRANSACTIONID'] ) ? $resArray['TRANSACTIONID'] : ( !empty( $resArray['PROFILEID'] ) ? $resArray['PROFILEID'] : '' );
 						if ( ! empty( $txn_id ) ) {
 							//Update Evidence string in table
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
