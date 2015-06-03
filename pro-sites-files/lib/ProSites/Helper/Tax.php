@@ -38,7 +38,7 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 			add_action( 'wp_enqueue_scripts', array( 'ProSites_Helper_Tax', 'enqueue_tax_scripts' ) );
 			add_filter( 'prosites_render_checkout_page', array( 'ProSites_Helper_Tax', 'append_tax_api' ), 10, 3 );
 			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'tax_checkout_notice' ) );
-			add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'eu_tax_warning_notice' ) );
+			//add_filter( 'prosites_post_pricing_table_content', array( 'ProSites_Helper_Tax', 'eu_tax_warning_notice' ) );
 
 			// Hook IMSI helper
 			ProSites_Helper_IMSI::init();
