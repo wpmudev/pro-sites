@@ -1671,7 +1671,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 
 			$modify = self::is_modifying( $blog_id, $_POST, $initAmount - $tax_amt_init );
-			$paymentAmountInitial += $tax_amt_payment;
 		}
 
 		//Runs just after the paypal button click, process paypal express checkout
