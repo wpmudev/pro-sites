@@ -1604,10 +1604,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 				}
 				//Update T
-				$initAmount      = self::calculate_tax( $tax_object, $initAmount, false );
-				$tax_amt_init    = self::calculate_tax( $tax_object, $initAmount, true );
-				$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+				$tax_amt_init = self::calculate_tax( $tax_object, $initAmount, true );
+				$initAmount += $tax_amt_init;
 				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
+				$paymentAmount += $tax_amt_payment;
 
 				//Check if it's a recurring subscription
 				if ( $recurring ) {
@@ -1623,8 +1623,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//Calculate Upgrade or downgrade cost
 						$paymentAmountInitial = $paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount - $tax_amt_payment );
 						//Calculate tax
-						$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
 						$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
+						$paymentAmount += $tax_amt_payment;
 					}
 					if ( $_POST['period'] == 1 ) {
 						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for 1 month', 'psts' ), $psts->format_currency( $currency, $paymentAmount + $initAmount ) );
@@ -1635,10 +1635,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			} elseif ( $recurring ) {
 				//Calculate Tax
-				$initAmount      = self::calculate_tax( $tax_object, $initAmount, false );
-				$tax_amt_init    = self::calculate_tax( $tax_object, $initAmount, true );
-				$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+				$tax_amt_init = self::calculate_tax( $tax_object, $initAmount, true );
+				$initAmount += $tax_amt_init;
 				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
+				$paymentAmount += $tax_amt_payment;
 
 				if ( $_POST['period'] == 1 ) {
 					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s each month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
@@ -1648,13 +1648,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			} else {
 				//New Signups
 				if ( ! empty( $blog_id ) ) {
-					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
+					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount - $tax_amt_payment );
 				}
 				//Calculate Tax
-				$initAmount      = self::calculate_tax( $tax_object, $initAmount, false );
-				$tax_amt_init    = self::calculate_tax( $tax_object, $initAmount, true );
-				$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+				$tax_amt_init = self::calculate_tax( $tax_object, $initAmount, true );
+				$initAmount += $tax_amt_init;
 				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
+				$paymentAmount += $tax_amt_payment;
+
 
 				if ( $_POST['period'] == 1 ) {
 					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for 1 month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ) );
