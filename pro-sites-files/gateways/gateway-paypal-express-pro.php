@@ -975,7 +975,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$profile_string = ( isset( $_POST['recurring_payment_id'] ) ) ? ' - ' . $_POST['recurring_payment_id'] : '';
 
-			$payment_status = ( isset( $_POST['initial_payment_status'] ) ) ? $_POST['initial_payment_status'] : $_POST['payment_status'];
+			$payment_status = ( isset( $_POST['initial_payment_status'] ) ) ? $_POST['initial_payment_status'] : ( isset( $_POST['payment_status'] ) ? $_POST['payment_status'] : '' );
 
 			switch ( $payment_status ) {
 
@@ -1127,7 +1127,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$this->set_profile_id( $blog_id, $_POST['recurring_payment_id'] );
 
 				//failed initial payment
-				if ( $_POST['initial_payment_status'] == 'Failed' ) {
+				if ( !empty( $_POST['initial_payment_status'] ) && $_POST['initial_payment_status'] == 'Failed' ) {
 					$psts->email_notification( $blog_id, 'failed' );
 				}
 			}
@@ -1603,16 +1603,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$initAmount -= $amount_off;
 					$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 				}
-				//Check if tax is applicable
-				if ( $tax_object->apply_tax ) {
-					$tax_amt_init = $initAmount * $tax_object->tax_rate;
-					$tax_amt_init = ! empty( $tax_amt_init ) ? round( $tax_amt_init, 2 ) : $tax_amt_init;
-					$initAmount   = $initAmount + $tax_amt_init;
-
-					$tax_amt_payment = $paymentAmount * $tax_object->tax_rate;
-					$tax_amt_payment = ! empty( $tax_amt_payment ) ? round( $tax_amt_payment, 2 ) : $tax_amt_payment;
-					$paymentAmount   = $paymentAmount + $tax_amt_payment;
-				}
+				//Update T
+				$initAmount      = self::calculate_tax( $tax_object, $initAmount, false );
+				$tax_amt_init    = self::calculate_tax( $tax_object, $initAmount, true );
+				$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
 
 				//Check if it's a recurring subscription
 				if ( $recurring ) {
@@ -1628,11 +1623,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//Calculate Upgrade or downgrade cost
 						$paymentAmountInitial = $paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount - $tax_amt_payment );
 						//Calculate tax
-						if ( $tax_object->apply_tax ) {
-							$tax_amt_payment = $paymentAmount * $tax_object->tax_rate;
-							$tax_amt_payment = ! empty( $tax_amt_payment ) ? round( $tax_amt_payment, 2 ) : $tax_amt_payment;
-							$paymentAmount   = $paymentAmount + $tax_amt_payment;
-						}
+						$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+						$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
 					}
 					if ( $_POST['period'] == 1 ) {
 						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for 1 month', 'psts' ), $psts->format_currency( $currency, $paymentAmount + $initAmount ) );
@@ -1642,6 +1634,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				}
 
 			} elseif ( $recurring ) {
+				//Calculate Tax
+				$initAmount      = self::calculate_tax( $tax_object, $initAmount, false );
+				$tax_amt_init    = self::calculate_tax( $tax_object, $initAmount, true );
+				$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
+
 				if ( $_POST['period'] == 1 ) {
 					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s %2$s each month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ), $currency );
 				} else {
@@ -1652,6 +1650,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				if ( ! empty( $blog_id ) ) {
 					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
 				}
+				//Calculate Tax
+				$initAmount      = self::calculate_tax( $tax_object, $initAmount, false );
+				$tax_amt_init    = self::calculate_tax( $tax_object, $initAmount, true );
+				$paymentAmount   = self::calculate_tax( $tax_object, $paymentAmount, false );
+				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
+
 				if ( $_POST['period'] == 1 ) {
 					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for 1 month', 'psts' ), $psts->format_currency( $currency, $paymentAmount ) );
 				} else {
@@ -1666,7 +1670,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $blog_id, $domain );
 
-			$modify = self::is_modifying( $blog_id, $_POST, $initAmount );
+			$modify = self::is_modifying( $blog_id, $_POST, $initAmount - $tax_amt_init );
+			$paymentAmountInitial += $tax_amt_payment;
 		}
 
 		//Runs just after the paypal button click, process paypal express checkout
@@ -3054,7 +3059,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	/**
 	 * Creates Transaction object for Paypal, which is tored in DB
-	 * @param $object
+	 *
+*@param $object
 	 * @param $data
 	 * @param $gateway
 	 *
@@ -3149,6 +3155,31 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 		$blog_meta['evidence'][ $transaction_id ] = $evidence;
 		ProSites_Helper_ProSite::update_prosite_meta( $blog_id, $blog_meta );
+	}
+
+	/**
+	 * Return amount after applying tax, or tax rate
+	 *
+*@param $tax_object
+	 * @param $amt
+	 * @param bool $return_tx_rate
+	 *
+	 * @return mixed
+	 */
+	private static function calculate_tax( $tax_object, $amt, $return_tx_amt = false ) {
+		if ( empty( $tax_object ) || empty( $amt ) ) {
+			return $amt;
+		}
+		if ( $tax_object->apply_tax ) {
+			$tax_amt = $amt * $tax_object->tax_rate;
+			$tax_amt = ! empty( $tax_amt ) ? round( $tax_amt, 2 ) : $tax_amt;
+			$amt     = $amt + $tax_amt;
+		}
+		if ( ! $return_tx_amt ) {
+			return $amt;
+		} else {
+			return $tax_amt;
+		}
 	}
 }
 
