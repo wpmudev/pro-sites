@@ -957,8 +957,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					die( __( 'There was a problem verifying the IPN string with PayPal. Please try again.', 'psts' ) );
 				}
 			}
-			error_log( "IPN recieved" );
-			error_log( json_encode( $_POST ) );
 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
 
@@ -1068,7 +1066,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 								$psts->email_notification( $blog_id, 'success' );
 								$psts->record_stat( $blog_id, 'signup' );
-								update_blog_option( $blog_id, 'psts_waiting_step', 0 );
 							}
 							$psts->email_notification( $blog_id, 'receipt' );
 						}
@@ -1096,6 +1093,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 						}
 					}
+					update_blog_option( $blog_id, 'psts_waiting_step', 0 );
 					break;
 
 				case 'Pending':
@@ -3059,7 +3057,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	/**
 	 * Creates Transaction object for Paypal, which is tored in DB
 	 *
-*@param $object
+	 * @param $object
 	 * @param $data
 	 * @param $gateway
 	 *
@@ -3067,6 +3065,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 */
 	public static function create_transaction_object( $object, $data, $gateway ) {
 
+		global $psts;
 		if ( get_class() !== $gateway ) {
 			return $object;
 		}
@@ -3119,16 +3118,25 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$line_obj->description = $data['SUBJECT'];
 		$lines[]               = $line_obj;
 
-		//If there is setup fee
+		//Check if trial is allowed
+		$trial_days = $psts->get_setting( 'trial_days', 0 );
+
+		if ( $trial_days == 0 ) {
+			$trial_allowed =  false;
+		}else{
+			$trial_allowed = true;
+		}
+		//If there is setup fee and trial is allowed
 		if ( ! empty( $data['setup_details'] ) ) {
 			$line_obj_sub              = new stdClass();
 			$line_obj_sub->custom_id   = $line_obj_sub->id = $data['setup_details']['TRANSACTIONID'];
 			$line_obj_sub->amount      = $data['setup_details']['AMT'];
 			$line_obj_sub->quantity    = 1;
-			$line_obj_sub->description = "One-time Setup Fee";
+			$line_obj_sub->description = "One-time Fee";
 			$lines[]                   = $line_obj_sub;
 		}
-		$total_amt = !empty( $data['setup_details']) ? ( $data['setup_details']['AMT'] + $data['AMT'] ) : $data['AMT'];
+		//If trial is not allowed, we charge the first payment in init amount
+		$total_amt = ( !empty( $data['setup_details']) && !$trial_allowed ) ? ( $data['setup_details']['AMT'] + $data['AMT'] ) : $data['AMT'];
 		$subtotal = $total_amt / ( $tax_rate + 1 );
 		$subtotal = !empty( $subtotal ) ? round( $subtotal, 2 ) : $subtotal;
 
@@ -3150,6 +3158,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ( $total_amt - $subtotal ); // optional
 		$object->gateway     = get_class();
 
+		error_log("Object");
+		error_log(json_encode($object));
 		return $object;
 	}
 

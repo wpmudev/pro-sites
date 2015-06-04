@@ -92,46 +92,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr = "&TOKEN=" . $token;
 			$nvpstr .= "&AMT=" . $paymentAmount;
 
-			//If there is some init amount (Setup Fee)
-			if ( ! empty( $initAmount ) ) {
-
-				if ( $has_trial ) {
-					$nvpstr .= "&INITAMT=" . $initAmount;
-				} else {
-					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
-					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
-
-					$nvpstr .= "&INITAMT=" . ( $initAmount + $paymentAmount);
-				}
-
-			} else {
-				//apply setup fee (if applicable)
-				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
-
-				if ( empty( $blog_id ) ) {
-					if ( $level != 0 ) {
-						$has_setup_fee = false;
-					} else {
-						$has_setup_fee = true;
-					}
-				} else {
-					$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
-				}
-
-				if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
-					$setup_fee = round( $setup_fee, 2 );
-				} else {
-					$setup_fee = 0;
-				}
-
-				if ( $has_trial ) {
-					$nvpstr .= "&INITAMT=" . $setup_fee;
-				} else {
-					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
-					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
-					$nvpstr .= "&INITAMT=" . ( $setup_fee + $paymentAmount );
-				}
-			}
+			$nvpstr = self::init_amount($nvpstr, $has_trial, $paymentAmount, $initAmount, $level );
 
 			//handle free trials
 			if ( $has_trial ) {
@@ -184,45 +145,8 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr = "&AMT=" . $paymentAmount;
 
-			//If there is some init amount (Setup Fee)
-			if ( ! empty( $initAmount ) ) {
+			$nvpstr = self::init_amount($nvpstr, $has_trial, $paymentAmount, $initAmount, $level );
 
-				if ( $has_trial ) {
-					$nvpstr .= "&INITAMT=" . $initAmount;
-				} else {
-					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
-					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
-					$nvpstr .= "&INITAMT=" . ( $initAmount + $paymentAmount );
-				}
-
-			} else {
-				//apply setup fee (if applicable)
-				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
-
-				if ( empty( $blog_id ) ) {
-					if ( $level != 0 ) {
-						$has_setup_fee = false;
-					} else {
-						$has_setup_fee = true;
-					}
-				} else {
-					$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
-				}
-
-				if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
-					$setup_fee = round( $setup_fee, 2 );
-				} else {
-					$setup_fee = 0;
-				}
-
-				if ( $has_trial ) {
-					$nvpstr .= "&INITAMT=" . $setup_fee;
-				} else {
-					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
-					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
-					$nvpstr .= "&INITAMT=" . ( $setup_fee + $paymentAmount );
-				}
-			}
 			//handle free trials
 			if ( $has_trial ) {
 
@@ -494,6 +418,61 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		 */
 		public static function modStartDate( $expire_stamp ) {
 			return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $expire_stamp ) );
+		}
+
+		/**
+		 * Check trial and setup fee, and adds a init amount for recurring subs
+		 * @param $nvpstr
+		 * @param $has_trial
+		 * @param $paymentAmount
+		 * @param $initAmount
+		 * @param $level
+		 *
+		 * @return string
+		 */
+		private static function init_amount( $nvpstr, $has_trial, $paymentAmount, $initAmount, $level ) {
+			global $psts;
+			//If there is some init amount (Setup Fee)
+			if ( ! empty( $initAmount ) ) {
+
+				if ( $has_trial ) {
+					$nvpstr .= "&INITAMT=" . $initAmount;
+				} else {
+					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
+					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
+					$nvpstr .= "&INITAMT=" . ( $initAmount + $paymentAmount );
+				}
+
+			} else {
+				//apply setup fee (if applicable)
+				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
+
+				if ( empty( $blog_id ) ) {
+					if ( $level != 0 ) {
+						$has_setup_fee = false;
+					} else {
+						$has_setup_fee = true;
+					}
+				} else {
+					$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
+				}
+
+				if ( $has_setup_fee ) {
+					$setup_fee = !empty( $setup_fee ) ? round( $setup_fee, 2 ) : 0;
+				} else {
+					$setup_fee = 0;
+				}
+
+				if ( $has_trial ) {
+					$nvpstr .= "&INITAMT=" . $setup_fee;
+				} else {
+					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
+					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
+					$nvpstr .= "&INITAMT=" . ( $setup_fee + $paymentAmount );
+				}
+			}
+
+			return $nvpstr;
 		}
 	}
 }
