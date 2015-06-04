@@ -73,7 +73,7 @@ if ( ! class_exists( 'ProSites_Module_Taxamo' ) ) {
 				$evidence_string = json_encode( array(
 					'tax_type' => $object->type,
 					'evidence' => $pieces,
-					'tax_rate' => $object->rate,
+					'tax_rate' => $object->tax_rate,
 				) );
 			}
 

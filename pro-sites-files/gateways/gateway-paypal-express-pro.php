@@ -3106,6 +3106,11 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$object->evidence = null;
 		}
 
+		//Get tax rate from evidence
+		$tax_rate = !empty($data['evidence_string']) && !empty( $data['evidence_string']['tax_rate'] ) ? $data['evidence_string']['tax_rate'] : 0;
+
+		$subtotal = $data['AMT'] / ( $tax_rate + 1 );
+
 		//Line Object For Subscription payment
 		$line_obj              = new stdClass();
 		$line_obj->custom_id   = $data['TRANSACTIONID'];
@@ -3137,9 +3142,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		// General (used for transaction recording)
 		$object->total       = $data['AMT'];
-		$object->tax_percent = '';
-		$object->subtotal    = '';  // optional
-		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ''; // optional
+		$object->tax_percent = $tax_rate;
+		$object->subtotal    = $subtotal;  // optional
+		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ( $data['AMT'] - $subtotal ); // optional
 		$object->gateway     = get_class();
 
 		return $object;
