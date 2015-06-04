@@ -1603,7 +1603,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$initAmount -= $amount_off;
 					$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 				}
-				//Update T
+				//Update Tax
 				$tax_amt_init = self::calculate_tax( $tax_object, $initAmount, true );
 				$initAmount += $tax_amt_init;
 				$tax_amt_payment = self::calculate_tax( $tax_object, $paymentAmount, true );
@@ -3175,7 +3175,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 * @return mixed
 	 */
 	private static function calculate_tax( $tax_object, $amt, $return_tx_amt = false ) {
-		if ( empty( $tax_object ) || empty( $amt ) || ! $tax_object->apply_tax ) {
+		if ( empty( $tax_object ) || empty( $amt ) || $amt == 0 || ! $tax_object->apply_tax ) {
 			return $return_tx_amt ? 0 : $amt;
 		}
 		$tax_amt = $amt * $tax_object->tax_rate;

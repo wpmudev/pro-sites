@@ -84,15 +84,26 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '', $tax = false ) {
 			global $psts;
+			$setup_fee = 0;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
 			$has_trial  = $psts->is_trial_allowed( $blog_id );
 
 			$nvpstr = "&TOKEN=" . $token;
-			$nvpstr .= "&AMT=$paymentAmount";
+			$nvpstr .= "&AMT=" . $paymentAmount;
 
+			//If there is some init amount (Setup Fee)
 			if ( ! empty( $initAmount ) ) {
-				$nvpstr .= "&INITAMT=" . $initAmount;
+
+				if ( $has_trial ) {
+					$nvpstr .= "&INITAMT=" . $initAmount;
+				} else {
+					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
+					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
+
+					$nvpstr .= "&INITAMT=" . ( $initAmount + $paymentAmount);
+				}
+
 			} else {
 				//apply setup fee (if applicable)
 				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
@@ -108,7 +119,17 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				}
 
 				if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
-					$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
+					$setup_fee = round( $setup_fee, 2 );
+				} else {
+					$setup_fee = 0;
+				}
+
+				if ( $has_trial ) {
+					$nvpstr .= "&INITAMT=" . $setup_fee;
+				} else {
+					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
+					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
+					$nvpstr .= "&INITAMT=" . ( $setup_fee + $paymentAmount );
 				}
 			}
 
@@ -126,9 +147,11 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
 			}
 			if ( $has_trial ) {
-				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
+				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days', $has_trial ) );
 			} else {
-				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
+				$profile_start_date = ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency, 'month', $has_trial ) );
+
+				$nvpstr .= "&PROFILESTARTDATE=" . $profile_start_date;
 			}
 
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
@@ -159,10 +182,19 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
 			$has_trial  = $psts->is_trial_allowed( $blog_id );
 
-			$nvpstr = "&AMT=$paymentAmount";
+			$nvpstr = "&AMT=" . $paymentAmount;
 
+			//If there is some init amount (Setup Fee)
 			if ( ! empty( $initAmount ) ) {
-				$nvpstr .= "&INITAMT=" . $initAmount;
+
+				if ( $has_trial ) {
+					$nvpstr .= "&INITAMT=" . $initAmount;
+				} else {
+					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
+					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
+					$nvpstr .= "&INITAMT=" . ( $initAmount + $paymentAmount );
+				}
+
 			} else {
 				//apply setup fee (if applicable)
 				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
@@ -178,9 +210,18 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				}
 
 				if ( $has_setup_fee && ! empty ( $setup_fee ) ) {
-					$nvpstr .= "&INITAMT=" . round( $setup_fee, 2 );
+					$setup_fee = round( $setup_fee, 2 );
+				} else {
+					$setup_fee = 0;
 				}
 
+				if ( $has_trial ) {
+					$nvpstr .= "&INITAMT=" . $setup_fee;
+				} else {
+					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
+					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
+					$nvpstr .= "&INITAMT=" . ( $setup_fee + $paymentAmount );
+				}
 			}
 			//handle free trials
 			if ( $has_trial ) {
@@ -197,9 +238,9 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TRIALAMT=" . round( $initAmount, 2 );
 			}
 			if ( $has_trial ) {
-				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days' ) );
+				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days', $has_trial ) );
 			} else {
-				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency ) );
+				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency, 'month', $has_trial ) );
 			}
 
 			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
@@ -438,9 +479,12 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		 * @return string
 		 */
 		public static function startDate( $frequency, $period = 'month' ) {
+
 			$result = strtotime( "+$frequency $period" );
 
-			return urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $result ) );
+			$date = gmdate( 'Y-m-d\TH:i:s.00\Z', $result );
+
+			return urlencode( $date );
 		}
 
 		/**
