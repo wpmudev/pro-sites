@@ -26,6 +26,7 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 
 		public static function record( $transaction ) {
 
+			$x = '';
 			// Record locally...
 			self::record_to_database( $transaction );
 

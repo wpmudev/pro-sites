@@ -22,6 +22,9 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 
 			$checkout_url = $psts->checkout_url( $blog_id, $domain );
+			$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
+			$checkout_url = site_url( $checkout_url, $scheme );
+
 			$checkout_url = add_query_arg(
 				array(
 					'action' => 'complete'

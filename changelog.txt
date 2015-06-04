@@ -4,7 +4,7 @@ Author: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
-3.5 - 5/6/2014 - Jonathan Cowher & Umesh Kumar
+3.5 - 6/5/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - New:   Post Throttling Module
 - New:   Limit Coupons availability to selected period
@@ -18,6 +18,11 @@ Change Log:
 - New:   Add admin bar upgrade button for Bulk Upgrades module
 - New:   Filters to override ads conditionals
 - New:   BuddyPress feature to hide non-pro blogs from activity streams
+- New:   Pricing checkout table
+- New:   Features table
+- New:   Use multiple gateways (e.g. allowing PayPal as well as Credit Card via Stripe)
+- New:   Taxamo integration to support EU VAT requirements (requires Taxamo.com account)
+- New:   Detailed receipts when using tax
 - Fixed: Posting quota limit issue for Custom posts
 - Fixed: Warnings and notices
 - Fixed: Upload Quota ad-free level showing when not active in ads module

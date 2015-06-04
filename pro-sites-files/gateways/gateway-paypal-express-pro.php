@@ -40,8 +40,8 @@ class ProSites_Gateway_PayPalExpressPro {
 		add_action( 'psts_modify_process', array( &$this, 'process_modify' ) );
 		add_action( 'psts_transfer_pro', array( &$this, 'process_transfer' ), 10, 2 );
 
-		//filter payment info
-		add_action( 'psts_payment_info', array( &$this, 'payment_info' ), 10, 2 );
+		//filter payment info - DEPRECATED
+		//add_action( 'psts_payment_info', array( &$this, 'payment_info' ), 10, 2 );
 
 		//return next payment date for emails
 		add_filter( 'psts_next_payment', array( &$this, 'next_payment' ) );
@@ -388,6 +388,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	function payment_info( $payment_info, $blog_id ) {
 		global $psts;
+
+		// The rest is deprecated...
+		return $payment_info;
 
 		$profile_id = $this->get_profile_id( $blog_id );
 		if ( $profile_id ) {
@@ -1067,7 +1070,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$psts->email_notification( $blog_id, 'success' );
 								$psts->record_stat( $blog_id, 'signup' );
 							}
-							$psts->email_notification( $blog_id, 'receipt' );
+							//$psts->email_notification( $blog_id, 'receipt' );
 						}
 						//Check IPN transaction type
 						$is_recurring = ( ! empty( $_POST['txn_type'] ) && strpos( $_POST['txn_type'], 'recurring' ) !== false ) ? true : false;

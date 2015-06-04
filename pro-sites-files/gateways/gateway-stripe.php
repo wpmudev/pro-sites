@@ -54,7 +54,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_modify_process', array( 'ProSites_Gateway_Stripe', 'process_modify' ) );
 		add_action( 'psts_transfer_pro', array( 'ProSites_Gateway_Stripe', 'process_transfer' ), 10, 2 );
 
-		//filter payment info
+		//filter payment info - Deprecated
 		add_action( 'psts_payment_info', array( 'ProSites_Gateway_Stripe', 'payment_info' ), 10, 2 );
 
 		//return next payment date for emails
@@ -356,7 +356,7 @@ class ProSites_Gateway_Stripe {
 	/**
 	 * Hooks into payment info meta for managing a Pro Site
 	 *
-	 * @todo Work out if still needed, then complete it.
+	 * @todo DEPRECATED - remove
 	 *
 	 * @param $payment_info
 	 * @param $blog_id

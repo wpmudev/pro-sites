@@ -99,41 +99,41 @@ jQuery(document).ready(function ($) {
         jQuery('#plans-table > .tab-menu > li > a')
             .unbind('click')
             .bind('click', function (event) {
-            event.preventDefault();
-            jQuery('#plans-table > .tab-menu > li').removeClass('selected');
-            jQuery(this).parent().addClass('selected');
-            var selected_period = jQuery('.tab-menu > .selected.period > a').data('period');
-            jQuery('#psts_period').val(selected_period);
-            jQuery('.plan.description > li.column').hide();
-            var enabled_lists = ".plan.description > li.period_" + selected_period;
-            jQuery('.plan.description > li.column:first-child()').show();
-            jQuery(enabled_lists).show();
-        });
+                event.preventDefault();
+                jQuery('#plans-table > .tab-menu > li').removeClass('selected');
+                jQuery(this).parent().addClass('selected');
+                var selected_period = jQuery('.tab-menu > .selected.period > a').data('period');
+                jQuery('#psts_period').val(selected_period);
+                jQuery('.plan.description > li.column').hide();
+                var enabled_lists = ".plan.description > li.period_" + selected_period;
+                jQuery('.plan.description > li.column:first-child()').show();
+                jQuery(enabled_lists).show();
+            });
     }
     if (jQuery('.button.choose-plan').length > 0) {
         jQuery('.button.choose-plan')
             .unbind('click')
             .bind('click', function (event) {
-            event.preventDefault();
-            var selected_period = jQuery('.tab-menu > .selected.period > a').data('period');
-            var selected_level = jQuery(this).data('level');
-            var selected_level_classname = jQuery(this).data('level-name');
-            jQuery('.column').removeClass('selected');
-            var selector = '.column.' + selected_level_classname;
-            jQuery(selector).addClass('selected');
-            jQuery('#psts_period').val(selected_period);
-            jQuery('#psts_level').val(selected_level);
-        });
+                event.preventDefault();
+                var selected_period = jQuery('.tab-menu > .selected.period > a').data('period');
+                var selected_level = jQuery(this).data('level');
+                var selected_level_classname = jQuery(this).data('level-name');
+                jQuery('.column').removeClass('selected');
+                var selector = '.column.' + selected_level_classname;
+                jQuery(selector).addClass('selected');
+                jQuery('#psts_period').val(selected_period);
+                jQuery('#psts_level').val(selected_level);
+            });
         jQuery('.module.features .feature-name.column')
             .unbind('mouseover')
             .bind('mouseover', function (event) {
-            jQuery('.helper.wrapper').hide();
-            jQuery(this).find('.helper.wrapper').show();
-        })
+                jQuery('.helper.wrapper').hide();
+                jQuery(this).find('.helper.wrapper').show();
+            })
             .unbind('mouseout')
             .bind('mouseout', function (event) {
-            jQuery('.helper.wrapper').hide();
-        });
+                jQuery('.helper.wrapper').hide();
+            });
     }
 
     /* New checkout form */
@@ -176,7 +176,7 @@ jQuery(document).ready(function ($) {
         $.each( elements, function( index, item ) {
             if( $( item).parents('.pricing-column.featured')[0] && use_featured ) {
                 //if( $( item).height < max_height ) {
-                    $(item).height(max_height + 15);
+                $(item).height(max_height + 15);
                 //}
             } else {
                 $( item).height( max_height );
@@ -237,143 +237,143 @@ jQuery(document).ready(function ($) {
         $('.pricing-column .coupon-box').removeClass('coupon-valid');
         $('.pricing-column .coupon-box').removeClass('coupon-invalid');
 
-            var code = $(input_box).val();
+        var code = $(input_box).val();
 
-            /* Reset */
-            $('.original-amount').removeClass('scratch');
-            $('.coupon-amount').remove();
-            $('.original-period').removeClass('hidden');
-            $('.coupon-period').remove();
+        /* Reset */
+        $('.original-amount').removeClass('scratch');
+        $('.coupon-amount').remove();
+        $('.original-period').removeClass('hidden');
+        $('.coupon-period').remove();
 
-            /* Check Coupon AJAX */
-            $.post(
-                prosites_checkout.ajax_url, {
-                    action: 'apply_coupon_to_checkout',
-                    'coupon_code': code
+        /* Check Coupon AJAX */
+        $.post(
+            prosites_checkout.ajax_url, {
+                action: 'apply_coupon_to_checkout',
+                'coupon_code': code
+            }
+        ).done( function( data, status ) {
+
+                var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
+
+                if( response.valid ) {
+                    $('.pricing-column .coupon-box').addClass('coupon-valid');
+                } else {
+                    $('.pricing-column .coupon-box').addClass('coupon-invalid');
                 }
-            ).done( function( data, status ) {
 
-                    var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
+                // Handle empty returns
+                var levels = response.levels;
+                if( typeof levels != 'undefined' ) {
 
-                    if( response.valid ) {
-                        $('.pricing-column .coupon-box').addClass('coupon-valid');
-                    } else {
-                        $('.pricing-column .coupon-box').addClass('coupon-invalid');
-                    }
+                    $.each(levels, function (level_id, level) {
 
-                    // Handle empty returns
-                    var levels = response.levels;
-                    if( typeof levels != 'undefined' ) {
+                        if (level.price_1_adjust) {
+                            var plan_original = $('ul.psts-level-' + level_id + ' .price.price_1 plan-price.original-amount');
 
-                        $.each(levels, function (level_id, level) {
+                            var original = $('ul.psts-level-' + level_id + ' .price.price_1 .original-amount');
 
-                            if (level.price_1_adjust) {
-                                var plan_original = $('ul.psts-level-' + level_id + ' .price.price_1 plan-price.original-amount');
-
-                                var original = $('ul.psts-level-' + level_id + ' .price.price_1 .original-amount');
-
-                                if(original.length == 0) {
-                                    original = $('tr.level-' + level_id + ' .price.price_1 .original-amount');
-                                }
-
-                                $(original).after(level.price_1);
-                                $(original).addClass('scratch');
-
-                                // Period display needs adjusting
-                                if (level.price_1_period != '') {
-                                    var period_original = $('ul.psts-level-' + level_id + ' .price.price_1 .period.original-period');
-                                    if(period_original.length == 0) {
-                                        period_original = $('tr.level-' + level_id + ' .price.price_1 .original-period');
-                                    }
-                                    $(period_original).addClass('hidden');
-                                    $(period_original).after(level.price_1_period);
-                                }
-
-                            }
-                            if (level.price_3_adjust) {
-                                var original = $('ul.psts-level-' + level_id + ' .price.price_3 .original-amount');
-                                if(original.length == 0) {
-                                    original = $('tr.level-' + level_id + ' .price.price_3 .original-amount');
-                                }
-
-                                var monthly_original = $('ul.psts-level-' + level_id + ' .price_3 .monthly-price.original-amount');
-                                var savings_original = $('ul.psts-level-' + level_id + ' .price_3 .savings-price.original-amount');
-                                if(monthly_original.length == 0) {
-                                    monthly_original = $('tr.level-' + level_id + ' .level-summary.price_3 .monthly-price.original-amount');
-                                }
-                                if(savings_original.length == 0) {
-                                    savings_original = $('tr.level-' + level_id + ' .level-summary.price_3 .savings-price.original-amount');
-                                }
-
-                                $(original).after(level.price_3);
-                                $(monthly_original).after(level.price_3_monthly);
-                                $(savings_original).after(level.price_3_savings);
-                                $(original).addClass('scratch');
-                                $(monthly_original).addClass('scratch');
-                                $(savings_original).addClass('scratch');
-
-                                // Period display needs adjusting
-                                if (level.price_3_period != '') {
-                                    var period_original = $('ul.psts-level-' + level_id + ' .price.price_3 .period.original-period');
-                                    if(period_original.length == 0) {
-                                        period_original = $('tr.level-' + level_id + ' .price.price_3 .period.original-period');
-                                    }
-                                    $(period_original).addClass('hidden');
-                                    $(period_original).after(level.price_3_period);
-                                }
-
-                            }
-                            if (level.price_12_adjust) {
-                                var original = $('ul.psts-level-' + level_id + ' .price.price_12 .original-amount');
-                                if(original.length == 0) {
-                                    original = $('tr.level-' + level_id + ' .price.price_12 .original-amount');
-                                }
-
-                                var monthly_original = $('ul.psts-level-' + level_id + ' .price_12 .monthly-price.original-amount');
-                                var savings_original = $('ul.psts-level-' + level_id + ' .price_12 .savings-price.original-amount');
-                                if(monthly_original.length == 0) {
-                                    monthly_original = $('tr.level-' + level_id + ' .level-summary.price_12 .monthly-price.original-amount');
-                                }
-                                if(savings_original.length == 0) {
-                                    savings_original = $('tr.level-' + level_id + ' .level-summary.price_12 .savings-price.original-amount');
-                                }
-
-                                $(original).after(level.price_12);
-                                $(monthly_original).after(level.price_12_monthly);
-                                $(savings_original).after(level.price_12_savings);
-                                $(original).addClass('scratch');
-                                $(monthly_original).addClass('scratch');
-                                $(savings_original).addClass('scratch');
-
-                                // Period display needs adjusting
-                                if (level.price_12_period != '') {
-                                    var period_original = $('ul.psts-level-' + level_id + ' .price.price_12 .period.original-period');
-                                    if(period_original.length == 0) {
-                                        period_original = $('tr.level-' + level_id + ' .price.price_12 .period.original-period');
-                                    }
-                                    $(period_original).addClass('hidden');
-                                    $(period_original).after(level.price_12_period);
-                                }
+                            if(original.length == 0) {
+                                original = $('tr.level-' + level_id + ' .price.price_1 .original-amount');
                             }
 
-                        });
-                    }
+                            $(original).after(level.price_1);
+                            $(original).addClass('scratch');
 
-                    /* Clear after AJAX return as bottom execution was synchronous */
-                    check_pricing_font_sizes();
-                    set_feature_heights();
-                    set_same_height( $('.pricing-column .title') );
-                    set_same_height( $('.pricing-column .summary'), false );
-                    set_same_height( $('.pricing-column .sub-title'), false );
+                            // Period display needs adjusting
+                            if (level.price_1_period != '') {
+                                var period_original = $('ul.psts-level-' + level_id + ' .price.price_1 .period.original-period');
+                                if(period_original.length == 0) {
+                                    period_original = $('tr.level-' + level_id + ' .price.price_1 .original-period');
+                                }
+                                $(period_original).addClass('hidden');
+                                $(period_original).after(level.price_1_period);
+                            }
+
+                        }
+                        if (level.price_3_adjust) {
+                            var original = $('ul.psts-level-' + level_id + ' .price.price_3 .original-amount');
+                            if(original.length == 0) {
+                                original = $('tr.level-' + level_id + ' .price.price_3 .original-amount');
+                            }
+
+                            var monthly_original = $('ul.psts-level-' + level_id + ' .price_3 .monthly-price.original-amount');
+                            var savings_original = $('ul.psts-level-' + level_id + ' .price_3 .savings-price.original-amount');
+                            if(monthly_original.length == 0) {
+                                monthly_original = $('tr.level-' + level_id + ' .level-summary.price_3 .monthly-price.original-amount');
+                            }
+                            if(savings_original.length == 0) {
+                                savings_original = $('tr.level-' + level_id + ' .level-summary.price_3 .savings-price.original-amount');
+                            }
+
+                            $(original).after(level.price_3);
+                            $(monthly_original).after(level.price_3_monthly);
+                            $(savings_original).after(level.price_3_savings);
+                            $(original).addClass('scratch');
+                            $(monthly_original).addClass('scratch');
+                            $(savings_original).addClass('scratch');
+
+                            // Period display needs adjusting
+                            if (level.price_3_period != '') {
+                                var period_original = $('ul.psts-level-' + level_id + ' .price.price_3 .period.original-period');
+                                if(period_original.length == 0) {
+                                    period_original = $('tr.level-' + level_id + ' .price.price_3 .period.original-period');
+                                }
+                                $(period_original).addClass('hidden');
+                                $(period_original).after(level.price_3_period);
+                            }
+
+                        }
+                        if (level.price_12_adjust) {
+                            var original = $('ul.psts-level-' + level_id + ' .price.price_12 .original-amount');
+                            if(original.length == 0) {
+                                original = $('tr.level-' + level_id + ' .price.price_12 .original-amount');
+                            }
+
+                            var monthly_original = $('ul.psts-level-' + level_id + ' .price_12 .monthly-price.original-amount');
+                            var savings_original = $('ul.psts-level-' + level_id + ' .price_12 .savings-price.original-amount');
+                            if(monthly_original.length == 0) {
+                                monthly_original = $('tr.level-' + level_id + ' .level-summary.price_12 .monthly-price.original-amount');
+                            }
+                            if(savings_original.length == 0) {
+                                savings_original = $('tr.level-' + level_id + ' .level-summary.price_12 .savings-price.original-amount');
+                            }
+
+                            $(original).after(level.price_12);
+                            $(monthly_original).after(level.price_12_monthly);
+                            $(savings_original).after(level.price_12_savings);
+                            $(original).addClass('scratch');
+                            $(monthly_original).addClass('scratch');
+                            $(savings_original).addClass('scratch');
+
+                            // Period display needs adjusting
+                            if (level.price_12_period != '') {
+                                var period_original = $('ul.psts-level-' + level_id + ' .price.price_12 .period.original-period');
+                                if(period_original.length == 0) {
+                                    period_original = $('tr.level-' + level_id + ' .price.price_12 .period.original-period');
+                                }
+                                $(period_original).addClass('hidden');
+                                $(period_original).after(level.price_12_period);
+                            }
+                        }
+
+                    });
+                }
+
+                /* Clear after AJAX return as bottom execution was synchronous */
+                check_pricing_font_sizes();
+                set_feature_heights();
+                set_same_height( $('.pricing-column .title') );
+                set_same_height( $('.pricing-column .summary'), false );
+                set_same_height( $('.pricing-column .sub-title'), false );
 
             } );
 
-            /* Need to be run inside AJAX return as well */
-            check_pricing_font_sizes();
-            set_feature_heights();
-            set_same_height( $('.pricing-column .title') );
-            set_same_height( $('.pricing-column .summary'), false );
-            set_same_height( $('.pricing-column .sub-title'), false );
+        /* Need to be run inside AJAX return as well */
+        check_pricing_font_sizes();
+        set_feature_heights();
+        set_same_height( $('.pricing-column .title') );
+        set_same_height( $('.pricing-column .summary'), false );
+        set_same_height( $('.pricing-column .sub-title'), false );
 
     });
 
@@ -428,7 +428,7 @@ jQuery(document).ready(function ($) {
         if( free_link ) {
             level = 'free';
             //if( site_registered ) {
-                $('.gateways.checkout-gateways').addClass('hidden');
+            $('.gateways.checkout-gateways').addClass('hidden');
             //}
         } else {
             if( site_registered ) {
@@ -453,11 +453,11 @@ jQuery(document).ready(function ($) {
         $('.gateways [name=level]').val(level);
         $('#prosites-checkout-table').attr('data-level', level);
 
-	    //Update Period as well
-	    var period_class = $( '.period-selector select').val();
-	    var period = parseInt( period_class.replace( 'price_', '' ) );
-	    $('.gateways [name=period]').val(period);
-	    $('#prosites-checkout-table').attr('data-period', period);
+        //Update Period as well
+        var period_class = $( '.period-selector select').val();
+        var period = parseInt( period_class.replace( 'price_', '' ) );
+        $('.gateways [name=period]').val(period);
+        $('#prosites-checkout-table').attr('data-period', period);
 
     });
 
@@ -504,10 +504,10 @@ jQuery(document).ready(function ($) {
                 period: period
             }
         ).done( function( data, status ) {
-            $('#check-prosite-blog').removeClass("hidden");
-            $('#registration_processing').addClass("hidden");
-            post_registration_process( data, status, form_data );
-        } );
+                $('#check-prosite-blog').removeClass("hidden");
+                $('#registration_processing').addClass("hidden");
+                post_registration_process( data, status, form_data );
+            } );
 
     }
 
@@ -569,8 +569,10 @@ jQuery(document).ready(function ($) {
             $('.gateways [name=period]').val( $('#prosites-checkout-table').attr('data-period') );
 
             // Rebind Stripe -- find a generic way to make it easier for custom gateways
-            $("#stripe-payment-form").unbind( "submit" );
-            $("#stripe-payment-form").on( 'submit', stripePaymentFormSubmit );
+            if( typeof stripePaymentFormSubmit !== 'undefined' ) {
+                $( "#stripe-payment-form" ).unbind( "submit" );
+                $( "#stripe-payment-form" ).on( 'submit', stripePaymentFormSubmit );
+            }
 
             $('#gateways').tabs();
             if( ! is_free ) {
