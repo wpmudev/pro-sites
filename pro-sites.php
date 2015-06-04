@@ -1554,9 +1554,9 @@ Thanks!", 'psts' ),
 		// Get current plan
 		$level_list = get_site_option( 'psts_levels' );
 		$level_name = $level_list[ $transaction->level ]['name'];
-		$gateway = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
-		$result = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
-		$term = $result->term;
+		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
+		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
+		$term       = $result->term;
 
 		if ( $term == 1 || $term == 3 || $term == 12 ) {
 			$term = sprintf( __( 'Every %s Month(s)', 'psts' ), $result->term );

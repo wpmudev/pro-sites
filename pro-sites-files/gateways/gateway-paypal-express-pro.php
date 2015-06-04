@@ -963,7 +963,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
 
 			// get custom field values
-			@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key, $evidence_str ) = explode( '_', $custom );
+			@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key ) = explode( '_', $custom );
 
 			if ( empty( $blog_id ) || $blog_id == 0 ) {
 				//Get it from Pro sites table, if not there, try to get it from signup table
@@ -974,6 +974,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$new_status = false;
 
 			$profile_string = ( isset( $_POST['recurring_payment_id'] ) ) ? ' - ' . $_POST['recurring_payment_id'] : '';
+			$profile_id = ( isset( $_POST['recurring_payment_id'] ) ) ? $_POST['recurring_payment_id'] : '';
 
 			$payment_status = ( isset( $_POST['initial_payment_status'] ) ) ? $_POST['initial_payment_status'] : ( isset( $_POST['payment_status'] ) ? $_POST['payment_status'] : '' );
 
@@ -1082,9 +1083,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$evidence_string = ! empty( $blog_meta['evidence'][ $_POST['txn_id'] ] ) ? $blog_meta['evidence'][ $_POST['txn_id'] ] : '';
 							} elseif ( ! empty( $profile_string ) ) {
 								//For recurring subscriptions
-								$evidence_string = ! empty( $blog_meta['evidence'][ $profile_string ] ) ? $blog_meta['evidence'][ $profile_string ] : '';
+								$evidence_string = ! empty( $blog_meta['evidence'][ $profile_id ] ) ? $blog_meta['evidence'][ $profile_id ] : '';
 							}
-
 						}
 						if ( ! $recurring ) {
 							//Record Transaction, Send txn id
@@ -3046,8 +3046,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		$data['evidence_string'] = $evidence_str;
-		error_log( "Transaction details" );
-		error_log( json_encode( $data ) );
 
 		// Get the object
 		$object = ProSites_Helper_Transaction::object_from_data( $data, get_class() );
@@ -3086,14 +3084,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		// get custom field values
 		$custom = ( isset( $_POST['rp_invoice_id'] ) ) ? $_POST['rp_invoice_id'] : $_POST['custom'];
-		@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key, $evidence_str ) = explode( '_', $custom );
+		@list( $pre, $blog_id, $level, $period, $amount, $currency, $timestamp, $activation_key ) = explode( '_', $custom );
 
 		if ( empty( $blog_id ) || $blog_id == 0 ) {
 			//Get it from Pro sites table, if not there, try to get it from signup table
 			$blog_id = self::blog_id_from_activation_key( $activation_key );
 		}
 		$object->blog_id = $blog_id;
-		$object->sub_id  = '';
+		$object->sub_id  = $data['TRANSACTIONID'];
 
 		// Evidence -> evidence_from_json()
 		try {
@@ -3106,28 +3104,32 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$object->evidence = null;
 		}
 
+		$evidence_str_decode_json = !empty($data['evidence_string']) ? json_decode($data['evidence_string']) : '';
 		//Get tax rate from evidence
-		$tax_rate = !empty($data['evidence_string']) && !empty( $data['evidence_string']['tax_rate'] ) ? $data['evidence_string']['tax_rate'] : 0;
-
-		$subtotal = $data['AMT'] / ( $tax_rate + 1 );
+		$tax_rate = !empty($evidence_str_decode_json) && !empty( $evidence_str_decode_json->tax_rate ) ? $evidence_str_decode_json->tax_rate : 0;
 
 		//Line Object For Subscription payment
+		$lines = array();
+
 		$line_obj              = new stdClass();
-		$line_obj->custom_id   = $data['TRANSACTIONID'];
+		$line_obj->custom_id   = $line_obj->id = $data['TRANSACTIONID'];
 		$line_obj->amount      = $data['AMT'];
 		$line_obj->quantity    = ! empty( $data['L_QTY0'] ) ? $data['L_QTY0'] : 1;
 		$line_obj->description = $data['SUBJECT'];
 		$lines[]               = $line_obj;
 
 		//If there is setup fee
-		if( !empty( $data['setup_details']) ) {
-			$line_obj              = new stdClass();
-			$line_obj->custom_id   = $data['setup_details']['TRANSACTIONID'];
-			$line_obj->amount      = $data['setup_details']['AMT'];
-			$line_obj->quantity    = '';
-			$line_obj->description = "One-time Setup Fee";
-			$lines[]               = $line_obj;
+		if ( ! empty( $data['setup_details'] ) ) {
+			$line_obj_sub              = new stdClass();
+			$line_obj_sub->custom_id   = $line_obj_sub->id = $data['setup_details']['TRANSACTIONID'];
+			$line_obj_sub->amount      = $data['setup_details']['AMT'];
+			$line_obj_sub->quantity    = '';
+			$line_obj_sub->description = "One-time Setup Fee";
+			$lines[]                   = $line_obj_sub;
 		}
+		$total_amt = !empty( $data['setup_details']) ? ( $data['setup_details']['AMT'] + $data['AMT'] ) : $data['AMT'];
+		$subtotal = $total_amt / ( $tax_rate + 1 );
+		$subtotal = !empty( $subtotal ) ? round( $subtotal, 2 ) : $subtotal;
 
 		$object->level  = $level;
 		$object->period = $period;
@@ -3141,10 +3143,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		//@Todo: Calculate subtotal, tax and other details
 
 		// General (used for transaction recording)
-		$object->total       = $data['AMT'];
+		$object->total       = $total_amt;
 		$object->tax_percent = $tax_rate;
 		$object->subtotal    = $subtotal;  // optional
-		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ( $data['AMT'] - $subtotal ); // optional
+		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ( $total_amt - $subtotal ); // optional
 		$object->gateway     = get_class();
 
 		return $object;
