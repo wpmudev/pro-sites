@@ -3042,6 +3042,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$data['rp_invoice_id'] = $plan_details['ipn']['rp_invoice_id'];
 				$data['AMT']           = $plan_details['ipn']['amount'];
 				$data['SUBJECT']       = $plan_details['ipn']['product_name'];
+				$data['PAYERID']       = $plan_details['ipn']['payer_id'];
 			}
 		}
 
@@ -3112,7 +3113,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$lines = array();
 
 		$line_obj              = new stdClass();
-		$line_obj->custom_id   = $line_obj->id = $data['TRANSACTIONID'];
+		$line_obj->custom_id   = $line_obj->id = $data['PAYERID'];
 		$line_obj->amount      = $data['AMT'];
 		$line_obj->quantity    = ! empty( $data['L_QTY0'] ) ? $data['L_QTY0'] : 1;
 		$line_obj->description = $data['SUBJECT'];
@@ -3123,7 +3124,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$line_obj_sub              = new stdClass();
 			$line_obj_sub->custom_id   = $line_obj_sub->id = $data['setup_details']['TRANSACTIONID'];
 			$line_obj_sub->amount      = $data['setup_details']['AMT'];
-			$line_obj_sub->quantity    = '';
+			$line_obj_sub->quantity    = 1;
 			$line_obj_sub->description = "One-time Setup Fee";
 			$lines[]                   = $line_obj_sub;
 		}
@@ -3174,14 +3175,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 * @return mixed
 	 */
 	private static function calculate_tax( $tax_object, $amt, $return_tx_amt = false ) {
-		if ( empty( $tax_object ) || empty( $amt ) ) {
-			return $amt;
+		if ( empty( $tax_object ) || empty( $amt ) || ! $tax_object->apply_tax ) {
+			return $return_tx_amt ? 0 : $amt;
 		}
-		if ( $tax_object->apply_tax ) {
-			$tax_amt = $amt * $tax_object->tax_rate;
-			$tax_amt = ! empty( $tax_amt ) ? round( $tax_amt, 2 ) : $tax_amt;
-			$amt     = $amt + $tax_amt;
-		}
+		$tax_amt = $amt * $tax_object->tax_rate;
+		$tax_amt = ! empty( $tax_amt ) ? round( $tax_amt, 2 ) : $tax_amt;
+		$amt     = $amt + $tax_amt;
+
 		if ( ! $return_tx_amt ) {
 			return $amt;
 		} else {

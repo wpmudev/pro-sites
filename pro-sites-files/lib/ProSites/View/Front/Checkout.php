@@ -591,7 +591,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$blog_id = (int) $_GET['bid'];
 				}
 				if( ! is_pro_site( $blog_id ) ) {
-					$free_link = '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( (int) $_GET['bid'], 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+					$free_link = '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( $blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
 					$content = '<div class="free-plan-link-logged-in" style="' . esc_attr( $style ) . '"><p>' . esc_html__( 'Your current site is a basic site with no extra features. Upgrade now by selecting a plan above.', 'psts' ) . '</p><p>' . $free_link . '</p></div>';
 				}
 			}
