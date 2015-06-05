@@ -3030,7 +3030,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			//Fetch Details From Paypal for the transaction ID
 			$data = PaypalApiHelper::GetTransactionDetails( $txn_id );
 		} else {
-			//If it's a initial payment, then we consider it as setup fee
+			//If it's a initial payment, then we consider it as setup fee or first month sub charges
 			$data['setup_details'] = PaypalApiHelper::GetTransactionDetails( $txn_id );
 			if ( ! empty( $plan_details['ipn'] ) ) {
 				//These details are used for actual billing details
@@ -3139,7 +3139,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$lines[]                   = $line_obj_sub;
 		}
 		//If trial is not allowed, we charge the first payment in init amount
-		$total_amt = ( !empty( $data['setup_details']) && !$trial_allowed ) ? ( $data['setup_details']['AMT'] + $data['AMT'] ) : $data['AMT'];
+		$total_amt = ( !empty( $data['setup_details']) && !$trial_allowed ) ? $data['setup_details']['AMT'] : $data['AMT'];
 		$subtotal = $total_amt / ( $tax_rate + 1 );
 		$subtotal = !empty( $subtotal ) ? round( $subtotal, 2 ) : $subtotal;
 
