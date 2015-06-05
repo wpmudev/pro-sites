@@ -1896,7 +1896,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						//If we have blog id
 						if ( ! empty ( $blog_id ) ) {
 
-							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial Amount not confirmed for recurrinf subscription, Please check your associated Paypal account." ) );
+							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial amount not confirmed for subscription, Please check your associated Paypal account." ) );
 
 							//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
 							$expiry = strtotime( '+ 4 Hours' );
@@ -2108,7 +2108,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					} else {
 						//If we have blog id
 						if ( ! empty ( $blog_id ) ) {
-							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial Amount not confirmed for recurring subscription, Please check your associated Paypal account." ) );
+							self::update_pending_reason( $blog_id, $profile_status, '', $_GET['PayerID'], __( "Initial Amount not confirmed for subscription, Please check your associated Paypal account." ) );
 							//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
 							$expiry = strtotime( '+ 4 Hours' );
 							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
@@ -2414,7 +2414,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 									self::$complete_message = sprintf( __( 'Your Credit Card subscription was successful! You should be receiving an email receipt at %s shortly.', 'psts' ), get_blog_option( $blog_id, 'admin_email' ) );
 								}
 							} else {
-								self::update_pending_reason( $blog_id, $profile_status, '', $_GET  ['PAYERID'], __( "Initial Amount not confirmed for recurring subscription, Please check your associated Paypal account." ) );
+								self::update_pending_reason( $blog_id, $profile_status, '', $_GET  ['PAYERID'], __( "Initial Amount not confirmed for subscription, Please check your associated Paypal account." ) );
 
 								//Set expiry for 4 hours from now, and set waiting step as 1, until payment is confirmed from Paypal
 								$expiry = strtotime( '+ 4 Hours' );
