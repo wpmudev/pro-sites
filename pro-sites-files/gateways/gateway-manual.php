@@ -45,7 +45,7 @@ class ProSites_Gateway_Manual {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-user-instruction"><?php echo __( 'User Instructions', 'psts' ) . $psts->help_text( __( 'Manual payment instructions to display on the checkout screen - HTML allowed', 'psts' ) ); ?></th>
 						<td>
-							<textarea name="psts[mp_instructions]" type="text" rows="4" wrap="soft" id="mp_instructions" style="width: 100%;" /><?php echo esc_textarea( $psts->get_setting( 'mp_instructions' ) ); ?></textarea>
+							<textarea name="psts[mp_instructions]" type="text" rows="4" wrap="soft" id="mp_instructions" style="width: 100%;" /><?php echo esc_textarea( stripslashes( $psts->get_setting( 'mp_instructions' ) ) ); ?></textarea>
 						</td>
 					</tr>
 					<tr valign="top">
