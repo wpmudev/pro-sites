@@ -3135,7 +3135,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			$line_obj_sub->custom_id   = $line_obj_sub->id = $data['setup_details']['TRANSACTIONID'];
 			$line_obj_sub->amount      = $data['setup_details']['AMT'];
 			$line_obj_sub->quantity    = 1;
-			$line_obj_sub->description = "One-time Fee";
+			$line_obj_sub->description = "First month charges";
 			$lines[]                   = $line_obj_sub;
 		}
 		//If trial is not allowed, we charge the first payment in init amount
@@ -3161,8 +3161,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$object->tax         = !empty( $data['TAXAMT'] ) ? $data['TAXAMT'] : ( $total_amt - $subtotal ); // optional
 		$object->gateway     = get_class();
 
-		error_log("Object");
-		error_log(json_encode($object));
 		return $object;
 	}
 
