@@ -68,7 +68,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 //			$class_name = 'ProSites_Gateway_2Checkout';
 			$featured_level = $psts->get_setting( 'featured_level' );
 			$plans_table_enabled = $psts->get_setting('plans_table_enabled', 'enabled');
-			
+
 			$coupons_enabled = $psts->get_setting('coupons_enabled');
 			$highlight_featured = $psts->get_setting('psts_checkout_show_featured');
 			$checked = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
