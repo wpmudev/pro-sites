@@ -13,6 +13,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		}
 
 		public static function last_gateway( $blog_id ) {
+
 			// Try to avoid another load
 			if( ! empty( self::$last_site ) && self::$last_site->blog_ID = $blog_id ) {
 				$site = self::$last_site;
@@ -21,7 +22,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 
 			if( ! empty( $site ) ) {
-				return strtolower( $site->gateway );
+				return ProSites_Helper_Gateway::convert_legacy( $site->gateway );
 			} else {
 				return false;
 			}
