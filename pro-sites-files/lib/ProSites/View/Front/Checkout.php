@@ -96,6 +96,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$show_buy_buttons = in_array( 'button', $column_keys );
 			$add_coupon = in_array( 'coupon', $column_keys );
 //			$show_buy_buttons = false;
+			$periods = (array) $psts->get_setting( 'enabled_periods' );
+			$show_periods = 2 <= count( $periods ) ? true : false;
 
 			foreach( $columns as $key => $column ) {
 				$style = true === $column['featured'] ? $feature_style : $normal_style;
@@ -115,8 +117,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					} else {
 						$content .= '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
 					}
-
-					$content .= '<li class="summary">' . ProSites::filter_html( $column['summary'] ) . '</li>';
+					$override = $show_periods ? '' : 'no-periods';
+					$content .= '<li class="summary ' . $override . '">' . ProSites::filter_html( $column['summary'] ) . '</li>';
 				}
 
 				if( $show_feature_table ) {
@@ -196,6 +198,14 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$level_list = get_site_option( 'psts_levels' );
 			$total_plans = count( $level_list );
+			$total_columns = $total_plans + 1;
+
+			$periods = (array) $psts->get_setting( 'enabled_periods' );
+			$show_periods = true;
+			if( 2 > count( $periods ) ) {
+				$total_columns = $total_columns - 1;
+				$show_periods = false;
+			}
 
 			$default_order = array();
 			for( $i = 1; $i <= $total_plans; $i++ ) {
@@ -211,16 +221,26 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$featured_level = $psts->get_setting( 'featured_level' );
 
 			// Initialize all columns
-			for( $i = 0; $i <= $total_plans; $i++ ) {
+			for( $i = 0; $i < $total_columns; $i++ ) {
 				$columns[] = array();
 			}
 
 			$col_count = 0;
 			if( $show_header ) {
-				$columns[ $col_count ]['title'] = '';
-				$columns[ $col_count ]['summary'] = self::get_header_details();
-				$columns[ $col_count ]['featured'] = false;
-				$col_count += 1;
+
+				if( $show_periods ) {
+					$columns[ $col_count ]['title']    = '';
+					$columns[ $col_count ]['summary']  = self::get_header_details();
+					$columns[ $col_count ]['featured'] = false;
+					$col_count += 1;
+				} else {
+					if( $show_features ) {
+						$columns[ $col_count ]['title']    = '';
+						$columns[ $col_count ]['summary']  = '';
+						$columns[ $col_count ]['featured'] = false;
+						$col_count += 1;
+					}
+				}
 
 				foreach( $pricing_levels_order as $level ) {
 					$columns[ $col_count ] = self::get_header_details( $level );
@@ -283,8 +303,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				$col_count = 0;
 				if( $show_header ) {
-					$columns[ $col_count ]['button'] = '';
-					$col_count += 1;
+
+					if( $show_periods || $show_features ) {
+						$columns[ $col_count ]['button'] = '';
+						$col_count += 1;
+					}
 
 					foreach( $pricing_levels_order as $level ) {
 						if( ! self::$new_signup ) {
@@ -326,6 +349,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$recurring = $psts->get_setting( 'recurring_subscriptions', 1 );
 
+			$active_periods = (array) $psts->get_setting( 'enabled_periods' );
+
 			$periods = array(
 				'price_1' => __('every month', 'psts' ),
 				'price_3' => __('every 3 months', 'psts' ),
@@ -347,8 +372,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$plan_text = apply_filters( 'prosites_pricing_labels', array(
 				'payment_type' => __( 'Payment period', 'psts' ),
 				'setup' => __( 'Plus a One Time %s Setup Fee', 'psts' ),
-				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>, ', 'psts' ),
-				'saving' => __( 'saving you <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
+				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>. ', 'psts' ),
+				'saving' => __( 'A saving of <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
 				'monthly_alt' => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
 			), $level );
@@ -356,15 +381,20 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			if( empty( $level ) ) {
 
 				$content = '<div class="period-selector"><div class="heading">' . esc_html( $plan_text['payment_type'] ) . '</div>
-					<select class="chosen">
-					<option value="price_1" ' . selected( self::$default_period, 'price_1', false ) . '>' . esc_html( $payment_type['price_1'] ) . '</option>
-					<option value="price_3" ' . selected( self::$default_period, 'price_3', false ) . '>' . esc_html( $payment_type['price_3'] ) . '</option>
-					<option value="price_12" ' . selected( self::$default_period, 'price_12', false ) . '>' . esc_html( $payment_type['price_12'] ) . '</option>
-				</select></div>';
+				<select class="chosen">';
+				    if( in_array( 1, $active_periods ) ) {
+					    $content .= '<option value="price_1" ' . selected( self::$default_period, 'price_1', false ) . '>' . esc_html( $payment_type['price_1'] ) . '</option>';
+				    }
+					if( in_array( 3, $active_periods ) ) {
+						$content .= '<option value="price_3" ' . selected( self::$default_period, 'price_3', false ) . '>' . esc_html( $payment_type['price_3'] ) . '</option>';
+					}
+					if( in_array( 12, $active_periods ) ) {
+						$content .= '<option value="price_12" ' . selected( self::$default_period, 'price_12', false ) . '>' . esc_html( $payment_type['price_12'] ) . '</option>';
+					}
+				$content .= '</select></div>';
 
 				return $content;
 			} else {
-				global $psts;
 
 				$content = '';
 
@@ -399,7 +429,14 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				$level_details['breakdown'] = array();
 				$level_details['savings_msg'] = array();
+				$period_count = 0;
 				foreach( $periods as $period_key => $period ) {
+
+					if( ! in_array( (int) str_replace( 'price_', '', $period_key ), $active_periods ) ) {
+						continue;
+					}
+
+					$period_count += 1;
 
 					switch( $period_key ) {
 						case 'price_1':
@@ -414,6 +451,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					}
 
 					$display_style = self::$default_period != $period_key ? ' hide' : '';
+					$create_hidden = false;
+					if( ! in_array( (int) str_replace( 'price_', '', self::$default_period ), $active_periods ) &&
+						$period_count == 1 && ! empty( $display_style ) ) {
+						$display_style = '';
+						$create_hidden = (int) str_replace( 'price_', '', $period_key );
+					}
+
 
 					if( ! $recurring ) {
 						$period = $periods_non_recurring[ $period_key ];
@@ -427,6 +471,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$period_content .= '<div class="price-plain hidden plan-' . $level . '' . $months . '-plain">' . $price_plain . '</div>';
 					$period_content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
 					$period_content .= ! empty( $setup_msg ) ? $setup_msg : '';
+					if( ! empty( $create_hidden ) ) {
+						$period_content .= '<div class="hidden" name="single_period">' . $create_hidden . '</div>';
+					}
 					$period_content .= '</div>';
 					$level_details['breakdown'][ $period_key ] = str_replace( 'hide', '', $period_content );
 					$content .= $period_content;
@@ -445,8 +492,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					$summary_msg = sprintf( $plan_text['monthly'] );
 
+
 					if( $months > 1 ) {
 						$summary_msg = sprintf( $plan_text['summary'], $formatted_calculated );
+
 						if( $difference > 0.0 ) {
 							$summary_msg .= sprintf( $plan_text['saving'], $formatted_savings, $months );
 						}

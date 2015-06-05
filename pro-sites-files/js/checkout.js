@@ -455,9 +455,15 @@ jQuery(document).ready(function ($) {
 
         //Update Period as well
         var period_class = $( '.period-selector select').val();
-        var period = parseInt( period_class.replace( 'price_', '' ) );
+        var period = 0;
+        if( typeof period_class !== 'undefined' ) {
+            period = parseInt( period_class.replace( 'price_', '' ) );
+        } else {
+            period = parseInt( $('[name=single_period]' ).html() );
+        }
         $('.gateways [name=period]').val(period);
         $('#prosites-checkout-table').attr('data-period', period);
+
 
     });
 

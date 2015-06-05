@@ -720,6 +720,13 @@ ul.pricing-column ul.feature-section li {
 	/*font-size: 1em;*/
 }
 
+.pricing-column .summary.no-periods {
+    border: 1px solid #B6B6B6;
+    border-style: none solid;
+    /*position:relative;*/
+    /*font-size: 1em;*/
+}
+
 .pricing-column .summary .price .period {
 	/*font-size: 1em;*/
     font-size:0.9em;
