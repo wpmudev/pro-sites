@@ -1478,8 +1478,8 @@ class ProSites_Gateway_Stripe {
 			}
 			if( isset( $line->type) && 'subscription' == $line->type ) {
 				$sub_id = $line->id;
-				$object->level = $line->metadata->level;
-				$object->period = $line->metadata->period;
+				$object->level = isset( $line->metadata->level ) ? $line->metadata->level : '';
+				$object->period = isset( $line->metadata->period ) ? $line->metadata->period : '';
 			}
 		}
 		$object->transaction_lines = $lines;
