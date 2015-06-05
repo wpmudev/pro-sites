@@ -1478,8 +1478,8 @@ class ProSites_Gateway_Stripe {
 			}
 			if( isset( $line->type) && 'subscription' == $line->type ) {
 				$sub_id = $line->id;
-				$object->level = $line->metadata->level;
-				$object->period = $line->metadata->period;
+				$object->level = isset( $line->metadata->level ) ? $line->metadata->level : '';
+				$object->period = isset( $line->metadata->period ) ? $line->metadata->period : '';
 			}
 		}
 		$object->transaction_lines = $lines;
@@ -1497,13 +1497,17 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Evidence -> evidence_from_json()
-		try {
-			$object->evidence = ProSites_Helper_Transaction::evidence_from_json( $data->lines->data[0]->metadata->tax_evidence );
-			$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
-			$object->tax_country_code = $object->billing_country_code;
-			$object->force_country_code = $object->billing_country_code;
-			$object->buyer_ip = ProSites_Helper_Transaction::country_ip_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
-		} catch (Exception $e) {
+		if( isset( $data->lines->data[0]->metadata->tax_evidence ) ) {
+			try {
+				$object->evidence             = ProSites_Helper_Transaction::evidence_from_json( $data->lines->data[0]->metadata->tax_evidence );
+				$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
+				$object->tax_country_code     = $object->billing_country_code;
+				$object->force_country_code   = $object->billing_country_code;
+				$object->buyer_ip             = ProSites_Helper_Transaction::country_ip_from_data( $data->lines->data[0]->metadata->tax_evidence, $object );
+			} catch ( Exception $e ) {
+				$object->evidence = null;
+			}
+		} else {
 			$object->evidence = null;
 		}
 
