@@ -684,6 +684,7 @@ ul.pricing-column ul.feature-section li {
 	border: 1px solid #B6B6B6;
 	position: relative;
 	border-bottom: none;
+    width: 100%;
 }
 
 .pricing-column .title:after {

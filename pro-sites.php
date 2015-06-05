@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5
+Version: 3.5.0.1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5';
+	var $version = '3.5.0.1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -480,7 +480,10 @@ Thanks!", 'psts' ),
 			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_daily_stats` TO `{$wpdb->base_prefix}pro_sites_daily_stats`" );
 			delete_site_option( "supporter_installed" );
 		}
-		define( 'DO_NOT_UPGRADE_GLOBAL_TABLES', false );
+
+		if( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
+			define( 'DO_NOT_UPGRADE_GLOBAL_TABLES', false );
+		}
 
 		$table1 = "CREATE TABLE {$wpdb->base_prefix}pro_sites (
 		  blog_ID bigint(20) NOT NULL,
@@ -1126,7 +1129,7 @@ Thanks!", 'psts' ),
 		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
 
 		//default brand title
-		$default_title = ProSites::get_default_settings_array();
+		$default_title = $this->get_default_settings_array();
 		$default_title = $default_title['rebrand'];
 		//insert new page if not existing
 		switch_to_blog( $checkout_site );
