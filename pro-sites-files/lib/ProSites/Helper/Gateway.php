@@ -10,6 +10,15 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 			$gateways        = array();
 			$active_gateways = (array) $psts->get_setting( 'gateways_enabled' );
 
+			//Get the enabled Modules
+			$modules = $psts->get_setting( 'modules_enabled' );
+			$modules = ! empty( $modules ) ? $modules : array();
+
+			//Check if Bulk Upgrade is enabled
+			if ( in_array( 'ProSites_Module_BulkUpgrades', $modules ) ) {
+				$active_gateways[] = "ProSites_Module_BulkUpgrades";
+			}
+
 			// Force manual if no gateways are active
 			if ( empty( $active_gateways ) ) {
 				$active_gateways = array( 'ProSites_Gateway_Manual' );
@@ -17,7 +26,12 @@ if ( ! class_exists( 'ProSites_Helper_Gateway' ) ) {
 
 			foreach ( $active_gateways as $active_gateway ) {
 				if ( method_exists( $active_gateway, 'get_name' ) ) {
-					$name                     = call_user_func( $active_gateway . '::get_name' );
+					$name = call_user_func( $active_gateway . '::get_name' );
+
+					//Used for displaying info o site management page
+					if ( $active_gateway == "ProSites_Module_BulkUpgrades" ) {
+						$name = array( "bulk upgrade" => $name );
+					}
 					$gateways[ key( $name ) ] = array(
 						'name'  => array_pop( $name ),
 						'class' => $active_gateway

@@ -9,14 +9,19 @@ class ProSites_Module_BulkUpgrades {
 	static $user_label;
 	static $user_description;
 
+	function __construct() {
+		add_action( 'psts_subscription_info', array( &$this, 'subscription_info' ) );
+		add_action( 'psts_subscriber_info', array( &$this, 'subscriber_info' ) );
+	}
+
 	// Module name for registering
 	public static function get_name() {
-		return __('Bulk Upgrades', 'psts');
+		return __( 'Bulk Upgrades', 'psts' );
 	}
 
 	// Module description for registering
 	public static function get_description() {
-		return __('Allows you to sell Pro Site level upgrades in bulk packages.', 'psts');
+		return __( 'Allows you to sell Pro Site level upgrades in bulk packages.', 'psts' );
 	}
 
 	public static function run_critical_tasks() {
@@ -297,7 +302,7 @@ class ProSites_Module_BulkUpgrades {
 					<th scope="row"><?php _e( 'PayPal Email', 'psts' ) ?></th>
 					<td>
 						<input value="<?php echo esc_attr( $psts->get_setting( 'bu_email' ) ); ?>" size="50"
-						       name="psts[bu_email]" type="text"/>
+							name="psts[bu_email]" type="text"/>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -384,7 +389,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-bulk-payment-type"><?php echo __( 'PayPal Payment Type', 'psts' ) . $psts->help_text( __( 'Recurring = PayPal 12 month subscription', 'psts' ) ); ?></th>
+						class="psts-help-div psts-bulk-payment-type"><?php echo __( 'PayPal Payment Type', 'psts' ) . $psts->help_text( __( 'Recurring = PayPal 12 month subscription', 'psts' ) ); ?></th>
 					<td><select name="psts[bu_payment_type]" class="chosen">
 							<option
 								value="single"<?php selected( $psts->get_setting( 'bu_payment_type' ), 'single' ); ?>><?php _e( 'Single', 'psts' ) ?></option>
@@ -395,7 +400,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-credit-level"><?php echo __( 'Credit Level', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-credit-level"><?php echo __( 'Credit Level', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to.', 'psts' ) ); ?></th>
 					<td>
 						<select name="psts[bu_level]" class="chosen">
 							<?php
@@ -409,7 +414,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-option1-settings"><?php echo __( 'Option 1 Settings', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to. One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-option1-settings"><?php echo __( 'Option 1 Settings', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to. One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
 							<select name="psts[bu_credits_1]" class="chosen">
 								<?php
@@ -429,7 +434,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-option2-settings"><?php echo __( 'Option 2 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-option2-settings"><?php echo __( 'Option 2 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
 							<select name="psts[bu_credits_2]" class="chosen">
 								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
@@ -450,7 +455,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-option3-settings"><?php echo __( 'Option 3 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-option3-settings"><?php echo __( 'Option 3 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
 							<select name="psts[bu_credits_3]" class="chosen">
 								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
@@ -471,7 +476,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-option4-settings"><?php echo __( 'Option 4 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-option4-settings"><?php echo __( 'Option 4 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
 							<select name="psts[bu_credits_4]" class="chosen">
 								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
@@ -492,41 +497,41 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-bulk-upgrade-option-message"><?php echo __( 'Option Message', 'psts' ) . $psts->help_text( __( 'The keywords CREDITS, PRICE, and LEVEL will be replaced with their respective values.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-bulk-upgrade-option-message"><?php echo __( 'Option Message', 'psts' ) . $psts->help_text( __( 'The keywords CREDITS, PRICE, and LEVEL will be replaced with their respective values.', 'psts' ) ); ?></th>
 					<td>
 						<input type="text" name="psts[bu_option_msg]"
-						       value="<?php echo esc_attr( $psts->get_setting( 'bu_option_msg' ) ); ?>"
-						       style="width: 95%"/>
+							value="<?php echo esc_attr( $psts->get_setting( 'bu_option_msg' ) ); ?>"
+							style="width: 95%"/>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-bulk-upgrade-checkout-message"><?php echo __( 'Checkout Message', 'psts' ) . $psts->help_text( __( 'Required - HTML allowed - This message is displayed at the top of the "Bulk Upgrades" page.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-bulk-upgrade-checkout-message"><?php echo __( 'Checkout Message', 'psts' ) . $psts->help_text( __( 'Required - HTML allowed - This message is displayed at the top of the "Bulk Upgrades" page.', 'psts' ) ); ?></th>
 					<td>
 						<textarea name="psts[bu_checkout_msg]" rows="10" wrap="soft"
-						          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'bu_checkout_msg' ) ); ?></textarea>
+							style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'bu_checkout_msg' ) ); ?></textarea>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Payment Message', 'psts' ) ?></th>
 					<td>
 						<input type="text" name="psts[bu_payment_msg]"
-						       value="<?php echo esc_attr( $psts->get_setting( 'bu_payment_msg' ) ); ?>"
-						       style="width: 95%"/>
+							value="<?php echo esc_attr( $psts->get_setting( 'bu_payment_msg' ) ); ?>"
+							style="width: 95%"/>
 						<br/></td>
 				</tr>
 				<tr valign="top" class="psts-bulk-checkout-form">
 					<th scope="row"
-					    class="psts-help-div psts-bulk-upgrade-checkout"><?php echo __( 'Checkout Form Settings', 'psts' ) . $psts->help_text( __( 'Configure how the Bulk Upgrades option is displayed on the main checkout form:', 'psts' ) ); ?></th>
+						class="psts-help-div psts-bulk-upgrade-checkout"><?php echo __( 'Checkout Form Settings', 'psts' ) . $psts->help_text( __( 'Configure how the Bulk Upgrades option is displayed on the main checkout form:', 'psts' ) ); ?></th>
 					<td>
 						<label><span class="psts-label"><?php _e( 'Name', 'psts' ); ?></span><input type="text"
-						                                                                            name="psts[bu_name]"
-						                                                                            value="<?php echo esc_attr( $psts->get_setting( 'bu_name' ) ); ?>"/>
+								name="psts[bu_name]"
+								value="<?php echo esc_attr( $psts->get_setting( 'bu_name' ) ); ?>"/>
 						</label><br/>
 						<label><span class="psts-label"><?php _e( 'Link Message', 'psts' ); ?></span><input type="text"
-						                                                                                    size="60"
-						                                                                                    name="psts[bu_link_msg]"
-						                                                                                    value="<?php echo esc_attr( $psts->get_setting( 'bu_link_msg' ) ); ?>"/>
+								size="60"
+								name="psts[bu_link_msg]"
+								value="<?php echo esc_attr( $psts->get_setting( 'bu_link_msg' ) ); ?>"/>
 						</label>
 					</td>
 				</tr>
@@ -634,7 +639,7 @@ class ProSites_Module_BulkUpgrades {
 	public static function checkout_msg( $content, $blog_id ) {
 		global $psts;
 
-		if( ! empty( $blog_id ) ) {
+		if ( ! empty( $blog_id ) ) {
 			$content .= '<a class="pblg-checkout-opt" id="psts-bulk-option" href="' . get_admin_url( $blog_id, 'admin.php?page=psts-bulk-upgrades', 'http' ) . '">' . $psts->get_setting( 'bu_link_msg' ) . '</a>';
 		}
 
@@ -937,7 +942,7 @@ class ProSites_Module_BulkUpgrades {
 						</table>
 						<p class="submit">
 							<input type="submit" name="submit_process"
-							       value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
+								value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
 						</p>
 					<?php } ?>
 
@@ -1093,7 +1098,7 @@ class ProSites_Module_BulkUpgrades {
 						<?php if ( $upgrade_credits > 0 ) { ?>
 							<p class="submit">
 								<input type="submit" id="submit_process" name="submit_process"
-								       value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
+									value="<?php _e( 'Upgrade Sites', 'psts' ) ?> &raquo;"/>
 							</p>
 						<?php } ?>
 					</div>
@@ -1118,6 +1123,46 @@ class ProSites_Module_BulkUpgrades {
 
 	public static function hide_from_pricing_table() {
 		return true;
+	}
+
+	public static function get_slug() {
+		return "bulk upgrade";
+	}
+
+	/**
+	 * Fetch Subscription details for the current blog, if this is the gateay used for payment
+	 *
+	 * @param $blog_id
+	 *
+	 * @return bool
+	 */
+	function subscription_info( $blog_id ) {
+		global $psts;
+
+		if ( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return false;
+		}
+		$content = '<ul>';
+		$content .= '<li>' . __( 'Payment Method: <strong>' . self::get_name() . '</strong>', 'psts' ) . '</li>';
+		$content .= "</ul>";
+		echo $content;
+	}
+
+	function subscriber_info( $blog_id ) {
+		global $psts;
+
+		if ( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return false;
+		}
+		$email = get_blog_option( $blog_id, 'admin_email' );
+		$user  = get_user_by( 'email', $email );
+		$name  = ! empty( $user->data ) && ! empty( $user->data->display_name ) ? $user->data->display_name : $user->data->user_nicename;
+		if ( ! empty( $name ) ) {
+			echo '<p> <strong>' . $name . '</strong>';
+			echo "<p>Email: <strong>" . $email . "</strong></p>";
+		} else {
+			echo __( "Subscriber details not available.", 'psts' );
+		}
 	}
 
 }
