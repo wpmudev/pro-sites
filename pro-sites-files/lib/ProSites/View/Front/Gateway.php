@@ -248,6 +248,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
+				$content .= apply_filters( 'prosites_myaccount_details', '', $blog_id );
+
 			}
 
 			return '<div id="psts_existing_info"><h2>' . esc_html__( 'Your current plan', 'psts' ) . '</h2>' . $content . '</div>';

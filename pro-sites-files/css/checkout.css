@@ -109,11 +109,14 @@ table#psts_checkout_grid {
 #psts_checkout_grid label {
 	cursor: pointer;
 }
-#psts_checkout_grid #psts-free-option, #psts_checkout_grid #psts-bulk-option {
+#psts_checkout_grid #psts-free-option, #psts_checkout_grid #psts-bulk-option, .bulk-upgrade-link {
 	display: block;
 	width: 95%;
 	text-decoration: none;
+    text-align: center;
 }
+
+
 #pypl_cancel {
   margin-left: 25px;
 }

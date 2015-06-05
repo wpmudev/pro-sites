@@ -220,7 +220,8 @@
 }
 
 #psts-bulk-option {
-	text-transform:lowercase;
+    /*font-size:0.9em;*/
+    text-align: center;
 }
 
 #comparison-table .module.features {

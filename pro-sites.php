@@ -4843,13 +4843,12 @@ function admin_levels() {
 			 */
 //			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
 		} else { //blogid not set
-
+			$blog_id = 0;
 			if ( $blogs ) {
 				$content .= '<h3>' . __( 'Please choose a site to Upgrade or Modify:', 'psts' ) . '</h3>';
 				$content .= '<ul>';
 
 				foreach ( $blogs as $blog ) {
-
 					$has_blog = true;
 
 					$level         = $this->get_level( $blog->userblog_id );
@@ -4859,6 +4858,9 @@ function admin_levels() {
 					 */
 					$level_label   = ( $level ) ? $this->get_level_setting( $level, 'name' ) : sprintf( __( 'Not %s', 'psts' ), $this->get_setting( 'rebrand' ) );
 					$upgrade_label = is_pro_site( $blog->userblog_id ) ? sprintf( __( 'Modify "%s"', 'psts' ), $blog->blogname ) : sprintf( __( 'Upgrade "%s"', 'psts' ), $blog->blogname );
+					if( empty( $blog_id ) && is_pro_site( $blog->userblog_id ) ) {
+						$blog_id = $blog->userblog_id;
+					}
 
 					$content .= '<li><a href="' . $blog->checkout_url . '">' . $blog->upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $blog->level_label . '</li>';
 				}
@@ -4881,6 +4883,8 @@ function admin_levels() {
 				if( $allow_multi ) {
 					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
+				$content .= apply_filters( 'prosites_myaccounts_list', '', $blog_id );
+
 			}
 
 			//show message if no valid blogs

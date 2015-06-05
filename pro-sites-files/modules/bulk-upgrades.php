@@ -19,28 +19,29 @@ class ProSites_Module_BulkUpgrades {
 		return __('Allows you to sell Pro Site level upgrades in bulk packages.', 'psts');
 	}
 
-	function __construct() {
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_action( 'admin_menu', array( &$this, 'plug_page' ), 110 );
+	public static function run_critical_tasks() {
+		add_action( 'admin_menu', array( get_class(), 'plug_page' ), 110 );
 
 		// Edit profile
-		add_action( 'profile_update', array( &$this, 'user_profile_update' ) );
-		add_action( 'edit_user_profile', array( &$this, 'user_profile_fields' ) );
-		add_action( 'show_user_profile', array( &$this, 'user_profile_fields' ) );
+		add_action( 'profile_update', array( get_class(), 'user_profile_update' ) );
+		add_action( 'edit_user_profile', array( get_class(), 'user_profile_fields' ) );
+		add_action( 'show_user_profile', array( get_class(), 'user_profile_fields' ) );
 
 		//checkout form message
-		add_filter( 'psts_checkout_grid_before_free', array( &$this, 'checkout_grid_msg' ), 10, 4 );
+		add_filter( 'psts_checkout_grid_before_free', array( get_class(), 'checkout_grid_msg' ), 10, 4 );
+		add_filter( 'prosites_myaccount_details', array( get_class(), 'checkout_msg' ), 5, 2 );
+		add_filter( 'prosites_myaccounts_list', array( get_class(), 'checkout_msg' ), 5, 2 );
 
 		//handle IPN notifications
-		add_action( 'wp_ajax_nopriv_psts_bu_ipn', array( &$this, 'ipn_handler' ) );
+		add_action( 'wp_ajax_nopriv_psts_bu_ipn', array( get_class(), 'ipn_handler' ) );
 
-		add_action( 'admin_bar_menu', array( &$this, 'add_menu_admin_bar' ), 100 );
+		add_action( 'admin_bar_menu', array( get_class(), 'add_menu_admin_bar' ), 100 );
 
 		self::$user_label       = __( 'Bulk Upgrades', 'psts' );
 		self::$user_description = __( 'Can upgrade in bulk packages', 'psts' );
 	}
 
-	function add_menu_admin_bar() {
+	public static function add_menu_admin_bar() {
 		global $wp_admin_bar, $blog_id, $wp_version, $psts;
 
 		if ( is_main_site() || ! is_admin_bar_showing() || ! is_user_logged_in() ) {
@@ -60,19 +61,19 @@ class ProSites_Module_BulkUpgrades {
 		}
 	}
 
-	function plug_page() {
+	public static function plug_page() {
 		global $psts;
 		//add it under the pro blogs menu
 		if ( ! is_main_site() ) {
 			$page = add_submenu_page( 'psts-checkout', __( 'Bulk Upgrades', 'psts' ), __( 'Bulk Upgrades', 'psts' ), 'manage_options', 'psts-bulk-upgrades', array(
-				&$this,
+				get_class(),
 				'bulk_upgrades'
 			) );
-			add_action( 'admin_print_styles-' . $page, array( &$this, 'admin_css' ) );
+			add_action( 'admin_print_styles-' . $page, array( get_class(), 'admin_css' ) );
 		}
 	}
 
-	function get_credits( $uid ) {
+	public static function get_credits( $uid ) {
 		$credits = get_user_meta( $uid, "supporter_credits", true );
 		if ( empty( $credits ) || $credits < 0 ) {
 			$credits = 0;
@@ -81,7 +82,7 @@ class ProSites_Module_BulkUpgrades {
 		return $credits;
 	}
 
-	function debit_credits( $uid, $credits ) {
+	public static function debit_credits( $uid, $credits ) {
 		$old_credits = get_user_meta( $uid, "supporter_credits", true );
 		if ( empty( $old_credits ) || $old_credits < 0 ) {
 			$old_credits = 0;
@@ -93,7 +94,7 @@ class ProSites_Module_BulkUpgrades {
 		update_user_meta( $uid, 'supporter_credits', $new_credits );
 	}
 
-	function credit_credits( $uid, $credits ) {
+	public static function credit_credits( $uid, $credits ) {
 		$old_credits = get_user_meta( $uid, "supporter_credits", true );
 		if ( empty( $old_credits ) || $old_credits < 0 ) {
 			$old_credits = 0;
@@ -105,15 +106,15 @@ class ProSites_Module_BulkUpgrades {
 		update_user_meta( $uid, 'supporter_credits', $new_credits );
 	}
 
-	function get_note( $uid ) {
+	public static function get_note( $uid ) {
 		return get_user_meta( $uid, 'update_note', true );
 	}
 
-	function update_note( $uid, $note = '' ) {
+	public static function update_note( $uid, $note = '' ) {
 		update_user_meta( $uid, 'update_note', $note );
 	}
 
-	function ipn_handler() {
+	public static function ipn_handler() {
 		global $psts;
 
 		if ( ! isset( $_POST['payment_status'] ) ) {
@@ -167,8 +168,8 @@ class ProSites_Module_BulkUpgrades {
 					list( $bid, $uid, $credits, $amount, $currency, $stamp ) = explode( '_', $_POST['custom'] );
 					//supporter_insert_update_transaction($bid, $_POST['txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
 					do_action( 'supporter_payment_processed', $bid, $amount, 'bulk' );
-					$this->credit_credits( $uid, $credits );
-					$this->update_note( $uid, '' );
+					self::credit_credits( $uid, $credits );
+					self::update_note( $uid, '' );
 					break;
 
 				case 'Reversed':
@@ -176,8 +177,8 @@ class ProSites_Module_BulkUpgrades {
 					$note = __( 'Last transaction has been reversed. Reason: Payment has been reversed (charge back)', 'psts' );
 					list( $bid, $uid, $credits, $amount, $currency, $stamp ) = explode( '_', $_POST['custom'] );
 					//supporter_insert_update_transaction($bid, $_POST['parent_txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
-					$this->debit_credits( $uid, $credits );
-					$this->update_note( $uid, $note );
+					self::debit_credits( $uid, $credits );
+					self::update_note( $uid, $note );
 					break;
 
 				case 'Refunded':
@@ -185,8 +186,8 @@ class ProSites_Module_BulkUpgrades {
 					$note = __( 'Last transaction has been reversed. Reason: Payment has been refunded', 'psts' );
 					list( $bid, $uid, $credits, $amount, $currency, $stamp ) = explode( '_', $_POST['custom'] );
 					//supporter_insert_update_transaction($bid, $_POST['parent_txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
-					$this->debit_credits( $uid, $credits );
-					$this->update_note( $uid, $note );
+					self::debit_credits( $uid, $credits );
+					self::update_note( $uid, $note );
 					break;
 
 				case 'Denied':
@@ -197,7 +198,7 @@ class ProSites_Module_BulkUpgrades {
 					if ( empty( $paypal_ID ) ) {
 						$paypal_ID = $_POST['txn_id'];
 					}
-					$this->update_note( $uid, $note );
+					self::update_note( $uid, $note );
 					break;
 
 				case 'Pending':
@@ -217,7 +218,7 @@ class ProSites_Module_BulkUpgrades {
 					$note        = __( 'Last transaction is pending. Reason: ', 'psts' ) . ( isset( $pending_str[ $reason ] ) ? $pending_str[ $reason ] : $pending_str['*'] );
 					list( $bid, $uid, $credits, $amount, $currency, $stamp ) = explode( '_', $_POST['custom'] );
 					//supporter_insert_update_transaction($bid, $_POST['txn_id'], $_POST['payment_type'], $stamp, $amount, $currency, $_POST['payment_status']);
-					$this->update_note( $uid, $note );
+					self::update_note( $uid, $note );
 					break;
 
 				default:
@@ -227,13 +228,13 @@ class ProSites_Module_BulkUpgrades {
 		}
 	}
 
-	function user_profile_update() {
+	public static function user_profile_update() {
 		global $current_user;
 		$user_id = $_REQUEST['user_id'];
 
 		if ( is_super_admin() && isset( $_POST['psts_credits'] ) ) {
-			$this->credit_credits( $user_id, intval( $_POST['psts_credits'] ) );
-			$this->update_note( $user_id, sprintf( __( '%s bulk upgrade credits were manually added to your account by an admin.', 'psts' ), intval( $_POST['psts_credits'] ) ) );
+			self::credit_credits( $user_id, intval( $_POST['psts_credits'] ) );
+			self::update_note( $user_id, sprintf( __( '%s bulk upgrade credits were manually added to your account by an admin.', 'psts' ), intval( $_POST['psts_credits'] ) ) );
 		}
 	}
 
@@ -241,7 +242,7 @@ class ProSites_Module_BulkUpgrades {
 	//---Output Functions-----------------------------------------------------//
 	//------------------------------------------------------------------------//
 
-	function user_profile_fields() {
+	public static function user_profile_fields() {
 		global $current_user;
 
 		//only super admins can manually give credits
@@ -259,7 +260,7 @@ class ProSites_Module_BulkUpgrades {
 		<table class="form-table">
 			<tr>
 				<th align="right"><?php _e( 'Current Credits:', 'psts' ); ?></th>
-				<td><?php printf( __( 'This user has %s upgrade credits in their account.', 'psts' ), '<strong>' . number_format_i18n( $this->get_credits( $user_id ) ) . '</strong>' ) . '</p>'; ?></td>
+				<td><?php printf( __( 'This user has %s upgrade credits in their account.', 'psts' ), '<strong>' . number_format_i18n( self::get_credits( $user_id ) ) . '</strong>' ) . '</p>'; ?></td>
 			</tr>
 			<tr>
 				<th align="right">
@@ -537,7 +538,7 @@ class ProSites_Module_BulkUpgrades {
 	<?php
 	}
 
-	function paypal_button_output( $option ) {
+	public static function paypal_button_output( $option ) {
 		global $wpdb, $current_site, $psts, $user_ID;
 
 		if ( $psts->get_setting( 'bu_status' ) == 'live' ) {
@@ -618,23 +619,34 @@ class ProSites_Module_BulkUpgrades {
 		return $button;
 	}
 
-	function checkout_grid_msg( $content, $blog_id, $periods, $free_width ) {
+	public static function checkout_grid_msg( $content, $blog_id, $periods, $free_width ) {
 		global $psts;
 
 		$content .= '<tr class="psts_level level-bulk">
 			<td valign="middle" class="level-name"><h3>' . $psts->get_setting( 'bu_name' ) . '</h3></td>';
 		$content .= '<td class="level-option" colspan="' . count( $periods ) . '">';
-		$content .= '<a class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-bulk-option" href="' . get_admin_url( $blog_id, 'admin.php?page=psts-bulk-upgrades', 'http' ) . '">' . $psts->get_setting( 'bu_link_msg' ) . '</a>';
+		$content .= '<a class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-bulk-option" href="' . get_admin_url( $blog_id, 'admin.php?page=psts-settings&tab=bulkupgrades', 'http' ) . '">' . $psts->get_setting( 'bu_link_msg' ) . '</a>';
 		$content .= '</td></tr>';
 
 		return $content;
 	}
 
+	public static function checkout_msg( $content, $blog_id ) {
+		global $psts;
+
+		if( ! empty( $blog_id ) ) {
+			$content .= '<a class="pblg-checkout-opt" id="psts-bulk-option" href="' . get_admin_url( $blog_id, 'admin.php?page=psts-bulk-upgrades', 'http' ) . '">' . $psts->get_setting( 'bu_link_msg' ) . '</a>';
+		}
+
+		return $content;
+	}
+
+
 	//------------------------------------------------------------------------//
 	//---Page Output Functions------------------------------------------------//
 	//------------------------------------------------------------------------//
 
-	function admin_css() {
+	public static function admin_css() {
 		?>
 		<style type="text/css">
 			.supporterlist h4 {
@@ -716,7 +728,7 @@ class ProSites_Module_BulkUpgrades {
 	<?php
 	}
 
-	function bulk_upgrades() {
+	public static function bulk_upgrades() {
 		global $wpdb, $psts, $current_user, $user_ID;
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -731,7 +743,7 @@ class ProSites_Module_BulkUpgrades {
 
 		//handle adding new blogs
 		if ( isset( $_POST['submit_process'] ) ) {
-			$credits = $this->get_credits( $user_ID );
+			$credits = self::get_credits( $user_ID );
 			if ( $credits < 1 ) {
 				wp_die( __( 'You must purchase more Pro Site credits in order to upgrade sites.', 'psts' ) );
 			}
@@ -750,14 +762,14 @@ class ProSites_Module_BulkUpgrades {
 					}
 				}
 			}
-			$this->debit_credits( $user_ID, $upgraded_blogs );
+			self::debit_credits( $user_ID, $upgraded_blogs );
 			update_user_meta( $user_ID, 'psts_upgraded', $upgrade_hist ); //save history of blogs this blog has upgraded
 			echo '<div id="message" class="updated fade"><p>' . sprintf( __( '%s Sites Upgraded.', 'psts' ), $upgraded_blogs ) . '</p></div>';
 		}
 
 		$now             = time();
-		$note            = $this->get_note( $user_ID );
-		$upgrade_credits = $this->get_credits( $user_ID );
+		$note            = self::get_note( $user_ID );
+		$upgrade_credits = self::get_credits( $user_ID );
 		$message         = $psts->get_setting( 'bu_checkout_msg' );
 		?>
 		<div class="wrap">
@@ -814,7 +826,7 @@ class ProSites_Module_BulkUpgrades {
 						$psts->get_level_setting( $psts->get_setting( 'bu_level' ), 'name' )
 					), $psts->get_setting( 'bu_option_msg' ) );
 					echo '<tr class="supporterlist"><td valign="middle"><h4>' . $psts->format_currency( false, $psts->get_setting( 'bu_price_1' ) / $psts->get_setting( 'bu_credits_1' ) ) . '<span> ' . __( 'Per Site', 'psts' ) . '</span></h4><p>' . $payment_message . '</p></td><td align="center" valign="middle"><h4 style="margin-bottom: 0px;" class="supportercost">' . $psts->format_currency( false, $psts->get_setting( 'bu_price_1' ) ) . '</h4><span class="supportercosthead">' . __( 'Per Year', 'psts' ) . '</span><p class="supportercostperday">' . sprintf( __( 'For %d Sites', 'psts' ), $psts->get_setting( 'bu_credits_1' ) ) . '</p></td><td align="right">';
-					echo $this->paypal_button_output( 1 );
+					echo self::paypal_button_output( 1 );
 					echo '</td></tr>';
 
 					if ( $psts->get_setting( 'bu_credits_2' ) ) {
@@ -828,7 +840,7 @@ class ProSites_Module_BulkUpgrades {
 							$psts->get_level_setting( $psts->get_setting( 'bu_level' ), 'name' )
 						), $psts->get_setting( 'bu_option_msg' ) );
 						echo '<tr class="supporterlist"><td valign="middle"><h4>' . $psts->format_currency( false, $psts->get_setting( 'bu_price_2' ) / $psts->get_setting( 'bu_credits_2' ) ) . '<span> ' . __( 'Per Site', 'psts' ) . '</span></h4><p>' . $payment_message . '</p></td><td align="center" valign="middle"><h4 style="margin-bottom: 0px;" class="supportercost">' . $psts->format_currency( false, $psts->get_setting( 'bu_price_2' ) ) . '</h4><span class="supportercosthead">' . __( 'Per Year', 'psts' ) . '</span><p class="supportercostperday">' . sprintf( __( 'For %d Sites', 'psts' ), $psts->get_setting( 'bu_credits_2' ) ) . '</p></td><td align="right">';
-						echo $this->paypal_button_output( 2 );
+						echo self::paypal_button_output( 2 );
 						echo '</td></tr>';
 					}
 
@@ -843,7 +855,7 @@ class ProSites_Module_BulkUpgrades {
 							$psts->get_level_setting( $psts->get_setting( 'bu_level' ), 'name' )
 						), $psts->get_setting( 'bu_option_msg' ) );
 						echo '<tr class="supporterlist"><td valign="middle"><h4>' . $psts->format_currency( false, $psts->get_setting( 'bu_price_3' ) / $psts->get_setting( 'bu_credits_3' ) ) . '<span> ' . __( 'Per Site', 'psts' ) . '</span></h4><p>' . $payment_message . '</p></td><td align="center" valign="middle"><h4 style="margin-bottom: 0px;" class="supportercost">' . $psts->format_currency( false, $psts->get_setting( 'bu_price_3' ) ) . '</h4><span class="supportercosthead">' . __( 'Per Year', 'psts' ) . '</span><p class="supportercostperday">' . sprintf( __( 'For %d Sites', 'psts' ), $psts->get_setting( 'bu_credits_3' ) ) . '</p></td><td align="right">';
-						echo $this->paypal_button_output( 3 );
+						echo self::paypal_button_output( 3 );
 						echo '</td></tr>';
 					}
 
@@ -858,7 +870,7 @@ class ProSites_Module_BulkUpgrades {
 							$psts->get_level_setting( $psts->get_setting( 'bu_level' ), 'name' )
 						), $psts->get_setting( 'bu_option_msg' ) );
 						echo '<tr class="supporterlist"><td valign="middle"><h4>' . $psts->format_currency( false, $psts->get_setting( 'bu_price_4' ) / $psts->get_setting( 'bu_credits_4' ) ) . '<span> ' . __( 'Per Site', 'psts' ) . '</span></h4><p>' . $payment_message . '</p></td><td align="center" valign="middle"><h4 style="margin-bottom: 0px;" class="supportercost">' . $psts->format_currency( false, $psts->get_setting( 'bu_price_4' ) ) . '</h4><span class="supportercosthead">' . __( 'Per Year', 'psts' ) . '</span><p class="supportercostperday">' . sprintf( __( 'For %d Sites', 'psts' ), $psts->get_setting( 'bu_credits_4' ) ) . '</p></td><td align="right">';
-						echo $this->paypal_button_output( 4 );
+						echo self::paypal_button_output( 4 );
 						echo '</td></tr>';
 					}
 
