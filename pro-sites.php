@@ -1125,12 +1125,15 @@ Thanks!", 'psts' ),
 		//allow overriding and changing the root site to put the checkout page on
 		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
 
+		//default brand title
+		$default_title = get_default_settings_array();
+		$default_title = $default_title['rebrand'];
 		//insert new page if not existing
 		switch_to_blog( $checkout_site );
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
 		if ( ! $page || $page->post_status == 'trashed' ) {
 			$id = wp_insert_post( array(
-				'post_title'     => $this->get_setting( 'rebrand' ),
+				'post_title'     => $this->get_setting( 'rebrand', $default_title ),
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
 				'comment_status' => 'closed',
