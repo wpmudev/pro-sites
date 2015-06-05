@@ -546,6 +546,8 @@ class ProSites_Module_BulkUpgrades {
 	public static function paypal_button_output( $option ) {
 		global $wpdb, $current_site, $psts, $user_ID;
 
+		$blog_id = get_current_blog_id();
+
 		if ( $psts->get_setting( 'bu_status' ) == 'live' ) {
 			$action = 'https://www.paypal.com/cgi-bin/webscr';
 		} else {
@@ -574,6 +576,7 @@ class ProSites_Module_BulkUpgrades {
 			$button = '
 			<form action="' . $action . '" method="post">
 				<input type="hidden" name="cmd" value="_xclick">
+				<input type="hidden" name="rm" value="2">
 				<input type="hidden" name="business" value="' . $psts->get_setting( 'bu_email' ) . '">
 				<input type="hidden" name="item_name" value="' . esc_attr( $name ) . '">
 				<input type="hidden" name="item_number" value="' . $user_ID . '_' . $credits . '">
@@ -599,6 +602,7 @@ class ProSites_Module_BulkUpgrades {
 			$button = '
 			<form action="' . $action . '" method="post">
 				<input type="hidden" name="cmd" value="_xclick-subscriptions">
+				<input type="hidden" name="rm" value="2">
 				<input type="hidden" name="business" value="' . $psts->get_setting( 'bu_email' ) . '">
     		<input type="hidden" name="item_name" value="' . esc_attr( $name ) . '">
 				<input type="hidden" name="item_number" value="' . $user_ID . '_' . $credits . '">

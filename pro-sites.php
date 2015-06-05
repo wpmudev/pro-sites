@@ -461,7 +461,7 @@ Thanks!", 'psts' ),
 			'uh_level'                 => 1,
 			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
 			'co_pricing'               => 'disabled',
-			'plans_table_enabled'      => 1,
+			'plans_table_enabled'      => 'enabled',
 		);
 	}
 
@@ -4310,7 +4310,7 @@ function admin_levels() {
 		global $wpdb;
 		$curr = '';
 
-		$use_plans_table    = $this->get_setting( 'plans_table_enabled' ) ? $this->get_setting( 'plans_table_enabled' ) : 'disabled';
+		$use_plans_table    = $this->get_setting( 'plans_table_enabled', 'enabled' );
 		$show_pricing_table = $this->get_setting( 'comparison_table_enabled' ) ? $this->get_setting( 'comparison_table_enabled' ) : $this->get_setting( 'co_pricing' );
 		$content            = "";
 		include_once $this->plugin_dir . 'lib/psts_pricing_table.php';

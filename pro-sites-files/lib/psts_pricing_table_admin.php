@@ -290,7 +290,7 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		}
 
 		$enable_pricing_value = $psts->get_setting( 'comparison_table_enabled' ) ? $psts->get_setting( 'comparison_table_enabled' ) : $psts->get_setting( 'co_pricing' );
-		$enable_plans_table   = $psts->get_setting( 'plans_table_enabled' ) ? $psts->get_setting( 'plans_table_enabled' ) : 'disabled';
+		$enable_plans_table   = $psts->get_setting( 'plans_table_enabled', 'enabled' );
 
 		if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == 'post' ) {
 			if ( array_key_exists( 'comparison_table_enabled', $_POST['psts'] ) ) {
