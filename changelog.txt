@@ -30,6 +30,7 @@ Change Log:
 - Fixed: Plugin Path variable
 - Fixed: Translatable strings
 - Fixed: Checkout url ( displayed if quota is exceeded ) on media page
+- New UI: Updated many of the setting pages to make it easier to find your settings. Also includes drag and drop reordering of some elements.
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
