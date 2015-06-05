@@ -251,7 +251,7 @@ class ProSites_Gateway_Stripe {
 				<tr valign="top">
 					<th scope="row" class="psts-help-div psts-stripe-thankyou"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text( __( 'Displayed on successful checkout. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
 					<td>
-						<textarea name="psts[stripe_thankyou]" type="text" rows="4" wrap="soft" id="stripe_thankyou" style="width: 100%"/><?php echo esc_textarea( $psts->get_setting( 'stripe_thankyou' ) ); ?></textarea>
+						<textarea name="psts[stripe_thankyou]" type="text" rows="4" wrap="soft" id="stripe_thankyou" style="width: 100%"/><?php echo esc_textarea( stripslashes( $psts->get_setting( 'stripe_thankyou' ) ) ); ?></textarea>
 					</td>
 				</tr>
 			</table>

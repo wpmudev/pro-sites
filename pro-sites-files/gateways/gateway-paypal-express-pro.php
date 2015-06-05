@@ -246,7 +246,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				<tr valign="top">
 					<th scope="row" class="psts-help-div psts-paypal-thank-you"><?php echo __( 'Thank You Message', 'psts' ) . $psts->help_text( __( 'Displayed on the page after successful checkout. This is also a good place to paste any conversion tracking scripts like from Google Analytics. - HTML allowed', 'psts' ) ); ?></th>
 					<td>
-						<textarea name="psts[pypl_thankyou]" type="text" rows="4" wrap="soft" id="pypl_thankyou" style="width: 95%"/><?php echo esc_textarea( $psts->get_setting( 'pypl_thankyou' ) ); ?></textarea>
+						<textarea name="psts[pypl_thankyou]" type="text" rows="4" wrap="soft" id="pypl_thankyou" style="width: 95%"/><?php echo esc_textarea( stripslashes( $psts->get_setting( 'pypl_thankyou' ) ) ); ?></textarea>
 					</td>
 				</tr>
 			</table>
