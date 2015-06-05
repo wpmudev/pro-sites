@@ -292,7 +292,7 @@ class ProSites_Module_Quota {
 			$percentused = '100';
 		else
 			$percentused = ( $used / $quota ) * 100;
-		$used_class = ( $percentused >= 70 ) ? ' warning' : '';
+		$used_class = ( $percentused >= 70 ) ? 'class="warning"' : '';
 		$used = round( $used, 2 );
 		$percentused = number_format( $percentused );
 		$text = sprintf(
@@ -301,11 +301,9 @@ class ProSites_Module_Quota {
 			number_format_i18n( $used, 2 ),
 			$percentused,
 			number_format_i18n( $quota, 2 )
-		);
+		); ?>
 
-		$message = '<div class="size-text">' . $text . '</div>' . $this->message( false, 'media-upload' );
-
-		echo '<div id="prosites-media-quota-display" style="display:none;" class="' . esc_attr( $used_class) . '">' . esc_html( $message ) . '</div>';
+		<div id="prosites-media-quota-display" style="display:none;" <?php echo $used_class;?>><div class="size-text"><?php echo $text; ?> </div><?php echo $this->message( false, 'media-upload' ); ?></div><?php
 
 		global $psts;
 		wp_enqueue_style( 'psts-quota-style', $psts->plugin_url . 'css/quota.css', $psts->version );
