@@ -153,7 +153,7 @@ class ProSites_Module_PostingQuota {
 
 		//Check level settings
 		if ( is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
-			return;
+			return $data;
 		}
 
 		if ( ! isset( $postarr['ID'] ) || $data['post_status'] != 'publish' ) {
