@@ -22,8 +22,14 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 
 			$checkout_url = $psts->checkout_url( $blog_id, $domain );
-			$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
-			$checkout_url = site_url( $checkout_url, $scheme );
+
+			// Make sure the URL is valid...
+			$site_url = str_replace( array( 'http://', 'https://' ), '', site_url() );
+			$test_checkout = preg_replace( '/' . $site_url . '$/', '', $checkout_url );
+			if ( ! preg_match( '/' . $site_url . '/', $test_checkout ) ) {
+				$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
+				$checkout_url = site_url( $checkout_url, $scheme );
+			}
 
 			$checkout_url = add_query_arg(
 				array(

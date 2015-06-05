@@ -245,7 +245,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
 			}
@@ -283,6 +283,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$gateway_order = array( $gateway_details['primary'], $gateway_details['secondary'], $gateway_details['manual'] );
 				$gateway_order = array_filter( $gateway_order );
 				$gateway_details['order'] = $gateway_order;
+			} elseif( 0 >= $active_count ) {
+				$gateway_details['primary'] = 'manual';
+				$gateway_details['secondary'] = '';
+				$gateway_details['manual'] = '';
+				$gateway_details['order'] = array( $gateway_details['primary'], $gateway_details['secondary'], $gateway_details['manual'] );
 			}
 
 			return $gateway_details;

@@ -4879,7 +4879,7 @@ function admin_levels() {
 				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( site_url() . $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 			}
 
