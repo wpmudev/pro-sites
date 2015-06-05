@@ -1126,7 +1126,7 @@ Thanks!", 'psts' ),
 		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
 
 		//default brand title
-		$default_title = get_default_settings_array();
+		$default_title = ProSites::get_default_settings_array();
 		$default_title = $default_title['rebrand'];
 		//insert new page if not existing
 		switch_to_blog( $checkout_site );
