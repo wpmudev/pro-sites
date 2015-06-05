@@ -7,18 +7,18 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			global $psts, $wpdb;
 
 			// Try going stateless, or check the session
-			if( empty( $render_data ) ) {
-				$render_data = array();
+			if ( empty( $render_data ) ) {
+				$render_data                     = array();
 				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
 			}
-			if( ! isset( $render_data['upgraded_blog_details'] ) ) {
+			if ( ! isset( $render_data['upgraded_blog_details'] ) ) {
 				$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 			}
 
 			$content = $primary_args = $secondary_args = '';
 
 			$gateways = ProSites_Helper_Gateway::get_gateways();
-			if( empty( $gateways ) ) {
+			if ( empty( $gateways ) ) {
 
 			}
 			$gateway_details = self::get_gateway_details( $gateways );
@@ -33,9 +33,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				if ( ! empty( $blog_id ) ) {
 
 					//Get gateway details
-					$sql    = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
-					$result = $wpdb->get_row( $sql );
-					$gateway = !empty( $result-> gateway ) ? $result->gateway : '';
+					$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
+					$result  = $wpdb->get_row( $sql );
+					$gateway = ! empty( $result->gateway ) ? $result->gateway : '';
 					if ( ! empty( $gateway ) ) {
 						//Check if a respective gateway class exists, and call cancel subscription function
 						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
@@ -57,29 +57,31 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$manual_gateway = isset( $gateway_details['manual'] ) && ! empty( $gateways[ $gateway_details['manual'] ] ) ? $gateway_details['manual'] : '';
 
 			// Force manual if no gateways are defined
-			if( empty( $primary_gateway ) ) {
-				if( empty( $manual_gateway ) ) {
+			if ( empty( $primary_gateway ) ) {
+				if ( empty( $manual_gateway ) ) {
 					$primary_gateway = 'manual';
 				} else {
 					$primary_gateway = 'manual';
-					$manual_gateway = '';
+					$manual_gateway  = '';
 				}
 			}
 
 			/**
 			 * Process forms
 			 */
-			if( ! empty( $primary_gateway ) &&
-			    method_exists( $gateways[ $primary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_on_render' ) &&
-			    method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' ) ) {
+			if ( ! empty( $primary_gateway ) &&
+			     method_exists( $gateways[ $primary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_on_render' ) &&
+			     method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' )
+			) {
 				$primary_args = call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
-			if( ! empty( $secondary_gateway ) &&
-			    method_exists( $gateways[ $secondary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_on_render' ) &&
-				method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' ) ) {
+			if ( ! empty( $secondary_gateway ) &&
+			     method_exists( $gateways[ $secondary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_on_render' ) &&
+			     method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' )
+			) {
 				$secondary_args = call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
-			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
+			if ( ! empty( $manual_gateway ) && method_exists( $gateways[ $manual_gateway ]['class'], 'process_checkout_form' ) ) {
 				/*
 				 * @todo: Add this back soon.
 				 */
@@ -88,11 +90,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			// If site modified, apply this filter... has to happen after form processing.
 			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
-			if( isset( $render_data['plan_updated'] ) ) {
+			if ( isset( $render_data['plan_updated'] ) ) {
 				add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
 			}
 
-			$tabbed = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
+			$tabbed       = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
 			/**
 			 * @todo Deal with upgraded_blog_details session
@@ -107,36 +109,36 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$available_gateways = empty( $manual_gateway ) ? $available_gateways : $available_gateways + 1;
 
 			// Render tabs
-			if( $tabbed && $available_gateways > 1 ) {
+			if ( $tabbed && $available_gateways > 1 ) {
 				$content .= '<ul>';
-				if( ! empty( $primary_gateway ) ) {
+				if ( ! empty( $primary_gateway ) ) {
 					$content .= '<li><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
 				}
-				if( ! empty( $secondary_gateway ) ) {
+				if ( ! empty( $secondary_gateway ) ) {
 					$content .= '<li><a href="#gateways-2">' . esc_html( $psts->get_setting( 'checkout_gateway_secondary_label', __( 'Alternate Payment', 'psts' ) ) ) . '</a></li>';
 				}
-				if( ! empty( $manual_gateway ) ) {
+				if ( ! empty( $manual_gateway ) ) {
 					$content .= '<li><a href="#gateways-3">' . esc_html( $psts->get_setting( 'checkout_gateway_manual_label', __( 'Offline Payment', 'psts' ) ) ) . '</a></li>';
 				}
-	            $content .= '</ul>';
+				$content .= '</ul>';
 			}
 
 			// Primary
-			if( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
+			if ( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
 				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
 				$content .= '</div>';
 			}
 
 			// Secondary
-			if( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
+			if ( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
 				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 				$content .= '</div>';
 			}
 
 			// Manual
-			if( ! empty( $manual_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
+			if ( ! empty( $manual_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
 				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
 				$content .= '</div>';
@@ -148,30 +150,28 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 		}
 
 		public static function render_current_plan_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
-			global $psts, $wpdb, $current_site, $current_user, $current_prosite_blog;
+			global $psts, $wpdb, $current_site, $current_prosite_blog;
 
-			if( empty( $gateway_order ) ) {
+			if ( empty( $gateway_order ) ) {
 				return '';
 			}
 
-			$site_name = $current_site->site_name;
-			$img_base  = $psts->plugin_url . 'images/';
+			$content        = '';
 			$info_retrieved = array();
-			$content = '';
 
-			if( empty( $blog_id ) && isset( $_GET['bid'] ) ) {
+			if ( empty( $blog_id ) && isset( $_GET['bid'] ) ) {
 				$blog_id = (int) $_GET['bid'];
 			}
 			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
-			if( empty( $blog_id ) ) {
+			if ( empty( $blog_id ) ) {
 				return '';
 			}
 
 			// Is this a trial, if not, get the normal gateway data?
-			$sql = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
+			$sql    = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 			$result = $wpdb->get_row( $sql );
 
-			if( ! empty( $result ) && 'Trial' == $result->gateway ) {
+			if ( ! empty( $result ) && 'Trial' == $result->gateway ) {
 				$info_retrieved = ProSites_Gateway_Trial::get_existing_user_information( $blog_id, $domain );
 			} else {
 				foreach ( $gateway_order as $key ) {
@@ -182,43 +182,43 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			}
 
-			$generic_info = ProSites_Helper_ProSite::get_blog_info( $blog_id );
+			$generic_info   = ProSites_Helper_ProSite::get_blog_info( $blog_id );
 			$info_retrieved = array_merge( $generic_info, $info_retrieved );
 
 			// Notifications
 			$content .= self::get_notifications_only( $info_retrieved );
 
 			// Output level information
-			if( ! empty( $info_retrieved ) && empty( $info_retrieved['complete_message'] ) ) {
+			if ( ! empty( $info_retrieved ) && empty( $info_retrieved['complete_message'] ) ) {
 
 				// Manual payments
-				if( ! empty( $info_retrieved['last_payment_gateway'] ) && 'manual' == strtolower( $info_retrieved['last_payment_gateway'] ) ) {
+				if ( ! empty( $info_retrieved['last_payment_gateway'] ) && 'manual' == strtolower( $info_retrieved['last_payment_gateway'] ) ) {
 					$content .= '<div id="psts-general-error" class="psts-warning psts-manual-payment-notify">' . __( 'Your site is currently using manual payments and will not automatically renew. Please upgrade your site or contact us with your renewal request.', 'psts' ) . '</div>';
 				}
 
 				$content .= '<ul class="psts-info-list">';
 				//level
 				if ( ! empty( $info_retrieved['level'] ) ) {
-					$content .= '<li class="psts-level">' . esc_html__( 'Level:', 'psts') . ' <strong>' . $info_retrieved['level'] . '</strong></li>';
+					$content .= '<li class="psts-level">' . esc_html__( 'Level:', 'psts' ) . ' <strong>' . $info_retrieved['level'] . '</strong></li>';
 				}
 				//payment method
-				if( ! empty( $info_retrieved['card_type'] ) ) {
+				if ( ! empty( $info_retrieved['card_type'] ) ) {
 					$content .= '<li class="psts-payment-method">' . sprintf( __( 'Payment method: <strong>%1$s card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s/%4$s</strong>', 'psts' ), $info_retrieved['card_type'], $info_retrieved['card_reminder'], $info_retrieved['card_expire_month'], $info_retrieved['card_expire_year'] ) . '</li>';
 				}
 				//last payment
-				if( ! empty( $info_retrieved['last_payment_date'] ) ) {
+				if ( ! empty( $info_retrieved['last_payment_date'] ) ) {
 					$content .= '<li class="psts-last-payment">' . esc_html__( 'Last payment date:', 'psts' ) . ' <strong>' . date_i18n( get_option( 'date_format' ), $info_retrieved['last_payment_date'] ) . '</strong></li>';
 				}
 				//next payment
-				if( ! empty( $info_retrieved['next_payment_date'] ) ) {
+				if ( ! empty( $info_retrieved['next_payment_date'] ) ) {
 					$content .= '<li class="psts-next-payment">' . esc_html__( 'Next payment date:', 'psts' ) . ' <strong>' . date_i18n( get_option( 'date_format' ), $info_retrieved['next_payment_date'] ) . '</strong></li>';
 				}
 				//period
 				if ( ! empty( $info_retrieved['period'] ) && ! empty( $info_retrieved['recurring'] ) ) {
-					$content .= '<li class="psts-period">' . esc_html__( 'Renewal Period:', 'psts') . sprintf( __( ' Every <strong>%d</strong> month(s)', 'psts' ), $info_retrieved['period'] ) . '</li>';
+					$content .= '<li class="psts-period">' . esc_html__( 'Renewal Period:', 'psts' ) . sprintf( __( ' Every <strong>%d</strong> month(s)', 'psts' ), $info_retrieved['period'] ) . '</li>';
 				}
 				// Is recurring?
-				if( empty( $info_retrieved['recurring'] ) ) {
+				if ( empty( $info_retrieved['recurring'] ) ) {
 					$content .= '<li class="psts-expiry">' . esc_html__( 'Plan expires on:', 'psts' ) . ' <strong>' . $info_retrieved['expires'] . '</strong></li>';
 				} else if ( ! empty( $info_retrieved['recurring'] ) && empty( $info_retrieved['next_payment_date'] ) ) {
 					$content .= '<li class="psts-expiry">' . esc_html__( 'Renewal due on:', 'psts' ) . ' <strong>' . $info_retrieved['expires'] . '</strong></li>';
@@ -227,7 +227,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '</ul>';
 
 				// Cancel link?
-				if( empty( $info_retrieved['cancellation_message'] ) ) {
+				if ( empty( $info_retrieved['cancellation_message'] ) ) {
 					if ( ! empty( $info_retrieved['cancel_link'] ) ) {
 						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
 					} else if ( ! empty( $info_retrieved['cancel_info_link'] ) ) {
@@ -240,11 +240,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 
 				// Signup for another blog?
-				$allow_multi = $psts->get_setting('multiple_signup');
-				$registeration = get_site_option('registration');
-				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+				$allow_multi   = $psts->get_setting( 'multiple_signup' );
+				$registeration = get_site_option( 'registration' );
+				$allow_multi   = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
-				if( $allow_multi ) {
+				if ( $allow_multi ) {
 					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
@@ -260,37 +260,40 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			global $psts;
 
 			$gateway_details = array();
-			$active_count = count( $gateways );
+			$active_count    = count( $gateways );
 
-			if( 1 == $active_count ) {
-				$keys = array_keys( $gateways );
-				$gateway_details['primary'] = $keys[0];
+			if ( 1 == $active_count ) {
+				$keys                         = array_keys( $gateways );
+				$gateway_details['primary']   = $keys[0];
 				$gateway_details['secondary'] = '';
-				$gateway_details['manual'] = '';
+				$gateway_details['manual']    = '';
 				reset( $gateways );
 			} elseif ( $active_count > 1 ) {
-				$keys = array_keys( $gateways );
-				$gateway_details['primary'] = $psts->get_setting( 'gateway_pref_primary', $keys[0] );
-				$gateway_details['secondary']  = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
-				$use_manual = $psts->get_setting( 'gateway_pref_use_manual' );
+				$keys                         = array_keys( $gateways );
+				$gateway_details['primary']   = $psts->get_setting( 'gateway_pref_primary', $keys[0] );
+				$gateway_details['secondary'] = $psts->get_setting( 'gateway_pref_secondary', $keys[1] );
+				$use_manual                   = $psts->get_setting( 'gateway_pref_use_manual' );
 
-				$gateway_details['primary'] = ! empty( $gateway_details['primary'] ) && 'none' != $gateway_details['primary'] ? $gateway_details['primary'] : '';
+				$gateway_details['primary']   = ! empty( $gateway_details['primary'] ) && 'none' != $gateway_details['primary'] ? $gateway_details['primary'] : '';
 				$gateway_details['secondary'] = ! empty( $gateway_details['secondary'] ) && 'none' != $gateway_details['secondary'] ? $gateway_details['secondary'] : '';
 
-				if( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
+				if ( 'manual' != $gateway_details['primary'] && 'manual' != $gateway_details['secondary'] && 'off' != $use_manual ) {
 					$gateway_details['manual'] = 'manual';
 				} else {
 					$gateway_details['manual'] = '';
 				}
-				$gateway_order = array( $gateway_details['primary'], $gateway_details['secondary'], $gateway_details['manual'] );
-				$gateway_order = array_filter( $gateway_order );
-				$gateway_details['order'] = $gateway_order;
-			} elseif( 0 >= $active_count ) {
-				$gateway_details['primary'] = 'manual';
+			} elseif ( 0 >= $active_count ) {
+				$gateway_details['primary']   = 'manual';
 				$gateway_details['secondary'] = '';
-				$gateway_details['manual'] = '';
-				$gateway_details['order'] = array( $gateway_details['primary'], $gateway_details['secondary'], $gateway_details['manual'] );
+				$gateway_details['manual']    = '';
 			}
+			$gateway_order            = array(
+				$gateway_details['primary'],
+				$gateway_details['secondary'],
+				$gateway_details['manual']
+			);
+			$gateway_order            = array_filter( $gateway_order );
+			$gateway_details['order'] = $gateway_order;
 
 			return $gateway_details;
 
@@ -300,24 +303,24 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content = '';
 
 			// Get pending message
-			if( ! empty( $info_retrieved['pending'] ) ) {
+			if ( ! empty( $info_retrieved['pending'] ) ) {
 				$content .= $info_retrieved['pending'];
 			}
 
 			// Get trial message
-			if( ! empty( $info_retrieved['trial'] ) ) {
+			if ( ! empty( $info_retrieved['trial'] ) ) {
 				$content .= $info_retrieved['trial'];
 			}
 
 			// Get complete message
-			if( ! empty( $info_retrieved['complete_message'] ) ) {
+			if ( ! empty( $info_retrieved['complete_message'] ) ) {
 				$content .= $info_retrieved['complete_message'];
 				$content .= $info_retrieved['thanks_message'];
 				$content .= $info_retrieved['visit_site_message'];
 			}
 
 			// Get cancellation message
-			if( ! empty( $info_retrieved['cancellation_message'] ) ) {
+			if ( ! empty( $info_retrieved['cancellation_message'] ) ) {
 				$content .= $info_retrieved['cancellation_message'];
 			}
 
@@ -325,11 +328,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 		}
 
 		public static function render_notification_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
-			$content = '';
+			$content        = '';
 			$info_retrieved = '';
 
-			foreach( $gateway_order as $key ) {
-				if( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
+			foreach ( $gateway_order as $key ) {
+				if ( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 					$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain, false );
 				}
 			}
@@ -349,25 +352,26 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$gateway_details = self::get_gateway_details( $gateways );
 			$is_pro_site     = is_pro_site( $blog_id );
 
-			$session_data = array();
-			$session_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
+			$session_data                          = array();
+			$session_data['new_blog_details']      = ProSites_Helper_Session::session( 'new_blog_details' );
 			$session_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 
 			// No existing details for a new signup
-			if( ! is_user_logged_in() || isset( $session_data['new_blog_details'] ) ) {
+			if ( ! is_user_logged_in() || isset( $session_data['new_blog_details'] ) ) {
 				$pre_content = '';
 
-				if( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
-				    ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] ) ) {
+				if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
+				     ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
+				) {
 					$pre_content .= self::render_payment_submitted();
 				}
 
 				// Check manual payments
-				if( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['manual_submitted'] ) && true === $session_data['new_blog_details']['manual_submitted'] ) ) {
+				if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['manual_submitted'] ) && true === $session_data['new_blog_details']['manual_submitted'] ) ) {
 					$pre_content .= self::render_manual_submitted();
 				}
 
-				if( ! empty( $pre_content ) ) {
+				if ( ! empty( $pre_content ) ) {
 					return $pre_content;
 				} else {
 					return $content;
@@ -380,12 +384,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) )
 			) {
 				// EXISTING DETAILS
-				if( isset( $gateways ) && isset( $gateway_details ) ) {
+				if ( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
-					$plan_content = self::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
+					$plan_content  = self::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
 					$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
 				}
-			}else {
+			} else {
 				// NOTIFICATIONS ONLY
 				$plan_content = self::render_notification_information( array(), $blog_id, $domain, $gateways, $gateway_details['order'] );
 			}
@@ -394,19 +398,19 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		}
 
-		public static function render_manual_submitted ( $render_data = array() ) {
+		public static function render_manual_submitted( $render_data = array() ) {
 			global $psts;
 
 			// Try going stateless, or check the session
-			if( empty( $render_data ) ) {
-				$render_data = array();
+			if ( empty( $render_data ) ) {
+				$render_data                     = array();
 				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
 			}
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$email = $render_data['new_blog_details']['email'];
-			$blogname = $render_data['new_blog_details']['blogname'];
+			$email      = $render_data['new_blog_details']['email'];
+			$blogname   = $render_data['new_blog_details']['blogname'];
 			$blog_title = $render_data['new_blog_details']['title'];
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
@@ -432,19 +436,19 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			global $psts;
 
 			// Try going stateless, or check the session
-			if( empty( $render_data ) ) {
-				$render_data = array();
+			if ( empty( $render_data ) ) {
+				$render_data                     = array();
 				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
 			}
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$username = $render_data['new_blog_details']['username'];
-			$userpass = isset( $render_data['new_blog_details']['user_pass'] ) ? isset( $render_data['new_blog_details']['user_pass'] ) : __( '(password emailed to you)', 'psts' );
-			$email = $render_data['new_blog_details']['email'];
-			$blogname = $render_data['new_blog_details']['blogname'];
+			$username   = $render_data['new_blog_details']['username'];
+			$userpass   = isset( $render_data['new_blog_details']['user_pass'] ) ? isset( $render_data['new_blog_details']['user_pass'] ) : __( '(password emailed to you)', 'psts' );
+			$email      = $render_data['new_blog_details']['email'];
+			$blogname   = $render_data['new_blog_details']['blogname'];
 			$blog_title = $render_data['new_blog_details']['title'];
-			$blog_id = $render_data['new_blog_details']['blog_id'];
+			$blog_id    = $render_data['new_blog_details']['blog_id'];
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
@@ -467,7 +471,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
-			if( ! empty( $blog_admin_url ) && !is_user_logged_in() ) {
+			if ( ! empty( $blog_admin_url ) && ! is_user_logged_in() ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 
@@ -489,23 +493,23 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			global $psts;
 
 			// Try going stateless, or check the session
-			if( empty( $render_data ) ) {
-				$render_data = array();
+			if ( empty( $render_data ) ) {
+				$render_data                     = array();
 				$render_data['new_blog_details'] = ProSites_Helper_Session::session( 'new_blog_details' );
 			}
-			if( ! isset( $render_data['upgraded_blog_details'] ) ) {
+			if ( ! isset( $render_data['upgraded_blog_details'] ) ) {
 				$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 			}
 
 			$content = '<div id="psts-payment-info-received">';
 
 			$email = '';
-			if( ! is_user_logged_in() ) {
-				if( isset( $render_data['new_blog_detail'] ) && isset( $render_data['new_blog_details']['email'] ) ) {
+			if ( ! is_user_logged_in() ) {
+				if ( isset( $render_data['new_blog_detail'] ) && isset( $render_data['new_blog_details']['email'] ) ) {
 					$email = $render_data['new_blog_details']['email'];
 				}
 			} else {
-				$user = wp_get_current_user();
+				$user  = wp_get_current_user();
 				$email = $user->user_email;
 			}
 
@@ -514,9 +518,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			 */
 			// Get the blog id... try the session or get it from the database
 			$upgrade_blog_id = isset( $render_data['upgraded_blog_details']['blog_id'] ) ? $render_data['upgraded_blog_details']['blog_id'] : 0;
-			$new_blog_id = isset( $render_data['new_blog_details']['blog_id'] ) ? $render_data['new_blog_details']['blog_id'] : 0;
-			$new_blog_name = isset( $render_data['new_blog_details']['blogname'] ) ? $render_data['new_blog_details']['blogname'] : '';
-			$blog_id = ! empty( $upgrade_blog_id ) ? $upgrade_blog_id : ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $new_blog_name ) ? get_id_from_blogname( $new_blog_name ) : 0;
+			$new_blog_id     = isset( $render_data['new_blog_details']['blog_id'] ) ? $render_data['new_blog_details']['blog_id'] : 0;
+			$new_blog_name   = isset( $render_data['new_blog_details']['blogname'] ) ? $render_data['new_blog_details']['blogname'] : '';
+			$blog_id         = ! empty( $upgrade_blog_id ) ? $upgrade_blog_id : ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $new_blog_name ) ? get_id_from_blogname( $new_blog_name ) : 0;
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
@@ -532,17 +536,17 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$username = '';
 			$userpass = isset( $render_data['new_blog_details']['user_pass'] ) ? $render_data['new_blog_details']['user_pass'] : '';
-			if( isset( $render_data['new_blog_details']['username'] ) ) {
+			if ( isset( $render_data['new_blog_details']['username'] ) ) {
 				$username = $render_data['new_blog_details']['username'];
 			} else {
-				$user = wp_get_current_user();
+				$user     = wp_get_current_user();
 				$username = $user->user_login;
 			}
 
 			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
 			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
 			// Any passwords for existing users here will be wrong, so just don't display it.
-			if( ! empty( $userpass ) ) {
+			if ( ! empty( $userpass ) ) {
 				$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
 			}
 			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
@@ -556,7 +560,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
 
-			if( ! empty( $blog_admin_url ) && !is_user_logged_in() ) {
+			if ( ! empty( $blog_admin_url ) && ! is_user_logged_in() ) {
 				$content .= '<a class="button" href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( 'Login Now', 'psts' ) . '</a>';
 			}
 
@@ -575,26 +579,26 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
 
 			// Exit as if this never happened
-			if( ! isset( $render_data['plan_updated'] ) || false == $render_data['plan_updated']['render'] ) {
+			if ( ! isset( $render_data['plan_updated'] ) || false == $render_data['plan_updated']['render'] ) {
 				return $content;
 			}
 
 			$level_list = get_site_option( 'psts_levels' );
 
 			$periods = array(
-				1 => __( 'monthly', 'psts' ),
-				3 => __( 'quarterly', 'psts' ),
+				1  => __( 'monthly', 'psts' ),
+				3  => __( 'quarterly', 'psts' ),
 				12 => __( 'anually', 'psts' ),
 			);
 
 			$previous = '<strong>' . $level_list[ $render_data['plan_updated']['prev_level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['prev_period'] ] . ')';
-			$current = '<strong>' . $level_list[ $render_data['plan_updated']['level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['period'] ] . ')';
+			$current  = '<strong>' . $level_list[ $render_data['plan_updated']['level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['period'] ] . ')';
 
 			$blog_id = (int) $render_data['plan_updated']['blog_id'];
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$user = wp_get_current_user();
+			$user  = wp_get_current_user();
 			$email = $user->user_email;
 
 			$content .= '<h2>' . esc_html__( 'Plan updated...', 'psts' ) . '</h2>';
@@ -617,7 +621,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 		public static function select_current_period( $period, $blog_id ) {
 			global $wpdb;
 
-			if( is_user_logged_in() && ! empty( $blog_id ) ) {
+			if ( is_user_logged_in() && ! empty( $blog_id ) ) {
 				$result = $wpdb->get_var( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				if ( ! empty( $result ) ) {
 					$period = 'price_' . $result;
@@ -629,12 +633,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		public static function select_current_level( $level, $blog_id ) {
 			global $wpdb;
-			if( is_user_logged_in() && ! empty( $blog_id ) ) {
+			if ( is_user_logged_in() && ! empty( $blog_id ) ) {
 				$result = $wpdb->get_var( $wpdb->prepare( "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				if ( ! empty( $result ) ) {
 					$level = $result;
 				}
 			}
+
 			return $level;
 		}
 
