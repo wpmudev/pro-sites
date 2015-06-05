@@ -480,7 +480,10 @@ Thanks!", 'psts' ),
 			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_daily_stats` TO `{$wpdb->base_prefix}pro_sites_daily_stats`" );
 			delete_site_option( "supporter_installed" );
 		}
-		define( 'DO_NOT_UPGRADE_GLOBAL_TABLES', false );
+
+		if( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
+			define( 'DO_NOT_UPGRADE_GLOBAL_TABLES', false );
+		}
 
 		$table1 = "CREATE TABLE {$wpdb->base_prefix}pro_sites (
 		  blog_ID bigint(20) NOT NULL,
