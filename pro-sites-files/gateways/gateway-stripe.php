@@ -228,7 +228,7 @@ class ProSites_Gateway_Stripe {
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row" class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ) . $psts->help_text( __( 'The currency must match the currency of your Stripe account.', 'psts' ) ); ?></th>
+					<th scope="row" class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ); ?></th>
 					<td>
 						<select name="psts[stripe_currency]" class="chosen">
 							<?php
@@ -246,6 +246,7 @@ class ProSites_Gateway_Stripe {
 							}
 							?>
 						</select>
+						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
 					</td>
 				</tr>
 				<tr valign="top">
