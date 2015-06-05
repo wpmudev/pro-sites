@@ -483,6 +483,7 @@ jQuery(document).ready(function ($) {
         e.stopPropagation();
 
         var form_data = $('#prosites-user-register').serialize();
+	    var form_fields = getFormData($('#prosites-user-register'));
         //console.log( form_data );
         $('#prosites-user-register p.error').remove();
         $('.trial_msg').remove();
@@ -506,10 +507,21 @@ jQuery(document).ready(function ($) {
         ).done( function( data, status ) {
                 $('#check-prosite-blog').removeClass("hidden");
                 $('#registration_processing').addClass("hidden");
-                post_registration_process( data, status, form_data );
+                post_registration_process( data, status, form_fields );
             } );
 
     }
+
+	function getFormData($form){
+		var unindexed_array = $form.serializeArray();
+		var indexed_array = {};
+
+		$.map(unindexed_array, function(n, i){
+			indexed_array[n['name']] = n['value'];
+		});
+
+		return indexed_array;
+	}
 
     function position_field_available_tick( field ) {
         var pos = $(field).position();
@@ -548,8 +560,7 @@ jQuery(document).ready(function ($) {
             $('#prosites-checkout-table').attr('data-site-registered', 'yes');
 
             // Reset values...
-            var obj = $.unserialize( form_data );
-            $.each( obj, function( key, val )  {
+            $.each( form_data, function( key, val )  {
                 // Restore values
                 if( key != "signup_form_id" && key != "_signup_form" ) {
                     $('[name=' + key + ']').val( val );

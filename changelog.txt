@@ -10,6 +10,7 @@ Change Log:
 - Fixed: Fatal error when creating checkout page.
 - Fixed: Small CSS adjustment to fix pricing table in some themes.
 - Fixed: Multiple backslashes no longer appears in textboxes.
+- Fixed: Site Title: Space in title replaced by +
 
 ----------------------------------------------------------------------
 3.5 - 6/5/2015 - Rheinard Korf & Umesh Kumar

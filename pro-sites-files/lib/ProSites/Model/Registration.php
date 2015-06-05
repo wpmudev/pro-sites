@@ -43,7 +43,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$user_email = sanitize_email( $_POST['user_email'] );
 
 				$blogname        = sanitize_text_field( $_POST['blogname'] );
-				$blog_title      = sanitize_text_field( $_POST['blog_title'] );
+				$blog_title      = sanitize_text_field( urldecode( $_POST['blog_title'] ) );
 
 				// Process some cleaning up if needed
 				do_action( 'prosite_register_blog_pre_validation', $user_name, $user_email, $blogname );
