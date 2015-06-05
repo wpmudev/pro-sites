@@ -624,7 +624,7 @@ class ProSites_Module_BulkUpgrades {
 			</form>
 			';
 		}
-		
+
 		return $button;
 	}
 

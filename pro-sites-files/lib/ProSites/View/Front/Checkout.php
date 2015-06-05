@@ -42,7 +42,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
 
 			// Are the tables enabled?
-			$plans_table_enabled = $psts->get_setting('plans_table_enabled');
+			$plans_table_enabled = $psts->get_setting('plans_table_enabled', 'enabled');
 			$plans_table_enabled = 'enabled' === $plans_table_enabled ? true : false;
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
 			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
