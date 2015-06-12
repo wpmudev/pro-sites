@@ -373,7 +373,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				'payment_type' => __( 'Payment period', 'psts' ),
 				'setup' => __( 'Plus a One Time %s Setup Fee', 'psts' ),
 				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>. ', 'psts' ),
-				'saving' => __( 'A saving of <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
+				'saving' => __( 'A saving of <strong>%s</strong> by paying for %d months in advance.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
 				'monthly_alt' => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
 			), $level );
