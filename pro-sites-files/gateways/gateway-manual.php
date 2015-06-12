@@ -158,7 +158,7 @@ class ProSites_Gateway_Manual {
 
 		$content .= '<div id="psts-manual-checkout"><h2>' . $psts->get_setting( 'mp_name' ) . '</h2>';
 
-		$content .= '<div id="psts-manual-instructions">' . do_shortcode( $psts->get_setting( 'mp_instructions' ) ) . '</div>';
+		$content .= '<div id="psts-manual-instructions">' . stripslashes( do_shortcode( $psts->get_setting( 'mp_instructions' ) ) ) . '</div>';
 
 		if ( $psts->get_setting( 'mp_show_form' ) ) {
 			$prefill = isset( $_POST['psts_mp_text'] ) ? esc_textarea( stripslashes( $_POST['psts_mp_text'] ) ) : '';
@@ -199,7 +199,7 @@ class ProSites_Gateway_Manual {
 		$name = array_pop( $name );
 		$content .= '<div id="psts-manual-checkout"><h2>' . $name . '</h2>';
 
-		$content .= '<div id="psts-manual-instructions">' . do_shortcode( $psts->get_setting( 'mp_instructions' ) ) . '</div>';
+		$content .= '<div id="psts-manual-instructions">' . stripslashes( do_shortcode( $psts->get_setting( 'mp_instructions' ) ) ) . '</div>';
 
 		if ( $psts->get_setting( 'mp_show_form' ) ) {
 			$prefill = isset( $_POST['psts_mp_text'] ) ? esc_textarea( stripslashes( $_POST['psts_mp_text'] ) ) : '';

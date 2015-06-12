@@ -414,7 +414,7 @@ class ProSites_Module_PremiumThemes {
 	public static function get_level_status( $level_id ) {
 		global $psts;
 
-		$allowed_themes = $psts->get_setting( 'pt_allowed_themes' );
+		$allowed_themes = $psts->get_setting( 'pt_allowed_themes', array() );
 		$access = false;
 
 		foreach( $allowed_themes as $theme => $level ) {

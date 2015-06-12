@@ -5,11 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
-3.5.0.2 - 6/5/2015 - Rheinard Korf & Umesh Kumar
+3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: HTML being displayed on Media library page
 - Fixed: Site being activated even if payment was canceled by Paypal user
-
+- Fixed: Strip slashes for Manual Payment gateway description
+- Fixed: Enable Manual Gateway processing
+- Fixed: a few warnings and notices
 
 ----------------------------------------------------------------------
 3.5.0.1 - 6/5/2015 - Rheinard Korf & Umesh Kumar
