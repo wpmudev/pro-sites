@@ -1,0 +1,15 @@
+{
+  "name": "pro-sites",
+  "version": "3.5.0",
+  "description": "Pro Sites Plugin",
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:incsub/pro-sites.git"
+  },
+  "author": "WPMUDev",
+  "license": "GPL2",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-wp-i18n": "^0.4.9"
+  }
+}

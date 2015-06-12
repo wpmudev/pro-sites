@@ -1,0 +1,32 @@
+.mu_register > h2 {
+    display: none;
+}
+
+.mu_register > * {
+    display: none;
+}
+
+.mu_register form {
+    display: block;
+}
+
+.psts-registration-page > h2 {
+    display: block;
+    margin-top: 20px;
+    font-size: 1.3em;
+}
+
+.psts-registration-page > * {
+    display: block;
+}
+
+.psts-registration-final {
+    display: block;
+}
+
+/* Remove 'Gimme a site!' options. */
+#signupblog, #signupuser,
+#signupblog + label, #signupuser + label {
+    display: none;
+}
+

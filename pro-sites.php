@@ -4,7 +4,7 @@ Plugin Name: Pro Sites (Formerly Supporter)
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.4.7.2
+Version: 3.5.0.2
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -15,7 +15,7 @@ WDP ID: 49
 /*
 Copyright 2007-2014 Incsub (http://incsub.com)
 Author - Aaron Edwards
-Contributors - Jonathan Cowher, Rheinard Korf, Carlos Vences, Andrew Billits
+Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.4.7.2';
+	var $version = '3.5.0.2';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -41,11 +41,21 @@ class ProSites {
 	var $pro_sites = array();
 	var $level = array();
 	var $checkout_processed = false;
-	public static $plugin_file = __FILE__;
-
 	var $tcpdf = array(); //Array for PDF settings
 
+	//setup error var
+	var $errors = '';
+
+	public static $plugin_file = __FILE__;
+
 	function __construct() {
+
+		// @todo get rid of this line
+		//$this->update_setting( 'version', '3.5.0.1' );
+
+		// Creates the class autoloader.
+		spl_autoload_register( array( $this, 'class_loader' ) );
+
 		//setup our variables
 		$this->init_vars();
 
@@ -65,14 +75,27 @@ class ProSites {
 				'pro-sites_page_psts-modules-network',
 				'pro-sites_page_psts-plugins-network',
 				'pro-sites_page_psts-themes-network',
-				'pro-sites_page_psts-settings-network'
+				'pro-sites_page_psts-settings-network',
+				'pro-sites_page_psts-gateways-network',
+				'pro-sites_page_psts-pricing-settings-network',
 			)
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
 
+		// Force sessions to activate
+		add_action( 'init', array( 'ProSites_Helper_Session', 'attempt_force_sessions' ) );
+
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
+		// TAX integration
+		ProSites_Helper_Tax::init_tax();
+
+		/**
+		 * Temporary loading for modules
+		 *
+		 * @todo Improve this
+		 */
 		//add important filters
 		$modules = get_site_option( 'psts_settings' );
 		$modules = isset( $modules['modules_enabled'] ) ? $modules['modules_enabled'] : array();
@@ -84,6 +107,12 @@ class ProSites {
 				call_user_func( array(  $module, 'run_critical_tasks' ) );
 			}
 		}
+
+		/**
+		 * @todo make Taxamo load as module above (above needs changing first)
+		 */
+		ProSites_Module_Taxamo::init();
+
 
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
@@ -99,7 +128,10 @@ class ProSites {
 
 		add_action( 'init', array( &$this, 'check' ) );
 		add_action( 'load-toplevel_page_psts-checkout', array( &$this, 'redirect_checkout' ) );
-		add_action( 'admin_init', array( &$this, 'signup_redirect' ), 100 ); //delay to make sure it is last hook to admin_init
+		add_action( 'admin_init', array(
+			&$this,
+			'signup_redirect'
+		), 100 ); //delay to make sure it is last hook to admin_init
 
 		//trials
 		add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
@@ -107,31 +139,145 @@ class ProSites {
 
 		add_action( 'pre_get_posts', array( &$this, 'checkout_page_load' ) );
 
-		//handle signup pages
-		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
-		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
-		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
-		add_filter( 'add_signup_meta', array( &$this, 'signup_save' ) );
-		add_filter( 'bp_signup_usermeta', array( &$this, 'signup_save' ) );
+		// Change signup...
+		add_filter( 'register', array( &$this, 'prosites_signup_url' ) );
 
+		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
+		// Add Registration AJAX handler
+		ProSites_Model_Registration::add_ajax_hook();
+		add_filter( 'prosite_register_blog_pre_validation', array( 'ProSites_Model_Registration', 'cleanup_unused_user' ), 10, 3 );
+
+//		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
+		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
+		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
+
+		//handle signup pages
+		add_action('init','ProSites_Helper_ProSite::redirect_signup_page' );
+		add_filter( 'prosites_render_checkout_page_period', 'ProSites_View_Front_Gateway::select_current_period', 10, 2 );
+		add_filter( 'prosites_render_checkout_page_level', 'ProSites_View_Front_Gateway::select_current_level', 10, 2 );
+		// Dismissed signup prompt
+		if ( isset( $_GET['psts_dismiss'] ) ) {
+			update_option( 'psts_signed_up', 0 );
+		}
+
+//		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
+//		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
+//		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
+//		add_filter( 'add_signup_meta', array( &$this, 'signup_save' ) );
+//		add_filter( 'bp_signup_usermeta', array( &$this, 'signup_save' ) );
+
+		//Force Used Space Check in network if quota is enabled
+		add_action( 'psts_modules_save', array( $this, 'enable_network_used_space_check' ) );
 
 		add_action( 'psts_process_stats', array( &$this, 'process_stats' ) ); //cronjob hook
-		add_filter( 'blog_template_exclude_settings', array( &$this, 'blog_template_settings' ) ); // exclude pro site setting from blog template copies
+		add_filter( 'blog_template_exclude_settings', array(
+			&$this,
+			'blog_template_settings'
+		) ); // exclude pro site setting from blog template copies
+
+		//Disable activation emails
+		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
+
+		//Disable Blog Activation Email, as of Pay before blog creation
+		add_filter( 'wpmu_signup_blog_notification', array( $this, 'disable_user_activation_mail' ), 10 );
+
+		//Buddypress Activation emails
+		//If pay before blog is disabled, allow blog activation through email
+		$show_signup = $this->get_setting( 'show_signup' );
+
+		if ( 1 == $show_signup ) {
+			remove_filter( 'wpmu_signup_blog_notification', 'bp_core_activation_signup_blog_notification', 1, 7 );
+		}
+		add_filter( 'bp_registration_needs_activation', array( $this, 'disable_user_activation_mail' ), 10 );
+		add_filter( 'bp_core_signup_send_activation_key', array( $this, 'disable_user_activation_mail' ), 10 );
+
+		//Redirect to checkout page after signup
+//		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
+//		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
+
+		//Register styles
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );
+
+		//Display the asterisk detail in sites screen
+		add_action( 'in_admin_footer', array( $this, 'psts_note' ) );
 
 		//update install script if necessary
-		if ( ! defined( 'PSTS_DISABLE_UPGRADE' ) && $this->get_setting( 'version' ) != $this->version ) {
+		if ( ( ! defined( 'PSTS_DISABLE_UPGRADE' ) || ( defined( 'PSTS_DISABLE_UPGRADE' ) && ! PSTS_DISABLE_UPGRADE ) ) && $this->get_setting( 'version' ) != $this->version ) {
 			$this->install();
 		}
+
+		// Hooking here until the models get reworked.
+		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 4 );
+
+		// New receipt
+		add_action( 'prosites_transaction_record', array( get_class(), 'send_receipt' ) );
+
+		$this->setup_ajax_hooks();
+
+		$this->errors = new WP_Error();
+
 	}
 
 //------------------------------------------------------------------------//
 //---Functions------------------------------------------------------------//
 //------------------------------------------------------------------------//
 
+	private function class_loader( $class ) {
+
+		do_action( 'prosites_class_loader_pre_processing', $this );
+
+		$basedir = dirname( __FILE__ );
+		$class   = trim( $class );
+
+		$included_classes = array(
+			'^ProSites_Helper',
+			'^ProSites_View',
+			'^ProSites_Model',
+			'^ProSites_Gateway',
+			'^ProSites_Module',
+		);
+
+		/**
+		 * @todo: Temporary until gateways are adopted into new structure
+		 */
+		$class_overrides = array(
+			'ProSites_Gateway_2Checkout' => 'gateways/gateway-2checkout.php',
+			'ProSites_Gateway_Manual' => 'gateways/gateway-manual.php',
+			'ProSites_Gateway_PayPalExpressPro' => 'gateways/gateway-paypal-express-pro.php',
+			'ProSites_Gateway_Stripe' => 'gateways/gateway-stripe.php',
+		);
+		$override_keys = array_keys( $class_overrides );
+
+		$pattern = '/' . implode( '|', $included_classes ) . '/';
+
+		if ( preg_match( $pattern, $class ) ) {
+
+			if( ! in_array( $class, $override_keys ) ) {
+				$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+			} else {
+				$filename = $basedir . '/pro-sites-files/' . $class_overrides[ $class ];
+			}
+
+			$filename = apply_filters( 'prosites_class_file_override', $filename );
+
+			if ( is_readable( $filename ) ) {
+				include_once $filename;
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	function localization() {
 		// Load up the localization file if we're using WordPress in a different language
 		// Place it in this plugin's "languages" folder and name it "psts-[value in wp-config].mo"
-		load_plugin_textdomain( 'psts', false, '/pro-sites/pro-sites-files/languages/' );
+		if ( $this->location == 'plugins' ) {
+			load_plugin_textdomain( 'psts', false, plugin_dir_path( __FILE__ ) . 'pro-sites-files/languages/' );
+		} else if ( $this->location == 'mu-plugins' ) {
+			load_muplugin_textdomain( 'psts', '/pro-sites-files/languages/' );
+		}
 
 		//setup language code for jquery datepicker translation
 		$temp_locales   = explode( '_', get_locale() );
@@ -139,84 +285,38 @@ class ProSites {
 	}
 
 	function init_vars() {
-		$this->plugin_dir = plugin_dir_path( __FILE__ ) . 'pro-sites-files/';
-		$this->plugin_url = plugin_dir_url( __FILE__ ) . 'pro-sites-files/';
+		//setup proper directories
+		if ( defined( 'WP_PLUGIN_URL' ) && defined( 'WP_PLUGIN_DIR' ) && file_exists( plugin_dir_path( __FILE__ ) . basename( __FILE__ ) ) ) {
+			$this->location   = 'plugins';
+			$this->plugin_dir = plugin_dir_path( __FILE__ ) . 'pro-sites-files/';
+			$this->plugin_url = plugins_url( '/pro-sites-files/', __FILE__ );
+		} else if ( defined( 'WPMU_PLUGIN_URL' ) && defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
+			$this->location   = 'mu-plugins';
+			$this->plugin_dir = WPMU_PLUGIN_DIR . '/pro-sites-files/';
+			$this->plugin_url = WPMU_PLUGIN_URL . '/pro-sites-files/';
+		} else {
+			wp_die( __( 'There was an issue determining where Pro Sites is installed. Please reinstall.', 'psts' ) );
+		}
+		//Text Domain
+		define('PSTS_TEXT_DOMAIN', 'psts');
+		define('PSTS_PREFIX', 'psts');
 
 		//load data structures
 		require_once( $this->plugin_dir . 'data.php' );
 	}
 
+	private function setup_ajax_hooks() {
 
-	function install() {
-		global $wpdb, $current_site;
+		add_action( 'wp_ajax_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
+		// Adding _nopriv_ for future buy on register
+		add_action( 'wp_ajax_nopriv_apply_coupon_to_checkout', array( 'ProSites_Helper_Coupons', 'apply_coupon_to_checkout' ) );
 
-		//rename tables if upgrading from old supporter
-		if ( get_site_option( "supporter_installed" ) == "yes" ) {
-			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporters` TO `{$wpdb->base_prefix}pro_sites`" );
-			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_signup_stats` TO `{$wpdb->base_prefix}pro_sites_signup_stats`" );
-			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_daily_stats` TO `{$wpdb->base_prefix}pro_sites_daily_stats`" );
-			delete_site_option( "supporter_installed" );
-		}
+		add_action( 'wp_ajax_nopriv_create_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_create_prosite_blog' ) );
+		add_action( 'wp_ajax_nopriv_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
+	}
 
-		$table1 = "CREATE TABLE {$wpdb->base_prefix}pro_sites (
-		  blog_ID bigint(20) NOT NULL,
-		  level int(3) NOT NULL DEFAULT 1,
-		  expire bigint(20) NOT NULL,
-		  gateway varchar(25) NULL DEFAULT 'PayPal',
-		  term varchar(25) NULL DEFAULT NULL,
-		  amount varchar(10) NULL DEFAULT NULL,
-		  PRIMARY KEY  (blog_ID),
-		  KEY  (blog_ID,level,expire)
-		);";
-
-		$table2 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_signup_stats (
-		  action_ID bigint(20) unsigned NOT NULL auto_increment,
-		  blog_ID bigint(20) NOT NULL,
-		  action varchar(20) NOT NULL,
-		  time_stamp DATE NOT NULL,
-		  PRIMARY KEY  (action_ID)
-		);";
-
-		$table3 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_daily_stats (
-		  id bigint(20) unsigned NOT NULL auto_increment,
-		  date DATE NOT NULL,
-		  supporter_count int(10) NOT NULL DEFAULT 0,
-		  expired_count int(10) NOT NULL DEFAULT 0,
-		  term_count_1 int(10) NOT NULL DEFAULT 0,
-		  term_count_3 int(10) NOT NULL DEFAULT 0,
-		  term_count_12 int(10) NOT NULL DEFAULT 0,
-		  term_count_manual int(10) NOT NULL DEFAULT 0,
-		  level_count_1 int(10) NOT NULL DEFAULT 0,
-		  level_count_2 int(10) NOT NULL DEFAULT 0,
-		  level_count_3 int(10) NOT NULL DEFAULT 0,
-		  level_count_4 int(10) NOT NULL DEFAULT 0,
-		  level_count_5 int(10) NOT NULL DEFAULT 0,
-		  level_count_6 int(10) NOT NULL DEFAULT 0,
-		  level_count_7 int(10) NOT NULL DEFAULT 0,
-		  level_count_8 int(10) NOT NULL DEFAULT 0,
-		  level_count_9 int(10) NOT NULL DEFAULT 0,
-		  level_count_10 int(10) NOT NULL DEFAULT 0,
-		  PRIMARY KEY  (id)
-		);";
-
-		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			dbDelta( $table1 );
-			dbDelta( $table2 );
-			dbDelta( $table3 );
-		}
-
-		// add stats cron job action only to main site (or it may be running all the time!)
-		switch_to_blog( $current_site->blog_id );
-		if ( ! wp_next_scheduled( 'psts_process_stats' ) ) {
-			//get end of day
-			$time = strtotime( date( "Y-m-d 23:50:00" ) );
-			wp_schedule_event( $time, 'daily', 'psts_process_stats' );
-		}
-		restore_current_blog();
-
-		//our default settings
-		$default_settings = array(
+	public static function get_default_settings_array() {
+		return array(
 			'base_country'             => 'US',
 			'currency'                 => 'USD',
 			'curr_symbol_position'     => 1,
@@ -224,17 +324,22 @@ class ProSites {
 			'rebrand'                  => __( 'Pro Site', 'psts' ),
 			'lbl_signup'               => __( 'Pro Upgrade', 'psts' ),
 			'lbl_curr'                 => __( 'Your Account', 'psts' ),
-			'gateways_enabled'         => array( 'ProSites_Gateway_PayPalExpressPro' ),
+			'gateways_enabled'         => array(),
 			'modules_enabled'          => array(),
 			'enabled_periods'          => array( 1, 3, 12 ),
 			'hide_adminmenu'           => 0,
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
+			'show_signup'              => 1,
+			'free_signup'              => 0,
+			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
 			'trial_level'              => 1,
 			'trial_days'               => get_site_option( "supporter_free_days" ),
 			'trial_message'            => __( 'You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts' ),
+			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
+			'recurring_subscriptions'  => 1,
 			'ga_ecommerce'             => 'none',
 			'signup_message'           => __( 'Would you like to upgrade this site to Pro?', 'psts' ),
 			'feature_message'          => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
@@ -291,6 +396,17 @@ Please update your payment information or change your payment method as soon as 
 http://mysite.com/contact/
 
 Many thanks again for being a member!", 'psts' ),
+			'extension_subject'           => __( 'You have been given free Pro Site membership.', 'psts' ),
+			'extension_msg'               => __( "We have given you Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
+
+These benefits will be available to you until: ENDDATE.
+
+After this date your site will revert back to a standard site.
+
+You can subscribe at any time from the link below:
+http://mysite.com/pro-site/
+
+Thanks!", 'psts' ),
 			'pypl_site'                => 'US',
 			'pypl_currency'            => 'USD',
 			'pypl_status'              => 'test',
@@ -343,9 +459,113 @@ Many thanks again for being a member!", 'psts' ),
 				'page' => array( 'quota' => 'unlimited' )
 			),
 			'uh_level'                 => 1,
-			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' )
+			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
+			'co_pricing'               => 'disabled',
+			'plans_table_enabled'      => 'enabled',
 		);
-		$settings         = wp_parse_args( (array) get_site_option( 'psts_settings' ), $default_settings );
+	}
+
+	function install() {
+		global $wpdb, $current_site;
+
+		//check if multisite is installed
+		if ( ! is_multisite() ) {
+			$this->trigger_install_error( __( 'WordPress multisite is required to run this plugin. <a target="_blank" href="http://codex.wordpress.org/Create_A_Network">Create a network</a>.', 'psts' ), E_USER_ERROR );
+		}
+
+		//rename tables if upgrading from old supporter
+		if ( get_site_option( "supporter_installed" ) == "yes" ) {
+			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporters` TO `{$wpdb->base_prefix}pro_sites`" );
+			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_signup_stats` TO `{$wpdb->base_prefix}pro_sites_signup_stats`" );
+			$wpdb->query( "RENAME TABLE `{$wpdb->base_prefix}supporter_daily_stats` TO `{$wpdb->base_prefix}pro_sites_daily_stats`" );
+			delete_site_option( "supporter_installed" );
+		}
+
+		if( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
+			define( 'DO_NOT_UPGRADE_GLOBAL_TABLES', false );
+		}
+
+		$table1 = "CREATE TABLE {$wpdb->base_prefix}pro_sites (
+		  blog_ID bigint(20) NOT NULL,
+		  level int(3) NOT NULL DEFAULT 1,
+		  expire bigint(20) NOT NULL,
+		  gateway varchar(25) NULL DEFAULT '',
+		  term varchar(25) NULL DEFAULT NULL,
+		  amount varchar(10) NULL DEFAULT NULL,
+		  is_recurring tinyint(1) NULL DEFAULT 1,
+		  meta longtext NOT NULL,
+		  identifier varchar(50) NULL,
+		  PRIMARY KEY  (blog_ID),
+		  KEY  (blog_ID,level,expire)
+		);";
+
+		$table2 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_signup_stats (
+		  action_ID bigint(20) unsigned NOT NULL auto_increment,
+		  blog_ID bigint(20) NOT NULL,
+		  action varchar(20) NOT NULL,
+		  time_stamp DATE NOT NULL,
+		  PRIMARY KEY  (action_ID)
+		);";
+
+		$table3 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_daily_stats (
+		  id bigint(20) unsigned NOT NULL auto_increment,
+		  date DATE NOT NULL,
+		  supporter_count int(10) NOT NULL DEFAULT 0,
+		  expired_count int(10) NOT NULL DEFAULT 0,
+		  term_count_1 int(10) NOT NULL DEFAULT 0,
+		  term_count_3 int(10) NOT NULL DEFAULT 0,
+		  term_count_12 int(10) NOT NULL DEFAULT 0,
+		  term_count_manual int(10) NOT NULL DEFAULT 0,
+		  level_count_1 int(10) NOT NULL DEFAULT 0,
+		  level_count_2 int(10) NOT NULL DEFAULT 0,
+		  level_count_3 int(10) NOT NULL DEFAULT 0,
+		  level_count_4 int(10) NOT NULL DEFAULT 0,
+		  level_count_5 int(10) NOT NULL DEFAULT 0,
+		  level_count_6 int(10) NOT NULL DEFAULT 0,
+		  level_count_7 int(10) NOT NULL DEFAULT 0,
+		  level_count_8 int(10) NOT NULL DEFAULT 0,
+		  level_count_9 int(10) NOT NULL DEFAULT 0,
+		  level_count_10 int(10) NOT NULL DEFAULT 0,
+		  PRIMARY KEY  (id)
+		);";
+
+		$table4 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_transactions (
+		  id bigint(20) unsigned NOT NULL auto_increment,
+		  transaction_id varchar(255) NOT NULL,
+		  transaction_date DATE NOT NULL,
+		  items longtext NOT NULL,
+		  total decimal(13,4) NOT NULL DEFAULT 0,
+		  sub_total decimal(13,4) NOT NULL DEFAULT 0,
+		  tax_amount decimal(13,4) NOT NULL DEFAULT 0,
+		  tax_percentage decimal(4,2) NOT NULL DEFAULT 0,
+		  country varchar(3) NULL,
+		  currency varchar(3) NULL,
+		  meta longtext NULL,
+		  PRIMARY KEY  (id),
+		  KEY  (id, transaction_id)
+		);";
+
+		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $table1 );
+			dbDelta( $table2 );
+			dbDelta( $table3 );
+			dbDelta( $table4 );
+		}
+
+		// add stats cron job action only to main site (or it may be running all the time!)
+		switch_to_blog( $current_site->blog_id );
+		if ( ! wp_next_scheduled( 'psts_process_stats' ) ) {
+			//get end of day
+			$time = strtotime( date( "Y-m-d 23:50:00" ) );
+			wp_schedule_event( $time, 'daily', 'psts_process_stats' );
+		}
+		restore_current_blog();
+
+		//our default settings
+		$default_settings = ProSites::get_default_settings_array();
+
+		$settings         = wp_parse_args( ( array ) get_site_option( 'psts_settings' ), $default_settings );
 		update_site_option( 'psts_settings', $settings );
 
 		//default level
@@ -369,6 +589,12 @@ Many thanks again for being a member!", 'psts' ),
 			$wpdb->query( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = '9999999999' WHERE expire = '1410065407'" );
 		}
 
+		//3.5 upgrade - modify pro_sites table
+		if ( version_compare( $this->get_setting( 'version' ), '3.5', '<=' ) ) {
+			// Using dbDelta above, but add other code here.
+			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
+		}
+
 		$this->update_setting( 'version', $this->version );
 	}
 
@@ -377,7 +603,42 @@ Many thanks again for being a member!", 'psts' ),
 		$settings = get_site_option( 'psts_settings' );
 		$setting  = isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
 
+		/**
+		 * Filter the specific setting, $key parameter value
+		 *
+		 * @param array $setting
+		 * @param mixed $default , null The default value for $key setting if there is no value returned
+		 */
+
 		return apply_filters( "psts_setting_$key", $setting, $default );
+	}
+
+	//determine if a given level has a setup fee for a given blog id
+	function has_setup_fee( $blog_id, $level ) {
+		$setup_fee_amt = ( float ) $this->get_setting( 'setup_fee', 0 );
+
+		if( empty( $blog_id ) && 0 < $setup_fee_amt ) {
+			return true;
+		}
+
+		if ( 0 == $setup_fee_amt ) {
+			return false;
+		} //setup fee not set or is 0
+
+		if ( $this->get_level( $blog_id ) == 0 ) {
+			return true;
+		} //this is a free site. always apply setup fee.
+
+		if ( $this->get_level( $blog_id ) > $level ) {
+			return false;
+		} //customer is downgrading. don't apply setup fee
+
+
+		if ( ! self::is_trial( $blog_id ) && is_pro_site( $blog_id ) && ! $this->get_setting( 'apply_setup_fee_upgrade', false ) ) {
+			return false;
+		} //this is a pro site, not in trial, and admin doesn't want setup fees applied to upgrades
+
+		return true;
 	}
 
 	function update_setting( $key, $value ) {
@@ -388,13 +649,13 @@ Many thanks again for being a member!", 'psts' ),
 	}
 
 	function get_level_setting( $level, $key, $default = null ) {
-		$levels = (array) get_site_option( 'psts_levels' );
+		$levels = ( array ) get_site_option( 'psts_levels' );
 
 		return isset( $levels[ $level ][ $key ] ) ? $levels[ $level ][ $key ] : $default;
 	}
 
 	function update_level_setting( $level, $key, $value ) {
-		$levels                   = (array) get_site_option( 'psts_levels' );
+		$levels                   = ( array ) get_site_option( 'psts_levels' );
 		$levels[ $level ][ $key ] = $value;
 
 		return update_site_option( 'psts_levels', $levels );
@@ -410,7 +671,14 @@ Many thanks again for being a member!", 'psts' ),
 
 	function trial_notice() {
 		global $wpdb, $blog_id;
-		if ( ! is_main_site() && current_user_can( 'edit_pages' ) && $this->get_setting( 'trial_days' ) ) {
+		//get allowed roles for checkout
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
+
+		//check If user is allowed
+		$current_user_id = get_current_user_id();
+		$permission      = $this->check_user_role( $current_user_id, $checkout_roles );
+
+		if ( ! is_main_site() && $permission && $this->get_setting( 'trial_days' ) ) {
 			$expire = $wpdb->get_var( $wpdb->prepare( "
 				SELECT expire
 				FROM {$wpdb->base_prefix}pro_sites
@@ -435,8 +703,13 @@ Many thanks again for being a member!", 'psts' ),
 
 	function is_trial( $blog_id ) {
 		global $wpdb;
-		$now = strtotime( '-90 minutes' ); //pad by 90 minutes just in case webhooks are delayed, etc
-		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, $now ) );
+
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if( ! $trialing ) {
+			$trialing = empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
+		}
+
+		return $trialing;
 	}
 
 	//run daily via wp_cron
@@ -493,10 +766,10 @@ Many thanks again for being a member!", 'psts' ),
 		$exists = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE blog_ID = %s AND action = %s AND time_stamp = %s", $blog_id, $action, date( 'Y-m-d' ) ) );
 		if ( ! $exists ) {
 			$wpdb->insert( "{$wpdb->base_prefix}pro_sites_signup_stats", array(
-					'blog_ID'    => $blog_id,
-					'action'     => $action,
-					'time_stamp' => date( 'Y-m-d' )
-				), array( '%d', '%s', '%s' ) );
+				'blog_ID'    => $blog_id,
+				'action'     => $action,
+				'time_stamp' => date( 'Y-m-d' )
+			), array( '%d', '%s', '%s' ) );
 		}
 	}
 
@@ -528,6 +801,7 @@ Many thanks again for being a member!", 'psts' ),
 		$this_week['total_signups'] = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE action = 'signup' AND time_stamp >= '$week_start_date'" );
 		$this_week['upgrades']      = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE action = 'upgrade' AND time_stamp >= '$week_start_date'" );
 		$this_week['cancels']       = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_signup_stats WHERE action = 'cancel' AND time_stamp >= '$week_start_date'" );
+		$number_trial               = count( ProSites_Helper_Registration::get_all_trial_blogs() );
 
 		$week_end                   = $week_start;
 		$week_start                 = strtotime( "-1 week", $week_start );
@@ -567,81 +841,143 @@ Many thanks again for being a member!", 'psts' ),
 
 		$text .= sprintf( __( '%s cancelations this week %s compared to last week', 'psts' ), "\n<p><span style='font-size: 24px; font-family: arial;'>" . number_format_i18n( $this_week['cancels'] ) . "</span><span style='color: rgb(85, 85, 85);'>", "</span>$diff<span style='color: rgb(85, 85, 85);'>" ) . "</span></p>";
 
+		// Current active trials
+		$text .= sprintf( '<p>' . __( '%s active trials.', 'psts' ) . '</p>', "<span style='font-size: 24px; font-family: arial;'>" . number_format_i18n( $number_trial ) . "</span>" );
+
 		return $text;
 	}
 
 	function plug_network_pages() {
-		global $psts_plugin_loader, $wp_version;
+		global $psts_plugin_loader;
 
 		//main page
-		$page = add_menu_page( __( 'Pro Sites', 'psts' ), __( 'Pro Sites', 'psts' ), 'manage_network_options', 'psts', array(
-				&$this,
-				'admin_modify'
-			), 'dashicons-plus' );
-		$page = add_submenu_page( 'psts', __( 'Manage Sites', 'psts' ), __( 'Manage Sites', 'psts' ), 'manage_network_options', 'psts', array(
-				&$this,
-				'admin_modify'
-			) );
+		$psts_main_page         = add_menu_page( __( 'Pro Sites', 'psts' ), __( 'Pro Sites', 'psts' ), 'manage_network_options', 'psts', array(
+			&$this,
+			'admin_modify'
+		), 'dashicons-plus' );
+		$psts_manage_sites_page = add_submenu_page( 'psts', __( 'Manage Sites', 'psts' ), __( 'Manage Sites', 'psts' ), 'manage_network_options', 'psts', array(
+			&$this,
+			'admin_modify'
+		) );
 
 		do_action( 'psts_page_after_main' );
 
 		//stats page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Statistics', 'psts' ), __( 'Statistics', 'psts' ), 'manage_network_options', 'psts-stats', array(
-				&$this,
-				'admin_stats'
-			) );
-		add_action( 'admin_print_scripts-' . $page, array( &$this, 'scripts_stats' ) );
+		$psts_stats_page = add_submenu_page( 'psts', __( 'Pro Sites Statistics', 'psts' ), __( 'Statistics', 'psts' ), 'manage_network_options', 'psts-stats', array(
+			&$this,
+			'admin_stats'
+		) );
+
 
 		do_action( 'psts_page_after_stats' );
 
 		//coupons page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons', array(
-				&$this,
-				'admin_coupons'
-			) );
-		add_action( 'admin_print_scripts-' . $page, array( &$this, 'scripts_coupons' ) );
-		add_action( 'admin_print_styles-' . $page, array( &$this, 'css_coupons' ) );
+//		$psts_coupons_page_old = add_submenu_page( 'psts', __( 'Pro Sites Coupons', 'psts' ), __( 'Coupons', 'psts' ), 'manage_network_options', 'psts-coupons-old', array(
+//			&$this,
+//			'admin_coupons'
+//		) );
 
+		//ProSites_View_Coupons
+		$psts_coupons_page = add_submenu_page( 'psts', ProSites_View_Coupons::get_page_name(), ProSites_View_Coupons::get_menu_name(), 'manage_network_options', ProSites_View_Coupons::get_page_slug(), array(
+			'ProSites_View_Coupons',
+			'render_page'
+		) );
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array(
-				&$this,
-				'admin_levels'
-			) );
+		$psts_levels_page = add_submenu_page( 'psts', __( 'Pro Sites Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array(
+			&$this,
+			'admin_levels'
+		) );
 
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules/Gateways', 'psts' ), 'manage_network_options', 'psts-modules', array(
-				&$this,
-				'admin_modules'
-			) );
+		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules', 'psts' ), 'manage_network_options', 'psts-modules', array(
+			&$this,
+			'admin_modules'
+		) );
 
 		do_action( 'psts_page_after_modules' );
 
 		//settings page
-		$page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
-				&$this,
-				'admin_settings'
-			) );
+//		$psts_settings_page_old = add_submenu_page( 'psts', __( 'Pro Sites Settings OLD', 'psts' ), __( 'Settings OLD', 'psts' ), 'manage_network_options', 'psts-settings-old', array(
+//			&$this,
+//			'admin_settings'
+//		) );
 
+		$psts_gateways_page = add_submenu_page( 'psts', __( 'Pro Sites Gateways', 'psts' ), __( 'Payment Gateways', 'psts' ), 'manage_network_options', 'psts-gateways', array(
+			'ProSites_View_Gateways',
+			'render_page'
+		) );
+		do_action( 'psts_page_after_gateways' );
+
+		//ProSites_View_Settings
+		$psts_settings_page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
+			'ProSites_View_Settings',
+			'render_page'
+		) );
 		do_action( 'psts_page_after_settings' );
+
+		//ProSites_View_Settings
+		$psts_pricing_page = add_submenu_page( 'psts', ProSites_View_Pricing::get_page_name(), ProSites_View_Pricing::get_menu_name(), 'manage_network_options', ProSites_View_Pricing::get_page_slug(), array(
+			'ProSites_View_Pricing',
+			'render_page'
+		) );
+		do_action( 'psts_page_after_pricing_settings' );
+
+		//checkout page settings
+//		$psts_pricing_page_old = add_submenu_page( 'psts', __( 'Pro Sites Pricing Table', 'psts' ), __( 'Pricing Table', 'psts' ), 'manage_network_options', 'psts-pricing-table', array(
+//			&$this,
+//			'pricing_table_settings'
+//		) );
+
+		//register plugin style
+		add_action( 'admin_print_styles-' . $psts_main_page, array( &$this, 'load_psts_style' ) );
+
+		//Load style and js for cooupons only
+		add_action( 'admin_print_scripts-' . $psts_coupons_page, array( &$this, 'scripts_coupons' ) );
+		add_action( 'admin_print_styles-' . $psts_coupons_page, array( &$this, 'css_coupons' ) );
+
+		//Load Stats page js
+		add_action( 'admin_print_scripts-' . $psts_stats_page, array( &$this, 'scripts_stats' ) );
+
+		//Load pricing table style and scripts
+		add_action( 'admin_print_styles-' . $psts_pricing_page, array( &$this, 'css_pricing' ) );
+
+		//Add PSTS Style to settings page
+		add_action( 'admin_print_styles-' . $psts_settings_page, array( &$this, 'load_settings_style' ) );
+//		add_action( 'admin_print_styles-' . $psts_settings_page_old, array( &$this, 'load_settings_style' ) );
+
+		//Add PSTS Style to gateways page
+		add_action( 'admin_print_styles-' . $psts_gateways_page, array( &$this, 'load_settings_style' ) );
+
+		//Add PSTS Style to pricing page
+		add_action( 'admin_print_styles-' . $psts_pricing_page, array( &$this, 'load_levels_style' ) );
+
+		// Add Scripts for Levels page
+		add_action( 'admin_print_styles-' . $psts_levels_page, array( &$this, 'load_levels_style' ) );
+
+		do_action( 'psts_after_checkout_page_settings' );
+
 	}
 
 	function plug_pages() {
-		if ( ! is_main_site() && ! $this->get_setting( 'hide_adminmenu', 0 ) ) {
-			$label = is_pro_site() ? $this->get_setting( 'lbl_curr' ) : $this->get_setting( 'lbl_signup' );
-			add_menu_page( $label, $label, 'edit_pages', 'psts-checkout', array(
-					&$this,
-					'checkout_redirect_page'
-				), 'dashicons-plus', 3.12 );
-		}
-	}
 
-	function enable_plugins_page($menu_items) {
-		$menu_items['plugins'] = 1;
-		return $menu_items;
+		//get allowed roles for checkout
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
+
+		//check If user is allowed
+		$current_user_id = get_current_user_id();
+		$permission      = $this->check_user_role( $current_user_id, $checkout_roles );
+
+		if ( ! is_main_site() && ! $this->get_setting( 'hide_adminmenu', 0 ) && $permission ) {
+			$label = is_pro_site( get_current_blog_id() ) ? $this->get_setting( 'lbl_curr' ) : $this->get_setting( 'lbl_signup' );
+			add_menu_page( $label, $label, 'edit_pages', 'psts-checkout', array(
+				&$this,
+				'checkout_redirect_page'
+			), 'dashicons-plus', 3.12 );
+		}
 	}
 
 	function add_menu_admin_bar_css() {
@@ -700,20 +1036,26 @@ Many thanks again for being a member!", 'psts' ),
 		if ( is_main_site() || ! is_admin_bar_showing() || ! is_user_logged_in() ) {
 			return;
 		}
+		//get allowed roles for checkout
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
+
+		//check If user is allowed
+		$current_user_id = get_current_user_id();
+		$permission      = $this->check_user_role( $current_user_id, $checkout_roles );
 
 		//add user admin bar upgrade button
-		if ( current_user_can( 'edit_pages' ) && ! $this->get_setting( 'hide_adminbar' ) ) {
+		if ( $permission && ! $this->get_setting( 'hide_adminbar' ) ) {
 			$checkout = $this->checkout_url( $blog_id );
 
 			$label = is_pro_site() ? $this->get_setting( 'lbl_curr' ) : $this->get_setting( 'lbl_signup' );
 			$label = '<span>' . esc_attr( $label ) . '</span>';
 
 			$wp_admin_bar->add_menu( array(
-					'id'     => 'pro-site',
-					'parent' => ( version_compare( $wp_version, '3.3', '>=' ) ? 'top-secondary' : false ),
-					'title'  => $label,
-					'href'   => $checkout
-				) );
+				'id'     => 'pro-site',
+				'parent' => ( version_compare( $wp_version, '3.3', '>=' ) ? 'top-secondary' : false ),
+				'title'  => $label,
+				'href'   => $checkout
+			) );
 		}
 
 		//add superadmin status menu
@@ -728,7 +1070,7 @@ Many thanks again for being a member!", 'psts' ),
 			if ( $expire > 2147483647 ) {
 				$expire = __( "Permanent", "psts" );
 			} else {
-				$expire = $expire ? date( "Y-m-d", $expire ) : __( "N/A", "psts" );
+				$expire = $expire ? date( "Y-m-d", intval( $expire ) ) : __( "N/A", "psts" );
 			}
 			$sup_title .= " [{$expire}]";
 			$wp_admin_bar->add_menu( array(
@@ -740,26 +1082,35 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
-	function checkout_url( $blog_id = false ) {
+	function checkout_url( $blog_id = false, $domain = false ) {
 		global $current_site;
 
 		$url = $this->get_setting( 'checkout_url' );
 
+		$page = get_post( $this->get_setting( 'checkout_page' ) );
+		if ( ! $page || $page->post_status == 'trashed' ) {
+			$url = $this->create_checkout_page();
+		}
 		/*
-	  //just in case the checkout page was not created do it now
-	  if (!$url) {
-	    $this->create_checkout_page();
-	    $url = $this->get_setting('checkout_url');
-	  }
-		*/
-
-		//change to ssl if required
+          //just in case the checkout page was not created do it now
+          if (!$url) {
+          $this->create_checkout_page();
+          $url = $this->get_setting('checkout_url');
+          }
+         */
+		/**
+		 * Filter the force SSl option
+		 *
+		 * @param bool , default is set to false
+		 */
 		if ( apply_filters( 'psts_force_ssl', false ) ) {
 			$url = str_replace( 'http://', 'https://', $url );
 		}
 
 		if ( $blog_id ) {
-			$url .= '?bid=' . $blog_id;
+			$url = add_query_arg( array( 'bid' => $blog_id ), $url );
+		} elseif ( $domain ) {
+			$url = add_query_arg( array( 'domain' => $domain ), $url );
 		}
 
 		return $url;
@@ -767,35 +1118,46 @@ Many thanks again for being a member!", 'psts' ),
 
 	function redirect_checkout() {
 		global $blog_id;
-		wp_redirect( $this->checkout_url( $blog_id ) );
+//		wp_redirect( $this->checkout_url( $blog_id ) );
 	}
 
 	//creates the checkout page on install and updates
 	function create_checkout_page() {
 		global $current_site;
 
+		//allow overriding and changing the root site to put the checkout page on
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+
+		//default brand title
+		$default_title = $this->get_default_settings_array();
+		$default_title = $default_title['rebrand'];
 		//insert new page if not existing
-		switch_to_blog( $current_site->blog_id );
+		switch_to_blog( $checkout_site );
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
 		if ( ! $page || $page->post_status == 'trashed' ) {
 			$id = wp_insert_post( array(
-					'post_title'     => $this->get_setting( 'rebrand' ),
-					'post_status'    => 'publish',
-					'post_type'      => 'page',
-					'comment_status' => 'closed',
-					'ping_status'    => 'closed',
-					'post_content'   => stripslashes( get_site_option( 'supporter_message' ) )
-				) );
+				'post_title'     => $this->get_setting( 'rebrand', $default_title ),
+				'post_status'    => 'publish',
+				'post_type'      => 'page',
+				'comment_status' => 'closed',
+				'ping_status'    => 'closed',
+				'post_content'   => stripslashes( get_site_option( 'supporter_message' ) )
+			) );
 			$this->update_setting( 'checkout_page', $id );
-			$this->update_setting( 'checkout_url', get_permalink( $id ) );
+			$url = get_permalink( $id );
+			$this->update_setting( 'checkout_url', $url );
 		} else {
-			$this->update_setting( 'checkout_url', get_permalink( $this->get_setting( 'checkout_page' ) ) );
+			$url = get_permalink( $this->get_setting( 'checkout_page' ) );
+			$this->update_setting( 'checkout_url', $url );
 		}
 		restore_current_blog();
+
+		return $url;
 	}
 
 	function checkout_page_load( $query ) {
 
+		$x = '';
 		//don't check on other blogs
 		if ( ! is_main_site() ) {
 			return;
@@ -806,24 +1168,19 @@ Many thanks again for being a member!", 'psts' ),
 			return;
 		}
 
-
 		// using get_queried_object_id() causes child forums in bbpress to give 404 results.
 		$queried_object_id = intval( isset( $query->queried_object_id ) ? $query->queried_object_id : 0 );
 
-		//check if on checkout page
+		//check if on checkout page or exit
 		if ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) {
+
 			return;
 		}
 
-		//force ssl on the checkout page if required by gateway
-		if ( apply_filters( 'psts_force_ssl', false ) && ! is_ssl() ) {
+		//force ssl on the checkout page if required by gateway force if admin is forced (because user will be logged in)
+		if ( ( apply_filters( 'psts_force_ssl', false ) && ! is_ssl() ) || ( force_ssl_admin() && ! is_ssl() ) ) {
 			wp_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 			exit();
-		}
-
-		//make sure session is started
-		if ( session_id() == "" ) {
-			session_start();
 		}
 
 		//passed all checks, flip one time flag
@@ -832,46 +1189,77 @@ Many thanks again for being a member!", 'psts' ),
 		//remove all filters except shortcodes and checkout form
 		remove_all_filters( 'the_content' );
 		add_filter( 'the_content', 'do_shortcode' );
-		add_filter( 'the_content', array( &$this, 'checkout_output' ), 15 );
 
+		/**
+		 * Responsible for checkout page
+		 */
+		add_filter( 'the_content', array( &$this, 'checkout_output' ), 15 );
+		/**
+		 * @todo: come back to this one
+		 */
+		do_action( 'psts_checkout_page_load'); //for gateway plugins to hook into
 
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'jquery-ui-tabs' );
+
+		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
+			'ajax_url' => ProSites_Helper_ProSite::admin_ajax_url(),
+			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
+			'button_signup' => __( "Sign Up", 'psts' ),
+			'button_choose' => __( "Choose Plan", 'psts' ),
+			'button_chosen' => __( "Chosen Plan", 'psts' ),
+			'logged_in' => is_user_logged_in(),
+		) );
+
 		if ( ! current_theme_supports( 'psts_style' ) ) {
 			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
+			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
+		}
+		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
+			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
 		}
 
 		//setup error var
 		$this->errors = new WP_Error();
 
 		//set blog_id
+		$blog_id = false;
+		$domain  = false;
+
 		if ( isset( $_POST['bid'] ) ) {
 			$blog_id = intval( $_POST['bid'] );
 		} else if ( isset( $_GET['bid'] ) ) {
 			$blog_id = intval( $_GET['bid'] );
-		} else {
-			$blog_id = false;
 		}
 
-		if ( $blog_id ) {
+		// Set domain if in session
+		$domain = ProSites_Helper_Session::session( 'domain' );
+
+		if ( $blog_id || $domain ) {
 
 			add_filter( 'the_title', array( &$this, 'page_title_output' ), 99, 2 );
 			add_filter( 'bp_page_title', array( &$this, 'page_title_output' ), 99, 2 );
 
+			$use_pricing_table = $this->get_setting( 'comparison_table_enabled' ) ? $this->get_setting( 'comparison_table_enabled' ) : $this->get_setting( 'co_pricing' );
+			if ( $use_pricing_table === "enabled" ) {
+				add_filter( 'psts_checkout_screen_before_grid', array( &$this, 'checkout_trial_msg' ), 10, 2 );
+			}
+
 			//clear coupon if link clicked
 			if ( isset( $_GET['remove_coupon'] ) ) {
-				unset( $_SESSION['COUPON_CODE'] );
+				ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
 			}
 
 			//check for coupon session variable
-			if ( isset( $_SESSION['COUPON_CODE'] ) ) {
-				if ( $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, intval( @$_POST['level'] ) ) ) {
+			if ( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
+				if ( $this->check_coupon( $session_coupon, $blog_id, intval( @$_POST['level'] ), $_POST['period'], '' ) ) {
 					$coupon = true;
 				} else {
 					if ( isset( $_POST['level'] ) && is_numeric( $_POST['level'] ) ) {
 						$this->errors->add( 'coupon', __( 'Sorry, the coupon code you entered is not valid for your chosen level.', 'psts' ) );
 					} else {
 						$this->errors->add( 'coupon', __( 'Whoops! The coupon code you entered is not valid.', 'psts' ) );
-						unset( $_SESSION['COUPON_CODE'] );
+						ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
 					}
 				}
 			}
@@ -880,29 +1268,27 @@ Many thanks again for being a member!", 'psts' ),
 				$code   = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $_POST['coupon_code'] ) );
 				$coupon = $this->check_coupon( $code, $blog_id );
 				if ( $coupon ) {
-					$_SESSION['COUPON_CODE'] = $code;
-					$this->log_action( $blog_id, __( "User added a valid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code );
+					ProSites_Helper_Session::session( 'COUPON_CODE', $code );
+					$this->log_action( $blog_id, __( "User added a valid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code, $domain );
 				} else {
 					$this->errors->add( 'coupon', __( 'Whoops! The coupon code you entered is not valid.', 'psts' ) );
-					$this->log_action( $blog_id, __( "User attempted to add an invalid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code );
+					$this->log_action( $blog_id, __( "User attempted to add an invalid coupon to their order on the checkout page:", 'psts' ) . ' ' . $code, $domain );
 				}
 			}
-
-			do_action( 'psts_checkout_page_load', $blog_id ); //for gateway plugins to hook into
 		} else {
 			//code for unique coupon links
 			if ( isset( $_GET['coupon'] ) ) {
 				$code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $_GET['coupon'] ) );
 				if ( $this->check_coupon( $code ) ) {
-					$_SESSION['COUPON_CODE'] = $code;
+					ProSites_Helper_Session::session( 'COUPON_CODE', $code );
 				}
 			}
 		}
 	}
 
 	function check() {
-		global $blog_id, $wpdb;
 
+		global $blog_id, $wpdb;
 		if ( is_pro_site( $blog_id ) ) {
 			do_action( 'psts_active' );
 		} else if ( $wpdb->result ) { //only trigger withdrawls if it wasn't a db error
@@ -920,8 +1306,37 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
+	/**
+	 * Check if given blog has been canceled
+	 *
+	 * @since 3.4.3.7
+	 *
+	 * @param int $blog_id
+	 *
+	 * @return bool
+	 */
+	function is_blog_canceled( $blog_id ) {
+		global $wpdb;
+
+		if ( get_blog_option( $blog_id, 'psts_is_canceled' ) || get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
+			return true;
+		}
+
+		//check if blog has been canceled in the stat log (other gateways, manual cancel, etc)
+		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(action_ID) FROM {$wpdb->prefix}pro_sites_signup_stats WHERE blog_ID = %d AND action = 'cancel'", $blog_id ) );
+
+		if ( $count > 0 ) {
+			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
+
+			return true;
+		}
+
+		return false;
+	}
+
+
 	//sends email notification to the user
-	function email_notification( $blog_id, $action, $email = false ) {
+	function email_notification( $blog_id, $action, $email = false, $args = array() ) {
 		global $wpdb;
 
 		if ( ! $email ) {
@@ -952,6 +1367,9 @@ Many thanks again for being a member!", 'psts' ),
 				break;
 
 			case 'receipt':
+
+				// NOTE: Stripe no longer uses this
+
 				//grab default payment info
 				$result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
@@ -959,20 +1377,82 @@ Many thanks again for being a member!", 'psts' ),
 				} else {
 					$term = $result->term;
 				}
+				$level = $result->level;
 
 				$payment_info = '';
 
+				// Get current plan
+				$level_list = get_site_option( 'psts_levels' );
+				$level_name = $level_list[ $level ]['name'];
+				$payment_info .= sprintf( __( 'Current Plan: %s', 'psts' ), $level_name ) . "\n\n";
+
 				if ( $result->gateway ) {
-					$payment_info .= sprintf( __( 'Payment Method: %s', 'psts' ), $result->gateway ) . "\n";
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					$payment_info .= sprintf( __( 'Payment Method: %s', 'psts' ), $nicename ) . "\n";
 				}
 
 				if ( $term ) {
 					$payment_info .= sprintf( __( 'Payment Term: %s', 'psts' ), $term ) . "\n";
 				}
 
-				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $result->amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+				$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+				$amount = $trialing ? 0.0 : $result->amount;
+				$payment_info .= sprintf( __( 'Payment Amount: %s', 'psts' ), $this->format_currency( false, $amount ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
 
-				if ( $result->gateway == 'Trial' ) {
+				if( ! empty( $args ) ) {
+
+					if( isset( $args['items'] ) ) {
+						$items = $args['items'];
+						$items_total = ProSites_Model_Receipt::get_items_total( $items );
+						foreach( $items as $item ) {
+							$symbol = $item['amount'] > 0 ? '' : '-';
+							$payment_info .= sprintf( '%s: %s%s', $item['description'], $symbol, $this->format_currency( false, abs( $item['amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						}
+						$payment_info .= '<hr />';
+						$items_total = $items_total > 0 ? $items_total : 0;
+						$symbol = $items_total >= 0 ? '' : '-';
+						$payment_info .= sprintf( __( 'Total Paid: %s%s', 'psts' ), $symbol, $this->format_currency( false, $items_total ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+					} else {
+						/**
+						 * @todo Remove prior to release
+						 */
+						if( isset( $args['setup_amount'] ) ) {
+							$payment_info .= sprintf( __( 'One-Time Setup Fee: %s', 'psts' ), $this->format_currency( false, $args['setup_amount'] ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						} else {
+							$args['setup_amount'] = 0;
+						}
+						if( isset( $args['discount_amount'] ) ) {
+							$payment_info .= sprintf( __( 'Discount: -%s', 'psts' ), $this->format_currency( false, abs( $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						} else {
+							$args['discount_amount'] = 0;
+						}
+
+						$zero_cost_change = false;
+						if( isset( $args['plan_change_amount'] ) ) {
+							switch( $args['plan_change_mode'] ) {
+								case 'upgrade':
+									$payment_info .= sprintf( __( 'Plan Modified: %s', 'psts' ), $this->format_currency( false, abs( $args['plan_change_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+									break;
+								case 'downgrade':
+									$payment_info .= sprintf( __( 'Plan Modified: -%s', 'psts' ), $this->format_currency( false, abs( $args['plan_change_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+									break;
+							}
+							$zero_cost_change = 0 > ( $amount + $args['setup_amount'] + $args['plan_change_amount'] - $args['discount_amount'] );
+						} else {
+							$args['plan_change_amount'] = 0;
+						}
+						$payment_info .= sprintf( '<hr />' );
+						if( $zero_cost_change ) {
+							// No cost to upgrade
+							$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false,  0 ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						} else {
+							$payment_info .= sprintf( __( 'Total Paid: %s', 'psts' ), $this->format_currency( false, ( $amount + $args['setup_amount'] + $args['plan_change_amount'] - $args['discount_amount'] ) ) . ' ' . $this->get_setting( 'currency' ) ) . "\n";
+						}
+
+					}
+				}
+
+				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
 					$trial_info = "\n" . __( '*** PLEASE NOTE ***', 'psts' ) . "\n";
 					$trial_info .= sprintf( __( 'You will not be charged for your subscription until your trial ends on %s. If applicable, this does not apply to setup fees and other upfront costs.', 'psts' ), date_i18n( get_option( 'date_format' ), $result->expire ) );
 					$payment_info .= apply_filters( 'psts_trial_info', $trial_info, $blog_id );
@@ -1030,18 +1510,150 @@ Many thanks again for being a member!", 'psts' ),
 
 				$this->log_action( $blog_id, sprintf( __( 'Payment failed email sent to %s', 'psts' ), $email ) );
 				break;
+			case 'extension':
+				//get end date from expiration
+				$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $this->get_expire( $blog_id ) );
+
+				if( ! empty( $args ) && isset( $args['indefinite'] ) ) {
+					$end_date = __( 'Indefinitely', 'psts' );
+				}
+
+				$search_replace['ENDDATE'] = $end_date;
+				$e                         = array(
+					'msg'     => $this->get_setting( 'extension_msg' ),
+					'subject' => $this->get_setting( 'extension_subject' )
+				);
+
+				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
+				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
+
+				$this->log_action( $blog_id, sprintf( __( 'Manual extension email sent to %s', 'psts' ), $email ) );
+				break;
 		}
 	}
 
-	//log blog actions for an audit trail
-	function log_action( $blog_id, $note ) {
-		//grab data
-		$log = get_blog_option( $blog_id, 'psts_action_log' );
+	public static function send_receipt( $transaction ) {
+		global $psts, $wpdb;
 
-		if ( ! is_array( $log ) ) {
-			$log = array();
+		// used in all emails
+		$search_replace = array(
+			'LEVEL'       => $psts->get_level_setting( $psts->get_level( $transaction->blog_id ), 'name' ),
+			'SITEURL'     => get_home_url( $transaction->blog_id ),
+			'SITENAME'    => get_blog_option( $transaction->blog_id, 'blogname' ),
+			'CHECKOUTURL' => $psts->checkout_url( $transaction->blog_id )
+		);
+		// send emails as html (fixes some formatting issues with currencies)
+		$mail_headers = array( 'Content-Type: text/html' );
+
+		// Get the user
+		if ( !empty( $transaction->username ) ) {
+			$user = get_user_by( 'login', $transaction->username );
+			$email = $user->user_email;
+		} elseif ( !empty( $transaction->email ) ) {
+			$user = get_user_by( 'email', $transaction->email );
+			$email = $transaction->email;
+		}
+		if ( ! $user ) {
+			$email = get_blog_option( $transaction->blog_id, 'admin_email' );
 		}
 
+		// Get current plan
+		$level_list = get_site_option( 'psts_levels' );
+		$level_name = $level_list[ $transaction->level ]['name'];
+		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
+		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
+		$term       = $result->term;
+
+		if ( $term == 1 || $term == 3 || $term == 12 ) {
+			$term = sprintf( __( 'Every %s Month(s)', 'psts' ), $result->term );
+		} else {
+			$term = false;
+		}
+
+		$payment_info = sprintf( __( 'Current Plan: %s', 'psts' ), $level_name ) . "\n";
+		$payment_info .= sprintf( __( 'Payment Method: %s', 'psts' ), $gateway ) . "\n";
+		if ( $term ) {
+			$payment_info .= sprintf( __( 'Payment Term: %s', 'psts' ), $term ) . "\n<hr />";
+		}
+		$payment_info .= sprintf( __( 'Transaction/Invoice #: %s', 'psts' ), $transaction->invoice_number) . "\n";
+		$payment_info .= sprintf( __( 'Transaction/Invoice Date: %s', 'psts' ), $transaction->invoice_date) . "\n\n";
+		$payment_info .= '<strong>' . __( 'Transaction Details:', 'psts' ) . "</strong>\n\n";
+
+		foreach( $transaction->transaction_lines as $line ) {
+			$payment_info .= esc_html( $line->description  ) . '&nbsp;&nbsp;';
+			$payment_info .= esc_html( $psts->format_currency( $transaction->currency_code, $line->amount )  ) . "&nbsp;&nbsp;\n";
+		}
+
+		$tax_rate = isset( $transaction->tax_percent ) ? $transaction->tax_percent : 0;
+		$total = isset( $transaction->total ) ? $transaction->total : false;
+		$subtotal = isset( $transaction->subtotal ) ? $transaction->subtotal : false;
+		$tax = isset( $transaction->tax ) ? $transaction->tax : false;
+
+		if( false === $total && $subtotal ) {
+			$total = ( $subtotal * $tax_rate ) + $subtotal;
+		}
+		if( false === $subtotal && $total ) {
+			$subtotal = $total / ( $tax_rate + 1 );
+		}
+		if( false === $tax && $total && $subtotal ) {
+			$tax = $total - $subtotal;
+		}
+
+		if ( empty( $tax_rate ) ) {
+			$payment_info .= "\n<strong>" . sprintf( __( 'Total: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $total ) ) . "</strong>\n\n";
+		} else {
+			$payment_info .= "\n" . sprintf( __( 'Sub-Total: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $subtotal ) ) . "\n";
+			$payment_info .= sprintf( __( 'Tax Rate: %s%%', 'psts' ), ($tax_rate * 100) ) . "\n";
+			$payment_info .= sprintf( __( 'Tax Amount: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $tax ) ) . "\n";
+			$payment_info .= '<strong>' . sprintf( __( 'Total: %s', 'psts' ), $psts->format_currency( $transaction->currency_code, $total ) ) . "</strong>\n\n";
+		}
+
+		$payment_info .= '<hr />';
+
+		$search_replace['PAYMENTINFO'] = apply_filters( 'psts_payment_info', $payment_info, $transaction->blog_id );
+
+		$e = array(
+			'msg'     => $psts->get_setting( 'receipt_msg' ),
+			'subject' => $psts->get_setting( 'receipt_subject' )
+		);
+		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
+
+		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $psts->pdf_receipt( $e['msg'] ) );
+
+		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
+
+	}
+
+
+	/**
+	 * @todo: Rework this into a model
+	 */
+	public function send_extension_email( $blog_id, $new_expire, $level, $manual_notify ) {
+
+		if( $manual_notify ) {
+			$args = array();
+			if ( '9999999999' == $new_expire ) {
+				$args['indefinite'] = true;
+			}
+
+			if ( ! defined( 'PSTS_NO_EXTENSION_EMAIL' ) ) {
+				$this->email_notification( $blog_id, 'extension', false, $args );
+			}
+		}
+	}
+
+	/**
+	 * Log all the actions for blog or domain
+	 *
+	 * @param $blog_id
+	 * @param $note
+	 * @param string $domain , Optional
+	 */
+	function log_action( $blog_id, $note, $domain = '' ) {
+
+		if ( empty( $blog_id ) && empty ( $domain ) ) {
+			return false;
+		}
 		//append
 		$timestamp = microtime( true );
 
@@ -1050,10 +1662,26 @@ Many thanks again for being a member!", 'psts' ),
 			$timestamp += 0.0001;
 		}
 
-		$log[ $timestamp ] = $note;
+		if ( ! empty( $blog_id ) ) {
+			//grab data
+			$log = get_blog_option( $blog_id, 'psts_action_log' );
 
-		//save
-		update_blog_option( $blog_id, 'psts_action_log', $log );
+			if ( ! is_array( $log ) ) {
+				$log = array();
+			}
+
+			$log[ $timestamp ] = $note;
+
+			//save
+			update_blog_option( $blog_id, 'psts_action_log', $log );
+		} else {
+
+			$signup_meta                                  = $this->get_signup_meta( $domain );
+			$signup_meta['psts_action_log'][ $timestamp ] = $note;
+
+			//Update signup meta
+			$this->update_signup_meta( $signup_meta, $domain );
+		}
 	}
 
 	//record last payment
@@ -1068,7 +1696,7 @@ Many thanks again for being a member!", 'psts' ),
 	}
 
 	//record payment refund
-	function record_refund_transaction( $blog_id, $txn_id, $refunded ) {
+	function record_refund_transaction( $blog_id, $txn_id, $refunded, $domain = false ) {
 		$trans_meta = get_blog_option( $blog_id, 'psts_payments_log' );
 
 		if ( isset( $trans_meta[ $txn_id ] ) ) {
@@ -1083,8 +1711,17 @@ Many thanks again for being a member!", 'psts' ),
 	}
 
 	//get last transaction details
-	function last_transaction( $blog_id ) {
-		$trans_meta = get_blog_option( $blog_id, 'psts_payments_log' );
+	function last_transaction( $blog_id, $domain = false ) {
+		if ( ! $blog_id && ! $domain ) {
+			return false;
+		}
+		$trans_meta = '';
+		if ( $blog_id ) {
+			$trans_meta = get_blog_option( $blog_id, 'psts_payments_log' );
+		} else {
+			$signup_meta = $this->get_signup_meta( $domain );
+			$trans_meta  = isset( $signup_meta['psts_payment_log'] ) ? $signup_meta['psts_payment_log'] : '';
+		}
 
 		if ( is_array( $trans_meta ) ) {
 			return array_pop( $trans_meta );
@@ -1111,14 +1748,26 @@ Many thanks again for being a member!", 'psts' ),
 		if ( $level ) { //level is passed, check level
 			if ( $level == 0 ) {
 				return true;
-			} else if ( isset( $this->pro_sites[ $blog_id ][ $level ] ) && is_bool( $this->pro_sites[ $blog_id ][ $level ] ) ) {
+			} else if ( isset( $this->pro_sites[ $blog_id ][ $level ] ) && is_bool( $this->pro_sites[ $blog_id ][ $level ] ) ) { //check local cache
 				return $this->pro_sites[ $blog_id ][ $level ];
+			} else if ( $pro_site = wp_cache_get( 'is_pro_site_' . $blog_id, 'psts' ) ) { //check object cache
+				if ( isset( $pro_site[ $level ] ) && is_bool( $pro_site[ $level ] ) ) {
+					return $pro_site[ $level ];
+				}
 			}
 		} else { //any level will do
-			if ( isset( $this->pro_sites[ $blog_id ] ) && is_array( $this->pro_sites[ $blog_id ] ) ) {
+			if ( isset( $this->pro_sites[ $blog_id ] ) && is_array( $this->pro_sites[ $blog_id ] ) ) { //check local cache for any level
 				foreach ( $this->pro_sites[ $blog_id ] as $key => $value ) {
 					if ( $value ) {
 						return true;
+					}
+				}
+			} else if ( $pro_site = wp_cache_get( 'is_pro_site_' . $blog_id, 'psts' ) ) { //check object cache
+				if ( is_array( $pro_site ) ) {
+					foreach ( $pro_site as $key => $value ) {
+						if ( $value ) {
+							return true;
+						}
 					}
 				}
 			}
@@ -1128,40 +1777,53 @@ Many thanks again for being a member!", 'psts' ),
 		if ( is_main_site( $blog_id ) ) {
 			return true;
 		} else { //finally go to DB
-			$now  = strtotime( '-3 hours' );    //pad expiration by 3 hours just in case webhooks are delayed, etc
+			$now  = time();
 			$data = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 			if ( is_object( $data ) ) {
 				if ( $level ) {
 					if ( $data->expire && $data->expire > $now && $level <= $data->level ) {
 						for ( $i = 1; $i <= $data->level; $i ++ ) {
 							$this->pro_sites[ $blog_id ][ $i ] = true;
-						} //update cache
+						} //update local cache
+
+						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return true;
 					} else {
-						$levels = (array) get_site_option( 'psts_levels' );
+						$levels = ( array ) get_site_option( 'psts_levels' );
 						for ( $i = $level; $i <= count( $levels ); $i ++ ) {
 							$this->pro_sites[ $blog_id ][ $i ] = false;
-						} //update cache
+						} //update local cache
+
+						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return false;
 					}
 				} else { //any level will do
 					if ( $data->expire && $data->expire > $now ) {
 						for ( $i = 1; $i <= $data->level; $i ++ ) {
 							$this->pro_sites[ $blog_id ][ $i ] = true;
-						} //update cache
+						} //update local cache
+
+						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return true;
 					} else {
 						for ( $i = 1; $i <= $data->level; $i ++ ) {
 							$this->pro_sites[ $blog_id ][ $i ] = false;
-						} //update cache
+						} //update local cache
+
+						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return false;
 					}
 				}
 			} else {
 				if ( $wpdb->result ) { //only cache if there was not a db error
+					if ( ! $level ) {
+						$level = 5;
+					} //if level false give an arbitrary level count
 					for ( $i = 1; $i <= $level; $i ++ ) {
 						$this->pro_sites[ $blog_id ][ $i ] = false;
-					} //update cache
+					} //update local cache
+
+					wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 				}
 
 				return false;
@@ -1169,6 +1831,15 @@ Many thanks again for being a member!", 'psts' ),
 		}
 	}
 
+	function is_blog_recurring( $blog_id ) {
+		global $wpdb;
+
+		return $wpdb->get_var( $wpdb->prepare( "
+			SELECT is_recurring
+			FROM {$wpdb->base_prefix}pro_sites
+			WHERE blog_ID = %d", $blog_id
+		) );
+	}
 
 	/*
 	Useful in plugins to test users. Checks if any of the blogs they are a member of
@@ -1235,6 +1906,9 @@ Many thanks again for being a member!", 'psts' ),
 		//check cache
 		if ( isset( $this->level[ $blog_id ] ) ) {
 			return $this->level[ $blog_id ];
+		} else if ( false !== ( $level = wp_cache_get( 'level_' . $blog_id, 'psts' ) ) ) //try local cache (could be 0)
+		{
+			return $level;
 		}
 
 		if ( ! is_pro_site( $blog_id ) ) {
@@ -1245,12 +1919,12 @@ Many thanks again for being a member!", 'psts' ),
 
 		$level = $wpdb->get_var( $sql );
 		if ( $level ) {
-			$this->level[ $blog_id ] = $level;
-
+			$this->level[ $blog_id ] = $level; //update local cache
+			wp_cache_set( 'level_' . $blog_id, $level, 'psts' ); //update object cache
 			return $level;
 		} else {
-			unset( $this->level[ $blog_id ] );
-
+			unset( $this->level[ $blog_id ] ); //clear local cache
+			wp_cache_delete( 'level_' . $blog_id, 'psts' ); //clear object cache
 			return 0;
 		}
 	}
@@ -1275,11 +1949,14 @@ Many thanks again for being a member!", 'psts' ),
 		return apply_filters( 'psts_next_payment', false );
 	}
 
-	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false ) {
+	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
-
 		$now    = time();
-		$exists = $this->get_expire( $blog_id );
+		//	$exists = $this->get_expire( $blog_id ); // not reliable
+		$exists = false;
+		if ( ! empty( $blog_id ) ) {
+			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		}
 		$term   = $extend;
 
 		if ( $expires !== false ) {
@@ -1323,20 +2000,34 @@ Many thanks again for being a member!", 'psts' ),
 
 		$old_level = $this->get_level( $blog_id );
 
-		$extra_sql = ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
+		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
+		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
+		$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
-		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %s", $term ) : '';
+		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
+		$extra_sql .= $wpdb->prepare( ", is_recurring = %d", $is_recurring );
 
 		if ( $exists ) {
-			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s, level = %d{$extra_sql} WHERE blog_ID = %d", $new_expire, $level, $blog_id ) );
+			$wpdb->query( $wpdb->prepare( "
+	  		UPDATE {$wpdb->base_prefix}pro_sites
+	  		SET $extra_sql
+	  		WHERE blog_ID = %d",
+				$blog_id
+			) );
 		} else {
-			$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount) VALUES (%d, %s, %d, %s, %s, %s)", $blog_id, $new_expire, $level, $gateway, $term, $amount ) );
+			$wpdb->query( $wpdb->prepare( "
+		  	INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount, is_recurring)
+		  	VALUES (%d, %s, %d, %s, %s, %d, %d)",
+				$blog_id, $new_expire, $level, $gateway, $term, $amount, $is_recurring
+			) );
 		}
 
-		unset( $this->pro_sites[ $blog_id ] ); //clear cache
+		unset( $this->pro_sites[ $blog_id ] ); //clear local cache
+		wp_cache_delete( 'is_pro_site_' . $blog_id, 'psts' ); //clear object cache
 		unset( $this->level[ $blog_id ] ); //clear cache
+		wp_cache_delete( 'level_' . $blog_id, 'psts' ); //clear object cache
 
-		if ( $exists != $new_expire ) {    //only log if blog expiration date is not changing
+		if ( $exists != $new_expire ) { //only log if blog expiration date is not changing
 			if ( $new_expire >= 9999999999 ) {
 				$this->log_action( $blog_id, __( 'Pro Site status expiration permanently extended.', 'psts' ) );
 			} else {
@@ -1344,7 +2035,7 @@ Many thanks again for being a member!", 'psts' ),
 			}
 		}
 
-		do_action( 'psts_extend', $blog_id, $new_expire, $level );
+		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify );
 
 		//fire level change
 		if ( intval( $exists ) <= time() ) { //count reactivating account as upgrade
@@ -1359,6 +2050,15 @@ Many thanks again for being a member!", 'psts' ),
 			}
 		}
 
+		// Change trial status
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+		if( $trialing && ! 'Trial' == $gateway ) {
+			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
+		}
+		if( 'Trial' == $gateway ) {
+			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
+		}
+
 		//flip flag after action fired
 		update_blog_option( $blog_id, 'psts_withdrawn', 0 );
 
@@ -1366,7 +2066,7 @@ Many thanks again for being a member!", 'psts' ),
 		update_blog_option( $blog_id, 'psts_signed_up', 0 );
 	}
 
-	function withdraw( $blog_id, $withdraw = false ) {
+	function withdraw( $blog_id, $withdraw = false, $domain = false ) {
 		global $wpdb;
 
 		$blog_expire = $this->get_expire( $blog_id );
@@ -1380,14 +2080,13 @@ Many thanks again for being a member!", 'psts' ),
 				$withdraw = 31556926;
 			}
 			$new_expire = $blog_expire - $withdraw;
-		}
-		else {
+		} else {
 			$new_expire = strtotime('-1 day', time() );
 		}
-
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $new_expire, $blog_id ) );
 
 		unset( $this->pro_sites[ $blog_id ] ); //clear cache
+		wp_cache_delete( 'is_pro_site_' . $blog_id, 'psts' ); //clear object cache
 
 		$this->log_action( $blog_id, __( 'Pro Site status has been withdrawn.', 'psts' ) );
 
@@ -1395,6 +2094,7 @@ Many thanks again for being a member!", 'psts' ),
 
 		//flip flag after action fired
 		update_blog_option( $blog_id, 'psts_withdrawn', 1 );
+		ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 
 		//force to checkout screen next login
 		if ( $new_expire <= time() ) {
@@ -1403,103 +2103,28 @@ Many thanks again for being a member!", 'psts' ),
 	}
 
 
-	//checks a coupon code for validity. Return boolean
-	function check_coupon( $code, $blog_id = false, $level = false ) {
-		$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
-
-		//empty code
-		if ( ! $coupon_code ) {
-			return false;
-		}
-
-		$coupons = (array) get_site_option( 'psts_coupons' );
-
-		//allow plugins to override coupon check by returning a boolean value
-		if ( is_bool( $override = apply_filters( 'psts_check_coupon', null, $coupon_code, $blog_id, $level, $coupons ) ) ) {
-			return $override;
-		}
-
-		//no record for code
-		if ( ! isset( $coupons[ $coupon_code ] ) || ! is_array( $coupons[ $coupon_code ] ) ) {
-			return false;
-		}
-
-		//if specific level and not proper level
-		if ( $level && $coupons[ $coupon_code ]['level'] != 0 && $coupons[ $coupon_code ]['level'] != $level ) {
-			return false;
-		}
-
-		//start date not valid yet
-		if ( time() < $coupons[ $coupon_code ]['start'] ) {
-			return false;
-		}
-
-		//if end date and expired
-		if ( isset( $coupons[ $coupon_code ]['end'] ) && $coupons[ $coupon_code ]['end'] && time() > $coupons[ $coupon_code ]['end'] ) {
-			return false;
-		}
-
-		//check remaining uses
-		if ( isset( $coupons[ $coupon_code ]['uses'] ) && $coupons[ $coupon_code ]['uses'] && ( intval( $coupons[ $coupon_code ]['uses'] ) - intval( @$coupons[ $coupon_code ]['used'] ) ) <= 0 ) {
-			return false;
-		}
-
-		//check if the blog has used the coupon before
-		if ( $blog_id ) {
-			$used = get_blog_option( $blog_id, 'psts_used_coupons' );
-			if ( is_array( $used ) && in_array( $coupon_code, $used ) ) {
-				return false;
-			}
-		}
-
-		//everything passed so it's valid
-		return true;
+	/**
+	 * checks a coupon code for validity. Return boolean
+	 * @todo: remove this after cleaning up
+	 */
+	function check_coupon( $code, $blog_id = false, $level = false, $period = '', $domain = '' ) {
+		return ProSites_Helper_Coupons::check_coupon( $code, $blog_id, $level, $period, $domain );
 	}
 
-	//get coupon value. Returns array(discount, new_total) or false for invalid code
+	/**
+	* get coupon value. Returns array(discount, new_total) or false for invalid code
+	* @todo: remove this after cleaning up
+	*/
 	function coupon_value( $code, $total ) {
-		if ( $this->check_coupon( $code ) ) {
-			$coupons     = (array) get_site_option( 'psts_coupons' );
-			$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
-			if ( $coupons[ $coupon_code ]['discount_type'] == 'amt' ) {
-				$new_total = round( $total - $coupons[ $coupon_code ]['discount'], 2 );
-				$new_total = ( $new_total < 0 ) ? 0.00 : $new_total;
-				$discount  = '-' . $this->format_currency( '', $coupons[ $coupon_code ]['discount'] );
-
-				return array( 'discount' => $discount, 'new_total' => $new_total );
-			} else {
-				$new_total = round( $total - ( $total * ( $coupons[ $coupon_code ]['discount'] * 0.01 ) ), 2 );
-				$new_total = ( $new_total < 0 ) ? 0.00 : $new_total;
-				$discount  = '-' . $coupons[ $coupon_code ]['discount'] . '%';
-
-				return array( 'discount' => $discount, 'new_total' => $new_total );
-			}
-
-		} else {
-			return false;
-		}
+		return ProSites_Helper_Coupons::coupon_value( $code, $total );
 	}
 
-	//record coupon use. Returns boolean successful
-	function use_coupon( $code, $blog_id ) {
-		if ( $this->check_coupon( $code, $blog_id ) ) {
-			$coupons     = (array) get_site_option( 'psts_coupons' );
-			$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
-
-			//increment count
-			@$coupons[ $coupon_code ]['used'] ++;
-			update_site_option( 'psts_coupons', $coupons );
-
-			unset( $_SESSION['COUPON_CODE'] );
-
-			$used   = (array) get_blog_option( $blog_id, 'psts_used_coupons' );
-			$used[] = $coupon_code;
-			update_blog_option( $blog_id, 'psts_used_coupons', $used );
-
-			return true;
-		} else {
-			return false;
-		}
+	/**
+	 * record coupon use. Returns boolean successful
+	 * @todo: remove this after cleaning up
+	 */
+	function use_coupon( $code, $blog_id, $domain = false ) {
+		return ProSites_Helper_Coupons::use_coupon( $code, $blog_id, $domain );
 	}
 
 	//display currency symbol
@@ -1510,17 +2135,26 @@ Many thanks again for being a member!", 'psts' ),
 		}
 
 		// get the currency symbol
-		$symbol = @$this->currencies[ $currency ][1];
+		$currencies = @ProSites_Model_Data::$currencies;
+		if( empty( $currencies) ) {
+			$currencies = $this->currencies;
+			$symbol = @$currencies[ $currency ][1];
+		} else {
+			$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
+		}
+
 		// if many symbols are found, rebuild the full symbol
-		$symbols = explode( ', ', $symbol );
+		$symbols = explode( ',', $symbol );
 		if ( is_array( $symbols ) ) {
 			$symbol = "";
 			foreach ( $symbols as $temp ) {
+				$temp = trim( $temp );
 				$symbol .= '&#x' . $temp . ';';
 			}
 		} else {
 			$symbol = '&#x' . $symbol . ';';
 		}
+		$symbol = apply_filters( 'prosite_currency_symbol', $symbol, $currency );
 
 		//check decimal option
 		if ( $this->get_setting( 'curr_decimal' ) === '0' ) {
@@ -1531,29 +2165,38 @@ Many thanks again for being a member!", 'psts' ),
 			$zero          = '0.00';
 		}
 
+		$symbol_position = $this->get_setting( 'curr_symbol_position', 1 );
+		/*
+		 * 1 - Left Tight
+		 * 2 - Left Space
+		 * 3 - Right Tight
+		 * 4 - Right Space
+		 */
+		$symbol_position = apply_filters( 'prosite_currency_symbol_position', $symbol_position, $currency );
+
 		//format currency amount according to preference
 		if ( $amount ) {
 
-			if ( $this->get_setting( 'curr_symbol_position' ) == 1 || ! $this->get_setting( 'curr_symbol_position' ) ) {
+			if ( $symbol_position ) {
 				return $symbol . @number_format_i18n( $amount, $decimal_place );
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 2 ) {
+			} else if ( $symbol_position == 2 ) {
 				return $symbol . ' ' . number_format_i18n( $amount, $decimal_place );
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 3 ) {
+			} else if ( $symbol_position == 3 ) {
 				return number_format_i18n( $amount, $decimal_place ) . $symbol;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 4 ) {
+			} else if ( $symbol_position == 4 ) {
 				return number_format_i18n( $amount, $decimal_place ) . ' ' . $symbol;
 			}
 
 		} else if ( $amount === false ) {
 			return $symbol;
 		} else {
-			if ( $this->get_setting( 'curr_symbol_position' ) == 1 || ! $this->get_setting( 'curr_symbol_position' ) ) {
+			if ( $symbol_position ) {
 				return $symbol . $zero;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 2 ) {
+			} else if ( $symbol_position == 2 ) {
 				return $symbol . ' ' . $zero;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 3 ) {
+			} else if ( $symbol_position == 3 ) {
 				return $zero . $symbol;
-			} else if ( $this->get_setting( 'curr_symbol_position' ) == 4 ) {
+			} else if ( $symbol_position == 4 ) {
 				return $zero . ' ' . $symbol;
 			}
 		}
@@ -1586,12 +2229,64 @@ Many thanks again for being a member!", 'psts' ),
 		if ( $left <= 0 || empty( $old->amount ) || $old->amount <= 0 ) {
 			return false;
 		}
-		$prorate_amt   = $old->amount * ( $left / $duration );
+		if( $new_amt === 0 ) {
+			error_log("Pro Sites: Amount can't be zero");
+			return false;
+		}
+		$prorate_amt   = $duration > 0 ? $old->amount * ( $left / $duration ) : 0; //Avoid Divison by zero
 		$new_duration  = $new_period * 30.4166 * 24 * 60 * 60; //number of seconds in the period
 		$first_payment = ( $prorate_amt / ( $new_amt / $new_duration ) ) + time(); //return timestamp of first payment date
 		$first_payment = intval( round( $first_payment ) );
 
 		return ( $first_payment > time() ) ? $first_payment : false;
+	}
+
+	/**
+	 * This function will calculate the cost to upgrade/modify to a
+	 * different plan mid-billing period
+	 */
+	function calc_upgrade_cost( $blog_id, $new_level, $new_period, $new_amt ) {
+		global $wpdb;
+
+		//If no blog id is set, or value is 0, return the amount
+		if ( empty( $blog_id ) || $blog_id === 0 ) {
+			return $new_amt;
+		}
+
+		$old = $wpdb->get_row( $wpdb->prepare( "SELECT expire, level, term, amount FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+
+		if ( ! $old ) {
+			return $new_amt;
+		}
+
+		if ( $new_level < $old->level && $new_period < $old->term ) // if customer is downgrading no need to charge them
+		{
+			return 0;
+		}elseif( $new_level == $old->level && $new_period == $old->term ) {
+			if( is_pro_trial( $blog_id ) ) {
+				//Non Recurring, with trial (Level and Period is assigned)
+				return $new_amt;
+			}else{
+				return 0;
+			}
+		}
+
+		if ( $old->expire < time() ) {
+			return $new_amt;
+		}
+
+		$diff     = $old->expire - time();
+		$duration = $old->term * 30.4166 * 24 * 60 * 60; //number of seconds in the period
+		$left     = $duration - ( $duration - $diff ); //number of seconds left in current period
+
+		if ( $left <= 0 || empty( $old->amount ) || $old->amount <= 0 ) {
+			return $new_amt;
+		}
+
+		$refund_amt = round( $old->amount * ( $left / $duration ) ); //amount to refund
+		$new_amt    = $new_amt - $refund_amt;
+
+		return ( $new_amt < 0 ) ? 0 : $new_amt;
 	}
 
 	//filters the titles for our custom pages
@@ -1619,7 +2314,11 @@ Many thanks again for being a member!", 'psts' ),
 	function signup_redirect() {
 		global $blog_id;
 
-		//dismiss redirect if link is clicked or paid
+		//If doing ajax, exit
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX === true ) {
+			return;
+		}
+		//dismiss redirect if free site option is chosen or paid
 		if ( isset( $_GET['psts_dismiss'] ) || is_pro_site() ) {
 			update_option( 'psts_signed_up', 0 );
 		}
@@ -1638,39 +2337,138 @@ Many thanks again for being a member!", 'psts' ),
 
 	function scripts_checkout() {
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'jquery-ui-tabs' );
 	}
 
 	function scripts_stats() {
 		wp_enqueue_script( 'flot', $this->plugin_url . 'js/jquery.flot.min.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'flot_pie', $this->plugin_url . 'js/jquery.flot.pie.min.js', array(
-				'jquery',
-				'flot'
-			), $this->version );
+			'jquery',
+			'flot'
+		), $this->version );
 		wp_enqueue_script( 'flot_xcanvas', $this->plugin_url . 'js/excanvas.pack.js', array(
-				'jquery',
-				'flot'
-			), $this->version );
+			'jquery',
+			'flot'
+		), $this->version );
 	}
 
 	function scripts_coupons() {
 		wp_enqueue_script( 'jquery-datepicker', $this->plugin_url . 'datepicker/js/datepicker.min.js', array(
-				'jquery',
-				'jquery-ui-core'
-			), $this->version );
+			'jquery',
+			'jquery-ui-core'
+		), $this->version );
 
 		//only load languages for datepicker if not english (or it will show Chinese!)
 		if ( $this->language != 'en' ) {
 			wp_enqueue_script( 'jquery-datepicker-i18n', $this->plugin_url . 'datepicker/js/datepicker-i18n.min.js', array(
-					'jquery',
-					'jquery-ui-core',
-					'jquery-datepicker'
-				), $this->version );
+				'jquery',
+				'jquery-ui-core',
+				'jquery-datepicker'
+			), $this->version );
 		}
 	}
 
-	//enqeue datepicker css on coupons screen
+	/**
+	 * Enqeue datepicker css on coupons screen
+	 *
+	 */
 	function css_coupons() {
+		$this->load_psts_style();
+		$this->load_chosen();
 		wp_enqueue_style( 'jquery-datepicker-css', $this->plugin_url . 'datepicker/css/ui-lightness/datepicker.css', false, $this->version );
+	}
+
+	/**
+	 * Register PSTS Style
+	 */
+	function register_psts_style() {
+		wp_register_style( 'psts-style', $this->plugin_url . 'css/psts-admin.css' );
+
+		//Check if chosen css is already registered
+		if ( ! wp_style_is( 'chosen', 'registered' ) ) {
+			wp_register_style( 'chosen', $this->plugin_url . 'css/chosen/chosen.min.css' );
+		}
+
+		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
+			'wp-color-picker',
+			'jquery'
+		), $this->version );
+		wp_localize_script( 'psts-js', 'prosites_admin', array(
+			'currency_select_placeholder' => __( 'Enable gateways', 'psts' ),
+		));
+
+		wp_register_script( 'psts-js-levels', $this->plugin_url . 'js/psts-admin-levels.js', array(
+			'jquery',
+			'jquery-ui-sortable',
+		), $this->version );
+
+		wp_localize_script( 'psts-js-levels', 'prosites_levels', array(
+			'confirm_level_delete' => __( 'Are you sure you really want to remove this level? This will also delete all feature settings for the level.', 'psts' ),
+			'confirm_feature_delete' => __( 'Are you sure you really want to remove this custom feature?', 'psts' ),
+		) );
+
+		//Check if chosen js is already registered
+		if ( ! wp_script_is( 'chosen', 'registered' ) ) {
+			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js' );
+		}
+
+	}
+
+	/**
+	 * Enqueue the main style and js
+	 */
+	function load_psts_style() {
+		ProSites_Helper_UI::load_psts_style();
+	}
+
+	/**
+	 * Loads the Chosen Style and script
+	 */
+	function load_chosen() {
+		ProSites_Helper_UI::load_chosen();
+	}
+
+	function load_settings_style() {
+		$this->load_psts_style();
+		$this->load_chosen();
+	}
+
+	function load_levels_style() {
+		$this->load_psts_style();
+		$this->load_chosen();
+
+		wp_enqueue_script( 'psts-js-levels' );
+		wp_enqueue_script( 'jquery-ui-sortable' );
+	}
+
+	function css_pricing() {
+		?>
+		<style type='text/css'>
+			.column-psts_co_visible {
+				width: 6%;
+			}
+
+			.column-psts_co_has_thick {
+				width: 10%;
+			}
+
+			.column-psts_co_included,
+			.column-psts_co_name {
+				width: 15%;
+			}
+
+			.submit.alignright {
+				padding: 0;
+				float: right;
+			}
+
+			.ui-sortable > tr {
+				cursor: move;
+			}
+		</style> <?php
+		wp_enqueue_style( 'wp-color-picker' );
+		$this->load_psts_style( false );
+		wp_enqueue_script( 'psts-checkout-settings-actions', $this->plugin_url . 'js/psts_pricing_table_admin.js', array( 'jquery-ui-sortable' ), $this->version );
 	}
 
 	function feature_notice( $level = 1 ) {
@@ -1685,12 +2483,12 @@ Many thanks again for being a member!", 'psts' ),
 		foreach ( $levels as $level => $value ) {
 			$html .= '<option value="' . $level . '"' . selected( $selected, $level, false ) . '>' . $level . ': ' . esc_attr( $value['name'] ) . '</option>';
 		}
-		$html .= '</select>';
+		$html = '</select>';
 
 		if ( $echo ) {
-			echo $html;
+			echo $echo;
 		} else {
-			return $html;
+			return $echo;
 		}
 	}
 
@@ -1703,13 +2501,11 @@ Many thanks again for being a member!", 'psts' ),
 				<?php echo $this->get_setting( 'signup_message' ); ?>
 
 				<label class="checkbox" for="psts_signed_up_yes">
-					<input type="radio" id="psts_signed_up_yes" name="psts_signed_up"
-					       value="yes"<?php echo ( ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] == 'yes' ) ? ' checked="checked"' : ''; ?> />
+					<input type="radio" id="psts_signed_up_yes" name="psts_signed_up" value="yes"<?php echo ( ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] == 'yes' ) ? ' checked="checked"' : ''; ?> />
 					<strong><?php _e( "I'm Interested", 'psts' ); ?></strong>
 				</label>
 				<label class="checkbox" for="psts_signed_up_no">
-					<input type="radio" id="psts_signed_up_no" name="psts_signed_up"
-					       value="no"<?php echo ( isset( $_POST['psts_signed_up'] ) && $_POST['psts_signed_up'] == 'no' ) ? ' checked="checked"' : ''; ?> />
+					<input type="radio" id="psts_signed_up_no" name="psts_signed_up" value="no"<?php echo ( isset( $_POST['psts_signed_up'] ) && $_POST['psts_signed_up'] == 'no' ) ? ' checked="checked"' : ''; ?> />
 					<strong><?php _e( "Not Now", 'psts' ); ?></strong>
 				</label>
 			</div>
@@ -1750,34 +2546,64 @@ Many thanks again for being a member!", 'psts' ),
 
 		if ( $column == 'psts' ) {
 			if ( isset( $this->column_fields[ $blog_id ] ) ) {
-				echo "<a title='" . __( 'Manage site &raquo;', 'psts' ) . "' href='" . network_admin_url( 'settings.php?page=psts&bid=' . $blog_id ) . "'>" . $this->column_fields[ $blog_id ] . "</a>";
+				echo "<a title='" . __( 'Manage site &raquo;', 'psts' ) . "' href='" . network_admin_url( 'admin.php?page=psts&bid=' . $blog_id ) . "'>" . $this->column_fields[ $blog_id ] . "</a>";
 			} else {
-				echo "<a title='" . __( 'Manage site &raquo;', 'psts' ) . "' href='" . network_admin_url( 'settings.php?page=psts&bid=' . $blog_id ) . "'>" . __( 'Manage &raquo;', 'psts' ) . "</a>";
+				echo "<a title='" . __( 'Manage site &raquo;', 'psts' ) . "' href='" . network_admin_url( 'admin.php?page=psts&bid=' . $blog_id ) . "'>" . __( 'Manage &raquo;', 'psts' ) . "</a>";
 			}
 		}
 	}
 
+	/**
+	 * Get Blog Level
+	 *
+	 * @param $blog_id
+	 */
 	function column_field_cache( $blog_id ) {
 		global $wpdb;
 
 		if ( ! isset( $this->column_fields[ $blog_id ] ) ) {
 			$psts = $wpdb->get_results( "SELECT blog_ID, level FROM {$wpdb->base_prefix}pro_sites WHERE expire > '" . time() . "'" );
 			foreach ( $psts as $row ) {
-				$level                                = $row->level . ': ' . $this->get_level_setting( $row->level, 'name' );
+				$level_name = $this->get_level_setting( $row->level, 'name' );
+				// If level exits show level details
+				if ( ! empty  ( $level_name ) ) {
+					$level = $row->level . ': ' . $this->get_level_setting( $row->level, 'name' );
+				} else {
+					//Otherwise get the level below it and show it's name with some indication
+					$levels    = ( array ) get_site_option( 'psts_levels' );
+					$max_level = max( array_keys( $levels ) );
+					$level     = $max_level . ': ' . $this->get_level_setting( $max_level, 'name' ) . '<sup>&#42;</sup>';
+				}
 				$this->column_fields[ $row->blog_ID ] = $level;
 			}
 		}
 	}
 
-	//returns the js needed to record ecommerce transactions.
-	function create_ga_ecommerce( $blog_id, $period, $amount, $level, $city = '', $state = '', $country = '' ) {
+	/**
+	 * Returns the js needed to record ecommerce transactions.
+	 *
+	 * @param $blog_id
+	 * @param $period
+	 * @param $amount
+	 * @param $level
+	 * @param string $city
+	 * @param string $state
+	 * @param string $country
+	 * @param string $site_name
+	 * @param string $domain
+	 */
+	function create_ga_ecommerce( $blog_id, $period, $amount, $level, $city = '', $state = '', $country = '', $site_name = '', $domain = '' ) {
 		global $current_site;
 
-		$name       = $this->get_level_setting( $level, 'name' );
-		$category   = $period . ' Month';
-		$sku        = 'level' . $level . '_' . $period . 'month';
-		$order_id   = $blog_id . '_' . time();
-		$store_name = $current_site->site_name . ' ' . $this->get_setting( 'rebrand' );
+		$name     = $this->get_level_setting( $level, 'name' );
+		$category = $period . ' Month';
+		$sku      = 'level' . $level . '_' . $period . 'month';
+		if ( ! empty( $blog_id ) ) {
+			$order_id = $blog_id . '_' . time();
+		} else {
+			$order_id = $domain . '_' . time();
+		}
+		$store_name = $site_name . ' ' . $this->get_setting( 'rebrand' );
 
 		if ( $this->get_setting( 'ga_ecommerce' ) == 'old' ) {
 
@@ -1849,7 +2675,7 @@ _gaq.push(["_trackTrans"]);
 		global $wpdb, $current_user;
 
 		if ( ! is_super_admin() ) {
-			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
+			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 			return;
 		}
 
@@ -1870,7 +2696,7 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$this->extend( (int) $_POST['bid'], $extend, __( 'Manual', 'psts' ), $_POST['extend_level'] );
+			$this->extend( (int) $_POST['bid'], $extend, __( 'Manual', 'psts' ), $_POST['extend_level'], false, false, true, true );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
@@ -1925,6 +2751,11 @@ _gaq.push(["_trackTrans"]);
 			$blog_id = false;
 		}
 
+		$activation_key = false;
+		if ( isset( $_GET['activation_key'] ) ) {
+			$activation_key = $_GET['activation_key'];
+		}
+
 		?>
 		<div class="wrap">
 		<script type="text/javascript">
@@ -1943,7 +2774,13 @@ _gaq.push(["_trackTrans"]);
 		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/modify.png'; ?>"/></div>
 		<h2><?php _e( 'Pro Sites Management', 'psts' ); ?></h2>
 
-		<?php if ( $blog_id ) { ?>
+		<?php
+		if( $activation_key ) {
+			$result = ProSites_Helper_Registration::activate_blog( $activation_key );
+			$blog_id = $result;
+		}
+
+		if ( $blog_id ) { ?>
 			<h3><?php _e( 'Manage Site', 'psts' ) ?>
 			<?php
 			if ( $name = get_blog_option( $blog_id, 'blogname' ) ) {
@@ -1973,12 +2810,16 @@ _gaq.push(["_trackTrans"]);
 				if ( $expire > 2147483647 ) {
 					echo '<li>' . __( 'Pro Site privileges will expire: <strong>Never</strong>', 'psts' ) . '</li>';
 				} else {
-					echo '<li>' . sprintf( __( 'Pro Site privileges will expire on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . '</li>';
+					$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+					$active_trial = $trialing ? __( '(Active trial)', 'psts') : '';
+
+					echo '<li>' . sprintf( __( 'Pro Site privileges will expire on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . ' ' . $active_trial . '</li>';
 				}
 
 				echo '<li>' . sprintf( __( 'Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
 				if ( $result->gateway ) {
-					echo '<li>' . sprintf( __( 'Payment Gateway: <strong>%s</strong>', 'psts' ), $result->gateway ) . '</li>';
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					echo '<li>' . sprintf( __( 'Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
 				}
 				if ( $term ) {
 					echo '<li>' . sprintf( __( 'Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
@@ -1993,7 +2834,8 @@ _gaq.push(["_trackTrans"]);
 
 				echo '<li>' . sprintf( __( 'Previous Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
 				if ( $result->gateway ) {
-					echo '<li>' . sprintf( __( 'Previous Payment Gateway: <strong>%s</strong>', 'psts' ), $result->gateway ) . '</li>';
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					echo '<li>' . sprintf( __( 'Previous Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
 				}
 				if ( $term ) {
 					echo '<li>' . sprintf( __( 'Previous Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
@@ -2043,20 +2885,19 @@ _gaq.push(["_trackTrans"]);
 					<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Account History', 'psts' ) ?></span></h3>
 
 					<div class="inside">
-						<span
-							class="description"><?php _e( 'This logs basically every action done in the system regarding the site for an audit trail.', 'psts' ); ?></span>
+						<span class="description"><?php _e( 'This logs basically every action done in the system regarding the site for an audit trail.', 'psts' ); ?></span>
 
 						<div style="height:150px;overflow:auto;margin-top:5px;margin-bottom:5px;">
 							<table class="widefat">
 								<?php
-								$log         = get_blog_option( $blog_id, 'psts_action_log' );
+								$log = get_blog_option( $blog_id, 'psts_action_log' );
 								$time_offset = ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
 								if ( is_array( $log ) && count( $log ) ) {
 									$log = array_reverse( $log, true );
 									foreach ( $log as $timestamp => $memo ) {
-										$class     = ( isset( $class ) && $class == 'alternate' ) ? '' : 'alternate';
+										$class = ( isset( $class ) && $class == 'alternate' ) ? '' : 'alternate';
 										$localtime = $timestamp + $time_offset;
-										echo '<tr class="' . $class . '"><td><strong>' . date_i18n( __( 'Y-m-d g:i:s a', 'psts' ), $localtime ) . '</strong></td><td>' . esc_html( $memo ) . '</td></tr>';
+										echo '<tr class="'.$class.'"><td><strong>' . date_i18n( __('Y-m-d g:i:s a', 'psts'), $localtime ) . '</strong></td><td>' . esc_html($memo) . '</td></tr>';
 									}
 								} else {
 									echo '<tr><td colspan="2">' . __( 'No history recorded for this site yet.', 'psts' ) . '</td></tr>';
@@ -2065,11 +2906,8 @@ _gaq.push(["_trackTrans"]);
 							</table>
 						</div>
 						<form method="post" action="">
-							<input type="text" placeholder="Add a custom log entry..." name="log_entry"
-							       style="width:91%;"/> <input type="submit" class="button-secondary"
-							                                   name="add_log_entry"
-							                                   value="<?php _e( 'Add &raquo;', 'psts' ) ?>"
-							                                   style="width:8%;float:right;"/>
+							<input type="text" placeholder="<?php _e( 'Add a custom log entry...', 'psts' ); ?>" name="log_entry" style="width:91%;"/>
+							<input type="submit" class="button-secondary" name="add_log_entry" value="<?php _e( 'Add &raquo;', 'psts' ) ?>" style="width:8%;float:right;"/>
 						</form>
 					</div>
 				</div>
@@ -2084,8 +2922,7 @@ _gaq.push(["_trackTrans"]);
 							<span><?php _e( 'Manually Extend Pro Site Status', 'psts' ) ?></span></h3>
 
 						<div class="inside">
-							<span
-								class="description"><?php _e( 'Please note that these changes will not adjust the payment dates or level for any existing subscription.', 'psts' ); ?></span>
+							<span class="description"><?php _e( 'Please note that these changes will not adjust the payment dates or level for any existing subscription.', 'psts' ); ?></span>
 
 							<form method="post" action="">
 								<table class="form-table">
@@ -2108,8 +2945,8 @@ _gaq.push(["_trackTrans"]);
 												?>
 											</select><?php _e( 'Days', 'psts' ); ?>
 											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php _e( 'or', 'psts' ); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											<label><input type="checkbox" name="extend_permanent"
-											              value="1"/> <?php _e( 'Permanent', 'psts' ); ?></label>
+											<label><input type="checkbox" name="extend_permanent" value="1"/> <?php _e( 'Permanent', 'psts' ); ?>
+											</label>
 											<br/><?php _e( 'Period you wish to extend the site. Leave at zero to only change the level.', 'psts' ); ?>
 										</td>
 									</tr>
@@ -2127,21 +2964,18 @@ _gaq.push(["_trackTrans"]);
 										</td>
 									</tr>
 									<tr valign="top">
-										<td colspan="2" style="text-align:right;"><input class="button-primary"
-										                                                 type="submit"
-										                                                 name="psts_extend"
-										                                                 value="<?php _e( 'Extend &raquo;', 'psts' ) ?>"/>
+										<td colspan="2" style="text-align:right;">
+											<input class="button-primary" type="submit" name="psts_extend" value="<?php _e( 'Extend &raquo;', 'psts' ) ?>"/>
 										</td>
 									</tr>
 								</table>
 								<hr/>
 								<table class="form-table">
 									<tr valign="top">
-										<td><label>Transfer Pro status to Blog ID: <input type="text" name="new_bid"
-										                                                  size="3"/></label></td>
-										<td style="text-align:right;"><input class="button-primary psts_confirm"
-										                                     type="submit" name="psts_transfer_pro"
-										                                     value="<?php _e( 'Transfer &raquo;', 'psts' ) ?>"/>
+										<td><label>Transfer Pro status to Blog ID:
+												<input type="text" name="new_bid" size="3"/></label></td>
+										<td style="text-align:right;">
+											<input class="button-primary psts_confirm" type="submit" name="psts_transfer_pro" value="<?php _e( 'Transfer &raquo;', 'psts' ) ?>"/>
 										</td>
 									</tr>
 								</table>
@@ -2164,22 +2998,20 @@ _gaq.push(["_trackTrans"]);
 									<?php do_action( 'psts_modify_form', $blog_id ); ?>
 
 									<?php if ( is_pro_site( $blog_id ) ) { ?>
-										<p><label><input type="checkbox" name="psts_remove"
-										                 value="1"/> <?php _e( 'Remove Pro status from this site.', 'psts' ); ?>
+										<p>
+											<label><input type="checkbox" name="psts_remove" value="1"/> <?php _e( 'Remove Pro status from this site.', 'psts' ); ?>
 											</label></p>
 									<?php } ?>
 
 									<?php if ( $last_payment = $this->last_transaction( $blog_id ) ) { ?>
-										<p><label><input type="checkbox" name="psts_receipt"
-										                 value="1"/> <?php _e( 'Email a receipt copy for last payment to:', 'psts' ); ?>
-												<input type="text" name="receipt_email"
-												       value="<?php echo get_blog_option( $blog_id, 'admin_email' ); ?>"/></label>
+										<p>
+											<label><input type="checkbox" name="psts_receipt" value="1"/> <?php _e( 'Email a receipt copy for last payment to:', 'psts' ); ?>
+												<input type="text" name="receipt_email" value="<?php echo get_blog_option( $blog_id, 'admin_email' ); ?>"/></label>
 										</p>
 									<?php } ?>
 
 									<p class="submit">
-										<input type="submit" name="psts_modify" class="button-primary psts_confirm"
-										       value="<?php _e( 'Modify &raquo;', 'psts' ) ?>"/>
+										<input type="submit" name="psts_modify" class="button-primary psts_confirm" value="<?php _e( 'Modify &raquo;', 'psts' ) ?>"/>
 									</p>
 								</form>
 							</div>
@@ -2202,9 +3034,21 @@ _gaq.push(["_trackTrans"]);
 								<input type="hidden" name="page" value="psts"/>
 								<tr valign="top">
 									<th scope="row"><?php _e( 'Blog ID:', 'psts' ) ?></th>
-									<td><input type="text" size="17" name="bid" value=""/> <input
-											class="button-secondary" type="submit"
-											value="<?php _e( 'Continue &raquo;', 'psts' ) ?>"/></td>
+									<td><input type="text" size="17" name="bid" value=""/>
+										<input class="button-secondary" type="submit" value="<?php _e( 'Continue &raquo;', 'psts' ) ?>"/>
+									</td>
+								</tr>
+							</table>
+						</form>
+						<hr />
+						<form method="get" action="">
+							<table class="form-table">
+								<input type="hidden" name="page" value="psts"/>
+								<tr valign="top">
+									<th scope="row"><?php _e( 'Activation Key:', 'psts' ) ?></th>
+									<td><input type="text" size="17" name="activation_key" value=""/>
+										<input class="button-secondary" type="submit" value="<?php _e( 'Activate Blog &raquo;', 'psts' ) ?>"/>
+									</td>
 								</tr>
 							</table>
 						</form>
@@ -2212,12 +3056,10 @@ _gaq.push(["_trackTrans"]);
 						<form method="get" action="sites.php" name="searchform">
 							<table class="form-table">
 								<tr valign="top">
-									<th scope="row"><?php _e( 'Or search for a site:', 'psts' ) ?></th>
-									<td><input type="text" size="17" value="" name="s"/> <input class="button-secondary"
-									                                                            type="submit"
-									                                                            value="<?php _e( 'Search Sites &raquo;', 'psts' ) ?>"
-									                                                            id="submit_sites"
-									                                                            name="submit"/></td>
+									<th scope="row"><?php _e( 'Or search for a site:<br /><small>By Blog ID, IP address or Path/Domain</small>', 'psts' ) ?></th>
+									<td><input type="text" size="17" value="" name="s"/>
+										<input class="button-secondary" type="submit" value="<?php _e( 'Search Sites &raquo;', 'psts' ) ?>" id="submit_sites" name="submit"/>
+									</td>
 								</tr>
 							</table>
 						</form>
@@ -2231,9 +3073,10 @@ _gaq.push(["_trackTrans"]);
 
 function admin_stats() {
 	global $wpdb;
-
+	$pro_sites = $level_counts = $term_1 = $term_12 = $term_3 = '';
+	$term_manual = $daily_stats_levels = '';
 	if ( ! is_super_admin() ) {
-		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
+		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 		return;
 	}
 
@@ -2296,6 +3139,19 @@ if ( $active_pro_sites ) {
 
 	}
 	$month_data = array_reverse( $month_data, true );
+	$fix = array_keys( $month_data );
+	if( 0 > $fix[0] ) {
+		$three_or_four_ago = $fix[1] - (60*60*24*30*4);
+		unset( $month_data[$fix[0]] );
+		$data = array();
+		$data[ $three_or_four_ago ] = array(
+			'signups' => 0,
+			'mods' => 0,
+			'upgrades' => 0,
+			'cancels' => 0,
+		);
+		$month_data = $data + $month_data;
+	}
 
 	foreach ( $month_data as $month => $nums ) {
 		$month = $month * 1000;
@@ -2305,6 +3161,7 @@ if ( $active_pro_sites ) {
 		$m3[] = '[' . $month . ', ' . $nums['mods'] . ']';
 		$m4[] = '[' . $month . ', ' . $nums['cancels'] . ']';
 	}
+
 	$m1 = implode( ', ', (array) $m1 );
 	$m2 = implode( ', ', (array) $m2 );
 	$m3 = implode( ', ', (array) $m3 );
@@ -2314,7 +3171,7 @@ if ( $active_pro_sites ) {
 	$week_data = array();
 	$start     = time();
 	for ( $i = 1; $i <= 26; $i ++ ) { //Only show 6 months of weekly data
-		$week_start = '';
+		$week_start = $start;
 		if ( $i == 1 ) {
 			$week_start                           = strtotime( "-$i week", $start );
 			$week_start_date                      = date( 'Y-m-d', $week_start );
@@ -2390,10 +3247,12 @@ if ( $active_pro_sites ) {
 			};
 			<?php
 			$daily_stats_levels = '';
-      foreach ($level_counts as $level => $data) {
-        //daily stats
-        echo 'var level_'.$level.' = { label: "'.esc_js($level.': '.$this->get_level_setting($level, 'name')).'", data: ['.$data.'] };';
-        $daily_stats_levels .= ", level_$level";
+			if ( ! empty( $level_counts ) ) {
+		        foreach ($level_counts as $level => $data) {
+		            //daily stats
+		            echo 'var level_'.$level.' = { label: "'.esc_js($level.': '.$this->get_level_setting($level, 'name')).'", data: ['.$data.'] };';
+		            $daily_stats_levels .= ", level_$level";
+				}
 			}
 			?>
 
@@ -2587,8 +3446,7 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Monthly Activity Summary', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="monthly_signup_stats"
-				     style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="monthly_signup_stats" style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
 			</div>
 		</div>
 
@@ -2596,8 +3454,7 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Weekly Activity Summary', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="weekly_signup_stats"
-				     style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="weekly_signup_stats" style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
 			</div>
 		</div>
 
@@ -2609,15 +3466,13 @@ if ( $active_pro_sites ) {
 				<div style="width:40%;height:300px;float:left;margin-bottom:25px;">
 					<h4 style="margin-left:20%;"><?php printf( __( 'Current Pro Site Levels (%s Total)', 'psts' ), number_format_i18n( $active_pro_sites ) ); ?></h4>
 
-					<div id="pie-ratio"
-					     style="width:100%;height:100%;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+					<div id="pie-ratio" style="width:100%;height:100%;"><?php _e( 'No data available yet', 'psts' ) ?></div>
 				</div>
 
 				<div style="width:40%;height:300px;float:left;margin-left:10%;margin-bottom:25px;">
 					<h4 style="margin-left:20%;"><?php _e( 'Current Gateway Use', 'psts' ) ?></h4>
 
-					<div id="pie-gateway"
-					     style="width:100%;height:100%;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+					<div id="pie-gateway" style="width:100%;height:100%;"><?php _e( 'No data available yet', 'psts' ) ?></div>
 				</div>
 				<div class="clear" style="margin-bottom:50px;"></div>
 
@@ -2628,8 +3483,7 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Pro Sites History', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="daily_stats"
-				     style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="daily_stats" style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
 			</div>
 		</div>
 
@@ -2637,12 +3491,10 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Pro Sites Term History', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="daily_term_stats"
-				     style="margin:20px;height:300px;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="daily_term_stats" style="margin:20px;height:300px;"><?php _e( 'No data available yet', 'psts' ) ?></div>
 				<h4 style="margin-left:10%;"><?php _e( 'Current Terms', 'psts' ) ?></h4>
 
-				<div id="pie-terms"
-				     style="width:40%;height:300px;margin-bottom:25px;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="pie-terms" style="width:40%;height:300px;margin-bottom:25px;"><?php _e( 'No data available yet', 'psts' ) ?></div>
 			</div>
 		</div>
 
@@ -2654,447 +3506,15 @@ if ( $active_pro_sites ) {
 	echo '</div>';
 }
 
-	function admin_coupons() {
-		global $wpdb;
-
-		if ( ! is_super_admin() ) {
-			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
-			return;
-		}
-
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function ($) {
-				jQuery.datepicker.setDefaults(jQuery.datepicker.regional['<?php echo $this->language; ?>']);
-				jQuery('.pickdate').datepicker({
-					dateFormat: 'yy-mm-dd',
-					changeMonth: true,
-					changeYear: true,
-					minDate: 0,
-					firstDay: <?php echo (get_option('start_of_week')=='0') ? 7 : get_option('start_of_week'); ?>
-				});
-			});
-		</script>
-		<div class="wrap">
-		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/coupon.png'; ?>"/></div>
-		<h2><?php _e( 'Pro Sites Coupons', 'psts' ); ?></h2>
-
-		<p><?php _e( 'You can create, delete, or update coupon codes for your network here.', 'psts' ) ?></p>
-		<?php
-
-		$coupons = get_site_option( 'psts_coupons' );
-		$error   = false;
-
-		//delete checked coupons
-		if ( isset( $_POST['allcoupon_delete'] ) ) {
-			//check nonce
-			check_admin_referer( 'psts_coupons' );
-
-			if ( is_array( $_POST['coupons_checks'] ) ) {
-				//loop through and delete
-				foreach ( $_POST['coupons_checks'] as $del_code ) {
-					unset( $coupons[ $del_code ] );
-				}
-
-				update_site_option( 'psts_coupons', $coupons );
-				//display message confirmation
-				echo '<div class="updated fade"><p>' . __( 'Coupon(s) succesfully deleted.', 'psts' ) . '</p></div>';
-			}
-		}
-
-		//save or add coupon
-		if ( isset( $_POST['submit_settings'] ) ) {
-			//check nonce
-			check_admin_referer( 'psts_coupons' );
-
-			$error = false;
-
-			$new_coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $_POST['coupon_code'] ) );
-			if ( ! $new_coupon_code ) {
-				$error[] = __( 'Please enter a valid Coupon Code', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['discount'] = round( $_POST['discount'], 2 );
-			if ( $coupons[ $new_coupon_code ]['discount'] <= 0 ) {
-				$error[] = __( 'Please enter a valid Discount Amount', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['discount_type'] = $_POST['discount_type'];
-			if ( $coupons[ $new_coupon_code ]['discount_type'] != 'amt' && $coupons[ $new_coupon_code ]['discount_type'] != 'pct' ) {
-				$error[] = __( 'Please choose a valid Discount Type', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['start'] = strtotime( $_POST['start'] );
-			if ( $coupons[ $new_coupon_code ]['start'] === false ) {
-				$error[] = __( 'Please enter a valid Start Date', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['end'] = strtotime( $_POST['end'] );
-			if ( $coupons[ $new_coupon_code ]['end'] && $coupons[ $new_coupon_code ]['end'] < $coupons[ $new_coupon_code ]['start'] ) {
-				$error[] = __( 'Please enter a valid End Date not earlier than the Start Date', 'psts' );
-			}
-
-			$coupons[ $new_coupon_code ]['level'] = intval( $_POST['level'] );
-
-			$coupons[ $new_coupon_code ]['uses'] = ( is_numeric( $_POST['uses'] ) ) ? (int) $_POST['uses'] : '';
-
-			if ( ! $error ) {
-				update_site_option( 'psts_coupons', $coupons );
-				$new_coupon_code = '';
-				echo '<div class="updated fade"><p>' . __( 'Coupon succesfully saved.', 'psts' ) . '</p></div>';
-			} else {
-				echo '<div class="error"><p>' . implode( '<br />', $error ) . '</p></div>';
-			}
-		}
-
-		//if editing a coupon
-		if ( isset( $_GET['code'] ) ) {
-			$new_coupon_code = $_GET['code'];
-		}
-
-		$apage = isset( $_GET['apage'] ) ? intval( $_GET['apage'] ) : 1;
-		$num   = isset( $_GET['num'] ) ? intval( $_GET['num'] ) : 20;
-
-		$coupon_list = get_site_option( 'psts_coupons' );
-		$levels      = (array) get_site_option( 'psts_levels' );
-		$total       = ( is_array( $coupon_list ) ) ? count( $coupon_list ) : 0;
-
-		if ( $total ) {
-			$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ) );
-		}
-
-		$coupon_navigation = paginate_links( array(
-			'base'    => add_query_arg( 'apage', '%#%' ),
-			'format'  => '',
-			'total'   => ceil( $total / $num ),
-			'current' => $apage
-		) );
-		$page_link         = ( $apage > 1 ) ? '&amp;apage=' . $apage : '';
-		?>
-
-		<form id="form-coupon-list" action="<?php echo network_admin_url( 'admin.php?page=psts-coupons' ); ?>"
-		      method="post">
-		<?php wp_nonce_field( 'psts_coupons' ) ?>
-		<div class="tablenav">
-			<?php if ( $coupon_navigation ) {
-				echo "<div class='tablenav-pages'>$coupon_navigation</div>";
-			} ?>
-
-			<div class="alignleft">
-				<input type="submit" value="<?php _e( 'Delete', 'psts' ) ?>" name="allcoupon_delete"
-				       class="button-secondary delete"/>
-				<br class="clear"/>
-			</div>
-		</div>
-
-		<br class="clear"/>
-
-		<?php
-		// define the columns to display, the syntax is 'internal name' => 'display name'
-		$posts_columns = array(
-			'code'      => __( 'Coupon Code', 'psts' ),
-			'discount'  => __( 'Discount', 'psts' ),
-			'start'     => __( 'Start Date', 'psts' ),
-			'end'       => __( 'Expire Date', 'psts' ),
-			'level'     => __( 'Level', 'psts' ),
-			'used'      => __( 'Used', 'psts' ),
-			'remaining' => __( 'Remaining Uses', 'psts' ),
-			'edit'      => __( 'Edit', 'psts' )
-		);
-		?>
-
-		<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
-			<thead>
-			<tr>
-				<th scope="col" class="check-column"><input type="checkbox"/></th>
-				<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
-					$col_url = $column_display_name;
-					?>
-					<th scope="col"><?php echo $col_url ?></th>
-				<?php } ?>
-			</tr>
-			</thead>
-			<tbody id="the-list">
-			<?php
-			$bgcolor = isset( $class ) ? $class : '';
-			if ( is_array( $coupon_list ) && count( $coupon_list ) ) {
-				foreach ( $coupon_list as $coupon_code => $coupon ) {
-					$class = ( isset( $class ) && 'alternate' == $class ) ? '' : 'alternate';
-
-					//assign classes based on coupon availability
-					//$class = ($this->check_coupon($coupon_code)) ? $class . ' coupon-active' : $class . ' coupon-inactive';
-
-					echo '<tr class="' . $class . ' blog-row">
-                  <th scope="row" class="check-column">
-									<input type="checkbox" name="coupons_checks[]"" value="' . $coupon_code . '" />
-								  </th>';
-
-					foreach ( $posts_columns as $column_name => $column_display_name ) {
-						switch ( $column_name ) {
-							case 'code':
-								?>
-								<th scope="row">
-									<?php echo $coupon_code; ?>
-								</th>
-								<?php
-								break;
-
-							case 'discount':
-								?>
-								<th scope="row">
-									<?php
-									if ( $coupon['discount_type'] == 'pct' ) {
-										echo $coupon['discount'] . '%';
-									} else if ( $coupon['discount_type'] == 'amt' ) {
-										echo $this->format_currency( '', $coupon['discount'] );
-									}
-									?>
-								</th>
-								<?php
-								break;
-
-							case 'start':
-								?>
-								<th scope="row">
-									<?php echo date_i18n( get_option( 'date_format' ), $coupon['start'] ); ?>
-								</th>
-								<?php
-								break;
-
-							case 'end':
-								?>
-								<th scope="row">
-									<?php echo ( $coupon['end'] ) ? date_i18n( get_option( 'date_format' ), $coupon['end'] ) : __( 'No End', 'psts' ); ?>
-								</th>
-								<?php
-								break;
-
-							case 'level':
-								?>
-								<th scope="row">
-									<?php echo isset( $levels[ $coupon['level'] ] ) ? $coupon['level'] . ': ' . $levels[ $coupon['level'] ]['name'] : __( 'Any Level', 'psts' ); ?>
-								</th>
-								<?php
-								break;
-
-							case 'used':
-								?>
-								<th scope="row">
-									<?php echo isset( $coupon['used'] ) ? number_format_i18n( $coupon['used'] ) : 0; ?>
-								</th>
-								<?php
-								break;
-
-							case 'remaining':
-								?>
-								<th scope="row">
-									<?php
-									if ( isset( $coupon['uses'] ) ) {
-										echo number_format_i18n( intval( $coupon['uses'] ) - intval( @$coupon['used'] ) );
-									} else {
-										_e( 'Unlimited', 'psts' );
-									}
-									?>
-								</th>
-								<?php
-								break;
-
-							case 'edit':
-								?>
-								<th scope="row">
-									<a href="admin.php?page=psts-coupons<?php echo $page_link; ?>&amp;code=<?php echo $coupon_code; ?>#add_coupon"><?php _e( 'Edit', 'psts' ) ?>&raquo;</a>
-								</th>
-								<?php
-								break;
-
-						}
-					}
-					?>
-					</tr>
-				<?php
-				}
-			} else {
-				?>
-				<tr style='background-color: <?php echo $bgcolor; ?>'>
-					<td colspan="9"><?php _e( 'No coupons yet.', 'psts' ) ?></td>
-				</tr>
-			<?php
-			} // end if coupons
-			?>
-
-			</tbody>
-			<tfoot>
-			<tr>
-				<th scope="col" class="check-column"><input type="checkbox"/></th>
-				<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
-					$col_url = $column_display_name;
-					?>
-					<th scope="col"><?php echo $col_url ?></th>
-				<?php } ?>
-			</tr>
-			</tfoot>
-		</table>
-
-		<div class="tablenav">
-			<?php if ( $coupon_navigation ) {
-				echo "<div class='tablenav-pages'>$coupon_navigation</div>";
-			} ?>
-		</div>
-
-		<div id="poststuff" class="metabox-holder">
-
-			<div class="postbox">
-				<h3 class="hndle" style="cursor:auto;"><span>
-      <?php
-      if ( isset( $_GET['code'] ) || $error ) {
-	      _e( 'Edit Coupon', 'psts' );
-      } else {
-	      _e( 'Add Coupon', 'psts' );
-      }
-      ?></span></h3>
-
-				<div class="inside">
-					<?php
-					//setup defaults
-					if ( isset( $new_coupon_code ) && isset( $coupons[ $new_coupon_code ] ) ) {
-						$discount      = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
-						$discount_type = $coupons[ $new_coupon_code ]['discount_type'];
-						$start         = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
-						$end           = ( $coupons[ $new_coupon_code ]['end'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['end'] ) : '';
-						$uses          = $coupons[ $new_coupon_code ]['uses'];
-					} else {
-						$new_coupon_code = '';
-						$discount        = '';
-						$discount_type   = '';
-						$start           = date( 'Y-m-d' );
-						$end             = '';
-						$uses            = '';
-					}
-					?>
-					<table id="add_coupon">
-						<thead>
-						<tr>
-							<th>
-								<?php _e( 'Coupon Code', 'psts' ) ?><br/>
-								<small
-									style="font-weight: normal;"><?php _e( 'Letters and Numbers only', 'psts' ) ?></small>
-							</th>
-							<th><?php _e( 'Discount', 'psts' ) ?></th>
-							<th><?php _e( 'Start Date', 'psts' ) ?></th>
-							<th>
-								<?php _e( 'Expire Date', 'psts' ) ?><br/>
-								<small style="font-weight: normal;"><?php _e( 'No end if blank', 'psts' ) ?></small>
-							</th>
-							<th>
-								<?php _e( 'Level', 'psts' ) ?>
-							</th>
-							<th>
-								<?php _e( 'Allowed Uses', 'psts' ) ?><br/>
-								<small style="font-weight: normal;"><?php _e( 'Unlimited if blank', 'psts' ) ?></small>
-							</th>
-						</tr>
-						</thead>
-						<tbody>
-						<tr>
-							<td>
-								<input value="<?php echo $new_coupon_code ?>" name="coupon_code" type="text"
-								       style="text-transform: uppercase;"/>
-							</td>
-							<td>
-								<input value="<?php echo $discount; ?>" size="3" name="discount" type="text"/>
-								<select name="discount_type">
-									<option
-										value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $this->format_currency(); ?></option>
-									<option value="pct"<?php selected( $discount_type, 'pct' ) ?>>%</option>
-								</select>
-							</td>
-							<td>
-								<input value="<?php echo $start; ?>" class="pickdate" size="11" name="start"
-								       type="text"/>
-							</td>
-							<td>
-								<input value="<?php echo $end; ?>" class="pickdate" size="11" name="end" type="text"/>
-							</td>
-							<td>
-								<select name="level">
-									<option value="0"><?php _e( 'Any Level', 'psts' ) ?></option>
-									<?php
-									foreach ( $levels as $key => $value ) {
-										?>
-										<option value="<?php echo $key; ?>"<?php selected( @$coupons[ $new_coupon_code ]['level'], $key ) ?>><?php echo $key . ': ' . $value['name']; ?></option><?php
-									}
-									?>
-								</select>
-							</td>
-							<td>
-								<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
-							</td>
-						</tr>
-						</tbody>
-					</table>
-
-					<p class="submit">
-						<input type="submit" name="submit_settings" class="button-primary"
-						       value="<?php _e( 'Save Coupon', 'psts' ) ?>"/>
-					</p>
-				</div>
-			</div>
-
-		</div>
-		</form>
-
-		</div>
-	<?php
-	}
-
 function admin_levels() {
 	global $wpdb;
 
 	if ( ! is_super_admin() ) {
-		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
+		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 		return;
 	}
 	?>
 	<div class="wrap">
-	<script type="text/javascript">
-		jQuery(document).ready(function ($) {
-			jQuery('#level-delete').click(function () {
-				return confirm("<?php _e('Are you sure you really want to remove this level? This will also delete all feature settings for the level.', 'psts'); ?>");
-			});
-
-			if (!$('#enable_1').is(':checked')) {
-				$('.price-1').attr('disabled', true);
-			}
-			if (!$('#enable_3').is(':checked')) {
-				$('.price-3').attr('disabled', true);
-			}
-			if (!$('#enable_12').is(':checked')) {
-				$('.price-12').attr('disabled', true);
-			}
-
-			$('#enable_1').change(function () {
-				if (this.checked) {
-					$('.price-1').removeAttr('disabled');
-				} else {
-					$('.price-1').attr('disabled', true);
-				}
-			});
-			$('#enable_3').change(function () {
-				if (this.checked) {
-					$('.price-3').removeAttr('disabled');
-				} else {
-					$('.price-3').attr('disabled', true);
-				}
-			});
-			$('#enable_12').change(function () {
-				if (this.checked) {
-					$('.price-12').removeAttr('disabled');
-				} else {
-					$('.price-12').attr('disabled', true);
-				}
-			});
-		});
-	</script>
 	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/levels.png'; ?>"/></div>
 	<h2><?php _e( 'Pro Sites Levels', 'psts' ); ?></h2>
 	<?php
@@ -3103,17 +3523,29 @@ function admin_levels() {
 
 	//delete checked levels
 	if ( isset( $_POST['delete_level'] ) ) {
+
 		//check nonce
 		check_admin_referer( 'psts_levels' );
 
-		if ( is_array( $levels ) && count( $levels ) > 1 ) {
-			$level_num = count( $levels );
-			$null      = array_pop( $levels );
+		// Get correct level
+		$level_num = (array) $_POST['delete_level'];
+		$level_num = array_keys( $level_num );
+		$level_num = array_pop( $level_num );
+		$level_num = (int) $level_num;
+
+		if( in_array( $level_num, array_keys( $levels ) ) ) {
+			unset( $levels[ $level_num] );
+
+			// Re-Index
+			$levels = array_merge( array('x'), array_values( $levels ) );
+			unset( $levels[0]);
+
 			update_site_option( 'psts_levels', $levels );
 
 			//display message confirmation
 			echo '<div class="updated fade"><p>' . sprintf( __( 'Level %s successfully deleted.', 'psts' ), number_format_i18n( $level_num ) ) . '</p></div>';
 		}
+
 	}
 
 	//add level
@@ -3132,12 +3564,22 @@ function admin_levels() {
 		}
 
 		if ( ! $error ) {
-			$levels[] = array(
-				'name'     => stripslashes( trim( wp_filter_nohtml_kses( $_POST['add_name'] ) ) ),
-				'price_1'  => round( @$_POST['add_price_1'], 2 ),
-				'price_3'  => round( @$_POST['add_price_3'], 2 ),
-				'price_12' => round( @$_POST['add_price_12'], 2 )
+			$level_data = array(
+				'name'       => stripslashes( trim( wp_filter_nohtml_kses( $_POST['add_name'] ) ) ),
+				'price_1'    => round( @$_POST['add_price_1'], 2 ),
+				'price_3'    => round( @$_POST['add_price_3'], 2 ),
+				'price_12'   => round( @$_POST['add_price_12'], 2 ),
+				'is_visible' => intval( @$_POST['add_is_visible'] ),
+				'setup_fee'  => round( @$_POST['add_setup_fee'], 2 )
 			);
+
+			// Just in case something went wrong, make sure we start at 1.
+			if( 0 == count( $levels ) ){
+				$levels[1] = $level_data;
+			} else {
+				$levels[] = $level_data;
+			}
+
 			update_site_option( 'psts_levels', $levels );
 			echo '<div class="updated fade"><p>' . __( 'Level added.', 'psts' ) . '</p></div>';
 		} else {
@@ -3163,15 +3605,18 @@ function admin_levels() {
 
 		$this->update_setting( 'enabled_periods', $periods );
 
+		$old_levels = $levels;
 		foreach ( $_POST['name'] as $level => $name ) {
-			$stripped_name                = stripslashes( trim( wp_filter_nohtml_kses( $name ) ) );
-			$name                         = empty( $stripped_name ) ? $levels[ $level ]['name'] : $stripped_name;
-			$levels[ $level ]['name']     = $name;
-			$levels[ $level ]['price_1']  = round( @$_POST['price_1'][ $level ], 2 );
-			$levels[ $level ]['price_3']  = round( @$_POST['price_3'][ $level ], 2 );
-			$levels[ $level ]['price_12'] = round( @$_POST['price_12'][ $level ], 2 );
+			$stripped_name                  = stripslashes( trim( wp_filter_nohtml_kses( $name ) ) );
+			$name                           = empty( $stripped_name ) ? $levels[ $level ]['name'] : $stripped_name;
+			$levels[ $level ]['name']       = $name;
+			$levels[ $level ]['price_1']    = round( @$_POST['price_1'][ $level ], 2 );
+			$levels[ $level ]['price_3']    = round( @$_POST['price_3'][ $level ], 2 );
+			$levels[ $level ]['price_12']   = round( @$_POST['price_12'][ $level ], 2 );
+			$levels[ $level ]['is_visible'] = intval( @$_POST['is_visible'][ $level ] );
 		}
 
+		do_action( 'update_site_option_psts_levels', '', $levels, $old_levels );
 		update_site_option( 'psts_levels', $levels );
 		echo '<div class="updated fade"><p>' . __( 'Levels saved.', 'psts' ) . '</p></div>';
 	}
@@ -3187,40 +3632,37 @@ function admin_levels() {
 		<?php
 		// define the columns to display, the syntax is 'internal name' => 'display name'
 		$posts_columns = array(
-			'level'    => __( 'Level', 'psts' ),
-			'name'     => __( 'Name', 'psts' ),
-			'price_1'  => __( '1 Month Price', 'psts' ),
-			'price_3'  => __( '3 Month Price', 'psts' ),
-			'price_12' => __( '12 Month Price', 'psts' ),
-			'edit'     => ''
+			'level'      => __( 'Level', 'psts' ),
+			'name'       => __( 'Name', 'psts' ),
+			'is_visible' => __( 'Is Visible', 'psts' ),
+			'price_1'    => __( '1 Month Price', 'psts' ),
+			'price_3'    => __( '3 Month Price', 'psts' ),
+			'price_12'   => __( '12 Month Price', 'psts' ),
+			'edit'       => ''
 		);
 		?>
 		<h3><?php _e( 'Edit Pro Site Levels', 'psts' ) ?></h3>
-		<span
-			class="description"><?php _e( 'Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number.', 'psts' ) ?></span>
-		<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
+		<span class="description"><?php _e( 'Pro Sites will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number.', 'psts' ) ?></span>
+		<table width="100%" cellpadding="3" cellspacing="3" class="widefat level-settings" id="prosites-level-list">
 			<thead>
 			<tr>
 				<th scope="col"><?php _e( 'Level', 'psts' ); ?></th>
 				<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
-				<th scope="col"><label><input name="enable_1" id="enable_1" value="1"
-				                              title="<?php _e( 'Enable 1 Month Checkout', 'psts' ); ?>"
-				                              type="checkbox"<?php checked( in_array( 1, $periods ) ); ?>> <?php _e( '1 Month Price', 'psts' ); ?>
+				<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
+				<th scope="col">
+					<label><input name="enable_1" id="enable_1" value="1" title="<?php _e( 'Enable 1 Month Checkout', 'psts' ); ?>" type="checkbox"<?php checked( in_array( 1, $periods ) ); ?>> <?php _e( '1 Month Price', 'psts' ); ?>
 					</label></th>
-				<th scope="col"><label><input name="enable_3" id="enable_3" value="1"
-				                              title="<?php _e( 'Enable 3 Month Checkout', 'psts' ); ?>"
-				                              type="checkbox"<?php checked( in_array( 3, $periods ) ); ?>> <?php _e( '3 Month Price', 'psts' ); ?>
+				<th scope="col">
+					<label><input name="enable_3" id="enable_3" value="1" title="<?php _e( 'Enable 3 Month Checkout', 'psts' ); ?>" type="checkbox"<?php checked( in_array( 3, $periods ) ); ?>> <?php _e( '3 Month Price', 'psts' ); ?>
 					</label></th>
-				<th scope="col"><label><input name="enable_12" id="enable_12" value="1"
-				                              title="<?php _e( 'Enable 12 Month Checkout', 'psts' ); ?>"
-				                              type="checkbox"<?php checked( in_array( 12, $periods ) ); ?>> <?php _e( '12 Month Price', 'psts' ); ?>
+				<th scope="col">
+					<label><input name="enable_12" id="enable_12" value="1" title="<?php _e( 'Enable 12 Month Checkout', 'psts' ); ?>" type="checkbox"<?php checked( in_array( 12, $periods ) ); ?>> <?php _e( '12 Month Price', 'psts' ); ?>
 					</label></th>
 				<th scope="col"></th>
 			</tr>
 			</thead>
 			<tbody id="the-list">
 			<?php
-			$bgcolor = '';
 			if ( is_array( $level_list ) && count( $level_list ) ) {
 				$bgcolor = $class = '';
 				foreach ( $level_list as $level_code => $level ) {
@@ -3241,8 +3683,16 @@ function admin_levels() {
 							case 'name':
 								?>
 								<td scope="row">
-									<input value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100"
-									       name="name[<?php echo $level_code; ?>]" type="text"/>
+									<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
+								</td>
+								<?php
+								break;
+
+							case 'is_visible':
+								?>
+								<td scope="row">
+									<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
+									<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
 								</td>
 								<?php
 								break;
@@ -3250,11 +3700,7 @@ function admin_levels() {
 							case 'price_1':
 								?>
 								<td scope="row">
-									<label><?php echo $this->format_currency(); ?></label><input class="price-1"
-									                                                             value="<?php echo ( $level['price_1'] ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>"
-									                                                             size="4"
-									                                                             name="price_1[<?php echo $level_code; ?>]"
-									                                                             type="text"/>
+									<label><?php echo $this->format_currency(); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
 								</td>
 								<?php
 								break;
@@ -3262,11 +3708,7 @@ function admin_levels() {
 							case 'price_3':
 								?>
 								<td scope="row">
-									<label><?php echo $this->format_currency(); ?></label><input class="price-3"
-									                                                             value="<?php echo ( $level['price_3'] ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>"
-									                                                             size="4"
-									                                                             name="price_3[<?php echo $level_code; ?>]"
-									                                                             type="text"/>
+									<label><?php echo $this->format_currency(); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
 								</td>
 								<?php
 								break;
@@ -3274,11 +3716,7 @@ function admin_levels() {
 							case 'price_12':
 								?>
 								<td scope="row">
-									<label><?php echo $this->format_currency(); ?></label><input class="price-12"
-									                                                             value="<?php echo ( $level['price_12'] ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>"
-									                                                             size="4"
-									                                                             name="price_12[<?php echo $level_code; ?>]"
-									                                                             type="text"/>
+									<label><?php echo $this->format_currency(); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
 								</td>
 								<?php
 								break;
@@ -3286,9 +3724,10 @@ function admin_levels() {
 							case 'edit':
 								?>
 								<td scope="row">
-									<?php if ( $level_code == $last_level && $level_code != 1 ) { ?>
-										<input class="button" type="submit" id="level-delete" name="delete_level"
-										       value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+									<?php if ( count( $level_list ) > 1 ) {
+										//Display delete option for last level only
+										?>
+										<input class="button" type="submit" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
 									<?php } ?>
 								</td>
 								<?php
@@ -3312,8 +3751,8 @@ function admin_levels() {
 			</tbody>
 		</table>
 		<p class="submit">
-			<input type="submit" name="save_levels" class="button-primary"
-			       value="<?php _e( 'Save Levels', 'psts' ) ?>"/>
+			<input type="submit" name="save_levels" class="button-primary" value="<?php _e( 'Save Levels', 'psts' ) ?>"/>
+			<span class="save_levels_dirty" style="display:none;"><?php esc_html_e( 'Changes not saved.', 'psts' ); ?></span>
 		</p>
 
 		<h3><?php _e( 'Add New Level', 'psts' ) ?></h3>
@@ -3323,6 +3762,7 @@ function admin_levels() {
 			<tr>
 				<th scope="col"><?php _e( 'Level', 'psts' ); ?></th>
 				<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
+				<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
 				<th scope="col"><?php _e( '1 Month Price', 'psts' ); ?></th>
 				<th scope="col"><?php _e( '3 Month Price', 'psts' ); ?></th>
 				<th scope="col"><?php _e( '12 Month Price', 'psts' ); ?></th>
@@ -3338,16 +3778,16 @@ function admin_levels() {
 					<input value="" size="50" maxlength="100" name="add_name" type="text"/>
 				</td>
 				<td>
-					<label><?php echo $this->format_currency(); ?></label><input class="price-1" value="" size="4"
-					                                                             name="add_price_1" type="text"/>
+					<input value="1" name="add_is_visible" type="checkbox" checked="checked"/>
 				</td>
 				<td>
-					<label><?php echo $this->format_currency(); ?></label><input class="price-3" value="" size="4"
-					                                                             name="add_price_3" type="text"/>
+					<label><?php echo $this->format_currency(); ?></label><input class="price-1" value="" size="4" name="add_price_1" type="text"/>
 				</td>
 				<td>
-					<label><?php echo $this->format_currency(); ?></label><input class="price-12" value="" size="4"
-					                                                             name="add_price_12" type="text"/>
+					<label><?php echo $this->format_currency(); ?></label><input class="price-3" value="" size="4" name="add_price_3" type="text"/>
+				</td>
+				<td>
+					<label><?php echo $this->format_currency(); ?></label><input class="price-12" value="" size="4" name="add_price_12" type="text"/>
 				</td>
 				<td>
 					<input class="button" type="submit" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
@@ -3369,7 +3809,7 @@ function admin_levels() {
 		global $wpdb, $psts_modules, $psts_gateways;
 
 		if ( ! is_super_admin() ) {
-			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
+			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 			return;
 		}
 
@@ -3378,11 +3818,11 @@ function admin_levels() {
 			check_admin_referer( 'psts_modules' );
 
 			$this->update_setting( 'modules_enabled', @$_POST['allowed_modules'] );
-			$this->update_setting( 'gateways_enabled', @$_POST['allowed_gateways'] );
+//			$this->update_setting( 'gateways_enabled', @$_POST['allowed_gateways'] );
 
 			do_action( 'psts_modules_save' );
 
-			echo '<div class="updated fade"><p>' . __( 'Modules/Gateways Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
+			echo '<div class="updated fade"><p>' . __( 'Modules Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap">
@@ -3393,8 +3833,7 @@ function admin_levels() {
 				<?php wp_nonce_field( 'psts_modules' ) ?>
 
 				<h3><?php _e( 'Enable Modules', 'psts' ) ?></h3>
-				<span
-					class="description"><?php _e( 'Select the modules you would like to use below. You can then configure their options on the settings page.', 'psts' ) ?></span>
+				<span class="description"><?php _e( 'Select the modules you would like to use below. You can then configure their options on the settings page.', 'psts' ) ?></span>
 				<table class="widefat">
 					<thead>
 					<tr>
@@ -3422,13 +3861,12 @@ function admin_levels() {
 							<td style="text-align:center;">
 								<?php
 								if ( $plugin[2] ) { //if demo
-									?><input type="checkbox" id="psts_<?php echo $class; ?>" name="allowed_modules[]"
-									         value="<?php echo $class; ?>" disabled="disabled" /> <a
-									class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites"
-									title="<?php _e( 'Upgrade', 'psts' ); ?> &raquo;"><?php _e( 'Premium Only &raquo;', 'psts' ); ?></a><?php
+									?>
+									<input type="checkbox" id="psts_<?php echo $class; ?>" name="allowed_modules[]" value="<?php echo $class; ?>" disabled="disabled"/>
+									<a class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites" title="<?php _e( 'Upgrade', 'psts' ); ?> &raquo;"><?php _e( 'Premium Only &raquo;', 'psts' ); ?></a><?php
 								} else {
-									?><input type="checkbox" id="psts_<?php echo $class; ?>"
-									         name="allowed_modules[]" value="<?php echo $class; ?>"<?php checked( $active ); ?> /><?php
+									?>
+									<input type="checkbox" id="psts_<?php echo $class; ?>" name="allowed_modules[]" value="<?php echo $class; ?>"<?php checked( $active ); ?> /><?php
 								}
 								?>
 							</td>
@@ -3442,58 +3880,55 @@ function admin_levels() {
 					</tbody>
 				</table>
 
-				<h3><?php _e( 'Choose a Gateway', 'psts' ) ?></h3>
-				<span
-					class="description"><?php _e( 'Select the gateway you would like to enable below. You can then configure its options on the settings page.', 'psts' ) ?></span>
-				<table class="widefat">
-					<thead>
-					<tr>
-						<th style="width: 15px;"><?php _e( 'Enable', 'psts' ) ?></th>
-						<th><?php _e( 'Gateway Name', 'psts' ) ?></th>
-						<th><?php _e( 'Description', 'psts' ) ?></th>
-					</tr>
-					</thead>
-					<tbody id="plugins">
-					<?php
-					foreach ( (array) $psts_gateways as $class => $plugin ) {
-						$css = ( 'alt' == $css ) ? '' : 'alt';
-						if ( in_array( $class, (array) $this->get_setting( 'gateways_enabled' ) ) ) {
-							$css2   = ' active';
-							$active = true;
-						} else {
-							$active = false;
-						}
-
-						?>
-						<tr valign="top" class="<?php echo $css . $css2; ?>">
-							<td style="text-align:center;">
-								<?php
-								if ( $plugin[2] ) { //if demo
-									?><input type="radio" id="psts_<?php echo $class; ?>" name="allowed_gateways[]"
-									         value="<?php echo $class; ?>" disabled="disabled" /> <a
-									class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites"
-									title="<?php _e( 'Upgrade', 'psts' ); ?> &raquo;"><?php _e( 'Premium Only &raquo;', 'psts' ); ?></a><?php
-								} else {
-									?><input type="radio" id="psts_<?php echo $class; ?>"
-									         name="allowed_gateways[]" value="<?php echo $class; ?>"<?php checked( $active ); ?> /><?php
-								}
-								?>
-							</td>
-							<td><label for="psts_<?php echo $class; ?>"><?php echo esc_attr( $plugin[0] ); ?></label>
-							</td>
-							<td><?php echo esc_attr( $plugin[1] ); ?></td>
-						</tr>
-					<?php
-					}
-					?>
-					</tbody>
-				</table>
+<!--				<h3>--><?php //_e( 'Choose a Gateway', 'psts' ) ?><!--</h3>-->
+<!--				<span class="description">--><?php //_e( 'Select the gateway you would like to enable below. You can then configure its options on the settings page.', 'psts' ) ?><!--</span>-->
+<!--				<table class="widefat">-->
+<!--					<thead>-->
+<!--					<tr>-->
+<!--						<th style="width: 15px;">--><?php //_e( 'Enable', 'psts' ) ?><!--</th>-->
+<!--						<th>--><?php //_e( 'Gateway Name', 'psts' ) ?><!--</th>-->
+<!--						<th>--><?php //_e( 'Description', 'psts' ) ?><!--</th>-->
+<!--					</tr>-->
+<!--					</thead>-->
+<!--					<tbody id="plugins">-->
+<!--					--><?php
+//					foreach ( (array) $psts_gateways as $class => $plugin ) {
+//						$css = ( 'alt' == $css ) ? '' : 'alt';
+//						if ( in_array( $class, (array) $this->get_setting( 'gateways_enabled' ) ) ) {
+//							$css2   = ' active';
+//							$active = true;
+//						} else {
+//							$active = false;
+//						}
+//
+//						?>
+<!--						<tr valign="top" class="--><?php //echo $css . $css2; ?><!--">-->
+<!--							<td style="text-align:center;">-->
+<!--								--><?php
+//								if ( $plugin[2] ) { //if demo
+//									?>
+<!--									<input type="radio" id="psts_--><?php //echo $class; ?><!--" name="allowed_gateways[]" value="--><?php //echo $class; ?><!--" disabled="disabled"/>-->
+<!--									<a class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites" title="--><?php //_e( 'Upgrade', 'psts' ); ?><!-- &raquo;">--><?php //_e( 'Premium Only &raquo;', 'psts' ); ?><!--</a>--><?php
+//								} else {
+//									?>
+<!--									<input type="radio" id="psts_--><?php //echo $class; ?><!--" name="allowed_gateways[]" value="--><?php //echo $class; ?><!--"--><?php //checked( $active ); ?><!-- />--><?php
+//								}
+//								?>
+<!--							</td>-->
+<!--							<td><label for="psts_--><?php //echo $class; ?><!--">--><?php //echo esc_attr( $plugin[0] ); ?><!--</label>-->
+<!--							</td>-->
+<!--							<td>--><?php //echo esc_attr( $plugin[1] ); ?><!--</td>-->
+<!--						</tr>-->
+<!--					--><?php
+//					}
+//					?>
+<!--					</tbody>-->
+<!--				</table>-->
 
 				<?php do_action( 'psts_modules_page' ); ?>
 
 				<p class="submit">
-					<input type="submit" name="submit_settings" class="button-primary"
-					       value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
+					<input type="submit" name="submit_settings" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
 				</p>
 			</form>
 
@@ -3502,10 +3937,13 @@ function admin_levels() {
 	}
 
 	function admin_settings() {
-		global $wpdb;
+		// redundant
+		return false;
+
+		global $wpdb, $current_site;
 
 		if ( ! is_super_admin() ) {
-			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>";  //If accessed properly, this message doesn't appear.
+			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 			return;
 		}
 
@@ -3513,14 +3951,16 @@ function admin_levels() {
 		if ( isset( $_POST['submit_settings'] ) ) {
 			//check nonce
 			check_admin_referer( 'psts_settings' );
-
 			//strip slashes from all inputs
 			$_POST['psts'] = stripslashes_deep( $_POST['psts'] );
 
-			$_POST['psts']['hide_adminmenu']      = isset( $_POST['psts']['hide_adminmenu'] ) ? $_POST['psts']['hide_adminmenu'] : 0; //handle checkbox
-			$_POST['psts']['hide_adminbar']       = isset( $_POST['psts']['hide_adminbar'] ) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
-			$_POST['psts']['hide_adminbar_super'] = isset( $_POST['psts']['hide_adminbar_super'] ) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
-			$_POST['psts']['show_signup']         = isset( $_POST['psts']['show_signup'] ) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
+			$_POST['psts']['hide_adminmenu']          = isset( $_POST['psts']['hide_adminmenu'] ) ? $_POST['psts']['hide_adminmenu'] : 0; //handle checkbox
+			$_POST['psts']['hide_adminbar']           = isset( $_POST['psts']['hide_adminbar'] ) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
+			$_POST['psts']['hide_adminbar_super']     = isset( $_POST['psts']['hide_adminbar_super'] ) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
+			$_POST['psts']['show_signup']             = isset( $_POST['psts']['show_signup'] ) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
+			$_POST['psts']['apply_setup_fee_upgrade'] = isset( $_POST['psts']['apply_setup_fee_upgrade'] ) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox
+			$_POST['psts']['checkout_roles']          = isset( $_POST['psts']['checkout_roles'] ) ? $_POST['psts']['checkout_roles'] : ''; //handle checkbox
+			$_POST['psts']['pt_sortthemes']           = isset( $_POST['psts']['pt_sortthemes'] ) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox
 
 			//merge settings
 			$old_settings = get_site_option( 'psts_settings' );
@@ -3536,6 +3976,14 @@ function admin_levels() {
 			echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
 		}
 		$levels = (array) get_site_option( 'psts_levels' );
+
+		//allow overriding and changing the root site to put the checkout page on
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+
+		//insert new page if not existing
+		switch_to_blog( $checkout_site );
+		$checkout_link = get_edit_post_link( $this->get_setting( 'checkout_page' ) );
+		restore_current_blog();
 		?>
 		<div class="wrap">
 		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/settings.png'; ?>"/></div>
@@ -3551,96 +3999,114 @@ function admin_levels() {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Rebrand Pro Sites', 'psts' ) ?></th>
-						<td><input type="text" name="psts[rebrand]"
-						           value="<?php echo esc_attr( $this->get_setting( 'rebrand' ) ); ?>"/>
-							<br/><?php _e( 'Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts' ); ?>
+						<th scope="row" class="psts-help-div psts-rebrand-pro"><?php echo __( 'Rebrand Pro Sites', 'psts' ) . $this->help_text( __( 'Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts' ) ); ?></th>
+						<td>
+							<input type="text" name="psts[rebrand]" value="<?php echo esc_attr( $this->get_setting( 'rebrand' ) ); ?>"/>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Admin Menu Button Labels', 'psts' ) ?></th>
 						<td>
-							<label><input type="text" name="psts[lbl_signup]"
-							              value="<?php echo esc_attr( $this->get_setting( 'lbl_signup' ) ); ?>"/> <?php _e( 'Not Pro', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-notpro"><?php _e( 'Not Pro', 'psts' ); ?></span>
+								<input type="text" name="psts[lbl_signup]" value="<?php echo esc_attr( $this->get_setting( 'lbl_signup' ) ); ?>"/>
 							</label><br/>
-							<label><input type="text" name="psts[lbl_curr]"
-							              value="<?php echo esc_attr( $this->get_setting( 'lbl_curr' ) ); ?>"/> <?php _e( 'Current Pro', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-currentpro"><?php _e( 'Current Pro', 'psts' ); ?></span>
+								<input type="text" name="psts[lbl_curr]" value="<?php echo esc_attr( $this->get_setting( 'lbl_curr' ) ); ?>"/>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Hide Admin Menu', 'psts' ); ?></th>
-						<td><label><input type="checkbox" name="psts[hide_adminmenu]"
-						                  value="1"<?php checked( $this->get_setting( 'hide_adminmenu' ) ); ?> />
+						<td>
+							<label><input type="checkbox" name="psts[hide_adminmenu]" value="1"<?php checked( $this->get_setting( 'hide_adminmenu' ) ); ?> />
 								<?php _e( 'Remove the Pro Sites upgrade menu item', 'psts' ); ?></label>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Hide Admin Bar Button', 'psts' ); ?></th>
-						<td><label><input type="checkbox" name="psts[hide_adminbar]"
-						                  value="1"<?php checked( $this->get_setting( 'hide_adminbar' ) ); ?> />
+						<td>
+							<label><input type="checkbox" name="psts[hide_adminbar]" value="1"<?php checked( $this->get_setting( 'hide_adminbar' ) ); ?> />
 								<?php _e( 'Remove the Pro Sites upgrade menu button from the admin bar', 'psts' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Hide Superadmin Admin Bar Pro Status', 'psts' ); ?></th>
-						<td><label><input type="checkbox" name="psts[hide_adminbar_super]"
-						                  value="1"<?php checked( $this->get_setting( 'hide_adminbar_super' ) ); ?> />
+						<th scope="row"><?php _e( 'Hide Pro Status for Superadmin', 'psts' ); ?></th>
+						<td>
+							<label><input type="checkbox" name="psts[hide_adminbar_super]" value="1"<?php checked( $this->get_setting( 'hide_adminbar_super' ) ); ?> />
 								<?php _e( 'Remove the Super Admin Pro Site status menu from the admin bar', 'psts' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Level', 'psts' ) ?></th>
+						<th scope="row" class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . $this->help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
 						<td>
-							<span
-								class="description"><?php _e( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ?></span><br/>
-							<label><input type="text" name="psts[free_name]"
-							              value="<?php echo esc_attr( $this->get_setting( 'free_name' ) ); ?>"/> <?php _e( 'Free Level Name', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-name"><?php _e( 'Name', 'psts' ); ?></span>
+								<input type="text" name="psts[free_name]" value="<?php echo esc_attr( $this->get_setting( 'free_name' ) ); ?>"/>
 							</label><br/>
-							<label><input type="text" size="50" name="psts[free_msg]"
-							              value="<?php echo esc_attr( $this->get_setting( 'free_msg' ) ); ?>"/> <?php _e( 'Free Level Message', 'psts' ); ?>
+							<label>
+								<span class="psts-label psts-label-message"><?php _e( 'Message', 'psts' ); ?></span>
+								<input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr( $this->get_setting( 'free_msg' ) ); ?>"/>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Show Option On Signup', 'psts' ); ?></th>
-						<td><label><input type="checkbox" name="psts[show_signup]"
-						                  value="1"<?php checked( $this->get_setting( 'show_signup' ) ); ?> />
-								<?php _e( 'Display an option on the signup page', 'psts' ); ?></label>
-							<br/><?php _e( 'You can force and hide the signup option by linking to the signup page like this: ', 'psts' ); ?>
-							<em>wp-signup.php?<?php echo sanitize_title( $this->get_setting( 'rebrand' ) ); ?>=1</em>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Signup Message', 'psts' ) ?></th>
+						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow Signup on Checkout', 'psts' ) . $this->help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
 						<td>
-							<textarea name="psts[signup_message]" rows="3" wrap="soft" id="signup_message"
-							          style="width: 95%"/><?php echo esc_textarea( $this->get_setting( 'signup_message' ) ); ?></textarea>
-							<br/><?php _e( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ?>
+							<label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked( $this->get_setting( 'show_signup' ) ); ?> />
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Checkout Page', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . $this->help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
 						<td>
-							<?php _e( 'You can create a sales message that is shown at the top of the checkout page. (Hint - make it colorful with images and such!)', 'psts' ) ?>
-							<br/><a href="<?php echo get_edit_post_link( $this->get_setting( 'checkout_page' ) ); ?>"
-							        title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a><br/>
-							<small><?php _e( 'If for some reason you need to regenerate the checkout page, simply trash the current page above then save this settings form. A new checkout page will be created with a slug and title based on the rebrand option above.', 'psts' ) ?></small>
+							<textarea name="psts[signup_message]" rows="3" wrap="soft" id="signup_message" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'signup_message' ) ); ?></textarea>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Pro Site Feature Message', 'psts' ) ?></th>
+						<th scope="row" class="psts-help-div psts-checkout-page"><?php echo __( 'Checkout Page', 'psts' ) . $this->help_text( __( 'If checkout page is not found, a new checkout page is generated upon saving the settings. The slug and title is based on the rebrand option above.', 'psts' ) ); ?></th>
 						<td>
-							<input name="psts[feature_message]" type="text" id="feature_message"
-							       value="<?php echo esc_attr( $this->get_setting( 'feature_message' ) ); ?>"
-							       style="width: 95%"/>
-							<br/><?php _e( 'Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts' ) ?>
+							<?php if ( empty( $checkout_link ) ) { ?>
+								<?php _e( 'There was a problem finding the Checkout Page. Please follow the directions below to regenerate it:', 'psts' ); ?>
+							<?php } else { ?>
+								<a href="<?php echo $checkout_link; ?>" title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a>
+							<?php } ?>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Trial', 'psts' ) ?></th>
+						<th scope="row"><?php _e( 'Checkout Permissions', 'psts' ) ?></th>
+						<td><?php
+
+							$roles          = get_editable_roles();
+							$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
+
+							foreach ( $roles as $role_key => $role ) {
+								$checked = '';
+								//Default keep all applicable roles checked
+								if ( ( is_array( $checkout_roles ) && in_array( $role_key, $checkout_roles ) ) || $checkout_roles == 'not_set' ) {
+									$checked = 'checked="checked"';
+								}
+								if ( ! empty ( $role['capabilities']['manage_options'] ) || ! empty( $role['capabilities']['edit_pages'] ) ) {
+									?>
+									<label>
+										<input type="checkbox" name="psts[checkout_roles][]" value="<?php echo $role_key; ?>" <?php echo $checked; ?>/><?php echo $role['name']; ?>
+									</label> <?php
+								}
+							}
+
+							?>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" class="psts-help-div psts-feature-message"><?php echo __( 'Pro Site Feature Message', 'psts' ) . $this->help_text( __( 'Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts' ) ); ?></th>
+						<td>
+							<input name="psts[feature_message]" type="text" id="feature_message" value="<?php echo esc_attr( $this->get_setting( 'feature_message' ) ); ?>" style="width: 95%"/>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" class="psts-free-trial psts-help-div"><?php echo __( 'Free Trial', 'psts' ) . $this->help_text( __( 'Free days for all new sites', 'psts' ) ); ?></th>
 						<td><select name="psts[trial_days]">
 								<?php
 								$trial_days         = $this->get_setting( 'trial_days' );
@@ -3654,43 +4120,51 @@ function admin_levels() {
 								echo apply_filters( 'psts_trial_days_options', $trial_days_options );
 								?>
 							</select>
-							<?php _e( 'Free days for all new sites.', 'psts' ); ?></td>
+						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Trial Level', 'psts' ) ?></th>
+						<th scope="row" class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . $this->help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
 						<td>
-							<select name="psts[trial_level]">
-								<?php
-								foreach ( $levels as $level => $value ) {
-									?>
-									<option value="<?php echo $level; ?>"<?php selected( $this->get_setting( 'trial_level', 1 ), $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
-								}
-								?>
-							</select>
-							<?php _e( 'Select the level given to sites during their trial period.', 'psts' ) ?>
+							<input type="text" name="psts[trial_message]" id="trial_message" value="<?php esc_attr_e( $this->get_setting( 'trial_message' ) ); ?>" style="width: 95%"/>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Free Trial Message', 'psts' ) ?></th>
-						<td><input type="text" name="psts[trial_message]" id="trial_message"
-						           value="<?php esc_attr_e( $this->get_setting( 'trial_message' ) ); ?>"
-						           style="width: 95%"/>
-							<br/><?php _e( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ?>
+						<th scope="row" class="psts-cancellation psts-help-div"><?php echo __( 'Cancellation Message', 'psts' ) . $this->help_text( __( 'This message is displayed on the checkout screen notifying FREE TRIAL and NEW customers of your cancellation policy. "DAYS" will be replaced with the number of "Cancellation Days" set above.', 'psts' ) ); ?></th>
+						<td>
+							<textarea style="width:95%" wrap="soft" rows="3" name="psts[cancel_message]"><?php echo $this->get_setting( 'cancel_message', __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ) ); ?></textarea><br/>
 						</td>
 					</tr>
-					<tr>
+					<tr valign="top">
+						<th scope="row" class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . $this->help_text( __( 'If "Apply setup fee to upgrades" is left unchecked then only <strong>free sites</strong> will be charged a setup fee. Otherwise, all levels will be charged a setup fee upon upgrading to a higher level.', 'psts' ) ); ?></th>
+						<td>
+							<label><?php echo $this->format_currency(); ?></label><input type="text" name="psts[setup_fee]" size="4" value="<?php echo ( $setup_fee = $this->get_setting( 'setup_fee', false ) ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
+							&nbsp;<br /><br />
+							<label for="psts-apply-setup-fee-upgrade">
+								<input type="checkbox" name="psts[apply_setup_fee_upgrade]" id="psts-apply-setup-fee-upgrade" value="1" <?php checked( $this->get_setting( 'apply_setup_fee_upgrade', 0 ), 1 ); ?> />
+								<label for="psts-apply-setup-fee-upgrade"><?php _e( 'Apply setup fee to upgrades', 'psts' ); ?></label>
+							</label>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" class="psts-help-div psts-recurring"><?php echo __( 'Recurring Subscriptions', 'psts' ) . $this->help_text( __( 'Disabling recurring subscriptions will force users to have to manually re-subscribe after their term has expired.', 'psts' ) ); ?></th>
+						<td>
+							<label for="psts-recurring-subscriptions-on" style="margin-right:10px">
+								<input type="radio" name="psts[recurring_subscriptions]" id="psts-recurring-subscriptions-on" value="1" <?php checked( $this->get_setting( 'recurring_subscriptions', 1 ), 1 ); ?> /> <?php _e( 'Enable', 'psts' ); ?>
+							</label>
+							<label for="psts-subscriptions-off">
+								<input type="radio" name="psts[recurring_subscriptions]" id="psts-recurring-subscriptions-off" value="0" <?php checked( $this->get_setting( 'recurring_subscriptions', 1 ), 0 ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
+							</label>
+						</td>
+					</tr>
+					<tr valign="top">
 						<th scope="row"><?php _e( 'Google Analytics Ecommerce Tracking', 'psts' ) ?></th>
 						<td>
 							<select name="psts[ga_ecommerce]">
-								<option
-									value="none"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'none' ) ?>><?php _e( 'None', 'psts' ) ?></option>
-								<option
-									value="new"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'new' ) ?>><?php _e( 'Asynchronous Tracking Code', 'psts' ) ?></option>
-								<option
-									value="old"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'old' ) ?>><?php _e( 'Old Tracking Code', 'psts' ) ?></option>
+								<option value="none"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'none' ) ?>><?php _e( 'None', 'psts' ) ?></option>
+								<option value="new"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'new' ) ?>><?php _e( 'Asynchronous Tracking Code', 'psts' ) ?></option>
+								<option value="old"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'old' ) ?>><?php _e( 'Old Tracking Code', 'psts' ) ?></option>
 							</select>
-							<br/><span
-								class="description"><?php _e( 'If you already use Google Analytics for your website, you can track detailed ecommerce information by enabling this setting. Choose whether you are using the new asynchronous or old tracking code. Before Google Analytics can report ecommerce activity for your website, you must enable ecommerce tracking on the profile settings page for your website. <a href="http://analytics.blogspot.com/2009/05/how-to-use-ecommerce-tracking-in-google.html" target="_blank">More information &raquo;</a>', 'psts' ) ?></span>
+							<br/><span class="description"><?php _e( 'If you already use Google Analytics for your website, you can track detailed ecommerce information by enabling this setting. Choose whether you are using the new asynchronous or old tracking code. Before Google Analytics can report ecommerce activity for your website, you must enable ecommerce tracking on the profile settings page for your website. <a href="http://analytics.blogspot.com/2009/05/how-to-use-ecommerce-tracking-in-google.html" target="_blank">More information &raquo;</a>', 'psts' ) ?></span>
 						</td>
 					</tr>
 					<?php do_action( 'psts_general_settings' ); ?>
@@ -3698,86 +4172,62 @@ function admin_levels() {
 			</div>
 		</div>
 
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Email Notifications', 'psts' ) ?></span></h3>
+		<div class="postbox psts-email-notifications">
+			<h3 class="hndle" style="cursor:auto;">
+				<span><?php _e( 'Email Notifications', 'psts' ) ?></span> -
+				<span class="description" style="font-size: 12px; font-weight: normal;"><?php _e ('"LEVEL", "SITENAME", "SITEURL" and "CHECKOUTURL" will be replaced with their associated values. No HTML allowed.', 'psts'); ?></span>
+			</h3>
 
 			<div class="inside">
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php _e( 'Pro Site Signup', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-pro-signup"><?php echo __( 'Pro Site Signup', 'psts' ) . $this->help_text( __( 'Pro Site signup confirmation email sent to user', 'psts' ) ); ?></th>
 						<td>
-							<span
-								class="description"><?php _e( 'The email text sent to your customer to confirm a new Pro Site signup. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input class="pp_emails_sub" name="psts[success_subject]"
-								       value="<?php echo esc_attr( $this->get_setting( 'success_subject' ) ); ?>"
-								       maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr( $this->get_setting( 'success_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[success_msg]"
-								          style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'success_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[success_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'success_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Pro Site Canceled', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-pro-site-cancelled"><?php echo __( 'Pro Site Canceled', 'psts' ) . $this->help_text( __( 'Membership cancellation email sent to user, "ENDDATE" will be replaced with the date when their Pro Site access ends.', 'psts' ) ); ?></th>
 						<td>
-							<span
-								class="description"><?php _e( 'The email text sent to your customer when they cancel their membership. "ENDDATE" will be replaced with the date when their Pro Site access ends. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input class="pp_emails_sub" name="psts[canceled_subject]"
-								       value="<?php echo esc_attr( $this->get_setting( 'canceled_subject' ) ); ?>"
-								       maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr( $this->get_setting( 'canceled_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[canceled_msg]"
-								          style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'canceled_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[canceled_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'canceled_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Payment Receipt', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-payment-reciept"><?php echo __( 'Payment Receipt', 'psts' ) . $this-> help_text( __( 'Payment confirmation receipt. You must include the "PAYMENTINFO" code which will be replaced with payment details.', 'psts' ) ); ?></th>
 						<td>
-							<span
-								class="description"><?php _e( 'The email receipt text sent to your customer on every successful subscription payment. You must include the "PAYMENTINFO" code which will be replaced with payment details. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input class="pp_emails_sub" name="psts[receipt_subject]"
-								       value="<?php echo esc_attr( $this->get_setting( 'receipt_subject' ) ); ?>"
-								       maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr( $this->get_setting( 'receipt_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[receipt_msg]"
-								          style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'receipt_msg' ) ); ?></textarea></label><br/>
+								<textarea class="pp_emails_txt" name="psts[receipt_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'receipt_msg' ) ); ?></textarea></label><br/>
 							<label><?php _e( 'Header Image URL (for PDF attachment):', 'psts' ); ?><br/>
-								<input class="pp_emails_img" name="psts[receipt_image]"
-								       value="<?php echo esc_attr( $this->get_setting( 'receipt_image' ) ); ?>"
-								       maxlength="150" style="width: 65%"/></label>
+								<input type="text" class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr( $this->get_setting( 'receipt_image' ) ); ?>" maxlength="150" style="width: 65%"/></label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Expiration Email', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-expiration-mail"><?php echo __( 'Expiration Email', 'psts' ) . $this->help_text( __( 'Pro Site expiration email sent to user. "CHECKOUTURL" will be replaced with the url to upgrade the site.', 'psts' ) ); ?></th>
 						<td>
-							<span
-								class="description"><?php _e( 'This email is sent when Pro Site status expires and Pro features are removed from a site. "CHECKOUTURL" will be replaced with the url to upgrade the site. "SITENAME" and "SITEURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input class="pp_emails_sub" name="psts[expired_subject]"
-								       value="<?php echo esc_attr( $this->get_setting( 'expired_subject' ) ); ?>"
-								       maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[expired_subject]" value="<?php echo esc_attr( $this->get_setting( 'expired_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[expired_msg]"
-								          style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'expired_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[expired_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'expired_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php _e( 'Payment Problem', 'psts' ); ?></th>
+						<th scope="row" class="psts-help-div psts-payment-problem"><?php echo __( 'Payment Problem', 'psts' ) . $this->help_text( __( 'The email text sent to your customer when a scheduled payment fails.', 'psts' ) ); ?></th>
 						<td>
-							<span
-								class="description"><?php _e( 'The email text sent to your customer when a scheduled payment fails. "LEVEL" will be replaced with the site\'s level. "SITENAME", "SITEURL" and "CHECKOUTURL" will also be replaced with their associated values. No HTML allowed.', 'psts' ) ?></span><br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input class="pp_emails_sub" name="psts[failed_subject]"
-								       value="<?php echo esc_attr( $this->get_setting( 'failed_subject' ) ); ?>"
-								       maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr( $this->get_setting( 'failed_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[failed_msg]"
-								          style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'failed_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[failed_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'failed_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
@@ -3787,8 +4237,8 @@ function admin_levels() {
 		</div>
 
 		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Currency Settings', 'psts' ) ?></span> - <span
-					class="description"><?php _e( 'These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts' ) ?></span>
+			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Currency Settings', 'psts' ) ?></span> -
+				<span class="description"><?php _e( 'These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts' ) ?></span>
 			</h3>
 
 			<div class="inside">
@@ -3809,28 +4259,22 @@ function admin_levels() {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Currency Symbol Position', 'psts' ) ?></th>
 						<td>
-							<label><input value="1" name="psts[curr_symbol_position]"
-							              type="radio"<?php checked( $this->get_setting( 'curr_symbol_position', 1 ), 1 ); ?>>
+							<label><input value="1" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position', 1 ), 1 ); ?>>
 								<?php echo $this->format_currency(); ?>100</label><br/>
-							<label><input value="2" name="psts[curr_symbol_position]"
-							              type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 2 ); ?>>
+							<label><input value="2" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 2 ); ?>>
 								<?php echo $this->format_currency(); ?> 100</label><br/>
-							<label><input value="3" name="psts[curr_symbol_position]"
-							              type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 3 ); ?>>
+							<label><input value="3" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 3 ); ?>>
 								100<?php echo $this->format_currency(); ?></label><br/>
-							<label><input value="4" name="psts[curr_symbol_position]"
-							              type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 4 ); ?>>
+							<label><input value="4" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 4 ); ?>>
 								100 <?php echo $this->format_currency(); ?></label>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Show Decimal in Prices', 'psts' ) ?></th>
 						<td>
-							<label><input value="1" name="psts[curr_decimal]"
-							              type="radio"<?php checked( $this->get_setting( 'curr_decimal', 1 ), 1 ); ?>>
+							<label><input value="1" name="psts[curr_decimal]" type="radio"<?php checked( $this->get_setting( 'curr_decimal', 1 ), 1 ); ?>>
 								<?php _e( 'Yes', 'psts' ) ?></label>
-							<label><input value="0" name="psts[curr_decimal]"
-							              type="radio"<?php checked( $this->get_setting( 'curr_decimal' ), 0 ); ?>>
+							<label><input value="0" name="psts[curr_decimal]" type="radio"<?php checked( $this->get_setting( 'curr_decimal' ), 0 ); ?>>
 								<?php _e( 'No', 'psts' ) ?></label>
 						</td>
 					</tr>
@@ -3842,8 +4286,7 @@ function admin_levels() {
 		<?php do_action( 'psts_settings_page' ); ?>
 
 		<p class="submit">
-			<input type="submit" name="submit_settings" class="button-primary"
-			       value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
+			<input type="submit" name="submit_settings" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
 		</p>
 		</form>
 		</div>
@@ -3868,18 +4311,60 @@ function admin_levels() {
 		echo '</div>'; //div wrap
 	}
 
-	function checkout_grid( $blog_id ) {
-		global $wpdb;
+	function checkout_grid( $blog_id, $domain = '' ) {
 
-		$levels = (array) get_site_option( 'psts_levels' );
+		global $wpdb;
+		$curr = '';
+
+		$use_plans_table    = $this->get_setting( 'plans_table_enabled', 'enabled' );
+		$show_pricing_table = $this->get_setting( 'comparison_table_enabled' ) ? $this->get_setting( 'comparison_table_enabled' ) : $this->get_setting( 'co_pricing' );
+		$content            = "";
+		include_once $this->plugin_dir . 'lib/psts_pricing_table.php';
+		$pricing_table = ProSites_Pricing_Table::getInstance( array(
+			'blog_id' => $blog_id
+		) );
+
+		if ( $show_pricing_table === "enabled" ) {
+			$content .= $pricing_table->display_plans_table( 'include-pricing' );
+
+			return apply_filters( 'psts_checkout_grid_output', $content );
+		}
+
+		if ( $use_plans_table === "enabled" ) {
+			$content .= $pricing_table->display_plans_table();
+
+			return apply_filters( 'psts_checkout_grid_output', $content );
+		}
+
+		if( 'enabled' === $use_plans_table || 'enabled' === $show_pricing_table ) {
+			return false;
+		}
+
+
+		// DO IT THE OLD WAY
+
+		$levels    = (array) get_site_option( 'psts_levels' );
+		$recurring = $this->get_setting( 'recurring_subscriptions', 1 );
 
 		//if you want to display the lowest level first on checkout grid add define('PSTS_DONT_REVERSE_LEVELS', true); to your wp-config.php file
 		if ( ! ( defined( 'PSTS_DONT_REVERSE_LEVELS' ) && PSTS_DONT_REVERSE_LEVELS ) ) {
 			$levels = array_reverse( $levels, true );
 		}
 
+		//remove levels that are hidden
+		foreach ( $levels as $level_id => $level ) {
+			$is_visible = isset( $level['is_visible'] ) ? (bool) $level['is_visible'] : true;
+			if ( $is_visible ) {
+				continue;
+			}
+			unset( $levels[ $level_id ] );
+		}
+
 		$periods = (array) $this->get_setting( 'enabled_periods' );
-		$curr    = $wpdb->get_row( $wpdb->prepare( "SELECT term, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		if ( ! empty( $blog_id ) ) {
+			$curr = $wpdb->get_row( $wpdb->prepare( "SELECT term, level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+		}
+
 		if ( $curr ) {
 			$curr->term = ( $curr->term && ! is_numeric( $curr->term ) ) ? $periods[0] : $curr->term; //if term not numeric
 			$sel_period = isset( $_POST['period'] ) ? $_POST['period'] : $curr->term;
@@ -3911,12 +4396,12 @@ function admin_levels() {
 								</div>';
 		*/
 
-		$content = apply_filters( 'psts_before_checkout_grid_coupon', $content, $blog_id );
+		$content = apply_filters( 'psts_before_checkout_gridcoupon-submit', $content, $blog_id );
 
 		//add coupon line
-		if ( isset( $_SESSION['COUPON_CODE'] ) ) {
-			$coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], 100 );
-			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $_SESSION['COUPON_CODE'] ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
+		if ( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
+			$coupon_value = $this->coupon_value( $session_coupon, 100 );
+			$content .= '<div id="psts-coupon-msg">' . sprintf( __( 'Your coupon code <strong>%1$s</strong> has been applied for a discount of %2$s off the first payment. <a href="%3$s">Remove it &raquo;</a>', 'psts' ), esc_html( $session_coupon ), $coupon_value['discount'], get_permalink() . "?bid=$blog_id&remove_coupon=1" ) . '</div>';
 		} else if ( $errmsg = $this->errors->get_error_message( 'coupon' ) ) {
 			$content .= '<div id="psts-coupon-error" class="psts-error">' . $errmsg . '</div>';
 		}
@@ -3924,21 +4409,38 @@ function admin_levels() {
 		$content = apply_filters( 'psts_before_checkout_grid', $content, $blog_id );
 
 		$content .= '<table id="psts_checkout_grid" width="100%">';
-		$content .= '<tr class="psts_level_head">
-				<th>' . __( 'Level', 'psts' ) . '</th>';
-		if ( in_array( 1, $periods ) ) {
-			$content .= '<th>' . __( 'Monthly', 'psts' ) . '</th>';
-		}
-		if ( in_array( 3, $periods ) ) {
-			$content .= '<th>' . __( 'Every 3 Months', 'psts' ) . '</th>';
-		}
-		if ( in_array( 12, $periods ) ) {
-			$content .= '<th>' . __( 'Every 12 Months', 'psts' ) . '</th>';
-		}
-		$content .= '</tr>';
 
-		$equiv        = '';
-		$coupon_price = '';
+		if ( $recurring ) {
+			$content .= '<tr class="psts_level_head">
+					<th>' . __( 'Level', 'psts' ) . '</th>';
+			if ( in_array( 1, $periods ) ) {
+				$content .= '<th>' . __( 'Monthly', 'psts' ) . '</th>';
+			}
+			if ( in_array( 3, $periods ) ) {
+				$content .= '<th>' . __( 'Every 3 Months', 'psts' ) . '</th>';
+			}
+			if ( in_array( 12, $periods ) ) {
+				$content .= '<th>' . __( 'Every 12 Months', 'psts' ) . '</th>';
+			}
+			$content .= '</tr>';
+		} else {
+			$content .= '<tr class="psts_level_head">
+					<th>' . __( 'Level', 'psts' ) . '</th>';
+			if ( in_array( 1, $periods ) ) {
+				$content .= '<th>' . __( '1 Month', 'psts' ) . '</th>';
+			}
+			if ( in_array( 3, $periods ) ) {
+				$content .= '<th>' . __( '3 Months', 'psts' ) . '</th>';
+			}
+			if ( in_array( 12, $periods ) ) {
+				$content .= '<th>' . __( '12 Months', 'psts' ) . '</th>';
+			}
+			$content .= '</tr>';
+		}
+
+		$equiv         = '';
+		$coupon_price  = '';
+		$setup_fee_amt = $this->get_setting( 'setup_fee', 0 );
 
 		foreach ( $levels as $level => $data ) {
 			$content .= '<tr class="psts_level level-' . $level . '">
@@ -3946,34 +4448,52 @@ function admin_levels() {
 			$content .= apply_filters( 'psts_checkout_grid_levelname', '<h3>' . $data['name'] . '</h3>', $level, $blog_id );
 			$content .= '</td>';
 			if ( in_array( 1, $periods ) ) {
-				$current  = ( $curr->term == 1 && $curr->level == $level ) ? ' opt-current' : '';
-				$selected = ( $sel_period == 1 && $sel_level == $level ) ? ' opt-selected' : '';
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $level ) && $coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], $data['price_1'] ) ) {
+				$current       = ( $curr->term == 1 && $curr->level == $level ) ? ' opt-current' : '';
+				$selected      = ( $sel_period == 1 && $sel_level == $level ) ? ' opt-selected' : '';
+				$upgrade_price = ( $recurring ) ? $data['price_1'] : $this->calc_upgrade_cost( $blog_id, $level, 1, $data['price_1'] );
+
+				$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+				if ( isset( $session_coupon ) && $this->check_coupon( $session_coupon, $blog_id, $level, 1 ) && $coupon_value = $this->coupon_value( $session_coupon, $data['price_1'] ) ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_1'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $coupon_value['new_total'] ) . '</span>';
+				} elseif ( $upgrade_price != $data['price_1'] ) {
+					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_1'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $upgrade_price ) . '</span>';
 				} else {
 					$coupon_price = '<span class="pblg-price">' . $this->format_currency( false, $data['price_1'] ) . '</span>';
 				}
 
+				//setup fees?
+				$setup_fee = '';
+				if ( $this->has_setup_fee( $blog_id, $level ) ) {
+					$setup_fee = '<span class="psts-setup-fee">+ a one time ' . $this->format_currency( false, $setup_fee_amt ) . ' setup fee</span>';
+				}
+
 				if ( in_array( 3, $periods ) || in_array( 12, $periods ) ) {
 					$equiv = '<span class="psts-equiv">' . __( 'Try it out!', 'psts' ) . '</span>
-	                  <span class="psts-equiv">' . __( 'You can easily upgrade to a better value plan at any time.', 'psts' ) . '</span>';
+	                  <span class="psts-equiv">' . __( 'You can easily switch to a better value plan at any time.', 'psts' ) . '</span>';
 				}
 				$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt' . $current . $selected . '">
 										<input type="hidden" value="' . $level . ':1"/>
 										<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-1-' . $level . '" value="' . $level . ':1" />
 										<label for="psts-radio-1-' . $level . '">
 										' . $coupon_price . '
+										' . $setup_fee . '
 										' . $equiv . '
 										</label>
 										</div></td>';
 			}
 
 			if ( in_array( 3, $periods ) ) {
-				$current  = ( $curr->term == 3 && $curr->level == $level ) ? ' opt-current' : '';
-				$selected = ( $sel_period == 3 && $sel_level == $level ) ? ' opt-selected' : '';
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $level ) && $coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], $data['price_3'] ) ) {
+				$current       = ( $curr->term == 3 && $curr->level == $level ) ? ' opt-current' : '';
+				$selected      = ( $sel_period == 3 && $sel_level == $level ) ? ' opt-selected' : '';
+				$upgrade_price = ( $recurring ) ? $data['price_3'] : $this->calc_upgrade_cost( $blog_id, $level, 3, $data['price_3'] );
+
+				$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+				if ( isset( $session_coupon ) && $this->check_coupon( $session_coupon, $blog_id, $level, 3 ) && $coupon_value = $this->coupon_value( $session_coupon, $data['price_3'] ) ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_3'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $coupon_value['new_total'] ) . '</span>';
 					$price        = $coupon_value['new_total'];
+				} elseif ( $upgrade_price != $data['price_3'] ) {
+					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_3'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $upgrade_price ) . '</span>';
+					$price        = $upgrade_price;
 				} else {
 					$coupon_price = '<span class="pblg-price">' . $this->format_currency( false, $data['price_3'] ) . '</span>';
 					$price        = $data['price_3'];
@@ -3989,17 +4509,24 @@ function admin_levels() {
 										<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-3-' . $level . '" value="' . $level . ':3" />
 										<label for="psts-radio-3-' . $level . '">
 										' . $coupon_price . '
+										' . $setup_fee . '
 										' . $equiv . '
 										</label>
 										</div></td>';
 			}
 
 			if ( in_array( 12, $periods ) ) {
-				$current  = ( $curr->term == 12 && $curr->level == $level ) ? ' opt-current' : '';
-				$selected = ( $sel_period == 12 && $sel_level == $level ) ? ' opt-selected' : '';
-				if ( isset( $_SESSION['COUPON_CODE'] ) && $this->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $level ) && $coupon_value = $this->coupon_value( $_SESSION['COUPON_CODE'], $data['price_12'] ) ) {
+				$current       = ( $curr->term == 12 && $curr->level == $level ) ? ' opt-current' : '';
+				$selected      = ( $sel_period == 12 && $sel_level == $level ) ? ' opt-selected' : '';
+				$upgrade_price = ( $recurring ) ? $data['price_12'] : $this->calc_upgrade_cost( $blog_id, $level, 12, $data['price_12'] );
+
+				$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+				if ( isset( $session_coupon ) && $this->check_coupon( $session_coupon, $blog_id, $level, 12 ) && $coupon_value = $this->coupon_value( $session_coupon, $data['price_12'] ) ) {
 					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_12'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $coupon_value['new_total'] ) . '</span>';
 					$price        = $coupon_value['new_total'];
+				} elseif ( $upgrade_price != $data['price_12'] ) {
+					$coupon_price = '<span class="pblg-old-price">' . $this->format_currency( false, $data['price_12'] ) . '</span> <span class="pblg-price">' . $this->format_currency( false, $upgrade_price ) . '</span>';
+					$price        = $upgrade_price;
 				} else {
 					$coupon_price = '<span class="pblg-price">' . $this->format_currency( false, $data['price_12'] ) . '</span>';
 					$price        = $data['price_12'];
@@ -4015,6 +4542,7 @@ function admin_levels() {
 								<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-12-' . $level . '" value="' . $level . ':12" />
 								<label for="psts-radio-12-' . $level . '">
 								' . $coupon_price . '
+								' . $setup_fee . '
 								' . $equiv . '
 								</label>
 								</div></td>';
@@ -4024,13 +4552,28 @@ function admin_levels() {
 		}
 
 		$content = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
+		// Displays a option for free level, member can continue trial without being redirected to checkout page every time
 
-		//show dismiss button link if needed
-		if ( get_blog_option( $blog_id, 'psts_signed_up' ) && ! apply_filters( 'psts_prevent_dismiss', false ) ) {
+		if ( ! $this->prevent_dismiss() && ( ! empty ( $domain ) || get_blog_option( $blog_id, 'psts_signed_up' ) ) ) {
+
 			$content .= '<tr class="psts_level level-free">
 				<td valign="middle" class="level-name"><h3>' . $this->get_setting( 'free_name', __( 'Free', 'psts' ) ) . '</h3></td>';
 			$content .= '<td class="level-option" colspan="' . count( $periods ) . '">';
-			$content .= '<a class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-free-option" href="' . get_admin_url( $blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $this->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+
+			if ( is_user_logged_in() && empty ( $domain ) ) {
+
+				$content .= '<a class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-free-option" href="' . get_admin_url( $blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $this->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>';
+
+			} else {
+
+				//Checkout With free trial blog
+				$content .= '<div class="pblg-checkout-opt" style="width: ' . $free_width . '" id="psts-free-option">
+								<input type="hidden" value="0:0"/>
+								<input type="radio" name="psts-radio" class="psts-radio" id="psts-radio-0-0" value="0:0" />
+								<label for="psts-radio-0-0">' . $this->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</label>
+							</div>';
+
+			}
 			$content .= '</td></tr>';
 		}
 
@@ -4046,7 +4589,8 @@ function admin_levels() {
 		//coupon form - if you want to hide the coupon box add define('PSTS_DISABLE_COUPON_FORM', true); to your wp-config.php file
 		if ( ! ( defined( 'PSTS_DISABLE_COUPON_FORM' ) && PSTS_DISABLE_COUPON_FORM ) ) {
 			$coupons = get_site_option( 'psts_coupons' );
-			if ( is_array( $coupons ) && count( $coupons ) && ! isset( $_SESSION['COUPON_CODE'] ) ) {
+			$session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' );
+			if ( is_array( $coupons ) && count( $coupons ) && ! isset( $session_coupon ) ) {
 				$content .= '<div id="psts-coupon-block">
 		      <small><a id="psts-coupon-link" href="#">' . __( 'Have a coupon code?', 'psts' ) . '</a></small>
 		      <div id="psts-coupon-code" class="alignright" style="display: none;">
@@ -4058,35 +4602,13 @@ function admin_levels() {
 			}
 		}
 
+		//display checkout free trial/cancellation message
+		$trial_days = $this->get_setting( 'trial_days', 0 );
+		if ( $this->is_trial_allowed( $blog_id ) ) {
+			$content .= '<p style="padding-top:24px">' . str_replace( 'DAYS', $trial_days, $this->get_setting( 'cancel_message' ) ) . '</p>';
+		}
+
 		return $content;
-	}
-
-	/**
-	 * Check if given blog has been canceled
-	 *
-	 * @since 3.4.3.7
-	 *
-	 * @param int $blog_id
-	 *
-	 * @return bool
-	 */
-	function is_blog_canceled( $blog_id ) {
-		global $wpdb;
-
-		if ( get_blog_option( $blog_id, 'psts_is_canceled' ) || get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
-			return true;
-		}
-
-		//check if blog has been canceled in the stat log (other gateways, manual cancel, etc)
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(action_ID) FROM {$wpdb->prefix}pro_sites_signup_stats WHERE blog_ID = %d AND action = 'cancel'", $blog_id ) );
-
-		if ( $count > 0 ) {
-			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
-
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -4100,24 +4622,21 @@ function admin_levels() {
 	 */
 
 	function is_trial_allowed( $blog_id ) {
-		global $wpdb;
-
 		$trial_days = $this->get_setting( 'trial_days', 0 );
 
 		if ( $trial_days == 0 ) {
 			return false;
 		}
 
-		if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id, 0 ) ) {
-			return false;
-		}
+		// If blog exists
+		if( ! empty( $blog_id ) ) {
+			if ( is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+				return false;
+			}
 
-		if ( get_blog_option( $blog_id, 'psts_withdrawn' ) ) {
-			return false;
-		}
-
-		if ( $this->is_blog_canceled( $blog_id ) ) {
-			return false;
+			if ( $this->is_blog_canceled( $blog_id ) ) {
+				return false;
+			}
 		}
 
 		return true;
@@ -4142,9 +4661,11 @@ function admin_levels() {
 		", $blog_id ) );
 	}
 
-	function receipt_form( $blog_id ) {
-		$content = '';
-		if ( ! defined( 'PSTS_DISABLE_RECEIPT_FORM' ) && $this->last_transaction( $blog_id ) ) {
+	function receipt_form( $blog_id, $domain = false ) {
+		$content          = '';
+		$last_transaction = ! empty( $blog_id ) ? $this->last_transaction( $blog_id ) : $this->last_transaction( '', $domain );
+
+		if ( ! defined( 'PSTS_DISABLE_RECEIPT_FORM' ) && $last_transaction ) {
 
 			if ( isset( $_POST['psts_receipt'] ) ) {
 				$this->email_notification( $blog_id, 'receipt', $_POST['receipt_email'] );
@@ -4153,7 +4674,7 @@ function admin_levels() {
 				$content .= '<p id="psts-receipt-block">
 					<form action="' . $this->checkout_url( $blog_id ) . '" method="post" autocomplete="off">
 					' . __( 'Email a receipt copy for your last payment to:', 'psts' ) . ' <span id="psts-receipt-change"><strong>' . get_blog_option( $blog_id, 'admin_email' ) . '</strong> <small><a href="#">(' . __( 'change', 'psts' ) . ')</a></small></span>
-					<input type="text" id="psts-receipt-input" name="receipt_email" value="' . get_blog_option( $blog_id, 'admin_email' ) . '" style="display: none;" /> 
+					<input type="text" id="psts-receipt-input" name="receipt_email" value="' . get_blog_option( $blog_id, 'admin_email' ) . '" style="display: none;" />
 					<input type="submit" name="psts_receipt" class="regbutton" value="' . __( 'Send &raquo;', 'psts' ) . '" />
 					</form></p>';
 			}
@@ -4163,63 +4684,79 @@ function admin_levels() {
 		return $content;
 	}
 
+	function checkout_trial_msg( $value, $blog_id ) {
+		$trial_days = $this->get_setting( 'trial_days', 0 );
+		if ( $this->is_trial_allowed( $blog_id ) ) {
+			return $value . '<p class="helper-message">' . sprintf( __( 'Your <strong>%d day trial</strong> begins once you click the "Subscribe" button below.', 'psts' ), $trial_days ) . '</p>';
+		}
+	}
+
 	//outputs the checkout form
 	function checkout_output( $content ) {
-
+		$has_blog = false;
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
 			return $content;
 		}
 
-		//make sure logged in
-		if ( ! is_user_logged_in() ) {
-			$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
-			$content .= wp_login_form( array( 'echo' => false ) );
+		//make sure logged in, Or if user comes just after signup, check session for domain name
+		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
+
+		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
+
+			$show_signup = $this->get_setting( 'show_signup' );
+			$registeration = get_site_option('registration');
+			$show_signup = 'all' == $registeration ? $show_signup : false;
+
+			if( ! is_user_logged_in() && ! $show_signup ) {
+				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
+				$content .= wp_login_form( array( 'echo' => false ) );
+				return $content;
+			}
+			$content = apply_filters( 'psts_primary_checkout_table', $content, '' );
 
 			return $content;
 		}
-
+		$current_user_id = get_current_user_id();
+		//get allowed roles for checkout
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
 
 		//set blog_id
-		if ( isset( $_POST['bid'] ) ) {
-			$blog_id = intval( $_POST['bid'] );
-		} else if ( isset( $_GET['bid'] ) ) {
-			$blog_id = intval( $_GET['bid'] );
-		} else {
+		if (isset($_POST['bid'])){
+			$blog_id = intval($_POST['bid']);
+		}else if (isset($_GET['bid'])){
+			$blog_id = intval($_GET['bid']);
+		}else{
 			$blog_id = false;
 
-			$blogs_of_user = get_blogs_of_user( get_current_user_id(), false );
-			$blogs         = array();
+			$blogs_of_user = get_blogs_of_user(get_current_user_id(), false);
+			$blogs = array();
 
-			$count      = 0;
+			$count = 0;
 			$loop_count = 0;
-			$per_page   = 10;
+			$per_page = 10;
 
-			$start      = isset( $_REQUEST['blogs-start'] ) ? intval( $_REQUEST['blogs-start'] ) : 0;
+			$start = isset($_REQUEST['blogs-start'])?intval($_REQUEST['blogs-start']):0;
 			$next_start = 0;
-			$prev_start = - 1;
+			$prev_start = -1;
 
-			foreach ( $blogs_of_user as $id => $obj ) {
-				if ( $count >= $per_page ) {
-					break;
-				}
+			foreach ($blogs_of_user as $id => $obj) {
+				if ($count >= $per_page) break;
 
-				$loop_count ++;
-				if ( $start > $loop_count ) {
-					continue;
-				}
+				$loop_count++;
+				if ($start > $loop_count) continue;
 
 				// permission?
-				switch_to_blog( $id );
-				$permission = current_user_can( 'edit_pages' );
-				if ( $permission ) {
-					$obj->level         = $this->get_level( $obj->userblog_id );
-					$obj->level_label   = ( $obj->level ) ? $this->get_level_setting( $obj->level, 'name' ) : sprintf( __( 'Not %s', 'psts' ), $this->get_setting( 'rebrand' ) );
-					$obj->upgrade_label = is_pro_site( $obj->userblog_id ) ? sprintf( __( 'Modify "%s"', 'psts' ), $obj->blogname ) : sprintf( __( 'Upgrade "%s"', 'psts' ), $obj->blogname );
-					$obj->checkout_url  = $this->checkout_url( $obj->userblog_id );
+				switch_to_blog($id);
+				$permission = current_user_can('edit_pages');
+				if ($permission) {
+					$obj->level = $this->get_level($obj->userblog_id);
+					$obj->level_label = ($obj->level) ? $this->get_level_setting($obj->level, 'name') : sprintf(__('Not %s', 'psts'), $this->get_setting('rebrand'));
+					$obj->upgrade_label = is_pro_site($obj->userblog_id) ? sprintf(__('Modify "%s"', 'psts'), $obj->blogname) : sprintf(__('Upgrade "%s"', 'psts'), $obj->blogname);
+					$obj->checkout_url = $this->checkout_url($obj->userblog_id);
 
-					$blogs[ $id ] = $obj;
-					$count ++;
+					$blogs[$id] = $obj;
+					$count++;
 				}
 				restore_current_blog();
 			}
@@ -4227,36 +4764,32 @@ function admin_levels() {
 			$next_start = $loop_count + 1;
 
 			$prev_loop_count = $loop_count;
-			if ( count( $blogs_of_user ) > $next_start ) {
-				$prev_loop_count ++;
+			if ( count($blogs_of_user) > $next_start ) {
+				$prev_loop_count++;
 			} else {
-				end( $blogs_of_user );
+				end($blogs_of_user);
 			}
 
 			// reverse
-			while ( prev( $blogs_of_user ) ) {
-				$prev_loop_count --;
-				if ( $prev_loop_count == $start ) {
-					break;
-				}
+			while ( prev($blogs_of_user) ) {
+				$prev_loop_count--;
+				if ($prev_loop_count == $start) break;
 			}
 
 			$prev_count = 0;
 			// reverse to previous start
-			while ( $obj = prev( $blogs_of_user ) ) {
-				$prev_loop_count --;
-				if ( $prev_loop_count < 0 ) {
-					break;
-				}
-				if ( $prev_count >= $per_page ) {
+			while ( $obj = prev($blogs_of_user) ) {
+				$prev_loop_count--;
+				if ($prev_loop_count < 0) break;
+				if ($prev_count >= $per_page) {
 					$prev_start = $prev_loop_count;
 					break;
 				}
-				$id = key( $blogs_of_user );
-				switch_to_blog( $id );
-				$permission = current_user_can( 'edit_pages' );
-				if ( $permission ) {
-					$prev_count ++;
+				$id = key($blogs_of_user);
+				switch_to_blog($id);
+				$permission = current_user_can('edit_pages');
+				if ($permission) {
+					$prev_count++;
 				}
 				$prev_count;
 				restore_current_blog();
@@ -4267,18 +4800,21 @@ function admin_levels() {
 			}
 
 			// user has edit permission for one blog, load checkout page
-			if ( count( $blogs ) == 1 ) {
-				$all_blog_ids = array_keys( $blogs );
-				$blog_id      = intval( $all_blog_ids[0] );
+			global $current_prosite_blog;
+			$current_prosite_blog = false;
+			if( count($blogs)==1 ) {
+				$all_blog_ids = array_keys($blogs);
+				$blog_id = intval($all_blog_ids[0]);
+				$current_prosite_blog = $blog_id;
 			}
 		}
-
 
 		if ( $blog_id ) {
 
 			//check for admin permissions for this blog
 			switch_to_blog( $blog_id );
-			$permission = current_user_can( 'edit_pages' );
+
+			$permission = $this->check_user_role( $current_user_id, $checkout_roles );
 			restore_current_blog();
 			if ( ! $permission ) {
 				$content = '<p>' . __( 'Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts' ) . '</p>';
@@ -4295,21 +4831,42 @@ function admin_levels() {
 				return $content;
 			}
 
-			//this is the main hook for gateways to add all their code
-			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
+			//this is the main hook for new checkout page
+			$content = apply_filters( 'psts_primary_checkout_table', $content, $blog_id );
 
+			/**
+			 * @todo: Moved this to the Checkout class
+			 */
+			//this is the main hook for gateways to add all their code
+//			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
+		} elseif ( $session_domain = ProSites_Helper_Session::session( 'domain' ) ) {
+			//after signup
+
+			//this is the main hook for new checkout page
+			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $session_domain );
+			/**
+			 * @todo: Moved this to the Checkout class
+			 */
+//			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
 		} else { //blogid not set
+			$blog_id = 0;
 			if ( $blogs ) {
 				$content .= '<h3>' . __( 'Please choose a site to Upgrade or Modify:', 'psts' ) . '</h3>';
 				$content .= '<ul>';
 
 				foreach ( $blogs as $blog ) {
-
 					$has_blog = true;
 
 					$level         = $this->get_level( $blog->userblog_id );
+
+					/**
+					 * @todo Check to make sure there variables are used or removed.
+					 */
 					$level_label   = ( $level ) ? $this->get_level_setting( $level, 'name' ) : sprintf( __( 'Not %s', 'psts' ), $this->get_setting( 'rebrand' ) );
 					$upgrade_label = is_pro_site( $blog->userblog_id ) ? sprintf( __( 'Modify "%s"', 'psts' ), $blog->blogname ) : sprintf( __( 'Upgrade "%s"', 'psts' ), $blog->blogname );
+					if( empty( $blog_id ) && is_pro_site( $blog->userblog_id ) ) {
+						$blog_id = $blog->userblog_id;
+					}
 
 					$content .= '<li><a href="' . $blog->checkout_url . '">' . $blog->upgrade_label . '</a> (<em>' . $blog->siteurl . '</em>) - ' . $blog->level_label . '</li>';
 				}
@@ -4323,18 +4880,28 @@ function admin_levels() {
 					$content .= '<div class="alignright"><a href="' . add_query_arg( array( 'blogs-start' => $next_start ), get_permalink() ) . '">Next</a></div>';
 				}
 				$content .= '</div>';
+
+				// Signup for another blog?
+				$allow_multi = $this->get_setting('multiple_signup');
+				$registeration = get_site_option('registration');
+				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+
+				if( $allow_multi ) {
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				}
+				$content .= apply_filters( 'prosites_myaccounts_list', '', $blog_id );
+
 			}
 
 			//show message if no valid blogs
-			if ( ! $has_blog ) {
+			$session_domain = ProSites_Helper_Session::session( 'domain' );
+			if ( ! $has_blog && ! isset( $session_domain ) ) {
 				$content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
 			}
-
 		}
 
 		return '<div id="psts-checkout-output">' . $content . '</div>'; //div wrap
 	}
-
 
 	/* exclude option from New Site Template plugin copy */
 	function blog_template_settings( $and ) {
@@ -4344,6 +4911,7 @@ function admin_levels() {
 	}
 
 	function pdf_receipt( $payment_info = '' ) {
+
 		require_once( $this->plugin_dir . 'tcpdf-config.php' );
 		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php' );
 		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php' );
@@ -4366,6 +4934,10 @@ function admin_levels() {
 
 		// create new PDF document
 		$pdf = new TCPDF( PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false );
+
+		// Note: If uncommenting below, please remove previous call.
+		// Can use the following to change language symbols to appropriate standard, e.g. ISO-638-2 languages.
+		// $pdf = new TCPDF( PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, false, 'ISO-639-2', false );
 
 		// set document information
 		$pdf->SetCreator( 'Pro Sites' );
@@ -4435,11 +5007,435 @@ function admin_levels() {
 
 	}
 
+	/**
+	 * Create the Checkout Page Settings
+	 *
+	 * @since 3.3.7
+	 *
+	 * @return settings page for Pro Sites Checkout Page
+	 */
+	function pricing_table_settings() {
+		if ( ! is_super_admin() ) {
+			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
+			return;
+		}
+
+		global $wpdb, $psts_modules;
+
+		if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == 'post' ) {
+			check_admin_referer( 'psts_checkout_settings' );
+			$_POST['psts'] = stripslashes_deep( $_POST['psts'] );
+			$old_settings  = get_site_option( 'psts_settings' );
+			$settings      = array_merge( $old_settings, $_POST['psts'] );
+			update_site_option( 'psts_settings', $settings );
+			echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
+		}
+		include_once $this->plugin_dir . 'lib/psts_pricing_table_admin.php';
+		echo apply_filters( 'psts_checkout_page_settings_output', new ProSites_Pricing_Table_Admin() );
+	}
+
+	/**
+	 * Checks if a particular user role is allowed to perform Pro Sites management
+	 *
+	 * @param $user_id
+	 * @param $roles
+	 *
+	 * @return bool
+	 */
+	function check_user_role( $user_id, $roles ) {
+
+		if ( is_numeric( $user_id ) ) {
+			$user = get_userdata( $user_id );
+		} else {
+			$user = wp_get_current_user();
+		}
+
+		if ( empty( $user ) ) {
+			return false;
+		}
+
+		if ( ! $roles ) {
+			return false;
+		}
+		if ( is_array( $roles ) ) {
+			foreach ( $roles as $role ) {
+				if ( in_array( $role, (array) $user->roles ) ) {
+					return true;
+				}
+			}
+		} else {
+			return in_array( $roles, (array) $user->roles );
+		}
+	}
+
+	/**
+	 * Enables the Network Used space check for multisite, if quota module is enabled
+	 */
+	function enable_network_used_space_check() {
+
+		//Check if quota module is enabled
+		$modules_enabled = $this->get_setting( 'modules_enabled', array() );
+
+		if ( ! in_array( 'ProSites_Module_Quota', $modules_enabled ) ) {
+			return;
+		}
+
+		$enable = apply_filters( 'psts_enable_used_space_check', true );
+		if ( $enable ) {
+			update_site_option( 'upload_space_check_disabled', '0' );
+		}
+	}
+
+	/**
+	 * Disables the blog activation email if Forced checkout on signup is selected
+	 * @return bool
+	 */
+	function disable_user_activation_mail() {
+
+		//If pay before blog is disabled, allow blog activation through email
+		$show_signup = $this->get_setting( 'show_signup' );
+
+		if ( 1 != $show_signup ) {
+			return true;
+		}
+//		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
+//		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
+//		) {
+//			//No post details to check
+//			return true;
+//		}
+
+		/* Wordpress do not provide option to filter confirm_blog_signup, we have disabled activation email */
+		ob_start();
+
+		return false;
+	}
+
+	/**
+	 * Redirect user to checkout page after signup
+	 *
+	 * @param type $blog_id
+	 * @param type $user_id
+	 * @param type $domain
+	 * @param type $path
+	 * @param type $site_id
+	 * @param type $meta
+	 */
+	function signup_redirect_checkout() {
+		global $wpdb;
+
+		//If pay before blog is disabled, allow blog activation through email
+		$show_signup = $this->get_setting( 'show_signup' );
+
+		if ( 1 != $show_signup ) {
+			return;
+		}
+
+		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
+		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
+		) {
+			//No post details to check
+			return;
+		}
+
+		/* Remove confirmation text between filter and action, this could be removed if confirm_blog_signup gets a filter */
+		ob_get_clean();
+
+		$blogname  = ! empty( $_POST['blogname'] ) ? $_POST['blogname'] : ( ! empty( $_POST['signup_blog_url'] ) ? $_POST['signup_blog_url'] : '' );
+		$blogtitle = ! empty( $_POST['blog_title'] ) ? $_POST['blog_title'] : ( ! empty( $_POST['signup_blog_title'] ) ? $_POST['signup_blog_title'] : '' );
+
+		$blog_details = wpmu_validate_blog_signup( $blogname, $blogtitle );
+
+		if ( empty( $blog_details ['domain'] ) ) {
+			return;
+		}
+		$domain = $blog_details['domain'];
+		//Check if blog is in trial or inactive, set session values and redirect to checkout page
+		$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
+		if ( ! $signup->active ) {
+			ProSites_Helper_Session::session( 'domain', $domain );
+			ProSites_Helper_Session::session( 'meta', $signup->meta );
+			?>
+			<!--redirect to checkout url-->
+			<script type="text/javascript">
+				window.location = '<?php echo $this->checkout_url(); ?>';
+			</script><?php
+		}
+
+		return;
+
+	}
+
+	/**
+	 * Activates the user blog if a domain is specified and if the blog is not already active
+	 *
+	 * @param bool $domain
+	 * @param bool $trial
+	 * @param bool $period
+	 * @param bool $level
+	 *
+	 * @return bool
+	 */
+	function activate_user_blog( $domain = false, $trial = true, $period = false, $level = false ) {
+		global $wpdb, $path;
+
+		$trial_days = $this->get_setting( 'trial_days', 0 );
+		if ( ! $domain ) {
+			return false;
+		}
+
+		//Get activation key from db
+		$signup         = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
+		$activation_key = ! empty( $signup->activation_key ) ? $signup->activation_key : '';
+		if ( ! $activation_key || $signup->active ) {
+			//get blog id
+			$fields = array(
+				'domain' => $domain,
+				'path'   => '/'
+			);
+			$blog   = get_blog_details( $fields );
+
+			return ! empty( $blog->blog_id ) ? $blog->blog_id : false;
+		}
+		$result = wpmu_activate_signup( $activation_key );
+
+		if ( empty( $result['user_id'] ) ) {
+			return false;
+		}
+		//Get user login by user id
+		$user = get_user_by( 'id', $result['user_id'] );
+
+		if ( empty( $user ) || is_wp_error( $user ) ) {
+			return false;
+		}
+
+		//Login user to follow up the rest of Pro Site process
+		$creds = array(
+			'user_login'    => $user->user_login,
+			'user_password' => $result['password']
+		);
+		$user  = wp_signon( $creds, true );
+		wp_set_current_user( $user->ID );
+
+		//Set Trial
+		if ( $trial ) {
+			$this->extend( $result['blog_id'], $period, 'Trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
+			//Redirect to checkout on next signup
+			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
+		}
+
+		// Unset Domain name from session if its still there
+		ProSites_Helper_Session::unset_session( 'domain' );
+
+		if ( isset( $result['blog_id'] ) ) {
+			return $result['blog_id'];
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Fetches signup meta for a domain
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed|string, meta value from signup table if there is a associated domain
+	 */
+	function get_signup_meta( $key = '' ) {
+		if ( ! $key ) {
+			return false;
+		}
+		global $wpdb;
+		$signup_meta = '';
+		$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
+		if ( ! empty( $signup ) ) {
+			$signup_meta = maybe_unserialize( $signup->meta );
+		}
+
+		return $signup_meta;
+	}
+
+	/**
+	 * Updates signup meta for a domain
+	 *
+	 * @param array $signup_meta
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed|string, meta value from signup table if there is a associated domain
+	 */
+	function update_signup_meta( $signup_meta = array(), $key = '' ) {
+		if ( ! $signup_meta || ! $key ) {
+			return false;
+		}
+		global $wpdb;
+
+		$updated = $wpdb->update(
+			$wpdb->signups,
+			array(
+				'meta' => serialize( $signup_meta ), // string
+			),
+			array(
+				'activation_key' => $key
+			)
+		);
+
+		return $updated;
+	}
+
+	/**
+	 * Fetches meta for a ProSite
+	 *
+	 * @param int $blog_id
+	 * @param bool $default
+	 *
+	 * @return bool|mixed|string
+	 */
+	public static function get_prosite_meta( $blog_id = 0 ) {
+		return ProSites_Helper_ProSite::get_prosite_meta( $blog_id );
+	}
+
+	/**
+	 * Sets meta for a ProSite
+	 *
+	 * @param array $meta
+	 * @param int $blog_id
+	 *
+	 * @return bool
+	 */
+	public static function update_prosite_meta( $blog_id = 0, $meta = array() ) {
+		return ProSites_Helper_ProSite::update_prosite_meta( $blog_id, $meta );
+	}
+
+	/**
+	 * Add Custom messages in admin footer
+	 *
+	 */
+	function psts_note() {
+		global $current_screen;
+		//Add for sites screen
+		if ( is_main_network() && 'sites-network' == $current_screen->base ) {
+			?>
+			<p><strong>&#42 </strong>
+			=> <?php _e( "The original Level doesn't exist, it might have been removed.", 'psts' ); ?></p><?php
+		}
+	}
+
+	/**
+	 * Allows to disable the free level option
+	 *
+	 * @param bool , default false
+	 */
+	function prevent_dismiss() {
+		return apply_filters( 'psts_prevent_dismiss', false );
+	}
+
+	function help_text( $message = '', $class = 'period-desc' ) {
+		if( empty( $message ) ){
+			return false;
+		}
+		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class . '"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+	}
+
+	/**
+	 * Displays a error on plugin activation
+	 * @param $message
+	 * @param $errno
+	 */
+	function trigger_install_error( $message, $errno ) {
+
+		if ( isset( $_GET['action'] ) && $_GET['action'] == 'error_scrape' ) {
+
+			echo '<strong>' . $message . '</strong>';
+
+			exit;
+
+		} else {
+
+			trigger_error( $message, $errno );
+
+		}
+
+	}
+
+	public static function filter_html( $content ) {
+		$allowed_atts = array( 'align'    => array(),
+		                       'class'    => array(),
+		                       'id'       => array(),
+		                       'dir'      => array(),
+		                       'lang'     => array(),
+		                       'style'    => array(),
+		                       'xml:lang' => array(),
+		                       'src'      => array(),
+		                       'alt'      => array(),
+								'value' =>array(),
+			'selected' =>array(),
+			'name'=>array(),
+			'checked'=>array(),
+		);
+		$allowed = array(
+			'span' => $allowed_atts,
+			'div' => $allowed_atts,
+			'button' => $allowed_atts,
+			'select' => $allowed_atts,
+			'input' => $allowed_atts,
+			'option' => $allowed_atts,
+			'br' => $allowed_atts,
+			'hr' => $allowed_atts,
+			'h1' => $allowed_atts,
+			'h2' => $allowed_atts,
+			'h3' => $allowed_atts,
+			'h4' => $allowed_atts,
+			'h5' => $allowed_atts,
+			'h6' => $allowed_atts,
+			'strong' => $allowed_atts,
+			'em' => $allowed_atts,
+			'b' => $allowed_atts,
+			'i' => $allowed_atts,
+			'style' => $allowed_atts,
+		);
+
+		return wp_kses( $content, $allowed );
+	}
+
+	function registration_page_styles() {
+		if( 'wp-signup.php' == $GLOBALS['pagenow'] ) {
+
+			// On the signup page, but only if it comes from the checkout
+			if( defined( 'PSTS_DISABLE_REGISTRATION_OVERRIDE' ) ) {
+				return false;
+			}
+
+			if( ( ! isset( $_GET['level']) && ! isset( $_GET['period'] ) ) && ( ! isset( $_POST['level']) && ! isset( $_POST['period'] ) ) ) {
+				return false;
+			}
+
+			// Now we can hack the display specifically for ProSites.
+			wp_enqueue_style( 'psts-registration', $this->plugin_url . 'css/registration.css', false, $this->version );
+		}
+	}
+
+	function prosites_signup_url( $url ) {
+		// Do a test here...
+		if ( true ) {
+//			$url = sprintf( '<a href="%s">%s</a>', esc_url( $this->checkout_url() ), __( 'Register' ) );
+		}
+
+		return $url;
+	}
+
 }
 
+//End of class
 //load the class
 global $psts;
 $psts = new ProSites();
+// Load Gateway Currencies
+ProSites_Helper_Gateway::load_gateway_currencies();
+
+define ( "MONTHLY", 1 );
+define ( "QUARTERLY", 3 );
+define ( "YEARLY", 12 );
 
 /* --------------------------------------------------------------------- */
 /* ---------------------------- Functions ------------------------------ */
@@ -4494,10 +5490,10 @@ function is_pro_trial( $blog_id ) {
 /*
  * function psts_levels_select
  * Print an html select field to choose level for an external plugin
- * 
- * @param string $name Name of the form field 
+ *
+ * @param string $name Name of the form field
  * @param int $selected the level number to select by default
- * 
+ *
  * @return echo html select
  */
 function psts_levels_select( $name, $selected, $echo = true ) {

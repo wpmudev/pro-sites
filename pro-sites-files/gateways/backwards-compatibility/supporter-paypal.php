@@ -9,7 +9,7 @@ payments being applied.
 if ((isset($_POST['payment_status']) || isset($_POST['txn_type'])) && isset($_POST['custom'])) {
 
 	define('ABSPATH', dirname(__FILE__) . '/');
-	require_once(ABSPATH . 'wp-load.php');
+	require_once( ABSPATH . 'wp-load.php' );
   global $wpdb, $psts;
 
 	if (get_site_option( "supporter_paypal_status" ) == 'test') {

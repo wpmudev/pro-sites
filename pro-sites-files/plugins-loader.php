@@ -1,9 +1,7 @@
 <?php
-
 /*
 For handling modules and gateways
 */
-
 class ProSites_PluginLoader {
 
 	public static $modules = array(
@@ -13,22 +11,24 @@ class ProSites_PluginLoader {
 		'ProSites_Module_BulkUpgrades' => 'bulk-upgrades',
 		'ProSites_Module_MarketPress_Global' => 'marketpress-filter',
 		'ProSites_Module_PayToBlog' => 'pay-to-blog',
+		'ProSites_Module_PostThrottling' => 'post-throttling',
 		'ProSites_Module_PostingQuota' => 'posting-quota',
 		'ProSites_Module_Plugins' => 'premium-plugins',
 		'ProSites_Module_Support' => 'premium-support',
 		'ProSites_Module_PremiumThemes' => 'premium-themes',
 		'ProSites_Module_Quota' => 'quota',
 		'ProSites_Module_UnfilterHtml' => 'unfiltered-html',
+		'ProSites_Module_UpgradeAdminLinks' => 'upgrade-admin-links',
 		'ProSites_Module_Writing' => 'write',
 		'ProSites_Module_XMLRPC' => 'xmlrpc',
 	);
 
-	function __construct() {
-		//load modules
-		add_action( 'plugins_loaded', array( &$this, 'load_modules' ), 11 ); //load after translation
+  function __construct() {
+    //load modules
+		add_action( 'plugins_loaded', array(&$this, 'load_modules'), 11 );
 
 		//load gateways
-		add_action( 'plugins_loaded', array( &$this, 'load_gateways' ), 11 ); //load after translation
+		add_action( 'plugins_loaded', array(&$this, 'load_gateways'), 11 );
 	}
 
 	public static function require_module( $module ) {
@@ -47,41 +47,24 @@ class ProSites_PluginLoader {
 		// Avoiding file scan
 		$modules = apply_filters( 'prosites_modules', self::$modules );
 
-		//search the dir for files
-//		$modules = array();
-//		if ( ! is_dir( $dir ) ) {
-//			return;
-//		}
-//		if ( ! $dh = opendir( $dir ) ) {
-//			return;
-//		}
-//		while ( ( $module = readdir( $dh ) ) !== false ) {
-//			if ( substr( $module, - 4 ) == '.php' ) {
-//				$modules[] = $dir . $module;
-//			}
-//		}
-//		closedir( $dh );
-//		sort( $modules );
-
 		ksort( $modules );
 
 		//include them suppressing errors
 		foreach ( $modules as $file ) {
-//			include_once( $file );
 			require_once( $dir . $file . '.php');
 		}
 
 		//allow plugins from an external location to register themselves
-		do_action( 'psts_load_modules' );
+		do_action('psts_load_modules');
 
 		//load chosen plugin classes
 		foreach ( array_keys( $modules ) as $class ) {
-			$name = call_user_func( $class.'::get_name' );
-			$description = call_user_func( $class.'::get_description' );
+			$name = call_user_func( $class . '::get_name' );
+			$description = call_user_func( $class . '::get_description' );
 			$restriction = '';
 
 			if( method_exists( $class, 'get_class_restriction' ) ) {
-				$restriction = call_user_func( $class.'::get_class_restriction' );
+				$restriction = call_user_func( $class . '::get_class_restriction' );
 			}
 
 			if ( empty( $restriction ) || ( ! empty( $restriction) && class_exists( $restriction ) ) ) {
@@ -94,52 +77,42 @@ class ProSites_PluginLoader {
 			}
 
 		}
-//		foreach ( (array) $psts_modules as $class => $module ) {
-//			if ( class_exists( $class ) && in_array( $class, (array) $psts->get_setting( 'modules_enabled' ) ) ) {
-//				global $$class;
-//				$$class = new $class;
-//			}
-//		}
-	}
 
-	function load_gateways() {
-		global $psts;
+  }
 
-		//get gateways dir
-		$dir = $psts->plugin_dir . 'gateways/';
+  function load_gateways() {
+    global $psts;
+    
+    //get gateways dir
+    $dir = $psts->plugin_dir . 'gateways/';
 
-		//search the dir for files
-		$gateways = array();
-		if ( ! is_dir( $dir ) ) {
-			return;
-		}
-		if ( ! $dh = opendir( $dir ) ) {
-			return;
-		}
-		while ( ( $gateway = readdir( $dh ) ) !== false ) {
-			if ( substr( $gateway, - 4 ) == '.php' ) {
-				$gateways[] = $dir . $gateway;
-			}
-		}
-		closedir( $dh );
-		sort( $gateways );
+    //search the dir for files
+    $gateways = array();
+  	if ( !is_dir( $dir ) )
+  		return;
+  	if ( ! $dh = opendir( $dir ) )
+  		return;
+  	while ( ( $gateway = readdir( $dh ) ) !== false ) {
+  		if ( substr( $gateway, -4 ) == '.php' )
+  			$gateways[] = $dir . $gateway;
+  	}
+  	closedir( $dh );
+  	sort( $gateways );
 
-		//include them suppressing errors
-		foreach ( $gateways as $file ) {
-			include_once( $file );
-		}
+  	//include them suppressing errors
+  	foreach ($gateways as $file)
+      include_once( $file );
 
 		//allow plugins from an external location to register themselves
-		do_action( 'psts_load_gateways' );
+		do_action('psts_load_gateways');
 
-		//load chosen plugin class
-		global $psts_gateways, $psts_active_gateways;
-		foreach ( (array) $psts_gateways as $class => $gateway ) {
-			if ( class_exists( $class ) && in_array( $class, (array) $psts->get_setting( 'gateways_enabled' ) ) ) {
-				$psts_active_gateways[] = new $class;
-			}
-		}
-	}
+    //load chosen plugin class
+    global $psts_gateways, $psts_active_gateways;
+    foreach ((array)$psts_gateways as $class => $gateway) {
+      if ( class_exists($class) && in_array($class, (array)$psts->get_setting('gateways_enabled')) )
+        $psts_active_gateways[] = new $class;
+    }
+  }
 
 }
 
@@ -153,15 +126,15 @@ $psts_plugin_loader = new ProSites_PluginLoader();
  * @param string $name - the nice name for your plugin
  * @param string $description - Short description of your gateway, for the admin side.
  */
-function psts_register_gateway( $class_name, $name, $description, $demo = false ) {
-	global $psts_gateways;
-
-	if ( ! is_array( $psts_gateways ) ) {
+function psts_register_gateway($class_name, $name, $description, $demo = false) {
+  global $psts_gateways;
+  
+  if (!is_array($psts_gateways)) {
 		$psts_gateways = array();
 	}
-
-	if ( class_exists( $class_name ) ) {
-		$psts_gateways[ $class_name ] = array( $name, $description, $demo );
+	
+	if (class_exists($class_name)) {
+		$psts_gateways[$class_name] = array($name, $description, $demo);
 	} else {
 		return false;
 	}
@@ -174,16 +147,17 @@ function psts_register_gateway( $class_name, $name, $description, $demo = false 
  * @param string $name - the nice name for your plugin
  * @param string $description - Short description of the module, for the admin side.
  */
-function psts_register_module( $class_name, $name, $description, $demo = false ) {
-	global $psts_modules;
+function psts_register_module($class_name, $name, $description, $demo = false) {
+  global $psts_modules;
 
-	if ( ! is_array( $psts_modules ) ) {
+  if (!is_array($psts_modules)) {
 		$psts_modules = array();
 	}
 
-	if ( class_exists( $class_name ) ) {
-		$psts_modules[ $class_name ] = array( $name, $description, $demo );
+	if (class_exists($class_name)) {
+		$psts_modules[$class_name] = array($name, $description, $demo);
 	} else {
 		return false;
 	}
 }
+?>

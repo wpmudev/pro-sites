@@ -2,11 +2,11 @@
     border: 1px solid #e5e5e5;
     display: block;
     padding: 10px;
-    text-align: right;
+    text-align: left;
 }
 
-#prosites-media-quota-display .size-text {
-    float: left;
+#prosites-media-quota-display .media-upload {
+    float: right;
 }
 
 .attachments-browser #prosites-media-quota-display {

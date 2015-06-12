@@ -3,26 +3,55 @@ Author: Aaron Edwards
 
 Change Log:
 ----------------------------------------------------------------------
-----------------------------------------------------------------------
-3.4.7.2 - 02/03/2015 - Rheinard Korf
-----------------------------------------------------------------------
-- Fix: PHP 5.2 compatibility issue.
-- Fix: Data table creation for Ads module.
-- Fix: Some PHP warnings.
 
-3.4.7.1 - 01/29/2015 - Rheinard Korf
 ----------------------------------------------------------------------
-- Fix: PHP warning message no longer appears when no modules are enabled.
+3.5.0.2 - 6/5/2015 - Rheinard Korf & Umesh Kumar
+----------------------------------------------------------------------
+- Fixed: HTML being displayed on Media library page
+- Fixed: Site being activated even if payment was canceled by Paypal user
 
-3.4.7 - 01/29/2015 - Rheinard Korf
+
 ----------------------------------------------------------------------
-- Fix: Trial users now correctly expires
-- Fix: Manual extented Pro Sites now correctly expires
-- Fix: When downgraded, premium themes disable and default or first non premium theme is applied
-- Fix: When downgraded, premium plugins now correctly disables
-- Fix: Network wide Plugins option checked when Premium Plugins module is active
-- Fix: Network setting for limiting quotas automatically checked when Upload Quotas module is active
-- Added: Upload Quotas module now displays space used with an upgrade prompt to a higher level
+3.5.0.1 - 6/5/2015 - Rheinard Korf & Umesh Kumar
+----------------------------------------------------------------------
+- Fixed: Fatal error when creating checkout page.
+- Fixed: Small CSS adjustment to fix pricing table in some themes.
+- Fixed: Multiple backslashes no longer appears in textboxes.
+- Fixed: Site Title: Space in title replaced by +
+- Changed: Making it obvious that Stripe setup currency must match Stripe account currency
+
+----------------------------------------------------------------------
+3.5 - 6/5/2015 - Rheinard Korf & Umesh Kumar
+----------------------------------------------------------------------
+- New:   Post Throttling Module
+- New:   Limit Coupons availability to selected period
+- New:   Filter 'psts_pypl_checkout_image_url' for Paypal
+- New:   Checkout user role selection setting
+- New:   Persistent object cache support
+- New:   Russian Rubles to paypal currencies and locale
+- New:   Force Network Used space check if quota is enabled, can be overridden using filter 'psts_enable_used_space_check'
+- New:   Improve directions in Premium Plugins module
+- New:   Allow changing which site the checkout page is on via PSTS_CHECKOUT_SITE define
+- New:   Add admin bar upgrade button for Bulk Upgrades module
+- New:   Filters to override ads conditionals
+- New:   BuddyPress feature to hide non-pro blogs from activity streams
+- New:   Pricing checkout table
+- New:   Features table
+- New:   Use multiple gateways (e.g. allowing PayPal as well as Credit Card via Stripe)
+- New:   Taxamo integration to support EU VAT requirements (requires Taxamo.com account)
+- New:   Detailed receipts when using tax
+- Fixed: Posting quota limit issue for Custom posts
+- Fixed: Warnings and notices
+- Fixed: Upload Quota ad-free level showing when not active in ads module
+- Fixed: Check class_exists on Stripe API class
+- Fixed: Plugin Path variable
+- Fixed: Translatable strings
+- Fixed: Checkout url ( displayed if quota is exceeded ) on media page
+- New UI: Updated many of the setting pages to make it easier to find your settings. Also includes drag and drop reordering of some elements.
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 
 3.4.6 - 12/19/2014 - Aaron Edwards
 ----------------------------------------------------------------------
@@ -50,6 +79,10 @@ Change Log:
 3.4.3.7 - 8/4/2014 - Aaron Edwards
 ----------------------------------------------------------------------
 - Added: Add BN code to PayPal gateway
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 
 3.4.3.6 - 4/1/2014 - Jonathan Cowher
 ----------------------------------------------------------------------

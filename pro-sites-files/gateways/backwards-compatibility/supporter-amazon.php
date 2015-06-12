@@ -14,7 +14,7 @@ if (!isset($_POST['signature'])) {
 	exit;
 } else {
 	define('ABSPATH', dirname(__FILE__) . '/');
-	require_once(ABSPATH . 'wp-load.php');
+	require_once( ABSPATH . 'wp-load.php' );
   global $wpdb, $psts;
   
 	$secret_key = get_site_option("supporter_amazon_secretkey");
