@@ -1873,52 +1873,34 @@ class ProSites_Gateway_Stripe {
 		$content .= '<div id="psts-stripe-checkout">
 				<h2>' . esc_html__( 'Checkout With a Credit Card:', 'psts' ) . '</h2>
 				<div id="psts-processcard-error"></div>
-
 				<table id="psts-cc-table">
 					<tbody>
+						<!-- Cardholder Name -->
+						<tr>
+							<td class="pypl_label" align="right">' . esc_html__( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>
+		                    <td><input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" /></td>
+						</tr>
 						<!-- Credit Card Number -->
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Card Number:', 'psts' ) . '&nbsp;</td>
-							<td>';
-//								if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br />
+							<td><input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br />
 								<img class="accepted-cards" src="' . esc_url( $img_base . 'stripe-cards.png' ) . '" />
 							</td>
 						</tr>
-
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
-							<td valign="middle">';
-//								if ( $errmsg = $psts->errors->get_error_message( 'expiration' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<select id="cc_month" class="card-expiry-month">' . self::month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . self::year_dropdown() . '</select>
+							<td valign="middle">
+								<select id="cc_month" class="card-expiry-month">' . self::month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . self::year_dropdown() . '</select>
 							</td>
 						</tr>
-
 						<!-- Card Security Code -->
 						<tr>
 							<td class="pypl_label" align="right"><nobr>' . esc_html__( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
-							<td valign="middle">';
-//								if ( $errmsg = $psts->errors->get_error_message( 'cvv2' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<label>
+							<td valign="middle">
+								<label>
 									<input id="cc_cvv2" size="5" maxlength="4" type="password" class="cctext card-cvc" title="' . esc_attr__( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
 									<img src="' . esc_url( $img_base . 'buy-cvv.gif' ) . '" height="27" width="42" title="' . esc_attr__( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
 								</label>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="pypl_label" align="right">' . esc_html__( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>
-		                    <td>';
-//								if ( $errmsg = $psts->errors->get_error_message( 'name' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" />
 							</td>
 						</tr>
 					</tbody>
