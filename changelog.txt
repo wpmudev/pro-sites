@@ -8,6 +8,8 @@ Change Log:
 3.5.0.2 - 6/5/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: HTML being displayed on Media library page
+- Fixed: Site being activated even if payment was canceled by Paypal user
+
 
 ----------------------------------------------------------------------
 3.5.0.1 - 6/5/2015 - Rheinard Korf & Umesh Kumar

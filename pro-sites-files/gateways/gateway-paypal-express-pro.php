@@ -1707,6 +1707,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		/* ------------------- PayPal Checkout ----------------- */
 		//!check for return from Express Checkout
 		if ( isset( $_GET['token'] ) && isset( $_POST['period'] ) && isset( $_POST['level'] ) ) {
+			if( !empty( $_GET['action']) && $_GET['action'] == 'canceled')  {
+				return false;
+			}
 
 			//Set payerID if missing
 			if ( ! isset( $_GET['PayerID'] ) ) {
