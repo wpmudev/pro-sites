@@ -25,6 +25,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			// Make sure the URL is valid...
 			$site_url = str_replace( array( 'http://', 'https://' ), '', site_url() );
+			$site_url = str_replace( '/', '\/', $site_url );
 			$test_checkout = preg_replace( '/' . $site_url . '$/', '', $checkout_url );
 			if ( ! preg_match( '/' . $site_url . '/', $test_checkout ) ) {
 				$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
