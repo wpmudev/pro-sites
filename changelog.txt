@@ -10,6 +10,10 @@ Change Log:
 - Fixed: Warning message with Premium Themes module
 - Fixed: Warning with number format conversion
 - Fixed: When checkout page is defined as registration page in BuddyPress, the checkout page will show.
+- Fixed: When deleting a level the features table no longer times out
+- Fixed: Feature messages no longer breaks when adding or removing levels
+- Fixed: Warning message when only using one gateway and having Bulk Upgrade module enabled
+
 
 ----------------------------------------------------------------------
 3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar

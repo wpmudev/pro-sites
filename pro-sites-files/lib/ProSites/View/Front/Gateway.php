@@ -21,7 +21,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( empty( $gateways ) ) {
 
 			}
-			$gateway_details = self::get_gateway_details( $gateways );
+			$gateway_details = self::filter_usable_gateways( self::get_gateway_details( $gateways ) );
 
 			//Handle Subscription Cancel, call respective gateway function for the blog id
 			if ( isset( $_GET['action'] ) && $_GET['action'] == 'cancel' && wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
@@ -254,6 +254,25 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			return '<div id="psts_existing_info"><h2>' . esc_html__( 'Your current plan', 'psts' ) . '</h2>' . $content . '</div>';
 
+		}
+
+		public static function filter_usable_gateways( $gateways ) {
+
+			// remove 'bulk_upgrade'
+			if( 'bulk upgrade' == $gateways['primary'] ) {
+				$gateways['primary'] = 'none';
+			}
+			if( 'bulk upgrade' == $gateways['secondary'] ) {
+				$gateways['secondary'] = 'none';
+			}
+			foreach( $gateways['order'] as $k => $v ) {
+				if( 'bulk upgrade' == $v ) {
+					unset( $gateways['order'][$k]);
+				}
+			}
+			$gateways['order'] = array_values( $gateways['order'] );
+
+			return $gateways;
 		}
 
 		public static function get_gateway_details( $gateways ) {
