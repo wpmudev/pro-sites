@@ -5,6 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
+3.5.0.3 - mm/dd/yyyy - Rheinard Korf & Umesh Kumar
+----------------------------------------------------------------------
+- Fixed: Warning message with Premium Themes module
+- Fixed: Warning with number format conversion
+- Fixed: When checkout page is defined as registration page in BuddyPress, the checkout page will show.
+
+----------------------------------------------------------------------
 3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: HTML being displayed on Media library page

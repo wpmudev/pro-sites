@@ -62,7 +62,7 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 
 			$symbol = '<span class="symbol">' . $symbol . '</span>';
 
-			$amount = number_format( $amount, $decimal_place );
+			$amount = number_format( floatval( $amount ), $decimal_place );
 			$amount = explode( '.', $amount );
 
 			$left = $amount[0];
