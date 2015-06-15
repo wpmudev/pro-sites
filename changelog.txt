@@ -5,6 +5,10 @@ Change Log:
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
+
+3.5.0.3 - 6/20/2015 - Rheinard Korf & Umesh Kumar
+- Fixed: Paypal refund - Fatal Error
+
 3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: HTML being displayed on Media library page

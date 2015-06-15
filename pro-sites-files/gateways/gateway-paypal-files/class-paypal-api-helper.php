@@ -336,7 +336,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&NOTE=" . urlencode( $note );
 			}
 
-			$resArray = $this->api_call( "RefundTransaction", $nvpstr );
+			$resArray = self::api_call( "RefundTransaction", $nvpstr );
 
 			return $resArray;
 		}
