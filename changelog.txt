@@ -13,6 +13,8 @@ Change Log:
 - Fixed: When deleting a level the features table no longer times out
 - Fixed: Feature messages no longer breaks when adding or removing levels
 - Fixed: Warning message when only using one gateway and having Bulk Upgrade module enabled
+- Fixed: Issue with level selection box showing 1's or 0's
+- Added: Additional CSS class added to items on features table for custom styling
 
 
 ----------------------------------------------------------------------

@@ -134,7 +134,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					foreach( $column['features'] as $index => $feature ) {
 						$alt = isset( $feature['alt'] ) && true == $feature['alt'] ? 'alternate' : '';
 
-						$content .= '<li class="feature feature-' . $index . ' ' . $alt . '">';
+						$content .= '<li class="feature feature-' . $index . ' ' . $alt . '"><div class="feature-content">';
 
 						if( isset( $feature['name'] ) && ! empty( $feature['name'] ) ) {
 							$content .= '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
@@ -146,7 +146,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 							$content .= '<div class="feature-text">' . ProSites::filter_html( $feature['text'] ) . '</div>';
 						}
 
-						$content .= '</li>';
+						$content .= '</div></li>';
 					}
 
 					$content .= '</ul></li>';

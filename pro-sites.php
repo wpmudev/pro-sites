@@ -2478,12 +2478,12 @@ Thanks!", 'psts' ),
 		foreach ( $levels as $level => $value ) {
 			$html .= '<option value="' . $level . '"' . selected( $selected, $level, false ) . '>' . $level . ': ' . esc_attr( $value['name'] ) . '</option>';
 		}
-		$html = '</select>';
+		$html .= '</select>';
 
 		if ( $echo ) {
-			echo $echo;
+			echo $html;
 		} else {
-			return $echo;
+			return $html;
 		}
 	}
 
