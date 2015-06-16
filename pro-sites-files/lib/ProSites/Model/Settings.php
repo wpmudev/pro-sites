@@ -52,8 +52,6 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 					do_action( 'update_site_option_psts_levels' );
 				}
 
-				error_log( print_r( $_POST, true ) );
-
 				do_action( 'psts_settings_process', $active_tab );
 				do_action( 'supporter_settings_process' ); //deprecated
 

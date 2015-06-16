@@ -14,13 +14,14 @@ Change Log:
 - Fixed: Feature messages no longer breaks when adding or removing levels
 - Fixed: Warning message when only using one gateway and having Bulk Upgrade module enabled
 - Fixed: Issue with level selection box showing 1's or 0's
-- Fixed: Paypal refund - Fatal Error
-- Fixed: Do not show gateways if there were errors in checkout page
-- Fixed: Do not process payment, if no level and period was selected
-- Fixed: Paypal API credentials instructions link
-- Added: Additional CSS class added to items on features table for custom styling
-- Fixed: Upgrading Stripe subscriptions from 3.4 to 3.5
-- Changed: Premium Themes module will now show premium themes to all sites not just pro sites. Only allowed themes can be activated.
+- Fixed: Gateways - Do not show gateways if there were errors in checkout page
+- Fixed: Gateways - Do not process payment, if no level and period was selected
+- Fixed: Stripe - Upgrading subscriptions from 3.4 to 3.5
+- Fixed: Paypal - API credentials instructions link
+- Fixed: Paypal - Partial refund, refunding the whole amount
+- Fixed: Paypal - Refund fatal error
+- Updated: Additional CSS class added to items on features table for custom styling
+- Updated: Premium Themes module will now show premium themes to all sites not just pro sites. Only allowed themes can be activated.
 
 ----------------------------------------------------------------------
 3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar

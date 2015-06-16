@@ -851,7 +851,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$refund = ( round( $_POST['refund_amount'], 2 ) < $last_payment['amount'] ) ? round( $_POST['refund_amount'], 2 ) : $last_payment['amount'];
 
 						//refund last transaction
-						$resArray2 = PaypalApiHelper::RefundTransaction( $last_payment['txn_id'], false, __( 'This is a partial refund of your last payment.', 'psts' ) );
+						$resArray2 = PaypalApiHelper::RefundTransaction( $last_payment['txn_id'], $refund, __( 'This is a partial refund of your last payment.', 'psts' ) );
 						if ( $resArray2['ACK'] == 'Success' || $resArray2['ACK'] == 'SuccessWithWarning' ) {
 							$psts->log_action( $blog_id, sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
 							$success_msg = sprintf( __( 'A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
@@ -1056,7 +1056,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) && $blog_id !== 0 ) {
 
 						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
-							$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ), $_POST['txn_type'], $_POST['txn_id'] ) . $profile_string );
 
 							//extend only if a recurring payment, first payments are handled below
@@ -1092,9 +1091,20 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						} else {
 							//Received only when recurring profile is created
 							if ( ! empty( $_POST['initial_payment_txn_id'] ) ) {
-								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, array( 'level'  => $level, 'period' => $period, 'ipn' => $_POST ) );
+								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, array( 'level'  => $level,
+								                                                                                           'period' => $period,
+								                                                                                           'ipn'    => $_POST
+								) );
 							}
 						}
+					}
+					//Store payment log
+					if ( ! empty( $_POST['txn_id'] ) && ! empty( $_POST['mc_gross'] ) ) {
+						$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
+					}
+					//Store Payment Log
+					if ( ! empty( $_POST['initial_payment_txn_id'] ) && ! empty( $_POST['amount'] ) ) {
+						$psts->record_transaction( $blog_id, $_POST['initial_payment_txn_id'], $_POST['amount'] );
 					}
 					update_blog_option( $blog_id, 'psts_waiting_step', 0 );
 					break;
