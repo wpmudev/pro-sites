@@ -163,14 +163,17 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						}
 
 					}
+					// If WP 4.0+ and user is logged in it will use WP_Session_Tokens, else $_SESSION
+					ProSites_Helper_Session::session( 'new_blog_details', $blog_data['new_blog_details'] );
+					ProSites_Helper_Session::session( 'activation_key', $blog_data['activation_key'] );
+
+					$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( $blog_data );
 				} else {
 					// We had registration errors, redraw the form displaying errors
 					if( ! empty( $user_check ) && isset( $user_check->errors ) ) {
 						$ajax_response['form'] = ProSites_View_Front_Registration::render_signup_form( $blog_data, $user_check );
 						$ajax_response['user_available'] = false;
 					}
-
-					$ajax_response['gateways_form'] = '<div id="gateways" class="hidden"></div>';
 
 					// Isolate which standard fields are valid
 					$error_keys = array_keys( $user_check->errors );
@@ -190,12 +193,6 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						}
 					}
 				}
-
-				// If WP 4.0+ and user is logged in it will use WP_Session_Tokens, else $_SESSION
-				ProSites_Helper_Session::session( 'new_blog_details', $blog_data['new_blog_details'] );
-				ProSites_Helper_Session::session( 'activation_key', $blog_data['activation_key'] );
-
-				$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( $blog_data );
 				$ajax_response['username_available'] = $username_available;
 				$ajax_response['email_available'] = $email_available;
 				$ajax_response['blogname_available'] = $blogname_available;

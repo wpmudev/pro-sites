@@ -1550,9 +1550,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		     isset( $_GET['token'] )
 		) {
 
-			//Check for level
+			//Check for level, if there is no level and period, return back
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+				return false;
 			}
 
 			//prepare vars

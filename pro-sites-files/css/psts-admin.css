@@ -170,14 +170,32 @@ input[name="coupon_code"] {
 .pay-for-signup {
     position: relative;
 }
-.multiple-signup .psts-help-text-wrapper,
+.free-signup .help_tip {
+    position: absolute;
+    top: 23px;
+}
+.multiple-signup .help_tip {
+    position: absolute;
+    top: 22px;
+    right: 54px;
+}
+
 .free-signup .psts-help-text-wrapper {
-    left: 48px;
-    top: 52px;
+    left: 53px;
+    top: 36px;
+}
+.multiple-signup .psts-help-text-wrapper {
+    left: 68px;
+    top: 36px;
+}
+.pay-for-signup .help_tip {
+    position: absolute;
+    top: 21px;
+    right: 56px;
 }
 .pay-for-signup .psts-help-text-wrapper {
-    left: 62px;
-    top: 52px;
+    left: 39px;
+    top: 35px;
 }
 
 .psts-free-trial .psts-help-text-wrapper {
