@@ -1262,6 +1262,18 @@ class ProSites_Gateway_Stripe {
 			) {
 				// Create generic class from Stripe\Subscription class
 
+				// Convert 3.4 -> 3.5+
+				if( ! $subscription->period && ! $subscription->level ) {
+					$blog_id = ProSites_Gateway_Stripe::get_blog_id('cus_6R937nyG47pRos');
+					$blog_info = ProSites_Helper_ProSite::get_blog_info( $blog_id );
+					$subscription->period = $blog_info['period'];
+					$subscription->level = $blog_info['level_id'];
+					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id, $blog_id );
+					$subscription->blog_id = $blog_id;
+					self::set_subscription_meta( $subscription, $customer_id );
+				}
+
+
 				if ( ! empty( $subscription->blog_id ) ) {
 					$blog_id = (int) $subscription->blog_id;
 				} else if ( ! empty( $subscription ) ) {
@@ -1539,7 +1551,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public static function set_subscription_blog_id( $subscription, $customer_id, $fallback_blog_id, $new_blog_id = false ) {
 		// Use $new_blog_id, or the $subscription->id if it exists, or the $fallback_blog_id.
-		$the_blog_id = ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $subscription->blog_id ) ? $subscription->blog_id : $fallback_blog_id;
+		$the_blog_id = ! empty( $new_blog_id ) ? $new_blog_id : ( ! empty( $subscription->blog_id ) ? $subscription->blog_id : $fallback_blog_id );
 
 		if ( ! empty( $subscription->blog_id ) && $the_blog_id == $subscription->blog_id ) {
 			// Nothing to update if all the ids match the subscription id
@@ -1565,6 +1577,16 @@ class ProSites_Gateway_Stripe {
 			}
 
 			return $the_blog_id;
+		}
+	}
+
+	public static function set_subscription_meta( $subscription, $customer_id ) {
+		$customer = Stripe_Customer::retrieve( $customer_id );
+		if ( is_object( $subscription ) && ! empty( $customer ) ) {
+			$sub                    = $customer->subscriptions->retrieve( $subscription->id );
+			$sub->metadata->level = $subscription->level;
+			$sub->metadata->period = $subscription->period;
+			$sub->save();
 		}
 	}
 
@@ -1918,8 +1940,11 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
+	 * @param array $process_data
 	 * @param $blog_id
 	 * @param $domain
+	 *
+	 * @return bool
 	 */
 	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 		global $psts, $current_user, $current_site;
