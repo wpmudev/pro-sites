@@ -17,6 +17,7 @@ Change Log:
 - Fixed: Paypal refund - Fatal Error
 - Fixed: Do not show gateways if there were errors in checkout page
 - Fixed: Do not process payment, if no level and period was selected
+- Fixed: Paypal API credentials instructions link
 - Added: Additional CSS class added to items on features table for custom styling
 - Fixed: Upgrading Stripe subscriptions from 3.4 to 3.5
 
