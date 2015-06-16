@@ -2835,6 +2835,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			'TRY' => array( 'Turkish Lira', '20a4' ),
 			'TWD' => array( 'New Taiwan Dollar', '4e, 54, 24' ),
 			'USD' => array( 'United States Dollar', '24' ),
+			'RUB' => array( 'Russian Ruble', '20', 'bd')
 		);
 
 	}

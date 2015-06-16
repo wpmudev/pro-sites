@@ -21,10 +21,12 @@ Change Log:
 3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: HTML being displayed on Media library page
-- Fixed: Site being activated even if payment was canceled by Paypal user
+- Fixed: Site being activated even if payment was canceled by PayPal user
 - Fixed: Strip slashes for Manual Payment gateway description
 - Fixed: Enable Manual Gateway processing
-- Fixed: a few warnings and notices
+- Fixed: Fixed error with PayPal partial refund
+- Fixed: Added Russian Ruble to PayPal gateway
+
 
 ----------------------------------------------------------------------
 3.5.0.1 - 6/5/2015 - Rheinard Korf & Umesh Kumar
