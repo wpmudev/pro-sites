@@ -320,7 +320,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		function RefundTransaction( $transaction_id, $partial_amt = false, $note = '' ) {
+		public static function RefundTransaction( $transaction_id, $partial_amt = false, $note = '' ) {
 			global $psts;
 			$nvpstr = "&TRANSACTIONID=" . $transaction_id;
 

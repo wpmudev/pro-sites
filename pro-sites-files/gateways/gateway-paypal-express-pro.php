@@ -1121,16 +1121,19 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			// handle exceptions from the subscription specific fields
-			if ( in_array( $_POST['txn_type'], array( /*'subscr_cancel', */
-				'subscr_failed',
-				'subscr_eot'
-			) )
+			if ( ! empty( $_POST['txn_type'] )
+			     && in_array( $_POST['txn_type'],
+					array(/*'subscr_cancel', */
+						'subscr_failed',
+						'subscr_eot'
+					)
+				)
 			) {
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string, $blog_id );
 			}
 
 			//new subscriptions (after cancelation)
-			if ( $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
+			if ( ! empty( $_POST['txn_type'] ) && $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
 
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string );
 
@@ -1144,7 +1147,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//cancelled subscriptions
-			if ( $_POST['txn_type'] == 'subscr_cancel' ) {
+			if ( ! empty( $_POST['txn_type'] ) && $_POST['txn_type'] == 'subscr_cancel' ) {
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received. The subscription has been canceled.', 'psts' ), $_POST['txn_type'] ) . $profile_string );
 
 				//$psts->email_notification($blog_id, 'canceled');
