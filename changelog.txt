@@ -20,6 +20,7 @@ Change Log:
 - Fixed: Paypal API credentials instructions link
 - Added: Additional CSS class added to items on features table for custom styling
 - Fixed: Upgrading Stripe subscriptions from 3.4 to 3.5
+- Changed: Premium Themes module will now show premium themes to all sites not just pro sites. Only allowed themes can be activated.
 
 ----------------------------------------------------------------------
 3.5.0.2 - 6/12/2015 - Rheinard Korf & Umesh Kumar
