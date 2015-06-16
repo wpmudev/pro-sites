@@ -1271,6 +1271,11 @@ ul.pricing-column.not-chosen-plan .button-box button {
     margin-right: 5px;
 }
 
+.attachments-browser #prosites-media-quota-display {
+    float: left;
+    width: 100%;
+}
+
 /* === DARK MODE === */
 
 .darkmode #gateways ul li,

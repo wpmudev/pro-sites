@@ -20,6 +20,7 @@ Change Log:
 - Fixed: Paypal - API credentials instructions link
 - Fixed: Paypal - Partial refund, refunding the whole amount
 - Fixed: Paypal - Refund fatal error
+- Fixed: Upload quota displaying correctly in the Media browser
 - Updated: Additional CSS class added to items on features table for custom styling
 - Updated: Premium Themes module will now show premium themes to all sites not just pro sites. Only allowed themes can be activated.
 
