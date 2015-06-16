@@ -5521,25 +5521,3 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
-
-
-
-//add_filter( 'register_url', 'my_register_page', 999 );
-//add_filter( 'bp_core_get_root_options', 'my_register_page', 999 );
-function my_register_page( $register_url ) {
-	//if( class_exists('ProSites') ){
-	//	global $psts, $current_site;
-	//	//allow overriding and changing the root site to put the checkout page on
-	//	$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
-	//
-	//	//insert new page if not existing
-	//	switch_to_blog( $checkout_site );
-	//	$register_url = get_permalink( $psts->get_setting( 'checkout_page' ) );
-	//	restore_current_blog();
-	//}
-	//return $register_url;
-	error_log( print_r( $register_url, true ) );
-
-	$register_url['registration'] = 'user';
-	return $register_url;
-}
