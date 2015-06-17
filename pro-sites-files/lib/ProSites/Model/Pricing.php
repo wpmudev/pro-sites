@@ -180,45 +180,51 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 
 						// Add missing
 						if( count( $feature['levels'] ) < count( $level_keys ) ) {
-							$original = count( $feature['levels'] );
-							$difference = count( $level_keys ) - original;
 
-							for( $i = 0; $i < $difference; $i++ ) {
-								switch( $type ) {
-									case 'module':
-										if( $type && method_exists( $feature[ 'module' ], 'get_level_status' ) ) {
-											$status = call_user_func( $feature[ 'module' ] . '::get_level_status', ( $original + $i ) );
-											$status = is_array( $status ) ? $status : 'module';
-										} else {
-											$status = $level_defaults['module']['status'];
-										}
-										$text = $level_defaults['module']['text'];
-										break;
-									case 'custom':
-										$status = $level_defaults['custom']['status'];
-										$text = $level_defaults['module']['text'];
-										break;
-									case 'sitewide':
-										$status = false;
-										$text = $level_defaults['module']['text'];
-										break;
-								}
+							$feature_level_keys = array_keys( $feature['levels'] );
+							foreach( $level_keys as $l_key ) {
+								if( ! in_array( $l_key, $feature_level_keys ) ) {
 
-								$table_settings[ $feature_key ]['levels'][ $original + $i ] = array();
-								if( ! empty( $status ) ) {
-									$table_settings[ $feature_key ]['levels'][ $original + $i ]['status'] = $status;
+									switch( $type ) {
+										case 'module':
+											if( $type && method_exists( $feature[ 'module' ], 'get_level_status' ) ) {
+												$status = call_user_func( $feature[ 'module' ] . '::get_level_status', $l_key );
+												$status = is_array( $status ) ? $status : 'module';
+											} else {
+												$status = $level_defaults['module']['status'];
+											}
+											$text = $level_defaults['module']['text'];
+											break;
+										case 'custom':
+											$status = $level_defaults['custom']['status'];
+											$text = $level_defaults['module']['text'];
+											break;
+										case 'sitewide':
+											$status = false;
+											$text = $level_defaults['module']['text'];
+											break;
+									}
+
+									$table_settings[ $feature_key ]['levels'][ $l_key ] = array();
+									if( ! empty( $status ) ) {
+										$table_settings[ $feature_key ]['levels'][ $l_key ]['status'] = $status;
+									}
+									$table_settings[ $feature_key ]['levels'][ $l_key ]['text'] = $text;
+
 								}
-								$table_settings[ $feature_key ]['levels'][ $original + $i ]['text'] = $text;
 							}
 
 						} else {
 							// Remove excess
-							$original = count( $feature['levels'] );
-							$difference = $original - count( $level_keys );
+							$new_array = array();
 
-							for( $i = count( $feature['levels'] ); $i = count( $level_keys ); $i-- ) {
-								array_pop( $table_settings[ $feature_key ]['levels'] );
+							foreach( $feature['levels'] as $f_key => $f_value ) {
+								if( in_array( $f_key, $level_keys ) ) {
+									$new_array[ $f_key ] = $f_value;
+								}
 							}
+
+							$table_settings[ $feature_key ]['levels'] = $new_array;
 						}
 					}
 

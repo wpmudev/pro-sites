@@ -1142,7 +1142,21 @@ class ProSites_Gateway_Stripe {
 	public static function get_blog_id( $customer_id ) {
 		global $wpdb;
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE customer_id = %s", $customer_id ) );
+		$blog_id = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE customer_id = %s", $customer_id ) );
+
+		// ProSites 3.4 fallback
+		if( empty( $blog_id ) ) {
+			// Attempt to get it from customer description
+			$customer = Stripe_Customer::retrieve( $customer_id );
+			$parts = explode( ' ', $customer->description );
+			$id = array_pop( $parts );
+			$label = array_pop( $parts );
+			if( preg_match( '/BlogID\:/', $label ) ) {
+				$blog_id = (int) $id;
+			}
+		}
+
+		return $blog_id;
 	}
 
 	public static function get_current_plan( $blog_id ) {
@@ -1261,6 +1275,14 @@ class ProSites_Gateway_Stripe {
 			     'invoice.payment_succeeded' == $event_type
 			) {
 				// Create generic class from Stripe\Subscription class
+
+				// Convert 3.4 -> 3.5+
+				if( ! isset( $subscription->metadata->blog_id ) ) {
+					$blog_id = ProSites_Gateway_Stripe::get_blog_id( $customer_id );
+					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id, $blog_id );
+					$subscription->blog_id = $blog_id;
+					self::set_subscription_meta( $subscription, $customer_id );
+				}
 
 				if ( ! empty( $subscription->blog_id ) ) {
 					$blog_id = (int) $subscription->blog_id;
@@ -1539,7 +1561,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public static function set_subscription_blog_id( $subscription, $customer_id, $fallback_blog_id, $new_blog_id = false ) {
 		// Use $new_blog_id, or the $subscription->id if it exists, or the $fallback_blog_id.
-		$the_blog_id = ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $subscription->blog_id ) ? $subscription->blog_id : $fallback_blog_id;
+		$the_blog_id = ! empty( $new_blog_id ) ? $new_blog_id : ( ! empty( $subscription->blog_id ) ? $subscription->blog_id : $fallback_blog_id );
 
 		if ( ! empty( $subscription->blog_id ) && $the_blog_id == $subscription->blog_id ) {
 			// Nothing to update if all the ids match the subscription id
@@ -1565,6 +1587,16 @@ class ProSites_Gateway_Stripe {
 			}
 
 			return $the_blog_id;
+		}
+	}
+
+	public static function set_subscription_meta( $subscription, $customer_id ) {
+		$customer = Stripe_Customer::retrieve( $customer_id );
+		if ( is_object( $subscription ) && ! empty( $customer ) ) {
+			$sub                    = $customer->subscriptions->retrieve( $subscription->id );
+			$sub->metadata->level = $subscription->level;
+			$sub->metadata->period = $subscription->period;
+			$sub->save();
 		}
 	}
 
@@ -1654,8 +1686,14 @@ class ProSites_Gateway_Stripe {
 		$subscription->period_start = empty( $subscription->period_start ) && isset( $subscription->current_period_start ) ? $subscription->current_period_start : $subscription->period_start;
 
 		// Get fields from subscription meta
-		$subscription->period     = isset( $subscription->metadata->period ) ? $subscription->metadata->period : false;
-		$subscription->level      = isset( $subscription->metadata->level ) ? $subscription->metadata->level : false;
+
+		// 3.4
+		$parts = explode( '_', $subscription->plan->id );
+		$period = (int) array_pop( $parts );
+		$level = (int) array_pop( $parts );
+
+		$subscription->period     = ! empty( $subscription->metadata->period ) ? $subscription->metadata->period : $period;
+		$subscription->level      = ! empty( $subscription->metadata->level ) ? $subscription->metadata->level : $level;
 		$subscription->activation = isset( $subscription->metadata->activation ) ? $subscription->metadata->activation : false;
 		$subscription->blog_id    = isset( $subscription->metadata->blog_id ) ? (int) $subscription->metadata->blog_id : false;
 		if ( empty( $subscription->blog_id ) ) {
@@ -1873,52 +1911,34 @@ class ProSites_Gateway_Stripe {
 		$content .= '<div id="psts-stripe-checkout">
 				<h2>' . esc_html__( 'Checkout With a Credit Card:', 'psts' ) . '</h2>
 				<div id="psts-processcard-error"></div>
-
 				<table id="psts-cc-table">
 					<tbody>
+						<!-- Cardholder Name -->
+						<tr>
+							<td class="pypl_label" align="right">' . esc_html__( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>
+		                    <td><input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" /></td>
+						</tr>
 						<!-- Credit Card Number -->
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Card Number:', 'psts' ) . '&nbsp;</td>
-							<td>';
-//								if ( $errmsg = $psts->errors->get_error_message( 'number' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br />
+							<td><input id="cc_number" type="text" class="cctext card-number" value="" size="23" /><br />
 								<img class="accepted-cards" src="' . esc_url( $img_base . 'stripe-cards.png' ) . '" />
 							</td>
 						</tr>
-
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Expiration Date:', 'psts' ) . '&nbsp;</td>
-							<td valign="middle">';
-//								if ( $errmsg = $psts->errors->get_error_message( 'expiration' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<select id="cc_month" class="card-expiry-month">' . self::month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . self::year_dropdown() . '</select>
+							<td valign="middle">
+								<select id="cc_month" class="card-expiry-month">' . self::month_dropdown() . '</select>&nbsp;/&nbsp;<select id="cc_year" class="card-expiry-year">' . self::year_dropdown() . '</select>
 							</td>
 						</tr>
-
 						<!-- Card Security Code -->
 						<tr>
 							<td class="pypl_label" align="right"><nobr>' . esc_html__( 'Card Security Code:', 'psts' ) . '</nobr>&nbsp;</td>
-							<td valign="middle">';
-//								if ( $errmsg = $psts->errors->get_error_message( 'cvv2' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<label>
+							<td valign="middle">
+								<label>
 									<input id="cc_cvv2" size="5" maxlength="4" type="password" class="cctext card-cvc" title="' . esc_attr__( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
 									<img src="' . esc_url( $img_base . 'buy-cvv.gif' ) . '" height="27" width="42" title="' . esc_attr__( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
 								</label>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="pypl_label" align="right">' . esc_html__( 'Cardholder Name:', 'psts' ) . '&nbsp;</td>
-		                    <td>';
-//								if ( $errmsg = $psts->errors->get_error_message( 'name' ) ) {
-//									$content .= '<div class="psts-error">' . esc_html( $errmsg ) . '</div>';
-//								}
-		$content .= '<input id="cc_name" type="text" class="cctext card-first-name" value="" size="25" />
 							</td>
 						</tr>
 					</tbody>
@@ -1936,8 +1956,11 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
+	 * @param array $process_data
 	 * @param $blog_id
 	 * @param $domain
+	 *
+	 * @return bool
 	 */
 	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
 		global $psts, $current_user, $current_site;
@@ -1957,9 +1980,10 @@ class ProSites_Gateway_Stripe {
 		//Process Checkout
 		if ( isset( $_POST['cc_stripe_checkout'] ) && 1 == (int) $_POST['cc_stripe_checkout'] ) {
 
-			//check for level
+			//check for level, if empty don't go ahead and return
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+				return false;
 			} else if ( ! isset( $_POST['stripeToken'] ) && empty( $_POST['wp_password'] ) ) {
 				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 			}

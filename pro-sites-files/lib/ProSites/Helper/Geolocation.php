@@ -65,13 +65,15 @@ if ( ! class_exists( 'ProSites_Helper_Geolocation' ) ) {
 				if( $response_object && ! is_wp_error( $response_object ) && 200 == (int) $response_object['response']['code'] ) {
 					$geo_obj = json_decode( $response_object['body'] );
 					$geo = new stdClass();
-					$geo->country_code = $geo_obj->$ip->country_code;
-					$geo->country_name = $geo_obj->$ip->country_name;
-					$geo->region = $geo_obj->$ip->region;
-					$geo->locality = $geo_obj->$ip->locality;
-					$geo->latitude = $geo_obj->$ip->latitude;
-					$geo->longitude = $geo_obj->$ip->longitude;
-					$geo->is_EU = self::is_EU( $geo_obj->$ip->country_code );
+					if( !empty( $geo_obj->$ip ) ) {
+						$geo->country_code = $geo_obj->$ip->country_code;
+						$geo->country_name = $geo_obj->$ip->country_name;
+						$geo->region       = $geo_obj->$ip->region;
+						$geo->locality     = $geo_obj->$ip->locality;
+						$geo->latitude     = $geo_obj->$ip->latitude;
+						$geo->longitude    = $geo_obj->$ip->longitude;
+						$geo->is_EU        = self::is_EU( $geo_obj->$ip->country_code );
+					}
 					$geo->ip = $ip;
 				}
 			}

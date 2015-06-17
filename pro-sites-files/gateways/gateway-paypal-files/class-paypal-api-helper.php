@@ -25,6 +25,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			// Make sure the URL is valid...
 			$site_url = str_replace( array( 'http://', 'https://' ), '', site_url() );
+			$site_url = str_replace( '/', '\/', $site_url );
 			$test_checkout = preg_replace( '/' . $site_url . '$/', '', $checkout_url );
 			if ( ! preg_match( '/' . $site_url . '/', $test_checkout ) ) {
 				$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
@@ -319,7 +320,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
-		function RefundTransaction( $transaction_id, $partial_amt = false, $note = '' ) {
+		public static function RefundTransaction( $transaction_id, $partial_amt = false, $note = '' ) {
 			global $psts;
 			$nvpstr = "&TRANSACTIONID=" . $transaction_id;
 
@@ -335,7 +336,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&NOTE=" . urlencode( $note );
 			}
 
-			$resArray = $this->api_call( "RefundTransaction", $nvpstr );
+			$resArray = self::api_call( "RefundTransaction", $nvpstr );
 
 			return $resArray;
 		}

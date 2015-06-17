@@ -178,7 +178,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				<tr>
 					<th scope="row"><?php _e( 'PayPal API Credentials', 'psts' ) ?></th>
 					<td>
-						<span class="description"><?php _e( 'You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECAPICredentials">Instructions &raquo;</a>', 'psts' ) ?></span>
+						<span class="description"><?php _e( 'You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://developer.paypal.com/docs/classic/api/apiCredentials/">Instructions &raquo;</a>', 'psts' ) ?></span>
 
 						<p><label><?php _e( 'API Username', 'psts' ) ?><br/>
 								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_user" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[pypl_api_user]" type="text"/>
@@ -851,7 +851,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$refund = ( round( $_POST['refund_amount'], 2 ) < $last_payment['amount'] ) ? round( $_POST['refund_amount'], 2 ) : $last_payment['amount'];
 
 						//refund last transaction
-						$resArray2 = PaypalApiHelper::RefundTransaction( $last_payment['txn_id'], false, __( 'This is a partial refund of your last payment.', 'psts' ) );
+						$resArray2 = PaypalApiHelper::RefundTransaction( $last_payment['txn_id'], $refund, __( 'This is a partial refund of your last payment.', 'psts' ) );
 						if ( $resArray2['ACK'] == 'Success' || $resArray2['ACK'] == 'SuccessWithWarning' ) {
 							$psts->log_action( $blog_id, sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ), $current_user->display_name ) );
 							$success_msg = sprintf( __( 'A partial (%s) refund of last payment was successfully completed. The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $refund ) );
@@ -1056,7 +1056,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) && $blog_id !== 0 ) {
 
 						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
-							$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ), $_POST['txn_type'], $_POST['txn_id'] ) . $profile_string );
 
 							//extend only if a recurring payment, first payments are handled below
@@ -1092,9 +1091,20 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						} else {
 							//Received only when recurring profile is created
 							if ( ! empty( $_POST['initial_payment_txn_id'] ) ) {
-								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, array( 'level'  => $level, 'period' => $period, 'ipn' => $_POST ) );
+								self::record_transaction( $_POST['initial_payment_txn_id'], $evidence_string, true, array( 'level'  => $level,
+								                                                                                           'period' => $period,
+								                                                                                           'ipn'    => $_POST
+								) );
 							}
 						}
+					}
+					//Store payment log
+					if ( ! empty( $_POST['txn_id'] ) && ! empty( $_POST['mc_gross'] ) ) {
+						$psts->record_transaction( $blog_id, $_POST['txn_id'], $_POST['mc_gross'] );
+					}
+					//Store Payment Log
+					if ( ! empty( $_POST['initial_payment_txn_id'] ) && ! empty( $_POST['amount'] ) ) {
+						$psts->record_transaction( $blog_id, $_POST['initial_payment_txn_id'], $_POST['amount'] );
 					}
 					update_blog_option( $blog_id, 'psts_waiting_step', 0 );
 					break;
@@ -1111,16 +1121,19 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			// handle exceptions from the subscription specific fields
-			if ( in_array( $_POST['txn_type'], array( /*'subscr_cancel', */
-				'subscr_failed',
-				'subscr_eot'
-			) )
+			if ( ! empty( $_POST['txn_type'] )
+			     && in_array( $_POST['txn_type'],
+					array(/*'subscr_cancel', */
+						'subscr_failed',
+						'subscr_eot'
+					)
+				)
 			) {
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string, $blog_id );
 			}
 
 			//new subscriptions (after cancelation)
-			if ( $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
+			if ( ! empty( $_POST['txn_type'] ) && $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
 
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received.', 'psts' ), $_POST['txn_type'] ) . $profile_string );
 
@@ -1134,7 +1147,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			}
 
 			//cancelled subscriptions
-			if ( $_POST['txn_type'] == 'subscr_cancel' ) {
+			if ( ! empty( $_POST['txn_type'] ) && $_POST['txn_type'] == 'subscr_cancel' ) {
 				$psts->log_action( $blog_id, sprintf( __( 'PayPal subscription IPN "%s" received. The subscription has been canceled.', 'psts' ), $_POST['txn_type'] ) . $profile_string );
 
 				//$psts->email_notification($blog_id, 'canceled');
@@ -1550,9 +1563,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		     isset( $_GET['token'] )
 		) {
 
-			//Check for level
+			//Check for level, if there is no level and period, return back
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+				return false;
 			}
 
 			//prepare vars
@@ -2835,6 +2849,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			'TRY' => array( 'Turkish Lira', '20a4' ),
 			'TWD' => array( 'New Taiwan Dollar', '4e, 54, 24' ),
 			'USD' => array( 'United States Dollar', '24' ),
+			'RUB' => array( 'Russian Ruble', '20', 'bd')
 		);
 
 	}

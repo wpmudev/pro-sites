@@ -9,8 +9,9 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 			if ( isset( $_POST['submit_settings'] ) || isset( $_POST['submit_settings_section'] ) || isset( $_POST['submit_settings_header'] ) ) {
 				//check nonce
 				check_admin_referer( 'psts_settings' );
+
 				//strip slashes from all inputs
-				$_POST['psts'] = stripslashes_deep( $_POST['psts'] );
+				$_POST['psts'] = isset( $_POST['psts'] ) ? stripslashes_deep( $_POST['psts'] ) : array();
 
 				$active_tab = sanitize_text_field( $_POST['active_tab'] );
 
@@ -50,6 +51,7 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 				if( $update_gateway_levels ) {
 					do_action( 'update_site_option_psts_levels' );
 				}
+
 				do_action( 'psts_settings_process', $active_tab );
 				do_action( 'supporter_settings_process' ); //deprecated
 

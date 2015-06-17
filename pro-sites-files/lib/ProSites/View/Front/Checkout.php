@@ -134,7 +134,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					foreach( $column['features'] as $index => $feature ) {
 						$alt = isset( $feature['alt'] ) && true == $feature['alt'] ? 'alternate' : '';
 
-						$content .= '<li class="feature feature-' . $index . ' ' . $alt . '">';
+						$content .= '<li class="feature feature-' . $index . ' ' . $alt . '"><div class="feature-content">';
 
 						if( isset( $feature['name'] ) && ! empty( $feature['name'] ) ) {
 							$content .= '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
@@ -146,7 +146,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 							$content .= '<div class="feature-text">' . ProSites::filter_html( $feature['text'] ) . '</div>';
 						}
 
-						$content .= '</li>';
+						$content .= '</div></li>';
 					}
 
 					$content .= '</ul></li>';
@@ -289,8 +289,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					foreach( $pricing_levels_order as $level ) {
 						$columns[ $col_count ]['features'][ $index ]['indicator'] = self::get_feature_indicator( $feature_table[ $feature_key ], $level );
-						$columns[ $col_count ]['features'][ $index ]['text'] = $feature_table[ $feature_key ]['levels'][ $level ]['text'];
-						$columns[ $col_count ]['features'][ $index ]['alt'] = $row_count %2 != 0;
+						$columns[ $col_count ]['features'][ $index ]['text']      = isset( $feature_table[ $feature_key ]['levels'][ $level ] ) ? $feature_table[ $feature_key ]['levels'][ $level ]['text'] : '';
+						$columns[ $col_count ]['features'][ $index ]['alt']       = $row_count % 2 != 0;
 						$col_count += 1;
 					}
 
@@ -373,7 +373,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				'payment_type' => __( 'Payment period', 'psts' ),
 				'setup' => __( 'Plus a One Time %s Setup Fee', 'psts' ),
 				'summary' => __( 'That\'s equivalent to <strong>only %s Monthly</strong>. ', 'psts' ),
-				'saving' => __( 'A saving of <strong>%s</strong> by paying for %d months in advanced.', 'psts' ),
+				'saving' => __( 'A saving of <strong>%s</strong> by paying for %d months in advance.', 'psts' ),
 				'monthly' => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
 				'monthly_alt' => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
 			), $level );
