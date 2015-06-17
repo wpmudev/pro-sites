@@ -1277,7 +1277,7 @@ class ProSites_Gateway_Stripe {
 				// Create generic class from Stripe\Subscription class
 
 				// Convert 3.4 -> 3.5+
-				if( empty( $subscription->period ) && empty( $subscription->level ) ) {
+				if( ! isset( $subscription->metadata->blog_id ) ) {
 					$blog_id = ProSites_Gateway_Stripe::get_blog_id( $customer_id );
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id, $blog_id );
 					$subscription->blog_id = $blog_id;
