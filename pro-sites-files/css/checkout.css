@@ -924,6 +924,11 @@ ul.pricing-column ul.feature-section li {
     padding-bottom: 1em;
 }
 
+.pricing-column .feature-text.text-only {
+    display: block;
+    padding: 1em 0;
+}
+
 .pricing-column .feature-section .feature-indicator .text {
 	color: #333;
 	font-weight: bold;
@@ -1160,9 +1165,9 @@ ul.pricing-column.not-chosen-plan .button-box button {
 }
 
 .login-existing {
-    /*text-align: right;*/
+    text-align: center;
     font-size: 0.9em;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 .login-existing form {
     display: none;
@@ -1256,6 +1261,7 @@ ul.pricing-column.not-chosen-plan .button-box button {
     border: 1px solid #b6b6b6;
     font-size: 0.8em;
     text-align: center;
+    margin-top: 25px;
 }
 .tax-checkout-evidence {
     border: 1px solid #b6b6b6;
