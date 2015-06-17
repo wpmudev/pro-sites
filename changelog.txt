@@ -5,6 +5,11 @@ Change Log:
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
+
+3.5.0.4 - 6/19/2015 - Rheinard Korf & Umesh Kumar
+----------------------------------------------------------------------
+- Fixed: Check level visibility before displaying on checkout page
+
 3.5.0.3 - 6/17/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: Warning message with Premium Themes module

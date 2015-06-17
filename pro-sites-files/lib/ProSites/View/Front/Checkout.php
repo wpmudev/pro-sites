@@ -197,6 +197,15 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$columns = array();
 
 			$level_list = get_site_option( 'psts_levels' );
+
+			//Filter Level List based upon visibility
+			if( !empty( $level_list ) && is_array( $level_list ) ) {
+				foreach( $level_list as $level_key => $level ) {
+					if( empty( $level['is_visible'] ) || $level['is_visible'] == 0 ) {
+						unset($level_list[$level_key]);
+					}
+				}
+			}
 			$total_plans = count( $level_list );
 			$total_columns = $total_plans + 1;
 
@@ -215,6 +224,14 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$pricing_levels_order = $psts->get_setting( 'pricing_levels_order', $default_order );
 			$pricing_levels_order = explode( ',', $pricing_levels_order );
 
+			//Check if the associated level exists in level list, else remove it
+			if( !empty( $pricing_levels_order ) && is_array( $pricing_levels_order ) ) {
+				foreach( $pricing_levels_order  as $key => $level ) {
+					if( empty( $level_list[$level] ) ) {
+						unset( $pricing_levels_order[$key] );
+					}
+				}
+			}
 			/**
 			 * @todo Add a setting to disable
 			 */
@@ -775,6 +792,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$content = apply_filters( 'psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width );
 
 			return $content;
+		}
+		private static function is_level_visible() {
+
 		}
 
 	}
