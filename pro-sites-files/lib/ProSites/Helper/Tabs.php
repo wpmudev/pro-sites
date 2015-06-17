@@ -146,7 +146,17 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 		}
 
 		public static function render_generic_tab() {
-			_e( 'Settings page not found.', 'psts' );
+
+			ob_start();
+			do_action( 'psts_settings_page' );
+			$content = ob_get_clean();
+
+			if( empty( $content ) ) {
+				_e( 'Settings page not found.', 'psts' );
+			} else {
+				echo $content;
+			}
+
 		}
 
 		public static function get_tabs() {

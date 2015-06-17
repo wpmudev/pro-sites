@@ -27,7 +27,7 @@ if ( ! class_exists( 'ProSites_Helper_Settings' ) ) {
 
 //			MS_Helper_Html::bread_crumbs( $bread_crumbs );
 			?>
-			<div class="<?php echo esc_attr( $context ); ?>title-wrapper"?>
+			<div class="<?php echo esc_attr( $context ); ?>title-wrapper">
 
 			<?php if ( empty( $page_header) ) { ?>
 				<input type="hidden" name="active_tab" value="<?php echo esc_attr( $tab_key ); ?>" />
