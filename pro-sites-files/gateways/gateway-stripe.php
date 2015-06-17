@@ -1142,7 +1142,21 @@ class ProSites_Gateway_Stripe {
 	public static function get_blog_id( $customer_id ) {
 		global $wpdb;
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE customer_id = %s", $customer_id ) );
+		$blog_id = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE customer_id = %s", $customer_id ) );
+
+		// ProSites 3.4 fallback
+		if( empty( $blog_id ) ) {
+			// Attempt to get it from customer description
+			$customer = Stripe_Customer::retrieve( $customer_id );
+			$parts = explode( ' ', $customer->description );
+			$id = array_pop( $parts );
+			$label = array_pop( $parts );
+			if( preg_match( '/BlogID\:/', $label ) ) {
+				$blog_id = (int) $id;
+			}
+		}
+
+		return $blog_id;
 	}
 
 	public static function get_current_plan( $blog_id ) {
@@ -1263,16 +1277,12 @@ class ProSites_Gateway_Stripe {
 				// Create generic class from Stripe\Subscription class
 
 				// Convert 3.4 -> 3.5+
-				if( ! $subscription->period && ! $subscription->level ) {
-					$blog_id = ProSites_Gateway_Stripe::get_blog_id('cus_6R937nyG47pRos');
-					$blog_info = ProSites_Helper_ProSite::get_blog_info( $blog_id );
-					$subscription->period = $blog_info['period'];
-					$subscription->level = $blog_info['level_id'];
+				if( empty( $subscription->period ) && empty( $subscription->level ) ) {
+					$blog_id = ProSites_Gateway_Stripe::get_blog_id( $customer_id );
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id, $blog_id );
 					$subscription->blog_id = $blog_id;
 					self::set_subscription_meta( $subscription, $customer_id );
 				}
-
 
 				if ( ! empty( $subscription->blog_id ) ) {
 					$blog_id = (int) $subscription->blog_id;
@@ -1676,8 +1686,14 @@ class ProSites_Gateway_Stripe {
 		$subscription->period_start = empty( $subscription->period_start ) && isset( $subscription->current_period_start ) ? $subscription->current_period_start : $subscription->period_start;
 
 		// Get fields from subscription meta
-		$subscription->period     = isset( $subscription->metadata->period ) ? $subscription->metadata->period : false;
-		$subscription->level      = isset( $subscription->metadata->level ) ? $subscription->metadata->level : false;
+
+		// 3.4
+		$parts = explode( '_', $subscription->plan->id );
+		$period = (int) array_pop( $parts );
+		$level = (int) array_pop( $parts );
+
+		$subscription->period     = ! empty( $subscription->metadata->period ) ? $subscription->metadata->period : $period;
+		$subscription->level      = ! empty( $subscription->metadata->level ) ? $subscription->metadata->level : $level;
 		$subscription->activation = isset( $subscription->metadata->activation ) ? $subscription->metadata->activation : false;
 		$subscription->blog_id    = isset( $subscription->metadata->blog_id ) ? (int) $subscription->metadata->blog_id : false;
 		if ( empty( $subscription->blog_id ) ) {
