@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Pro Sites (Formerly Supporter)
+Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV

@@ -1,4 +1,4 @@
-Plugin Name: Pro Sites (Formerly Supporter)
+Plugin Name: Pro Sites
 Author: Aaron Edwards
 
 Change Log:
