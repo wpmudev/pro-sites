@@ -63,13 +63,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			if( self::$new_signup && ! is_user_logged_in() ) {
 				$content .= self::render_login();
 			}
-//			$expire = $psts->get_expire( $blog_id );
-
 			// Signup registration
 			$content .= ProSites_View_Front_Registration::render_signup_form();
 
-			// Hook for the gateways
-//			$content = apply_filters( 'psts_checkout_output', $content, $blog_id, $domain );
 			$content .= ProSites_View_Front_Gateway::render_checkout( array(), $blog_id, $domain );
 
 			return apply_filters( 'prosites_render_checkout_page', $content, $blog_id, $domain );
@@ -232,6 +228,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					}
 				}
 			}
+
 			/**
 			 * @todo Add a setting to disable
 			 */
@@ -331,16 +328,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 							$columns[ $col_count ]['button'] = '<button class="choose-plan-button">' . __( 'Choose Plan', 'psts' ) . '</button>';
 						} else {
 							$columns[ $col_count ]['button'] = '<button class="choose-plan-button register-new">' . __( 'Sign Up', 'psts' ) . '</button>';
-//							$args = array( 'level' => $level, 'period' => '1' );
-//							$class = 'price_1' == self::$default_period ? '' : 'hide';
-//							$buttons = '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_1 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
-//							$args = array( 'level' => $level, 'period' => '3' );
-//							$class = 'price_3' == self::$default_period ? '' : 'hide';
-//							$buttons .= '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_3 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
-//							$args = array( 'level' => $level, 'period' => '12' );
-//							$class = 'price_12' == self::$default_period ? '' : 'hide';
-//							$buttons .= '<button data-link="' . add_query_arg( $args, site_url('wp-signup.php') )  . '" class="choose-plan-button register-new price_12 '. $class .'">' . __( 'Sign Up', 'psts' ) . '</button>';
-//							$columns[ $col_count ]['button'] = $buttons;
 						}
 
 						$col_count += 1;
@@ -356,7 +343,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$col_count = 0;
 				$columns[ $col_count ]['coupon'] = __( 'Apply coupon', 'psts' );
 			}
-
 
 			return $columns;
 		}

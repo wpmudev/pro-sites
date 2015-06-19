@@ -204,7 +204,10 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 									$bgcolor = $class = '';
 									foreach ( $pricing_levels_order as $order ) {
 										$level_code = $order;
-										$level = $level_list[ $order ];
+										$level = !empty( $level_list[ $order ] ) ? $level_list[ $order ] : '';
+										if( empty( $level ) ) {
+											continue;
+										}
 										$class = ( 'alternate' == $class ) ? '' : 'alternate';
 
 										echo '<tr class="' . $class . ' blog-row" data-level="' . $level_code . '">';

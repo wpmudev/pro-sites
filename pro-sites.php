@@ -595,6 +595,7 @@ Thanks!", 'psts' ),
 		$settings = get_site_option( 'psts_settings' );
 		$setting  = isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
 
+		$setting = !is_array( $setting ) ? trim( $setting ) : $setting;
 		/**
 		 * Filter the specific setting, $key parameter value
 		 *
@@ -3534,6 +3535,8 @@ function admin_levels() {
 			unset( $levels[0]);
 
 			update_site_option( 'psts_levels', $levels );
+			//Update Pricing level order
+			ProSites_Helper_ProSite::update_level_order( $levels );
 
 			//display message confirmation
 			echo '<div class="updated fade"><p>' . sprintf( __( 'Level %s successfully deleted.', 'psts' ), number_format_i18n( $level_num ) ) . '</p></div>';
