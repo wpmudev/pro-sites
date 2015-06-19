@@ -1212,6 +1212,12 @@ Thanks!", 'psts' ),
 			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'css/pricing-tables/' . $layout_option . '.css' );
 			wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $this->version );
 
+			/* Apply styles from options */
+			$checkout_style = ProSites_View_Pricing_Styling::get_styles_from_options();
+			if( ! empty( $checkout_style ) ) {
+				wp_add_inline_style( 'psts-checkout-layout', $checkout_style );
+			};
+
 		}
 		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
 			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );

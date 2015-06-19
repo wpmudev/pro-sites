@@ -1169,3 +1169,12 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 .pricing-styles .form-table td {
     padding-top: 10px;
 }
+
+.pricing-styles .form-table td table {
+    position: relative;
+    top: -8px;
+}
+.pricing-styles .form-table td table td {
+    margin:0;
+    padding: 0 10px 0 0;
+}

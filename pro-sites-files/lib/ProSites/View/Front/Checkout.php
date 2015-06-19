@@ -82,7 +82,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			global $psts;
 
 			$content = '';
-			$total_columns = count( $columns );
+			$periods = (array) $psts->get_setting( 'enabled_periods' );
+			$show_periods = 2 <= count( $periods ) ? true : false;
+			$show_first_column = $show_periods;
+			$total_columns = $show_first_column ? count( $columns ) : count( $columns ) - 1;
 			$total_width = 100.0;
 			$total_width -= 6.0; // account for extra space around featured plan
 			$column_width = $total_width / $total_columns;
@@ -96,8 +99,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$show_buy_buttons = in_array( 'button', $column_keys );
 			$add_coupon = in_array( 'coupon', $column_keys );
 //			$show_buy_buttons = false;
-			$periods = (array) $psts->get_setting( 'enabled_periods' );
-			$show_periods = 2 <= count( $periods ) ? true : false;
+
 
 			foreach( $columns as $key => $column ) {
 				$style = true === $column['featured'] ? $feature_style : $normal_style;
@@ -109,6 +111,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$col_class = $level_id == (int) self::$selected_level ? $col_class . ' chosen-plan' : $col_class;
 				}
 
+				// Hide the 0 column
+				$override = '';
+				if( empty( $level_id ) ) {
+					$override = $show_first_column ? '' : 'hidden';
+					$col_class .= ' ' . $override;
+				}
 				$content .= '<ul class="pricing-column psts-level-' . esc_attr( $level_id ) . ' ' . esc_attr( $col_class ) . '" style="' . esc_attr( $style ) . '">';
 
 				if( $show_pricing_table ) {
@@ -117,7 +125,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					} else {
 						$content .= '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
 					}
-					$override = $show_periods ? '' : 'no-periods';
+
 					$content .= '<li class="summary ' . $override . '">' . ProSites::filter_html( $column['summary'] ) . '</li>';
 				}
 
@@ -510,18 +518,22 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$summary_msg = sprintf( $plan_text['monthly'] );
 
 
+					$periods = (array) $psts->get_setting( 'enabled_periods' );
+					$show_periods = 2 <= count( $periods ) ? true : false;
+					$override = $show_periods ? '' : 'no-periods';
+
 					if( $months > 1 ) {
 						$summary_msg = sprintf( $plan_text['summary'], $formatted_calculated );
 
 						if( $difference > 0.0 ) {
 							$summary_msg .= sprintf( $plan_text['saving'], $formatted_savings, $months );
 						}
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . $summary_msg . '</div>';
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . $summary_msg . '</div>';
 					} else {
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . '">' . esc_html( $plan_text['monthly_alt'] ) . '</div>';
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . esc_html( $plan_text['monthly_alt'] ) . '</div>';
 					}
 
-					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
+					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
 				}
 
 				$level_details['summary'] = apply_filters( 'prosites_pricing_summary_text', $content, $level );
