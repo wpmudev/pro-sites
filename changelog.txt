@@ -9,7 +9,7 @@ Change Log:
 3.5.0.4 - 6/19/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: Check level visibility before displaying on checkout page
-- Fixed: Deleted level appearing on checkout page
+- Fixed: Show correct number of levels in pricing tables setup after a level is deleted
 
 3.5.0.3 - 6/17/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
