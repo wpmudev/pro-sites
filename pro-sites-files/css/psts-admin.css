@@ -1113,3 +1113,59 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 #wpfooter {
     position:relative;
 }
+
+/** Pricing Tables > Styling */
+.table-layout label > input{ /* HIDE RADIO */
+    display:none;
+}
+.table-layout label > input + .layout-img{ /* IMAGE STYLES */
+    cursor:pointer;
+    border:2px solid transparent;
+}
+
+.table-layout .layout-img {
+    width: 85px;
+    height: 51px;
+    background: url(../images/pricing-tables.svg) no-repeat 0 0;
+    background-size: 300%;
+    margin:10px;
+    border: 1px solid red;
+    float: left;
+}
+.table-layout .layout-img.option1 {
+    background-position: -2px -2px;
+}
+.table-layout .layout-img.option2 {
+    background-position: -2px -103px;
+}
+.table-layout .layout-img.option3 {
+    background-position: -2px -205px;
+}
+.table-layout .layout-img.option4 {
+    background-position: -2px -307px;
+}
+.table-layout .layout-img.option5 {
+    background-position: -2px -409px;
+}
+.table-layout label > input:checked + .layout-img.option1 {
+    background-position: -169px -2px;
+}
+.table-layout label > input:checked + .layout-img.option2 {
+    background-position: -169px -103px;
+}
+.table-layout label > input:checked + .layout-img.option3 {
+    background-position: -169px -205px;
+}
+.table-layout label > input:checked + .layout-img.option4 {
+    background-position: -169px -307px;
+}
+.table-layout label > input:checked + .layout-img.option5 {
+    background-position: -169px -409px;
+}
+.pricing-styles h3 {
+    clear: both;
+}
+.pricing-styles .form-table th,
+.pricing-styles .form-table td {
+    padding-top: 10px;
+}

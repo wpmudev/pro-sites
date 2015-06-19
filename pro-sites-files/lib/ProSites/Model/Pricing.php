@@ -77,9 +77,10 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 						break;
 				}
 
-				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $active_tab ) );
-//				unset( $settings['feature_table'] );
-				update_site_option( 'psts_settings', $settings );
+				if( isset( $_POST['psts'] ) ) {
+					$settings = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $active_tab ) );
+					update_site_option( 'psts_settings', $settings );
+				}
 
 				do_action( 'psts_pricing_settings_process', $active_tab );
 

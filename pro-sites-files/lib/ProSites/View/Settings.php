@@ -56,7 +56,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 
 			//insert new page if not existing
 			switch_to_blog( $checkout_site );
-			$checkout_link = get_edit_post_link( $psts->get_setting( 'checkout_page' ) );
+			$page_id = $psts->get_setting( 'checkout_page' );
+			$post_status = get_post_status( $page_id );
+			$checkout_link =  false !== $post_status && 'trash' != $post_status ? get_edit_post_link( $page_id ) : false;
 			restore_current_blog();
 
 			?>

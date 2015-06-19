@@ -105,6 +105,23 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 				//					</tr>';
 				//					echo $option;
 				?>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Period Selector Position', 'psts' ) ?></th>
+					<td>
+						<label>
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'column1' ), 'column1' ); ?> />
+								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
+						</label>
+						<label>
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'column1' ), 'above' ); ?> />
+								<?php esc_html_e( 'Above the table', 'psts' ); ?></p>
+						</label>
+						<label>
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'column1' ), 'below' ); ?> />
+								<?php esc_html_e( 'Below the table', 'psts' ); ?></p>
+						</label>
+					</td>
+				</tr>
 
 				<tr>
 					<th scope="row"><?php _e( 'Allow Coupons', 'psts' ) ?></th>
@@ -112,7 +129,19 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						<input type="checkbox" name="psts[coupons_enabled]" value="1" <?php checked( $coupons_checked, 'enabled' ); ?> />
 					</td>
 				</tr>
-
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
+					<td>
+						<label>
+							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'column1' ), 'column1' ); ?> />
+								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
+						</label>
+						<label>
+							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'column1' ), 'detached' ); ?> />
+								<?php esc_html_e( 'Popup link below the table.', 'psts' ); ?></p>
+						</label>
+					</td>
+				</tr>
 				<tr>
 					<th scope="row"><?php _e( 'Highlight \'Featured\' level', 'psts' ) ?></th>
 					<td>
@@ -717,6 +746,10 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			//			$gateway = new ProSites_Gateway_2Checkout();
 			//			echo $gateway->settings();
 
+		}
+
+		public static function render_tab_pricing_style() {
+			ProSites_View_Pricing_Styling::render_tab_pricing_style();
 		}
 
 
