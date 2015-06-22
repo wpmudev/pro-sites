@@ -205,6 +205,30 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		}
 
+		/**
+		 * Update pricing level order, Updates Pro site settings
+		 *
+		 * @param $levels
+		 *
+		 */
+		public static function update_level_order( $levels ) {
+			$data         = array();
+			$data['psts'] = array();
+
+			$pricing_levels_order = array();
+
+			foreach ( $levels as $level_code => $level ) {
+				$pricing_levels_order[] = $level_code;
+			}
+
+			//Get and update psts settings
+			// get settings
+			$old_settings                         = get_site_option( 'psts_settings' );
+			$data['psts']['pricing_levels_order'] = implode(',', $pricing_levels_order );
+			$settings                             = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $data['psts'], 'pricing_table' ) );
+			update_site_option( 'psts_settings', $settings );
+		}
+
 
 	}
 }

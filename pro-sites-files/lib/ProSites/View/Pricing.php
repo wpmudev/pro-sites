@@ -243,6 +243,11 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 									$bgcolor = $class = '';
 									foreach ( $pricing_levels_order as $order ) {
 										$level_code = $order;
+										$level = !empty( $level_list[ $order ] ) ? $level_list[ $order ] : '';
+										if( empty( $level ) ) {
+											continue;
+										}
+										$class = ( 'alternate' == $class ) ? '' : 'alternate';
 										$level      = $level_list[ $order ];
 										$class      = ( 'alternate' == $class ) ? '' : 'alternate';
 
