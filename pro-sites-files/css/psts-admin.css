@@ -1178,3 +1178,12 @@ table.widefat.prosites-premium-plugins tbody tr th p {
     margin:0;
     padding: 0 10px 0 0;
 }
+
+.pricing-styles .form-table input.narrow {
+    width: 4em;
+}
+
+.pricing-styles .custom-css {
+    width: 100%;
+    height: 200px;
+}

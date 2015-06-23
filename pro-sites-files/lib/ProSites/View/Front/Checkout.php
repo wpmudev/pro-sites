@@ -237,11 +237,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 			}
 
-			/**
-			 * @todo Add a setting to disable
-			 */
-			$featured_level = $psts->get_setting( 'featured_level' );
-
 			// Initialize all columns
 			for( $i = 0; $i < $total_columns; $i++ ) {
 				$columns[] = array();
@@ -253,13 +248,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				if( $show_periods ) {
 					$columns[ $col_count ]['title']    = '';
 					$columns[ $col_count ]['summary']  = self::get_header_details();
-					$columns[ $col_count ]['featured'] = false;
 					$col_count += 1;
 				} else {
 					if( $show_features ) {
 						$columns[ $col_count ]['title']    = '';
 						$columns[ $col_count ]['summary']  = '';
-						$columns[ $col_count ]['featured'] = false;
 						$col_count += 1;
 					}
 				}
@@ -350,6 +343,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			if( $coupons_enabled ) {
 				$col_count = 0;
 				$columns[ $col_count ]['coupon'] = __( 'Apply coupon', 'psts' );
+			}
+
+			$featured_level = $psts->get_setting( 'featured_level' );
+
+			foreach( $columns as $key => $column ) {
+				$columns[ $key ]['featured'] = $key == $featured_level;
 			}
 
 			return $columns;

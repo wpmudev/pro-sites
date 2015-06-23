@@ -5,7 +5,7 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 	class ProSites_Model_Pricing {
 
 		public static function process_form() {
-//			global $psts, $psts_gateways;
+			global $psts;
 
 			//process form
 			if ( isset( $_POST['submit_pricing'] ) || isset( $_POST['submit_pricing_section'] ) || isset( $_POST['submit_pricing_header'] ) ) {
@@ -73,6 +73,20 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 								}
 							}
 						}
+
+						break;
+
+					case 'pricing_style':
+
+						// Sanitize the custom CSS
+
+						if( isset( $_POST['psts']['pricing_table_custom_css'] ) ) {
+							if ( ! class_exists( 'CSSTidy_Sanitize_WP' ) ) {
+								require $psts->plugin_dir . 'lib/external/csstidy/class.csstidy_sanitize_wp.php';
+							}
+							$_POST['psts']['pricing_table_custom_css'] = CSSTidy_Sanitize_WP::sanitize_css( $_POST['psts']['pricing_table_custom_css'] );
+						}
+
 
 						break;
 				}
