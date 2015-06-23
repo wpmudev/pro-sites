@@ -105,6 +105,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 				//					</tr>';
 				//					echo $option;
 				?>
+				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Period Selector Position', 'psts' ) ?></th>
 					<td>
@@ -122,6 +123,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						</label>
 					</td>
 				</tr>
+				-->
 
 				<tr>
 					<th scope="row"><?php _e( 'Allow Coupons', 'psts' ) ?></th>
@@ -129,6 +131,8 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						<input type="checkbox" name="psts[coupons_enabled]" value="1" <?php checked( $coupons_checked, 'enabled' ); ?> />
 					</td>
 				</tr>
+
+				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
 					<td>
@@ -142,6 +146,8 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						</label>
 					</td>
 				</tr>
+				-->
+
 				<tr>
 					<th scope="row"><?php _e( 'Highlight \'Featured\' level', 'psts' ) ?></th>
 					<td>
