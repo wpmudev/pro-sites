@@ -219,145 +219,213 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 			$style = '';
 
-			foreach ( $options as $key => $value ) {
+			$style .= self::get_column_background( $options );
+			$style .= self::get_column_borders( $options );
+			$style .= self::get_column_title( $options );
+			$style .= self::get_column_price( $options );
 
-				switch ( $key ) {
 
-					case 'pricing_table_custom_css':
-						$style .= ! empty( $value ) ? $value : '';
-						break;
-
-					case 'pricing_style_column_bg';
-						break;
-					case 'pricing_style_column_bg_selected';
-						break;
-					case 'pricing_style_column_bg_featured';
-						break;
-
-					case 'pricing_style_border_color';
-						break;
-					case 'pricing_style_border_color_selected';
-						break;
-					case 'pricing_style_border_color_featured';
-						break;
-
-					case 'pricing_style_border_width';
-						break;
-					case 'pricing_style_border_width_selected';
-						break;
-					case 'pricing_style_border_width_featured';
-						break;
-
-					case 'pricing_style_title_color';
-						break;
-					case 'pricing_style_title_color_selected';
-						break;
-					case 'pricing_style_title_color_featured';
-						break;
-
-					case 'pricing_style_title_bg';
-						break;
-					case 'pricing_style_title_bg_selected';
-						break;
-					case 'pricing_style_title_bg_featured';
-						break;
-
-					case 'pricing_style_price_color';
-						break;
-					case 'pricing_style_price_color_selected';
-						break;
-					case 'pricing_style_price_color_featured';
-						break;
-
-					case 'pricing_style_price_bg';
-						break;
-					case 'pricing_style_price_bg_selected';
-						break;
-					case 'pricing_style_price_bg_featured';
-						break;
-
-					case 'pricing_style_subtitle_color';
-						break;
-					case 'pricing_style_subtitle_color_selected';
-						break;
-					case 'pricing_style_subtitle_color_featured';
-						break;
-
-					case 'pricing_style_subtitle_bg';
-						break;
-					case 'pricing_style_subtitle_bg_selected';
-						break;
-					case 'pricing_style_subtitle_bg_featured';
-						break;
-
-					case 'pricing_style_features_text_color';
-						break;
-					case 'pricing_style_features_text_color_selected';
-						break;
-					case 'pricing_style_features_text_color_featured';
-						break;
-
-					case 'pricing_style_features_text_bg';
-						break;
-					case 'pricing_style_features_text_bg_selected';
-						break;
-					case 'pricing_style_features_text_bg_featured';
-						break;
-
-					case 'pricing_style_features_alt_text_color';
-						break;
-					case 'pricing_style_features_alt_text_color_selected';
-						break;
-					case 'pricing_style_features_alt_text_color_featured';
-						break;
-
-					case 'pricing_style_features_alt_bg';
-						break;
-					case 'pricing_style_features_alt_bg_selected';
-						break;
-					case 'pricing_style_features_alt_bg_featured';
-						break;
-
-					case 'pricing_style_button_container';
-						break;
-					case 'pricing_style_button_container_selected';
-						break;
-					case 'pricing_style_button_container_featured';
-						break;
-
-					case 'pricing_style_button_text_color';
-						break;
-					case 'pricing_style_button_text_color_selected';
-						break;
-					case 'pricing_style_button_text_color_featured';
-						break;
-
-					case 'pricing_style_button_bg';
-						break;
-					case 'pricing_style_button_bg_selected';
-						break;
-					case 'pricing_style_button_bg_featured';
-						break;
-
-					case 'pricing_style_button_hover_text_color';
-						break;
-					case 'pricing_style_button_hover_text_color_selected';
-						break;
-					case 'pricing_style_button_hover_text_color_featured';
-						break;
-
-					case 'pricing_style_button_hover_bg';
-						break;
-					case 'pricing_style_button_hover_bg_selected';
-						break;
-					case 'pricing_style_button_hover_bg_featured';
-						break;
-
-				}
+			$value = self::get_style( 'pricing_style_subtitle_color', '', $options );
+			if( ! empty( $value ) ) {
 
 			}
-			
+
+			$value = self::get_style( 'pricing_style_subtitle_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_subtitle_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_subtitle_bg', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_subtitle_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_subtitle_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_features_text_color', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_text_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_text_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_features_text_bg', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_text_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_text_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_features_alt_text_color', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_alt_text_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_alt_text_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_features_alt_bg', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_alt_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_features_alt_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_button_container', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_container_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_container_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_button_text_color', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_text_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_text_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_button_bg', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_button_hover_text_color', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_hover_text_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_hover_text_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+
+			$value = self::get_style( 'pricing_style_button_hover_bg', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_hover_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_style_button_hover_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+
+			}
+
+			$value = self::get_style( 'pricing_table_custom_css', '', $options );
+			$style .= ! empty( $value ) ? $value : '';
+
 			return $style;
+		}
+
+		private static function add_class_style( $css, $value, $option = '' ) {
+
+			$replace = '';
+
+			switch( $option ) {
+				case 'selected':
+					$replace = '.pricing-column.chosen-plan';
+					break;
+				case 'featured':
+					$replace = '.pricing-column.featured';
+					break;
+			}
+
+			if( ! empty( $replace ) ) {
+				$css = str_replace( '.pricing-column', $replace, $css );
+			}
+
+			$css = str_replace( 'XXX', $value, $css );
+
+			return $css;
 		}
 
 		public static function get_style( $key, $default = '', $options = false ) {
@@ -373,6 +441,227 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			}
 		}
 
+		private static function get_column_background( $options ) {
+			$style = '';
+
+			$the_style = "
+					.pricing-column .title,
+					.pricing-column .summary,
+					.pricing-column .sub-title,
+					.pricing-column .summary,
+					.pricing-column .button-box,
+					.pricing-column li ul.feature-section,
+					.pricing-column .feature,
+					 .pricing-column .feature.alternate {
+						background: XXX;
+					}";
+			$value = self::get_style( 'pricing_style_column_bg', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_style, $value );
+				$style .="
+					.pricing-column .button-box.no-button,
+					.pricing-column:first-child .title,
+					.pricing-column:first-child .summary {
+						background: none;
+					}
+					.pricing-column:first-child .summary .period-selector {
+						background: {$value};
+					}
+				";
+			}
+
+			$value = self::get_style( 'pricing_style_column_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_style, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_column_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_style, $value, 'selected' );
+			}
+
+			return $style;
+		}
+
+		private static function get_column_borders( $options ) {
+			global $psts;
+
+			$layout = $psts->get_setting( 'pricing_table_layout', 'option1' );
+
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .period-selector select,
+				.pricing-column .sub-title,
+				.pricing-column .title,
+				.pricing-column .summary,
+				.pricing-column .summary.no-periods,
+				.pricing-column .summary .period-selector,
+				.pricing-column .sub-title,
+				.pricing-column .feature-section,
+				.pricing-column:first-child .feature-section,
+				.pricing-column .button-box {
+				    border-color: XXX;
+				}
+			";
+
+			if( 'option1' == $layout ) {
+				$the_css .= "
+					.pricing-column .title:after {
+						border-bottom-color: XXX;
+					}
+				";
+			}
+
+			$value = self::get_style( 'pricing_style_border_color', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value );
+			}
+
+			$value = self::get_style( 'pricing_style_border_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_border_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'selected' );
+			}
+
+			$the_css = "
+				.pricing-column .period-selector select,
+				.pricing-column .sub-title,
+				.pricing-column .title,
+				.pricing-column .summary,
+				.pricing-column .summary.no-periods,
+				.pricing-column .summary .period-selector,
+				.pricing-column .sub-title,
+				.pricing-column .feature-section,
+				.pricing-column:first-child .feature-section,
+				.pricing-column .button-box {
+				    border-width: XXXpx;
+				}
+			";
+
+			$value = self::get_style( 'pricing_style_border_width', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value );
+			}
+
+			$value = self::get_style( 'pricing_style_border_width_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_border_width_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'selected' );
+			}
+
+			return $style;
+		}
+
+		private static function get_column_title( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .title {
+				    color: XXX;
+				}
+			";
+
+			$value = self::get_style( 'pricing_style_title_color', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value );
+			}
+
+			$value = self::get_style( 'pricing_style_title_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_title_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'selected' );
+			}
+
+			$the_css = "
+				.pricing-column .title {
+				    background: XXX;
+				}
+			";
+
+			$value = self::get_style( 'pricing_style_title_bg', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value );
+			}
+
+			$value = self::get_style( 'pricing_style_title_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_title_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'selected' );
+			}
+
+			return $style;
+
+		}
+
+		private static function get_column_price( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .price {
+				    color: XXX;
+				}
+			";
+
+			$value = self::get_style( 'pricing_style_price_color', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value );
+			}
+
+			$value = self::get_style( 'pricing_style_price_color_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_price_color_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'selected' );
+			}
+
+			$the_css = "
+				.pricing-column .price {
+				    background: XXX !important;
+				}
+			";
+
+			$value = self::get_style( 'pricing_style_price_bg', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value );
+			}
+
+			$value = self::get_style( 'pricing_style_price_bg_featured', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'featured' );
+			}
+
+			$value = self::get_style( 'pricing_style_price_bg_selected', '', $options );
+			if( ! empty( $value ) ) {
+				$style .= self::add_class_style( $the_css, $value, 'selected' );
+			}
+
+
+			return $style;
+
+		}
 
 	}
 }
