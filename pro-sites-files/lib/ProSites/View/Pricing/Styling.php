@@ -135,10 +135,22 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 						<td><input type="text" name="psts[checkout_style][pricing_style_price_bg_featured]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_bg_featured', '', $styles ); ?>"/></td>
 					</tr>
 					<tr>
+						<td><?php _e( 'Price Summary Text', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_price_summary_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_summary_color', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_price_summary_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_summary_color_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_price_summary_color_featured]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_summary_color_featured', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Price Summary Background', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_price_summary_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_summary_bg', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_price_summary_bg_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_summary_bg_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_price_summary_bg_featured]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_price_summary_bg_featured', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
 						<td><?php _e( 'Subtitle Text', 'psts' ) ?></td>
 						<td><input type="text" name="psts[checkout_style][pricing_style_subtitle_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_subtitle_color', '', $styles ); ?>"/></td>
-						<td><input type="text" name="psts[checkout_style][pricing_style_subtitle_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_subtitle_color_selected', '', $styles ); ?>"/></td>
-						<td><input type="text" name="psts[checkout_style][pricing_style_subtitle_color_featured]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_subtitle_color_featured', '', $styles ); ?>"/></td>
+						<td><!-- <input type="text" name="psts[checkout_style][pricing_style_subtitle_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_subtitle_color_selected', '', $styles ); ?>"/> --></td>
+						<td><!-- <input type="text" name="psts[checkout_style][pricing_style_subtitle_color_featured]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_subtitle_color_featured', '', $styles ); ?>"/> --></td>
 					</tr>
 					<tr>
 						<td><?php _e( 'Subtitle Background', 'psts' ) ?></td>
@@ -223,182 +235,16 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::get_column_borders( $options );
 			$style .= self::get_column_title( $options );
 			$style .= self::get_column_price( $options );
+			$style .= self::get_column_price_summary( $options );
+			$style .= self::get_column_subtitle( $options );
+			$style .= self::get_column_features( $options );
+			$style .= self::get_column_features_alt( $options );
+			$style .= self::get_column_button_container( $options );
+			$style .= self::get_column_button( $options );
+			$style .= self::get_column_button_hover( $options );
 
 
-			$value = self::get_style( 'pricing_style_subtitle_color', '', $options );
-			if( ! empty( $value ) ) {
 
-			}
-
-			$value = self::get_style( 'pricing_style_subtitle_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_subtitle_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_subtitle_bg', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_subtitle_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_subtitle_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_features_text_color', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_text_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_text_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_features_text_bg', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_text_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_text_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_features_alt_text_color', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_alt_text_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_alt_text_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_features_alt_bg', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_alt_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_features_alt_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_button_container', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_container_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_container_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_button_text_color', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_text_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_text_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_button_bg', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_button_hover_text_color', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_hover_text_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_hover_text_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-
-			$value = self::get_style( 'pricing_style_button_hover_bg', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_hover_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
-
-			$value = self::get_style( 'pricing_style_button_hover_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-
-			}
 
 			$value = self::get_style( 'pricing_table_custom_css', '', $options );
 			$style .= ! empty( $value ) ? $value : '';
@@ -455,30 +301,22 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					 .pricing-column .feature.alternate {
 						background: XXX;
 					}";
-			$value = self::get_style( 'pricing_style_column_bg', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_style, $value );
-				$style .="
+
+
+			$extra_style = "
 					.pricing-column .button-box.no-button,
 					.pricing-column:first-child .title,
 					.pricing-column:first-child .summary {
 						background: none;
 					}
 					.pricing-column:first-child .summary .period-selector {
-						background: {$value};
+						background: XXX;
 					}
 				";
-			}
 
-			$value = self::get_style( 'pricing_style_column_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_style, $value, 'featured' );
-			}
-
-			$value = self::get_style( 'pricing_style_column_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_style, $value, 'selected' );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_column_bg', $options, $the_style . $extra_style );
+			$style .= self::convert_css_from_setting( 'pricing_style_column_bg_featured', $options, $the_style, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_column_bg_selected', $options, $the_style, 'selected' );
 
 			return $style;
 		}
@@ -501,7 +339,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column .sub-title,
 				.pricing-column .feature-section,
 				.pricing-column:first-child .feature-section,
-				.pricing-column .button-box {
+				.pricing-column .button-box,
+				.pricing-column.featured .sub-title.no-title {
 				    border-color: XXX;
 				}
 			";
@@ -514,20 +353,9 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				";
 			}
 
-			$value = self::get_style( 'pricing_style_border_color', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value );
-			}
-
-			$value = self::get_style( 'pricing_style_border_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'featured' );
-			}
-
-			$value = self::get_style( 'pricing_style_border_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'selected' );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_border_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_border_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_border_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
 				.pricing-column .period-selector select,
@@ -539,25 +367,15 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column .sub-title,
 				.pricing-column .feature-section,
 				.pricing-column:first-child .feature-section,
-				.pricing-column .button-box {
+				.pricing-column .button-box,
+				.pricing-column.featured .sub-title.no-title {
 				    border-width: XXXpx;
 				}
 			";
 
-			$value = self::get_style( 'pricing_style_border_width', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value );
-			}
-
-			$value = self::get_style( 'pricing_style_border_width_selected', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'featured' );
-			}
-
-			$value = self::get_style( 'pricing_style_border_width_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'selected' );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_border_width', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_border_width_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_border_width_selected', $options, $the_css, 'selected' );
 
 			return $style;
 		}
@@ -572,20 +390,9 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				}
 			";
 
-			$value = self::get_style( 'pricing_style_title_color', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value );
-			}
-
-			$value = self::get_style( 'pricing_style_title_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'featured' );
-			}
-
-			$value = self::get_style( 'pricing_style_title_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'selected' );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_title_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_title_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_title_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
 				.pricing-column .title {
@@ -593,19 +400,21 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				}
 			";
 
-			$value = self::get_style( 'pricing_style_title_bg', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_title_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_title_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_title_bg_selected', $options, $the_css, 'selected' );
 
-			$value = self::get_style( 'pricing_style_title_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'featured' );
-			}
+			return $style;
 
-			$value = self::get_style( 'pricing_style_title_bg_selected', '', $options );
+		}
+
+		private static function convert_css_from_setting( $setting, $options, $template_css, $state = '' ) {
+
+			$style = '';
+
+			$value = self::get_style( $setting, '', $options );
 			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'selected' );
+				$style .= self::add_class_style( $template_css, $value, $state );
 			}
 
 			return $style;
@@ -622,20 +431,9 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				}
 			";
 
-			$value = self::get_style( 'pricing_style_price_color', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value );
-			}
-
-			$value = self::get_style( 'pricing_style_price_color_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'featured' );
-			}
-
-			$value = self::get_style( 'pricing_style_price_color_selected', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'selected' );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_price_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
 				.pricing-column .price {
@@ -643,21 +441,201 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				}
 			";
 
-			$value = self::get_style( 'pricing_style_price_bg', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value );
-			}
+			$style .= self::convert_css_from_setting( 'pricing_style_price_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_bg_selected', $options, $the_css, 'selected' );
 
-			$value = self::get_style( 'pricing_style_price_bg_featured', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'featured' );
-			}
+			return $style;
 
-			$value = self::get_style( 'pricing_style_price_bg_selected', '', $options );
-			if( ! empty( $value ) ) {
-				$style .= self::add_class_style( $the_css, $value, 'selected' );
-			}
+		}
 
+		private static function get_column_price_summary( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .level-summary {
+				    color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_color_selected', $options, $the_css, 'selected' );
+
+			$the_css = "
+				.pricing-column .level-summary {
+				    background: XXX !important;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_bg_selected', $options, $the_css, 'selected' );
+
+			return $style;
+
+		}
+
+		private static function get_column_subtitle( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .sub-title {
+				    color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_subtitle_color', $options, $the_css );
+			//$style .= self::convert_css_from_setting( 'pricing_style_subtitle_color_selected', $options, $the_css, 'featured' );
+			//$style .= self::convert_css_from_setting( 'pricing_style_subtitle_color_featured', $options, $the_css, 'selected' );
+
+			$the_css = "
+				.pricing-column .sub-title {
+				    background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_subtitle_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_subtitle_bg_selected', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_subtitle_bg_featured', $options, $the_css, 'selected' );
+
+			return $style;
+
+		}
+
+		private static function get_column_features( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .feature.alternate,
+				.pricing-column .feature {
+					color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_features_text_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_text_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_text_color_selected', $options, $the_css, 'selected' );
+
+			$the_css = "
+			    .pricing-column .feature.alternate,
+				.pricing-column .feature {
+					background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_features_text_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_text_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_text_bg_selected', $options, $the_css, 'selected' );
+
+			return $style;
+
+		}
+
+		private static function get_column_features_alt( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .feature.alternate {
+					color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_features_alt_text_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_alt_text_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_alt_text_color_selected', $options, $the_css, 'selected' );
+
+			$the_css = "
+				.pricing-column .feature.alternate {
+					background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_features_alt_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_alt_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_features_alt_bg_selected', $options, $the_css, 'selected' );
+
+			return $style;
+
+		}
+
+		private static function get_column_button_container( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .button-box {
+					background: XXX;
+				}
+				.pricing-column .button-box.no-button {
+					background: none;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_button_container', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_container_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_container_selected', $options, $the_css, 'selected' );
+
+
+			return $style;
+
+		}
+
+		private static function get_column_button( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .button-box button {
+					color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_button_text_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_text_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_text_color_selected', $options, $the_css, 'selected' );
+
+			$the_css = "
+				.pricing-column .button-box button {
+					background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_button_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_bg_selected', $options, $the_css, 'selected' );
+
+			return $style;
+
+		}
+
+		private static function get_column_button_hover( $options ) {
+
+			$style = '';
+
+			$the_css = "
+				.pricing-column .button-box button:hover {
+					color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_text_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_text_color_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_text_color_selected', $options, $the_css, 'selected' );
+
+			$the_css = "
+				.pricing-column .button-box button:hover {
+					background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_bg', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_bg_featured', $options, $the_css, 'featured' );
+			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_bg_selected', $options, $the_css, 'selected' );
 
 			return $style;
 
