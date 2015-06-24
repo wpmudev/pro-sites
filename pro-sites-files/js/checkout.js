@@ -137,7 +137,7 @@ jQuery( document ).ready( function ( $ ) {
     }
 
     /* New checkout form */
-    $( '.pricing-column .period-selector select' ).change( function ( e ) {
+    $( '.pricing-column .period-selector select, .period-selector-container input' ).change( function ( e ) {
         var element = e.currentTarget;
         var period_class = $( element ).val();
         var period = parseInt( period_class.replace( 'price_', '' ) );
@@ -647,5 +647,14 @@ jQuery( document ).ready( function ( $ ) {
     } );
 
     $('.coupon-wrapper').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
+
+    // Adjust period selector width
+    //$('.period-selector-container').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
+    var width = 0;
+    $('.period-selector-container label' ).each( function( i, item ) {
+        //width += $( item );
+        width += parseInt( $( item ).find( 'div' ).css('width' ).replace('px', '') );
+    } );
+    $('.period-selector-container').css('width', width + 1 );
 
 } );

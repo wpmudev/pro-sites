@@ -215,6 +215,81 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					</tr>
 				</table>
 
+				<?php
+					$normal_heading   = __( 'Normal', 'psts' );
+					$selected_heading = __( 'Selected', 'psts' );
+					$hover_heading = __( 'Hover', 'psts' );
+				?>
+				<h3><?php esc_html_e( 'Period Selector', 'psts' ); ?></h3>
+				<p class="description clear"><?php esc_html_e( 'Change the styles of the period selector if shown above the table.', 'psts' ); ?>
+				<table class="form-table checkout_style">
+					<tr>
+						<th></th>
+						<th scope="row"><?php echo esc_html( $normal_heading ); ?></th>
+						<th scope="row"><?php echo esc_html( $selected_heading ); ?></th>
+						<th scope="row"><?php echo esc_html( $hover_heading ); ?></th>
+					</tr>
+					<tr>
+						<td><?php _e( 'Border Color', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_period_border_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_period_border_color', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_period_border_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_period_border_color_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_period_border_color_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_period_border_color_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Monthly Text', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_monthly_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_monthly_color', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_monthly_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_monthly_color_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_monthly_color_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_monthly_color_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Monthly Background', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_monthly_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_monthly_bg', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_monthly_bg_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_monthly_bg_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_monthly_bg_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_monthly_bg_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Quarterly Text', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_quarterly_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_quarterly_color', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_quarterly_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_quarterly_color_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_quarterly_color_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_quarterly_color_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Quarterly Background', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_quarterly_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_quarterly_bg', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_quarterly_bg_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_quarterly_bg_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_quarterly_bg_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_quarterly_bg_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Annually Text', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_annually_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_annually_color', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_annually_color_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_annually_color_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_annually_color_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_annually_color_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Annually Background', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_annually_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_annually_bg', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_annually_bg_selected]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_annually_bg_selected', '', $styles ); ?>"/></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_annually_bg_hover]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_annually_bg_hover', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Alignment', 'psts' ) ?></td>
+						<td>
+							<label>
+								<input type="radio" name="psts[checkout_style][pricing_style_period_align]" value="left" <?php checked( self::get_style( 'pricing_style_period_align', 'none', $styles ), 'left' ); ?> />
+								<?php esc_html_e( 'Left ', 'psts' ) ?>
+							</label>&nbsp;
+							<label>
+								<input type="radio" name="psts[checkout_style][pricing_style_period_align]" value="none" <?php checked( self::get_style( 'pricing_style_period_align', 'none', $styles ), 'none' ); ?> />
+								<?php esc_html_e( 'Center ', 'psts' ) ?>
+							</label>&nbsp;
+							<label>
+								<input type="radio" name="psts[checkout_style][pricing_style_period_align]" value="right" <?php checked( self::get_style( 'pricing_style_period_align', 'none', $styles ), 'right' ); ?> />
+								<?php esc_html_e( 'Right ', 'psts' ) ?>
+							</label>
+						</td>
+					</tr>
+				</table>
+
 				<h3><?php esc_html_e( 'Detached Coupon Box', 'psts' ); ?></h3>
 				<p class="description clear"><?php esc_html_e( 'Change the display of the coupon box (if its not attached to the table).', 'psts' ); ?>
 				<table class="form-table checkout_style">
@@ -304,6 +379,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::get_column_button_container( $options );
 			$style .= self::get_column_button( $options );
 			$style .= self::get_column_button_hover( $options );
+			$style .= self::get_period_styles( $options );
 			$style .= self::get_coupon_styles( $options );
 
 
@@ -318,6 +394,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 			$replace = '';
 
+			$type = 'column';
 			switch( $option ) {
 				case 'selected':
 					$replace = '.pricing-column.chosen-plan';
@@ -325,10 +402,70 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				case 'featured':
 					$replace = '.pricing-column.featured';
 					break;
+				case 'period_selected':
+					$type = 'period';
+					$replace = '.period-selector-container label > input:checked + .period-option';
+					break;
+				case 'period_hover':
+					$type = 'period';
+					$replace = '.period-selector-container label > input + .period-option:hover';
+					break;
+				case 'period1':
+					$type = 'period1';
+					$replace = '.period-selector-container label > input + .period-option.period1';
+					break;
+				case 'period1_hover':
+					$type = 'period1';
+					$replace = '.period-selector-container label > input + .period-option.period1:hover';
+					break;
+				case 'period1_selected':
+					$type = 'period1';
+					$replace = '.period-selector-container label > input:checked + .period-option.period1';
+					break;
+				case 'period3':
+					$type = 'period3';
+					$replace = '.period-selector-container label > input + .period-option.period3';
+					break;
+				case 'period3_hover':
+					$type = 'period3';
+					$replace = '.period-selector-container label > input + .period-option.period3:hover';
+					break;
+				case 'period3_selected':
+					$type = 'period3';
+					$replace = '.period-selector-container label > input:checked + .period-option.period3';
+					break;
+				case 'period12':
+					$type = 'period12';
+					$replace = '.period-selector-container label > input + .period-option.period12';
+					break;
+				case 'period12_hover':
+					$type = 'period12';
+					$replace = '.period-selector-container label > input + .period-option.period12:hover';
+					break;
+				case 'period12_selected':
+					$type = 'period1';
+					$replace = '.period-selector-container label > input:checked + .period-option.period12';
+					break;
 			}
 
 			if( ! empty( $replace ) ) {
-				$css = str_replace( '.pricing-column', $replace, $css );
+				switch( $type ) {
+					case 'column';
+						$css = str_replace( '.pricing-column', $replace, $css );
+						break;
+					case 'period':
+						$css = str_replace( '.period-selector-container label > input + .period-option', $replace, $css );
+						break;
+					case 'period1':
+						$css = str_replace( '.period-selector-container label > input + .period-option', $replace, $css );
+						break;
+					case 'period3':
+						$css = str_replace( '.period-selector-container label > input + .period-option', $replace, $css );
+						break;
+					case 'period12':
+						$css = str_replace( '.period-selector-container label > input + .period-option', $replace, $css );
+						break;
+				}
 			}
 
 			$css = str_replace( 'XXX', $value, $css );
@@ -405,6 +542,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column:first-child .feature-section,
 				.pricing-column .button-box,
 				#prosites-checkout-table .coupon-wrapper .coupon-box,
+				.period-selector-container label > input + .period-option,
 				.pricing-column.featured .sub-title.no-title {
 				    border-color: XXX;
 				}
@@ -451,6 +589,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
+				.period-selector-container label > input + .period-option,
 				.pricing-column .title {
 				    color: XXX;
 				}
@@ -461,6 +600,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_title_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
+				.period-selector-container label > input + .period-option,
 				.pricing-column .title {
 				    background: XXX;
 				}
@@ -656,6 +796,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
+				.period-selector-container label > input:checked + .period-option,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button,
 				.pricing-column .button-box button {
 					color: XXX;
@@ -667,6 +808,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_button_text_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
+				.period-selector-container label > input:checked + .period-option,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button,
 				.pricing-column .button-box button {
 					background: XXX;
@@ -686,6 +828,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
+				.period-selector-container label > input + .period-option:hover,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
 				.pricing-column .button-box button:hover {
 					color: XXX;
@@ -697,6 +840,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_text_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
+				.period-selector-container label > input + .period-option:hover,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
 				.pricing-column .button-box button:hover {
 					background: XXX;
@@ -781,6 +925,66 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			";
 
 			$style .= self::convert_css_from_setting( 'pricing_style_coupon_align', $options, $the_css );
+
+			return $style;
+		}
+
+		private static function get_period_styles( $options ) {
+			$style = '';
+
+			$the_css = "
+				.period-selector-container label > input + .period-option {
+				    border-color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_period_border_color', $options, $the_css );
+			$style .= self::convert_css_from_setting( 'pricing_style_period_border_color_selected', $options, $the_css, 'period_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_period_border_color_hover', $options, $the_css, 'period_hover' );
+
+			$the_css = "
+				.period-selector-container label > input + .period-option {
+				    color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_monthly_color', $options, $the_css, 'period1' );
+			$style .= self::convert_css_from_setting( 'pricing_style_monthly_color_selected', $options, $the_css, 'period1_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_monthly_color_hover', $options, $the_css, 'period1_hover' );
+
+			$style .= self::convert_css_from_setting( 'pricing_style_quarterly_color', $options, $the_css, 'period3' );
+			$style .= self::convert_css_from_setting( 'pricing_style_quarterly_color_selected', $options, $the_css, 'period3_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_quarterly_color_hover', $options, $the_css, 'period3_hover' );
+
+			$style .= self::convert_css_from_setting( 'pricing_style_annually_color', $options, $the_css, 'period12' );
+			$style .= self::convert_css_from_setting( 'pricing_style_annually_color_selected', $options, $the_css, 'period12_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_annually_color_hover', $options, $the_css, 'period12_hover' );
+
+			$the_css = "
+				.period-selector-container label > input + .period-option {
+				    background-color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_monthly_bg', $options, $the_css, 'period1' );
+			$style .= self::convert_css_from_setting( 'pricing_style_monthly_bg_selected', $options, $the_css, 'period1_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_monthly_bg_hover', $options, $the_css, 'period1_hover' );
+
+			$style .= self::convert_css_from_setting( 'pricing_style_quarterly_bg', $options, $the_css, 'period3' );
+			$style .= self::convert_css_from_setting( 'pricing_style_quarterly_bg_selected', $options, $the_css, 'period3_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_quarterly_bg_hover', $options, $the_css, 'period3_hover' );
+
+			$style .= self::convert_css_from_setting( 'pricing_style_annually_bg', $options, $the_css, 'period12' );
+			$style .= self::convert_css_from_setting( 'pricing_style_annually_bg_selected', $options, $the_css, 'period12_selected' );
+			$style .= self::convert_css_from_setting( 'pricing_style_annually_bg_hover', $options, $the_css, 'period12_hover' );
+
+			$the_css = "
+				.period-selector-container {
+					float: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_period_align', $options, $the_css );
 
 			return $style;
 		}

@@ -16,10 +16,17 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			// Reposition coupon based on option
 			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
 			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
-			if( $coupons_enabled && 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ) {
+			if( $coupons_enabled &&
+			    ( 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ||
+			      'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' )  )
+			) {
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
 			}
 
+			// Add period selector above table based on option
+			if( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
+				add_filter( 'prosites_inner_pricing_table_pre', array( get_class(), 'render_standalone_periods' ) );
+			}
 
 			$session_data = ProSites_Helper_Session::session();
 			// If its in session, get it
@@ -88,7 +95,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$content            = '';
 			$periods            = (array) $psts->get_setting( 'enabled_periods' );
 			$show_periods       = 2 <= count( $periods ) ? true : false;
-			$show_first_column  = $show_periods;
+			$show_first_column  = $show_periods && 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' );
 			$total_columns      = $show_first_column ? count( $columns ) : count( $columns ) - 1;
 			$total_width        = 100.0;
 			$total_width        -= 6.0; // account for extra space around featured plan
@@ -115,11 +122,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$col_class = $level_id == (int) self::$selected_level ? $col_class . ' chosen-plan' : $col_class;
 				}
 
-				// Hide the 0 column
+				// Remove the 0 column
 				$override = '';
 				if ( empty( $level_id ) ) {
 					$override = $show_first_column ? '' : 'hidden';
 					$col_class .= ' ' . $override;
+					//continue;
 				}
 				$content .= '<ul class="pricing-column psts-level-' . esc_attr( $level_id ) . ' ' . esc_attr( $col_class ) . '" style="' . esc_attr( $style ) . '">';
 
@@ -816,6 +824,39 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				</div>
 			</div>
 			' . $content;
+
+			return $content;
+		}
+
+
+		public static function render_standalone_periods( $content ) {
+			global $psts;
+
+			$active_periods = (array) $psts->get_setting( 'enabled_periods' );
+
+			$periods = array(
+				'1' => __('Monthly', 'psts'),
+				'3' => __('Quarterly', 'psts'),
+				'12' => __('Annually', 'psts')
+			);
+
+			if( count( $active_periods ) > 1 ) {
+
+				$content .= '<div class="period-selector-container">';
+
+				foreach( $active_periods as $period ) {
+
+					$content .= '
+					<label>
+						<input type="radio" name="period-selector-top" value="price_' . $period . '"' . checked( self::$default_period, 'price_' . $period, false ) .' />
+						<div class="period-option period' . $period . '">' . esc_html( $periods[ $period ] ) . '</div>
+					</label>
+					';
+
+				}
+
+				$content .= '</div><div class="period-separator"></div>';
+			}
 
 			return $content;
 		}

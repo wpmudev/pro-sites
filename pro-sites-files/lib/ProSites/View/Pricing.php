@@ -105,25 +105,25 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 				//					</tr>';
 				//					echo $option;
 				?>
-				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP
+				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP -->
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Period Selector Position', 'psts' ) ?></th>
 					<td>
 						<label>
-							<p><input type="radio" name="psts[pricing_table_period_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'column1' ), 'column1' ); ?> />
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
 						</label>
 						<label>
-							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'column1' ), 'above' ); ?> />
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option2' ); ?> />
 								<?php esc_html_e( 'Above the table', 'psts' ); ?></p>
+							<p class="description"><?php esc_html_e( 'For visual purposes, moving the period selector to the top will also remove the first/details column from the table. If the coupons box is attached to the first column it will automatically be moved below the table.', 'psts' ); ?></p>
 						</label>
-						<label>
-							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'column1' ), 'below' ); ?> />
-								<?php esc_html_e( 'Below the table', 'psts' ); ?></p>
-						</label>
+						<!-- <label>
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option3" <?php //checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option3' ); ?> />
+								<?php //esc_html_e( 'Below the table', 'psts' ); ?></p>
+						</label> -->
 					</td>
 				</tr>
-				-->
 
 				<tr>
 					<th scope="row"><?php _e( 'Allow Coupons', 'psts' ) ?></th>
@@ -132,7 +132,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					</td>
 				</tr>
 
-				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP -->
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
 					<td>

@@ -1207,6 +1207,56 @@ ul.pricing-column.not-chosen-plan .button-box button {
     display: none;
 }
 
+
+/** Pricing Tables > Styling */
+.period-selector-container label > input{ /* HIDE RADIO */
+    display:none;
+}
+.period-selector-container label > input + .period-option{ /* IMAGE STYLES */
+    cursor:pointer;
+    border: 1px solid #444;
+}
+
+.period-selector-container {
+    margin: 0 auto;
+}
+
+.period-selector-container .period-option {
+    float: left;
+    font-size: 0.7em;
+    height: 2em;
+    line-height: 1.5em;
+    padding: 0.2em;
+    min-width: 7em;
+    text-align: center;
+}
+
+.period-selector-container label:first-child .period-option {
+    -moz-border-radius: 5px 0 0 5px;
+    -webkit-border-radius: 5px 0 0 5px;
+    border-radius: 5px 0 0 5px;
+}
+.period-selector-container label:last-child .period-option {
+    -moz-border-radius: 0 5px 5px 0;
+    -webkit-border-radius: 0 5px 5px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.period-selector-container label > input:checked + .period-option {
+    background: #333333;
+    color: #fff;
+}
+
+.period-separator {
+    clear: both;
+    margin-bottom: 1em;
+}
+
+
+#prosites-checkout-table .checkout-container {
+    clear:both;
+}
+
 /* === ALTER CLASSIC === */
 #psts_checkout_grid .pblg-checkout-opt {
     min-height: 170px;
