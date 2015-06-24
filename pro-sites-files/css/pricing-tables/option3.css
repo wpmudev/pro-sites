@@ -63,7 +63,7 @@
     -moz-border-radius: 100px;
     -webkit-border-radius: 100px;
     margin: 0 auto -65px;
-    padding: 25px 0;
+    padding: 20px 0 30px;
     width: 125px;
 
     -moz-box-shadow: 0 5px 20px #ddd inset, 0 3px 0 #999 inset;
@@ -77,6 +77,14 @@
 
 .pricing-column .summary .level-summary {
 
+}
+
+.plan-price.original-amount.scratch {
+    font-size: 0.6em;
+    opacity: 0.5;
+    position: absolute;
+    right: 20%;
+    top: 7%;
 }
 
 .period-selector select {

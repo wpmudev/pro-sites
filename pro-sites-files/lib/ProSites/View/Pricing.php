@@ -132,21 +132,20 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					</td>
 				</tr>
 
-				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP
+				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP -->
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
 					<td>
 						<label>
-							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'column1' ), 'column1' ); ?> />
+							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
 						</label>
 						<label>
-							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'column1' ), 'detached' ); ?> />
-								<?php esc_html_e( 'Popup link below the table.', 'psts' ); ?></p>
+							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option2' ); ?> />
+								<?php esc_html_e( 'Below checkout table.', 'psts' ); ?></p>
 						</label>
 					</td>
 				</tr>
-				-->
 
 				<tr>
 					<th scope="row"><?php _e( 'Highlight \'Featured\' level', 'psts' ) ?></th>

@@ -52,6 +52,19 @@
     top: -20px;
 }
 
+.pricing-column .plan-price.original-amount.scratch {
+    font-size: 1em;
+    opacity: 0.5;
+    position: absolute;
+    right: 10px;
+    top: 20px;
+}
+
+.pricing-column .plan-price.original-amount.scratch:after {
+    border-width: 3px;
+    position: relative;
+    left: 2px;
+}
 
 .period-selector select {
     border-color: #444;

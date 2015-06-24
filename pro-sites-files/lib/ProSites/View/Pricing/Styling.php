@@ -215,6 +215,68 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					</tr>
 				</table>
 
+				<h3><?php esc_html_e( 'Detached Coupon Box', 'psts' ); ?></h3>
+				<p class="description clear"><?php esc_html_e( 'Change the display of the coupon box (if its not attached to the table).', 'psts' ); ?>
+				<table class="form-table checkout_style">
+					<tr>
+						<td><?php _e( 'Background', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_coupon_column_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_coupon_column_bg', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Border Color', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_coupon_border_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_coupon_border_color', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Border Width', 'psts' ) ?></td>
+						<td>
+							<select name="psts[checkout_style][pricing_style_coupon_border_width]" class="chosen">
+								<?php
+								$border_width         = self::get_style( 'pricing_style_coupon_border_width', $styles );
+								$border_width_options = '';
+
+								for ( $counter = 0; $counter <= 50; $counter ++ ) {
+									$border_width_options .= '<option value="' . $counter . '"' . ( $counter == $border_width ? ' selected' : '' ) . '>' . ( ( $counter ) ? $counter : 'default' ) . '</option>' . "\n";
+								}
+								echo $border_width_options;
+								?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Button Text', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_coupon_button_text_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_coupon_button_text_color', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Button Background', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_coupon_button_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_coupon_button_bg', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Button Text (Hover)', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_coupon_button_hover_text_color]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_coupon_button_hover_text_color', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Button Background (Hover)', 'psts' ) ?></td>
+						<td><input type="text" name="psts[checkout_style][pricing_style_coupon_button_hover_bg]" class="color-picker" value="<?php echo self::get_style( 'pricing_style_coupon_button_hover_bg', '', $styles ); ?>"/></td>
+					</tr>
+					<tr>
+						<td><?php _e( 'Alignment', 'psts' ) ?></td>
+						<td>
+							<label>
+								<input type="radio" name="psts[checkout_style][pricing_style_coupon_align]" value="left" <?php checked( self::get_style( 'pricing_style_coupon_align', 'none', $styles ), 'left' ); ?> />
+								<?php esc_html_e( 'Left ', 'psts' ) ?>
+							</label>&nbsp;
+							<label>
+								<input type="radio" name="psts[checkout_style][pricing_style_coupon_align]" value="none" <?php checked( self::get_style( 'pricing_style_coupon_align', 'none', $styles ), 'none' ); ?> />
+								<?php esc_html_e( 'Center ', 'psts' ) ?>
+							</label>&nbsp;
+							<label>
+								<input type="radio" name="psts[checkout_style][pricing_style_coupon_align]" value="right" <?php checked( self::get_style( 'pricing_style_coupon_align', 'none', $styles ), 'right' ); ?> />
+								<?php esc_html_e( 'Right ', 'psts' ) ?>
+							</label>
+						</td>
+					</tr>
+				</table>
+
 				<h3><?php esc_html_e( 'Custom CSS', 'psts' ); ?></h3>
 				<p class="description clear"><?php esc_html_e( 'You can use this box to enter your CSS, customise your theme or use a custom CSS plugin. You can avoid altering the CSS of the rest of your site by prefixing all rules you specify with "#prosites-checkout-table". Note: The CSS you specify in this box will be filtered before saving to protect your site. Any non-CSS text will be removed.', 'psts' ); ?></p>
 				<textarea class="custom-css" name="psts[checkout_style][pricing_table_custom_css]"><?php echo sprintf( self::get_style( 'pricing_table_custom_css', '', $styles ) ); ?></textarea>
@@ -242,7 +304,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::get_column_button_container( $options );
 			$style .= self::get_column_button( $options );
 			$style .= self::get_column_button_hover( $options );
-
+			$style .= self::get_coupon_styles( $options );
 
 
 
@@ -296,9 +358,10 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					.pricing-column .sub-title,
 					.pricing-column .summary,
 					.pricing-column .button-box,
+					#prosites-checkout-table .coupon-wrapper .coupon-box,
 					.pricing-column li ul.feature-section,
 					.pricing-column .feature,
-					 .pricing-column .feature.alternate {
+					.pricing-column .feature.alternate {
 						background: XXX;
 					}";
 
@@ -337,9 +400,11 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column .summary.no-periods,
 				.pricing-column .summary .period-selector,
 				.pricing-column .sub-title,
+				.pricing-column .sub-title.no-title,
 				.pricing-column .feature-section,
 				.pricing-column:first-child .feature-section,
 				.pricing-column .button-box,
+				#prosites-checkout-table .coupon-wrapper .coupon-box,
 				.pricing-column.featured .sub-title.no-title {
 				    border-color: XXX;
 				}
@@ -365,10 +430,11 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column .summary.no-periods,
 				.pricing-column .summary .period-selector,
 				.pricing-column .sub-title,
+				.pricing-column .sub-title.no-title,
 				.pricing-column .feature-section,
 				.pricing-column:first-child .feature-section,
 				.pricing-column .button-box,
-				.pricing-column.featured .sub-title.no-title {
+				#prosites-checkout-table .coupon-wrapper .coupon-box {
 				    border-width: XXXpx;
 				}
 			";
@@ -590,6 +656,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button,
 				.pricing-column .button-box button {
 					color: XXX;
 				}
@@ -600,6 +667,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_button_text_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button,
 				.pricing-column .button-box button {
 					background: XXX;
 				}
@@ -618,6 +686,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
 				.pricing-column .button-box button:hover {
 					color: XXX;
 				}
@@ -628,6 +697,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_button_hover_text_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
 				.pricing-column .button-box button:hover {
 					background: XXX;
 				}
@@ -639,6 +709,80 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 			return $style;
 
+		}
+
+		private static function get_coupon_styles( $options ) {
+			global $psts;
+
+			$style = '';
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box {
+				    background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_column_bg', $options, $the_css );
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box {
+				    border-color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_border_color', $options, $the_css );
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box {
+				    border-width: XXXpx;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_border_width', $options, $the_css );
+
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button {
+				    color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_button_text_color', $options, $the_css );
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button {
+				    background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_button_bg', $options, $the_css );
+
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover {
+				    color: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_button_hover_text_color', $options, $the_css );
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover {
+				    background: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_button_hover_bg', $options, $the_css );
+
+			$the_css = "
+				#prosites-checkout-table .coupon-wrapper {
+					float: XXX;
+				}
+			";
+
+			$style .= self::convert_css_from_setting( 'pricing_style_coupon_align', $options, $the_css );
+
+			return $style;
 		}
 
 	}

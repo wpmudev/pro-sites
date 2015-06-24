@@ -938,11 +938,33 @@ ul.pricing-column ul.feature-section li {
 .pricing-column li.coupon {
     clear:both;
 }
-.pricing-column .coupon-box {
-    /*font-size: 1em;*/
-    /*position:relative;*/
+
+#prosites-checkout-table .coupon-wrapper {
+    /*clear: both;*/
+    /*padding-top: 8px;*/
+    /*font-size: 0.8em;*/
+    /*margin: 0 auto;*/
+    /*width: 80%;*/
 }
 
+#prosites-checkout-table .coupon-wrapper {
+    /*border: 1px solid;*/
+    clear: both;
+    /*float: left;*/
+    font-size: 0.8em;
+    margin: 6px auto;
+    padding-top: 8px;
+    text-align: center;
+    /*width: 27.5em;*/
+}
+
+#prosites-checkout-table .coupon-wrapper .coupon-box {
+    border: 1px solid;
+    padding: 0.5em;
+}
+
+/*#prosites-checkout-table .coupon-wrapper .coupon-box button,*/
+/*#prosites-checkout-table .coupon-wrapper .coupon-box input,*/
 .pricing-column .coupon-box input {
 	/*font-size: 0.7em;*/
     /*position:absolute;*/
@@ -950,9 +972,37 @@ ul.pricing-column ul.feature-section li {
     /*top:0;*/
     padding-top:3px;
     padding-bottom:3px;
+}
+
+.pricing-column .coupon-box input {
     position:relative;
     top: -4px;
 }
+
+#prosites-checkout-table .coupon-wrapper .coupon-box button {
+    /*padding: 4px;*/
+    /*text-transform: capitalize;*/
+    /*text-decoration: underline;*/
+    border: none;
+    /*font-size: 0.8em;*/
+    width: 10em;
+    padding: 0.5em;
+    margin: 0;
+}
+#prosites-checkout-table .coupon-wrapper .coupon-box input {
+    width: 15em;
+    /*padding: 0 4px 2px;*/
+    font-size: 1em;
+    margin: 0 0.5em 0 0;
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+    font-family: inherit;
+}
+
 
 .pricing-column .apply-coupon-link {
     /*position:absolute;*/
@@ -977,9 +1027,15 @@ ul.pricing-column ul.feature-section li {
     right: 10px;
 }
 
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after,
 .pricing-column .coupon-box.coupon-valid:after {
     font-family: dashicons;
     content: "\f147";
+}
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after {
+    left: 14.5em;
+    position: absolute;
+    top: 1.6em;
 }
 
 .pricing-column .coupon-box.coupon-invalid:after {
