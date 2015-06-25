@@ -478,13 +478,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					$display_style = self::$default_period != $period_key ? ' hide' : '';
 					$create_hidden = false;
-					if ( ! in_array( (int) str_replace( 'price_', '', self::$default_period ), $active_periods ) &&
-					     $period_count == 1 && ! empty( $display_style )
-					) {
+
+					if( 1 == $period_count ) {
 						$display_style = '';
 						$create_hidden = (int) str_replace( 'price_', '', $period_key );
 					}
-
 
 					if ( ! $recurring ) {
 						$period = $periods_non_recurring[ $period_key ];
@@ -498,7 +496,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$period_content .= '<div class="price-plain hidden plan-' . $level . '' . $months . '-plain">' . $price_plain . '</div>';
 					$period_content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
 					$period_content .= ! empty( $setup_msg ) ? $setup_msg : '';
-					if ( ! empty( $create_hidden ) ) {
+					if ( $period_count == 1 ) {
 						$period_content .= '<div class="hidden" name="single_period">' . $create_hidden . '</div>';
 					}
 					$period_content .= '</div>';
