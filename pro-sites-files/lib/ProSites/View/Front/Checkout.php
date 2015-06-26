@@ -252,6 +252,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					}
 				}
 			}
+			// Now add the levels that got missed at the end
+			foreach( array_keys( $level_list ) as $level ) {
+				if( ! in_array( $level, $pricing_levels_order ) ) {
+					array_push( $pricing_levels_order, $level );
+				}
+			}
 
 			// Initialize all columns
 			for ( $i = 0; $i < $total_columns; $i ++ ) {
