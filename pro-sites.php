@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.0.3
+Version: 3.5.0.4
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.0.3';
+	var $version = '3.5.0.4';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -595,6 +595,7 @@ Thanks!", 'psts' ),
 		$settings = get_site_option( 'psts_settings' );
 		$setting  = isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
 
+		$setting = !is_array( $setting ) ? trim( $setting ) : $setting;
 		/**
 		 * Filter the specific setting, $key parameter value
 		 *
@@ -1206,6 +1207,18 @@ Thanks!", 'psts' ),
 		if ( ! current_theme_supports( 'psts_style' ) ) {
 			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
 			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
+
+			/* Checkout layout */
+			$layout_option = $this->get_setting( 'pricing_table_layout', 'option1' );
+			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'css/pricing-tables/' . $layout_option . '.css' );
+			wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $this->version );
+
+			/* Apply styles from options */
+			$checkout_style = ProSites_View_Pricing_Styling::get_styles_from_options();
+			if( ! empty( $checkout_style ) ) {
+				wp_add_inline_style( 'psts-checkout-layout', $checkout_style );
+			};
+
 		}
 		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
 			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
@@ -3534,6 +3547,8 @@ function admin_levels() {
 			unset( $levels[0]);
 
 			update_site_option( 'psts_levels', $levels );
+			//Update Pricing level order
+			ProSites_Helper_ProSite::update_level_order( $levels );
 
 			//display message confirmation
 			echo '<div class="updated fade"><p>' . sprintf( __( 'Level %s successfully deleted.', 'psts' ), number_format_i18n( $level_num ) ) . '</p></div>';

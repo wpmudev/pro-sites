@@ -324,7 +324,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			// Get trial message
-			if ( ! empty( $info_retrieved['trial'] ) ) {
+			if ( ! empty( $info_retrieved['trial'] ) && empty( $info_retrieved['cancel'] ) ) {
 				$content .= $info_retrieved['trial'];
 			}
 

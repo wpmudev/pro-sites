@@ -1,0 +1,117 @@
+/**
+ * Pricing Table [Full Circle]
+ */
+
+/* Rounded Borders */
+/*.pricing-column:first-child li.summary .period-selector {*/
+    /*border-radius: 5px 0 0;*/
+    /*-moz-border-radius: 5px 0 0;*/
+    /*-webkit-border-radius: 5px 0 0;*/
+/*}*/
+
+.pricing-column .feature {
+    background: rgba( 245, 245, 245, 1 );
+}
+
+.pricing-column .feature.alternate {
+    background: #fff;
+}
+
+.feature-section .icon-tick:before {
+    color: #05ce33;
+}
+
+.feature-section .icon-cross:before {
+    color: #800500;
+}
+
+.pricing-column .title {
+    border-color: #444;
+    background-color: #333;
+    color: #f1f1f1;
+    padding: 15px 0 0;
+}
+
+.pricing-column .sub-title {
+    border-color: #444;
+    background-color: #333;
+    color: #f1f1f1;
+}
+
+.pricing-column:first-child .title {
+    background: none;
+}
+
+.pricing-column .summary {
+    background-color: #333;
+    /*padding-bottom:20px;*/
+}
+
+.pricing-column:first-child .summary {
+    background: none;
+    border: none;
+}
+
+
+.pricing-column .summary .price {
+    background: #f1f1f1;
+    border-radius: 100px;
+    -moz-border-radius: 100px;
+    -webkit-border-radius: 100px;
+    margin: 0 auto;
+    padding: 20px 0 30px;
+    width: 125px;
+
+    -moz-box-shadow: 0 5px 20px #ddd inset, 0 3px 0 #999 inset;
+    -webkit-box-shadow: 0 5px 20px #ddd inset, 0 3px 0 #999 inset;
+    box-shadow: 0 5px 20px #ddd inset, 0 3px 0 #999 inset;
+}
+
+.pricing-column .summary .level-summary {
+    color: #f1f1f1;
+}
+
+.plan-price.original-amount.scratch {
+    font-size: 0.5em;
+    opacity: 0.5;
+    position: absolute;
+    right: 30%;
+    top: 5%;
+}
+
+
+.period-selector select {
+    border-color: #444;
+}
+
+.pricing-column .title {
+    border-color: #444;
+}
+
+.pricing-column .summary {
+    border-color: #444;
+}
+
+.pricing-column .summary.no-periods {
+    border-color: #444;
+}
+
+.pricing-column .summary .period-selector {
+    border-color: #444;
+}
+
+.pricing-column .sub-title {
+    border-color: #444;
+}
+
+.pricing-column .feature-section {
+    border-color: #444;
+}
+
+.pricing-column:first-child .feature-section {
+    border-color: #444;
+}
+
+.pricing-column .button-box {
+    border-color: #444;
+}

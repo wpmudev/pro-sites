@@ -137,7 +137,7 @@ jQuery( document ).ready( function ( $ ) {
     }
 
     /* New checkout form */
-    $( '.pricing-column .period-selector select' ).change( function ( e ) {
+    $( '.pricing-column .period-selector select, .period-selector-container input' ).change( function ( e ) {
         var element = e.currentTarget;
         var period_class = $( element ).val();
         var period = parseInt( period_class.replace( 'price_', '' ) );
@@ -228,14 +228,14 @@ jQuery( document ).ready( function ( $ ) {
     set_same_height( $( '.pricing-column .sub-title' ), false );
 
     // =========== APPLY COUPONS =========== //
-    $( '.pricing-column [name=apply-coupon-link]' ).unbind( 'click' );
-    $( '.pricing-column [name=apply-coupon-link]' ).click( function ( e ) {
-        var input_box = $( '.pricing-column .coupon input' );
-        var icon = $( '.pricing-column .coupon .coupon-status' );
+    $( '#prosites-checkout-table [name=apply-coupon-link]' ).unbind( 'click' );
+    $( '#prosites-checkout-table [name=apply-coupon-link]' ).click( function ( e ) {
+        var input_box = $( '#prosites-checkout-table .coupon-box input' );
+        var icon = $( '#prosites-checkout-table .coupon .coupon-status' );
         var pos = input_box.position();
 
-        $( '.pricing-column .coupon-box' ).removeClass( 'coupon-valid' );
-        $( '.pricing-column .coupon-box' ).removeClass( 'coupon-invalid' );
+        $( '#prosites-checkout-table .coupon-box' ).removeClass( 'coupon-valid' );
+        $( '#prosites-checkout-table .coupon-box' ).removeClass( 'coupon-invalid' );
 
         var code = $( input_box ).val();
 
@@ -256,9 +256,9 @@ jQuery( document ).ready( function ( $ ) {
                 var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
 
                 if ( response.valid ) {
-                    $( '.pricing-column .coupon-box' ).addClass( 'coupon-valid' );
+                    $( '#prosites-checkout-table .coupon-box' ).addClass( 'coupon-valid' );
                 } else {
-                    $( '.pricing-column .coupon-box' ).addClass( 'coupon-invalid' );
+                    $( '#prosites-checkout-table .coupon-box' ).addClass( 'coupon-invalid' );
                 }
 
                 // Handle empty returns
@@ -646,6 +646,15 @@ jQuery( document ).ready( function ( $ ) {
 
     } );
 
+    $('.coupon-wrapper').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
 
+    // Adjust period selector width
+    //$('.period-selector-container').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
+    var width = 0;
+    $('.period-selector-container label' ).each( function( i, item ) {
+        //width += $( item );
+        width += parseInt( $( item ).find( 'div' ).css('width' ).replace('px', '') );
+    } );
+    $('.period-selector-container').css('width', width + 1 );
 
 } );

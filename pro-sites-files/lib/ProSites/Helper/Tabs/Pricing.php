@@ -52,6 +52,12 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Pricing' ) ) {
 						__( 'Choose Feature Table Preferences', 'psts' ),
 					),
 				) ),
+				'pricing_style' => array_merge( $section_options, array(
+					'title' => __( 'Styling', 'psts' ),
+					'desc'               => array(
+						__( 'Modify styling of pricing and features tables.', 'psts' ),
+					),
+				) ),
 			);
 
 			$page = sanitize_html_class( @$_GET['page'], 'pricing_table' );

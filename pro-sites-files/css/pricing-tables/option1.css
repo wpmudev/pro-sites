@@ -1,0 +1,138 @@
+/**
+ * Pricing Table [Default]
+ */
+
+.alternate {
+    background: rgba( 245, 245, 245, 1 );
+}
+
+.period-selector select {
+    border-color: #888;
+}
+
+.feature-section .icon-tick:before {
+    color: #00CE8A;
+}
+
+.feature-section .icon-cross:before {
+    color: #B6B6B6;
+}
+
+.pricing-column .title {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .title:after {
+    content:"";
+    display:block;
+    border-bottom: 2px solid #B6B6B6;
+    margin: 20px 10px 0 10px;
+}
+
+.pricing-column .summary {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .summary.no-periods {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .summary .period-selector {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .summary .period-selector select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+}
+
+.pricing-column .sub-title {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .feature-section {
+    border-color: #B6B6B6;
+}
+
+.pricing-column:first-child .feature-section {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .button-box {
+    border-color: #B6B6B6;
+}
+
+.pricing-column .price .symbol {
+    color: #58636F;
+}
+
+.pricing-column .price .dot,
+.pricing-column .price .decimal {
+    color: #58636F;
+}
+
+.pricing-column .coupon-box.coupon-valid:after {
+    color: #00CE8A;
+}
+
+.pricing-column .coupon-box.coupon-invalid:after {
+    color: #B6B6B6;
+}
+
+.plan-price.original-amount.scratch:after {
+    border-bottom-color: red;
+}
+
+ul.pricing-column.chosen-plan {
+    background: rgba( 128, 128, 128, 0.1 );
+}
+
+ul.pricing-column.chosen-plan .alternate {
+    background: rgba( 128, 128, 128, 0.2 );
+}
+
+
+/** GATEWAYS **/
+#gateways ul li.ui-state-default {
+    background: rgba(245, 245, 245, 0.2);
+    border-color: #F5F5F5;
+}
+
+#gateways ul li.ui-state-active {
+    background: #F5F5F5;
+}
+
+#gateways-1, #gateways-2, #gateways-3 {
+    background: #F5F5F5;
+}
+
+
+.input_available:after {
+    color: #00CE8A;
+}
+
+#prosites-user-register .error{
+    background: none repeat scroll 0 0 #ffebe8;
+    color: #cc0000;
+}
+
+#psts_checkout_grid .pblg-checkout-opt .plan-price.original-amount.scratch:after {
+    border-color: red;
+}
+
+
+.pricing-column.grid-checkout .coupon-box.coupon-valid:before {
+    color: #00CE8A;
+}
+
+.pricing-column.grid-checkout .coupon-box.coupon-invalid:before {
+    color: #B6B6B6;
+}
+
+.tax-checkout-notice {
+    border-color: #B6B6B6;
+}
+
+.tax-checkout-evidence {
+    border-color: #B6B6B6;
+}
