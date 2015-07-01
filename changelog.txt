@@ -6,7 +6,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.0.4 - 6/19/2015 - Rheinard Korf & Umesh Kumar
+3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - New: Pricing tables styling settings created:
      * Checkout table now has preset layouts
