@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.0.4
+Version: 3.5.0.5
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.0.4';
+	var $version = '3.5.0.5';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -5103,15 +5103,9 @@ function admin_levels() {
 		//If pay before blog is disabled, allow blog activation through email
 		$show_signup = $this->get_setting( 'show_signup' );
 
-		if ( 1 != $show_signup ) {
+		if ( 1 != $show_signup && ! class_exists( 'BuddyPress' ) ) {
 			return true;
 		}
-//		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
-//		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
-//		) {
-//			//No post details to check
-//			return true;
-//		}
 
 		/* Wordpress do not provide option to filter confirm_blog_signup, we have disabled activation email */
 		ob_start();
