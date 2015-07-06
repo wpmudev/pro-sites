@@ -9,8 +9,9 @@ Change Log:
 3.5.0.5 - 6/19/2015 - Rheinard Korf & Umesh Kumar
 
 - Fixed: Double Signup email, when Buddypress is active
+- Fixed: Divison by zero for single column pricing table
 
-3.5.0.4 - 6/19/2015 - Rheinard Korf & Umesh Kumar
+3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - New: Pricing tables styling settings created:
      * Checkout table now has preset layouts

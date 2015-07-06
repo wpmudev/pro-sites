@@ -95,8 +95,14 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$content            = '';
 			$periods            = (array) $psts->get_setting( 'enabled_periods' );
 			$show_periods       = 2 <= count( $periods ) ? true : false;
-			$show_first_column  = $show_periods && 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' );
-			$total_columns      = $show_first_column ? count( $columns ) : count( $columns ) - 1;
+			$show_first_column = $show_periods && 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' );
+
+			if ( $show_first_column ) {
+				$total_columns = count( $columns );
+			} elseif ( count( $columns ) > 1 ) {
+				$total_columns = count( $columns ) - 1;
+			}
+
 			$total_width        = 100.0;
 			$total_width        -= 6.0; // account for extra space around featured plan
 			$column_width       = $total_width / $total_columns;
@@ -250,6 +256,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					if ( empty( $level_list[ $level ] ) ) {
 						unset( $pricing_levels_order[ $key ] );
 					}
+				}
+			}
+			// Now add the levels that got missed at the end
+			foreach( array_keys( $level_list ) as $level ) {
+				if( ! in_array( $level, $pricing_levels_order ) ) {
+					array_push( $pricing_levels_order, $level );
 				}
 			}
 

@@ -261,20 +261,38 @@ class ProSites_Gateway_Manual {
 				$activation_key = $process_data['activation_key'];
 			}
 			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
-			$message = sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $username ) . "\n\n";
-			$message .= __( 'Level: ', 'psts' ) . intval( $_POST['level'] ) . ' - ' . $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) . "\n";
-			$message .= __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), intval( $_POST['period'] ) ) . "\n";
-			$message .= sprintf( __( "User Email: %s", 'psts' ), $email ) . "\n";
-			$message .= sprintf( __( "Activation Key: %s", 'psts' ), $activation_key ) . "\n";
-			$message .= sprintf( __( "Site Address: %s", 'psts' ), get_home_url() ) . "\n";
-			$message .= sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ) . "\n\n";
+
+			$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
+				'username' => $username,
+				'level' => intval( $_POST['level'] ),
+				'level_name' => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
+				'period' => intval( $_POST['period'] ),
+				'user_email' => $email,
+				'activation_key' => $activation_key,
+				'site_address' => get_home_url(),
+				'manage_link' => $blog_admin_url
+			) );
+
+			$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
+				'description' => sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $message_fields['username'] ) . "\n",
+				'level_text' => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
+				'period_text' => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
+				'email_text' => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
+				'activation_text' => sprintf( __( "Activation Key: %s", 'psts' ), $message_fields['activation_key'] ),
+				'site_text' => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
+				'manage_text' => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
+			), $message_fields );
 
 			if ( ! empty( $_POST['psts_mp_text'] ) ) {
-				$message .= __( 'User-Entered Comments:', 'psts' ) . "\n";
-				$message .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
+				$message_parts['mp_text'] = __( 'User-Entered Comments:', 'psts' ) . "\n";
+				$message_parts['mp_text'] .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
 			}
 
+			$message = apply_filters( 'prosites_manual_payment_email_body', implode( "\n", $message_parts ) . "\n", $message_parts, $message_fields );
+
 			wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+
+			add_action( 'prosites_manual_payment_email_sent', $message, $message_parts, $message_fields );
 
 			ProSites_Helper_Session::session( array('new_blog_details', 'reserved_message'), __( 'Manual payment request submitted.', 'psts' ) );
 			// Payment pending...
