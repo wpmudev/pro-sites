@@ -35,7 +35,6 @@ jQuery( document ).ready( function ( $ ) {
         var price_child = $( target ).find( '.price' );
         pattern = /price_\d+/i;
         var period = parseInt( pattern.exec( $( price_child ).attr( 'class' ) )[ 0 ].replace( 'price_', '' ) );
-        console.log( "Level: " + level + " Period: " + period );
 
         $( 'div.pblg-checkout-opt' ).removeClass( 'opt-selected' );
 
@@ -79,6 +78,7 @@ jQuery( document ).ready( function ( $ ) {
 
         // Set the level required for gateways... but also set it on the checkout table
         $( '.gateways [name=level]' ).val( level );
+	    $( '.gateways [name=period]' ).val( period );
         $( '#prosites-checkout-table' ).attr( 'data-level', level );
 
     } );

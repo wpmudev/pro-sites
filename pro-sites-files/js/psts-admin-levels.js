@@ -113,8 +113,6 @@ jQuery(document).ready(function($){
              * True index count in case row got deleted.
              */
             t_index += 1;
-
-            console.log( 'Row: ' + row_position + ' T-Index: ' + t_index );
             /**
              * Update row class
              */
@@ -181,7 +179,6 @@ jQuery(document).ready(function($){
             } );
 
             level_order = level_order.join( ',' );
-            console.log( level_order );
             $('input[name="psts[pricing_levels_order]"]').val( level_order );
         }
     });

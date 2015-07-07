@@ -178,6 +178,9 @@ class ProSites_Module_Plugins {
 		$psts_plugins  = (array) $psts->get_setting( 'pp_plugins' );
 		$level_plugins = array();
 		foreach ( $psts_plugins as $plugin_file => $data ) {
+			if( empty( $data ) ) {
+				continue;
+			}
 			if ( $data['auto'] && is_numeric( $data['level'] ) && $data['level'] > $old_level && $data['level'] <= $new_level ) {
 				$level_plugins[] = $plugin_file;
 			}

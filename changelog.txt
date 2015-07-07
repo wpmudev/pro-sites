@@ -14,6 +14,7 @@ Change Log:
 - Fixed: Warning and Notices
 - Fixed: Stripe: Issue with creating coupons for percent off
 - Fixed: HTML being rendered if pricing table is disabled
+- Fixed: Paypal: Paypal not working if pricing table was disabled
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
