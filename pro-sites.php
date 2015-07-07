@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.0.5
+Version: 3.5.1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -147,7 +147,6 @@ class ProSites {
 		ProSites_Model_Registration::add_ajax_hook();
 		add_filter( 'prosite_register_blog_pre_validation', array( 'ProSites_Model_Registration', 'cleanup_unused_user' ), 10, 3 );
 
-//		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
@@ -160,12 +159,6 @@ class ProSites {
 			update_option( 'psts_signed_up', 0 );
 		}
 
-//		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
-//		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
-//		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
-//		add_filter( 'add_signup_meta', array( &$this, 'signup_save' ) );
-//		add_filter( 'bp_signup_usermeta', array( &$this, 'signup_save' ) );
-
 		//Force Used Space Check in network if quota is enabled
 		add_action( 'psts_modules_save', array( $this, 'enable_network_used_space_check' ) );
 
@@ -175,17 +168,11 @@ class ProSites {
 			'blog_template_settings'
 		) ); // exclude pro site setting from blog template copies
 
-		//Disable activation emails
-		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
+		//Disable activation emails, Commented out in 3.5.1
+//		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
 
 		//Disable Blog Activation Email, as of Pay before blog creation
 		add_filter( 'wpmu_signup_blog_notification', array( $this, 'disable_user_activation_mail' ), 10 );
-
-
-
-		//Redirect to checkout page after signup
-//		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
-//		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
 
 		//Register styles
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );

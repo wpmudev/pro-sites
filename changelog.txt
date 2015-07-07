@@ -10,6 +10,7 @@ Change Log:
 
 - Fixed: Double Signup email, when Buddypress is active
 - Fixed: Divison by zero for single column pricing table
+- Fixed: User activation mail not being sent ( Disable only blog activation emails, If singup on checkout is enabled)
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
