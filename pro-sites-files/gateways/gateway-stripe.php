@@ -2135,18 +2135,23 @@ class ProSites_Gateway_Stripe {
 						$coupon_value = $adjusted_values[ $_POST['level'] ][ 'price_' . $_POST['period'] ];
 						// $amount_off   = $paymentAmount - $coupon_value['new_total'];
 						$amount_off = $paymentAmount - $coupon_value;
+
+						//Round the value to two digits
+						$amount_off = number_format( $amount_off, 2, '.', '' );
+
 						$initAmount -= $amount_off;
 						$initAmount = 0 > $initAmount ? 0 : $initAmount; // avoid negative
 
 						$cpn = false;
+						$coupon_args = array(
+							'amount_off'      => ( $amount_off * 100 ),
+							'duration'        => $lifetime,
+							'currency'        => $currency,
+							'max_redemptions' => 1,
+						);
 						//Create a stripe coupon if it doesn't exists already
 						try {
-							$cpn = Stripe_Coupon::create( array(
-								'amount_off'      => ( $amount_off * 100 ),
-								'duration'        => $lifetime,
-								'currency'        => $currency,
-								'max_redemptions' => 1,
-							) );
+							$cpn = Stripe_Coupon::create( $coupon_args );
 						} catch ( Exception $e ) {
 							$psts->errors->add( 'general', __( 'Temporary Stripe coupon could not be generated correctly. Please try again.', 'psts' ) );
 
@@ -2921,7 +2926,8 @@ class ProSites_Gateway_Stripe {
 
 	/**
 	 * Cancel the existing subscription for user
-	 * @param $blog_id
+	 *
+*@param $blog_id
 	 */
 
 }
