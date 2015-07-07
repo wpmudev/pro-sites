@@ -16,15 +16,15 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			// Reposition coupon based on option
 			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
 			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
-			if( $coupons_enabled &&
-			    ( 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ||
-			      'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' )  )
+			if ( $coupons_enabled &&
+			     ( 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ||
+			       'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) )
 			) {
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
 			}
 
 			// Add period selector above table based on option
-			if( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
+			if ( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
 				add_filter( 'prosites_inner_pricing_table_pre', array( get_class(), 'render_standalone_periods' ) );
 			}
 
@@ -92,9 +92,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		private static function render_pricing_columns( $columns, $blog_id = false, $echo = false ) {
 			global $psts;
 
-			$content            = '';
-			$periods            = (array) $psts->get_setting( 'enabled_periods' );
-			$show_periods       = 2 <= count( $periods ) ? true : false;
+			$content           = '';
+			$periods           = (array) $psts->get_setting( 'enabled_periods' );
+			$show_periods      = 2 <= count( $periods ) ? true : false;
 			$show_first_column = $show_periods && 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' );
 
 			if ( $show_first_column ) {
@@ -103,12 +103,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$total_columns = count( $columns ) - 1;
 			}
 
-			$total_width        = 100.0;
-			$total_width        -= 6.0; // account for extra space around featured plan
-			$column_width       = $total_width / $total_columns;
-			$feature_width      = $column_width + 6.0;
-			$normal_style       = 'width: ' . $column_width . '%; ';
-			$feature_style      = 'width: ' . $feature_width . '%; ';
+			$total_width = 100.0;
+			$total_width -= 6.0; // account for extra space around featured plan
+			$column_width  = $total_width / $total_columns;
+			$feature_width = $column_width + 6.0;
+			$normal_style  = 'width: ' . $column_width . '%; ';
+			$feature_style = 'width: ' . $feature_width . '%; ';
 
 			$column_keys        = array_keys( $columns[0] );
 			$show_pricing_table = in_array( 'title', $column_keys );
@@ -259,8 +259,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 			}
 			// Now add the levels that got missed at the end
-			foreach( array_keys( $level_list ) as $level ) {
-				if( ! in_array( $level, $pricing_levels_order ) ) {
+			foreach ( array_keys( $level_list ) as $level ) {
+				if ( ! in_array( $level, $pricing_levels_order ) ) {
 					array_push( $pricing_levels_order, $level );
 				}
 			}
@@ -413,7 +413,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				'summary'      => __( 'That\'s equivalent to <strong>only %s Monthly</strong>. ', 'psts' ),
 				'saving'       => __( 'A saving of <strong>%s</strong> by paying for %d months in advance.', 'psts' ),
 				'monthly'      => __( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ),
-				'monthly_alt'  => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' ),
+				'monthly_alt'  => __( '<em>Try it out!</em><br /><span>You can easily upgrade to a better value plan at any time.</span>', 'psts' )
 			), $level );
 
 			if ( empty( $level ) ) {
@@ -491,7 +491,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$display_style = self::$default_period != $period_key ? ' hide' : '';
 					$create_hidden = false;
 
-					if( 1 == $period_count ) {
+					if ( 1 == $period_count ) {
 						$display_style = '';
 						$create_hidden = (int) str_replace( 'price_', '', $period_key );
 					}
@@ -542,7 +542,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						}
 						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . $summary_msg . '</div>';
 					} else {
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . esc_html( $plan_text['monthly_alt'] ) . '</div>';
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . wp_kses( $plan_text['monthly_alt'], array('br' => array(), 'em' => array(), 'span' => array() ) ) . '</div>';
 					}
 
 					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
@@ -845,20 +845,20 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$active_periods = (array) $psts->get_setting( 'enabled_periods' );
 
 			$periods = array(
-				'1' => __('Monthly', 'psts'),
-				'3' => __('Quarterly', 'psts'),
-				'12' => __('Annually', 'psts')
+				'1'  => __( 'Monthly', 'psts' ),
+				'3'  => __( 'Quarterly', 'psts' ),
+				'12' => __( 'Annually', 'psts' )
 			);
 
-			if( count( $active_periods ) > 1 ) {
+			if ( count( $active_periods ) > 1 ) {
 
 				$content .= '<div class="period-selector-container">';
 
-				foreach( $active_periods as $period ) {
+				foreach ( $active_periods as $period ) {
 
 					$content .= '
 					<label>
-						<input type="radio" name="period-selector-top" value="price_' . $period . '"' . checked( self::$default_period, 'price_' . $period, false ) .' />
+						<input type="radio" name="period-selector-top" value="price_' . $period . '"' . checked( self::$default_period, 'price_' . $period, false ) . ' />
 						<div class="period-option period' . $period . '">' . esc_html( $periods[ $period ] ) . '</div>
 					</label>
 					';

@@ -13,6 +13,7 @@ Change Log:
 - Fixed: User activation mail not being sent ( Disable only blog activation emails, If singup on checkout is enabled)
 - Fixed: Warning and Notices
 - Fixed: Stripe: Issue with creating coupons for percent off
+- Fixed: HTML being rendered if pricing table is disabled
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
