@@ -16,6 +16,7 @@ Change Log:
 - Fixed: HTML being rendered if pricing table is disabled
 - Fixed: Paypal: Paypal not working if pricing table was disabled
 - Fixed: Currency Symbols: Turkish Lira HTML code
+- Fixed: Settings: Custom css for pricing table not being saved
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
