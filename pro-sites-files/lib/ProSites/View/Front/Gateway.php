@@ -29,13 +29,21 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				//Get blog id
 				$blog_id = ! empty( $_GET['bid'] ) ? $_GET['bid'] : '';
 
+				//If no nonce, return
+				if( empty( $_GET['_wpnonce']) ) {
+					return;
+				}
+				//If nonce not verified return, Verify Nonce
+				if( !wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
+					return;
+				}
 				//If there is blog id
 				if ( ! empty( $blog_id ) ) {
 
 					//Get gateway details
 					$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 					$result  = $wpdb->get_row( $sql );
-					$gateway = ! empty( $result->gateway ) ? $result->gateway : '';
+					$gateway = ! empty( $result->gateway ) ? strtolower( $result->gateway ) : '';
 					if ( ! empty( $gateway ) ) {
 						//Check if a respective gateway class exists, and call cancel subscription function
 						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
