@@ -6,7 +6,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1 - 6/19/2015 - Rheinard Korf & Umesh Kumar
+3.5.1 - 6/19/2015 - Umesh Kumar
 
 - Fixed: Double Signup email, when Buddypress is active
 - Fixed: Divison by zero for single column pricing table
@@ -17,6 +17,7 @@ Change Log:
 - Fixed: Paypal: Paypal not working if pricing table was disabled
 - Fixed: Currency Symbols: Turkish Lira HTML code
 - Fixed: Settings: Custom css for pricing table not being saved
+- Fixed: Post/Page Quota Media Limit not working and admin notice for exceeded limits
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------

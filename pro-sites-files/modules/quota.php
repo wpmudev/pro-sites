@@ -13,20 +13,24 @@ class ProSites_Module_Quota {
 
 	// Module name for registering
 	public static function get_name() {
-		return __('Upload Quota', 'psts');
+		return __( 'Upload Quota', 'psts' );
 	}
 
 	// Module description for registering
 	public static function get_description() {
-		return __('Allows you to give additional upload space to Pro Sites.', 'psts');
+		return __( 'Allows you to give additional upload space to Pro Sites.', 'psts' );
 	}
 
 	static function run_critical_tasks() {
 		//filter blog and site options
-		if ( !defined('PSTS_QUOTA_ALLOW_OVERRIDE') )
-			add_filter( 'pre_option_blog_upload_space', array( get_class(), 'filter') );
-		add_filter( 'pre_site_option_blog_upload_space', array( get_class(), 'filter') );
-		add_filter( 'pre_site_option_upload_space_check_disabled', array( get_class(), 'force_network_quota_checkbox' ) );
+		if ( ! defined( 'PSTS_QUOTA_ALLOW_OVERRIDE' ) ) {
+			add_filter( 'pre_option_blog_upload_space', array( get_class(), 'filter' ) );
+		}
+		add_filter( 'pre_site_option_blog_upload_space', array( get_class(), 'filter' ) );
+		add_filter( 'pre_site_option_upload_space_check_disabled', array(
+			get_class(),
+			'force_network_quota_checkbox'
+		) );
 	}
 
 	function __construct() {
@@ -70,7 +74,7 @@ class ProSites_Module_Quota {
 
 	function settings_process( $active_tab ) {
 
-		if( 'upload_quota' != $active_tab ) {
+		if ( 'upload_quota' != $active_tab ) {
 			return false;
 		}
 
@@ -99,7 +103,7 @@ class ProSites_Module_Quota {
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
 					<td><?php
 						if ( function_exists( 'psts_ads_upgrade_active' ) && psts_ads_upgrade_active() ) {
 							$level = 0;
@@ -120,20 +124,20 @@ class ProSites_Module_Quota {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
 					<td>
 						<input type="text" name="psts[quota_message]" id="quota_message"
-						       value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>"
-						       style="width: 95%"/>
+							value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>"
+							style="width: 95%"/>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-					    class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
+						class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
 					<td>
 						<input type="text" name="psts[quota_out_message]" id="quota_out_message"
-						       value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>"
-						       style="width: 95%"/>
+							value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>"
+							style="width: 95%"/>
 					</td>
 				</tr>
 			</table>
@@ -179,13 +183,13 @@ class ProSites_Module_Quota {
 				$space = ProSites_Module_Quota::display_space( $psts->get_level_setting( $level, 'quota' ) );
 				$msg   = str_replace( 'LEVEL', $name, $psts->get_setting( 'quota_message' ) );
 				$msg   = str_replace( 'SPACE', $space, $msg );
-				if( 'default' == $para ) {
+				if ( 'default' == $para ) {
 					$msg = '<p><strong><a href="' . $psts->checkout_url( $blog_id ) . '">' . $msg . '</a></strong></p>';
 				} else {
 					$msg = '<div class="' . esc_attr( $para ) . '"><a href="' . $psts->checkout_url( $blog_id ) . '">' . $msg . '</a></div>';
 				}
 
-				if( $output ) {
+				if ( $output ) {
 					echo $msg;
 				} else {
 					return $msg;
@@ -195,7 +199,11 @@ class ProSites_Module_Quota {
 	}
 
 	function out_message() {
-		global $psts, $blog_id;
+		global $psts, $blog_id, $current_screen;
+		//if not on one of media screen
+		if ( $current_screen->base !== 'media' && $current_screen->base !== 'upload' ) {
+			return;
+		}
 		if ( ! is_main_site() && current_user_can( 'edit_pages' ) && ! is_upload_space_available() ) {
 			$level = $psts->get_level() + 1;
 			if ( $name = $psts->get_level_setting( $level, 'name' ) ) { //only show if there is a higher level
@@ -249,9 +257,9 @@ class ProSites_Module_Quota {
 		$space = $psts->get_level_setting( $level_id, 'quota', get_space_allowed() );
 
 		return array(
-			'type' => 'space',
+			'type'    => 'space',
 			'display' => self::display_space( $space ),
-			'value' => $space,
+			'value'   => $space,
 		);
 
 	}
@@ -286,16 +294,17 @@ class ProSites_Module_Quota {
 		global $psts;
 
 		$quota = get_space_allowed();
-		$used = get_space_used();
+		$used  = get_space_used();
 
-		if ( $used > $quota )
+		if ( $used > $quota ) {
 			$percentused = '100';
-		else
+		} else {
 			$percentused = ( $used / $quota ) * 100;
-		$used_class = ( $percentused >= 70 ) ? 'class="warning"' : '';
-		$used = round( $used, 2 );
+		}
+		$used_class  = ( $percentused >= 70 ) ? 'class="warning"' : '';
+		$used        = round( $used, 2 );
 		$percentused = number_format( $percentused );
-		$text = sprintf(
+		$text        = sprintf(
 		/* translators: 1: number of megabytes, 2: percentage */
 			__( '%1$s MB (%2$s%%) of %3$s MB used.', 'psts' ),
 			number_format_i18n( $used, 2 ),
@@ -303,7 +312,9 @@ class ProSites_Module_Quota {
 			number_format_i18n( $quota, 2 )
 		); ?>
 
-		<div id="prosites-media-quota-display" style="display:none;" <?php echo $used_class;?>><div class="size-text"><?php echo $text; ?> </div><?php echo $this->message( false, 'media-upload' ); ?></div><?php
+	<div id="prosites-media-quota-display" style="display:none;" <?php echo $used_class; ?>>
+		<div class="size-text"><?php echo $text; ?> </div><?php echo $this->message( false, 'media-upload' ); ?>
+		</div><?php
 
 		global $psts;
 		wp_enqueue_style( 'psts-quota-style', $psts->plugin_url . 'css/quota.css', $psts->version );
