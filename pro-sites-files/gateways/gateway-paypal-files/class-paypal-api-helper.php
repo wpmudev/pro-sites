@@ -24,11 +24,11 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$checkout_url = $psts->checkout_url( $blog_id, $domain );
 
 			// Make sure the URL is valid...
-			$site_url = str_replace( array( 'http://', 'https://' ), '', site_url() );
-			$site_url = str_replace( '/', '\/', $site_url );
+			$site_url      = str_replace( array( 'http://', 'https://' ), '', site_url() );
+			$site_url      = str_replace( '/', '\/', $site_url );
 			$test_checkout = preg_replace( '/' . $site_url . '$/', '', $checkout_url );
 			if ( ! preg_match( '/' . $site_url . '/', $test_checkout ) ) {
-				$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
+				$scheme       = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
 				$checkout_url = site_url( $checkout_url, $scheme );
 			}
 
@@ -64,6 +64,21 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
+		/**
+		 * Direct Payment for one time charges
+		 *
+		 * @param $token Obtained from setExpressCheckout call
+		 * @param $payer_id
+		 * @param $paymentAmount - Total Amount to be charged -> SetupFee + One Time payment
+		 * @param $frequency
+		 * @param $desc
+		 * @param $blog_id
+		 * @param $level
+		 * @param string $activation_key
+		 * @param string $tax
+		 *
+		 * @return bool
+		 */
 		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $activation_key = '', $tax = '' ) {
 			global $psts;
 			$item_amt = $paymentAmount - $tax;
@@ -92,6 +107,23 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
+		/**
+		 * Creates Recurring profile and charges a init amount if specified
+		 *
+		 * @param $token
+		 * @param $paymentAmount - Subscription charges to be carried over
+		 * @param $initAmount - Initial Charges - Includes setup fee if any, firs period subscription charges with/without discounted price
+		 * @param $frequency
+		 * @param $desc
+		 * @param $blog_id
+		 * @param $level
+		 * @param bool|false $modify
+		 * @param string $activation_key
+		 * @param string $total_billing_cycle
+		 * @param bool|false $tax
+		 *
+		 * @return bool
+		 */
 		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $initAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '', $tax = false ) {
 			global $psts;
 			$setup_fee = 0;
@@ -102,7 +134,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr = "&TOKEN=" . $token;
 			$nvpstr .= "&AMT=" . $paymentAmount;
 
-			$nvpstr = self::init_amount($nvpstr, $has_trial, $paymentAmount, $initAmount, $level );
+			$nvpstr = self::init_amount( $nvpstr, $has_trial, $paymentAmount, $initAmount, $level );
 
 			//handle free trials
 			if ( $has_trial ) {
@@ -155,7 +187,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr = "&AMT=" . $paymentAmount;
 
-			$nvpstr = self::init_amount($nvpstr, $has_trial, $paymentAmount, $initAmount, $level );
+			$nvpstr = self::init_amount( $nvpstr, $has_trial, $paymentAmount, $initAmount, $level );
 
 			//handle free trials
 			if ( $has_trial ) {
@@ -213,6 +245,32 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			return $resArray;
 		}
 
+		/**
+		 * Direct payment for non recurring subscription using Credit Card
+		 *
+		 * @param $paymentAmount  Total Amount - including any setup fee + Discounted price for subscription
+		 * @param $frequency
+		 * @param $desc
+		 * @param $blog_id
+		 * @param $level
+		 * @param $cctype
+		 * @param $acct
+		 * @param $expdate
+		 * @param $cvv2
+		 * @param $firstname
+		 * @param $lastname
+		 * @param $street
+		 * @param $street2
+		 * @param $city
+		 * @param $state
+		 * @param $zip
+		 * @param $countrycode
+		 * @param $email
+		 * @param string $activation_key
+		 * @param bool|false $tax
+		 *
+		 * @return bool
+		 */
 		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $activation_key = '', $tax = false ) {
 			global $psts;
 
@@ -432,6 +490,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 		/**
 		 * Check trial and setup fee, and adds a init amount for recurring subs
+		 *
 		 * @param $nvpstr
 		 * @param $has_trial
 		 * @param $paymentAmount
@@ -443,17 +502,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		private static function init_amount( $nvpstr, $has_trial, $paymentAmount, $initAmount, $level ) {
 			global $psts;
 			//If there is some init amount (Setup Fee)
-			if ( ! empty( $initAmount ) ) {
-
-				if ( $has_trial ) {
-					$nvpstr .= "&INITAMT=" . $initAmount;
-				} else {
-					//For Subscriptions without trial, add the payment for fist month in init amount itself as Paypal
-					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
-					$nvpstr .= "&INITAMT=" . ( $initAmount + $paymentAmount );
-				}
-
-			} else {
+			if ( empty( $initAmount ) ) {
 				//apply setup fee (if applicable)
 				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
 
@@ -468,7 +517,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				}
 
 				if ( $has_setup_fee ) {
-					$setup_fee = !empty( $setup_fee ) ? round( $setup_fee, 2 ) : 0;
+					$setup_fee = ! empty( $setup_fee ) ? round( $setup_fee, 2 ) : 0;
 				} else {
 					$setup_fee = 0;
 				}
@@ -480,6 +529,8 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 					//Creates a lot of delays, and set the profile start date from 1 period later(be it a month or quarter or a year)
 					$nvpstr .= "&INITAMT=" . ( $setup_fee + $paymentAmount );
 				}
+			} else {
+				$nvpstr .= "&INITAMT=" . $initAmount;
 			}
 
 			return $nvpstr;

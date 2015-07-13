@@ -2010,7 +2010,7 @@ Thanks!", 'psts' ),
 		} else {
 			$wpdb->query( $wpdb->prepare( "
 		  	INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount, is_recurring)
-		  	VALUES (%d, %s, %d, %s, %s, %d, %d)",
+		  	VALUES (%d, %s, %d, %s, %s, %s, %d)",
 				$blog_id, $new_expire, $level, $gateway, $term, $amount, $is_recurring
 			) );
 		}
@@ -2275,8 +2275,9 @@ Thanks!", 'psts' ),
 		if ( $left <= 0 || empty( $old->amount ) || $old->amount <= 0 ) {
 			return $new_amt;
 		}
+		$refund_amt = round( $old->amount * ( $left / $duration ), 2 ); //amount to refund
+		$refund_amt = $refund_amt > $old->amount ? $old->amount : $refund_amt;
 
-		$refund_amt = round( $old->amount * ( $left / $duration ) ); //amount to refund
 		$new_amt    = $new_amt - $refund_amt;
 
 		return ( $new_amt < 0 ) ? 0 : $new_amt;

@@ -341,8 +341,10 @@ class ProSites_Module_Plugins {
 
 		//look for valid plugins with anyone access
 		foreach ( $psts_plugins as $plugin_file => $data ) {
-			if ( $data['auto'] && is_numeric( $data['level'] ) && ( is_pro_site( $blog_id, $data['level'] ) || $data['level'] == 0 ) && ! is_plugin_active( $plugin_file ) ) {
-				$auto_activate[] = $plugin_file;
+			if( !empty( $data ) ) {
+				if ( $data['auto'] && is_numeric( $data['level'] ) && ( is_pro_site( $blog_id, $data['level'] ) || $data['level'] == 0 ) && ! is_plugin_active( $plugin_file ) ) {
+					$auto_activate[] = $plugin_file;
+				}
 			}
 		}
 		//if any activate them
