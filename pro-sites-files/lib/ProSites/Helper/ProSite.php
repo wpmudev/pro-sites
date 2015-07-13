@@ -74,10 +74,14 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			$level_id = $psts->get_level( $blog_id );
 			$level    = $psts->get_level_setting( $level_id, 'name' );
 
-			$cancel_info_message = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-			$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
-			// CSS class of <a> is important to handle confirmations
-			$cancel_info_link = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
+			$cancel_info_message = $cancel_info_link = '';
+
+			if( $is_recurring ) {
+				$cancel_info_message = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+				$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
+				// CSS class of <a> is important to handle confirmations
+				$cancel_info_link = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
+			}
 
 			// Get other information from database
 			$result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );

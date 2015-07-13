@@ -1163,10 +1163,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		$site_name = $current_site->site_name;
 
+		var_dump($profile_id = self::get_profile_id( $blog_id ));
 		//check if pro/express user
-		if ( $profile_id = self::get_profile_id( $blog_id ) ) {
+		if ( $profile_id ) {
 
 			$resArray = PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', __( 'Your subscription was canceled because the blog was deleted.', 'psts' ) );
+			echo "<pre>Response from Paypal";
+			print_r( $resArray );
+			echo "</pre>";exit;
 
 			if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 				//record stat
@@ -1195,7 +1199,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 			$trans_meta[ $profile_id ]['profile_id'] = $profile_id;
 			$trans_meta[ $profile_id ]['timestamp']  = time();
-			update_blog_option( $blog_id, 'psts_paypal_profile_id', $trans_meta );
+			error_log( update_blog_option( $blog_id, 'psts_paypal_profile_id', $trans_meta ) );
 		} else {
 			//Store transaction details in signup meta
 			$signup_meta                                                        = $psts->get_signup_meta( $domain );
@@ -1898,6 +1902,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$blog_id      = ! empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
 
 						if ( ! empty( $blog_id ) ) {
+							echo "<pre> Response array 1905";
+							print_r( $resArray );
+							echo "</pre>";
 							//save new profile_id
 							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
@@ -1913,11 +1920,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								'level'   => $level,
 								'period'  => $period
 							) );
-
-						} else {
-							//Store in signup meta for domain
-							self::set_profile_id( '', $resArray["PROFILEID"], $domain );
-							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
 
 						}
 					} elseif ( ! empty( $resArray['ACK'] ) ) {
@@ -2054,6 +2056,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$psts->use_coupon( $process_data['COUPON_CODE'], $blog_id );
 						}
 
+						echo "<pre> Response array 2059";
+						print_r( $resArray );
+						echo "</pre>";
 						//save new profile_id
 						self::set_profile_id( $blog_id, $new_profile_id );
 
@@ -2114,6 +2119,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						$blog_id      = ! empty( $site_details ) ? $site_details['blog_id'] : $blog_id;
 
 						if ( ! empty( $blog_id ) ) {
+							echo "<pre> Response array 2122";
+							print_r( $resArray );
+							echo "</pre>";
 							//save new profile_id
 							self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
@@ -2129,11 +2137,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								'level'   => $level,
 								'period'  => $period
 							) );
-
-						} else {
-							//Store in signup meta for domain
-							self::set_profile_id( '', $resArray["PROFILEID"], $domain );
-							$psts->log_action( '', sprintf( __( 'User creating new subscription via PayPal Express: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ), $domain );
 
 						}
 					} elseif ( ! empty( $resArray['ACK'] ) ) {
@@ -2445,6 +2448,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								}
 
 								if ( ! empty( $blog_id ) ) {
+									echo "<pre> Response array 2451";
+									print_r( $resArray );
+									echo "</pre>";
 									//save new profile_id
 									self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
@@ -2463,11 +2469,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 									//Store activation key in Pro Sites table
 									self::set_blog_identifier( $activation_key, $blog_id );
-
-								} else {
-									//Store in signup meta for domain
-									self::set_profile_id( '', $resArray["PROFILEID"], $domain );
-									$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Profile ID: %2$s', 'psts' ), $desc, $resArray["PROFILEID"] ) );
 
 								}
 
@@ -2564,6 +2565,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$psts->use_coupon( $process_data['COUPON_CODE'], $blog_id );
 							}
 
+							echo "<pre> Response array 2568";
+							print_r( $resArray );
+							echo "</pre>";
 							//save new profile_id
 							self::set_profile_id( $blog_id, $new_profile_id );
 
@@ -2621,6 +2625,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								if ( ! empty( $blog_id ) && $profile_id = self::get_profile_id( $blog_id ) ) {
 									PaypalApiHelper::ManageRecurringPaymentsProfileStatus( $profile_id, 'Cancel', sprintf( __( 'Your %s subscription has been modified. This previous subscription has been canceled.', 'psts' ), $psts->get_setting( 'rebrand' ) ) );
 								}
+								echo "<pre> Response array 1905";
+								print_r( $resArray );
+								echo "</pre>";
 								//save new profile_id
 								self::set_profile_id( $blog_id, $resArray["PROFILEID"] );
 
@@ -2797,7 +2804,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				$args['next_payment_date'] = $next_billing;
 
 				// Cancellation link
-				if ( $is_recurring ) {
+				if ( $is_recurring !== 0 ) {
 					if ( is_pro_site( $blog_id ) ) {
 						$args['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 						// CSS class of <a> is important to handle confirmations
