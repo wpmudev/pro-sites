@@ -64,7 +64,7 @@ class ProSites_Gateway_Manual {
 			</table>
 		</div>
 		<!--		</div>-->
-	<?php
+		<?php
 	}
 
 	function payment_info( $payment_info, $blog_id ) {
@@ -258,14 +258,15 @@ class ProSites_Gateway_Manual {
 			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
 
 			$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
-				'username'       => $username,
-				'level'          => intval( $_POST['level'] ),
-				'level_name'     => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
-				'period'         => intval( $_POST['period'] ),
-				'user_email'     => $email,
-				'activation_key' => $activation_key,
-				'site_address'   => get_home_url(),
-				'manage_link'    => $blog_admin_url
+				'username'        => $username,
+				'level'           => intval( $_POST['level'] ),
+				'level_name'      => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
+				'period'          => intval( $_POST['period'] ),
+				'user_email'      => $email,
+				'activation_key'  => $activation_key,
+				'activation_link' => home_url( '/' ) . 'activate/?key=' . $activation_key,
+				'site_address'    => get_home_url(),
+				'manage_link'     => $blog_admin_url
 			) );
 
 			$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
@@ -274,6 +275,7 @@ class ProSites_Gateway_Manual {
 				'period_text'     => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
 				'email_text'      => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
 				'activation_text' => sprintf( __( "Activation Key: %s", 'psts' ), $message_fields['activation_key'] ),
+				'activation_link' => sprintf( __( "Activation Link: %s", 'psts' ), $message_fields['activation_link'] ),
 				'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
 				'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
 			), $message_fields );

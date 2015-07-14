@@ -23,6 +23,7 @@ Change Log:
 - Fixed: Wrong Upgrade amount if price is in decimal
 - Fixed: Checkout: Do not show cancel subscription link for Non recurring subscriptions
 - Fixed: Stripe: Subscription Cancel status
+- Added: Manual Payments: Activation Link in email sent to admin
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
