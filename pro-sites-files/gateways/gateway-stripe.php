@@ -1753,6 +1753,9 @@ class ProSites_Gateway_Stripe {
 
 		$error       = '';
 		$customer_id = self::get_customer_data( $blog_id )->customer_id;
+		echo "<pre>Customer Id";
+		print_r( $customer_id );
+		echo "</pre>";
 		if ( $customer_id ) {
 			try {
 				$customer_data = self::get_customer_data( $blog_id );
@@ -1764,12 +1767,12 @@ class ProSites_Gateway_Stripe {
 			} catch ( Exception $e ) {
 				$error = $e->getMessage();
 			}
-
 			if ( empty( $error ) ) {
 				//record stat
 				$psts->record_stat( $blog_id, 'cancel' );
 				$psts->email_notification( $blog_id, 'canceled' );
 				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
+				update_blog_option( $blog_id, 'psts_is_canceled', 1 );
 
 				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
 				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
@@ -2423,7 +2426,7 @@ class ProSites_Gateway_Stripe {
 						//Extend the Blog Subscription
 						$old_expire = $psts->get_expire( $blog_id );
 						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, false );
+						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, $recurring );
 						//$psts->email_notification( $blog_id, 'receipt' );
 
 						if ( isset( $current_plan_level ) ) {
@@ -2521,7 +2524,7 @@ class ProSites_Gateway_Stripe {
 
 						$old_expire = $psts->get_expire( $blog_id );
 						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, false );
+						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, $recurring );
 						//$psts->email_notification( $blog_id, 'receipt' );
 
 						if ( isset( $current_plan_level ) ) {

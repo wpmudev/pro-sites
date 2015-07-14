@@ -22,6 +22,7 @@ Change Log:
 - Fixed: Stats: Wrong payment amount stored in Pro Sites table
 - Fixed: Wrong Upgrade amount if price is in decimal
 - Fixed: Checkout: Do not show cancel subscription link for Non recurring subscriptions
+- Fixed: Stripe: Subscription Cancel status
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
