@@ -544,6 +544,10 @@ ul.pricing-column li, .pricing-column ul li {
 	display: block;
 }
 
+.feature-section-wrapper {
+    overflow: hidden;
+}
+
 .feature-section,
 .pricing-column {
 	list-style:none;
@@ -557,6 +561,10 @@ ul.pricing-column li, .pricing-column ul li {
 	margin:0;
 }
 
+.feature-content .feature-name {
+    /*font-size: 17px;*/
+    text-align: center;
+}
 
 li.summary {
 	position:relative;
@@ -814,20 +822,12 @@ ul.pricing-column ul.feature-section li {
 .pricing-column.featured .title {
 	border-width: 5px;
 }
-.pricing-column.featured .title.no-title {
-
-}
 .pricing-column.featured .summary {
 	border-width: 5px;
-}
-.pricing-column.featured .sub-title {
-
+	border-bottom: 1px solid #B6B6B6;
 }
 .pricing-column.featured .sub-title.no-title {
 	border-width: 5px;
-}
-.pricing-column.featured .sub-title.no-header {
-
 }
 .pricing-column.featured .feature-section {
 	border-width: 5px;
@@ -841,6 +841,12 @@ ul.pricing-column ul.feature-section li {
 }
 .pricing-column.featured .button-box.no-button {
 
+}
+.pricing-column.featured .period-selector {
+    border-bottom: 0;
+}
+.pricing-column.featured .title.no-title.no-summary {
+    border-bottom: 1px solid #B6B6B6;
 }
 
 /* Other formatting */
@@ -1188,7 +1194,7 @@ ul.pricing-column.not-chosen-plan .button-box button {
     text-align: center;
     margin-top: 3px;
     position:relative;
-    top: 3px;
+    top: 12px;
     clear:both;
     cursor: pointer;
 
@@ -1219,6 +1225,7 @@ ul.pricing-column.not-chosen-plan .button-box button {
 
 .period-selector-container {
     margin: 0 auto;
+    overflow: hidden;
 }
 
 .period-selector-container .period-option {

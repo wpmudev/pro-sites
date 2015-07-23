@@ -154,6 +154,30 @@ jQuery( document ).ready( function ( $ ) {
         set_same_height( $( '.pricing-column .sub-title' ), false );
     } );
 
+	function get_offset_diff( element ) {
+		//Get Parent
+		var parent = element.parent();
+		//If period selector is not in featured column, we'll need to adjust the height
+		if ( parent.find('li.period-selector').length == 0 ) {
+			//Calculate the difference in offset of feature section
+			var level1_offset = jQuery('.psts-level-1 .feature-section').offset();
+			var level0_offset = jQuery('.psts-level-0 .feature-section').offset();
+
+			if (level0_offset) {
+				level0_offset = level0_offset.top;
+			}
+
+			if (level1_offset) {
+				level1_offset = level1_offset.top;
+			}
+			if (level1_offset > level0_offset) {
+				var pos_diff = level1_offset - level0_offset;
+				return pos_diff;
+			}
+		}
+		return 0;
+	}
+
     function set_same_height( elements, use_featured ) {
         var max_height = 0;
 
@@ -173,15 +197,29 @@ jQuery( document ).ready( function ( $ ) {
                 }
             }
         } );
-        $.each( elements, function ( index, item ) {
-            if ( $( item ).parents( '.pricing-column.featured' )[ 0 ] && use_featured ) {
-                //if( $( item).height < max_height ) {
-                $( item ).height( max_height + 15 );
-                //}
-            } else {
-                $( item ).height( max_height );
-            }
-        } );
+	    $.each(elements, function (index, item) {
+		    var curr_element = jQuery(item);
+		    var li_height = 0;
+		    var is_featured_column_notitle = false;
+		    is_featured_column_notitle = curr_element.hasClass('title') && curr_element.hasClass('no-title') && curr_element.hasClass('no-summary') && curr_element.parent().hasClass('featured');
+		    //Adjust height if period selector is on top
+		    if ( is_featured_column_notitle ) {
+			    li_height = '225';
+		    }else{
+			    li_height = max_height;
+		    }
+		    if ($(item).parents('.pricing-column.featured')[0] && use_featured ) {
+			    //if( $( item).height < max_height ) {
+			    if( !is_featured_column_notitle ) {
+				    $(item).css( { 'height' : li_height + 15 } );
+			    }else{
+				    $(item).height(li_height + 15);
+			    }
+			    //}
+		    } else {
+			    $(item).height( li_height );
+		    }
+	    });
     }
 
     function set_feature_heights() {

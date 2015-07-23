@@ -495,7 +495,10 @@ class ProSites_Module_Plugins {
 		$access = false;
 
 		foreach( $psts_plugins as $plugin ) {
-			if( (int) $plugin['level'] == $level_id || ( 0 == $plugin['level'] && 'none' != $plugin['level'] ) ) {
+			if( empty( $plugin ) ) {
+				continue;
+			}
+			if( !empty( $plugin['level'] ) && (int) $plugin['level'] == $level_id || ( 0 == $plugin['level'] && 'none' != $plugin['level'] ) ) {
 				$access = true;
 			}
 		}
