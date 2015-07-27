@@ -255,6 +255,9 @@ class ProSites_Gateway_Manual {
 			if ( isset( $process_data['activation_key'] ) ) {
 				$activation_key = $process_data['activation_key'];
 			}
+
+			$current_payment = self::calculate_cost( $blog_id, $_POST['level'], $_POST['period'], $process_data['COUPON_CODE'] );
+
 			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
 
 			$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
@@ -266,7 +269,8 @@ class ProSites_Gateway_Manual {
 				'activation_key'  => $activation_key,
 				'activation_link' => home_url( '/' ) . 'activate/?key=' . $activation_key,
 				'site_address'    => get_home_url(),
-				'manage_link'     => $blog_admin_url
+				'manage_link'     => $blog_admin_url,
+				'coupon_code'     => !empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
 			) );
 
 			$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
@@ -278,6 +282,8 @@ class ProSites_Gateway_Manual {
 				'activation_link' => sprintf( __( "Activation Link: %s", 'psts' ), $message_fields['activation_link'] ),
 				'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
 				'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
+				'coupon_used'     => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
+				'payment_amount'  => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
 			), $message_fields );
 
 			if ( ! empty( $_POST['psts_mp_text'] ) ) {
@@ -297,6 +303,23 @@ class ProSites_Gateway_Manual {
 			), __( 'Manual payment request submitted.', 'psts' ) );
 			// Payment pending...
 			ProSites_Helper_Session::session( array( 'new_blog_details', 'manual_submitted' ), true );
+
+			$recurring = $psts->get_setting( 'recurring_subscriptions', true );
+
+			//Store level and period in Signup meta
+			$manual_signup = array(
+				'level'     => $_POST['level'],
+				'period'    => $_POST['period'],
+				'gateway'   => self::get_slug(),
+				'amount'    => $current_payment,
+				'recurring' => $recurring
+			);
+			//Get signup meta
+			$signup_meta                           = $psts->get_signup_meta( $activation_key );
+			$signup_meta['pro_site_manual_signup'] = $manual_signup;
+
+			//Update
+			$psts->update_signup_meta( $signup_meta, $activation_key );
 
 		}
 
@@ -349,6 +372,45 @@ class ProSites_Gateway_Manual {
 			self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
 
 		}
+	}
+
+	/**
+	 * Calculate the payment made for the current purchase
+	 * @param $blog_id
+	 * @param $level
+	 * @param $period
+	 * @param $coupon_code
+	 *
+	 * @return null|string
+	 */
+	public static function calculate_cost( $blog_id, $level, $period, $coupon_code ) {
+		global $psts;
+		$setup_fee  = (float) $psts->get_setting( 'setup_fee', 0 );
+		$recurring  = $psts->get_setting( 'recurring_subscriptions', true );
+		$paymentAmount = $psts->get_level_setting( $level, 'price_' . $period );
+		$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
+		$has_coupon    = ( isset( $coupon_code ) && ProSites_Helper_Coupons::check_coupon( $coupon_code, $blog_id, $level, $period, '' ) ) ? true : false;
+
+		//Add setup fee to init amount
+		if ( $has_setup_fee ) {
+			$paymentAmount += $setup_fee;
+		}
+		if( !$recurring && ! empty( $blog_id ) ) {
+			//Calculate Upgrade or downgrade cost, use original cost to calculate the Upgrade cost
+			$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $level, $period, $paymentAmount );
+		}
+		if ( $has_coupon ) {
+			//apply coupon
+			$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $coupon_code );
+			$coupon_value    = $adjusted_values[ $level ][ 'price_' . $period ];
+			$amount_off      = $paymentAmount - $coupon_value;
+
+			//Round the value to two digits
+			$amount_off    = number_format( $amount_off, 2, '.', '' );
+			$paymentAmount = $paymentAmount - $amount_off;
+		}
+
+		return $paymentAmount;
 	}
 
 

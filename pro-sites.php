@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.0.9
+Version: 3.5.1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -190,6 +190,9 @@ class ProSites {
 
 		// New receipt
 		add_action( 'prosites_transaction_record', array( get_class(), 'send_receipt' ) );
+
+		//Check for manual signup, on blog activation
+		add_action('wpmu_activate_blog', array( $this, 'process_manual_signup'), 10, 5 );
 
 		$this->setup_ajax_hooks();
 
@@ -1942,6 +1945,16 @@ Thanks!", 'psts' ),
 		return apply_filters( 'psts_next_payment', false );
 	}
 
+	/**
+	* @param $blog_id
+	* @param $extend Period of Subscription
+	* @param bool|false $gateway (Manual, Trial, Stripe, Paypal)
+	* @param int $level
+	* @param bool|false $amount
+	* @param bool|false $expires
+	* @param bool|true $is_recurring
+	* @param bool|false $manual_notify
+    */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
 		$now    = time();
@@ -5418,6 +5431,35 @@ function admin_levels() {
 		$location = '';
 		$location = bp_get_root_domain() . '/wp-signup.php';
 		return $location;
+	}
+	/**
+    * Checks for Blog activation, if website was signed up using manual payment gateway
+    * and assigns the pro site level as per the details in site meta
+	* @param $blog_id
+	* @param $user_id
+	* @param $password
+	* @param $signup_title
+	* @param $meta
+	 */
+	function process_manual_signup( $blog_id, $user_id, $password, $signup_title, $meta ) {
+		//If meta value is not set, return
+		if( empty( $meta ) || empty( $blog_id ) || empty( $meta['pro_site_manual_signup']) ) {
+			return;
+		}
+
+		$manual_signup = $meta['pro_site_manual_signup'];
+		$level     = !empty( $manual_signup ) ? $manual_signup['level'] : '';
+		$period    = !empty( $manual_signup ) ? $manual_signup['period'] : '';
+		$gateway   = !empty( $manual_signup ) ? $manual_signup['gateway'] : '';
+		$amount    = !empty( $manual_signup ) ? $manual_signup['amount'] : '';
+		$recurring = !empty( $manual_signup ) ? $manual_signup['recurring'] : false;
+
+		if( empty( $level ) || empty( $period ) ) {
+			return;
+		}
+		//Check meta
+		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
+		$this->record_transaction( $blog_id, 'Manual', $amount );
 	}
 
 }

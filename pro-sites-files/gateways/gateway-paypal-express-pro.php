@@ -1614,6 +1614,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $process_data['COUPON_CODE'] );
 					$coupon_obj      = ProSites_Helper_Coupons::get_coupon( $process_data['COUPON_CODE'] );
 					$lifetime        = isset( $coupon_obj['lifetime'] ) && 'indefinite' == $coupon_obj['lifetime'] ? 'forever' : 'once';
+
+					//Coupon valus is the price after discount itself, for some reason, it was being done reverse @todo: Make it simple
 					$coupon_value    = $adjusted_values[ $_POST['level'] ][ 'price_' . $_POST['period'] ];
 					$amount_off      = $paymentAmount - $coupon_value;
 
