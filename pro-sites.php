@@ -1141,8 +1141,16 @@ Thanks!", 'psts' ),
 	function checkout_page_load( $query ) {
 
 		$x = '';
-		//don't check on other blogs
-		if ( ! is_main_site() ) {
+
+		//allow overriding and changing the root site to put the checkout page on
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : '';
+
+		//don't check on other blogs, unless checkout site is set
+		if ( ! is_main_site() && empty( $checkout_site ) ) {
+			return;
+		}
+		//If checkout site is not empty, and current blog is not checkout blog
+		if( !empty( $checkout_site ) && $checkout_site != get_current_blog_id() ) {
 			return;
 		}
 
@@ -4750,10 +4758,10 @@ function admin_levels() {
 			$prev_start = -1;
 
 			foreach ($blogs_of_user as $id => $obj) {
-				if ($count >= $per_page) break;
+				if ($count >= $per_page) {break;}
 
 				$loop_count++;
-				if ($start > $loop_count) continue;
+				if ($start > $loop_count) {continue;}
 
 				// permission?
 				switch_to_blog($id);
@@ -4782,14 +4790,14 @@ function admin_levels() {
 			// reverse
 			while ( prev($blogs_of_user) ) {
 				$prev_loop_count--;
-				if ($prev_loop_count == $start) break;
+				if ($prev_loop_count == $start) {break;}
 			}
 
 			$prev_count = 0;
 			// reverse to previous start
 			while ( $obj = prev($blogs_of_user) ) {
 				$prev_loop_count--;
-				if ($prev_loop_count < 0) break;
+				if ($prev_loop_count < 0) {break;}
 				if ($prev_count >= $per_page) {
 					$prev_start = $prev_loop_count;
 					break;
