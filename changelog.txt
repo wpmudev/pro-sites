@@ -11,7 +11,7 @@ Change Log:
 - Fixed: Double Signup email, when Buddypress is active
 - Fixed: Division by zero for single column pricing table
 - Fixed: User activation mail not being sent ( Disable only blog activation emails, If singup on checkout is enabled)
-- Fixed: Warning and Notices
+- Fixed: Warning and Notices (Manual Payment Gateway, )
 - Fixed: HTML being rendered if pricing table is disabled
 - Fixed: Wrong Upgrade amount if price is in decimal
 - Fixed: Pricing Table feature description not visible for single level

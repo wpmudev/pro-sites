@@ -295,7 +295,7 @@ class ProSites_Gateway_Manual {
 
 			wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
 
-			add_action( 'prosites_manual_payment_email_sent', $message, $message_parts, $message_fields );
+			do_action( 'prosites_manual_payment_email_sent', $message, $message_parts, $message_fields );
 
 			ProSites_Helper_Session::session( array(
 				'new_blog_details',
