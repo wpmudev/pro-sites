@@ -70,7 +70,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			$plans_table_enabled = $psts->get_setting( 'plans_table_enabled', 'enabled' );
 
 			$coupons_enabled       = $psts->get_setting( 'coupons_enabled' );
-			$highlight_featured    = $psts->get_setting( 'psts_checkout_show_featured' );
+			$highlight_featured    = $psts->get_setting( 'psts_checkout_show_featured', false );
 			$checked               = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
 			$coupons_checked       = 'enabled' == $coupons_enabled ? 'enabled' : 'disabled';
 			$show_featured_checked = 'enabled' == $highlight_featured ? 'enabled' : 'disabled';

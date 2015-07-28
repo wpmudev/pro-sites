@@ -14,9 +14,10 @@ Change Log:
 - Fixed: Warning and Notices (Manual Payment Gateway, )
 - Fixed: HTML being rendered if pricing table is disabled
 - Fixed: Wrong Upgrade amount if price is in decimal
-- Fixed: Pricing Table feature description not visible for single level
 - Fixed: Post/Page Quota Media Limit not working and admin notice for exceeded limits
 - Fixed: PSTS_CHECKOUT_SITE issue with checkout page on subsite
+- Fixed: Checkout Page:  feature description not visible for single level in pricing table
+- Fixed: Checkout Page: Styling issue single level, single period plans, Highlighting featured plans
 - Fixed: Settings: Custom css for pricing table not being saved
 - Fixed: Stats: Wrong payment amount stored in Pro Sites table
 - Fixed: Checkout: Do not show cancel subscription link for Non recurring subscriptions

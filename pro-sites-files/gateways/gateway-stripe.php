@@ -1753,9 +1753,6 @@ class ProSites_Gateway_Stripe {
 
 		$error       = '';
 		$customer_id = self::get_customer_data( $blog_id )->customer_id;
-		echo "<pre>Customer Id";
-		print_r( $customer_id );
-		echo "</pre>";
 		if ( $customer_id ) {
 			try {
 				$customer_data = self::get_customer_data( $blog_id );

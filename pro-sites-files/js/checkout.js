@@ -208,7 +208,16 @@ jQuery( document ).ready( function ( $ ) {
 		    }else{
 			    li_height = max_height;
 		    }
-		    if ($(item).parents('.pricing-column.featured')[0] && use_featured ) {
+            //For Single Period, Single Level, Set height auto of title
+            if( jQuery(elements).hasClass('title') ) {
+                var period_selector = jQuery('.period-selector').length;
+                var pricing_column = jQuery('.pricing-column').length;
+                if( period_selector == 0 && pricing_column == 1 ) {
+                    $(item).css( { 'height' : 'auto' } );
+                    return;
+                }
+            }
+		    if ($(item).parents('.pricing-column.featured')[0] && use_featured && li_height > 0 ) {
 			    //if( $( item).height < max_height ) {
 			    if( !is_featured_column_notitle ) {
 				    $(item).css( { 'height' : li_height + 15 } );

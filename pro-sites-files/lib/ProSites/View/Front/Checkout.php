@@ -66,7 +66,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
 			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
-			// $columns = self::get_pricing_columns( $plans_table_enabled, $features_table_enabled );
 			$columns = self::get_pricing_columns( true, $features_table_enabled );
 
 			$content .= apply_filters( 'prosites_inner_pricing_table_pre', self::render_tables_wrapper( 'pre' ), $blog_id );
@@ -96,9 +95,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		private static function render_pricing_columns( $columns, $blog_id = false, $echo = false ) {
 			global $psts;
 
-			$content           = '';
-			$periods           = (array) $psts->get_setting( 'enabled_periods' );
-			$show_periods      = 2 <= count( $periods ) ? true : false;
+			$content       = '';
+			$periods       = (array) $psts->get_setting( 'enabled_periods' );
+			$show_periods  = 2 <= count( $periods ) ? true : false;
+			$total_columns = 1;
 
 			//First Column
 			$column_keys        = array_keys( $columns[0] );
@@ -108,7 +108,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$add_coupon         = in_array( 'coupon', $column_keys );
 
 			//Show first column, if feature table is enabled or period selector position is in first column
-			$show_first_column = $show_periods && ( 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) || $show_feature_table );
+			$show_first_column = $show_feature_table || ( 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) && $show_periods );
 
 			if ( $show_first_column ) {
 				$total_columns = count( $columns );
@@ -123,7 +123,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$normal_style  = 'width: ' . $column_width . '%; ';
 			$feature_style = 'width: ' . $feature_width . '%; ';
 			//			$show_buy_buttons = false;
-
 
 			foreach ( $columns as $key => $column ) {
 				$style     = true === $column['featured'] ? $feature_style : $normal_style;
@@ -142,7 +141,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$col_class .= ' ' . $override;
 					//continue;
 				}
-				$content .= '<ul class="pricing-column psts-level-' . esc_attr( $level_id ) . ' ' . esc_attr( $col_class ) . '" style="' . esc_attr( $style ) . '">';
+				$content .= '<ul class="pricing-column psts-level-' . esc_attr( $level_id ) . esc_attr( $col_class ) . '" style="' . esc_attr( $style ) . '">';
 
 				if ( $show_pricing_table ) {
 					if ( empty( $column['title'] ) ) {
@@ -386,7 +385,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$featured_level = $psts->get_setting( 'featured_level' );
 
 			foreach ( $columns as $key => $column ) {
-				$columns[ $key ]['featured'] = $key == $featured_level;
+				if ( empty( $featured_level ) || $column['level_id'] != $featured_level ) {
+					$columns[ $key ]['featured'] = false;
+				} else {
+					$columns[ $key ]['featured'] = true;
+				}
 			}
 
 			return $columns;

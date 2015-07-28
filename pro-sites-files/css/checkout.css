@@ -717,9 +717,9 @@ ul.pricing-column ul.feature-section li {
 	font-weight: bolder;
 }
 .pricing-column:first-child .summary {
-	border: none;
-	/*position:relative;*/
-	/*font-size: 1em;*/
+	/*border: none;*/
+	position:relative;
+	font-size: 1em;
 }
 
 .pricing-column .summary.no-periods {
