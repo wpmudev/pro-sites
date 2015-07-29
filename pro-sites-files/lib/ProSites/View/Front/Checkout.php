@@ -21,8 +21,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
 			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
 			if ( $coupons_enabled &&
-			     ( 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ||
-			       'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) )
+			     ( 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) )
 			) {
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
 			}
@@ -840,10 +839,19 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		}
 
+		/**
+		 * Displays Coupon Box on checkout page
+		 * @param $content
+		 *
+		 * @return string
+		 */
 		public static function render_standalone_coupon( $content ) {
 
+			echo "<pre>";
+			print_r("Static functions are bad");
+			echo "</pre>";
 			$content = '
-			<div class="coupon-wrapper">
+			<div class="coupon-wrapper">Static functions are bad
 				<div class="coupon-box post-table">
 					<span><input type="text" name="apply-coupon" placeholder="' . esc_attr__( 'Enter Coupon Code', 'psts' ) . '" /></span>
 					<button name="apply-coupon-link" class="apply-coupon-link">' . esc_html__( 'Apply Coupon', 'psts' ) . '</button>

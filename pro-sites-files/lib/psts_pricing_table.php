@@ -146,6 +146,9 @@ class ProSites_Pricing_Table {
 	}
 
 	private function get_coupon_link() {
+		echo "<pre> Coupon Link";
+		print_r( "Coupon Link");
+		echo "</pre>";
 
 		if ( ! ( defined( 'PSTS_DISABLE_COUPON_FORM' ) && PSTS_DISABLE_COUPON_FORM ) ) {
 			$content = '<div class="coupon-wrapper">';
