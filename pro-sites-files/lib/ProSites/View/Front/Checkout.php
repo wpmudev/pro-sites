@@ -847,9 +847,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		 */
 		public static function render_standalone_coupon( $content ) {
 
-			echo "<pre>";
-			print_r("Static functions are bad");
-			echo "</pre>";
 			$content = '
 			<div class="coupon-wrapper">Static functions are bad
 				<div class="coupon-box post-table">
