@@ -1,5 +1,6 @@
 Plugin Name: Pro Sites
-Author: Aaron Edwards
+Author:	WPMU Dev
+Developer: Aaron Edwards
 
 Change Log:
 ----------------------------------------------------------------------
@@ -20,6 +21,7 @@ Change Log:
 - Fixed: Checkout Page: Styling issue single level, single period plans, Highlighting featured plans
 - Fixed: Settings: Custom css for pricing table not being saved
 - Fixed: Stats: Wrong payment amount stored in Pro Sites table
+- Fixed: Checkout: Create a new site link not redirecting when Buddypress is active
 - Fixed: Checkout: Do not show cancel subscription link for Non recurring subscriptions
 - Fixed: Currency Symbols: Turkish Lira HTML code
 - Fixed: PayPal: Coupon not working

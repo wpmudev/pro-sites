@@ -53,8 +53,12 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		public static function redirect_signup_page() {
 			global $pagenow, $psts;
 			$show_signup = $psts->get_setting( 'show_signup' );
+			$bp_redirect = false;
 
-			if( 'wp-signup.php' == $pagenow && $show_signup ) {
+			if( class_exists('BuddyPress') && bp_is_register_page() ) {
+				$bp_redirect = true;
+			}
+			if( ( 'wp-signup.php' == $pagenow || $bp_redirect ) && $show_signup ) {
 				wp_redirect( $psts->checkout_url() );
 				exit();
 			}
