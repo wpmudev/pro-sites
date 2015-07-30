@@ -52,7 +52,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				}
 			}
 
-			$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
 			$action = '';
 
 			$active_signup = get_site_option( 'registration', 'none' );
@@ -80,6 +79,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				// WP hook
 				ob_start();
 				do_action( 'before_signup_form' );
+				$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
 				$content .= ob_get_clean();
 
 				$user_name = '';

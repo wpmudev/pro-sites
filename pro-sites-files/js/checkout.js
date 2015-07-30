@@ -25,6 +25,17 @@ jQuery( document ).ready( function ( $ ) {
         }
         return obj;
     };
+    /**
+     * Checks for the length of element and scroll the division up
+     * @param the_element
+     */
+    function scroll_top( the_element ) {
+        if ( typeof the_element != 'undefined' && the_element.length != 0 ) {
+            $( 'html, body' ).animate( {
+                scrollTop: the_element.offset().top - 100
+            }, 1000 );
+        }
+    }
 
     $( 'div.pblg-checkout-opt' ).click( function ( e ) {
         var target = e.currentTarget;
@@ -55,14 +66,10 @@ jQuery( document ).ready( function ( $ ) {
 
         if ( prosites_checkout.logged_in && !new_blog ) {
             $( '.checkout-gateways.hidden' ).removeClass( 'hidden' );
+            scroll_top( $( '.checkout-gateways') );
         } else {
             $( '#prosites-signup-form-checkout' ).removeClass( 'hidden' );
-            var the_element = $( '#prosites-signup-form-checkout' );
-            if ( typeof the_element != 'undefined' && the_element.length != 0 ) {
-                $( 'html, body' ).animate( {
-                    scrollTop: $( "#prosites-signup-form-checkout" ).offset().top - 100
-                }, 1000 );
-            }
+            scroll_top( $( '#prosites-signup-form-checkout' ) );
         }
 
         if ( free_link ) {
@@ -455,15 +462,13 @@ jQuery( document ).ready( function ( $ ) {
         $( '.choose-plan-button' ).html( button_text );
 
         if ( prosites_checkout.logged_in && !new_blog ) {
-            $( '.checkout-gateways.hidden' ).removeClass( 'hidden' );
+            var gateways =  $( '.checkout-gateways.hidden' );
+            gateways.removeClass( 'hidden' );
+            scroll_top(gateways);
         } else {
-            $( '#prosites-signup-form-checkout' ).removeClass( 'hidden' );
-            var the_element = $( '#prosites-signup-form-checkout' );
-            if ( typeof the_element != 'undefined' && the_element.length != 0 ) {
-                $( 'html, body' ).animate( {
-                    scrollTop: $( "#prosites-signup-form-checkout" ).offset().top - 100
-                }, 1000 );
-            }
+            var checkout_form = $( '#prosites-signup-form-checkout' );
+            checkout_form.removeClass( 'hidden' );
+            scroll_top(checkout_form);
         }
 
         $( '.chosen-plan' ).removeClass( 'chosen-plan' );

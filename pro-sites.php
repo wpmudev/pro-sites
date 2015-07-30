@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.5';
+	var $version = '3.5.6';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
