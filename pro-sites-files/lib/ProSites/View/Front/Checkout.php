@@ -123,6 +123,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$feature_style = 'width: ' . $feature_width . '%; ';
 			//			$show_buy_buttons = false;
 
+			//If feature column is not enabled and coupon are set to display in first column
+			if( !$show_feature_table && $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ) {
+				$content = self::render_standalone_coupon( $content );
+			}
 			foreach ( $columns as $key => $column ) {
 				$style     = true === $column['featured'] ? $feature_style : $normal_style;
 				$col_class = true === $column['featured'] ? ' featured' : '';
@@ -848,7 +852,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_standalone_coupon( $content ) {
 
 			$content = '
-			<div class="coupon-wrapper">Static functions are bad
+			<div class="coupon-wrapper">
 				<div class="coupon-box post-table">
 					<span><input type="text" name="apply-coupon" placeholder="' . esc_attr__( 'Enter Coupon Code', 'psts' ) . '" /></span>
 					<button name="apply-coupon-link" class="apply-coupon-link">' . esc_html__( 'Apply Coupon', 'psts' ) . '</button>
