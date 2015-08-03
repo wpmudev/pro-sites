@@ -19,7 +19,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 
 				$page_header_options = array(
 					'title'       => __( 'Pro Sites Settings', 'psts' ),
-					'desc'        => __( '', 'psts' ),
+					'desc'        => '',
 					'page_header' => true,
 				);
 
@@ -133,7 +133,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-						    class="pay-for-signup"><?php echo __( 'Signup on Checkout<br /><small>Disables WordPress Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
+						    class="pay-for-signup"><?php echo __( 'Signup on Checkout<br /><small>Disables WordPress Signup</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[show_signup]"
 							              value="1"<?php checked( $psts->get_setting( 'show_signup' ) ); ?> />

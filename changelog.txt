@@ -30,6 +30,7 @@ Change Log:
 - Fixed: Settings: Custom css for pricing table not being saved
 - Fixed: Signup: User activation mail not being sent ( Disable only blog activation emails, If signup on checkout is enabled)
 - Fixed: Signup: Double Signup email, when Buddypress is active
+- Fixed: Signup: Allow users to signup, if they are logged in and they don't have a site
 - Fixed: Stripe: Issue with creating coupons for percent off
 - Fixed: Stripe: Subscription Cancel status
 - Fixed: Stats:  Wrong payment amount stored in Pro Sites table

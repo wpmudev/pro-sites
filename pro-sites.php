@@ -4710,6 +4710,7 @@ function admin_levels() {
 
 	//outputs the checkout form
 	function checkout_output( $content ) {
+		global $wpdb;
 		$has_blog = false;
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
@@ -4912,7 +4913,30 @@ function admin_levels() {
 
 			//show message if no valid blogs
 			$session_domain = ProSites_Helper_Session::session( 'domain' );
-			if ( ! $has_blog && ! isset( $session_domain ) ) {
+
+			//Check if multiple signups are allowed
+			$allow_multi = $this->get_setting('multiple_signup');
+			$registeration = get_site_option('registration');
+			$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+
+			//Check if user has signed up for a site already
+			$current_user = wp_get_current_user();
+			$current_user = !empty( $current_user->data ) ? $current_user->data : '';
+			$user_login = !empty( $current_user->user_login ) ? $current_user->user_login : '';
+
+			if( !empty( $user_login ) ) {
+				//Query Signup table for domain name
+				$query = $wpdb->prepare("SELECT `domain` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
+				$user_domain = $wpdb->get_var( $query );
+			}
+
+			if( !empty( $user_domain ) && $allow_multi ) {
+				//Already have a site, allow to signup for another
+				$content .= '<div class="psts-signup-another">' . sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+			}elseif( empty( $user_domain ) ) {
+				//Don't have a site, let user create one
+				$content .= '<div class="psts-signup"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for a site.', 'psts' ) . '</a>' . '</div>';
+			}elseif ( ! $has_blog && ! isset( $session_domain ) ) {
 				$content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
 			}
 		}
