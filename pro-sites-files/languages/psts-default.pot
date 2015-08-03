@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-03 15:14+0530\n"
+"POT-Creation-Date: 2015-08-03 15:24+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -6823,6 +6823,11 @@ msgstr ""
 
 #: pro-sites.php:4872
 msgid "Please choose a site to Upgrade or Modify:"
+msgstr ""
+
+#: pro-sites.php:4935
+#, php-format
+msgid "Your site <strong>%s</strong> has not been activated yet."
 msgstr ""
 
 #: pro-sites.php:4938
