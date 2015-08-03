@@ -20,8 +20,12 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			// Reposition coupon based on option
 			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
 			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
-			if ( $coupons_enabled &&
-			     ( 'option2' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) )
+			$pt_pos = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
+			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' ) != 'disabled' ? true : false;
+
+			//If Coupons are enabled and set to show at the bottom OR
+			//If feature column is not enabled, show coupon at the bottom
+			if ( ( $coupons_enabled && ( 'option2' ==  $pt_pos ) ) || ( !$features_table_enabled && $coupons_enabled )
 			) {
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
 			}
@@ -123,10 +127,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$feature_style = 'width: ' . $feature_width . '%; ';
 			//			$show_buy_buttons = false;
 
-			//If feature column is not enabled and coupon are set to display in first column
-			if( !$show_feature_table && $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ) {
-				$content = self::render_standalone_coupon( $content );
-			}
 			foreach ( $columns as $key => $column ) {
 				$style     = true === $column['featured'] ? $feature_style : $normal_style;
 				$col_class = true === $column['featured'] ? ' featured' : '';

@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-03 15:24+0530\n"
+"POT-Creation-Date: 2015-08-03 16:29+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -737,9 +737,9 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:404
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:457
 #: pro-sites-files/gateways/gateway-stripe.php:371
-#: pro-sites-files/lib/ProSites/View/Pricing.php:589
-#: pro-sites-files/lib/ProSites/View/Pricing.php:621
-#: pro-sites-files/lib/ProSites/View/Pricing.php:659
+#: pro-sites-files/lib/ProSites/View/Pricing.php:579
+#: pro-sites-files/lib/ProSites/View/Pricing.php:611
+#: pro-sites-files/lib/ProSites/View/Pricing.php:649
 #: pro-sites-files/lib/ProSites/View/Settings.php:286
 #: pro-sites-files/modules/premium-plugins.php:445
 #: pro-sites-files/modules/premium-themes.php:345 pro-sites.php:4180
@@ -3097,7 +3097,7 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Coupons.php:414
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:756
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:769
-#: pro-sites-files/lib/ProSites/View/Pricing.php:214
+#: pro-sites-files/lib/ProSites/View/Pricing.php:204
 #: pro-sites-files/lib/psts_pricing_table_admin.php:144
 #: pro-sites-files/modules/post-throttling.php:383 pro-sites.php:2969
 #: pro-sites.php:3652 pro-sites.php:3666 pro-sites.php:3780 pro-sites.php:4432
@@ -3706,75 +3706,75 @@ msgstr ""
 msgid "You can enable plans & pricing and feature table settings here. "
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:85
+#: pro-sites-files/lib/ProSites/View/Pricing.php:86
 msgid "Enable Pricing Table"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:110
+#: pro-sites-files/lib/ProSites/View/Pricing.php:94
 msgid "Period Selector Position"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:114
-#: pro-sites-files/lib/ProSites/View/Pricing.php:140
+#: pro-sites-files/lib/ProSites/View/Pricing.php:98
+#: pro-sites-files/lib/ProSites/View/Pricing.php:127
 msgid "First column (Part of table)"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:118
+#: pro-sites-files/lib/ProSites/View/Pricing.php:102
 msgid "Above the table"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:119
+#: pro-sites-files/lib/ProSites/View/Pricing.php:103
 msgid ""
 "For visual purposes, moving the period selector to the top will also remove "
 "the first/details column from the table. If the coupons box is attached to "
 "the first column it will automatically be moved below the table."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:129
+#: pro-sites-files/lib/ProSites/View/Pricing.php:113
 msgid "Allow Coupons"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:136
+#: pro-sites-files/lib/ProSites/View/Pricing.php:120
 msgid "Coupon Position"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:144
+#: pro-sites-files/lib/ProSites/View/Pricing.php:133
 msgid "Below checkout table."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:150
+#: pro-sites-files/lib/ProSites/View/Pricing.php:140
 msgid "Highlight 'Featured' level"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:157
+#: pro-sites-files/lib/ProSites/View/Pricing.php:147
 msgid "Gateways layout"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:158
+#: pro-sites-files/lib/ProSites/View/Pricing.php:148
 msgid "Select how the gateways will be shown."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:161
+#: pro-sites-files/lib/ProSites/View/Pricing.php:151
 msgid "Tabbed layout"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:162
+#: pro-sites-files/lib/ProSites/View/Pricing.php:152
 msgid "Raw HTML layout"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:168
+#: pro-sites-files/lib/ProSites/View/Pricing.php:158
 msgid "Level Order"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:169
+#: pro-sites-files/lib/ProSites/View/Pricing.php:159
 msgid ""
 "Select the order that you want your levels to appear in the pricing and "
 "feature tables."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:218
-#: pro-sites-files/lib/ProSites/View/Pricing.php:392
-#: pro-sites-files/lib/ProSites/View/Pricing.php:730
+#: pro-sites-files/lib/ProSites/View/Pricing.php:208
+#: pro-sites-files/lib/ProSites/View/Pricing.php:382
+#: pro-sites-files/lib/ProSites/View/Pricing.php:720
 #: pro-sites-files/lib/ProSites/View/Settings.php:123
 #: pro-sites-files/lib/psts_pricing_table_admin.php:139
 #: pro-sites-files/modules/bulk-upgrades.php:527
@@ -3783,101 +3783,101 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:222
+#: pro-sites-files/lib/ProSites/View/Pricing.php:212
 msgid "Pricing"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:226
+#: pro-sites-files/lib/ProSites/View/Pricing.php:216
 #: pro-sites-files/lib/ProSites/View/Pricing/Styling.php:47
 #: pro-sites-files/lib/psts_pricing_table_admin.php:368
 msgid "Featured Level"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:309 pro-sites.php:3762
+#: pro-sites-files/lib/ProSites/View/Pricing.php:299 pro-sites.php:3762
 msgid "No levels yet."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:350
+#: pro-sites-files/lib/ProSites/View/Pricing.php:340
 msgid "Enable Feature Table"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:359
+#: pro-sites-files/lib/ProSites/View/Pricing.php:349
 msgid "Use the form below to build your feature comparison table."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:382
+#: pro-sites-files/lib/ProSites/View/Pricing.php:372
 msgid "#"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:387
+#: pro-sites-files/lib/ProSites/View/Pricing.php:377
 #: pro-sites-files/lib/psts_pricing_table_admin.php:138
 msgid "Visible"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:393
-#: pro-sites-files/lib/ProSites/View/Pricing.php:399
+#: pro-sites-files/lib/ProSites/View/Pricing.php:383
+#: pro-sites-files/lib/ProSites/View/Pricing.php:389
 msgid "(double-click to change)"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:398
-#: pro-sites-files/lib/ProSites/View/Pricing.php:731
+#: pro-sites-files/lib/ProSites/View/Pricing.php:388
+#: pro-sites-files/lib/ProSites/View/Pricing.php:721
 #: pro-sites-files/lib/psts_pricing_table_admin.php:140
 #: pro-sites-files/modules/premium-plugins.php:428
 #: pro-sites-files/modules/premium-themes.php:329 pro-sites.php:3859
 msgid "Description"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:404
+#: pro-sites-files/lib/ProSites/View/Pricing.php:394
 msgid "Indicator"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:405
-#: pro-sites-files/lib/ProSites/View/Pricing.php:411
+#: pro-sites-files/lib/ProSites/View/Pricing.php:395
+#: pro-sites-files/lib/ProSites/View/Pricing.php:401
 msgid "(for selected level)"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:410
-#: pro-sites-files/lib/ProSites/View/Pricing.php:732
+#: pro-sites-files/lib/ProSites/View/Pricing.php:400
+#: pro-sites-files/lib/ProSites/View/Pricing.php:722
 msgid "Custom text"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:423
+#: pro-sites-files/lib/ProSites/View/Pricing.php:413
 #, php-format
 msgid "Level: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:424
+#: pro-sites-files/lib/ProSites/View/Pricing.php:414
 #, php-format
 msgid "Invert: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:428
+#: pro-sites-files/lib/ProSites/View/Pricing.php:418
 msgid "edit"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:429 pro-sites.php:4693
+#: pro-sites-files/lib/ProSites/View/Pricing.php:419 pro-sites.php:4693
 msgid "change"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:430
+#: pro-sites-files/lib/ProSites/View/Pricing.php:420
 msgid "reset"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:639
+#: pro-sites-files/lib/ProSites/View/Pricing.php:629
 #, php-format
 msgid "Active: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:643
+#: pro-sites-files/lib/ProSites/View/Pricing.php:633
 #, php-format
 msgid "Not active: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:703
+#: pro-sites-files/lib/ProSites/View/Pricing.php:693
 msgid "No features added yet."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:726
+#: pro-sites-files/lib/ProSites/View/Pricing.php:716
 msgid "Add custom feature"
 msgstr ""
 

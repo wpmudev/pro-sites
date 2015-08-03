@@ -77,6 +77,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 			$pricing_gateways_style     = $psts->get_setting( 'pricing_gateways_style', 'tabbed' );
 			$pricing_table_period_style = $psts->get_setting( 'pricing_table_period_style' );
+			$features_table_enabled     = $psts->get_setting( 'comparison_table_enabled' );
 
 			?>
 			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>"/>
@@ -88,31 +89,14 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					</td>
 				</tr>
 
-				<?php
-				//					$option = '<tr>
-				//						<th scope="row">' . __ ( 'Period Style', 'psts' ) .
-				//							'<br/><span class="description" style="font-weight:normal; color:#888; ">' . __( 'Select how users will select the plan period.', 'psts' ) . '</span></th>
-				//						<td>
-				//							<select name="psts[pricing_table_period_style]" class="chosen">
-				//								<option
-				//									value="dropdown"' . selected( $pricing_table_period_style, 'dropdown', false ) . '>' . __( 'Drop-down list', 'psts' ) . '</option>
-				//								<option
-				//									value="radio"' . selected( $pricing_table_period_style, 'radio', false ) . '>' . __( 'Radio button', 'psts' ) . '</option>
-				//								<option
-				//									value="raw"' . selected( $pricing_table_period_style, 'raw', false ) . '>' . __( 'Raw', 'psts' ) . '</option>
-				//							</select>
-				//						</td>
-				//					</tr>';
-				//					echo $option;
-				?>
 				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP -->
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Period Selector Position', 'psts' ) ?></th>
 					<td>
-						<label>
-							<p><input type="radio" name="psts[pricing_table_period_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option1' ); ?> />
+							<label>
+								<p><input type="radio" name="psts[pricing_table_period_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
-						</label>
+							</label>
 						<label>
 							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option2' ); ?> />
 								<?php esc_html_e( 'Above the table', 'psts' ); ?></p>
@@ -134,16 +118,22 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
-					<td>
-						<label>
-							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option1' ); ?> />
+					<td><?php
+						$pos_bottom = ( $features_table_enabled == 'disabled' ) || ( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) == 'option2' ) ? 1 : 0;
+						if ( $features_table_enabled !== 'disabled' ) { ?>
+							<label>
+							<p>
+								<input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
-						</label>
+							</label><?php
+						} ?>
 						<label>
-							<p><input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option2' ); ?> />
+							<p>
+								<input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $pos_bottom, 1 ); ?> />
 								<?php esc_html_e( 'Below checkout table.', 'psts' ); ?></p>
 						</label>
 					</td>
+
 				</tr>
 
 				<tr>
