@@ -946,22 +946,12 @@ ul.pricing-column ul.feature-section li {
 }
 
 #prosites-checkout-table .coupon-wrapper {
-    /*clear: both;*/
-    /*padding-top: 8px;*/
-    /*font-size: 0.8em;*/
-    /*margin: 0 auto;*/
-    /*width: 80%;*/
-}
-
-#prosites-checkout-table .coupon-wrapper {
-    /*border: 1px solid;*/
     clear: both;
-    /*float: left;*/
     font-size: 0.8em;
     margin: 6px auto;
     padding-top: 8px;
     text-align: center;
-    /*width: 27.5em;*/
+    top: 20px;
 }
 
 #prosites-checkout-table .coupon-wrapper .coupon-box {

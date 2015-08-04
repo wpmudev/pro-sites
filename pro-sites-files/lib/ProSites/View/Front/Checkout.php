@@ -122,6 +122,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$total_width = 100.0;
 			$total_width -= 6.0; // account for extra space around featured plan
 			$column_width  = $total_width / $total_columns;
+			$column_width = !empty( $column_width ) ? number_format( $column_width, 1 ) : $column_width;
 			$feature_width = $column_width + 6.0;
 			$normal_style  = 'width: ' . $column_width . '%; ';
 			$feature_style = 'width: ' . $feature_width . '%; ';
@@ -388,7 +389,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$featured_level = $psts->get_setting( 'featured_level' );
 
 			foreach ( $columns as $key => $column ) {
-				if ( empty( $featured_level ) || $column['level_id'] != $featured_level ) {
+				if ( empty( $featured_level ) || empty( $column['level_id'] ) || $column['level_id'] != $featured_level ) {
 					$columns[ $key ]['featured'] = false;
 				} else {
 					$columns[ $key ]['featured'] = true;

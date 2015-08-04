@@ -2483,7 +2483,6 @@ Thanks!", 'psts' ),
 		</style> <?php
 		wp_enqueue_style( 'wp-color-picker' );
 		$this->load_psts_style( false );
-		wp_enqueue_script( 'psts-checkout-settings-actions', $this->plugin_url . 'js/psts_pricing_table_admin.js', array( 'jquery-ui-sortable' ), $this->version );
 	}
 
 	function feature_notice( $level = 1 ) {
