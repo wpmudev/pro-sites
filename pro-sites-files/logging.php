@@ -82,7 +82,7 @@ class ProSites_Logging {
 
 		error_log( $message, 3, $this->log_file );
 		for ( $i = 2; $i < func_num_args(); $i += 1 ) {
-			$this->log_data( func_get_arg( $i) );
+			$this->log_data( func_get_arg( $i ) );
 		}
 		$this->log_separator();
 	}
@@ -104,7 +104,7 @@ class ProSites_Logging {
 
 		error_log( $message, 3, $this->log_file );
 		for ( $i = 2; $i < func_num_args(); $i += 1 ) {
-			$this->log_data( func_get_arg( $i) );
+			$this->log_data( func_get_arg( $i ) );
 		}
 		$this->log_separator();
 	}
@@ -121,7 +121,11 @@ class ProSites_Logging {
 		if ( is_scalar( $data ) ) {
 			$dump = $data;
 		} else {
-			$dump = var_export( $data, true );
+			$dump = str_replace(
+				'    ',
+				"\t",
+				print_r( $data, true )
+			);
 		}
 		error_log( $dump . "\n", 3, $this->log_file );
 	}

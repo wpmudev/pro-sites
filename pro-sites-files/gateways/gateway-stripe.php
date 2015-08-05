@@ -1283,9 +1283,9 @@ class ProSites_Gateway_Stripe {
 
 			//If invoice has been created, activate user blog trial
 			if ( 'invoiceitem.updated' == $event_type ||
-			     'invoiceitem.created' == $event_type ||
-			     'invoice.created' == $event_type ||
-			     'invoice.payment_succeeded' == $event_type
+				'invoiceitem.created' == $event_type ||
+				'invoice.created' == $event_type ||
+				'invoice.payment_succeeded' == $event_type
 			) {
 				// Create generic class from Stripe\Subscription class
 
@@ -1314,7 +1314,7 @@ class ProSites_Gateway_Stripe {
 
 			}
 
-			if ( empty( $blog_id ) && isset( $subscription ) && isset( $subscription->blog_id ) && ! empty( $subscription->blog_id ) ) {
+			if ( empty( $blog_id ) && isset( $subscription ) && ! empty( $subscription->blog_id ) ) {
 				$blog_id = $subscription->blog_id;
 			}
 
@@ -1639,6 +1639,17 @@ class ProSites_Gateway_Stripe {
 
 		$from_invoice = 'invoice' == $object->object ? true : false;
 		$from_sub     = 'subscription' == $object->object ? true : false;
+
+		if ( 'charge' == $object->object ) {
+			// This is a one-time payment, there's be no subscription for this.
+			do_action(
+				'psts_gateway_error',
+				'stripe',
+				'found a one-time payment charge, not a subscription',
+				$object
+			);
+			return false;
+		}
 
 		if ( ! $from_invoice && ! $from_sub ) {
 			do_action(
@@ -2111,6 +2122,14 @@ class ProSites_Gateway_Stripe {
 						}
 
 						$c = Stripe_Customer::create( $customer_args );
+
+						do_action(
+							'psts_gateway_success',
+							'stripe',
+							'created a new stripe customer',
+							$c,
+							$customer_args
+						);
 					} catch ( Exception $e ) {
 						$psts->errors->add( 'general', __( 'The Stripe customer could not be created. Please try again.', 'psts' ) );
 
@@ -2126,8 +2145,24 @@ class ProSites_Gateway_Stripe {
 					// Get a customer if they exist
 					try {
 						$c = Stripe_Customer::retrieve( $customer_id );
+
+						do_action(
+							'psts_gateway_success',
+							'stripe',
+							'retrieved an existing stripe customer',
+							$c,
+							$customer_args
+						);
 					} catch ( Exception $e ) {
 						$psts->errors->add( 'general', __( 'The Stripe customer could not be retrieved. Please try again.', 'psts' ) );
+
+						do_action(
+							'psts_gateway_error',
+							'stripe',
+							'could not retrieve a stripe customer',
+							$e,
+							$customer_args
+						);
 
 						return;
 					}
@@ -2346,6 +2381,14 @@ class ProSites_Gateway_Stripe {
 						// Brand new blog...
 						if ( empty( $blog_id ) ) {
 							$result = $c->subscriptions->create( $args );
+
+							do_action(
+								'psts_gateway_success',
+								'stripe',
+								'create a subscription for a new blog',
+								$args,
+								$result
+							);
 						} else {
 
 							$customer_data = self::get_customer_data( $blog_id );
@@ -2432,6 +2475,22 @@ class ProSites_Gateway_Stripe {
 									}
 								}
 								$result = $c->subscriptions->create( $args );
+
+								do_action(
+									'psts_gateway_success',
+									'stripe',
+									'create a subscription for a existing blog',
+									$args,
+									$result
+								);
+							} else {
+								do_action(
+									'psts_gateway_success',
+									'stripe',
+									'retrieved an existing subscription',
+									$args,
+									$sub
+								);
 							}
 							// This one is now deprecated
 							// $result = $c->updateSubscription( $args );
@@ -2496,6 +2555,13 @@ class ProSites_Gateway_Stripe {
 						$error = $body['error'];
 						$psts->errors->add( 'general', $error['message'] );
 
+						do_action(
+							'psts_gateway_error',
+							'stripe',
+							'error while creating a stripe subscription',
+							$e
+						);
+
 						return;
 					}
 
@@ -2545,8 +2611,24 @@ class ProSites_Gateway_Stripe {
 						 */
 						if ( empty( $trial_days ) || 0 == $customer_args['amount'] ) {
 							$result = Stripe_Charge::create( $customer_args );
+
+							do_action(
+								'psts_gateway_success',
+								'stripe',
+								'create a single-payment charge (no trial)',
+								$customer_args,
+								$result
+							);
 						} else {
 							$result = Stripe_InvoiceItem::create( $customer_args );
+
+							do_action(
+								'psts_gateway_success',
+								'stripe',
+								'create a single-payment invoice (no payment right now)',
+								$customer_args,
+								$result
+							);
 						}
 
 						// Capture success as soon as we can!
@@ -2585,8 +2667,22 @@ class ProSites_Gateway_Stripe {
 						$body = $e->getJsonBody();
 						$err  = $body['error'];
 						$psts->errors->add( 'general', $e['message'] );
+
+						do_action(
+							'psts_gateway_success',
+							'stripe',
+							'stripe card error during payment',
+							$e
+						);
 					} catch ( Exception $e ) {
 						$psts->errors->add( 'general', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
+
+						do_action(
+							'psts_gateway_success',
+							'stripe',
+							'unexpected error during payment',
+							$e
+						);
 					}
 
 				}
@@ -2649,6 +2745,13 @@ class ProSites_Gateway_Stripe {
 
 			} catch ( Exception $e ) {
 				$psts->errors->add( 'general', $e->getMessage() );
+
+				do_action(
+					'psts_gateway_success',
+					'stripe',
+					'general error happened during payment',
+					$e
+				);
 			}
 
 		}
