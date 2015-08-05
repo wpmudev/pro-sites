@@ -412,7 +412,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			if ( empty( $level ) ) {
 
-				$content = '<div class="period-selector"><div class="heading">' . esc_html( $plan_text['payment_type'] ) . '</div>
+				$content = '<div class="period-selector"><div class="heading">' . wp_kses_post( $plan_text['payment_type'] ) . '</div>
 				<select class="chosen">';
 				if ( in_array( 1, $active_periods ) ) {
 					$content .= '<option value="price_1" ' . selected( self::$default_period, 'price_1', false ) . '>' . esc_html( $payment_type['price_1'] ) . '</option>';
@@ -536,7 +536,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						}
 						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . $summary_msg . '</div>';
 					} else {
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . esc_html( $plan_text['monthly_alt'] ) . '</div>';
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . wp_kses_post( $plan_text['monthly_alt'] ) . '</div>';
 					}
 
 					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
