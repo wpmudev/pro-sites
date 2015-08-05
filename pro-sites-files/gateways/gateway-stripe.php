@@ -1257,14 +1257,27 @@ class ProSites_Gateway_Stripe {
 			$event_json = json_decode( $body );
 
 			if ( ! isset( $event_json->data->object->customer ) ) {
+				do_action(
+					'psts_gateway_error',
+					'stripe',
+					'no customer specified in webhook contents',
+					$body
+				);
 				return false;
 			}
+
 			$event_type = $event_json->type;
 
 			$customer_id  = $event_json->data->object->customer;
 			$subscription = self::get_subscription( $event_json );
 
 			if( 'invoice.payment_succeeded' == $event_type ) {
+				do_action(
+					'psts_gateway_success',
+					'stripe',
+					'payment received! record it :)',
+					$event_json
+				);
 				self::record_transaction( $event_json );
 			}
 
@@ -1310,6 +1323,13 @@ class ProSites_Gateway_Stripe {
 				// In case the blog has since been removed from the database, just exit
 				$details = get_blog_details( $blog_id );
 				if ( empty( $details ) ) {
+					do_action(
+						'psts_gateway_error',
+						'stripe',
+						'ignore the message because the blog does not exist anymore',
+						'Blog ID: ' . $blog_id,
+						$event_json
+					);
 					return false;
 				}
 
@@ -1456,6 +1476,13 @@ class ProSites_Gateway_Stripe {
 			die( 1 );
 		} catch ( Exception $ex ) {
 			$message = $ex->getMessage();
+			do_action(
+				'psts_gateway_error',
+				'stripe',
+				'something unexepected happened',
+				$ex,
+				$event_json
+			);
 			die( $message );
 		}
 

@@ -54,14 +54,14 @@ class ProSites_Logging {
 		add_action(
 			'psts_gateway_error',
 			array( $this, 'gateway_error' ),
-			10, 3
+			10, 99
 		);
 
 		// Action: psts_gateway_success
 		add_action(
 			'psts_gateway_success',
 			array( $this, 'gateway_success' ),
-			10, 3
+			10, 99
 		);
 	}
 
@@ -70,9 +70,9 @@ class ProSites_Logging {
 	 *
 	 * @param string $gateway_id The gateway that triggered the error
 	 * @param string $message The error message (string)
-	 * @param mixed $data Additional data that are dumped with the error
+	 * @param mixed $data Optional. User defined argument list.
 	 */
-	public function gateway_error( $gateway_id, $message, $data ) {
+	public function gateway_error( $gateway_id, $message ) {
 		$message = sprintf(
 			"%s GATEWAY ERROR [%s]: %s\n",
 			date( "Y-m-d\tH:i:s\t" ),
@@ -81,7 +81,9 @@ class ProSites_Logging {
 		);
 
 		error_log( $message, 3, $this->log_file );
-		$this->log_data( $data );
+		for ( $i = 2; $i < func_num_args(); $i += 1 ) {
+			$this->log_data( func_get_arg( $i) );
+		}
 		$this->log_separator();
 	}
 
@@ -90,10 +92,9 @@ class ProSites_Logging {
 	 *
 	 * @param string $gateway_id The gateway that triggered the error
 	 * @param string $message The success message, indicating what was done (string)
-	 * @param mixed $result The result of the gateway process (e.g. retun value)
-	 * @param mixed $data Additional data that are dumped with the message
+	 * @param mixed $data Optional. User defined argument list.
 	 */
-	public function gateway_success( $gateway_id, $message, $result, $data ) {
+	public function gateway_success( $gateway_id, $message ) {
 		$message = sprintf(
 			"%s GATEWAY SUCCESS [%s]: %s\n",
 			date( "Y-m-d\tH:i:s\t" ),
@@ -102,8 +103,9 @@ class ProSites_Logging {
 		);
 
 		error_log( $message, 3, $this->log_file );
-		$this->log_data( $result );
-		$this->log_data( $data );
+		for ( $i = 2; $i < func_num_args(); $i += 1 ) {
+			$this->log_data( func_get_arg( $i) );
+		}
 		$this->log_separator();
 	}
 
@@ -114,6 +116,8 @@ class ProSites_Logging {
 	 * @param  mixed $data Value to log.
 	 */
 	protected function log_data( $data ) {
+		if ( ! $data ) { return; }
+
 		if ( is_scalar( $data ) ) {
 			$dump = $data;
 		} else {
