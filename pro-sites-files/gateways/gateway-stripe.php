@@ -1614,6 +1614,12 @@ class ProSites_Gateway_Stripe {
 		$from_sub     = 'subscription' == $object->object ? true : false;
 
 		if ( ! $from_invoice && ! $from_sub ) {
+			do_action(
+				'psts_gateway_error',
+				'stripe',
+				'unknown source',
+				$object
+			);
 			return false;
 		}
 
@@ -1654,6 +1660,12 @@ class ProSites_Gateway_Stripe {
 				}
 			}
 			if ( ! $subscription && ! $last_line_item ) {
+				do_action(
+					'psts_gateway_error',
+					'stripe',
+					'seems like invoice is empty (no line data)',
+					$object
+				);
 				return false;
 			}
 			if( ! $subscription ) {
@@ -1661,6 +1673,12 @@ class ProSites_Gateway_Stripe {
 					$customer = Stripe_Customer::retrieve( $object->customer );
 					$subscription = $customer->subscriptions->retrieve( $line_item->subscription );
 				} else {
+					do_action(
+						'psts_gateway_error',
+						'stripe',
+						'no subscription found in invoice',
+						$object
+					);
 					return false;
 				}
 			}
@@ -1738,6 +1756,13 @@ class ProSites_Gateway_Stripe {
 			$subscription->plan_change_mode = 'downgrade';
 		}
 
+		do_action(
+			'psts_gateway_success',
+			'stripe',
+			'found subscription',
+			$subscription,
+			$object
+		);
 		return $subscription;
 	}
 
