@@ -32,6 +32,7 @@ Change Log:
 - Fixed: Signup: Double Signup email, when Buddypress is active
 - Fixed: Signup: Allow users to signup, if they are logged in and they don't have a site
 - Fixed: Stripe: Issue with creating coupons for percent off
+- Fixed: Stripe: Payment receipt sent to network admin instead of site admin on upgrade
 - Fixed: Stripe: Subscription Cancel status
 - Fixed: Stats:  Wrong payment amount stored in Pro Sites table
 
