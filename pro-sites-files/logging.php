@@ -140,11 +140,11 @@ class ProSites_Logging {
 }
 
 /*
- * To disable Logging simply add this line to wp-config.php
+ * To enable Logging simply add this line to wp-config.php
  *
- * define( 'PSTS_LOGGING', false );
+ * define( 'PSTS_LOGGING', true );
  */
-if ( ! defined( 'PSTS_LOGGING' ) || PSTS_LOGGING ) {
+if ( defined( 'PSTS_LOGGING' ) && PSTS_LOGGING ) {
 	// Initialize the logging object right now.
 	ProSites_Logging::instance();
 }
