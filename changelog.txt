@@ -15,6 +15,7 @@ Change Log:
 - Fixed: PSTS_CHECKOUT_SITE issue with checkout page on subsite
 - Fixed: Wrong Upgrade amount if price is in decimal
 - Fixed: Warning and Notices (Manual Payment Gateway, )
+- Fixed: Remove Create new site link from dashboard, if multiple blog signup is disabled
 - Fixed: Checkout:  feature description not visible for single level in pricing table
 - Fixed: Checkout: Styling issue single level, single period plans, Highlighting featured plans
 - Fixed: Checkout: Create a new site link not redirecting when Buddypress is active

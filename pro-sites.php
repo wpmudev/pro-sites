@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1';
+	var $version = '3.6.4';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -193,6 +193,10 @@ class ProSites {
 
 		//Check for manual signup, on blog activation
 		add_action('wpmu_activate_blog', array( $this, 'process_manual_signup'), 10, 5 );
+
+		//Checks if Allow multiple blog signup is disabled, hides the create new site link from dashboard
+//		add_filter('default_site_option_registration', array($this, 'hide_create_new_site_link') );
+//		add_filter('site_option_registration', array($this, 'hide_create_new_site_link') );
 
 		$this->setup_ajax_hooks();
 
@@ -1200,6 +1204,7 @@ Thanks!", 'psts' ),
 			'button_choose' => __( "Choose Plan", 'psts' ),
 			'button_chosen' => __( "Chosen Plan", 'psts' ),
 			'logged_in' => is_user_logged_in(),
+			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false'
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
@@ -2378,7 +2383,7 @@ Thanks!", 'psts' ),
 			wp_enqueue_script( 'jquery-datepicker-i18n', $this->plugin_url . 'datepicker/js/datepicker-i18n.min.js', array(
 				'jquery',
 				'jquery-ui-core',
-				'jquery-datepicker'
+				'jquery-datepickexr'
 			), $this->version );
 		}
 	}
@@ -4725,6 +4730,9 @@ function admin_levels() {
 			$registeration = get_site_option('registration');
 			$show_signup = 'all' == $registeration ? $show_signup : false;
 
+			$allow_new_blog = ProSites_Helper_ProSite::allow_new_blog();
+			$show_signup = $allow_new_blog ? $show_signup : $allow_new_blog;
+
 			if( ! is_user_logged_in() && ! $show_signup ) {
 				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
 				$content .= wp_login_form( array( 'echo' => false ) );
@@ -4851,20 +4859,9 @@ function admin_levels() {
 			//this is the main hook for new checkout page
 			$content = apply_filters( 'psts_primary_checkout_table', $content, $blog_id );
 
-			/**
-			 * @todo: Moved this to the Checkout class
-			 */
-			//this is the main hook for gateways to add all their code
-//			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
 		} elseif ( $session_domain = ProSites_Helper_Session::session( 'domain' ) ) {
-			//after signup
-
 			//this is the main hook for new checkout page
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $session_domain );
-			/**
-			 * @todo: Moved this to the Checkout class
-			 */
-//			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
 		} else { //blogid not set
 			$blog_id = 0;
 			if ( $blogs ) {
@@ -4904,7 +4901,7 @@ function admin_levels() {
 				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div id="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 				$content .= apply_filters( 'prosites_myaccounts_list', '', $blog_id );
 
@@ -5393,20 +5390,21 @@ function admin_levels() {
 	}
 
 	public static function filter_html( $content ) {
-		$allowed_atts = array( 'align'    => array(),
-		                       'class'    => array(),
-		                       'id'       => array(),
-		                       'dir'      => array(),
-		                       'lang'     => array(),
-		                       'style'    => array(),
-		                       'xml:lang' => array(),
-		                       'src'      => array(),
-		                       'alt'      => array(),
-								'value' =>array(),
-			'selected' =>array(),
-			'name'=>array(),
-			'checked'=>array(),
-		);
+		$allowed_atts = array(
+		'align'    => array(),
+       'class'    => array(),
+       'id'       => array(),
+       'dir'      => array(),
+       'lang'     => array(),
+       'style'    => array(),
+       'xml:lang' => array(),
+       'src'      => array(),
+       'alt'      => array(),
+       'value' =>array(),
+       'selected' =>array(),
+       'name'=>array(),
+       'checked'=>array(),
+       );
 		$allowed = array(
 			'span' => $allowed_atts,
 			'div' => $allowed_atts,
@@ -5491,6 +5489,32 @@ function admin_levels() {
 		//Check meta
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
 		$this->record_transaction( $blog_id, 'Manual', $amount );
+	}
+
+	/**
+    * Check if new blog creation is allowed or not, Show/Hide create new link
+    *
+	* @param $value
+	*
+	*@return string
+	 */
+	function hide_create_new_site_link( $value ) {
+		global $current_screen, $psts;
+		//List of screens, where we don't interfere
+		$return_original = array(
+			'settings-network'
+		);
+		if( !empty( $current_screen ) && in_array( $current_screen->base, $return_original ) ) {
+			return $value;
+		}
+
+		$allow_new_blog = ProSites_Helper_ProSite::allow_new_blog();
+		//Check if multiple signups are allowed for blog, return the value in that case
+		if( $allow_new_blog ) {
+			return $value;
+		}else{
+			return 'user';
+		}
 	}
 
 }

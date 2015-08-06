@@ -60,6 +60,7 @@ jQuery( document ).ready( function ( $ ) {
         if ( false != action && 'new_blog' == action ) {
             new_blog = true;
         }
+        new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
 
         // Hide login link if its visible
         $( '.login-existing' ).hide();
@@ -443,10 +444,11 @@ jQuery( document ).ready( function ( $ ) {
 
         var blog_id = Requests.QueryString( "bid" );
         var action = Requests.QueryString( "action" );
-        var new_blog = false;
-        if ( false != action && 'new_blog' == action ) {
-            new_blog = true;
-        }
+	    var new_blog = false;
+	    if ( false != action && 'new_blog' == action ) {
+		    new_blog = true;
+	    }
+	    new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
 
         // Hide login link if its visible
         $( '.login-existing form' ).hide();
@@ -648,15 +650,20 @@ jQuery( document ).ready( function ( $ ) {
                 $( '.gateways.checkout-gateways' ).removeClass( 'hidden' );
             }
         }
+	    var new_blog = false;
+	    if ( false != action && 'new_blog' == action ) {
+		    new_blog = true;
+	    }
+	    new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
 
         if ( typeof response.username_available != 'undefined' && true === response.username_available ) {
-            if ( 'new_blog' != Requests.QueryString( "action" ) ) {
+            if ( new_blog ) {
                 $( '[name=user_name]' ).after( '<i class="input_available"></i>' );
                 position_field_available_tick( '[name=user_name]' );
             }
         }
         if ( typeof response.email_available != 'undefined' && true === response.email_available ) {
-            if ( 'new_blog' != Requests.QueryString( "action" ) ) {
+            if ( new_blog ) {
                 $( '[name=user_email]' ).after( '<i class="input_available"></i>' );
                 position_field_available_tick( '[name=user_email]' );
             }

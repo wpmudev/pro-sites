@@ -44,7 +44,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			// User is not logged in and this is not a new registration.
 			// Get them to sign up! (or login)
-			if ( empty( $blog_id ) && ! isset( $session_data['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
+			if ( !is_user_logged_in() && empty( $blog_id ) && ! isset( $session_data['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
 				self::$new_signup = true;
 			}
 			// Get blog_id from the session...
@@ -698,7 +698,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$free_text = $psts->get_setting( 'free_msg' );
 			$content   = '';
-			if ( ! isset( $_GET['bid'] ) && empty( $blog_id ) && ! isset( $session_data['new_blog_details']['blogname'] ) ) {
+			if ( ! isset( $_GET['bid'] ) && empty( $blog_id ) && ! isset( $session_data['new_blog_details']['blogname'] ) && ProSites_Helper_ProSite::allow_new_blog() ) {
 				$content = '<div class="free-plan-link" style="' . esc_attr( $style ) . '">';
 				$content .= apply_filters( 'prosites_checkout_free_link', '<a>' . esc_html( $free_text ) . '</a>', $blog_id );
 				$content .= '</div>';
@@ -706,7 +706,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				if ( empty( $blog_id ) && ! empty( $_GET['bid'] ) ) {
 					$blog_id = (int) $_GET['bid'];
 				}
-				if ( ! is_pro_site( $blog_id ) ) {
+				if ( ! is_pro_site( $blog_id ) && ProSites_Helper_ProSite::allow_new_blog() ) {
 					$free_link = apply_filters( 'prosites_checkout_free_link', '<a class="pblg-checkout-opt" style="width:100%" id="psts-free-option" href="' . get_admin_url( $blog_id, 'index.php?psts_dismiss=1', 'http' ) . '" title="' . __( 'Dismiss', 'psts' ) . '">' . $psts->get_setting( 'free_msg', __( 'No thank you, I will continue with a basic site for now', 'psts' ) ) . '</a>', $blog_id );
 					$content   = '<div class="free-plan-link-logged-in" style="' . esc_attr( $style ) . '"><p>' . esc_html__( 'Your current site is a basic site with no extra features. Upgrade now by selecting a plan above.', 'psts' ) . '</p><p>' . $free_link . '</p></div>';
 				}

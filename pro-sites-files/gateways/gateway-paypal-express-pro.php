@@ -1297,7 +1297,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			<input type="hidden" name="tax-evidence" value="" />';
 
 
-		if ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) {
+		if ( ProSites_Helper_ProSite::allow_new_blog() && ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) ) ) {
 			$content .= '<input type="hidden" name="new_blog" value="1" />';
 		}
 

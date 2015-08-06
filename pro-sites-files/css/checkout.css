@@ -1106,6 +1106,9 @@ ul.pricing-column.not-chosen-plan .button-box button {
 }
 
 /* === GATEWAYS === */
+.checkout-gateways {
+    margin-top: 30px;
+}
 #gateways ul {
     margin:0;
 }

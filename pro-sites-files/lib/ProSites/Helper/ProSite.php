@@ -55,11 +55,13 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			$show_signup = $psts->get_setting( 'show_signup' );
 			$bp_redirect = false;
 
-			if( class_exists('BuddyPress') && bp_is_register_page() ) {
+			if ( class_exists( 'BuddyPress' ) && bp_is_register_page() ) {
 				$bp_redirect = true;
 			}
-			if( ( 'wp-signup.php' == $pagenow || $bp_redirect ) && $show_signup ) {
-				wp_redirect( $psts->checkout_url() );
+			if ( ( 'wp-signup.php' == $pagenow || $bp_redirect ) && $show_signup ) {
+				//Check if already logged in
+				$new_blog = add_query_arg( array( "action" => "new_blog" ), $psts->checkout_url() );
+				wp_redirect( $new_blog );
 				exit();
 			}
 		}
@@ -237,6 +239,29 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			update_site_option( 'psts_settings', $settings );
 		}
 
+		/**
+		 * Check if blog creation is allowed
+		 * @return bool
+		 */
+		public static function allow_new_blog() {
+			global $psts;
+			$allow_multiple_blog = $psts->get_setting('multiple_signup', false );
+			//If Multiple blogs are allowed, let them create
+			if( $allow_multiple_blog ) {
+				return true;
+			}
 
+			//If not loggedin, ofcourse you can create a new blog
+			if( !is_user_logged_in() ) {
+				return true;
+			}
+			//If we are here -> No Multiple blog
+			//count number of blogs
+			$count = get_blogs_of_user( get_current_user_id(), false );
+			if( $count > 1 ) {
+				//If count is greater than 1, don't allow new blogs
+				return false;
+			}
+		}
 	}
 }
