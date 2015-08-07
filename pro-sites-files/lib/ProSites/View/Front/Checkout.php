@@ -110,8 +110,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$show_buy_buttons   = in_array( 'button', $column_keys );
 			$add_coupon         = in_array( 'coupon', $column_keys );
 
-			//Show first column, if feature table is enabled or period selector position is in first column
-			$show_first_column = $show_feature_table || ( 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) && $show_periods );
+			//Show first column, if feature table is enabled or period selector position is in first column, coupon is to be shown in first column
+			$show_first_column = $show_feature_table ||
+			                     ( 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) && $show_periods ) ||
+			                     ( $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) );
 
 			if ( $show_first_column ) {
 				$total_columns = count( $columns );
@@ -316,9 +318,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 			//If there are any modules to compare
 			if ( $show_features && $show_table && count( $enabled_modules ) > 0 ) {
-				//Check if any module is visible
-				$show_compare_column = false;
-				//If any of the module is set to visible, then only show compare features column
 				// Set first row
 				$col_count                          = 0;
 				$row_count                          = 0;
@@ -396,7 +395,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$columns[ $col_count ]['coupon'] = __( 'Apply coupon', 'psts' );
 			}
 
-			$featured_level = $psts->get_setting( 'featured_level' );
+			if ( 'enabled' == $psts->get_setting( 'psts_checkout_show_featured' ) ) {
+				$featured_level = $psts->get_setting( 'featured_level' );
+			} else {
+				$featured_level = - 1;
+			}
 
 			foreach ( $columns as $key => $column ) {
 				if ( empty( $featured_level ) || empty( $column['level_id'] ) || $column['level_id'] != $featured_level ) {
