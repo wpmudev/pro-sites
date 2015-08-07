@@ -12,20 +12,20 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
 
-			if( $taxamo_enabled ) {
+			if ( $taxamo_enabled ) {
 				// Prepare for location based TAX (Taxamo does its own checking client side)
 				ProSites_Helper_Geolocation::init_geolocation();
 			}
 
 			// Reposition coupon based on option
-			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
-			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
-			$pt_pos = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
+			$coupons_enabled        = $psts->get_setting( 'coupons_enabled' );
+			$coupons_enabled        = 'enabled' === $coupons_enabled ? true : false;
+			$pt_pos                 = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' ) != 'disabled' ? true : false;
 
 			//If Coupons are enabled and set to show at the bottom OR
 			//If feature column is not enabled, show coupon at the bottom
-			if ( ( $coupons_enabled && ( 'option2' ==  $pt_pos ) ) || ( !$features_table_enabled && $coupons_enabled )
+			if ( ( $coupons_enabled && ( 'option2' == $pt_pos ) ) || ( ! $features_table_enabled && $coupons_enabled )
 			) {
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
 			}
@@ -44,7 +44,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			// User is not logged in and this is not a new registration.
 			// Get them to sign up! (or login)
-			if ( !is_user_logged_in() && empty( $blog_id ) && ! isset( $session_data['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
+			if ( ! is_user_logged_in() && empty( $blog_id ) && ! isset( $session_data['new_blog_details'] ) && empty( $current_prosite_blog ) ) {
 				self::$new_signup = true;
 			}
 			// Get blog_id from the session...
@@ -122,7 +122,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$total_width = 100.0;
 			$total_width -= 6.0; // account for extra space around featured plan
 			$column_width  = $total_width / $total_columns;
-			$column_width = !empty( $column_width ) ? number_format( $column_width, 1 ) : $column_width;
+			$column_width  = ! empty( $column_width ) ? number_format( $column_width, 1 ) : $column_width;
 			$feature_width = $column_width + 6.0;
 			$normal_style  = 'width: ' . $column_width . '%; ';
 			$feature_style = 'width: ' . $feature_width . '%; ';
@@ -156,7 +156,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						$content .= '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
 					}
 
-					if( !empty( $column['summary'] ) ) {
+					if ( ! empty( $column['summary'] ) ) {
 						$content .= '<li class="summary' . $override . '">' . ProSites::filter_html( $column['summary'] ) . '</li>';
 					}
 				}
@@ -216,7 +216,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$allow_free = $psts->get_setting( 'free_signup' );
 			$style      = $total_columns > 1 ? 'margin-left: ' . $column_width . '%; ' : 'top: 18px; margin-bottom: 15px;';
-			$style .=  $total_columns > 1 ? 'width: ' . ( 100 - $column_width ) . '%; ' : '';
+			$style .= $total_columns > 1 ? 'width: ' . ( 100 - $column_width ) . '%; ' : '';
 			$content = apply_filters( 'psts_checkout_before_free', $content, $blog_id, $style );
 			if ( $allow_free ) {
 				$content .= self::render_free( $style, $blog_id );
@@ -304,9 +304,21 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$col_count += 1;
 				}
 			}
+			$enabled_modules = $psts->get_setting( 'modules_enabled', array() );
+			$feature_table   = ProSites_Model_Pricing::load_feature_settings();
 
-			if ( $show_features ) {
-
+			$show_table = false;
+			//Iterate over feature table, and check if any of the module is set to visible
+			foreach ( $feature_table as $feature => $feature_array ) {
+				if ( is_array( $feature_table[ $feature ] ) && ! empty( $feature_table[ $feature ]['visible'] ) ) {
+					$show_table = true;
+				}
+			}
+			//If there are any modules to compare
+			if ( $show_features && $show_table && count( $enabled_modules ) > 0 ) {
+				//Check if any module is visible
+				$show_compare_column = false;
+				//If any of the module is set to visible, then only show compare features column
 				// Set first row
 				$col_count                          = 0;
 				$row_count                          = 0;
@@ -322,11 +334,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 				$row_count += 1;
 
-				$feature_table   = ProSites_Model_Pricing::load_feature_settings();
-				$feature_order   = $feature_table['feature_order'];
-				$feature_order   = explode( ',', $feature_order );
-				$feature_order   = array_filter( $feature_order );
-				$enabled_modules = $psts->get_setting( 'modules_enabled', array() );
+				$feature_order = $feature_table['feature_order'];
+				$feature_order = explode( ',', $feature_order );
+				$feature_order = array_filter( $feature_order );
 
 				foreach ( $feature_order as $index => $feature_key ) {
 
@@ -435,7 +445,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			if ( empty( $level ) ) {
 
-				if( 'option1' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
+				if ( 'option1' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
 					return '';
 				}
 				$content = '<div class="period-selector"><div class="heading">' . esc_html( $plan_text['payment_type'] ) . '</div>
@@ -562,7 +572,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						}
 						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . $summary_msg . '</div>';
 					} else {
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . wp_kses( $plan_text['monthly_alt'], array('br' => array(), 'em' => array(), 'span' => array() ) ) . '</div>';
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . wp_kses( $plan_text['monthly_alt'], array( 'br'   => array(),
+						                                                                                                                                                                            'em'   => array(),
+						                                                                                                                                                                            'span' => array()
+							) ) . '</div>';
 					}
 
 					$content .= '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . esc_attr( $display_style ) . '">' . $summary_msg . '</div>';
@@ -846,6 +859,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		/**
 		 * Displays Coupon Box on checkout page
+		 *
 		 * @param $content
 		 *
 		 * @return string
