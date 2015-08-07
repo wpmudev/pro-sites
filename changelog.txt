@@ -24,6 +24,7 @@ Change Log:
 - Fixed: Checkout: Clicking on choose plan, doesn't shows payment gateway
 - Fixed: Coupon: Not displayed, if feature table is disabled and coupon set to display
 - Fixed: Currency Symbols: Turkish Lira HTML code
+- Fixed: Currency Symbols: some of the symbols being converted to emoji urls
 - Fixed: Manual Payment: Pro Site level not assigned
 - Added: Manual Payment: Activation Link, Cost and Coupon details in email sent to admin
 - Fixed: PayPal: Coupon not working

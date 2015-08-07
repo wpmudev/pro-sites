@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.6.4';
+	var $version = '3.5.1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -1627,7 +1627,10 @@ Thanks!", 'psts' ),
 		);
 		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
+		//It is converting Euro symbol to emoji, need to submit a trac ticket, until then remove emoji in email
+		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $psts->pdf_receipt( $e['msg'] ) );
+		add_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 
