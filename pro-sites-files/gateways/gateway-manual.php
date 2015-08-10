@@ -205,20 +205,49 @@ class ProSites_Gateway_Manual {
 	}
 
 	public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
-		global $psts;
-
-		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
-		foreach ( $session_keys as $key ) {
-			$process_data[ $key ] = isset( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
-		}
+		global $psts, $wpdb;
 
 		if ( isset( $_POST['psts_mp_submit'] ) ) {
+
+			$new_blog = true;
 
 			//check for level
 			if ( ! isset( $_POST['level'] ) || ! isset( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
 
 				return;
+			}
+
+			// Try going stateless, or check the session
+			$process_data = array();
+			$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
+			foreach ( $session_keys as $key ) {
+				$process_data[ $key ] = ! empty( $process_data[ $key ] ) ? $process_data[ $key ] : ProSites_Helper_Session::session( $key );
+			}
+
+			// Get blog_id from the session
+			if ( isset( $process_data['new_blog_details'] ) && isset( $process_data['new_blog_details']['blog_id'] ) ) {
+				$blog_id = $process_data['new_blog_details']['blog_id'];
+			}
+			$activation_key = '';
+			//Get domain details, if activation is set, runs when user submits the form for blog signup
+			if ( ! empty( $_POST['activation'] ) || ! empty( $process_data['activation_key'] ) ) {
+
+				$activation_key = ! empty( $_POST['activation'] ) ? $_POST['activation'] : $process_data['activation_key'];
+
+				//For New Signup
+				$signup_details = $wpdb->get_row( $wpdb->prepare( "SELECT `domain`, `path` FROM $wpdb->signups WHERE activation_key = %s", $activation_key ) );
+
+				if ( $signup_details ) {
+
+					$domain = $signup_details->domain;
+					$path   = $signup_details->path;
+
+					//Store values in session or custom variable, to be used after user returns from Paypal Payment
+					$process_data['new_blog_details']['domain'] = $domain;
+					$process_data['new_blog_details']['path']   = $path;
+				}
+				$process_data['activation_key'] = $activation_key;
 			}
 
 			if ( is_user_logged_in() ) {
@@ -240,8 +269,9 @@ class ProSites_Gateway_Manual {
 			}
 
 			// Get the blog id... try the session or get it from the database
-			$blog_id = isset( $process_data['upgraded_blog_details']['blog_id'] ) ? $process_data['upgraded_blog_details']['blog_id'] : 0;
-			$blog_id = ! empty( $blog_id ) ? $blog_id : isset( $process_data['new_blog_details']['blog_id'] ) ? $process_data['new_blog_details']['blog_id'] : isset( $process_data['new_blog_details']['blogname'] ) ? get_id_from_blogname( $process_data['new_blog_details']['blogname'] ) : 0;
+			$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $_GET['bid'] ) ? (int) $_GET['bid'] : 0 );
+			$blog_id = empty( $blog_id ) && isset( $process_data['upgraded_blog_details']['blog_id'] ) ? $process_data['upgraded_blog_details']['blog_id'] : $blog_id;
+			$blog_id = ! empty( $blog_id ) ? $blog_id : ( ! empty( $process_data['new_blog_details']['blog_id'] ) ? $process_data['new_blog_details']['blog_id'] : ( ! empty( $process_data['new_blog_details']['blogname'] ) ? get_id_from_blogname( $process_data['new_blog_details']['blogname'] ) : 0 ) );
 
 			switch_to_blog( $blog_id );
 			$blog_admin_url = admin_url();
@@ -256,53 +286,123 @@ class ProSites_Gateway_Manual {
 				$activation_key = $process_data['activation_key'];
 			}
 
-			$current_payment = self::calculate_cost( $blog_id, $_POST['level'], $_POST['period'], $process_data['COUPON_CODE'] );
-
-			$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
-
-			$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
-				'username'        => $username,
-				'level'           => intval( $_POST['level'] ),
-				'level_name'      => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
-				'period'          => intval( $_POST['period'] ),
-				'user_email'      => $email,
-				'activation_key'  => $activation_key,
-				'activation_link' => home_url( '/' ) . 'activate/?key=' . $activation_key,
-				'site_address'    => get_home_url(),
-				'manage_link'     => $blog_admin_url,
-				'coupon_code'     => !empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
-			) );
-
-			$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
-				'description'     => sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $message_fields['username'] ) . "\n",
-				'level_text'      => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
-				'period_text'     => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
-				'email_text'      => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
-				'activation_text' => sprintf( __( "Activation Key: %s", 'psts' ), $message_fields['activation_key'] ),
-				'activation_link' => sprintf( __( "Activation Link: %s", 'psts' ), $message_fields['activation_link'] ),
-				'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
-				'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
-				'coupon_used'     => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
-				'payment_amount'  => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
-			), $message_fields );
-
-			if ( ! empty( $_POST['psts_mp_text'] ) ) {
-				$message_parts['mp_text'] = __( 'User-Entered Comments:', 'psts' ) . "\n";
-				$message_parts['mp_text'] .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
+			//Set Level and period in upgraded blog details, if blog id is set, for upgrades
+			if ( ! empty( $blog_id ) ) {
+				$new_blog = false;
+				if ( ! empty( $level ) && ! empty( $period ) ) {
+					$process_data['upgraded_blog_details']['level']  = $level;
+					$process_data['upgraded_blog_details']['period'] = $period;
+				}
+				$current = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
 			}
 
-			$message = apply_filters( 'prosites_manual_payment_email_body', implode( "\n", $message_parts ) . "\n", $message_parts, $message_fields );
+			$signup_type = $new_blog ? 'new_blog_details' : 'upgraded_blog_details';
 
-			wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+			// Update the session data with the changed process data.
+			ProSites_Helper_Session::session( 'new_blog_details', $process_data['new_blog_details'] );
+			ProSites_Helper_Session::session( 'upgraded_blog_details', $process_data['upgraded_blog_details'] );
+			ProSites_Helper_Session::session( 'activation_key', $process_data['activation_key'] );
 
+			if ( isset( $_GET['token'] ) ) {
+				//Check if blog id is set, If yes -> Upgrade, else  -> New Setup
+				$_POST['level']  = ! empty( $process_data[ $signup_type ] ) ? $process_data[ $signup_type ]['level'] : '';
+				$_POST['period'] = ! empty( $process_data[ $signup_type ] ) ? $process_data[ $signup_type ]['period'] : '';
+			}
+
+			$current_payment = self::calculate_cost( $blog_id, $_POST['level'], $_POST['period'], $process_data['COUPON_CODE'] );
+			$modify = self::is_modifying($blog_id, $_POST, $current_payment );
+			if ( $modify ) {
+				//Plan Update
+				$psts->log_action( $blog_id, sprintf( __( 'User submitted Manual Payment for blog upgrade from %s to %s.', 'psts' ), $psts->get_level_setting( intval( $current->level ), 'name' ), $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) ) );
+				$updated = array(
+					'render'      => true,
+					'blog_id'     => $blog_id,
+					'level'       => $_POST['level'],
+					'period'      => $_POST['period'],
+					'prev_level'  => ! empty( $current->level ) ? $current->level : '',
+					'prev_period' => ! empty( $current->term ) ? $current->term : '',
+					'gateway'     => 'manual'
+				);
+				ProSites_Helper_Session::session( 'plan_updated', $updated );
+				$subject = __( 'Pro Sites Manual Payment Submission for Plan update', 'psts' );
+
+				$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
+					'username'        => $username,
+					'level'           => intval( $_POST['level'] ),
+					'level_name'      => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
+					'period'          => intval( $_POST['period'] ),
+					'user_email'      => $email,
+					'site_address'    => get_home_url(),
+					'manage_link'     => $blog_admin_url,
+					'coupon_code'     => ! empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
+				) );
+
+				$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
+					'description'     => sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $message_fields['username'] ) . "\n",
+					'level_text'      => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
+					'period_text'     => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
+					'email_text'      => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
+					'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
+					'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
+					'coupon_used'     => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
+					'payment_amount'  => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
+				), $message_fields );
+
+				if ( ! empty( $_POST['psts_mp_text'] ) ) {
+					$message_parts['mp_text'] = __( 'User-Entered Comments:', 'psts' ) . "\n";
+					$message_parts['mp_text'] .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
+				}
+
+				$message = apply_filters( 'prosites_manual_payment_email_body', implode( "\n", $message_parts ) . "\n", $message_parts, $message_fields );
+
+				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+
+			}else {
+
+				$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
+
+				$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
+					'username'        => $username,
+					'level'           => intval( $_POST['level'] ),
+					'level_name'      => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
+					'period'          => intval( $_POST['period'] ),
+					'user_email'      => $email,
+					'activation_key'  => $activation_key,
+					'activation_link' => home_url( '/' ) . 'activate/?key=' . $activation_key,
+					'site_address'    => get_home_url(),
+					'manage_link'     => $blog_admin_url,
+					'coupon_code'     => ! empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
+				) );
+
+				$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
+					'description'     => sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $message_fields['username'] ) . "\n",
+					'level_text'      => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
+					'period_text'     => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
+					'email_text'      => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
+					'activation_text' => sprintf( __( "Activation Key: %s", 'psts' ), $message_fields['activation_key'] ),
+					'activation_link' => sprintf( __( "Activation Link: %s", 'psts' ), $message_fields['activation_link'] ),
+					'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
+					'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
+					'coupon_used'     => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
+					'payment_amount'  => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
+				), $message_fields );
+
+				if ( ! empty( $_POST['psts_mp_text'] ) ) {
+					$message_parts['mp_text'] = __( 'User-Entered Comments:', 'psts' ) . "\n";
+					$message_parts['mp_text'] .= wp_specialchars_decode( stripslashes( wp_filter_nohtml_kses( $_POST['psts_mp_text'] ) ), ENT_QUOTES );
+				}
+
+				$message = apply_filters( 'prosites_manual_payment_email_body', implode( "\n", $message_parts ) . "\n", $message_parts, $message_fields );
+
+				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+				ProSites_Helper_Session::session( array(
+					'new_blog_details',
+					'reserved_message'
+				), __( 'Manual payment request submitted.', 'psts' ) );
+				// Payment pending...
+				ProSites_Helper_Session::session( array( 'new_blog_details', 'manual_submitted' ), true );
+			}
 			do_action( 'prosites_manual_payment_email_sent', $message, $message_parts, $message_fields );
-
-			ProSites_Helper_Session::session( array(
-				'new_blog_details',
-				'reserved_message'
-			), __( 'Manual payment request submitted.', 'psts' ) );
-			// Payment pending...
-			ProSites_Helper_Session::session( array( 'new_blog_details', 'manual_submitted' ), true );
 
 			$recurring = $psts->get_setting( 'recurring_subscriptions', true );
 
@@ -376,6 +476,7 @@ class ProSites_Gateway_Manual {
 
 	/**
 	 * Calculate the payment made for the current purchase
+	 *
 	 * @param $blog_id
 	 * @param $level
 	 * @param $period
@@ -385,8 +486,8 @@ class ProSites_Gateway_Manual {
 	 */
 	public static function calculate_cost( $blog_id, $level, $period, $coupon_code ) {
 		global $psts;
-		$setup_fee  = (float) $psts->get_setting( 'setup_fee', 0 );
-		$recurring  = $psts->get_setting( 'recurring_subscriptions', true );
+		$setup_fee     = (float) $psts->get_setting( 'setup_fee', 0 );
+		$recurring     = $psts->get_setting( 'recurring_subscriptions', true );
 		$paymentAmount = $psts->get_level_setting( $level, 'price_' . $period );
 		$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );
 		$has_coupon    = ( isset( $coupon_code ) && ProSites_Helper_Coupons::check_coupon( $coupon_code, $blog_id, $level, $period, '' ) ) ? true : false;
@@ -395,7 +496,7 @@ class ProSites_Gateway_Manual {
 		if ( $has_setup_fee ) {
 			$paymentAmount += $setup_fee;
 		}
-		if( !$recurring && ! empty( $blog_id ) ) {
+		if ( ! $recurring && ! empty( $blog_id ) ) {
 			//Calculate Upgrade or downgrade cost, use original cost to calculate the Upgrade cost
 			$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $level, $period, $paymentAmount );
 		}
@@ -413,7 +514,68 @@ class ProSites_Gateway_Manual {
 		return $paymentAmount;
 	}
 
+	/**
+	 * Check if user is upgrading or downgrading
+	 *
+	 * @param $blog_id
+	 * @param $post
+	 */
+	private static function is_modifying( $blog_id, $post, $initAmount ) {
+		global $psts;
 
+		$modify = false;
+		$level  = ! empty( $post['level'] ) ? $post['level'] : '';
+		$period = ! empty( $post['period'] ) ? $post['period'] : '';
+		if ( empty( $blog_id ) || empty( $level ) || empty( $period ) ) {
+			return false;
+		}
+		//check for modifying
+		if ( ! empty( $blog_id ) && is_pro_site( $blog_id ) && ! is_pro_trial( $blog_id ) ) {
+			$modify = $psts->calc_upgrade( $blog_id, $initAmount, $level, $period );
+			$modify = $modify ? $modify : $psts->get_expire( $blog_id );
+		} else {
+			$modify = false;
+		}
+
+		return $modify;
+	}
+	public static function render_account_modified( $content, $blog_id, $domain ) {
+		global $psts;
+
+		$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
+
+		// Exit as if this never happened
+		if ( ! isset( $render_data['plan_updated'] ) || false == $render_data['plan_updated']['render'] ) {
+			return $content;
+		}
+
+		$level_list = get_site_option( 'psts_levels' );
+
+		$periods = array(
+			1  => __( 'monthly', 'psts' ),
+			3  => __( 'quarterly', 'psts' ),
+			12 => __( 'anually', 'psts' ),
+		);
+
+		$previous = '<strong>' . $level_list[ $render_data['plan_updated']['prev_level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['prev_period'] ] . ')';
+		$current  = '<strong>' . $level_list[ $render_data['plan_updated']['level'] ]['name'] . '</strong> (' . $periods[ $render_data['plan_updated']['period'] ] . ')';
+
+		$blog_id = (int) $render_data['plan_updated']['blog_id'];
+
+		$content = '<div id="psts-payment-info-received">';
+
+		$user  = wp_get_current_user();
+		$email = $user->user_email;
+
+		$content .= '<h2>' . esc_html__( 'Plan update...', 'psts' ) . '</h2>';
+		$content .= '<p>' . sprintf( esc_html__( 'We have recieved your request to update plan from %s to %s. Once we verify the payment details, the plan will be updated.', 'psts' ), $previous, $current ) . '</p>';
+		$content .= '<a href="' . $psts->checkout_url( $blog_id ) . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';
+		$content .= '</div>';
+
+		ProSites_Helper_Session::unset_session( 'plan_updated' );
+
+		return $content;
+	}
 }
 
 //register the gateway

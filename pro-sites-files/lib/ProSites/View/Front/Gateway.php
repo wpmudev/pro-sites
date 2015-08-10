@@ -96,7 +96,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// If site modified, apply this filter... has to happen after form processing.
 			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
 			if ( isset( $render_data['plan_updated'] ) ) {
-				add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
+				if( !empty( $render_data['plan_updated']['gateway'] ) && $render_data['plan_updated']['gateway'] == 'manual' ) {
+					add_filter( 'prosites_render_checkout_page', 'ProSites_Gateway_Manual::render_account_modified', 10, 3 );
+				}else {
+					add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
+				}
 			}
 
 			$tabbed       = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
@@ -405,7 +409,10 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( $is_pro_site &&
 			     ( ! isset( $_GET['action'] )
 			       //For gateways after redirection, upon page refresh
-			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) )
+			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) ||
+			       //If action is new_blog, but new blog is not allowed
+			       (is_user_logged_in() && !empty($_GET['action'] && $_GET['action'] == 'new_blog' && !ProSites_Helper_ProSite::allow_new_blog() ) )
+			     )
 			) {
 				// EXISTING DETAILS
 				if ( isset( $gateways ) && isset( $gateway_details ) ) {

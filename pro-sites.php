@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.7.2';
+	var $version = '3.5.1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -195,8 +195,8 @@ class ProSites {
 		add_action('wpmu_activate_blog', array( $this, 'process_manual_signup'), 10, 5 );
 
 		//Checks if Allow multiple blog signup is disabled, hides the create new site link from dashboard
-//		add_filter('default_site_option_registration', array($this, 'hide_create_new_site_link') );
-//		add_filter('site_option_registration', array($this, 'hide_create_new_site_link') );
+		add_filter('default_site_option_registration', array($this, 'hide_create_new_site_link') );
+		add_filter('site_option_registration', array($this, 'hide_create_new_site_link') );
 
 		$this->setup_ajax_hooks();
 
@@ -4727,14 +4727,11 @@ function admin_levels() {
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$registeration = get_site_option('registration');
 			$show_signup = 'all' == $registeration ? $show_signup : false;
-
-			$allow_new_blog = ProSites_Helper_ProSite::allow_new_blog();
-			$show_signup = $allow_new_blog ? $show_signup : $allow_new_blog;
 
 			if( ! is_user_logged_in() && ! $show_signup ) {
 				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
