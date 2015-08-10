@@ -360,6 +360,18 @@ class ProSites_Gateway_Manual {
 			}else {
 
 				$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
+				// Send email with activation link.
+				var_dump( is_subdomain_install() );
+				if ( class_exists( 'BuddyPress' ) ) {
+					// Set up activation link
+					$activate_url = bp_get_activation_page() . "?key=$activation_key";
+				} elseif ( ! is_subdomain_install() || get_current_site()->id != 1 ) {
+					$activate_url = network_site_url( "wp-activate.php?key=$activation_key" );
+				} else {
+					$activate_url = "http://{$domain}{$path}wp-activate.php?key=$activation_key"; // @todo use *_url() API
+				}
+
+				$activate_url = esc_url($activate_url);
 
 				$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
 					'username'        => $username,
@@ -368,7 +380,7 @@ class ProSites_Gateway_Manual {
 					'period'          => intval( $_POST['period'] ),
 					'user_email'      => $email,
 					'activation_key'  => $activation_key,
-					'activation_link' => home_url( '/' ) . 'activate/?key=' . $activation_key,
+					'activation_link' => $activate_url,
 					'site_address'    => get_home_url(),
 					'manage_link'     => $blog_admin_url,
 					'coupon_code'     => ! empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
