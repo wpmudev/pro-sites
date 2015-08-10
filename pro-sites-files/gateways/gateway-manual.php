@@ -361,7 +361,6 @@ class ProSites_Gateway_Manual {
 
 				$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
 				// Send email with activation link.
-				var_dump( is_subdomain_install() );
 				if ( class_exists( 'BuddyPress' ) ) {
 					// Set up activation link
 					$activate_url = bp_get_activation_page() . "?key=$activation_key";

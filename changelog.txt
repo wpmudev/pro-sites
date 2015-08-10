@@ -36,6 +36,7 @@ Change Log:
 - Fixed: Stripe: Issue with creating coupons for percent off
 - Fixed: Stripe: Payment receipt sent to network admin instead of site admin on upgrade
 - Fixed: Stripe: Subscription Cancel status
+- Fixed: Stripe: Non Recurring subscription payments and upgrades
 - Fixed: Stats:  Wrong payment amount stored in Pro Sites table
 
 3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
