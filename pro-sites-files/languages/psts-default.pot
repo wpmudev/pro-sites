@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-11 23:04+0530\n"
+"POT-Creation-Date: 2015-08-12 00:48+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -541,7 +541,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-manual.php:138
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2700
 #: pro-sites-files/gateways/gateway-stripe.php:2728
-#: pro-sites-files/lib/ProSites/Helper/ProSite.php:87
+#: pro-sites-files/lib/ProSites/Helper/ProSite.php:90
 msgid "Cancel Your Subscription"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2810
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2844
 #: pro-sites-files/gateways/gateway-stripe.php:2727
-#: pro-sites-files/lib/ProSites/Helper/ProSite.php:86
+#: pro-sites-files/lib/ProSites/Helper/ProSite.php:89
 #, php-format
 msgid ""
 "If you choose to cancel your subscription this site should continue to have "
@@ -1323,7 +1323,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-manual.php:450
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2706
 #: pro-sites-files/gateways/gateway-stripe.php:2617
-#: pro-sites-files/lib/ProSites/Helper/ProSite.php:77
+#: pro-sites-files/lib/ProSites/Helper/ProSite.php:80
 msgid ""
 "You are still within your trial period. Once your trial finishes your "
 "account will be automatically charged."
@@ -1339,17 +1339,17 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:566
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:620
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:618
 msgid "monthly"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:567
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:621
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:619
 msgid "quarterly"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:568
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:622
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:620
 msgid "anually"
 msgstr ""
 
@@ -1365,7 +1365,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:583
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:644
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:642
 msgid "Go back to your account."
 msgstr ""
 
@@ -3531,114 +3531,114 @@ msgstr ""
 msgid "Your current plan"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:421
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:419
 msgid "Change your plan"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:447
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:488
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:560
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:445
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:486
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:558
 msgid "Finalizing your site..."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:449
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:447
 msgid ""
 "Thank you for submitting your request for manual payment. We will review "
 "your information and email you once your site has been activated or extended."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:451
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:449
 #, php-format
 msgid "The email address we have for you is: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:478
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:476
 msgid "(password emailed to you)"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:490
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:488
 msgid ""
 "Your basic site has been setup and you should soon receive an email with "
 "your site details and password. You can always upgrade your site by logging "
 "in and viewing your account."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:492
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:577
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:490
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:575
 msgid "Your login details are:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:493
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:578
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:491
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:576
 #, php-format
 msgid "Username: %s"
 msgstr ""
 
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:493
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:581
+msgid "Admin URL: "
+msgstr ""
+
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:495
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:583
-msgid "Admin URL: "
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:635
+msgid "If you did not receive an email please try the following:"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:497
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:585
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:637
-msgid "If you did not receive an email please try the following:"
+msgid "Wait a little bit longer."
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:498
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:586
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:638
+msgid "Check your spam folder just in case it ended up in there."
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:499
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:587
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:639
-msgid "Wait a little bit longer."
-msgstr ""
-
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:500
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:588
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:640
-msgid "Check your spam folder just in case it ended up in there."
+msgid "Make sure that your email address is correct ("
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:501
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:589
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:641
-msgid "Make sure that your email address is correct ("
-msgstr ""
-
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:503
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:591
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:643
 msgid ""
 "If your email address is incorrect or you noticed a problem, please contact "
 "us to resolve the issue."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:506
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:595
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:504
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:593
 msgid "Login Now"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:563
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:561
 msgid ""
 "Your payment is being processed and you should soon receive an email with "
 "your site details."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:565
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:563
 msgid ""
 "Your site trial has been setup and you should soon receive an email with "
 "your site details. Once your trial finishes you will be prompted to upgrade "
 "manually."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:581
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:579
 #, php-format
 msgid "Password: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:635
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:633
 msgid "Plan updated..."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:636
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:634
 #, php-format
 msgid ""
 "Your plan was successfully modified from %s to %s. You will receive a "
