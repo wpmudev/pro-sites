@@ -831,8 +831,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$content .= '</tr>';
 			}
 
-			$column_keys = array_keys( $columns[0] );
-			$add_coupon  = in_array( 'coupon', $column_keys );
+			$column_keys = !empty( $columns ) ?  array_keys( $columns[0] ) : '';
+			$add_coupon  = !empty( $column_keys ) ? in_array( 'coupon', $column_keys ) : false;
 			if ( $add_coupon ) {
 				$content .= '<tr>';
 				$content .= '<td colspan="' . ( count( $periods ) + 1 ) . '">';

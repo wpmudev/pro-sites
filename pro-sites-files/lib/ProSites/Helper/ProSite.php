@@ -9,19 +9,20 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		public static function get_site( $blog_id ) {
 			global $wpdb;
 			self::$last_site = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+
 			return self::$last_site;
 		}
 
 		public static function last_gateway( $blog_id ) {
 
 			// Try to avoid another load
-			if( ! empty( self::$last_site ) && self::$last_site->blog_ID = $blog_id ) {
+			if ( ! empty( self::$last_site ) && self::$last_site->blog_ID = $blog_id ) {
 				$site = self::$last_site;
 			} else {
 				$site = self::get_site( $blog_id );
 			}
 
-			if( ! empty( $site ) ) {
+			if ( ! empty( $site ) ) {
 				return ProSites_Helper_Gateway::convert_legacy( $site->gateway );
 			} else {
 				return false;
@@ -32,14 +33,15 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		public static function get_activation_key( $blog_id ) {
 			global $wpdb;
 			$bloginfo = get_blog_details( $blog_id );
+
 			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE domain = %s AND path = %s", $bloginfo->domain, $bloginfo->path ) );
 		}
 
 		public static function get_blog_id( $activation_key ) {
 			global $wpdb;
 			$blog_id = 0;
-			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
-			if( $row && $row->activation_key == $activation_key ) {
+			$row     = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
+			if ( $row && $row->activation_key == $activation_key ) {
 				$blog_id = domain_exists( $row->domain, $row->path, $wpdb->siteid );
 				// As a fallback, try the site domain
 				if ( empty( $blog_id ) ) {
@@ -47,6 +49,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 					$blog_id = domain_exists( $domain, $row->path, $wpdb->siteid );
 				}
 			}
+
 			return $blog_id;
 		}
 
@@ -69,8 +72,8 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		public static function get_blog_info( $blog_id ) {
 			global $wpdb, $psts;
 
-			$is_recurring      = $psts->is_blog_recurring( $blog_id );
-			$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+			$is_recurring  = $psts->is_blog_recurring( $blog_id );
+			$trialing      = ProSites_Helper_Registration::is_trial( $blog_id );
 			$trial_message = '';
 			if ( $trialing ) {
 				// assuming its recurring
@@ -82,7 +85,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			$cancel_info_message = $cancel_info_link = '';
 
-			if( $is_recurring ) {
+			if ( $is_recurring ) {
 				$cancel_info_message = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
 				// CSS class of <a> is important to handle confirmations
@@ -90,49 +93,49 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 
 			// Get other information from database
-			$result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
-			$period = false;
-			$last_amount = false;
+			$result       = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+			$period       = false;
+			$last_amount  = false;
 			$last_gateway = false;
-			if( $result ) {
-				$period = (int) $result->term;
-				$last_amount = floatval( $result->amount );
+			if ( $result ) {
+				$period       = (int) $result->term;
+				$last_amount  = floatval( $result->amount );
 				$last_gateway = $result->gateway;
 			}
 
 			$args = apply_filters( 'psts_blog_info_args',
 				array(
-					'level_id' => apply_filters( 'psts_blog_info_level_id', $level_id, $blog_id ),
-					'level' => apply_filters( 'psts_blog_info_level', $level, $blog_id ),
-					'expires' => apply_filters( 'psts_blog_info_expires', $end_date, $blog_id ),
-					'trial' => apply_filters( 'psts_blog_info_trial', $trial_message, $blog_id ),
-					'recurring' => apply_filters( 'psts_blog_info_recurring', $is_recurring, $blog_id ),
-					'pending' => apply_filters( 'psts_blog_info_pending', '', $blog_id ),
-					'complete_message' => apply_filters( 'psts_blog_info_complete_message', '', $blog_id ),
-					'thanks_message' => apply_filters( 'psts_blog_info_thanks_message', '', $blog_id ),
-					'visit_site_message' => apply_filters( 'psts_blog_info_thanks_message', '', $blog_id ),
-					'cancel' => apply_filters( 'psts_blog_info_cancelled', false, $blog_id ),
-					'cancellation_message' => apply_filters( 'psts_blog_info_cancellation_message', '', $blog_id ),
-					'period' => apply_filters( 'psts_blog_info_period', $period, $blog_id ),
+					'level_id'                  => apply_filters( 'psts_blog_info_level_id', $level_id, $blog_id ),
+					'level'                     => apply_filters( 'psts_blog_info_level', $level, $blog_id ),
+					'expires'                   => apply_filters( 'psts_blog_info_expires', $end_date, $blog_id ),
+					'trial'                     => apply_filters( 'psts_blog_info_trial', $trial_message, $blog_id ),
+					'recurring'                 => apply_filters( 'psts_blog_info_recurring', $is_recurring, $blog_id ),
+					'pending'                   => apply_filters( 'psts_blog_info_pending', '', $blog_id ),
+					'complete_message'          => apply_filters( 'psts_blog_info_complete_message', '', $blog_id ),
+					'thanks_message'            => apply_filters( 'psts_blog_info_thanks_message', '', $blog_id ),
+					'visit_site_message'        => apply_filters( 'psts_blog_info_thanks_message', '', $blog_id ),
+					'cancel'                    => apply_filters( 'psts_blog_info_cancelled', false, $blog_id ),
+					'cancellation_message'      => apply_filters( 'psts_blog_info_cancellation_message', '', $blog_id ),
+					'period'                    => apply_filters( 'psts_blog_info_period', $period, $blog_id ),
 					// E.g. Visa, Mastercard, PayPal, etc.
-					'payment_type' => apply_filters( 'psts_blog_info_payment_type', false, $blog_id ),
+					'payment_type'              => apply_filters( 'psts_blog_info_payment_type', false, $blog_id ),
 					// E.g. last 4-digits (ok to leave empty)
-					'payment_reminder' => apply_filters( 'psts_blog_info_payment_reminder', false, $blog_id ),
+					'payment_reminder'          => apply_filters( 'psts_blog_info_payment_reminder', false, $blog_id ),
 					// Acceptable: end | start | block
 					'payment_reminder_location' => apply_filters( 'psts_blog_info_payment_remind_location', 'end', $blog_id ),
 					// If its a credit card, the following can be used for expiry information
-					'payment_expire_month' => apply_filters( 'psts_blog_info_payment_expire_month', false, $blog_id ),
-					'payment_expire_year' => apply_filters( 'psts_blog_info_payment_expire_year', false, $blog_id ),
-					'last_payment_date' => apply_filters( 'psts_blog_info_last_payment_date', false, $blog_id ),
-					'last_payment_amount' => apply_filters( 'psts_blog_info_last_payment_amount', $last_amount, $blog_id),
-					'last_payment_gateway' => apply_filters( 'psts_blog_info_last_payment_gateway', $last_gateway, $blog_id),
-					'next_payment_date' => apply_filters( 'psts_blog_info_next_payment_date', false, $blog_id ),
+					'payment_expire_month'      => apply_filters( 'psts_blog_info_payment_expire_month', false, $blog_id ),
+					'payment_expire_year'       => apply_filters( 'psts_blog_info_payment_expire_year', false, $blog_id ),
+					'last_payment_date'         => apply_filters( 'psts_blog_info_last_payment_date', false, $blog_id ),
+					'last_payment_amount'       => apply_filters( 'psts_blog_info_last_payment_amount', $last_amount, $blog_id ),
+					'last_payment_gateway'      => apply_filters( 'psts_blog_info_last_payment_gateway', $last_gateway, $blog_id ),
+					'next_payment_date'         => apply_filters( 'psts_blog_info_next_payment_date', false, $blog_id ),
 					// Information about cancelling
-					'cancel_info' => apply_filters( 'psts_blog_info_cancel_message', $cancel_info_message, $blog_id ),
+					'cancel_info'               => apply_filters( 'psts_blog_info_cancel_message', $cancel_info_message, $blog_id ),
 					// Best not to change this one...
-					'cancel_info_link' => $cancel_info_link,
-					'receipt_form' => $psts->receipt_form( $blog_id ),
-					'all_fields' => apply_filters( 'psts_blog_info_all_fields', true, $blog_id ),
+					'cancel_info_link'          => $cancel_info_link,
+					'receipt_form'              => $psts->receipt_form( $blog_id ),
+					'all_fields'                => apply_filters( 'psts_blog_info_all_fields', true, $blog_id ),
 				),
 				$blog_id
 			);
@@ -181,7 +184,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 
 			global $wpdb;
-			$meta = false;
+			$meta   = false;
 			$result = $wpdb->get_row( $wpdb->prepare( "SELECT meta FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id ) );
 			if ( ! empty( $result ) ) {
 				$meta = maybe_unserialize( $result->meta );
@@ -203,13 +206,14 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 *  Fixes potential issue with Domain Mapping plugin.
 		 */
 		public static function admin_ajax_url() {
-			$path = "admin-ajax.php";
+			$path   = "admin-ajax.php";
 			$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
 
-			if( class_exists( 'domain_map') ) {
+			if ( class_exists( 'domain_map' ) ) {
 				global $dm_map;
+
 				return $dm_map->domain_mapping_admin_url( admin_url( $path, $scheme ), '/', false );
-			} else{
+			} else {
 				return admin_url( $path, $scheme );
 			}
 
@@ -234,7 +238,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			//Get and update psts settings
 			// get settings
 			$old_settings                         = get_site_option( 'psts_settings' );
-			$data['psts']['pricing_levels_order'] = implode(',', $pricing_levels_order );
+			$data['psts']['pricing_levels_order'] = implode( ',', $pricing_levels_order );
 			$settings                             = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $data['psts'], 'pricing_table' ) );
 			update_site_option( 'psts_settings', $settings );
 		}
@@ -245,20 +249,20 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 */
 		public static function allow_new_blog() {
 			global $psts;
-			$allow_multiple_blog = $psts->get_setting('multiple_signup', false );
+			$allow_multiple_blog = $psts->get_setting( 'multiple_signup', false );
 			//If Multiple blogs are allowed, let them create
-			if( $allow_multiple_blog ) {
+			if ( $allow_multiple_blog ) {
 				return true;
 			}
 
 			//If not loggedin, ofcourse you can create a new blog
-			if( !is_user_logged_in() ) {
+			if ( ! is_user_logged_in() ) {
 				return true;
 			}
 			//If we are here -> No Multiple blog
 			//count number of blogs
 			$count = get_blogs_of_user( get_current_user_id(), false );
-			if( $count > 1 ) {
+			if ( $count > 1 ) {
 				//If count is greater than 1, don't allow new blogs
 				return false;
 			}

@@ -30,11 +30,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$blog_id = ! empty( $_GET['bid'] ) ? $_GET['bid'] : '';
 
 				//If no nonce, return
-				if( empty( $_GET['_wpnonce']) ) {
+				if ( empty( $_GET['_wpnonce'] ) ) {
 					return;
 				}
 				//If nonce not verified return, Verify Nonce
-				if( !wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
+				if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
 					return;
 				}
 				//If there is blog id
@@ -96,9 +96,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// If site modified, apply this filter... has to happen after form processing.
 			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
 			if ( isset( $render_data['plan_updated'] ) ) {
-				if( !empty( $render_data['plan_updated']['gateway'] ) && $render_data['plan_updated']['gateway'] == 'manual' ) {
+				if ( ! empty( $render_data['plan_updated']['gateway'] ) && $render_data['plan_updated']['gateway'] == 'manual' ) {
 					add_filter( 'prosites_render_checkout_page', 'ProSites_Gateway_Manual::render_account_modified', 10, 3 );
-				}else {
+				} else {
 					add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
 				}
 			}
@@ -268,15 +268,15 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 		public static function filter_usable_gateways( $gateways ) {
 
 			// remove 'bulk_upgrade'
-			if( 'bulk upgrade' == $gateways['primary'] ) {
+			if ( 'bulk upgrade' == $gateways['primary'] ) {
 				$gateways['primary'] = 'none';
 			}
-			if( 'bulk upgrade' == $gateways['secondary'] ) {
+			if ( 'bulk upgrade' == $gateways['secondary'] ) {
 				$gateways['secondary'] = 'none';
 			}
-			foreach( $gateways['order'] as $k => $v ) {
-				if( 'bulk upgrade' == $v ) {
-					unset( $gateways['order'][$k]);
+			foreach ( $gateways['order'] as $k => $v ) {
+				if ( 'bulk upgrade' == $v ) {
+					unset( $gateways['order'][ $k ] );
 				}
 			}
 			$gateways['order'] = array_values( $gateways['order'] );
@@ -406,14 +406,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			}
 
-			if ( $is_pro_site &&
-			     ( ! isset( $_GET['action'] )
-			       //For gateways after redirection, upon page refresh
-			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) ||
-			       //If action is new_blog, but new blog is not allowed
-			       (is_user_logged_in() && !empty($_GET['action'] && $_GET['action'] == 'new_blog' && !ProSites_Helper_ProSite::allow_new_blog() ) )
-			     )
-			) {
+			//For gateways after redirection, upon page refresh
+			$page_reload = $_GET['action'] == 'complete' && isset( $_GET['token'] );
+
+			//If action is new_blog, but new blog is not allowed
+			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
+			if ( $is_pro_site && ( ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
 				// EXISTING DETAILS
 				if ( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
