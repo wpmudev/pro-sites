@@ -2017,7 +2017,7 @@ Thanks!", 'psts' ),
 			}
 		}
 		//Add 1.5 hour extra to handle the delays in subscription renewal by stripe
-		$new_expire = $new_expire >= 9999999999 ? $new_expire : $new_expire +5400;
+		$new_expire = $new_expire >= 9999999999 ? $new_expire : $new_expire + 5400;
 
 		$old_level = $this->get_level( $blog_id );
 
