@@ -575,9 +575,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						}
 						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . $summary_msg . '</div>';
 					} else {
-						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . wp_kses( $plan_text['monthly_alt'], array( 'br'   => array(),
-						                                                                                                                                                                            'em'   => array(),
-						                                                                                                                                                                            'span' => array()
+						$level_details['savings_msg'][ $period_key ] = '<div class="level-summary ' . esc_attr( $period_key ) . ' ' . $override . '">' . wp_kses( $plan_text['monthly_alt'], array(
+								'br'   => array(),
+								'em'   => array(),
+								'span' => array()
 							) ) . '</div>';
 					}
 
@@ -796,8 +797,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$content .= '</tr>';
 			}
 
-			foreach ( $columns as $level_id => $column ) {
-				if ( 0 == $level_id ) {
+			foreach ( $columns as $index => $column ) {
+				$level_id = ! empty( $column['level_id'] ) ? $column['level_id'] : '';
+				if ( empty( $level_id ) || 0 == $level_id ) {
 					continue;
 				}
 				$content .= '<tr class="psts_level level-' . $level_id . '">
@@ -807,22 +809,22 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				if ( in_array( 1, $periods ) ) {
 					$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt">';
-					$content .= $columns[ $level_id ]['breakdown']['price_1'];
-					$content .= $columns[ $level_id ]['savings_msg']['price_1'];
+					$content .= $columns[ $index ]['breakdown']['price_1'];
+					$content .= $columns[ $index ]['savings_msg']['price_1'];
 					$content .= '</div></td>';
 				}
 
 				if ( in_array( 3, $periods ) ) {
 					$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt">';
-					$content .= $columns[ $level_id ]['breakdown']['price_3'];
-					$content .= $columns[ $level_id ]['savings_msg']['price_3'];
+					$content .= $columns[ $index ]['breakdown']['price_3'];
+					$content .= $columns[ $index ]['savings_msg']['price_3'];
 					$content .= '</div></td>';
 				}
 
 				if ( in_array( 12, $periods ) ) {
 					$content .= '<td class="level-option" style="width: ' . $width . '"><div class="pblg-checkout-opt">';
-					$content .= $columns[ $level_id ]['breakdown']['price_12'];
-					$content .= $columns[ $level_id ]['savings_msg']['price_12'];
+					$content .= $columns[ $index ]['breakdown']['price_12'];
+					$content .= $columns[ $index ]['savings_msg']['price_12'];
 					$content .= '</div></td>';
 				}
 

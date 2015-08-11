@@ -2,6 +2,8 @@ jQuery(document).ready(function($){
 
     // Confirm deleting level
     $('[name^="delete_level"]').click(function ( item ) {
+        //Disable Save button, as it creates problem
+        jQuery('input[name="save_levels"]').prop('disabled', true);
 
         /**
          * Get the position from the text input because altering button breaks it

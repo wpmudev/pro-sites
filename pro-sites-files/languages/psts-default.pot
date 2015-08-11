@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-11 20:12+0530\n"
+"POT-Creation-Date: 2015-08-11 23:04+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -3145,8 +3145,8 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Coupons.php:188
 #: pro-sites-files/lib/ProSites/View/Coupons.php:414
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:773
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:786
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:774
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:787
 #: pro-sites-files/lib/ProSites/View/Pricing.php:204
 #: pro-sites-files/lib/psts_pricing_table_admin.php:144
 #: pro-sites-files/modules/post-throttling.php:383 pro-sites.php:2975
@@ -3321,7 +3321,7 @@ msgid "%d coupon(s) imported."
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:203
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:839
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:841
 msgid "Enter coupon"
 msgstr ""
 
@@ -3366,18 +3366,18 @@ msgid "for 12 months"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:435
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:775
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:891 pro-sites.php:4440
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:776
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:893 pro-sites.php:4440
 msgid "Monthly"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:436
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:892
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:894
 msgid "Quarterly"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:437
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:893
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:895
 msgid "Annually"
 msgstr ""
 
@@ -3410,62 +3410,62 @@ msgid ""
 "plan at any time.</span>"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:700
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:701
 msgid "Already have a site?"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:702
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:703
 msgid "Login"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:703
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:704
 msgid "Login now."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:726
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:727
 #: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:4588
 msgid "Dismiss"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:726
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:727
 #: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:323
 #: pro-sites.php:4588 pro-sites.php:4596
 msgid "No thank you, I will continue with a basic site for now"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:727
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:728
 msgid ""
 "Your current site is a basic site with no extra features. Upgrade now by "
 "selecting a plan above."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:778 pro-sites.php:4443
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:779 pro-sites.php:4443
 msgid "Every 3 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:781 pro-sites.php:4446
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:782 pro-sites.php:4446
 msgid "Every 12 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:788 pro-sites.php:3280
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:789 pro-sites.php:3280
 #: pro-sites.php:3314 pro-sites.php:4453
 msgid "1 Month"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:791 pro-sites.php:4456
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:792 pro-sites.php:4456
 msgid "3 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:794 pro-sites.php:4459
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:795 pro-sites.php:4459
 msgid "12 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:840
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:876
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:842
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:878
 msgid "Apply Coupon"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:875
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:877
 msgid "Enter Coupon Code"
 msgstr ""
 
