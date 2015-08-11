@@ -1998,17 +1998,14 @@ Thanks!", 'psts' ),
 				//$extend = 2629744;
 				$extend = strtotime( "+1 month" );
 				$extend = $extend - time();
-				$extend = $extend;
 			} else if ( $extend == '3' ) {
 				//$extend = 7889231;
 				$extend = strtotime( "+3 months" );
 				$extend = $extend - time();
-				$extend = $extend;
 			} else if ( $extend == '12' ) {
 				//$extend = 31556926;
 				$extend = strtotime( "+1 year" );
 				$extend = $extend - time();
-				$extend = $extend;
 			} else {
 				$term = false;
 			}

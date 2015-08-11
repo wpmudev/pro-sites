@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-11 19:38+0530\n"
+"POT-Creation-Date: 2015-08-11 20:12+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -742,7 +742,7 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Pricing.php:649
 #: pro-sites-files/lib/ProSites/View/Settings.php:286
 #: pro-sites-files/modules/premium-plugins.php:445
-#: pro-sites-files/modules/premium-themes.php:345 pro-sites.php:4189
+#: pro-sites-files/modules/premium-themes.php:345 pro-sites.php:4186
 msgid "None"
 msgstr ""
 
@@ -1167,13 +1167,13 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:49
 #: pro-sites-files/lib/ProSites/View/Front/Registration.php:202
-#: pro-sites-files/lib/ProSites/View/Settings.php:465 pro-sites.php:4302
+#: pro-sites-files/lib/ProSites/View/Settings.php:465 pro-sites.php:4299
 msgid "Yes"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:54
 #: pro-sites-files/lib/ProSites/View/Front/Registration.php:206
-#: pro-sites-files/lib/ProSites/View/Settings.php:467 pro-sites.php:4304
+#: pro-sites-files/lib/ProSites/View/Settings.php:467 pro-sites.php:4301
 msgid "No"
 msgstr ""
 
@@ -2692,8 +2692,8 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/Helper/Settings.php:40
 #: pro-sites-files/lib/ProSites/Helper/Tabs.php:93
 #: pro-sites-files/modules/premium-plugins.php:466
-#: pro-sites-files/modules/premium-themes.php:365 pro-sites.php:3957
-#: pro-sites.php:4315
+#: pro-sites-files/modules/premium-themes.php:365 pro-sites.php:3954
+#: pro-sites.php:4312
 msgid "Save Changes"
 msgstr ""
 
@@ -2754,7 +2754,7 @@ msgstr ""
 msgid "Modify styling of pricing and features tables."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:43 pro-sites.php:4023
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:43 pro-sites.php:4020
 msgid "General Settings"
 msgstr ""
 
@@ -2766,17 +2766,17 @@ msgstr ""
 msgid "E-mail Notifications"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:51 pro-sites.php:4204
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:51 pro-sites.php:4201
 msgid ""
 "\"LEVEL\", \"SITENAME\", \"SITEURL\" and \"CHECKOUTURL\" will be replaced "
 "with their associated values. No HTML allowed."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:55 pro-sites.php:4266
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:55 pro-sites.php:4263
 msgid "Currency Settings"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:57 pro-sites.php:4267
+#: pro-sites-files/lib/ProSites/Helper/Tabs/Settings.php:57 pro-sites.php:4264
 msgid ""
 "These preferences affect display only. Your payment gateway of choice may "
 "not support every currency listed here."
@@ -3042,8 +3042,8 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/Model/Settings.php:61
 #: pro-sites-files/modules/premium-plugins.php:411
-#: pro-sites-files/modules/premium-themes.php:302 pro-sites.php:4002
-#: pro-sites.php:5070
+#: pro-sites-files/modules/premium-themes.php:302 pro-sites.php:3999
+#: pro-sites.php:5067
 msgid "Settings Saved!"
 msgstr ""
 
@@ -3076,9 +3076,9 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Settings.php:9
 #: pro-sites-files/modules/ads.php:418
 #: pro-sites-files/modules/bulk-upgrades.php:744
-#: pro-sites-files/modules/premium-plugins.php:368 pro-sites.php:2702
-#: pro-sites.php:3103 pro-sites.php:3537 pro-sites.php:3838 pro-sites.php:3972
-#: pro-sites.php:5058
+#: pro-sites-files/modules/premium-plugins.php:368 pro-sites.php:2699
+#: pro-sites.php:3100 pro-sites.php:3534 pro-sites.php:3835 pro-sites.php:3969
+#: pro-sites.php:5055
 msgid "Nice Try..."
 msgstr ""
 
@@ -3149,14 +3149,14 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:786
 #: pro-sites-files/lib/ProSites/View/Pricing.php:204
 #: pro-sites-files/lib/psts_pricing_table_admin.php:144
-#: pro-sites-files/modules/post-throttling.php:383 pro-sites.php:2978
-#: pro-sites.php:3661 pro-sites.php:3675 pro-sites.php:3789 pro-sites.php:4441
-#: pro-sites.php:4454
+#: pro-sites-files/modules/post-throttling.php:383 pro-sites.php:2975
+#: pro-sites.php:3658 pro-sites.php:3672 pro-sites.php:3786 pro-sites.php:4438
+#: pro-sites.php:4451
 msgid "Level"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Coupons.php:189
-#: pro-sites-files/lib/ProSites/View/Coupons.php:417 pro-sites.php:2956
+#: pro-sites-files/lib/ProSites/View/Coupons.php:417 pro-sites.php:2953
 msgid "Period"
 msgstr ""
 
@@ -3367,7 +3367,7 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:435
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:775
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:891 pro-sites.php:4443
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:891 pro-sites.php:4440
 msgid "Monthly"
 msgstr ""
 
@@ -3423,13 +3423,13 @@ msgid "Login now."
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:726
-#: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:4591
+#: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:4588
 msgid "Dismiss"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:726
 #: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:323
-#: pro-sites.php:4591 pro-sites.php:4599
+#: pro-sites.php:4588 pro-sites.php:4596
 msgid "No thank you, I will continue with a basic site for now"
 msgstr ""
 
@@ -3439,24 +3439,24 @@ msgid ""
 "selecting a plan above."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:778 pro-sites.php:4446
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:778 pro-sites.php:4443
 msgid "Every 3 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:781 pro-sites.php:4449
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:781 pro-sites.php:4446
 msgid "Every 12 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:788 pro-sites.php:3283
-#: pro-sites.php:3317 pro-sites.php:4456
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:788 pro-sites.php:3280
+#: pro-sites.php:3314 pro-sites.php:4453
 msgid "1 Month"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:791 pro-sites.php:4459
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:791 pro-sites.php:4456
 msgid "3 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:794 pro-sites.php:4462
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:794 pro-sites.php:4459
 msgid "12 Months"
 msgstr ""
 
@@ -3522,8 +3522,8 @@ msgstr ""
 msgid "Renewal due on:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:257 pro-sites.php:4906
-#: pro-sites.php:4933
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:257 pro-sites.php:4903
+#: pro-sites.php:4930
 msgid "Sign up for another site."
 msgstr ""
 
@@ -3812,8 +3812,8 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Settings.php:123
 #: pro-sites-files/lib/psts_pricing_table_admin.php:139
 #: pro-sites-files/modules/bulk-upgrades.php:527
-#: pro-sites-files/modules/premium-plugins.php:269 pro-sites.php:3662
-#: pro-sites.php:3676 pro-sites.php:3790 pro-sites.php:4073
+#: pro-sites-files/modules/premium-plugins.php:269 pro-sites.php:3659
+#: pro-sites.php:3673 pro-sites.php:3787 pro-sites.php:4070
 msgid "Name"
 msgstr ""
 
@@ -3827,7 +3827,7 @@ msgstr ""
 msgid "Featured Level"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:299 pro-sites.php:3771
+#: pro-sites-files/lib/ProSites/View/Pricing.php:299 pro-sites.php:3768
 msgid "No levels yet."
 msgstr ""
 
@@ -3857,7 +3857,7 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Pricing.php:721
 #: pro-sites-files/lib/psts_pricing_table_admin.php:140
 #: pro-sites-files/modules/premium-plugins.php:428
-#: pro-sites-files/modules/premium-themes.php:329 pro-sites.php:3868
+#: pro-sites-files/modules/premium-themes.php:329 pro-sites.php:3865
 msgid "Description"
 msgstr ""
 
@@ -3889,7 +3889,7 @@ msgstr ""
 msgid "edit"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:419 pro-sites.php:4702
+#: pro-sites-files/lib/ProSites/View/Pricing.php:419 pro-sites.php:4699
 msgid "change"
 msgstr ""
 
@@ -4135,66 +4135,66 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:21 pro-sites.php:903
-#: pro-sites.php:4016
+#: pro-sites.php:4013
 msgid "Pro Sites Settings"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:70 pro-sites.php:4028
+#: pro-sites-files/lib/ProSites/View/Settings.php:70 pro-sites.php:4025
 msgid "Rebrand Pro Sites"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:70 pro-sites.php:4028
+#: pro-sites-files/lib/ProSites/View/Settings.php:70 pro-sites.php:4025
 msgid ""
 "Rename \"Pro Sites\" for users to whatever you want like \"Pro\" or \"Plus\"."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:77 pro-sites.php:4034
+#: pro-sites-files/lib/ProSites/View/Settings.php:77 pro-sites.php:4031
 msgid "Admin Menu Button Labels"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:80 pro-sites.php:4037
+#: pro-sites-files/lib/ProSites/View/Settings.php:80 pro-sites.php:4034
 msgid "Not Pro"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:86 pro-sites.php:4041
+#: pro-sites-files/lib/ProSites/View/Settings.php:86 pro-sites.php:4038
 msgid "Current Pro"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:93 pro-sites.php:4047
+#: pro-sites-files/lib/ProSites/View/Settings.php:93 pro-sites.php:4044
 msgid "Hide Admin Menu"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:97 pro-sites.php:4050
+#: pro-sites-files/lib/ProSites/View/Settings.php:97 pro-sites.php:4047
 msgid "Remove the Pro Sites upgrade menu item"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:101 pro-sites.php:4054
+#: pro-sites-files/lib/ProSites/View/Settings.php:101 pro-sites.php:4051
 msgid "Hide Admin Bar Button"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:105 pro-sites.php:4057
+#: pro-sites-files/lib/ProSites/View/Settings.php:105 pro-sites.php:4054
 msgid "Remove the Pro Sites upgrade menu button from the admin bar"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:110 pro-sites.php:4062
+#: pro-sites-files/lib/ProSites/View/Settings.php:110 pro-sites.php:4059
 msgid "Hide Pro Status for Superadmin"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:114 pro-sites.php:4065
+#: pro-sites-files/lib/ProSites/View/Settings.php:114 pro-sites.php:4062
 msgid "Remove the Super Admin Pro Site status menu from the admin bar"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:120 pro-sites.php:4070
+#: pro-sites-files/lib/ProSites/View/Settings.php:120 pro-sites.php:4067
 msgid "Free Level"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:120 pro-sites.php:4070
+#: pro-sites-files/lib/ProSites/View/Settings.php:120 pro-sites.php:4067
 msgid ""
 "Pro Sites has a built-in free level by default. Configure how this level is "
 "displayed on the checkout form:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:128 pro-sites.php:4077
+#: pro-sites-files/lib/ProSites/View/Settings.php:128 pro-sites.php:4074
 msgid "Message"
 msgstr ""
 
@@ -4202,7 +4202,7 @@ msgstr ""
 msgid "Signup on Checkout<br /><small>Disables WordPress Signup</small>"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:136 pro-sites.php:4083
+#: pro-sites-files/lib/ProSites/View/Settings.php:136 pro-sites.php:4080
 msgid ""
 "Enables the user to signup for a site from the checkout page. Trials will "
 "automatically activate, ProSites will activate after payment has been "
@@ -4225,21 +4225,21 @@ msgstr ""
 msgid "Allow single users to register multiple blogs."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:161 pro-sites.php:4089
+#: pro-sites-files/lib/ProSites/View/Settings.php:161 pro-sites.php:4086
 msgid "Signup Message"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:161 pro-sites.php:4089
+#: pro-sites-files/lib/ProSites/View/Settings.php:161 pro-sites.php:4086
 msgid ""
 "Optional - HTML allowed - This message is displayed on the signup page if "
 "the box is checked above."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:169 pro-sites.php:4095
+#: pro-sites-files/lib/ProSites/View/Settings.php:169 pro-sites.php:4092
 msgid "Checkout Page"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:169 pro-sites.php:4095
+#: pro-sites-files/lib/ProSites/View/Settings.php:169 pro-sites.php:4092
 msgid ""
 "If checkout page is not found, a new checkout page is generated upon saving "
 "the settings. The slug and title is based on the rebrand option above."
@@ -4251,45 +4251,45 @@ msgid ""
 "save the settings on this page."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:175 pro-sites.php:4100
+#: pro-sites-files/lib/ProSites/View/Settings.php:175 pro-sites.php:4097
 msgid "Edit Checkout Page &raquo;"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:180 pro-sites.php:4105
+#: pro-sites-files/lib/ProSites/View/Settings.php:180 pro-sites.php:4102
 msgid "Checkout Permissions"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:206 pro-sites.php:4129
+#: pro-sites-files/lib/ProSites/View/Settings.php:206 pro-sites.php:4126
 msgid "Pro Site Feature Message"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:206 pro-sites.php:4129
+#: pro-sites-files/lib/ProSites/View/Settings.php:206 pro-sites.php:4126
 msgid ""
 "Required - No HTML - This message is displayed when a feature is accessed on "
 "a site that does not have access to it. \"LEVEL\" will be replaced with the "
 "needed level name for the feature."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:215 pro-sites.php:4135
+#: pro-sites-files/lib/ProSites/View/Settings.php:215 pro-sites.php:4132
 msgid "Free Trial"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:215 pro-sites.php:4135
+#: pro-sites-files/lib/ProSites/View/Settings.php:215 pro-sites.php:4132
 msgid "Free days for all new sites"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:222
 #: pro-sites-files/modules/bulk-upgrades.php:440
 #: pro-sites-files/modules/bulk-upgrades.php:461
-#: pro-sites-files/modules/bulk-upgrades.php:482 pro-sites.php:4142
+#: pro-sites-files/modules/bulk-upgrades.php:482 pro-sites.php:4139
 msgid "Disabled"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:233 pro-sites.php:4152
+#: pro-sites-files/lib/ProSites/View/Settings.php:233 pro-sites.php:4149
 msgid "Free Trial Message"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:233 pro-sites.php:4152
+#: pro-sites-files/lib/ProSites/View/Settings.php:233 pro-sites.php:4149
 msgid ""
 "Required - This message is displayed on the dashboard notifying how many "
 "days left in their free trial. \"DAYS\" will be replaced with the number of "
@@ -4297,11 +4297,11 @@ msgid ""
 "name."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:242 pro-sites.php:4158
+#: pro-sites-files/lib/ProSites/View/Settings.php:242 pro-sites.php:4155
 msgid "Cancellation Message"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:242 pro-sites.php:4158
+#: pro-sites-files/lib/ProSites/View/Settings.php:242 pro-sites.php:4155
 msgid ""
 "This message is displayed on the checkout screen notifying FREE TRIAL and "
 "NEW customers of your cancellation policy. \"DAYS\" will be replaced with "
@@ -4309,7 +4309,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:245 pro-sites.php:327
-#: pro-sites.php:4160
+#: pro-sites.php:4157
 msgid ""
 "Your DAYS day trial begins once you click \"Subscribe\" below. We perform a "
 "$1 pre-authorization to ensure your credit card is valid, but we won't "
@@ -4318,55 +4318,55 @@ msgid ""
 "above. You can cancel your subscription at any time."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:250 pro-sites.php:4164
+#: pro-sites-files/lib/ProSites/View/Settings.php:250 pro-sites.php:4161
 msgid "Setup Fee"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:250 pro-sites.php:4164
+#: pro-sites-files/lib/ProSites/View/Settings.php:250 pro-sites.php:4161
 msgid ""
 "If \"Apply setup fee to upgrades\" is left unchecked then only <strong>free "
 "sites</strong> will be charged a setup fee. Otherwise, all levels will be "
 "charged a setup fee upon upgrading to a higher level."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:261 pro-sites.php:4170
+#: pro-sites-files/lib/ProSites/View/Settings.php:261 pro-sites.php:4167
 msgid "Apply setup fee to upgrades"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:267 pro-sites.php:4175
+#: pro-sites-files/lib/ProSites/View/Settings.php:267 pro-sites.php:4172
 msgid "Recurring Subscriptions"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:267 pro-sites.php:4175
+#: pro-sites-files/lib/ProSites/View/Settings.php:267 pro-sites.php:4172
 msgid ""
 "Disabling recurring subscriptions will force users to have to manually re-"
 "subscribe after their term has expired."
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:272
-#: pro-sites-files/modules/premium-plugins.php:286 pro-sites.php:3866
-#: pro-sites.php:4178
+#: pro-sites-files/modules/premium-plugins.php:286 pro-sites.php:3863
+#: pro-sites.php:4175
 msgid "Enable"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:277
-#: pro-sites-files/modules/pay-to-blog.php:118 pro-sites.php:4181
+#: pro-sites-files/modules/pay-to-blog.php:118 pro-sites.php:4178
 msgid "Disable"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:282 pro-sites.php:4186
+#: pro-sites-files/lib/ProSites/View/Settings.php:282 pro-sites.php:4183
 msgid "Google Analytics Ecommerce Tracking"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:288 pro-sites.php:4190
+#: pro-sites-files/lib/ProSites/View/Settings.php:288 pro-sites.php:4187
 msgid "Asynchronous Tracking Code"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:290 pro-sites.php:4191
+#: pro-sites-files/lib/ProSites/View/Settings.php:290 pro-sites.php:4188
 msgid "Old Tracking Code"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:293 pro-sites.php:4193
+#: pro-sites-files/lib/ProSites/View/Settings.php:293 pro-sites.php:4190
 msgid ""
 "If you already use Google Analytics for your website, you can track detailed "
 "ecommerce information by enabling this setting. Choose whether you are using "
@@ -4377,11 +4377,11 @@ msgid ""
 "\" target=\"_blank\">More information &raquo;</a>"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:320 pro-sites.php:4210
+#: pro-sites-files/lib/ProSites/View/Settings.php:320 pro-sites.php:4207
 msgid "Pro Site Signup"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:320 pro-sites.php:4210
+#: pro-sites-files/lib/ProSites/View/Settings.php:320 pro-sites.php:4207
 msgid "Pro Site signup confirmation email sent to user"
 msgstr ""
 
@@ -4390,8 +4390,8 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Settings.php:342
 #: pro-sites-files/lib/ProSites/View/Settings.php:353
 #: pro-sites-files/lib/ProSites/View/Settings.php:363
-#: pro-sites-files/lib/ProSites/View/Settings.php:373 pro-sites.php:4212
-#: pro-sites.php:4222 pro-sites.php:4232 pro-sites.php:4243 pro-sites.php:4253
+#: pro-sites-files/lib/ProSites/View/Settings.php:373 pro-sites.php:4209
+#: pro-sites.php:4219 pro-sites.php:4229 pro-sites.php:4240 pro-sites.php:4250
 msgid "Subject:"
 msgstr ""
 
@@ -4400,51 +4400,51 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Settings.php:344
 #: pro-sites-files/lib/ProSites/View/Settings.php:355
 #: pro-sites-files/lib/ProSites/View/Settings.php:365
-#: pro-sites-files/lib/ProSites/View/Settings.php:375 pro-sites.php:4214
-#: pro-sites.php:4224 pro-sites.php:4234 pro-sites.php:4245 pro-sites.php:4255
+#: pro-sites-files/lib/ProSites/View/Settings.php:375 pro-sites.php:4211
+#: pro-sites.php:4221 pro-sites.php:4231 pro-sites.php:4242 pro-sites.php:4252
 msgid "Message:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:330 pro-sites.php:4220
+#: pro-sites-files/lib/ProSites/View/Settings.php:330 pro-sites.php:4217
 msgid "Pro Site Canceled"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:330 pro-sites.php:4220
+#: pro-sites-files/lib/ProSites/View/Settings.php:330 pro-sites.php:4217
 msgid ""
 "Membership cancellation email sent to user, \"ENDDATE\" will be replaced "
 "with the date when their Pro Site access ends."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:340 pro-sites.php:4230
-#: pro-sites.php:4983
+#: pro-sites-files/lib/ProSites/View/Settings.php:340 pro-sites.php:4227
+#: pro-sites.php:4980
 msgid "Payment Receipt"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:340 pro-sites.php:4230
+#: pro-sites-files/lib/ProSites/View/Settings.php:340 pro-sites.php:4227
 msgid ""
 "Payment confirmation receipt. You must include the \"PAYMENTINFO\" code "
 "which will be replaced with payment details."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:346 pro-sites.php:4236
+#: pro-sites-files/lib/ProSites/View/Settings.php:346 pro-sites.php:4233
 msgid "Header Image URL (for PDF attachment):"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:351 pro-sites.php:4241
+#: pro-sites-files/lib/ProSites/View/Settings.php:351 pro-sites.php:4238
 msgid "Expiration Email"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:351 pro-sites.php:4241
+#: pro-sites-files/lib/ProSites/View/Settings.php:351 pro-sites.php:4238
 msgid ""
 "Pro Site expiration email sent to user. \"CHECKOUTURL\" will be replaced "
 "with the url to upgrade the site."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:361 pro-sites.php:4251
+#: pro-sites-files/lib/ProSites/View/Settings.php:361 pro-sites.php:4248
 msgid "Payment Problem"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:361 pro-sites.php:4251
+#: pro-sites-files/lib/ProSites/View/Settings.php:361 pro-sites.php:4248
 msgid "The email text sent to your customer when a scheduled payment fails."
 msgstr ""
 
@@ -4466,7 +4466,7 @@ msgid ""
 "currency is a fall-back option."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:402 pro-sites.php:2422
+#: pro-sites-files/lib/ProSites/View/Settings.php:402 pro-sites.php:2419
 msgid "Enable gateways"
 msgstr ""
 
@@ -4481,11 +4481,11 @@ msgid ""
 "Note: Updating your site currency might take time to load, please be patient."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:449 pro-sites.php:4286
+#: pro-sites-files/lib/ProSites/View/Settings.php:449 pro-sites.php:4283
 msgid "Currency Symbol Position"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:462 pro-sites.php:4299
+#: pro-sites-files/lib/ProSites/View/Settings.php:462 pro-sites.php:4296
 msgid "Show Decimal in Prices"
 msgstr ""
 
@@ -4522,18 +4522,18 @@ msgid ""
 "<a href=\"%s\">JavaScript API</a> page for Taxamo integration to work."
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:89 pro-sites.php:4430
+#: pro-sites-files/lib/psts_pricing_table.php:89 pro-sites.php:4427
 #, php-format
 msgid ""
 "Your coupon code <strong>%1$s</strong> has been applied for a discount of "
 "%2$s off the first payment. <a href=\"%3$s\">Remove it &raquo;</a>"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:123 pro-sites.php:4497
+#: pro-sites-files/lib/psts_pricing_table.php:123 pro-sites.php:4494
 msgid "Try it out!"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:125 pro-sites.php:4498
+#: pro-sites-files/lib/psts_pricing_table.php:125 pro-sites.php:4495
 msgid "You can easily switch to a better value plan at any time."
 msgstr ""
 
@@ -4542,7 +4542,7 @@ msgstr ""
 msgid "Equivalent to only <br />  %s monthly"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:132 pro-sites.php:4530
+#: pro-sites-files/lib/psts_pricing_table.php:132 pro-sites.php:4527
 #, php-format
 msgid "Save %s by paying for 3 months in advance!"
 msgstr ""
@@ -4552,25 +4552,25 @@ msgstr ""
 msgid "Equivalent to only <br />%s monthly"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:139 pro-sites.php:4563
+#: pro-sites-files/lib/psts_pricing_table.php:139 pro-sites.php:4560
 #, php-format
 msgid "Save %s by paying for a year in advance!"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:157 pro-sites.php:4621
+#: pro-sites-files/lib/psts_pricing_table.php:157 pro-sites.php:4618
 msgid "Have a coupon code?"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:159 pro-sites.php:4623
+#: pro-sites-files/lib/psts_pricing_table.php:159 pro-sites.php:4620
 msgid "Enter your code:"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:161 pro-sites.php:4625
+#: pro-sites-files/lib/psts_pricing_table.php:161 pro-sites.php:4622
 msgid "Apply &raquo;"
 msgstr ""
 
 #: pro-sites-files/lib/psts_pricing_table.php:243 pro-sites.php:322
-#: pro-sites.php:1054 pro-sites.php:4586
+#: pro-sites.php:1054 pro-sites.php:4583
 msgid "Free"
 msgstr ""
 
@@ -5179,7 +5179,7 @@ msgstr ""
 
 #: pro-sites-files/modules/bulk-upgrades.php:909
 #: pro-sites-files/modules/bulk-upgrades.php:987
-#: pro-sites-files/modules/bulk-upgrades.php:1054 pro-sites.php:3892
+#: pro-sites-files/modules/bulk-upgrades.php:1054 pro-sites.php:3889
 msgid "Upgrade"
 msgstr ""
 
@@ -5192,7 +5192,7 @@ msgstr ""
 #: pro-sites-files/modules/bulk-upgrades.php:920
 #: pro-sites-files/modules/bulk-upgrades.php:999
 #: pro-sites-files/modules/bulk-upgrades.php:1071 pro-sites.php:1058
-#: pro-sites.php:2019 pro-sites.php:2972
+#: pro-sites.php:2016 pro-sites.php:2969
 msgid "Permanent"
 msgstr ""
 
@@ -5830,7 +5830,7 @@ msgid ""
 "reinstall."
 msgstr ""
 
-#: pro-sites.php:310 pro-sites.php:2563
+#: pro-sites.php:310 pro-sites.php:2560
 msgid "Pro Site"
 msgstr ""
 
@@ -6099,7 +6099,7 @@ msgstr ""
 msgid "Manage Sites"
 msgstr ""
 
-#: pro-sites.php:853 pro-sites.php:3463
+#: pro-sites.php:853 pro-sites.php:3460
 msgid "Pro Sites Statistics"
 msgstr ""
 
@@ -6107,7 +6107,7 @@ msgstr ""
 msgid "Statistics"
 msgstr ""
 
-#: pro-sites.php:875 pro-sites.php:3543
+#: pro-sites.php:875 pro-sites.php:3540
 msgid "Pro Sites Levels"
 msgstr ""
 
@@ -6299,416 +6299,416 @@ msgstr ""
 msgid "Tax Amount: %s"
 msgstr ""
 
-#: pro-sites.php:2056
+#: pro-sites.php:2053
 msgid "Pro Site status expiration permanently extended."
 msgstr ""
 
-#: pro-sites.php:2058
+#: pro-sites.php:2055
 #, php-format
 msgid "Pro Site status expiration extended until %s."
 msgstr ""
 
-#: pro-sites.php:2069
+#: pro-sites.php:2066
 #, php-format
 msgid "Pro Site level upgraded from \"%s\" to \"%s\"."
 msgstr ""
 
-#: pro-sites.php:2072
+#: pro-sites.php:2069
 #, php-format
 msgid "Pro Site level downgraded from \"%s\" to \"%s\"."
 msgstr ""
 
-#: pro-sites.php:2115
+#: pro-sites.php:2112
 msgid "Pro Site status has been withdrawn."
 msgstr ""
 
-#: pro-sites.php:2336
+#: pro-sites.php:2333
 #, php-format
 msgid "%1$s: %2$s (%3$s)"
 msgstr ""
 
-#: pro-sites.php:2431
+#: pro-sites.php:2428
 msgid ""
 "Are you sure you really want to remove this level? This will also delete all "
 "feature settings for the level."
 msgstr ""
 
-#: pro-sites.php:2432
+#: pro-sites.php:2429
 msgid "Are you sure you really want to remove this custom feature?"
 msgstr ""
 
-#: pro-sites.php:2529
+#: pro-sites.php:2526
 msgid "I'm Interested"
 msgstr ""
 
-#: pro-sites.php:2533
+#: pro-sites.php:2530
 msgid "Not Now"
 msgstr ""
 
-#: pro-sites.php:2573 pro-sites.php:2575
+#: pro-sites.php:2570 pro-sites.php:2572
 msgid "Manage site &raquo;"
 msgstr ""
 
-#: pro-sites.php:2575
+#: pro-sites.php:2572
 msgid "Manage &raquo;"
 msgstr ""
 
-#: pro-sites.php:2709
+#: pro-sites.php:2706
 msgid "Log entry added."
 msgstr ""
 
-#: pro-sites.php:2723 pro-sites.php:3287 pro-sites.php:3329
+#: pro-sites.php:2720 pro-sites.php:3284 pro-sites.php:3326
 msgid "Manual"
 msgstr ""
 
-#: pro-sites.php:2724
+#: pro-sites.php:2721
 msgid "Site Extended."
 msgstr ""
 
-#: pro-sites.php:2731
+#: pro-sites.php:2728
 msgid "Please enter the Blog ID of a site to transfer to."
 msgstr ""
 
-#: pro-sites.php:2733
+#: pro-sites.php:2730
 msgid ""
 "Could not transfer Pro Status: The chosen site already is a Pro Site. You "
 "must remove Pro status and cancel any existing subscriptions tied to that "
 "site."
 msgstr ""
 
-#: pro-sites.php:2740
+#: pro-sites.php:2737
 #, php-format
 msgid "Pro Status transferred by %s to BlogID: %d"
 msgstr ""
 
-#: pro-sites.php:2741
+#: pro-sites.php:2738
 #, php-format
 msgid "Pro Status transferred by %s from BlogID: %d"
 msgstr ""
 
-#: pro-sites.php:2743
+#: pro-sites.php:2740
 #, php-format
 msgid "Pro Status transferred to BlogID: %d"
 msgstr ""
 
-#: pro-sites.php:2755
+#: pro-sites.php:2752
 msgid "Pro Site Status Removed."
 msgstr ""
 
-#: pro-sites.php:2760
+#: pro-sites.php:2757
 msgid "Email receipt sent."
 msgstr ""
 
-#: pro-sites.php:2769
+#: pro-sites.php:2766
 msgid "Invalid blog ID. Please try again."
 msgstr ""
 
-#: pro-sites.php:2788
+#: pro-sites.php:2785
 msgid "Are you sure you really want to do this?"
 msgstr ""
 
-#: pro-sites.php:2799
+#: pro-sites.php:2796
 msgid "Pro Sites Management"
 msgstr ""
 
-#: pro-sites.php:2808
+#: pro-sites.php:2805
 msgid "Manage Site"
 msgstr ""
 
-#: pro-sites.php:2822
+#: pro-sites.php:2819
 #, php-format
 msgid "%s Month"
 msgid_plural "%s Months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: pro-sites.php:2831
+#: pro-sites.php:2828
 msgid "Current Pro Site"
 msgstr ""
 
-#: pro-sites.php:2835
+#: pro-sites.php:2832
 msgid "Pro Site privileges will expire: <strong>Never</strong>"
 msgstr ""
 
-#: pro-sites.php:2838
+#: pro-sites.php:2835
 msgid "(Active trial)"
 msgstr ""
 
-#: pro-sites.php:2840
+#: pro-sites.php:2837
 #, php-format
 msgid "Pro Site privileges will expire on: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2843
+#: pro-sites.php:2840
 #, php-format
 msgid "Level: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2846
+#: pro-sites.php:2843
 #, php-format
 msgid "Payment Gateway: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2849
+#: pro-sites.php:2846
 #, php-format
 msgid "Payment Term: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2854
+#: pro-sites.php:2851
 msgid "Expired Pro Site"
 msgstr ""
 
-#: pro-sites.php:2857
+#: pro-sites.php:2854
 #, php-format
 msgid "Pro Site privileges expired on: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2859
+#: pro-sites.php:2856
 #, php-format
 msgid "Previous Level: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2862
+#: pro-sites.php:2859
 #, php-format
 msgid "Previous Payment Gateway: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2865
+#: pro-sites.php:2862
 #, php-format
 msgid "Previous Payment Term: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:2870
+#: pro-sites.php:2867
 msgid "has never been a Pro Site."
 msgstr ""
 
-#: pro-sites.php:2881
+#: pro-sites.php:2878
 msgid "Subscription Information"
 msgstr ""
 
-#: pro-sites.php:2894
+#: pro-sites.php:2891
 msgid "Subscriber Information"
 msgstr ""
 
-#: pro-sites.php:2909
+#: pro-sites.php:2906
 msgid "Account History"
 msgstr ""
 
-#: pro-sites.php:2912
+#: pro-sites.php:2909
 msgid ""
 "This logs basically every action done in the system regarding the site for "
 "an audit trail."
 msgstr ""
 
-#: pro-sites.php:2924
+#: pro-sites.php:2921
 msgid "Y-m-d g:i:s a"
 msgstr ""
 
-#: pro-sites.php:2927
+#: pro-sites.php:2924
 msgid "No history recorded for this site yet."
 msgstr ""
 
-#: pro-sites.php:2933
+#: pro-sites.php:2930
 msgid "Add a custom log entry..."
 msgstr ""
 
-#: pro-sites.php:2934 pro-sites.php:3819
+#: pro-sites.php:2931 pro-sites.php:3816
 msgid "Add &raquo;"
 msgstr ""
 
-#: pro-sites.php:2946
+#: pro-sites.php:2943
 msgid "Manually Extend Pro Site Status"
 msgstr ""
 
-#: pro-sites.php:2949
+#: pro-sites.php:2946
 msgid ""
 "Please note that these changes will not adjust the payment dates or level "
 "for any existing subscription."
 msgstr ""
 
-#: pro-sites.php:2963
+#: pro-sites.php:2960
 msgid "Months"
 msgstr ""
 
-#: pro-sites.php:2970
+#: pro-sites.php:2967
 msgid "Days"
 msgstr ""
 
-#: pro-sites.php:2971
+#: pro-sites.php:2968
 msgid "or"
 msgstr ""
 
-#: pro-sites.php:2974
+#: pro-sites.php:2971
 msgid ""
 "Period you wish to extend the site. Leave at zero to only change the level."
 msgstr ""
 
-#: pro-sites.php:2987
+#: pro-sites.php:2984
 msgid "Choose what level the site should have access to."
 msgstr ""
 
-#: pro-sites.php:2992
+#: pro-sites.php:2989
 msgid "Extend &raquo;"
 msgstr ""
 
-#: pro-sites.php:3002
+#: pro-sites.php:2999
 msgid "Transfer &raquo;"
 msgstr ""
 
-#: pro-sites.php:3015
+#: pro-sites.php:3012
 msgid "Modify Pro Site Status"
 msgstr ""
 
-#: pro-sites.php:3026
+#: pro-sites.php:3023
 msgid "Remove Pro status from this site."
 msgstr ""
 
-#: pro-sites.php:3032
+#: pro-sites.php:3029
 msgid "Email a receipt copy for last payment to:"
 msgstr ""
 
-#: pro-sites.php:3038
+#: pro-sites.php:3035
 msgid "Modify &raquo;"
 msgstr ""
 
-#: pro-sites.php:3053
+#: pro-sites.php:3050
 msgid "Manage a Site"
 msgstr ""
 
-#: pro-sites.php:3060
+#: pro-sites.php:3057
 msgid "Blog ID:"
 msgstr ""
 
-#: pro-sites.php:3062
+#: pro-sites.php:3059
 msgid "Continue &raquo;"
 msgstr ""
 
-#: pro-sites.php:3072
+#: pro-sites.php:3069
 msgid "Activation Key:"
 msgstr ""
 
-#: pro-sites.php:3074
+#: pro-sites.php:3071
 msgid "Activate Blog &raquo;"
 msgstr ""
 
-#: pro-sites.php:3083
+#: pro-sites.php:3080
 msgid ""
 "Or search for a site:<br /><small>By Blog ID, IP address or Path/Domain</"
 "small>"
 msgstr ""
 
-#: pro-sites.php:3085
+#: pro-sites.php:3082
 msgid "Search Sites &raquo;"
 msgstr ""
 
-#: pro-sites.php:3268
+#: pro-sites.php:3265
 msgid "Total Pro Sites"
 msgstr ""
 
-#: pro-sites.php:3284 pro-sites.php:3321
+#: pro-sites.php:3281 pro-sites.php:3318
 msgid "3 Month"
 msgstr ""
 
-#: pro-sites.php:3285 pro-sites.php:3325
+#: pro-sites.php:3282 pro-sites.php:3322
 msgid "12 Month"
 msgstr ""
 
-#: pro-sites.php:3291 pro-sites.php:3300
+#: pro-sites.php:3288 pro-sites.php:3297
 msgid "Signups"
 msgstr ""
 
-#: pro-sites.php:3292 pro-sites.php:3301
+#: pro-sites.php:3289 pro-sites.php:3298
 msgid "Upgrades"
 msgstr ""
 
-#: pro-sites.php:3294 pro-sites.php:3303
+#: pro-sites.php:3291 pro-sites.php:3300
 msgid "Modifications"
 msgstr ""
 
-#: pro-sites.php:3298 pro-sites.php:3307
+#: pro-sites.php:3295 pro-sites.php:3304
 msgid "Cancelations"
 msgstr ""
 
-#: pro-sites.php:3470
+#: pro-sites.php:3467
 msgid "Monthly Activity Summary"
 msgstr ""
 
-#: pro-sites.php:3473 pro-sites.php:3481 pro-sites.php:3493 pro-sites.php:3499
-#: pro-sites.php:3510 pro-sites.php:3518 pro-sites.php:3521 pro-sites.php:3528
+#: pro-sites.php:3470 pro-sites.php:3478 pro-sites.php:3490 pro-sites.php:3496
+#: pro-sites.php:3507 pro-sites.php:3515 pro-sites.php:3518 pro-sites.php:3525
 msgid "No data available yet"
 msgstr ""
 
-#: pro-sites.php:3478
+#: pro-sites.php:3475
 msgid "Weekly Activity Summary"
 msgstr ""
 
-#: pro-sites.php:3486
+#: pro-sites.php:3483
 msgid "Ratios"
 msgstr ""
 
-#: pro-sites.php:3491
+#: pro-sites.php:3488
 #, php-format
 msgid "Current Pro Site Levels (%s Total)"
 msgstr ""
 
-#: pro-sites.php:3497
+#: pro-sites.php:3494
 msgid "Current Gateway Use"
 msgstr ""
 
-#: pro-sites.php:3507
+#: pro-sites.php:3504
 msgid "Pro Sites History"
 msgstr ""
 
-#: pro-sites.php:3515
+#: pro-sites.php:3512
 msgid "Pro Sites Term History"
 msgstr ""
 
-#: pro-sites.php:3519
+#: pro-sites.php:3516
 msgid "Current Terms"
 msgstr ""
 
-#: pro-sites.php:3572
+#: pro-sites.php:3569
 #, php-format
 msgid "Level %s successfully deleted."
 msgstr ""
 
-#: pro-sites.php:3585
+#: pro-sites.php:3582
 msgid "Please enter a valid level name."
 msgstr ""
 
-#: pro-sites.php:3589
+#: pro-sites.php:3586
 msgid "You must enter a price for at least one payment period."
 msgstr ""
 
-#: pro-sites.php:3610
+#: pro-sites.php:3607
 msgid "Level added."
 msgstr ""
 
-#: pro-sites.php:3647
+#: pro-sites.php:3644
 msgid "Levels saved."
 msgstr ""
 
-#: pro-sites.php:3663 pro-sites.php:3677 pro-sites.php:3791
+#: pro-sites.php:3660 pro-sites.php:3674 pro-sites.php:3788
 msgid "Is Visible"
 msgstr ""
 
-#: pro-sites.php:3664 pro-sites.php:3679 pro-sites.php:3792
+#: pro-sites.php:3661 pro-sites.php:3676 pro-sites.php:3789
 msgid "1 Month Price"
 msgstr ""
 
-#: pro-sites.php:3665 pro-sites.php:3682 pro-sites.php:3793
+#: pro-sites.php:3662 pro-sites.php:3679 pro-sites.php:3790
 msgid "3 Month Price"
 msgstr ""
 
-#: pro-sites.php:3666 pro-sites.php:3685 pro-sites.php:3794
+#: pro-sites.php:3663 pro-sites.php:3682 pro-sites.php:3791
 msgid "12 Month Price"
 msgstr ""
 
-#: pro-sites.php:3670
+#: pro-sites.php:3667
 msgid "Edit Pro Site Levels"
 msgstr ""
 
-#: pro-sites.php:3671
+#: pro-sites.php:3668
 msgid ""
 "Pro Sites will have the features assigned to all level numbers at or less "
 "than their own. You can disable a subscription period by unchecking it. "
@@ -6718,161 +6718,161 @@ msgid ""
 "current level number."
 msgstr ""
 
-#: pro-sites.php:3679
+#: pro-sites.php:3676
 msgid "Enable 1 Month Checkout"
 msgstr ""
 
-#: pro-sites.php:3682
+#: pro-sites.php:3679
 msgid "Enable 3 Month Checkout"
 msgstr ""
 
-#: pro-sites.php:3685
+#: pro-sites.php:3682
 msgid "Enable 12 Month Checkout"
 msgstr ""
 
-#: pro-sites.php:3756
+#: pro-sites.php:3753
 msgid "Delete &raquo;"
 msgstr ""
 
-#: pro-sites.php:3780
+#: pro-sites.php:3777
 msgid "Save Levels"
 msgstr ""
 
-#: pro-sites.php:3781
+#: pro-sites.php:3778
 msgid "Changes not saved."
 msgstr ""
 
-#: pro-sites.php:3784
+#: pro-sites.php:3781
 msgid "Add New Level"
 msgstr ""
 
-#: pro-sites.php:3785
+#: pro-sites.php:3782
 msgid "You can add a new Pro Site level here."
 msgstr ""
 
-#: pro-sites.php:3851
+#: pro-sites.php:3848
 msgid ""
 "Modules Saved. Please <a href=\"admin.php?page=psts-settings\">visit "
 "Settings</a> to configure them."
 msgstr ""
 
-#: pro-sites.php:3856
+#: pro-sites.php:3853
 msgid "Pro Sites Modules and Gateways"
 msgstr ""
 
-#: pro-sites.php:3861
+#: pro-sites.php:3858
 msgid "Enable Modules"
 msgstr ""
 
-#: pro-sites.php:3862
+#: pro-sites.php:3859
 msgid ""
 "Select the modules you would like to use below. You can then configure their "
 "options on the settings page."
 msgstr ""
 
-#: pro-sites.php:3867
+#: pro-sites.php:3864
 msgid "Module Name"
 msgstr ""
 
-#: pro-sites.php:3892
+#: pro-sites.php:3889
 msgid "Premium Only &raquo;"
 msgstr ""
 
-#: pro-sites.php:4083
+#: pro-sites.php:4080
 msgid "Allow Signup on Checkout"
 msgstr ""
 
-#: pro-sites.php:4098
+#: pro-sites.php:4095
 msgid ""
 "There was a problem finding the Checkout Page. Please follow the directions "
 "below to regenerate it:"
 msgstr ""
 
-#: pro-sites.php:4203
+#: pro-sites.php:4200
 msgid "Email Notifications"
 msgstr ""
 
-#: pro-sites.php:4273
+#: pro-sites.php:4270
 msgid "Currency Symbol"
 msgstr ""
 
-#: pro-sites.php:4528 pro-sites.php:4561
+#: pro-sites.php:4525 pro-sites.php:4558
 #, php-format
 msgid "Equivalent to only %s monthly"
 msgstr ""
 
-#: pro-sites.php:4698
+#: pro-sites.php:4695
 #, php-format
 msgid "Email receipt sent to %s."
 msgstr ""
 
-#: pro-sites.php:4702
+#: pro-sites.php:4699
 msgid "Email a receipt copy for your last payment to:"
 msgstr ""
 
-#: pro-sites.php:4704
+#: pro-sites.php:4701
 msgid "Send &raquo;"
 msgstr ""
 
-#: pro-sites.php:4716
+#: pro-sites.php:4713
 #, php-format
 msgid ""
 "Your <strong>%d day trial</strong> begins once you click the \"Subscribe\" "
 "button below."
 msgstr ""
 
-#: pro-sites.php:4739
+#: pro-sites.php:4736
 msgid "You must first login before you can choose a site to upgrade:"
 msgstr ""
 
-#: pro-sites.php:4781 pro-sites.php:4881
+#: pro-sites.php:4778 pro-sites.php:4878
 #, php-format
 msgid "Not %s"
 msgstr ""
 
-#: pro-sites.php:4782 pro-sites.php:4882
+#: pro-sites.php:4779 pro-sites.php:4879
 #, php-format
 msgid "Modify \"%s\""
 msgstr ""
 
-#: pro-sites.php:4782 pro-sites.php:4882
+#: pro-sites.php:4779 pro-sites.php:4879
 #, php-format
 msgid "Upgrade \"%s\""
 msgstr ""
 
-#: pro-sites.php:4847
+#: pro-sites.php:4844
 msgid ""
 "Sorry, but you do not have permission to upgrade this site. Only the site "
 "administrator can upgrade their site."
 msgstr ""
 
-#: pro-sites.php:4848 pro-sites.php:4856
+#: pro-sites.php:4845 pro-sites.php:4853
 msgid "Choose a different site"
 msgstr ""
 
-#: pro-sites.php:4855
+#: pro-sites.php:4852
 #, php-format
 msgid "This site has been permanently given %s status."
 msgstr ""
 
-#: pro-sites.php:4870
+#: pro-sites.php:4867
 msgid "Please choose a site to Upgrade or Modify:"
 msgstr ""
 
-#: pro-sites.php:4933
+#: pro-sites.php:4930
 #, php-format
 msgid "Your site <strong>%s</strong> has not been activated yet."
 msgstr ""
 
-#: pro-sites.php:4936
+#: pro-sites.php:4933
 msgid "Sign up for a site."
 msgstr ""
 
-#: pro-sites.php:4938
+#: pro-sites.php:4935
 msgid "Sorry, but it appears you are not an administrator for any sites."
 msgstr ""
 
-#: pro-sites.php:5353
+#: pro-sites.php:5350
 msgid "The original Level doesn't exist, it might have been removed."
 msgstr ""
 
