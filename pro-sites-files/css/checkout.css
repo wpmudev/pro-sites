@@ -544,6 +544,10 @@ ul.pricing-column li, .pricing-column ul li {
 	display: block;
 }
 
+.feature-section-wrapper {
+    overflow: hidden;
+}
+
 .feature-section,
 .pricing-column {
 	list-style:none;
@@ -557,10 +561,10 @@ ul.pricing-column li, .pricing-column ul li {
 	margin:0;
 }
 
-.alternate {
-    background: rgba( 245, 245, 245, 1 );
+.feature-content .feature-name {
+    /*font-size: 17px;*/
+    text-align: center;
 }
-
 
 li.summary {
 	position:relative;
@@ -591,7 +595,8 @@ li > .period-selector {
 .period-selector select {
 	font-size: 1em;
 	width: 100%;
-	border: 1px solid #888;
+    border-width: 1px;
+    border-style: solid;
 	padding: 5px 2px;
 }
 
@@ -613,8 +618,14 @@ li > .period-selector {
 
 .pricing-column .title,
 .pricing-column .summary {
-	padding: 0 10px;
+	/*padding: 0 10px;*/
 }
+
+.pricing-column .summary .price,
+.pricing-column .summary .level-summary {
+    padding: 0 5px;
+}
+
 
 .pricing-column.featured .title {
 	/* IE 9 */
@@ -654,7 +665,6 @@ ul.pricing-column ul.feature-section li {
 }
 .feature-section .icon-tick:before {
 	font-family: dashicons;
-	color: #00CE8A;
 	font-size:2em;
 	content: "\f147";
 	line-height: 1em;
@@ -662,7 +672,6 @@ ul.pricing-column ul.feature-section li {
 
 .feature-section .icon-cross:before {
 	font-family: dashicons;
-	color: #B6B6B6;
 	font-size:2em;
 	content: "\f335";
 	line-height: 1em;
@@ -681,17 +690,11 @@ ul.pricing-column ul.feature-section li {
 	font-size: 1.6em;
 	font-weight: bold;
 	padding: 20px 0;
-	border: 1px solid #B6B6B6;
+    border-style: solid;
+    border-width: 1px;
 	position: relative;
 	border-bottom: none;
     width: 100%;
-}
-
-.pricing-column .title:after {
-	content:"";
-	display:block;
-	border-bottom: 2px solid #B6B6B6;
-	margin: 20px 10px 0 10px;
 }
 
 
@@ -705,8 +708,7 @@ ul.pricing-column ul.feature-section li {
 
 .pricing-column .summary {
 	/*background: #fff;*/
-
-	border: 1px solid #B6B6B6;
+    border-width: 1px;
 	border-style: none solid;
 	/*position: relative;*/
 	font-size: 0.8em;
@@ -716,12 +718,12 @@ ul.pricing-column ul.feature-section li {
 }
 .pricing-column:first-child .summary {
 	border: none;
-	/*position:relative;*/
-	/*font-size: 1em;*/
+	position:relative;
+	font-size: 1em;
 }
 
 .pricing-column .summary.no-periods {
-    border: 1px solid #B6B6B6;
+    border-width: 1px;
     border-style: none solid;
     /*position:relative;*/
     /*font-size: 1em;*/
@@ -742,7 +744,8 @@ ul.pricing-column ul.feature-section li {
 	/*border-width: 1px;*/
 	/*border-color: #888;*/
 	/*display:block;*/
-	border:1px solid #B6B6B6;
+    border-width: 1px;
+    border-style: solid;
 	padding: 5px;
 	/*text-align: left;*/
 	/*float:left;*/
@@ -758,17 +761,12 @@ ul.pricing-column ul.feature-section li {
 .pricing-column .summary .period-selector select {
 	width: 100%;
 }
-.pricing-column .summary .period-selector select:-moz-focusring {
-	color: transparent;
-	text-shadow: 0 0 0 #000;
-}
-
 
 .pricing-column .sub-title {
 	/*border-style: solid none solid solid;*/
 	/*border-width: 1px;*/
 	/*border-color: #888;*/
-	border:1px solid #B6B6B6;
+    border-width: 1px;
 	border-style: none solid;
 	font-size: 0.8em;
     margin:0;
@@ -783,24 +781,23 @@ ul.pricing-column ul.feature-section li {
 	/*background: #fff;*/
 }
 .pricing-column .sub-title.no-header {
-
 }
 .pricing-column .feature-section {
-	/*B6B6B6*/
-	border:1px solid #B6B6B6;
-	border-top: none;
-	border-bottom: none;
+    border-width: 1px;
+    border-style: none solid;
 }
 
 .pricing-column:first-child .feature-section {
-	border-bottom: 1px solid #B6B6B6;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
 	text-align: right;
 }
 
 .pricing-column .button-box {
 	padding: 0 10px 10px 10px;
-	border:1px solid #B6B6B6;
-	border-top:0;
+    border-style: solid;
+    border-width: 1px;
+	border-top:none;
     clear:both;
 }
 
@@ -825,20 +822,12 @@ ul.pricing-column ul.feature-section li {
 .pricing-column.featured .title {
 	border-width: 5px;
 }
-.pricing-column.featured .title.no-title {
-
-}
 .pricing-column.featured .summary {
 	border-width: 5px;
-}
-.pricing-column.featured .sub-title {
-
+	border-bottom: 1px solid #B6B6B6;
 }
 .pricing-column.featured .sub-title.no-title {
 	border-width: 5px;
-}
-.pricing-column.featured .sub-title.no-header {
-
 }
 .pricing-column.featured .feature-section {
 	border-width: 5px;
@@ -853,6 +842,12 @@ ul.pricing-column ul.feature-section li {
 .pricing-column.featured .button-box.no-button {
 
 }
+.pricing-column.featured .period-selector {
+    border-bottom: 0;
+}
+.pricing-column.featured .title.no-title.no-summary {
+    border-bottom: 1px solid #B6B6B6;
+}
 
 /* Other formatting */
 
@@ -864,7 +859,6 @@ ul.pricing-column ul.feature-section li {
 	padding-top:10px;
 }
 .pricing-column .price .symbol {
-	color: #58636F;
 	vertical-align: top;
 	position:relative;
 	top: 0.5em;
@@ -885,7 +879,6 @@ ul.pricing-column ul.feature-section li {
 .pricing-column .price .decimal {
 	vertical-align: baseline;
 	/*font-size:1.4em;*/
-	color: #58636F;
 }
 
 .pricing-column .price .period {
@@ -912,6 +905,10 @@ ul.pricing-column ul.feature-section li {
 .pricing-column .level-summary {
 	padding-top: 20px;
 	/*font-size: 1em;*/
+}
+
+.pricing-column .level-summary.no-periods {
+    display: none;
 }
 
 .pricing-column.featured .price {
@@ -947,11 +944,23 @@ ul.pricing-column ul.feature-section li {
 .pricing-column li.coupon {
     clear:both;
 }
-.pricing-column .coupon-box {
-    /*font-size: 1em;*/
-    /*position:relative;*/
+
+#prosites-checkout-table .coupon-wrapper {
+    clear: both;
+    font-size: 0.8em;
+    margin: 6px auto;
+    padding-top: 8px;
+    text-align: center;
+    top: 20px;
 }
 
+#prosites-checkout-table .coupon-wrapper .coupon-box {
+    border: 1px solid;
+    padding: 0.5em;
+}
+
+/*#prosites-checkout-table .coupon-wrapper .coupon-box button,*/
+/*#prosites-checkout-table .coupon-wrapper .coupon-box input,*/
 .pricing-column .coupon-box input {
 	/*font-size: 0.7em;*/
     /*position:absolute;*/
@@ -959,9 +968,37 @@ ul.pricing-column ul.feature-section li {
     /*top:0;*/
     padding-top:3px;
     padding-bottom:3px;
+}
+
+.pricing-column .coupon-box input {
     position:relative;
     top: -4px;
 }
+
+#prosites-checkout-table .coupon-wrapper .coupon-box button {
+    /*padding: 4px;*/
+    /*text-transform: capitalize;*/
+    /*text-decoration: underline;*/
+    border: none;
+    /*font-size: 0.8em;*/
+    width: 10em;
+    padding: 0.5em;
+    margin: 0;
+}
+#prosites-checkout-table .coupon-wrapper .coupon-box input {
+    width: 15em;
+    /*padding: 0 4px 2px;*/
+    font-size: 1em;
+    margin: 0 0.5em 0 0;
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+    font-family: inherit;
+}
+
 
 .pricing-column .apply-coupon-link {
     /*position:absolute;*/
@@ -986,14 +1023,20 @@ ul.pricing-column ul.feature-section li {
     right: 10px;
 }
 
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after,
 .pricing-column .coupon-box.coupon-valid:after {
+    font-family: dashicons;
     content: "\f147";
-    color: #00CE8A;
+}
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after {
+    left: 14.5em;
+    position: absolute;
+    top: 1.6em;
 }
 
 .pricing-column .coupon-box.coupon-invalid:after {
+    font-family: dashicons;
     content: "\f158";
-    color: #B6B6B6;
     /* IE 9 */
     -ms-transform: scale(0.8,0.8);
     /* Chrome, Safari, Opera */
@@ -1021,7 +1064,8 @@ ul.pricing-column ul.feature-section li {
     top:0;
 }
 .plan-price.original-amount.scratch:after {
-    border-bottom: 1px solid red;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
     content: "";
     display: block;
     margin: 0 auto;
@@ -1047,13 +1091,6 @@ ul.pricing-column ul.feature-section li {
     /*z-index: 10;*/
 /*}*/
 
-ul.pricing-column.chosen-plan {
-    background: rgba( 128, 128, 128, 0.1 );
-}
-
-ul.pricing-column.chosen-plan .alternate {
-    background: rgba( 128, 128, 128, 0.2 );
-}
 
 ul.pricing-column.not-chosen-plan .button-box button {
     /* IE 8 */
@@ -1069,6 +1106,9 @@ ul.pricing-column.not-chosen-plan .button-box button {
 }
 
 /* === GATEWAYS === */
+.checkout-gateways {
+    margin-top: 30px;
+}
 #gateways ul {
     margin:0;
 }
@@ -1086,18 +1126,11 @@ ul.pricing-column.not-chosen-plan .button-box button {
 }
 
 #gateways ul li.ui-state-default {
-    background: rgba( 245, 245,245, 0.2 );
-    border: 1px solid #F5F5F5;
+    border-style: solid;
+    border-widows: 1px;
 }
-
-#gateways ul li.ui-state-active {
-    /*border: 1px solid #888888;*/
-    background: #F5F5F5;
-}
-
 
 #gateways-1, #gateways-2, #gateways-3 {
-    background: #F5F5F5;
     padding: 10px;
 }
 
@@ -1154,7 +1187,7 @@ ul.pricing-column.not-chosen-plan .button-box button {
     text-align: center;
     margin-top: 3px;
     position:relative;
-    top: 3px;
+    top: 12px;
     clear:both;
     cursor: pointer;
 
@@ -1171,6 +1204,57 @@ ul.pricing-column.not-chosen-plan .button-box button {
 }
 .login-existing form {
     display: none;
+}
+
+
+/** Pricing Tables > Styling */
+.period-selector-container label > input{ /* HIDE RADIO */
+    display:none;
+}
+.period-selector-container label > input + .period-option{ /* IMAGE STYLES */
+    cursor:pointer;
+    border: 1px solid #444;
+}
+
+.period-selector-container {
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.period-selector-container .period-option {
+    float: left;
+    font-size: 0.7em;
+    height: 2em;
+    line-height: 1.5em;
+    padding: 0.2em;
+    min-width: 7em;
+    text-align: center;
+}
+
+.period-selector-container label:first-child .period-option {
+    -moz-border-radius: 5px 0 0 5px;
+    -webkit-border-radius: 5px 0 0 5px;
+    border-radius: 5px 0 0 5px;
+}
+.period-selector-container label:last-child .period-option {
+    -moz-border-radius: 0 5px 5px 0;
+    -webkit-border-radius: 0 5px 5px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.period-selector-container label > input:checked + .period-option {
+    background: #333333;
+    color: #fff;
+}
+
+.period-separator {
+    clear: both;
+    margin-bottom: 1em;
+}
+
+
+#prosites-checkout-table .checkout-container {
+    clear:both;
 }
 
 /* === ALTER CLASSIC === */
@@ -1232,7 +1316,6 @@ ul.pricing-column.not-chosen-plan .button-box button {
 .pricing-column.grid-checkout .coupon-box.coupon-valid:before {
     font-family: "dashicons";
     content: "\f147";
-    color: #00CE8A;
     position: absolute;
     float:left;
     margin-left: 5px;
@@ -1245,7 +1328,6 @@ ul.pricing-column.not-chosen-plan .button-box button {
 .pricing-column.grid-checkout .coupon-box.coupon-invalid:before {
     font-family: "dashicons";
     content: "\f158";
-    color: #B6B6B6;
     /* IE 9 */
     -ms-transform: scale(0.8,0.8);
     /* Chrome, Safari, Opera */
@@ -1258,13 +1340,15 @@ ul.pricing-column.not-chosen-plan .button-box button {
 }
 
 .tax-checkout-notice {
-    border: 1px solid #b6b6b6;
+    border-style: solid;
+    border-width: 1px;
     font-size: 0.8em;
     text-align: center;
     margin-top: 25px;
 }
 .tax-checkout-evidence {
-    border: 1px solid #b6b6b6;
+    border-style: solid;
+    border-width: 1px;
     font-size: 0.8em;
     text-align: left;
     padding: 5px;

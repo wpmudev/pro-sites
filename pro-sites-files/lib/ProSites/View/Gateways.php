@@ -19,7 +19,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 
 				$page_header_options = array(
 					'title'       => __( 'Pro Sites Gateway Settings', 'psts' ),
-					'desc'        => __( '', 'psts' ),
+					'desc'        => '',
 					'page_header' => true,
 				);
 

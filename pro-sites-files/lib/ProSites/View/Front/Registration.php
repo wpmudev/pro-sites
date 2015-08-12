@@ -52,7 +52,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				}
 			}
 
-			$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
 			$action = '';
 
 			$active_signup = get_site_option( 'registration', 'none' );
@@ -80,6 +79,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				// WP hook
 				ob_start();
 				do_action( 'before_signup_form' );
+				$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
 				$content .= ob_get_clean();
 
 				$user_name = '';
@@ -170,7 +170,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			// Blog name
 //			if ( !is_subdomain_install() ) {
-			$content .= '<div class="blogname"><label for="blogname">' . __('Your Site: ') . '</label>';
+			$content .= '<div class="blogname"><label for="blogname">' . __('Your Site: ', 'psts') . '</label>';
 //			} else {
 //				$content .= '<label for="blogname">' . __('Site Domain:') . '</label>';
 //			}
@@ -182,14 +182,6 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			} else {
 				$content .= '<input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span></div>';
 			}
-
-//			if ( !is_user_logged_in() ) {
-//				if ( !is_subdomain_install() )
-//					$site = $current_site->domain . $current_site->path . __( 'sitename' );
-//				else
-//					$site = __( 'domain' ) . '.' . $site_domain . $current_site->path;
-//				$content .= '<p>(<strong>' . sprintf( __('Your address will be %s.', 'psts' ), $site ) . '</strong>) ' . __( 'Must be at least 4 characters, letters and numbers only. It cannot be changed, so choose carefully!', 'psts' ) . '</p>';
-//			}
 
 			$content .= '<div class="blog_title"><label for="blog_title">' . esc_html__('Site Title:', 'psts' ) . '</label>';
 			if ( $errmsg = $errors->get_error_message('blog_title') ) {

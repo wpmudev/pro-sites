@@ -29,13 +29,21 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				//Get blog id
 				$blog_id = ! empty( $_GET['bid'] ) ? $_GET['bid'] : '';
 
+				//If no nonce, return
+				if ( empty( $_GET['_wpnonce'] ) ) {
+					return;
+				}
+				//If nonce not verified return, Verify Nonce
+				if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
+					return;
+				}
 				//If there is blog id
 				if ( ! empty( $blog_id ) ) {
 
 					//Get gateway details
 					$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 					$result  = $wpdb->get_row( $sql );
-					$gateway = ! empty( $result->gateway ) ? $result->gateway : '';
+					$gateway = ! empty( $result->gateway ) ? strtolower( $result->gateway ) : '';
 					if ( ! empty( $gateway ) ) {
 						//Check if a respective gateway class exists, and call cancel subscription function
 						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
@@ -88,7 +96,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// If site modified, apply this filter... has to happen after form processing.
 			$render_data['plan_updated'] = ProSites_Helper_Session::session( 'plan_updated' );
 			if ( isset( $render_data['plan_updated'] ) ) {
-				add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
+				if ( ! empty( $render_data['plan_updated']['gateway'] ) && $render_data['plan_updated']['gateway'] == 'manual' ) {
+					add_filter( 'prosites_render_checkout_page', 'ProSites_Gateway_Manual::render_account_modified', 10, 3 );
+				} else {
+					add_filter( 'prosites_render_checkout_page', 'ProSites_View_Front_Gateway::render_account_modified', 10, 3 );
+				}
 			}
 
 			$tabbed       = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
@@ -173,7 +185,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			} else {
 				foreach ( $gateway_order as $key ) {
 					// @todo: replace the called method with hooks with different names in the gateways (filter is from ProSites_Helper_ProSite::get_blog_info() )
-					if ( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
+					if ( ! empty( $key ) && $result->gateway == $key && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 						$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
 					}
 				}
@@ -226,9 +238,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				// Cancel link?
 				if ( empty( $info_retrieved['cancellation_message'] ) ) {
 					if ( ! empty( $info_retrieved['cancel_link'] ) ) {
-						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
+						$content .= '<div id="psts-cancel-link" class="psts-cancel-link">' . $info_retrieved['cancel_link'] . $info_retrieved['cancel_info'] . '</div>';
 					} else if ( ! empty( $info_retrieved['cancel_info_link'] ) ) {
-						$content .= '<div class="psts-cancel-link">' . $info_retrieved['cancel_info_link'] . $info_retrieved['cancel_info'] . '</div>';
+						$content .= '<div id="psts-cancel-link" class="psts-cancel-link">' . $info_retrieved['cancel_info_link'] . $info_retrieved['cancel_info'] . '</div>';
 					}
 					// Receipt form
 					if ( ! empty( $info_retrieved['receipt_form'] ) ) {
@@ -242,7 +254,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$allow_multi   = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if ( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div id="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
 				$content .= apply_filters( 'prosites_myaccount_details', '', $blog_id );
@@ -256,15 +268,15 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 		public static function filter_usable_gateways( $gateways ) {
 
 			// remove 'bulk_upgrade'
-			if( 'bulk upgrade' == $gateways['primary'] ) {
+			if ( 'bulk upgrade' == $gateways['primary'] ) {
 				$gateways['primary'] = 'none';
 			}
-			if( 'bulk upgrade' == $gateways['secondary'] ) {
+			if ( 'bulk upgrade' == $gateways['secondary'] ) {
 				$gateways['secondary'] = 'none';
 			}
-			foreach( $gateways['order'] as $k => $v ) {
-				if( 'bulk upgrade' == $v ) {
-					unset( $gateways['order'][$k]);
+			foreach ( $gateways['order'] as $k => $v ) {
+				if ( 'bulk upgrade' == $v ) {
+					unset( $gateways['order'][ $k ] );
 				}
 			}
 			$gateways['order'] = array_values( $gateways['order'] );
@@ -324,7 +336,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			// Get trial message
-			if ( ! empty( $info_retrieved['trial'] ) ) {
+			if ( ! empty( $info_retrieved['trial'] ) && empty( $info_retrieved['cancel'] ) ) {
 				$content .= $info_retrieved['trial'];
 			}
 
@@ -394,11 +406,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			}
 
-			if ( $is_pro_site &&
-			     ( ! isset( $_GET['action'] )
-			       //For gateways after redirection, upon page refresh
-			       || ( $_GET['action'] == 'complete' && isset( $_GET['token'] ) ) )
-			) {
+			//For gateways after redirection, upon page refresh
+			$page_reload = $_GET['action'] == 'complete' && isset( $_GET['token'] );
+
+			//If action is new_blog, but new blog is not allowed
+			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
+			if ( $is_pro_site && ( ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
 				// EXISTING DETAILS
 				if ( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();

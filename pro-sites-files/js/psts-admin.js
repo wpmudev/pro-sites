@@ -35,4 +35,9 @@ jQuery(document).ready(function($){
     $('.psts-wrap .psts-settings').css( 'min-height', height );
 
 
+
+
+
+
+
 });

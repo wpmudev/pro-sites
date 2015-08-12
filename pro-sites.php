@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.0.3
+Version: 3.5.1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.0.3';
+	var $version = '3.5.1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -147,7 +147,6 @@ class ProSites {
 		ProSites_Model_Registration::add_ajax_hook();
 		add_filter( 'prosite_register_blog_pre_validation', array( 'ProSites_Model_Registration', 'cleanup_unused_user' ), 10, 3 );
 
-//		add_action( 'signup_finished', array( 'ProSites_View_Front_Registration', 'render_signup_finished' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
 
@@ -160,12 +159,6 @@ class ProSites {
 			update_option( 'psts_signed_up', 0 );
 		}
 
-//		add_action( 'signup_blogform', array( &$this, 'signup_output' ) );
-//		add_action( 'bp_after_blog_details_fields', array( &$this, 'signup_output' ) );
-//		add_action( 'signup_extra_fields', array( &$this, 'signup_override' ) );
-//		add_filter( 'add_signup_meta', array( &$this, 'signup_save' ) );
-//		add_filter( 'bp_signup_usermeta', array( &$this, 'signup_save' ) );
-
 		//Force Used Space Check in network if quota is enabled
 		add_action( 'psts_modules_save', array( $this, 'enable_network_used_space_check' ) );
 
@@ -175,17 +168,11 @@ class ProSites {
 			'blog_template_settings'
 		) ); // exclude pro site setting from blog template copies
 
-		//Disable activation emails
-		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
+		//Disable activation emails, Commented out in 3.5.1
+//		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
 
 		//Disable Blog Activation Email, as of Pay before blog creation
 		add_filter( 'wpmu_signup_blog_notification', array( $this, 'disable_user_activation_mail' ), 10 );
-
-
-
-		//Redirect to checkout page after signup
-//		add_action( 'signup_finished', array( $this, 'signup_redirect_checkout' ) );
-//		add_action( 'bp_complete_signup', array( $this, 'signup_redirect_checkout' ) );
 
 		//Register styles
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_psts_style' ) );
@@ -203,6 +190,13 @@ class ProSites {
 
 		// New receipt
 		add_action( 'prosites_transaction_record', array( get_class(), 'send_receipt' ) );
+
+		//Check for manual signup, on blog activation
+		add_action('wpmu_activate_blog', array( $this, 'process_manual_signup'), 10, 5 );
+
+		//Checks if Allow multiple blog signup is disabled, hides the create new site link from dashboard
+		add_filter('default_site_option_registration', array($this, 'hide_create_new_site_link') );
+		add_filter('site_option_registration', array($this, 'hide_create_new_site_link') );
 
 		$this->setup_ajax_hooks();
 
@@ -595,6 +589,7 @@ Thanks!", 'psts' ),
 		$settings = get_site_option( 'psts_settings' );
 		$setting  = isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
 
+		$setting = !is_array( $setting ) ? trim( $setting ) : $setting;
 		/**
 		 * Filter the specific setting, $key parameter value
 		 *
@@ -1150,8 +1145,16 @@ Thanks!", 'psts' ),
 	function checkout_page_load( $query ) {
 
 		$x = '';
-		//don't check on other blogs
-		if ( ! is_main_site() ) {
+
+		//allow overriding and changing the root site to put the checkout page on
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : '';
+
+		//don't check on other blogs, unless checkout site is set
+		if ( ! is_main_site() && empty( $checkout_site ) ) {
+			return;
+		}
+		//If checkout site is not empty, and current blog is not checkout blog
+		if( !empty( $checkout_site ) && $checkout_site != get_current_blog_id() ) {
 			return;
 		}
 
@@ -1201,11 +1204,24 @@ Thanks!", 'psts' ),
 			'button_choose' => __( "Choose Plan", 'psts' ),
 			'button_chosen' => __( "Chosen Plan", 'psts' ),
 			'logged_in' => is_user_logged_in(),
+			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false'
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
 			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
 			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
+
+			/* Checkout layout */
+			$layout_option = $this->get_setting( 'pricing_table_layout', 'option1' );
+			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'css/pricing-tables/' . $layout_option . '.css' );
+			wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $this->version );
+
+			/* Apply styles from options */
+			$checkout_style = ProSites_View_Pricing_Styling::get_styles_from_options();
+			if( ! empty( $checkout_style ) ) {
+				wp_add_inline_style( 'psts-checkout-layout', $checkout_style );
+			};
+
 		}
 		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
 			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
@@ -1551,7 +1567,7 @@ Thanks!", 'psts' ),
 
 		// Get current plan
 		$level_list = get_site_option( 'psts_levels' );
-		$level_name = $level_list[ $transaction->level ]['name'];
+		$level_name = !empty($transaction->level ) ? $level_list[ $transaction->level ]['name'] : '';
 		$level_name = ! empty( $level_name ) ? $level_name : $level_list[ $psts->get_level( $transaction->blog_id ) ]['name'];
 		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
 		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
@@ -1611,7 +1627,10 @@ Thanks!", 'psts' ),
 		);
 		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
+		//It is converting Euro symbol to emoji, need to submit a trac ticket, until then remove emoji in email
+		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $psts->pdf_receipt( $e['msg'] ) );
+		add_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 
@@ -1942,6 +1961,16 @@ Thanks!", 'psts' ),
 		return apply_filters( 'psts_next_payment', false );
 	}
 
+	/**
+	* @param $blog_id
+	* @param $extend Period of Subscription
+	* @param bool|false $gateway (Manual, Trial, Stripe, Paypal)
+	* @param int $level
+	* @param bool|false $amount
+	* @param bool|false $expires
+	* @param bool|true $is_recurring
+	* @param bool|false $manual_notify
+    */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
 		$now    = time();
@@ -1969,17 +1998,14 @@ Thanks!", 'psts' ),
 				//$extend = 2629744;
 				$extend = strtotime( "+1 month" );
 				$extend = $extend - time();
-				$extend = $extend + 3600;
 			} else if ( $extend == '3' ) {
 				//$extend = 7889231;
 				$extend = strtotime( "+3 months" );
 				$extend = $extend - time();
-				$extend = $extend + 3600;
 			} else if ( $extend == '12' ) {
 				//$extend = 31556926;
 				$extend = strtotime( "+1 year" );
 				$extend = $extend - time();
-				$extend = $extend + 3600;
 			} else {
 				$term = false;
 			}
@@ -1990,6 +2016,8 @@ Thanks!", 'psts' ),
 				$term       = __( 'Permanent', 'psts' );
 			}
 		}
+		//Add 1.5 hour extra to handle the delays in subscription renewal by stripe
+		$new_expire = $new_expire >= 9999999999 ? $new_expire : $new_expire + 5400;
 
 		$old_level = $this->get_level( $blog_id );
 
@@ -2010,7 +2038,7 @@ Thanks!", 'psts' ),
 		} else {
 			$wpdb->query( $wpdb->prepare( "
 		  	INSERT INTO {$wpdb->base_prefix}pro_sites (blog_ID, expire, level, gateway, term, amount, is_recurring)
-		  	VALUES (%d, %s, %d, %s, %s, %d, %d)",
+		  	VALUES (%d, %s, %d, %s, %s, %s, %d)",
 				$blog_id, $new_expire, $level, $gateway, $term, $amount, $is_recurring
 			) );
 		}
@@ -2275,8 +2303,9 @@ Thanks!", 'psts' ),
 		if ( $left <= 0 || empty( $old->amount ) || $old->amount <= 0 ) {
 			return $new_amt;
 		}
+		$refund_amt = round( $old->amount * ( $left / $duration ), 2 ); //amount to refund
+		$refund_amt = $refund_amt > $old->amount ? $old->amount : $refund_amt;
 
-		$refund_amt = round( $old->amount * ( $left / $duration ) ); //amount to refund
 		$new_amt    = $new_amt - $refund_amt;
 
 		return ( $new_amt < 0 ) ? 0 : $new_amt;
@@ -2356,7 +2385,7 @@ Thanks!", 'psts' ),
 			wp_enqueue_script( 'jquery-datepicker-i18n', $this->plugin_url . 'datepicker/js/datepicker-i18n.min.js', array(
 				'jquery',
 				'jquery-ui-core',
-				'jquery-datepicker'
+				'jquery-datepickexr'
 			), $this->version );
 		}
 	}
@@ -2461,7 +2490,6 @@ Thanks!", 'psts' ),
 		</style> <?php
 		wp_enqueue_style( 'wp-color-picker' );
 		$this->load_psts_style( false );
-		wp_enqueue_script( 'psts-checkout-settings-actions', $this->plugin_url . 'js/psts_pricing_table_admin.js', array( 'jquery-ui-sortable' ), $this->version );
 	}
 
 	function feature_notice( $level = 1 ) {
@@ -3534,6 +3562,8 @@ function admin_levels() {
 			unset( $levels[0]);
 
 			update_site_option( 'psts_levels', $levels );
+			//Update Pricing level order
+			ProSites_Helper_ProSite::update_level_order( $levels );
 
 			//display message confirmation
 			echo '<div class="updated fade"><p>' . sprintf( __( 'Level %s successfully deleted.', 'psts' ), number_format_i18n( $level_num ) ) . '</p></div>';
@@ -4686,6 +4716,7 @@ function admin_levels() {
 
 	//outputs the checkout form
 	function checkout_output( $content ) {
+		global $wpdb;
 		$has_blog = false;
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
@@ -4695,7 +4726,7 @@ function admin_levels() {
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if( ! is_user_logged_in() || ( isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$registeration = get_site_option('registration');
@@ -4734,10 +4765,10 @@ function admin_levels() {
 			$prev_start = -1;
 
 			foreach ($blogs_of_user as $id => $obj) {
-				if ($count >= $per_page) break;
+				if ($count >= $per_page) {break;}
 
 				$loop_count++;
-				if ($start > $loop_count) continue;
+				if ($start > $loop_count) {continue;}
 
 				// permission?
 				switch_to_blog($id);
@@ -4766,14 +4797,14 @@ function admin_levels() {
 			// reverse
 			while ( prev($blogs_of_user) ) {
 				$prev_loop_count--;
-				if ($prev_loop_count == $start) break;
+				if ($prev_loop_count == $start) {break;}
 			}
 
 			$prev_count = 0;
 			// reverse to previous start
 			while ( $obj = prev($blogs_of_user) ) {
 				$prev_loop_count--;
-				if ($prev_loop_count < 0) break;
+				if ($prev_loop_count < 0) {break;}
 				if ($prev_count >= $per_page) {
 					$prev_start = $prev_loop_count;
 					break;
@@ -4827,20 +4858,9 @@ function admin_levels() {
 			//this is the main hook for new checkout page
 			$content = apply_filters( 'psts_primary_checkout_table', $content, $blog_id );
 
-			/**
-			 * @todo: Moved this to the Checkout class
-			 */
-			//this is the main hook for gateways to add all their code
-//			$content = apply_filters( 'psts_checkout_output', $content, $blog_id );
 		} elseif ( $session_domain = ProSites_Helper_Session::session( 'domain' ) ) {
-			//after signup
-
 			//this is the main hook for new checkout page
 			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $session_domain );
-			/**
-			 * @todo: Moved this to the Checkout class
-			 */
-//			$content = apply_filters( 'psts_checkout_output', $content, '', $_SESSION['domain'] );
 		} else { //blogid not set
 			$blog_id = 0;
 			if ( $blogs ) {
@@ -4880,7 +4900,7 @@ function admin_levels() {
 				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 				if( $allow_multi ) {
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div id="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 				$content .= apply_filters( 'prosites_myaccounts_list', '', $blog_id );
 
@@ -4888,7 +4908,30 @@ function admin_levels() {
 
 			//show message if no valid blogs
 			$session_domain = ProSites_Helper_Session::session( 'domain' );
-			if ( ! $has_blog && ! isset( $session_domain ) ) {
+
+			//Check if multiple signups are allowed
+			$allow_multi = $this->get_setting('multiple_signup');
+			$registeration = get_site_option('registration');
+			$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
+
+			//Check if user has signed up for a site already
+			$current_user = wp_get_current_user();
+			$current_user = !empty( $current_user->data ) ? $current_user->data : '';
+			$user_login = !empty( $current_user->user_login ) ? $current_user->user_login : '';
+
+			if( !empty( $user_login ) ) {
+				//Query Signup table for domain name
+				$query = $wpdb->prepare("SELECT `domain` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
+				$user_domain = $wpdb->get_var( $query );
+			}
+
+			if( !empty( $user_domain ) && $allow_multi ) {
+				//Already have a site, allow to signup for another
+				$content .= '<div class="psts-signup-another">' . sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+			}elseif( empty( $user_domain ) ) {
+				//Don't have a site, let user create one
+				$content .= '<div class="psts-signup"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for a site.', 'psts' ) . '</a>' . '</div>';
+			}elseif ( ! $has_blog && ! isset( $session_domain ) ) {
 				$content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
 			}
 		}
@@ -5088,15 +5131,9 @@ function admin_levels() {
 		//If pay before blog is disabled, allow blog activation through email
 		$show_signup = $this->get_setting( 'show_signup' );
 
-		if ( 1 != $show_signup ) {
+		if ( 1 != $show_signup && ! class_exists( 'BuddyPress' ) ) {
 			return true;
 		}
-//		if ( ( empty( $_POST['signup_blog_url'] ) && empty( $_POST['blogname'] ) ) ||
-//		     ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] != 'yes'
-//		) {
-//			//No post details to check
-//			return true;
-//		}
 
 		/* Wordpress do not provide option to filter confirm_blog_signup, we have disabled activation email */
 		ob_start();
@@ -5352,20 +5389,21 @@ function admin_levels() {
 	}
 
 	public static function filter_html( $content ) {
-		$allowed_atts = array( 'align'    => array(),
-		                       'class'    => array(),
-		                       'id'       => array(),
-		                       'dir'      => array(),
-		                       'lang'     => array(),
-		                       'style'    => array(),
-		                       'xml:lang' => array(),
-		                       'src'      => array(),
-		                       'alt'      => array(),
-								'value' =>array(),
-			'selected' =>array(),
-			'name'=>array(),
-			'checked'=>array(),
-		);
+		$allowed_atts = array(
+		'align'    => array(),
+       'class'    => array(),
+       'id'       => array(),
+       'dir'      => array(),
+       'lang'     => array(),
+       'style'    => array(),
+       'xml:lang' => array(),
+       'src'      => array(),
+       'alt'      => array(),
+       'value' =>array(),
+       'selected' =>array(),
+       'name'=>array(),
+       'checked'=>array(),
+       );
 		$allowed = array(
 			'span' => $allowed_atts,
 			'div' => $allowed_atts,
@@ -5421,6 +5459,61 @@ function admin_levels() {
 		$location = '';
 		$location = bp_get_root_domain() . '/wp-signup.php';
 		return $location;
+	}
+	/**
+    * Checks for Blog activation, if website was signed up using manual payment gateway
+    * and assigns the pro site level as per the details in site meta
+	* @param $blog_id
+	* @param $user_id
+	* @param $password
+	* @param $signup_title
+	* @param $meta
+	 */
+	function process_manual_signup( $blog_id, $user_id, $password, $signup_title, $meta ) {
+		//If meta value is not set, return
+		if( empty( $meta ) || empty( $blog_id ) || empty( $meta['pro_site_manual_signup']) ) {
+			return;
+		}
+
+		$manual_signup = $meta['pro_site_manual_signup'];
+		$level     = !empty( $manual_signup ) ? $manual_signup['level'] : '';
+		$period    = !empty( $manual_signup ) ? $manual_signup['period'] : '';
+		$gateway   = !empty( $manual_signup ) ? $manual_signup['gateway'] : '';
+		$amount    = !empty( $manual_signup ) ? $manual_signup['amount'] : '';
+		$recurring = !empty( $manual_signup ) ? $manual_signup['recurring'] : false;
+
+		if( empty( $level ) || empty( $period ) ) {
+			return;
+		}
+		//Check meta
+		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
+		$this->record_transaction( $blog_id, 'Manual', $amount );
+	}
+
+	/**
+    * Check if new blog creation is allowed or not, Show/Hide create new link
+    *
+	* @param $value
+	*
+	*@return string
+	 */
+	function hide_create_new_site_link( $value ) {
+		global $current_screen, $psts;
+		//List of screens, where we don't interfere
+		$return_original = array(
+			'settings-network'
+		);
+		if( !empty( $current_screen ) && in_array( $current_screen->base, $return_original ) ) {
+			return $value;
+		}
+
+		$allow_new_blog = ProSites_Helper_ProSite::allow_new_blog();
+		//Check if multiple signups are allowed for blog, return the value in that case
+		if( $allow_new_blog ) {
+			return $value;
+		}else{
+			return 'user';
+		}
 	}
 
 }

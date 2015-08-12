@@ -1,0 +1,94 @@
+/**
+ * Pricing Table [Striped]
+ */
+
+.alternate {
+    background: rgba( 245, 245, 245, 1 );
+}
+
+.period-selector select {
+    border-color: #888;
+}
+
+.feature-section .icon-tick:before {
+    color: #00CE8A;
+}
+
+.feature-section .icon-cross:before {
+    color: #B6B6B6;
+}
+
+.pricing-column .title {
+    font-size: 1.4em;
+    padding: 0;
+    background: #333;
+    color: #fff;
+    border-color: #444;
+    vertical-align: middle;
+}
+.pricing-column.featured .title {
+    font-size: 1.8em;
+}
+
+.pricing-column .sub-title {
+
+}
+
+.pricing-column:first-child .title {
+    background: none;
+}
+
+.pricing-column .summary .price {
+    /*padding: 30px 0;*/
+    padding: 0 5px 10px;
+    background: #444444;
+    width: 100%;
+    color: #f1f1f1;
+}
+
+.pricing-column .summary .price .plan-price {
+    /*font-size:2em;*/
+}
+
+.pricing-column .summary .price .period {
+    margin: auto auto -15px;
+    position: relative;
+    top: -15px;
+    font-size: 0.7em;
+}
+
+.period-selector select {
+    border-color: #444;
+}
+
+.pricing-column .title {
+    border-color: #444;
+}
+
+.pricing-column .summary {
+    border-color: #444;
+}
+
+.pricing-column .summary.no-periods {
+    border-color: #444;
+}
+
+.pricing-column .summary .period-selector {
+    border-color: #444;
+}
+
+.pricing-column .sub-title {
+    border-color: #444;
+}
+
+.pricing-column .feature-section {
+    border-color: #444;
+}
+
+.pricing-column:first-child .feature-section {
+    border-color: #444;
+}
+
+.pricing-column .button-box {
+    border-color: #444;
+}

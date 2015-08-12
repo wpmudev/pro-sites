@@ -61,7 +61,7 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 
 			// Wrong JSON, bail
 			if ( ! $data && ! isset( $data->tax_type ) ) {
-				return null;
+				return '';
 			}
 
 			// Hook it in case we add different TAX services
@@ -90,6 +90,7 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 			$total = isset( $transaction->total ) ? $transaction->total : false;
 			$subtotal = isset( $transaction->subtotal ) ? $transaction->subtotal : false;
 			$tax = isset( $transaction->tax ) ? $transaction->tax : false;
+			$country_code = !empty( $transaction->billing_country_code ) ? $transaction->billing_country_code : '';
 
 			// Calculate!
 			if( false === $total && $subtotal ) {
@@ -116,7 +117,7 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 				$subtotal,
 				$tax,
 				$tax_rate,
-				$transaction->billing_country_code,
+				$country_code,
 				$transaction->currency_code,
 				maybe_serialize( $transaction->evidence )
 			);

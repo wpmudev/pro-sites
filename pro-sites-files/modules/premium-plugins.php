@@ -178,6 +178,9 @@ class ProSites_Module_Plugins {
 		$psts_plugins  = (array) $psts->get_setting( 'pp_plugins' );
 		$level_plugins = array();
 		foreach ( $psts_plugins as $plugin_file => $data ) {
+			if( empty( $data ) ) {
+				continue;
+			}
 			if ( $data['auto'] && is_numeric( $data['level'] ) && $data['level'] > $old_level && $data['level'] <= $new_level ) {
 				$level_plugins[] = $plugin_file;
 			}
@@ -338,8 +341,10 @@ class ProSites_Module_Plugins {
 
 		//look for valid plugins with anyone access
 		foreach ( $psts_plugins as $plugin_file => $data ) {
-			if ( $data['auto'] && is_numeric( $data['level'] ) && ( is_pro_site( $blog_id, $data['level'] ) || $data['level'] == 0 ) && ! is_plugin_active( $plugin_file ) ) {
-				$auto_activate[] = $plugin_file;
+			if( !empty( $data ) ) {
+				if ( $data['auto'] && is_numeric( $data['level'] ) && ( is_pro_site( $blog_id, $data['level'] ) || $data['level'] == 0 ) && ! is_plugin_active( $plugin_file ) ) {
+					$auto_activate[] = $plugin_file;
+				}
 			}
 		}
 		//if any activate them
@@ -490,7 +495,10 @@ class ProSites_Module_Plugins {
 		$access = false;
 
 		foreach( $psts_plugins as $plugin ) {
-			if( (int) $plugin['level'] == $level_id || ( 0 == $plugin['level'] && 'none' != $plugin['level'] ) ) {
+			if( empty( $plugin ) ) {
+				continue;
+			}
+			if( !empty( $plugin['level'] ) && (int) $plugin['level'] == $level_id || ( 0 == $plugin['level'] && 'none' != $plugin['level'] ) ) {
 				$access = true;
 			}
 		}

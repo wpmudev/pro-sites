@@ -25,6 +25,17 @@ jQuery( document ).ready( function ( $ ) {
         }
         return obj;
     };
+    /**
+     * Checks for the length of element and scroll the division up
+     * @param the_element
+     */
+    function scroll_top( the_element ) {
+        if ( typeof the_element != 'undefined' && the_element.length != 0 ) {
+            $( 'html, body' ).animate( {
+                scrollTop: the_element.offset().top - 100
+            }, 1000 );
+        }
+    }
 
     $( 'div.pblg-checkout-opt' ).click( function ( e ) {
         var target = e.currentTarget;
@@ -35,7 +46,6 @@ jQuery( document ).ready( function ( $ ) {
         var price_child = $( target ).find( '.price' );
         pattern = /price_\d+/i;
         var period = parseInt( pattern.exec( $( price_child ).attr( 'class' ) )[ 0 ].replace( 'price_', '' ) );
-        console.log( "Level: " + level + " Period: " + period );
 
         $( 'div.pblg-checkout-opt' ).removeClass( 'opt-selected' );
 
@@ -50,20 +60,17 @@ jQuery( document ).ready( function ( $ ) {
         if ( false != action && 'new_blog' == action ) {
             new_blog = true;
         }
+        new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
 
         // Hide login link if its visible
         $( '.login-existing' ).hide();
 
         if ( prosites_checkout.logged_in && !new_blog ) {
             $( '.checkout-gateways.hidden' ).removeClass( 'hidden' );
+            scroll_top( $( '.checkout-gateways') );
         } else {
             $( '#prosites-signup-form-checkout' ).removeClass( 'hidden' );
-            var the_element = $( '#prosites-signup-form-checkout' );
-            if ( typeof the_element != 'undefined' && the_element.length != 0 ) {
-                $( 'html, body' ).animate( {
-                    scrollTop: $( "#prosites-signup-form-checkout" ).offset().top - 100
-                }, 1000 );
-            }
+            scroll_top( $( '#prosites-signup-form-checkout' ) );
         }
 
         if ( free_link ) {
@@ -79,6 +86,7 @@ jQuery( document ).ready( function ( $ ) {
 
         // Set the level required for gateways... but also set it on the checkout table
         $( '.gateways [name=level]' ).val( level );
+	    $( '.gateways [name=period]' ).val( period );
         $( '#prosites-checkout-table' ).attr( 'data-level', level );
 
     } );
@@ -137,7 +145,7 @@ jQuery( document ).ready( function ( $ ) {
     }
 
     /* New checkout form */
-    $( '.pricing-column .period-selector select' ).change( function ( e ) {
+    $( '.pricing-column .period-selector select, .period-selector-container input' ).change( function ( e ) {
         var element = e.currentTarget;
         var period_class = $( element ).val();
         var period = parseInt( period_class.replace( 'price_', '' ) );
@@ -153,6 +161,30 @@ jQuery( document ).ready( function ( $ ) {
         set_same_height( $( '.pricing-column .summary' ), false );
         set_same_height( $( '.pricing-column .sub-title' ), false );
     } );
+
+	function get_offset_diff( element ) {
+		//Get Parent
+		var parent = element.parent();
+		//If period selector is not in featured column, we'll need to adjust the height
+		if ( parent.find('li.period-selector').length == 0 ) {
+			//Calculate the difference in offset of feature section
+			var level1_offset = jQuery('.psts-level-1 .feature-section').offset();
+			var level0_offset = jQuery('.psts-level-0 .feature-section').offset();
+
+			if (level0_offset) {
+				level0_offset = level0_offset.top;
+			}
+
+			if (level1_offset) {
+				level1_offset = level1_offset.top;
+			}
+			if (level1_offset > level0_offset) {
+				var pos_diff = level1_offset - level0_offset;
+				return pos_diff;
+			}
+		}
+		return 0;
+	}
 
     function set_same_height( elements, use_featured ) {
         var max_height = 0;
@@ -173,15 +205,38 @@ jQuery( document ).ready( function ( $ ) {
                 }
             }
         } );
-        $.each( elements, function ( index, item ) {
-            if ( $( item ).parents( '.pricing-column.featured' )[ 0 ] && use_featured ) {
-                //if( $( item).height < max_height ) {
-                $( item ).height( max_height + 15 );
-                //}
-            } else {
-                $( item ).height( max_height );
+	    $.each(elements, function (index, item) {
+		    var curr_element = jQuery(item);
+		    var li_height = 0;
+		    var is_featured_column_notitle = false;
+		    is_featured_column_notitle = curr_element.hasClass('title') && curr_element.hasClass('no-title') && curr_element.hasClass('no-summary') && curr_element.parent().hasClass('featured');
+		    //Adjust height if period selector is on top
+		    if ( is_featured_column_notitle ) {
+			    li_height = '225';
+		    }else{
+			    li_height = max_height;
+		    }
+            //For Single Period, Single Level, Set height auto of title
+            if( jQuery(elements).hasClass('title') ) {
+                var period_selector = jQuery('.period-selector').length;
+                var pricing_column = jQuery('.pricing-column').length;
+                if( period_selector == 0 && pricing_column == 1 ) {
+                    $(item).css( { 'height' : 'auto' } );
+                    return;
+                }
             }
-        } );
+		    if ($(item).parents('.pricing-column.featured')[0] && use_featured && li_height > 0 ) {
+			    //if( $( item).height < max_height ) {
+			    if( !is_featured_column_notitle ) {
+				    $(item).css( { 'height' : li_height + 15 } );
+			    }else{
+				    $(item).height(li_height + 15);
+			    }
+			    //}
+		    } else {
+			    $(item).height( li_height );
+		    }
+	    });
     }
 
     function set_feature_heights() {
@@ -228,14 +283,14 @@ jQuery( document ).ready( function ( $ ) {
     set_same_height( $( '.pricing-column .sub-title' ), false );
 
     // =========== APPLY COUPONS =========== //
-    $( '.pricing-column [name=apply-coupon-link]' ).unbind( 'click' );
-    $( '.pricing-column [name=apply-coupon-link]' ).click( function ( e ) {
-        var input_box = $( '.pricing-column .coupon input' );
-        var icon = $( '.pricing-column .coupon .coupon-status' );
+    $( '#prosites-checkout-table [name=apply-coupon-link]' ).unbind( 'click' );
+    $( '#prosites-checkout-table [name=apply-coupon-link]' ).click( function ( e ) {
+        var input_box = $( '#prosites-checkout-table .coupon-box input' );
+        var icon = $( '#prosites-checkout-table .coupon .coupon-status' );
         var pos = input_box.position();
 
-        $( '.pricing-column .coupon-box' ).removeClass( 'coupon-valid' );
-        $( '.pricing-column .coupon-box' ).removeClass( 'coupon-invalid' );
+        $( '#prosites-checkout-table .coupon-box' ).removeClass( 'coupon-valid' );
+        $( '#prosites-checkout-table .coupon-box' ).removeClass( 'coupon-invalid' );
 
         var code = $( input_box ).val();
 
@@ -256,9 +311,9 @@ jQuery( document ).ready( function ( $ ) {
                 var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
 
                 if ( response.valid ) {
-                    $( '.pricing-column .coupon-box' ).addClass( 'coupon-valid' );
+                    $( '#prosites-checkout-table .coupon-box' ).addClass( 'coupon-valid' );
                 } else {
-                    $( '.pricing-column .coupon-box' ).addClass( 'coupon-invalid' );
+                    $( '#prosites-checkout-table .coupon-box' ).addClass( 'coupon-invalid' );
                 }
 
                 // Handle empty returns
@@ -389,10 +444,11 @@ jQuery( document ).ready( function ( $ ) {
 
         var blog_id = Requests.QueryString( "bid" );
         var action = Requests.QueryString( "action" );
-        var new_blog = false;
-        if ( false != action && 'new_blog' == action ) {
-            new_blog = true;
-        }
+	    var new_blog = false;
+	    if ( false != action && 'new_blog' == action ) {
+		    new_blog = true;
+	    }
+	    new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
 
         // Hide login link if its visible
         $( '.login-existing form' ).hide();
@@ -408,15 +464,13 @@ jQuery( document ).ready( function ( $ ) {
         $( '.choose-plan-button' ).html( button_text );
 
         if ( prosites_checkout.logged_in && !new_blog ) {
-            $( '.checkout-gateways.hidden' ).removeClass( 'hidden' );
+            var gateways =  $( '.checkout-gateways.hidden' );
+            gateways.removeClass( 'hidden' );
+            scroll_top(gateways);
         } else {
-            $( '#prosites-signup-form-checkout' ).removeClass( 'hidden' );
-            var the_element = $( '#prosites-signup-form-checkout' );
-            if ( typeof the_element != 'undefined' && the_element.length != 0 ) {
-                $( 'html, body' ).animate( {
-                    scrollTop: $( "#prosites-signup-form-checkout" ).offset().top - 100
-                }, 1000 );
-            }
+            var checkout_form = $( '#prosites-signup-form-checkout' );
+            checkout_form.removeClass( 'hidden' );
+            scroll_top(checkout_form);
         }
 
         $( '.chosen-plan' ).removeClass( 'chosen-plan' );
@@ -596,15 +650,20 @@ jQuery( document ).ready( function ( $ ) {
                 $( '.gateways.checkout-gateways' ).removeClass( 'hidden' );
             }
         }
+	    var new_blog = false;
+	    if ( false != action && 'new_blog' == action ) {
+		    new_blog = true;
+	    }
+	    new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
 
         if ( typeof response.username_available != 'undefined' && true === response.username_available ) {
-            if ( 'new_blog' != Requests.QueryString( "action" ) ) {
+            if ( new_blog ) {
                 $( '[name=user_name]' ).after( '<i class="input_available"></i>' );
                 position_field_available_tick( '[name=user_name]' );
             }
         }
         if ( typeof response.email_available != 'undefined' && true === response.email_available ) {
-            if ( 'new_blog' != Requests.QueryString( "action" ) ) {
+            if ( new_blog ) {
                 $( '[name=user_email]' ).after( '<i class="input_available"></i>' );
                 position_field_available_tick( '[name=user_email]' );
             }
@@ -646,6 +705,15 @@ jQuery( document ).ready( function ( $ ) {
 
     } );
 
+    $('.coupon-wrapper').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
 
+    // Adjust period selector width
+    //$('.period-selector-container').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
+    var width = 0;
+    $('.period-selector-container label' ).each( function( i, item ) {
+        //width += $( item );
+        width += parseInt( $( item ).find( 'div' ).css('width' ).replace('px', '') );
+    } );
+    $('.period-selector-container').css('width', width + 1 );
 
 } );

@@ -232,7 +232,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 									);
 									?>
 									<th scope="row">
-										<?php echo $lifetime_label[ $coupon['lifetime'] ]; ?>
+										<?php echo !empty( $coupon['lifetime'] ) ? $lifetime_label[ $coupon['lifetime'] ] : ''; ?>
 									</th>
 									<?php
 									break;

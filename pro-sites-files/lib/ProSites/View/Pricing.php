@@ -65,21 +65,22 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			$active_tab = ProSites_Helper_Tabs_Pricing::get_active_tab();
 			ProSites_Helper_Settings::settings_header( $active_tab );
 
-//			$class_name = 'ProSites_Gateway_2Checkout';
-			$featured_level = $psts->get_setting( 'featured_level' );
-			$plans_table_enabled = $psts->get_setting('plans_table_enabled', 'enabled');
+			//			$class_name = 'ProSites_Gateway_2Checkout';
+			$featured_level      = $psts->get_setting( 'featured_level' );
+			$plans_table_enabled = $psts->get_setting( 'plans_table_enabled', 'enabled' );
 
-			$coupons_enabled = $psts->get_setting('coupons_enabled');
-			$highlight_featured = $psts->get_setting('psts_checkout_show_featured');
-			$checked = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
-			$coupons_checked = 'enabled' == $coupons_enabled ? 'enabled' : 'disabled';
+			$coupons_enabled       = $psts->get_setting( 'coupons_enabled' );
+			$highlight_featured    = $psts->get_setting( 'psts_checkout_show_featured', false );
+			$checked               = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
+			$coupons_checked       = 'enabled' == $coupons_enabled ? 'enabled' : 'disabled';
 			$show_featured_checked = 'enabled' == $highlight_featured ? 'enabled' : 'disabled';
 
-			$pricing_gateways_style = $psts->get_setting( 'pricing_gateways_style', 'tabbed' );
+			$pricing_gateways_style     = $psts->get_setting( 'pricing_gateways_style', 'tabbed' );
 			$pricing_table_period_style = $psts->get_setting( 'pricing_table_period_style' );
+			$features_table_enabled     = $psts->get_setting( 'comparison_table_enabled' );
 
 			?>
-			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>" />
+			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>"/>
 			<table class="form-table">
 				<tr>
 					<th scope="row"><?php _e( 'Enable Pricing Table', 'psts' ) ?></th>
@@ -88,29 +89,51 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					</td>
 				</tr>
 
-				<?php
-//					$option = '<tr>
-//						<th scope="row">' . __ ( 'Period Style', 'psts' ) .
-//							'<br/><span class="description" style="font-weight:normal; color:#888; ">' . __( 'Select how users will select the plan period.', 'psts' ) . '</span></th>
-//						<td>
-//							<select name="psts[pricing_table_period_style]" class="chosen">
-//								<option
-//									value="dropdown"' . selected( $pricing_table_period_style, 'dropdown', false ) . '>' . __( 'Drop-down list', 'psts' ) . '</option>
-//								<option
-//									value="radio"' . selected( $pricing_table_period_style, 'radio', false ) . '>' . __( 'Radio button', 'psts' ) . '</option>
-//								<option
-//									value="raw"' . selected( $pricing_table_period_style, 'raw', false ) . '>' . __( 'Raw', 'psts' ) . '</option>
-//							</select>
-//						</td>
-//					</tr>';
-//					echo $option;
-				?>
+				<!-- @todo THIS NEEDS TO BE IMPLEMENTED ASAP -->
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Period Selector Position', 'psts' ) ?></th>
+					<td>
+							<label>
+								<p><input type="radio" name="psts[pricing_table_period_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option1' ); ?> />
+								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
+							</label>
+						<label>
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option2' ); ?> />
+								<?php esc_html_e( 'Above the table', 'psts' ); ?></p>
+							<p class="description"><?php esc_html_e( 'For visual purposes, moving the period selector to the top will also remove the first/details column from the table. If the coupons box is attached to the first column it will automatically be moved below the table.', 'psts' ); ?></p>
+						</label>
+						<!-- <label>
+							<p><input type="radio" name="psts[pricing_table_period_position]" value="option3" <?php //checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option3' ); ?> />
+								<?php //esc_html_e( 'Below the table', 'psts' ); ?></p>
+						</label> -->
+					</td>
+				</tr>
 
 				<tr>
 					<th scope="row"><?php _e( 'Allow Coupons', 'psts' ) ?></th>
 					<td>
 						<input type="checkbox" name="psts[coupons_enabled]" value="1" <?php checked( $coupons_checked, 'enabled' ); ?> />
 					</td>
+				</tr>
+
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
+					<td><?php
+						$pos_bottom = ( $features_table_enabled == 'disabled' ) || ( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) == 'option2' ) ? 1 : 0;
+						if ( $features_table_enabled !== 'disabled' ) { ?>
+							<label>
+							<p>
+								<input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option1' ); ?> />
+								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
+							</label><?php
+						} ?>
+						<label>
+							<p>
+								<input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $pos_bottom, 1 ); ?> />
+								<?php esc_html_e( 'Below checkout table.', 'psts' ); ?></p>
+						</label>
+					</td>
+
 				</tr>
 
 				<tr>
@@ -125,10 +148,8 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						<br/><span class="description" style="font-weight:normal; color:#888; "><?php _e( 'Select how the gateways will be shown.', 'psts' ) ?></span></th>
 					<td>
 						<select name="psts[pricing_gateways_style]" class="chosen">
-							<option
-								value="tabbed"<?php selected( $pricing_gateways_style, 'tabbed' ) ?>><?php _e( 'Tabbed layout', 'psts' ) ?></option>
-							<option
-								value="raw"<?php selected( $pricing_gateways_style, 'raw' ) ?>><?php _e( 'Raw HTML layout', 'psts' ) ?></option>
+							<option value="tabbed"<?php selected( $pricing_gateways_style, 'tabbed' ) ?>><?php _e( 'Tabbed layout', 'psts' ) ?></option>
+							<option value="raw"<?php selected( $pricing_gateways_style, 'raw' ) ?>><?php _e( 'Raw HTML layout', 'psts' ) ?></option>
 						</select>
 					</td>
 				</tr>
@@ -144,7 +165,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						$periods    = (array) $psts->get_setting( 'enabled_periods' );
 
 						$default_order = array();
-						for( $i = 1; $i <= $last_level; $i++ ) {
+						for ( $i = 1; $i <= $last_level; $i ++ ) {
 							$default_order[] = $i;
 						}
 						$default_order = implode( ',', $default_order );
@@ -152,16 +173,28 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						$pricing_levels_order = $psts->get_setting( 'pricing_levels_order', $default_order );
 						$pricing_levels_order = explode( ',', $pricing_levels_order );
 
-						if( count( $pricing_levels_order ) != count( $level_list ) ) {
+						$remove_pricing_item = false;
+						if ( count( $pricing_levels_order ) != count( $level_list ) ) {
 
-							foreach( $level_list as $level_code => $level ) {
+							foreach ( $level_list as $level_code => $level ) {
 
-								if( ! in_array( $level_code, $pricing_levels_order ) ) {
+								if ( ! in_array( $level_code, $pricing_levels_order ) && count( $level_list ) > count( $pricing_levels_order ) ) {
 									$pricing_levels_order[] = $level_code;
+								} else {
+									$remove_pricing_item = true;
 								}
 
 							}
 
+						}
+
+						// Make sure the level doesn't show up if its been deleted.
+						if( $remove_pricing_item ) {
+							foreach( $pricing_levels_order as $item_key => $order_item ) {
+								if( ! in_array( $order_item, array_keys( $level_list ) ) ) {
+									unset( $pricing_levels_order[ $item_key ] );
+								}
+							}
 						}
 
 
@@ -204,8 +237,13 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 									$bgcolor = $class = '';
 									foreach ( $pricing_levels_order as $order ) {
 										$level_code = $order;
-										$level = $level_list[ $order ];
+										$level = !empty( $level_list[ $order ] ) ? $level_list[ $order ] : '';
+										if( empty( $level ) ) {
+											continue;
+										}
 										$class = ( 'alternate' == $class ) ? '' : 'alternate';
+										$level      = $level_list[ $order ];
+										$class      = ( 'alternate' == $class ) ? '' : 'alternate';
 
 										echo '<tr class="' . $class . ' blog-row" data-level="' . $level_code . '">';
 
@@ -253,7 +291,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 								<?php
 									}
 									?>
-										<input type="hidden" name="psts[pricing_levels_order]" value="<?php echo implode( ',' , $pricing_levels_order ); ?>" />
+										<input type="hidden" name="psts[pricing_levels_order]" value="<?php echo implode( ',', $pricing_levels_order ); ?>" />
 									<?php
 								} else {
 									?>
@@ -272,8 +310,8 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			</table>
 
 			<?php
-//			$gateway = new ProSites_Gateway_2Checkout();
-//			echo $gateway->settings();
+			//			$gateway = new ProSites_Gateway_2Checkout();
+			//			echo $gateway->settings();
 		}
 
 		/**
@@ -288,15 +326,15 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			ProSites_Helper_Settings::settings_header( $active_tab );
 
 			$plans_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
-			$checked = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
-			$level_list = get_site_option( 'psts_levels' );
-			$last_level = ( is_array( $level_list ) ) ? count( $level_list ) : 0;
+			$checked             = 'enabled' == $plans_table_enabled ? 'enabled' : 'disabled';
+			$level_list          = get_site_option( 'psts_levels' );
+			$last_level          = ( is_array( $level_list ) ) ? count( $level_list ) : 0;
 
-			$table_settings = ProSites_Model_Pricing::load_feature_settings();
+			$table_settings  = ProSites_Model_Pricing::load_feature_settings();
 			$enabled_modules = $psts->get_setting( 'modules_enabled', array() );
 
 			?>
-			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>" />
+			<input type="hidden" name="pricing_settings" value="<?php echo esc_attr( $active_tab['tab_key'] ); ?>"/>
 			<table class="form-table">
 				<tr>
 					<th scope="row"><?php _e( 'Enable Feature Table', 'psts' ) ?></th>
@@ -308,23 +346,23 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 				<!-- MODULE TABLE -->
 				<tr id="module-comparison-table">
 					<td colspan="2">
-						<div class="form-description"><?php _e( 'Use the form below to build your feature comparison table.' , 'psts' ); ?></div>
+						<div class="form-description"><?php _e( 'Use the form below to build your feature comparison table.', 'psts' ); ?></div>
 						<div class="level-select-bar">
 							<?php
-//								_e( 'Select level: ', 'psts' );
-								if ( is_array( $level_list ) && count( $level_list ) ) {
-									foreach( $level_list as $key => $level ) {
-										$class = 1 == $key ? 'selected' : '';
+							//								_e( 'Select level: ', 'psts' );
+							if ( is_array( $level_list ) && count( $level_list ) ) {
+								foreach ( $level_list as $key => $level ) {
+									$class = 1 == $key ? 'selected' : '';
 
-										echo '<strong><a data-id="' . $key . '" class="' . $class . '">' . $level['name'] . '</a></strong>';
-										if( $key != ( count( $level_list ) ) ) {
-											echo ' | ';
-										}
-
+									echo '<strong><a data-id="' . $key . '" class="' . $class . '">' . $level['name'] . '</a></strong>';
+									if ( $key != ( count( $level_list ) ) ) {
+										echo ' | ';
 									}
+
 								}
+							}
 							?>
-							<input type="hidden" name="current_level" value="1" />
+							<input type="hidden" name="current_level" value="1"/>
 						</div>
 
 						<?php
@@ -335,7 +373,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 								'width' => '8px',
 								'class' => '',
 							),
-							'visible'       => array(
+							'visible'     => array(
 								'title' => __( 'Visible', 'psts' ),
 								'width' => '36px',
 								'class' => '',
@@ -346,19 +384,19 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 								'width' => '150px',
 								'class' => '',
 							),
-							'description'     => array(
+							'description' => array(
 								'title' => __( 'Description', 'psts' ),
 								'small' => __( '(double-click to change)' ),
 								'width' => '',
 								'class' => '',
 							),
-							'tick_cross' => array(
+							'tick_cross'  => array(
 								'title' => __( 'Indicator', 'psts' ),
 								'small' => __( '(for selected level)', 'psts' ),
 								'width' => '60px',
 								'class' => 'level-settings',
 							),
-							'custom' => array(
+							'custom'      => array(
 								'title' => __( 'Custom text', 'psts' ),
 								'small' => __( '(for selected level)', 'psts' ),
 								'width' => '',
@@ -367,18 +405,18 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						);
 
 						$status_array_normal = array(
-							'tick' => '&#x2713',
+							'tick'  => '&#x2713',
 							'cross' => '&#x2718',
 						);
 
 						$status_array_module = array(
-							'module' => __( 'Level: %s', 'psts' ),
+							'module'  => __( 'Level: %s', 'psts' ),
 							'inverse' => __( 'Invert: %s', 'psts' ),
 						);
 
 						$hover_actions = array(
-							'edit' => __( 'edit', 'psts' ),
-							'save' => __( 'change', 'psts' ),
+							'edit'  => __( 'edit', 'psts' ),
+							'save'  => __( 'change', 'psts' ),
 							'reset' => __( 'reset', 'psts' ),
 						);
 
@@ -393,7 +431,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 								foreach ( $posts_columns as $col ) {
 									$style = ! empty( $col['width'] ) ? ' style="max-width:' . $col['width'] . '"' : '';
 									$class = ! empty( $col['class'] ) ? ' class="' . $col['class'] . '"' : '';
-									$small = ! empty( $col['small'] ) ? ' <small>' . esc_html(  $col['small'] ) . '</small>' : '';
+									$small = ! empty( $col['small'] ) ? ' <small>' . esc_html( $col['small'] ) . '</small>' : '';
 									echo '<th scope="col"' . $style . $class . '>' . esc_html( $col['title'] ) . $small . '</th>';
 								}
 
@@ -403,15 +441,15 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 							<tbody id="the-list">
 								<?php
 								if ( ! empty( $table_settings ) ) {
-									$bgcolor = $class = '';
-									$count = 0;
+									$bgcolor       = $class = '';
+									$count         = 0;
 									$modules_array = array();
 									foreach ( $table_settings as $key => $setting ) {
-										if( 'modules' == $key || 'feature_order' == $key || 'levels' == $key ) {
+										if ( 'modules' == $key || 'feature_order' == $key || 'levels' == $key ) {
 											continue;
 										}
 										// don't show disabled modules
-										if( isset( $setting['module'] ) && ! in_array( $setting['module'], $enabled_modules ) )  {
+										if ( isset( $setting['module'] ) && ! in_array( $setting['module'], $enabled_modules ) ) {
 											continue;
 										}
 
@@ -419,7 +457,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 										$count += 1;
 										$level_code = 0;
-//										$level = $level_list[ $order ];
+										//										$level = $level_list[ $order ];
 										$class = $count % 2 == 0 ? '' : 'alternate';
 										$class .= empty( $setting['module'] ) ? ' custom' : ' module';
 
@@ -433,15 +471,15 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 													<td scope="row" style="padding-left: 10px; <?php echo $style; ?>" class="order-col">
 														<div class="position"><?php echo $count; ?></div>
 														<?php
-															if( isset( $setting['custom'] ) ) {
-																echo '<input type="hidden" name="psts[feature_table][' . $key . '][custom]" value="' . esc_attr( $setting['custom'] ) . '" />';
-																echo '<a class="delete"><span class="dashicons dashicons-trash"></span></a>';
-															}
-															if( isset( $setting['module'] ) ) {
-																$modules_array[] = $setting['module'];
-																echo '<input type="hidden" name="psts[feature_table][' . $key . '][module]" value="' . esc_attr( $setting['module'] ) . '" />';
-																echo '<input type="hidden" name="psts[feature_table][' . $key . '][module_key]" value="' . $key . '" />';
-															}
+														if ( isset( $setting['custom'] ) ) {
+															echo '<input type="hidden" name="psts[feature_table][' . $key . '][custom]" value="' . esc_attr( $setting['custom'] ) . '" />';
+															echo '<a class="delete"><span class="dashicons dashicons-trash"></span></a>';
+														}
+														if ( isset( $setting['module'] ) ) {
+															$modules_array[] = $setting['module'];
+															echo '<input type="hidden" name="psts[feature_table][' . $key . '][module]" value="' . esc_attr( $setting['module'] ) . '" />';
+															echo '<input type="hidden" name="psts[feature_table][' . $key . '][module_key]" value="' . $key . '" />';
+														}
 														?>
 													</td>
 													<?php
@@ -450,9 +488,9 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 													?>
 													<td scope="row" style="padding-left: 20px;">
 														<?php
-														  if( ! isset( $setting['visible'] ) ) {
-															  $setting['visible'] = false;
-														  }
+														if ( ! isset( $setting['visible'] ) ) {
+															$setting['visible'] = false;
+														}
 														?>
 														<input type="checkbox" name="psts[feature_table][<?php echo $key; ?>][visible]" value="1" <?php checked( $setting['visible'] ) ?>>
 													</td>
@@ -461,43 +499,43 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 												case 'name':
 													$original_value = '';
-													if( isset( $setting['module'] ) && ! empty( $setting['module'] ) ) {
-														if( method_exists( $setting['module'], 'get_name') ) {
+													if ( isset( $setting['module'] ) && ! empty( $setting['module'] ) ) {
+														if ( method_exists( $setting['module'], 'get_name' ) ) {
 															$original_value = call_user_func( $setting['module'] . '::get_name' );
 														}
 													}
-													if( isset( $setting['custom'] ) && ! empty( $setting['custom'] ) ) {
+													if ( isset( $setting['custom'] ) && ! empty( $setting['custom'] ) ) {
 														$original_value = $setting['name'];
 													}
 													?>
 													<td scope="row">
 														<div class="text-item"><?php echo esc_html( $setting['name'] ); ?></div>
 														<div class="edit-box" style="display:none">
-															<input class="editor" type="text" name="psts[feature_table][<?php echo $key; ?>][name]" value="<?php echo esc_html( $setting['name'] ); ?>" /><br />
+															<input class="editor" type="text" name="psts[feature_table][<?php echo $key; ?>][name]" value="<?php echo esc_html( $setting['name'] ); ?>"/><br/>
 															<span><a class="save-link"><?php echo esc_html( $hover_actions['save'] ); ?></a> <a style="margin-left: 10px;" class="reset-link"><?php echo esc_html( $hover_actions['reset'] ); ?></a></span>
 														</div>
-														<input type="hidden" value="<?php echo esc_html( $original_value ); ?>" />
+														<input type="hidden" value="<?php echo esc_html( $original_value ); ?>"/>
 													</td>
 													<?php
 													break;
 
 												case 'description':
-													if( isset( $setting['module'] ) && ! empty( $setting['module'] ) ) {
-														if( method_exists( $setting['module'], 'get_description') ) {
+													if ( isset( $setting['module'] ) && ! empty( $setting['module'] ) ) {
+														if ( method_exists( $setting['module'], 'get_description' ) ) {
 															$original_value = call_user_func( $setting['module'] . '::get_description' );
 														}
 													}
-													if( isset( $setting['custom'] ) && ! empty( $setting['custom'] ) ) {
+													if ( isset( $setting['custom'] ) && ! empty( $setting['custom'] ) ) {
 														$original_value = $setting['description'];
 													}
 													?>
 													<td scope="row">
 														<div class="text-item"><?php echo esc_html( $setting['description'] ); ?></div>
 														<div class="edit-box" style="display:none">
-															<textarea class="editor" type="text" name="psts[feature_table][<?php echo $key; ?>][description]"><?php echo esc_html( $setting['description'] ); ?></textarea><br />
+															<textarea class="editor" type="text" name="psts[feature_table][<?php echo $key; ?>][description]"><?php echo esc_html( $setting['description'] ); ?></textarea><br/>
 															<span><a class="save-link"><?php echo esc_html( $hover_actions['save'] ); ?></a> <a style="margin-left: 10px;" class="reset-link"><?php echo esc_html( $hover_actions['reset'] ); ?></a></span>
 														</div>
-														<input type="hidden" value="<?php echo esc_html( $original_value ); ?>" />
+														<input type="hidden" value="<?php echo esc_html( $original_value ); ?>"/>
 													</td>
 													<?php
 													break;
@@ -511,15 +549,15 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 														if ( is_array( $level_list ) && count( $level_list ) ) {
 															foreach ( $level_list as $level_id => $level ) {
 																if ( ! empty( $setting['levels'][ $level_id ]['status'] ) && ! is_array( $setting['levels'][ $level_id ]['status'] ) ) {
-																	$status = $setting['levels'][ $level_id ]['status'];
+																	$status       = $setting['levels'][ $level_id ]['status'];
 																	$level_status = '';
-																	if( isset( $setting['module'] ) && method_exists( $setting['module'], 'get_level_status' ) ) {
+																	if ( isset( $setting['module'] ) && method_exists( $setting['module'], 'get_level_status' ) ) {
 																		$level_status = call_user_func( $setting['module'] . '::get_level_status', $level_id );
 																	}
 																	if ( ! empty( $setting['module'] ) ) {
 																		$chosen_array = $status_array_module;
 																		$invert       = 'tick' == $level_status ? 'cross' : 'tick';
-																		
+
 																		$chosen_array['module']  = sprintf( $chosen_array['module'], $status_array_normal[ $level_status ] );
 																		$chosen_array['inverse'] = sprintf( $chosen_array['inverse'], $status_array_normal[ $invert ] );
 
@@ -527,9 +565,9 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 																		$chosen_array = $status_array_normal;
 																	}
 																	if ( ! empty( $setting['module'] ) ) {
-//																	echo '*hide* ' . $setting['levels'][ $key ]['status'];
+																		//																	echo '*hide* ' . $setting['levels'][ $key ]['status'];
 																	} else {
-//																	echo '*hide* Not a module';
+																		//																	echo '*hide* Not a module';
 																	}
 																	?>
 																	<!-- Change name... -->
@@ -544,55 +582,55 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 																<?php
 																} elseif ( isset( $setting['levels'][ $level_id ]['status'] ) && is_array( $setting['levels'][ $level_id ]['status'] ) ) {
 
-//																	$new_status = $setting['levels'][ $level_id ]['status'];
-//																	if( method_exists( $setting[ 'module' ], 'get_level_status' ) ) {
-//																		$new_status = call_user_func( $setting[ 'module' ] . '::get_level_status', $level_id );
-//																		$old_status = $setting['levels'][ $level_id ]['status'] ;
-//																		if( 'none' != $old_status['selection'] ) {
-//																			$new_status['selection'] = $new_status['value'];
-//																		} else {
-//																			$new_status['selection'] = 'none';
-//																		}
-//
-//																	}
-//																	$keys = array_keys( $new_status );
+																	//																	$new_status = $setting['levels'][ $level_id ]['status'];
+																	//																	if( method_exists( $setting[ 'module' ], 'get_level_status' ) ) {
+																	//																		$new_status = call_user_func( $setting[ 'module' ] . '::get_level_status', $level_id );
+																	//																		$old_status = $setting['levels'][ $level_id ]['status'] ;
+																	//																		if( 'none' != $old_status['selection'] ) {
+																	//																			$new_status['selection'] = $new_status['value'];
+																	//																		} else {
+																	//																			$new_status['selection'] = 'none';
+																	//																		}
+																	//
+																	//																	}
+																	//																	$keys = array_keys( $new_status );
 																	$keys = array_keys( $setting['levels'][ $level_id ]['status'] );
 
-																	foreach( $keys as $index ) {
-																		echo '<input type="hidden" name="psts[feature_table][' . $key . '][levels][' . $level_id . '][status][' . $index .']" value="' . $setting['levels'][ $level_id ]['status'][ $index ] . '" />';
+																	foreach ( $keys as $index ) {
+																		echo '<input type="hidden" name="psts[feature_table][' . $key . '][levels][' . $level_id . '][status][' . $index . ']" value="' . $setting['levels'][ $level_id ]['status'][ $index ] . '" />';
 																	}
 
 																	?>
 
 																	<select class="chosen" name="psts[feature_table][<?php echo $key; ?>][levels][<?php echo $level_id; ?>][status][selection]">
 																    <?php
-																        $value =  $setting['levels'][ $level_id ]['status']['value'];
-																        $selection = isset( $setting['levels'][ $level_id ]['status']['selection'] ) ? $setting['levels'][ $level_id ]['status']['selection'] : $value;
-																        $selected = selected( $selection, $value, false );
-																        echo '<option value="' . esc_attr( $value ) . '" ' . $selected . '>' . esc_html( $setting['levels'][ $level_id ]['status']['display'] ) . '</option>';
-																        echo '<option value="none" ' . selected( $selection, 'none' ) . '>' . __( 'None', 'psts' ) . '</option>';
+																    $value     = $setting['levels'][ $level_id ]['status']['value'];
+																    $selection = isset( $setting['levels'][ $level_id ]['status']['selection'] ) ? $setting['levels'][ $level_id ]['status']['selection'] : $value;
+																    $selected  = selected( $selection, $value, false );
+																    echo '<option value="' . esc_attr( $value ) . '" ' . $selected . '>' . esc_html( $setting['levels'][ $level_id ]['status']['display'] ) . '</option>';
+																    echo '<option value="none" ' . selected( $selection, 'none' ) . '>' . __( 'None', 'psts' ) . '</option>';
 																    ?>
 																	</select>
-																	<?php
+																<?php
 																}
 															}
 														}
 
 														// There are no level specific settings
-														if( isset( $setting['active'] ) && ( ! empty( $setting['active'] ) || false === $setting['active'] ) ) {
+														if ( isset( $setting['active'] ) && ( ! empty( $setting['active'] ) || false === $setting['active'] ) ) {
 															$module_active = true;
 
-															if( method_exists( $setting['module'], 'is_active' ) ) {
+															if ( method_exists( $setting['module'], 'is_active' ) ) {
 																$module_active = call_user_func( $setting['module'] . '::is_active' );
 															}
 
 															$active_status = array(
-																'active' => array(
-																	'title' => __( 'Active: %s', 'psts' ),
+																'active'   => array(
+																	'title'  => __( 'Active: %s', 'psts' ),
 																	'status' => 'tick',
 																),
 																'inactive' => array(
-																	'title' => __( 'Not active: %s', 'psts' ),
+																	'title'  => __( 'Not active: %s', 'psts' ),
 																	'status' => 'cross',
 																),
 															);
@@ -605,13 +643,13 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 															}
 
 															?>
-																<select class="chosen" name="psts[feature_table][<?php echo $key; ?>][active]">
+															<select class="chosen" name="psts[feature_table][<?php echo $key; ?>][active]">
 															    <?php
-															        echo $option;
-																    echo '<option value="none" ' . selected( $value, 'none' ) . '>' . __( 'None', 'psts' ) . '</option>';
+															    echo $option;
+															    echo '<option value="none" ' . selected( $value, 'none' ) . '>' . __( 'None', 'psts' ) . '</option>';
 															    ?>
 																</select>
-															<?php
+														<?php
 														}
 
 														?>
@@ -625,7 +663,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 														<?php
 														$x = '';
 														if ( is_array( $level_list ) && count( $level_list ) ) {
-															foreach( $level_list as $level_id => $level ) {
+															foreach ( $level_list as $level_id => $level ) {
 																?>
 																<textarea name="psts[feature_table][<?php echo $key; ?>][levels][<?php echo $level_id; ?>][text]"><?php echo esc_html( $setting['levels'][ $level_id ]['text'] ); ?></textarea>
 															<?php
@@ -662,11 +700,11 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						</table>
 
 						<?php
-							// Add order...
-							$feature_order = implode( ',', $feature_order );
-							echo '<input type="hidden" name="psts[feature_table][feature_order]" value="' . $feature_order . '" />';
-							// Mark for delete...
-							echo '<input type="hidden" name="mark_for_delete" value="" />';
+						// Add order...
+						$feature_order = implode( ',', $feature_order );
+						echo '<input type="hidden" name="psts[feature_table][feature_order]" value="' . $feature_order . '" />';
+						// Mark for delete...
+						echo '<input type="hidden" name="mark_for_delete" value="" />';
 						?>
 
 					</td>
@@ -688,12 +726,12 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 							<tbody>
 							<tr class="alternate">
 								<td>
-									<input name="new-feature-name" type="text" />
-									<input name="new-feature-levels" type="hidden" value="<?php echo count( $level_list );?>" />
+									<input name="new-feature-name" type="text"/>
+									<input name="new-feature-levels" type="hidden" value="<?php echo count( $level_list ); ?>"/>
 								</td>
 								<td><textarea name="new-feature-description"></textarea></td>
 								<td><textarea name="new-feature-text"></textarea></td>
-								<td><input type="button" class="button" name="add-feature-button" id="add-feature-button" value="Add" /></td>
+								<td><input type="button" class="button" name="add-feature-button" id="add-feature-button" value="Add"/></td>
 
 							</tr>
 							</tbody>
@@ -704,9 +742,13 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 			</table>
 			<?php
-//			$gateway = new ProSites_Gateway_2Checkout();
-//			echo $gateway->settings();
+			//			$gateway = new ProSites_Gateway_2Checkout();
+			//			echo $gateway->settings();
 
+		}
+
+		public static function render_tab_pricing_style() {
+			ProSites_View_Pricing_Styling::render_tab_pricing_style();
 		}
 
 

@@ -1,10 +1,60 @@
 Plugin Name: Pro Sites
-Author: Aaron Edwards
+Author:	WPMU Dev
+Developer: Aaron Edwards
 
 Change Log:
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
+
+3.5.1 - 08/03/2015 - Umesh Kumar
+
+- Fixed: Division by zero for single column pricing table
+- Fixed: HTML being rendered if pricing table is disabled
+- Fixed: Post/Page Quota Media Limit not working and admin notice for exceeded limits
+- Fixed: PSTS_CHECKOUT_SITE issue with checkout page on subsite
+- Fixed: Wrong Upgrade amount if price is in decimal
+- Fixed: Warning and Notices (Manual Payment Gateway, )
+- Fixed: Remove Create new site link from dashboard, if multiple blog signup is disabled
+- Fixed: Issue with deleting levels, disable save levels button
+- Fixed: Checkout:  feature description not visible for single level in pricing table
+- Fixed: Checkout: Styling issue single level, single period plans, Highlighting featured plans
+- Fixed: Checkout: Create a new site link not redirecting when Buddypress is active
+- Fixed: Checkout: Do not show cancel subscription link for Non recurring subscriptions
+- Fixed: Checkout: Clicking on choose plan, doesn't shows payment gateway
+- Fixed: Checkout: Plan detailsnot visible for single level, single period, pricing table disabled
+- Fixed: Coupon: Not displayed, if feature table is disabled and coupon set to display
+- Fixed: Currency Symbols: Turkish Lira HTML code
+- Fixed: Currency Symbols: some of the symbols being converted to emoji urls
+- Fixed: Manual Payment: Pro Site level not assigned
+- Added: Manual Payment: Activation Link, Cost and Coupon details in email sent to admin
+- Fixed: PayPal: Coupon not working
+- Fixed: PayPal: PayPal not working if pricing table was disabled
+- Fixed: Settings: Custom css for pricing table not being saved
+- Fixed: Signup: User activation mail not being sent ( Disable only blog activation emails, If signup on checkout is enabled)
+- Fixed: Signup: Double Signup email, when Buddypress is active
+- Fixed: Signup: Allow users to signup, if they are logged in and they don't have a site
+- Fixed: Stripe: Issue with creating coupons for percent off
+- Fixed: Stripe: Payment receipt sent to network admin instead of site admin on upgrade
+- Fixed: Stripe: Subscription Cancel status
+- Fixed: Stripe: Non Recurring subscription payments and upgrades
+- Fixed: Stripe: Handle delay in subscription renewal
+- Fixed: Stats:  Wrong payment amount stored in Pro Sites table
+
+3.5.0.4 - 7/01/2015 - Rheinard Korf & Umesh Kumar
+----------------------------------------------------------------------
+- New: Pricing tables styling settings created:
+     * Checkout table now has preset layouts
+     * Checkout table can now be styled within Pro Sites
+- New: Period selector can now be moved outside of the pricing table (above) removing the first column
+- New: Coupons can now be moved outside of the pricing table (below) for different visual look
+- Fixed: With Coupons active it will now display below the pricing table if only one period is available
+- Fixed: Incorrect level recorded at checkout when only one period is active
+- Fixed: Check level visibility before displaying on checkout page
+- Fixed: Show correct number of levels in pricing tables setup after a level is deleted
+- Fixed: Confusing trial message will not show when a user has cancelled their trial
+
+
 3.5.0.3 - 6/17/2015 - Rheinard Korf & Umesh Kumar
 ----------------------------------------------------------------------
 - Fixed: Warning message with Premium Themes module

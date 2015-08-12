@@ -2,6 +2,8 @@ jQuery(document).ready(function($){
 
     // Confirm deleting level
     $('[name^="delete_level"]').click(function ( item ) {
+        //Disable Save button, as it creates problem
+        jQuery('input[name="save_levels"]').prop('disabled', true);
 
         /**
          * Get the position from the text input because altering button breaks it
@@ -113,8 +115,6 @@ jQuery(document).ready(function($){
              * True index count in case row got deleted.
              */
             t_index += 1;
-
-            console.log( 'Row: ' + row_position + ' T-Index: ' + t_index );
             /**
              * Update row class
              */
@@ -181,7 +181,6 @@ jQuery(document).ready(function($){
             } );
 
             level_order = level_order.join( ',' );
-            console.log( level_order );
             $('input[name="psts[pricing_levels_order]"]').val( level_order );
         }
     });
