@@ -17,13 +17,13 @@ Change Log:
 - Fixed: Warning and Notices (Manual Payment Gateway, )
 - Fixed: Remove Create new site link from dashboard, if multiple blog signup is disabled
 - Fixed: Issue with deleting levels, disable save levels button
-- Fixed: Checkout:  feature description not visible for single level in pricing table
+- Fixed: Checkout: Feature description not visible for single level in pricing table
 - Fixed: Checkout: Styling issue single level, single period plans, Highlighting featured plans
 - Fixed: Checkout: Create a new site link not redirecting when Buddypress is active
 - Fixed: Checkout: Do not show cancel subscription link for Non recurring subscriptions
 - Fixed: Checkout: Clicking on choose plan, doesn't shows payment gateway
-- Fixed: Checkout: Plan detailsnot visible for single level, single period, pricing table disabled
-- Fixed: Coupon: Not displayed, if feature table is disabled and coupon set to display
+- Fixed: Checkout: Plan details not visible for single level, single period, pricing table disabled
+- Fixed: Coupon:   Not displayed, if feature table is disabled and coupon set to display
 - Fixed: Currency Symbols: Turkish Lira HTML code
 - Fixed: Currency Symbols: some of the symbols being converted to emoji urls
 - Fixed: Manual Payment: Pro Site level not assigned
