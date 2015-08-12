@@ -7,7 +7,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1 - 08/03/2015 - Umesh Kumar
+3.5.1 - 08/12/2015 - Umesh Kumar
 
 - Fixed: Division by zero for single column pricing table
 - Fixed: HTML being rendered if pricing table is disabled
