@@ -29,6 +29,9 @@ class ProSites_PluginLoader {
 
 		//load gateways
 		add_action( 'plugins_loaded', array(&$this, 'load_gateways'), 11 );
+
+		//load the logging class to debug payment gateway issues.
+		require_once( 'logging.php' );
 	}
 
 	public static function require_module( $module ) {
@@ -82,7 +85,7 @@ class ProSites_PluginLoader {
 
   function load_gateways() {
     global $psts;
-    
+
     //get gateways dir
     $dir = $psts->plugin_dir . 'gateways/';
 
@@ -128,11 +131,11 @@ $psts_plugin_loader = new ProSites_PluginLoader();
  */
 function psts_register_gateway($class_name, $name, $description, $demo = false) {
   global $psts_gateways;
-  
+
   if (!is_array($psts_gateways)) {
 		$psts_gateways = array();
 	}
-	
+
 	if (class_exists($class_name)) {
 		$psts_gateways[$class_name] = array($name, $description, $demo);
 	} else {
