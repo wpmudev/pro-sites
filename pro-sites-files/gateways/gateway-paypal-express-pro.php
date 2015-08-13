@@ -2987,7 +2987,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 * Return Currency for Paypal
 	 * @return mixed|void
 	 */
-	private static function currency() {
+	public static function currency() {
 		global $psts;
 		//Get the general currency set in Pro Sites
 		$paypal_currency = $psts->get_setting( 'pypl_currency', 'USD' );

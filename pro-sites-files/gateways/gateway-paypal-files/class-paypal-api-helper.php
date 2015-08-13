@@ -44,7 +44,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				),
 				$checkout_url
 			);
-			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
+			$nvpstr .= "&CURRENCYCODE=" . ProSites_Gateway_PayPalExpressPro::currency();
 			$nvpstr .= "&PAYMENTREQUEST_0_AMT=" . $paymentAmount;
 			$nvpstr .= "&PAYMENTREQUEST_0_PAYMENTACTION=Sale";
 			$nvpstr .= "&LOCALECODE=" . $psts->get_setting( 'pypl_site' );
@@ -80,7 +80,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		 * @return bool
 		 */
 		public static function DoExpressCheckoutPayment( $token, $payer_id, $paymentAmount, $frequency, $desc, $blog_id, $level, $activation_key = '', $tax = '' ) {
-			global $psts;
 			$item_amt = $paymentAmount - $tax;
 
 			$nvpstr = "&TOKEN=" . urlencode( $token );
@@ -92,10 +91,10 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$nvpstr .= "&PAYMENTREQUEST_0_ITEMAMT=$item_amt";
 			$nvpstr .= "&L_BILLINGTYPE0=RecurringPayments";
 			$nvpstr .= "&PAYMENTACTION=Sale";
-			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
+			$nvpstr .= "&CURRENCYCODE=" . ProSites_Gateway_PayPalExpressPro::currency();
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 
-			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . ProSites_Gateway_PayPalExpressPro::currency() . '_' . time() . '_' . $activation_key;
 
 			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
 
@@ -157,7 +156,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&PROFILESTARTDATE=" . $profile_start_date;
 			}
 
-			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
+			$nvpstr .= "&CURRENCYCODE=" . ProSites_Gateway_PayPalExpressPro::currency();
 			$nvpstr .= "&BILLINGPERIOD=Month";
 			$nvpstr .= "&BILLINGFREQUENCY=$frequency";
 
@@ -167,7 +166,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . ProSites_Gateway_PayPalExpressPro::currency() . '_' . time() . '_' . $activation_key;
 
 			//Tax Calculated for each payment
 			if ( $tax ) {
@@ -209,7 +208,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency, 'month', $has_trial ) );
 			}
 
-			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
+			$nvpstr .= "&CURRENCYCODE=" . ProSites_Gateway_PayPalExpressPro::currency();
 			$nvpstr .= "&BILLINGPERIOD=Month";
 			$nvpstr .= "&BILLINGFREQUENCY=$frequency";
 
@@ -220,7 +219,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 			$nvpstr .= "&MAXFAILEDPAYMENTS=1";
-			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&PROFILEREFERENCE=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . ProSites_Gateway_PayPalExpressPro::currency() . '_' . time() . '_' . $activation_key;
 			$nvpstr .= "&CREDITCARDTYPE=$cctype";
 			$nvpstr .= "&ACCT=$acct";
 			$nvpstr .= "&EXPDATE=$expdate";
@@ -272,7 +271,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		 * @return bool
 		 */
 		public static function DoDirectPayment( $paymentAmount, $frequency, $desc, $blog_id, $level, $cctype, $acct, $expdate, $cvv2, $firstname, $lastname, $street, $street2, $city, $state, $zip, $countrycode, $email, $activation_key = '', $tax = false ) {
-			global $psts;
 
 			$nvpstr = "&AMT=$paymentAmount";
 			if ( ! defined( 'PSTS_NO_BN' ) ) {
@@ -280,10 +278,10 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			}
 			$nvpstr .= "&IPADDRESS=" . $_SERVER['REMOTE_ADDR'];
 			$nvpstr .= "&PAYMENTACTION=Sale";
-			$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
+			$nvpstr .= "&CURRENCYCODE=" . ProSites_Gateway_PayPalExpressPro::currency();
 			$nvpstr .= "&DESC=" . urlencode( html_entity_decode( $desc, ENT_COMPAT, "UTF-8" ) );
 
-			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . $psts->get_setting( 'pypl_currency' ) . '_' . time() . '_' . $activation_key;
+			$nvpstr .= "&CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . ProSites_Gateway_PayPalExpressPro::currency() . '_' . time() . '_' . $activation_key;
 
 			$nvpstr .= "&CREDITCARDTYPE=$cctype";
 			$nvpstr .= "&ACCT=$acct";
@@ -379,13 +377,12 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		}
 
 		public static function RefundTransaction( $transaction_id, $partial_amt = false, $note = '' ) {
-			global $psts;
 			$nvpstr = "&TRANSACTIONID=" . $transaction_id;
 
 			if ( $partial_amt ) {
 				$nvpstr .= "&REFUNDTYPE=Partial";
 				$nvpstr .= "&AMT=" . urlencode( $partial_amt );
-				$nvpstr .= "&CURRENCYCODE=" . $psts->get_setting( 'pypl_currency' );
+				$nvpstr .= "&CURRENCYCODE=" . ProSites_Gateway_PayPalExpressPro::currency();
 			} else {
 				$nvpstr .= "&REFUNDTYPE=Full";
 			}
