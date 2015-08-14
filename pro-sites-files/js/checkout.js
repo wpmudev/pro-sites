@@ -521,7 +521,10 @@ jQuery( document ).ready( function ( $ ) {
 
     } );
 
-    $( '#gateways' ).tabs();
+    //More than 1 gateway?, Tabs
+    if( jQuery('#gateways>div').length > 1 ) {
+        $('#gateways').tabs();
+    }
 
     // Cancellation confirmation
     $( 'a.cancel-prosites-plan' ).click( function ( e ) {
