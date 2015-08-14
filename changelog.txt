@@ -9,6 +9,7 @@ Change Log:
 
 3.5.1.1 - 08/18/2015 - Umesh Kumar
 - Fixed: Paypal: Currency difference while a different currency is selected initially and changed later
+- Fixed: Paypal: Expiry date not updated for recurring subscription without setup fee
 
 3.5.1 - 08/12/2015 - Umesh Kumar
 

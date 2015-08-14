@@ -407,7 +407,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			//For gateways after redirection, upon page refresh
-			$page_reload = $_GET['action'] == 'complete' && isset( $_GET['token'] );
+			$page_reload = !empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );
 
 			//If action is new_blog, but new blog is not allowed
 			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();

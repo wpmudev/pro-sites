@@ -1055,8 +1055,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					//receipts and record new transaction
 					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) && $blog_id !== 0 ) {
 
-						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
-							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $_POST['mc_currency'], $_POST['mc_gross'] ), $_POST['txn_type'], $_POST['txn_id'] ) . $profile_string );
+						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' || $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
+
+							//Currency Code and Payment amount
+							$currency_code = ! empty( $_POST['mc_currency'] ) ? $_POST['mc_currency'] : ( ! empty( $_POST['currency_code'] ) ? $_POST['currency_code'] : $currency );
+							$payment       = ! empty( $_POST['mc_gross'] ) ? $_POST['mc_gross'] : ( ! empty( $_POST['initial_payment_amount'] ) ? $_POST['initial_payment_amount'] : 0 );
+							$txn_id        = ! empty( $_POST['txn_id'] ) ? $_POST['txn_id'] : ( ! empty( $_POST['initial_payment_txn_id'] ) ? $_POST['initial_payment_txn_id'] : 0 );
+
+							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $currency_code, $payment ), $_POST['txn_type'], $txn_id ) . $profile_string );
 
 							//extend only if a recurring payment, first payments are handled below
 							if ( ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
@@ -1064,12 +1070,14 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//in case of new member send notification
-							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && $_POST['txn_type'] == 'express_checkout' ) {
-								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
+							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'recurring_payment_profile_created' ) ) {
+
+								$psts->extend( $blog_id, $period, self::get_slug(), $level, $payment );
+
 								$psts->email_notification( $blog_id, 'success' );
+
 								$psts->record_stat( $blog_id, 'signup' );
 							}
-							//$psts->email_notification( $blog_id, 'receipt' );
 						}
 						//Check IPN transaction type
 						$is_recurring = ( ! empty( $_POST['txn_type'] ) && strpos( $_POST['txn_type'], 'recurring' ) !== false ) ? true : false;
