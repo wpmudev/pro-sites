@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-14 00:21+0530\n"
+"POT-Creation-Date: 2015-08-14 12:55+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -289,7 +289,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/backwards-compatibility/supporter-paypal.php:169
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1116
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1124
 #, php-format
 msgid "PayPal IPN \"%s\" received: Last payment is pending (%s). Reason: %s"
 msgstr ""
@@ -367,15 +367,15 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:209
 #: pro-sites-files/gateways/gateway-manual.php:216
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1570
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1734
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2229
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1578
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1742
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2237
 #: pro-sites-files/gateways/gateway-stripe.php:1951
 msgid "Please choose your desired level and payment plan."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:221
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1590
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1598
 msgid "Your trial blog has been setup at <a href=\""
 msgstr ""
 
@@ -475,7 +475,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:633
 #: pro-sites-files/gateways/gateway-manual.php:483
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1184
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1192
 #: pro-sites-files/gateways/gateway-stripe.php:1768
 #, php-format
 msgid ""
@@ -539,7 +539,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:762
 #: pro-sites-files/gateways/gateway-manual.php:133
 #: pro-sites-files/gateways/gateway-manual.php:138
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2700
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2708
 #: pro-sites-files/gateways/gateway-stripe.php:2728
 #: pro-sites-files/lib/ProSites/Helper/ProSite.php:90
 msgid "Cancel Your Subscription"
@@ -550,9 +550,9 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:750
 #: pro-sites-files/gateways/gateway-2checkout.php:764
 #: pro-sites-files/gateways/gateway-manual.php:135
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2789
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2810
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2844
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2797
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2818
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2852
 #: pro-sites-files/gateways/gateway-stripe.php:2727
 #: pro-sites-files/lib/ProSites/Helper/ProSite.php:89
 #, php-format
@@ -562,61 +562,61 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:689
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2800
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2808
 #: pro-sites-files/gateways/gateway-stripe.php:2676
 msgid "Your subscription has been canceled"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:690
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2801
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2809
 #: pro-sites-files/gateways/gateway-stripe.php:2677
 #, php-format
 msgid "This site should continue to have %1$s features until %2$s."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:694
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2806
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2814
 #, php-format
 msgid "Your subscription is: %s"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:695
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2807
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2815
 msgid "Please update your payment information below to resolve this."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:706
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2814
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2822
 msgid "There was a problem accessing your subscription information: "
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:728
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2827
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2835
 msgid "Your Subscription Information"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:732
 #: pro-sites-files/gateways/gateway-manual.php:122
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2780
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2831
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2788
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2839
 msgid "Payment Method: <strong>Your PayPal Account</strong>"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:735
 #: pro-sites-files/gateways/gateway-manual.php:124
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2833
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2841
 msgid "Payment Method: <strong>Your Amazon Account</strong>"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:738
 #: pro-sites-files/gateways/gateway-manual.php:126
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2835
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2843
 msgid "Expire Date: <strong>Never</strong>"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:740
 #: pro-sites-files/gateways/gateway-manual.php:128
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2837
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2845
 #, php-format
 msgid "Expire Date: <strong>%s</strong>"
 msgstr ""
@@ -624,7 +624,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:749
 #: pro-sites-files/gateways/gateway-2checkout.php:763
 #: pro-sites-files/gateways/gateway-manual.php:134
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2843
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2851
 #, php-format
 msgid ""
 "If your subscription is still active your next scheduled payment should be "
@@ -632,8 +632,8 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:753
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2566
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2847
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2574
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2855
 msgid ""
 "You can also cancel following <a href=\"https://www.paypal.com/helpcenter/"
 "main.jsp;jsessionid=SCPbTbhRxL6QvdDMvshNZ4wT2DH25d01xJHj6cBvNJPGFVkcl6vV!"
@@ -670,7 +670,7 @@ msgid "Please choose your desired plan then click the checkout button below."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:800
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1468
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1476
 #: pro-sites-files/gateways/gateway-stripe.php:1914
 msgid "Subscribe"
 msgstr ""
@@ -901,7 +901,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:1189
 #: pro-sites-files/gateways/gateway-manual.php:479
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:746
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1180
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1188
 #: pro-sites-files/gateways/gateway-stripe.php:634
 #: pro-sites-files/gateways/gateway-stripe.php:1764
 #, php-format
@@ -1200,7 +1200,7 @@ msgid "Your Account Information"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:138
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2071
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2079
 msgid ""
 "You can also cancel following <a href=\"https://www.paypal.com/webapps/"
 "helpcenter/article/?"
@@ -1209,7 +1209,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:140
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2849
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2857
 msgid ""
 "To cancel your subscription, simply go to <a id=\"pypl_cancel\" target="
 "\"_blank\" href=\"https://payments.amazon.com/\">https://payments.amazon.com/"
@@ -1321,7 +1321,7 @@ msgid "Manual payment request submitted."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:450
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2706
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2714
 #: pro-sites-files/gateways/gateway-stripe.php:2617
 #: pro-sites-files/lib/ProSites/Helper/ProSite.php:80
 msgid ""
@@ -1330,7 +1330,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:455
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2716
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2724
 #: pro-sites-files/gateways/gateway-stripe.php:152
 #: pro-sites-files/gateways/gateway-stripe.php:2625
 msgid ""
@@ -1837,69 +1837,69 @@ msgid ""
 "pending."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1059
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1065
 #, php-format
 msgid "PayPal IPN \"%s\" received: %s %s payment received, transaction ID %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1133
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1139
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1141
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1147
 #, php-format
 msgid "PayPal subscription IPN \"%s\" received."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1152
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1160
 #, php-format
 msgid ""
 "PayPal subscription IPN \"%s\" received. The subscription has been canceled."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1170
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1178
 msgid "Your subscription was canceled because the blog was deleted."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1253
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1261
 #: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:57
 msgid "PayPal Express/Pro"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1326
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1334
 msgid "Checkout With PayPal"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1332
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1340
 msgid "PayPal - The safer, easier way to pay online!"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1381
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1389
 msgid "Or Pay Directly By Credit Card"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1388
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1396
 msgid "Credit Card Info:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1396
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1404
 msgid "Card Type:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1405
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1413
 #: pro-sites-files/gateways/gateway-stripe.php:1889
 msgid "Card Number:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1411
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1419
 #: pro-sites-files/gateways/gateway-stripe.php:1895
 msgid "Expiration Date:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1418
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1426
 #: pro-sites-files/gateways/gateway-stripe.php:1902
 msgid "Card Security Code:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1419
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1420
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1427
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1428
 #: pro-sites-files/gateways/gateway-stripe.php:99
 #: pro-sites-files/gateways/gateway-stripe.php:1905
 #: pro-sites-files/gateways/gateway-stripe.php:1906
@@ -1908,167 +1908,167 @@ msgid ""
 "signature panel, or 4 digits on the front of Amex cards."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1425
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1433
 msgid "Billing Address:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1428
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1436
 msgid "First Name:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1432
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1440
 msgid "Last Name:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1436
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1444
 msgid "Address:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1440
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1448
 msgid "Address 2:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1444
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1452
 msgid "City:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1448
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1456
 msgid "State/Province:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1452
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1460
 msgid "Postal/Zip Code:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1456
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1464
 msgid "Country:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1469
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1477
 #: pro-sites-files/gateways/gateway-stripe.php:1915
 msgid "Processing..."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1676
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1684
 #: pro-sites-files/gateways/gateway-stripe.php:2134
 #, php-format
 msgid "%1$s for the first month, then %2$s each month"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1678
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1686
 #: pro-sites-files/gateways/gateway-stripe.php:2136
 #, php-format
 msgid "%1$s for the first %2$s month period, then %3$s every %4$s months"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1682
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1714
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1690
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1722
 #: pro-sites-files/gateways/gateway-stripe.php:2143
 #: pro-sites-files/gateways/gateway-stripe.php:2161
 #, php-format
 msgid "%1$s for 1 month"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1684
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1716
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1692
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1724
 #: pro-sites-files/gateways/gateway-stripe.php:2145
 #: pro-sites-files/gateways/gateway-stripe.php:2163
 #, php-format
 msgid "%1$s for %2$s months"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1697
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1705
 #: pro-sites-files/gateways/gateway-stripe.php:2151
 #, php-format
 msgid "%1$s %2$s each month"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1699
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1707
 #: pro-sites-files/gateways/gateway-stripe.php:2153
 #, php-format
 msgid "%1$s %2$s every %3$s months"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1722
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1730
 #: pro-sites-files/gateways/gateway-stripe.php:2438
 #, php-format
 msgid "(includes tax of %s%% [%s])"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1757
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1765
 #, php-format
 msgid ""
 "There was a problem setting up the paypal payment:<br />\"<strong>%s</strong>"
 "\"<br />Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1799
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1807
 #, php-format
 msgid ""
 "User creating new subscription via PayPal Express: Initial payment "
 "successful (%1$s) - Transaction ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1815
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1823
 #, php-format
 msgid ""
 "User creating modifying subscription via PayPal Express: Payment successful "
 "(%1$s) - Transaction ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1820
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2097
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2352
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2417
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2609
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1828
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2105
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2360
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2425
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2617
 #, php-format
 msgid ""
 "Your %s subscription has been modified. This previous subscription has been "
 "canceled."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1854
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1954
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2169
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2400
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1862
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1962
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2177
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2408
 msgid ""
 "Your PayPal subscription was successful! You should be receiving an email "
 "receipt shortly."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1911
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2122
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1919
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2130
 #, php-format
 msgid ""
 "User creating new subscription via PayPal Express: Subscription created "
 "(%1$s) - Profile ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1923
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2134
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1931
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2142
 #, php-format
 msgid ""
 "There was a problem processing the Paypal payment:<br />\"<strong>%s</strong>"
 "\"<br />Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1925
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2135
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1933
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2143
 #, php-format
 msgid ""
 "User creating subscription via PayPal Express: PayPal returned an error: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1927
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2137
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1935
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2145
 msgid ""
 "Your initial PayPal transaction was successful, but there was a problem "
 "creating the subscription so you may need to renew when the first period is "
 "up. Your site should be upgraded shortly."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1928
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2138
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1936
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2146
 #, php-format
 msgid ""
 "User creating new subscription via PayPal Express: Problem creating the "
@@ -2076,41 +2076,41 @@ msgid ""
 "the first period is up: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1960
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:1968
 msgid ""
 "Initial amount not confirmed for subscription, Please check your associated "
 "Paypal account."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2019
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2027
 #, php-format
 msgid ""
 "User modifying subscription via PayPal Express: New subscription created "
 "(%1$s), first payment will be made on %2$s - %3$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2024
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2521
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2032
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2529
 #, php-format
 msgid ""
 "Your %1$s subscription has been modified. This previous subscription has "
 "been canceled, and your new subscription (%2$s) will begin on %3$s."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2026
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2034
 #, php-format
 msgid ""
 "User modifying subscription via PayPal Express: Old subscription canceled - "
 "%s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2062
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2070
 #, php-format
 msgid "Your PayPal subscription modification was successful for %s."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2070
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2565
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2078
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2573
 msgid ""
 "Because of billing system upgrades, we were unable to cancel your old "
 "subscription automatically, so it is important that you cancel the old one "
@@ -2118,8 +2118,8 @@ msgid ""
 "along with new ones! Note this is the only time you will have to do this."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2073
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2568
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2081
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2576
 msgid ""
 "Because of billing system upgrades, we were unable to cancel your old "
 "subscription automatically, so it is important that you cancel the old one "
@@ -2128,8 +2128,8 @@ msgid ""
 "this."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2074
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2569
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2082
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2577
 msgid ""
 "To view your subscriptions, simply go to <a target=\"_blank\" href=\"https://"
 "payments.amazon.com/\">https://payments.amazon.com/</a>, click Your Account "
@@ -2141,113 +2141,113 @@ msgid ""
 "Details page."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2084
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2092
 #, php-format
 msgid ""
 "There was a problem setting up the Paypal payment:<br />\"<strong>%s</strong>"
 "\"<br />Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2085
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2093
 #, php-format
 msgid ""
 "User modifying subscription via PayPal Express: PayPal returned an error: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2174
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2480
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2182
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2488
 msgid ""
 "Initial Amount not confirmed for subscription, Please check your associated "
 "Paypal account."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2238
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2246
 msgid ""
 "Whoops, looks like you may have tried to submit    your payment twice so we "
 "prevented it. Check your subscription info below to see if it was created. "
 "If not, please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2239
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2247
 msgid "Please choose a Card Type."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2240
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2248
 #: pro-sites-files/gateways/gateway-stripe.php:97
 msgid "Please enter a valid Credit Card Number."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2241
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2249
 msgid "Please choose an expiration date."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2242
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2250
 msgid ""
 "Please enter a valid card security code. This is the 3  digits on the "
 "signature panel, or 4 digits on the front of Amex cards."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2243
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2251
 msgid "Please enter your First Name."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2244
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2252
 msgid "Please enter your Last Name."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2245
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2253
 msgid "Please enter your billing Street Address."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2246
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2254
 msgid "Please enter your billing City."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2247
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2255
 msgid "Please enter your billing State/Province."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2248
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2256
 msgid "Please enter your billing Zip/Postal Code."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2249
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2257
 msgid "Please enter your billing Country."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2333
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2341
 #, php-format
 msgid ""
 "User creating new subscription via PayPal Direct Payment: Initial payment "
 "successful (%1$s) - Transaction ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2347
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2355
 #, php-format
 msgid ""
 "User creating modifying subscription via PayPal Direct Payment: Payment "
 "successful (%1$s) - Transaction ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2448
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2618
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2633
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2456
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2626
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2641
 #, php-format
 msgid ""
 "User creating new subscription via CC: Subscription created (%1$s) - Profile "
 "ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2463
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2638
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2471
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2646
 msgid ""
 "Your initial payment was successful, but there was a problem creating the "
 "subscription with your credit card so you may need to renew when the first "
 "period is up. Your site should be upgraded shortly."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2464
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2639
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2472
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2647
 #, php-format
 msgid ""
 "User creating new subscription via CC: Problem creating the subscription "
@@ -2255,71 +2255,71 @@ msgid ""
 "period is up: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2477
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2652
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2485
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2660
 #, php-format
 msgid ""
 "Your Credit Card subscription was successful! You should be receiving an "
 "email receipt at %s shortly."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2516
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2524
 #, php-format
 msgid ""
 "User modifying subscription via CC: New subscription created (%1$s), first "
 "payment will be made on %2$s - %3$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2523
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2531
 #, php-format
 msgid "User modifying subscription via CC: Old subscription canceled - %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2558
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2566
 #, php-format
 msgid "Your Credit Card subscription modification was successful for %s."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2579
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2587
 #, php-format
 msgid ""
 "There was a problem with your Credit Card information:<br />\"<strong>%s</"
 "strong>\"<br />Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2580
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2588
 #, php-format
 msgid ""
 "User modifying subscription via CC: PayPal returned a problem with Credit "
 "Card info: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2678
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2686
 msgid ""
 "There was a problem with your credit card information. Please check all "
 "fields and try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2714
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2722
 msgid ""
 "<br/>If you have enabled payment review for PayPal, make sure you accept the "
 "payment to avail the premium services."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2730
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:2738
 msgid "Visit your newly upgraded site »"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:3015
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:3023
 #, php-format
 msgid "PayPal response: Last payment is pending (%s). Reason: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:3276
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:3284
 msgid "Paypal Express/Pro"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-paypal-express-pro.php:3276
+#: pro-sites-files/gateways/gateway-paypal-express-pro.php:3284
 msgid ""
 "Express Checkout is PayPal's premier checkout solution, which streamlines "
 "the checkout process for buyers and keeps them on your site after making a "
