@@ -20,6 +20,9 @@ class ProSites_Module_BP {
 	}
 
 	function __construct() {
+		if( is_main_site( get_current_blog_id() ) ) {
+			return;
+		}
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_filter( 'messages_template_compose', array( &$this, 'messages_template' ) );

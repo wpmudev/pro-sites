@@ -21,6 +21,9 @@ class ProSites_Module_XMLRPC {
 
 
 	function __construct() {
+		if( is_main_site( get_current_blog_id() ) ) {
+			return;
+		}
 		add_filter( 'init', array( &$this, 'xmlrpc_check' ) );
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_notices', array( &$this, 'message' ) );

@@ -64,7 +64,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'delete_blog', array( 'ProSites_Gateway_Stripe', 'cancel_subscription' ) );
 
 		//display admin notices
-		add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
+		add_action( 'admin_notices', array( &$this, 'admin_notices' ), 99 );
 
 		//transaction hooks
 		add_filter( 'prosites_transaction_object_create', array(

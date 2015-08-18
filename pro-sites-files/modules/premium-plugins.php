@@ -28,6 +28,9 @@ class ProSites_Module_Plugins {
 	}
 
 	function __construct() {
+		if( is_main_site( get_current_blog_id() ) ) {
+			return;
+		}
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
 		if ( ! defined( 'PSTS_HIDE_PLUGINS_MENU' ) ) {
