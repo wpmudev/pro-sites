@@ -336,7 +336,7 @@ class ProSites {
 We have received your first subscription payment and you can now access all LEVEL features!
 
 Subscription payments should show on your credit card or bank statement as \"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
-http://mysite.com/pro-site/
+CHECKOUTURL
 
 If you ever have any billing questions please contact us:
 http://mysite.com/contact/
@@ -350,7 +350,7 @@ You should continue to have access until ENDDATE.
 We are very sorry to see you go, but we are looking forward to you subscribing to our services again.
 
 You can resubscribe at any time here:
-http://mysite.com/pro-site/
+CHECKOUTURL
 
 Thanks!", 'psts' ),
 			'receipt_subject'          => __( 'Your Pro Site payment receipt', 'psts' ),
@@ -359,7 +359,7 @@ Thanks!", 'psts' ),
 PAYMENTINFO
 
 Subscription payments should show on your credit card or bank statement as \"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
-http://mysite.com/pro-site/
+CHECKOUTURL
 
 If you ever have any billing questions please contact us:
 http://mysite.com/contact/
@@ -390,7 +390,7 @@ These benefits will be available to you until: ENDDATE.
 After this date your site will revert back to a standard site.
 
 You can subscribe at any time from the link below:
-http://mysite.com/pro-site/
+CHECKOUTURL
 
 Thanks!", 'psts' ),
 			'pypl_site'                => 'US',

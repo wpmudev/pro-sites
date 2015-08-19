@@ -654,7 +654,7 @@ jQuery( document ).ready( function ( $ ) {
             }
         }
 	    var new_blog = false;
-	    if ( false != action && 'new_blog' == action ) {
+	    if ( typeof(action) != 'undefined' && false != action && 'new_blog' == action ) {
 		    new_blog = true;
 	    }
 	    new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;

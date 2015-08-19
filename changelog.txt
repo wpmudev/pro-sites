@@ -9,7 +9,7 @@ Change Log:
 
 3.5.1.1 - 08/18/2015 - Umesh Kumar
 - Fixed: Paypal: Currency difference while a different currency is selected initially and changed later
-- Fixed: Paypal: Expiry date not updated for recurring subscription without setup fee
+- Fixed: Paypal: Issue with new subscriptions
 - Fixed: Modules: Do not load modules on main site
 - Updated: Checkout: Call jQuery tabs only if there are multiple gateways
 
