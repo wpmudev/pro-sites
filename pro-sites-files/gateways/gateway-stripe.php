@@ -1297,7 +1297,7 @@ class ProSites_Gateway_Stripe {
 				} else if ( ! empty( $subscription ) ) {
 					// activate Blog
 					$result  = ProSites_Helper_Registration::activate_blog( $subscription->activation, $subscription->is_trial, $subscription->period, $subscription->level, $subscription->trial_end );
-					$blog_id = $result['blog_id'];
+					$blog_id    = empty( $blog_id ) ? $result['blog_id'] : $blog_id;
 					// set new ID
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id );
 				}
@@ -2373,7 +2373,7 @@ class ProSites_Gateway_Stripe {
 							$trial      = isset( $plan->status ) && 'trialing' == $plan->status ? true : false;
 							$expire     = $trial ? $plan->trial_end : $result->current_period_end;
 							$result     = ProSites_Helper_Registration::activate_blog( $activation_key, $trial, $period, $level, $expire );
-							$blog_id    = $result['blog_id'];
+							$blog_id    = empty( $blog_id ) ? $result['blog_id'] : $blog_id;
 
 							if ( isset( $process_data['new_blog_details'] ) ) {
 								ProSites_Helper_Session::session( array( 'new_blog_details', 'blog_id' ), $blog_id );
@@ -2647,14 +2647,7 @@ class ProSites_Gateway_Stripe {
 			// @todo: Hook psts_blog_info_thanks_message
 			$args['thanks_message'] = '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
 
-			//If Checking out on signup, there wouldn't be a blogid probably
-//			if ( ! empty ( $domain ) ) {
-//				//Hardcoded, TODO: Search for alternative
-//				$admin_url = is_ssl() ? trailingslashit( "https://$domain" ) . 'wp-admin/' : trailingslashit( "http://$domain" ) . 'wp-admin/';
-//				$args['visit_site_message'] = '<p><a href="' . $admin_url . '">' . __( 'Visit your newly upgraded site &raquo;', 'psts' ) . '</a></p>';
-//			} else {
 			$args['visit_site_message'] = '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Go to your site &raquo;', 'psts' ) . '</a></p>';
-//			}
 			self::$complete_message = false;
 		}
 
