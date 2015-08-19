@@ -1053,9 +1053,9 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 
 					//receipts and record new transaction
-					if ( ! $is_trialing && $recurring && ! empty( $blog_id ) && $blog_id !== 0 ) {
+					if ( ! $is_trialing && ! empty( $blog_id ) && $blog_id !== 0 ) {
 
-						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' || $_POST['txn_type'] == 'recurring_payment_profile_created' ) {
+						if ( $_POST['txn_type'] == 'recurring_payment' || $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
 
 							//Currency Code and Payment amount
 							$currency_code = ! empty( $_POST['mc_currency'] ) ? $_POST['mc_currency'] : ( ! empty( $_POST['currency_code'] ) ? $_POST['currency_code'] : $currency );
@@ -1065,12 +1065,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $currency_code, $payment ), $_POST['txn_type'], $txn_id ) . $profile_string );
 
 							//extend only if a recurring payment, first payments are handled below
-							if ( ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
+							if ( $_POST['txn_type'] == 'recurring_payment' && ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
 
 							//in case of new member send notification
-							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'recurring_payment_profile_created' ) ) {
+							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' ) ) {
 
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $payment );
 
@@ -1093,7 +1093,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$evidence_string = ! empty( $blog_meta['evidence'][ $profile_id ] ) ? $blog_meta['evidence'][ $profile_id ] : '';
 							}
 						}
-						if ( ! $recurring ) {
+						if ( !empty( $_POST['txn_id'] ) ) {
 							//Record Transaction, Send txn id
 							self::record_transaction( $_POST['txn_id'], $evidence_string, $is_recurring, false );
 						} else {
