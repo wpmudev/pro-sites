@@ -508,15 +508,15 @@ jQuery( document ).ready( function ( $ ) {
         $( '#prosites-checkout-table' ).attr( 'data-level', level );
 
         //Update Period as well
-        var period_class = $( '.period-selector select' ).val();
-        var period = 0;
-        if ( typeof period_class !== 'undefined' ) {
-            period = parseInt( period_class.replace( 'price_', '' ) );
-        } else {
-            period = parseInt( $( '[name=single_period]' ).html() );
-        }
-        $( '.gateways [name=period]' ).val( period );
-        $( '#prosites-checkout-table' ).attr( 'data-period', period );
+        //var period_class = $( '.period-selector select' ).val();
+        //var period = 0;
+        //if ( typeof period_class !== 'undefined' ) {
+        //    period = parseInt( period_class.replace( 'price_', '' ) );
+        //} else {
+        //    period = parseInt( $( '[name=single_period]' ).html() );
+        //}
+        //$( '.gateways [name=period]' ).val( period );
+        //$( '#prosites-checkout-table' ).attr( 'data-period', period );
 
 
     } );

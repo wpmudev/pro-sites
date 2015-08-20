@@ -21,7 +21,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$coupons_enabled        = $psts->get_setting( 'coupons_enabled' );
 			$coupons_enabled        = 'enabled' === $coupons_enabled ? true : false;
 			$pt_pos                 = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
-			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' ) != 'disabled' ? true : false;
+
+			// Are the tables enabled?
+			$plans_table_enabled    = $psts->get_setting( 'plans_table_enabled', 'enabled' );
+			$plans_table_enabled    = 'enabled' === $plans_table_enabled ? true : false;
+
+			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
+			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
 			//If Coupons are enabled and set to show at the bottom OR
 			//If feature column is not enabled, show coupon at the bottom
@@ -31,7 +37,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 
 			// Add period selector above table based on option
-			if ( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
+			if ( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) && $plans_table_enabled ) {
 				add_filter( 'prosites_inner_pricing_table_pre', array( get_class(), 'render_standalone_periods' ) );
 			}
 
@@ -62,12 +68,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			self::$default_period = apply_filters( 'prosites_render_checkout_page_period', $selected_period, $blog_id );
 			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
-
-			// Are the tables enabled?
-			$plans_table_enabled    = $psts->get_setting( 'plans_table_enabled', 'enabled' );
-			$plans_table_enabled    = 'enabled' === $plans_table_enabled ? true : false;
-			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
-			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
 			$columns = self::get_pricing_columns( true, $features_table_enabled );
 

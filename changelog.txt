@@ -14,6 +14,7 @@ Change Log:
 - Fixed: Modules: Do not load modules on main site
 - Fixed: Payment amount comes to zero for existing expired sites
 - Updated: Checkout: Call jQuery tabs only if there are multiple gateways
+- Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
 
 3.5.1 - 08/12/2015 - Umesh Kumar
 
