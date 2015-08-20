@@ -15,6 +15,7 @@ Change Log:
 - Fixed: Payment amount comes to zero for existing expired sites
 - Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
 - Fixed: Option to display a message on checkout page at the top
+- Fixed: Coupons displayed twice if pricing table and feature table disabled
 - Updated: Checkout: Call jQuery tabs only if there are multiple gateways
 
 3.5.1 - 08/12/2015 - Umesh Kumar
