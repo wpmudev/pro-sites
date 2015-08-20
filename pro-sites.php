@@ -168,9 +168,6 @@ class ProSites {
 			'blog_template_settings'
 		) ); // exclude pro site setting from blog template copies
 
-		//Disable activation emails, Commented out in 3.5.1
-//		add_filter( 'wpmu_signup_user_notification', array( $this, 'disable_user_activation_mail' ), 10 );
-
 		//Disable Blog Activation Email, as of Pay before blog creation
 		add_filter( 'wpmu_signup_blog_notification', array( $this, 'disable_user_activation_mail' ), 10 );
 
@@ -197,6 +194,9 @@ class ProSites {
 		//Checks if Allow multiple blog signup is disabled, hides the create new site link from dashboard
 		add_filter('default_site_option_registration', array($this, 'hide_create_new_site_link') );
 		add_filter('site_option_registration', array($this, 'hide_create_new_site_link') );
+
+		//Show message before checkout table
+		add_filter('prosites_inner_pricing_table_pre', array($this, 'signup_output') );
 
 		$this->setup_ajax_hooks();
 
@@ -317,6 +317,7 @@ class ProSites {
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
 			'show_signup'              => 1,
+			'show_signup_message'      => 0,
 			'free_signup'              => 0,
 			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
@@ -327,7 +328,7 @@ class ProSites {
 			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
 			'recurring_subscriptions'  => 1,
 			'ga_ecommerce'             => 'none',
-			'signup_message'           => __( 'Would you like to upgrade this site to Pro?', 'psts' ),
+			'signup_message'           => __( 'Signup for a Pro site', 'psts' ),
 			'feature_message'          => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
 			'active_message'           => __( 'Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts' ),
 			'success_subject'          => __( 'Thank you for becoming a Pro Site member!', 'psts' ),
@@ -886,12 +887,6 @@ Thanks!", 'psts' ),
 		) );
 
 		do_action( 'psts_page_after_modules' );
-
-		//settings page
-//		$psts_settings_page_old = add_submenu_page( 'psts', __( 'Pro Sites Settings OLD', 'psts' ), __( 'Settings OLD', 'psts' ), 'manage_network_options', 'psts-settings-old', array(
-//			&$this,
-//			'admin_settings'
-//		) );
 
 		$psts_gateways_page = add_submenu_page( 'psts', __( 'Pro Sites Gateways', 'psts' ), __( 'Payment Gateways', 'psts' ), 'manage_network_options', 'psts-gateways', array(
 			'ProSites_View_Gateways',
@@ -2512,30 +2507,23 @@ Thanks!", 'psts' ),
 		}
 	}
 
-	function signup_output() {
+	/**
+    * Hooked at prosites_inner_pricing_table_pre, to display a message before pricing table
+	* @param $content
+	*
+	*@return mixed
+	*/
+	function signup_output( $content ) {
 
-		if ( $this->get_setting( 'show_signup' ) && ! isset( $_GET[ sanitize_title( $this->get_setting( 'rebrand' ) ) ] ) && ! isset( $_POST['psts_signed_up_override'] ) ) {
+		if ( $this->get_setting( 'show_signup_message' ) ) {
 			?>
-			<div class="register-section clear" id="supporter">
-				<label class="label"><?php echo $this->get_setting( 'rebrand' ); ?></label>
+			<div class="psts-signup-message">
 				<?php echo $this->get_setting( 'signup_message' ); ?>
-
-				<label class="checkbox" for="psts_signed_up_yes">
-					<input type="radio" id="psts_signed_up_yes" name="psts_signed_up" value="yes"<?php echo ( ! isset( $_POST['psts_signed_up'] ) || $_POST['psts_signed_up'] == 'yes' ) ? ' checked="checked"' : ''; ?> />
-					<strong><?php _e( "I'm Interested", 'psts' ); ?></strong>
-				</label>
-				<label class="checkbox" for="psts_signed_up_no">
-					<input type="radio" id="psts_signed_up_no" name="psts_signed_up" value="no"<?php echo ( isset( $_POST['psts_signed_up'] ) && $_POST['psts_signed_up'] == 'no' ) ? ' checked="checked"' : ''; ?> />
-					<strong><?php _e( "Not Now", 'psts' ); ?></strong>
-				</label>
 			</div>
 
 		<?php
-		} else if ( isset( $_GET[ sanitize_title( $this->get_setting( 'rebrand' ) ) ] ) || isset( $_POST['psts_signed_up_override'] ) ) {
-			echo '<input type="hidden" name="psts_signed_up" value="yes" />';
-			echo '<input type="hidden" name="psts_signed_up_override" value="1" />';
 		}
-
+		return $content;
 	}
 
 	function signup_override() {
@@ -3954,364 +3942,6 @@ function admin_levels() {
 				</p>
 			</form>
 
-		</div>
-	<?php
-	}
-
-	function admin_settings() {
-		// redundant
-		return false;
-
-		global $wpdb, $current_site;
-
-		if ( ! is_super_admin() ) {
-			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
-			return;
-		}
-
-		//process form
-		if ( isset( $_POST['submit_settings'] ) ) {
-			//check nonce
-			check_admin_referer( 'psts_settings' );
-			//strip slashes from all inputs
-			$_POST['psts'] = stripslashes_deep( $_POST['psts'] );
-
-			$_POST['psts']['hide_adminmenu']          = isset( $_POST['psts']['hide_adminmenu'] ) ? $_POST['psts']['hide_adminmenu'] : 0; //handle checkbox
-			$_POST['psts']['hide_adminbar']           = isset( $_POST['psts']['hide_adminbar'] ) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
-			$_POST['psts']['hide_adminbar_super']     = isset( $_POST['psts']['hide_adminbar_super'] ) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
-			$_POST['psts']['show_signup']             = isset( $_POST['psts']['show_signup'] ) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
-			$_POST['psts']['apply_setup_fee_upgrade'] = isset( $_POST['psts']['apply_setup_fee_upgrade'] ) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox
-			$_POST['psts']['checkout_roles']          = isset( $_POST['psts']['checkout_roles'] ) ? $_POST['psts']['checkout_roles'] : ''; //handle checkbox
-			$_POST['psts']['pt_sortthemes']           = isset( $_POST['psts']['pt_sortthemes'] ) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox
-
-			//merge settings
-			$old_settings = get_site_option( 'psts_settings' );
-			$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'] ) );
-			update_site_option( 'psts_settings', $settings );
-
-			do_action( 'psts_settings_process' );
-			do_action( 'supporter_settings_process' ); //depreciated
-
-			//create a checkout page if not existing
-			$this->create_checkout_page();
-
-			echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
-		}
-		$levels = (array) get_site_option( 'psts_levels' );
-
-		//allow overriding and changing the root site to put the checkout page on
-		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
-
-		//insert new page if not existing
-		switch_to_blog( $checkout_site );
-		$checkout_link = get_edit_post_link( $this->get_setting( 'checkout_page' ) );
-		restore_current_blog();
-		?>
-		<div class="wrap">
-		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/settings.png'; ?>"/></div>
-		<h2><?php _e( 'Pro Sites Settings', 'psts' ); ?></h2>
-
-		<div class="metabox-holder">
-		<form method="post" action="">
-		<?php wp_nonce_field( 'psts_settings' ) ?>
-
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'General Settings', 'psts' ) ?></span></h3>
-
-			<div class="inside">
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-rebrand-pro"><?php echo __( 'Rebrand Pro Sites', 'psts' ) . $this->help_text( __( 'Rename "Pro Sites" for users to whatever you want like "Pro" or "Plus".', 'psts' ) ); ?></th>
-						<td>
-							<input type="text" name="psts[rebrand]" value="<?php echo esc_attr( $this->get_setting( 'rebrand' ) ); ?>"/>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Admin Menu Button Labels', 'psts' ) ?></th>
-						<td>
-							<label>
-								<span class="psts-label psts-label-notpro"><?php _e( 'Not Pro', 'psts' ); ?></span>
-								<input type="text" name="psts[lbl_signup]" value="<?php echo esc_attr( $this->get_setting( 'lbl_signup' ) ); ?>"/>
-							</label><br/>
-							<label>
-								<span class="psts-label psts-label-currentpro"><?php _e( 'Current Pro', 'psts' ); ?></span>
-								<input type="text" name="psts[lbl_curr]" value="<?php echo esc_attr( $this->get_setting( 'lbl_curr' ) ); ?>"/>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Hide Admin Menu', 'psts' ); ?></th>
-						<td>
-							<label><input type="checkbox" name="psts[hide_adminmenu]" value="1"<?php checked( $this->get_setting( 'hide_adminmenu' ) ); ?> />
-								<?php _e( 'Remove the Pro Sites upgrade menu item', 'psts' ); ?></label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Hide Admin Bar Button', 'psts' ); ?></th>
-						<td>
-							<label><input type="checkbox" name="psts[hide_adminbar]" value="1"<?php checked( $this->get_setting( 'hide_adminbar' ) ); ?> />
-								<?php _e( 'Remove the Pro Sites upgrade menu button from the admin bar', 'psts' ); ?>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Hide Pro Status for Superadmin', 'psts' ); ?></th>
-						<td>
-							<label><input type="checkbox" name="psts[hide_adminbar_super]" value="1"<?php checked( $this->get_setting( 'hide_adminbar_super' ) ); ?> />
-								<?php _e( 'Remove the Super Admin Pro Site status menu from the admin bar', 'psts' ); ?>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . $this->help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
-						<td>
-							<label>
-								<span class="psts-label psts-label-name"><?php _e( 'Name', 'psts' ); ?></span>
-								<input type="text" name="psts[free_name]" value="<?php echo esc_attr( $this->get_setting( 'free_name' ) ); ?>"/>
-							</label><br/>
-							<label>
-								<span class="psts-label psts-label-message"><?php _e( 'Message', 'psts' ); ?></span>
-								<input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr( $this->get_setting( 'free_msg' ) ); ?>"/>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="pay-for-signup"><?php echo __( 'Allow Signup on Checkout', 'psts' ) . $this->help_text( __( 'Enables the user to signup for a site from the checkout page. Trials will automatically activate, ProSites will activate after payment has been processed (or manually).', 'psts' ) ); ?></th>
-						<td>
-							<label><input type="checkbox" name="psts[show_signup]" value="1"<?php checked( $this->get_setting( 'show_signup' ) ); ?> />
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . $this->help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
-						<td>
-							<textarea name="psts[signup_message]" rows="3" wrap="soft" id="signup_message" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'signup_message' ) ); ?></textarea>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-checkout-page"><?php echo __( 'Checkout Page', 'psts' ) . $this->help_text( __( 'If checkout page is not found, a new checkout page is generated upon saving the settings. The slug and title is based on the rebrand option above.', 'psts' ) ); ?></th>
-						<td>
-							<?php if ( empty( $checkout_link ) ) { ?>
-								<?php _e( 'There was a problem finding the Checkout Page. Please follow the directions below to regenerate it:', 'psts' ); ?>
-							<?php } else { ?>
-								<a href="<?php echo $checkout_link; ?>" title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a>
-							<?php } ?>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Checkout Permissions', 'psts' ) ?></th>
-						<td><?php
-
-							$roles          = get_editable_roles();
-							$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
-
-							foreach ( $roles as $role_key => $role ) {
-								$checked = '';
-								//Default keep all applicable roles checked
-								if ( ( is_array( $checkout_roles ) && in_array( $role_key, $checkout_roles ) ) || $checkout_roles == 'not_set' ) {
-									$checked = 'checked="checked"';
-								}
-								if ( ! empty ( $role['capabilities']['manage_options'] ) || ! empty( $role['capabilities']['edit_pages'] ) ) {
-									?>
-									<label>
-										<input type="checkbox" name="psts[checkout_roles][]" value="<?php echo $role_key; ?>" <?php echo $checked; ?>/><?php echo $role['name']; ?>
-									</label> <?php
-								}
-							}
-
-							?>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-feature-message"><?php echo __( 'Pro Site Feature Message', 'psts' ) . $this->help_text( __( 'Required - No HTML - This message is displayed when a feature is accessed on a site that does not have access to it. "LEVEL" will be replaced with the needed level name for the feature.', 'psts' ) ); ?></th>
-						<td>
-							<input name="psts[feature_message]" type="text" id="feature_message" value="<?php echo esc_attr( $this->get_setting( 'feature_message' ) ); ?>" style="width: 95%"/>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-free-trial psts-help-div"><?php echo __( 'Free Trial', 'psts' ) . $this->help_text( __( 'Free days for all new sites', 'psts' ) ); ?></th>
-						<td><select name="psts[trial_days]">
-								<?php
-								$trial_days         = $this->get_setting( 'trial_days' );
-								$trial_days_options = '';
-
-								for ( $counter = 0; $counter <= 365; $counter ++ ) {
-									$trial_days_options .= '<option value="' . $counter . '"' . ( $counter == $trial_days ? ' selected' : '' ) . '>' . ( ( $counter ) ? $counter : __( 'Disabled', 'psts' ) ) . '</option>' . "\n";
-								}
-
-								//allow plugins to modify the trial days options (some people want to display as years, more than one year, etc)
-								echo apply_filters( 'psts_trial_days_options', $trial_days_options );
-								?>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . $this->help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
-						<td>
-							<input type="text" name="psts[trial_message]" id="trial_message" value="<?php esc_attr_e( $this->get_setting( 'trial_message' ) ); ?>" style="width: 95%"/>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-cancellation psts-help-div"><?php echo __( 'Cancellation Message', 'psts' ) . $this->help_text( __( 'This message is displayed on the checkout screen notifying FREE TRIAL and NEW customers of your cancellation policy. "DAYS" will be replaced with the number of "Cancellation Days" set above.', 'psts' ) ); ?></th>
-						<td>
-							<textarea style="width:95%" wrap="soft" rows="3" name="psts[cancel_message]"><?php echo $this->get_setting( 'cancel_message', __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ) ); ?></textarea><br/>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . $this->help_text( __( 'If "Apply setup fee to upgrades" is left unchecked then only <strong>free sites</strong> will be charged a setup fee. Otherwise, all levels will be charged a setup fee upon upgrading to a higher level.', 'psts' ) ); ?></th>
-						<td>
-							<label><?php echo $this->format_currency(); ?></label><input type="text" name="psts[setup_fee]" size="4" value="<?php echo ( $setup_fee = $this->get_setting( 'setup_fee', false ) ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
-							&nbsp;<br /><br />
-							<label for="psts-apply-setup-fee-upgrade">
-								<input type="checkbox" name="psts[apply_setup_fee_upgrade]" id="psts-apply-setup-fee-upgrade" value="1" <?php checked( $this->get_setting( 'apply_setup_fee_upgrade', 0 ), 1 ); ?> />
-								<label for="psts-apply-setup-fee-upgrade"><?php _e( 'Apply setup fee to upgrades', 'psts' ); ?></label>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-recurring"><?php echo __( 'Recurring Subscriptions', 'psts' ) . $this->help_text( __( 'Disabling recurring subscriptions will force users to have to manually re-subscribe after their term has expired.', 'psts' ) ); ?></th>
-						<td>
-							<label for="psts-recurring-subscriptions-on" style="margin-right:10px">
-								<input type="radio" name="psts[recurring_subscriptions]" id="psts-recurring-subscriptions-on" value="1" <?php checked( $this->get_setting( 'recurring_subscriptions', 1 ), 1 ); ?> /> <?php _e( 'Enable', 'psts' ); ?>
-							</label>
-							<label for="psts-subscriptions-off">
-								<input type="radio" name="psts[recurring_subscriptions]" id="psts-recurring-subscriptions-off" value="0" <?php checked( $this->get_setting( 'recurring_subscriptions', 1 ), 0 ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Google Analytics Ecommerce Tracking', 'psts' ) ?></th>
-						<td>
-							<select name="psts[ga_ecommerce]">
-								<option value="none"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'none' ) ?>><?php _e( 'None', 'psts' ) ?></option>
-								<option value="new"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'new' ) ?>><?php _e( 'Asynchronous Tracking Code', 'psts' ) ?></option>
-								<option value="old"<?php selected( $this->get_setting( 'ga_ecommerce' ), 'old' ) ?>><?php _e( 'Old Tracking Code', 'psts' ) ?></option>
-							</select>
-							<br/><span class="description"><?php _e( 'If you already use Google Analytics for your website, you can track detailed ecommerce information by enabling this setting. Choose whether you are using the new asynchronous or old tracking code. Before Google Analytics can report ecommerce activity for your website, you must enable ecommerce tracking on the profile settings page for your website. <a href="http://analytics.blogspot.com/2009/05/how-to-use-ecommerce-tracking-in-google.html" target="_blank">More information &raquo;</a>', 'psts' ) ?></span>
-						</td>
-					</tr>
-					<?php do_action( 'psts_general_settings' ); ?>
-				</table>
-			</div>
-		</div>
-
-		<div class="postbox psts-email-notifications">
-			<h3 class="hndle" style="cursor:auto;">
-				<span><?php _e( 'Email Notifications', 'psts' ) ?></span> -
-				<span class="description" style="font-size: 12px; font-weight: normal;"><?php _e ('"LEVEL", "SITENAME", "SITEURL" and "CHECKOUTURL" will be replaced with their associated values. No HTML allowed.', 'psts'); ?></span>
-			</h3>
-
-			<div class="inside">
-				<table class="form-table">
-					<tr>
-						<th scope="row" class="psts-help-div psts-pro-signup"><?php echo __( 'Pro Site Signup', 'psts' ) . $this->help_text( __( 'Pro Site signup confirmation email sent to user', 'psts' ) ); ?></th>
-						<td>
-							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr( $this->get_setting( 'success_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
-							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[success_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'success_msg' ) ); ?></textarea>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="psts-help-div psts-pro-site-cancelled"><?php echo __( 'Pro Site Canceled', 'psts' ) . $this->help_text( __( 'Membership cancellation email sent to user, "ENDDATE" will be replaced with the date when their Pro Site access ends.', 'psts' ) ); ?></th>
-						<td>
-							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr( $this->get_setting( 'canceled_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
-							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[canceled_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'canceled_msg' ) ); ?></textarea>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="psts-help-div psts-payment-reciept"><?php echo __( 'Payment Receipt', 'psts' ) . $this-> help_text( __( 'Payment confirmation receipt. You must include the "PAYMENTINFO" code which will be replaced with payment details.', 'psts' ) ); ?></th>
-						<td>
-							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr( $this->get_setting( 'receipt_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
-							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[receipt_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'receipt_msg' ) ); ?></textarea></label><br/>
-							<label><?php _e( 'Header Image URL (for PDF attachment):', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr( $this->get_setting( 'receipt_image' ) ); ?>" maxlength="150" style="width: 65%"/></label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="psts-help-div psts-expiration-mail"><?php echo __( 'Expiration Email', 'psts' ) . $this->help_text( __( 'Pro Site expiration email sent to user. "CHECKOUTURL" will be replaced with the url to upgrade the site.', 'psts' ) ); ?></th>
-						<td>
-							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[expired_subject]" value="<?php echo esc_attr( $this->get_setting( 'expired_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
-							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[expired_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'expired_msg' ) ); ?></textarea>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="psts-help-div psts-payment-problem"><?php echo __( 'Payment Problem', 'psts' ) . $this->help_text( __( 'The email text sent to your customer when a scheduled payment fails.', 'psts' ) ); ?></th>
-						<td>
-							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr( $this->get_setting( 'failed_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
-							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[failed_msg]" style="width: 95%"><?php echo esc_textarea( $this->get_setting( 'failed_msg' ) ); ?></textarea>
-							</label>
-						</td>
-					</tr>
-					<?php do_action( 'psts_email_settings' ); ?>
-				</table>
-			</div>
-		</div>
-
-		<div class="postbox">
-			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Currency Settings', 'psts' ) ?></span> -
-				<span class="description"><?php _e( 'These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts' ) ?></span>
-			</h3>
-
-			<div class="inside">
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Currency Symbol', 'psts' ) ?></th>
-						<td>
-							<select id="psts-currency-select" name="psts[currency]">
-								<?php
-								foreach ( $this->currencies as $key => $value ) {
-									?>
-									<option value="<?php echo $key; ?>"<?php selected( $this->get_setting( 'currency' ), $key ); ?>><?php echo esc_attr( $value[0] ) . ' - ' . $this->format_currency( $key ); ?></option><?php
-								}
-								?>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Currency Symbol Position', 'psts' ) ?></th>
-						<td>
-							<label><input value="1" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position', 1 ), 1 ); ?>>
-								<?php echo $this->format_currency(); ?>100</label><br/>
-							<label><input value="2" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 2 ); ?>>
-								<?php echo $this->format_currency(); ?> 100</label><br/>
-							<label><input value="3" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 3 ); ?>>
-								100<?php echo $this->format_currency(); ?></label><br/>
-							<label><input value="4" name="psts[curr_symbol_position]" type="radio"<?php checked( $this->get_setting( 'curr_symbol_position' ), 4 ); ?>>
-								100 <?php echo $this->format_currency(); ?></label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Show Decimal in Prices', 'psts' ) ?></th>
-						<td>
-							<label><input value="1" name="psts[curr_decimal]" type="radio"<?php checked( $this->get_setting( 'curr_decimal', 1 ), 1 ); ?>>
-								<?php _e( 'Yes', 'psts' ) ?></label>
-							<label><input value="0" name="psts[curr_decimal]" type="radio"<?php checked( $this->get_setting( 'curr_decimal' ), 0 ); ?>>
-								<?php _e( 'No', 'psts' ) ?></label>
-						</td>
-					</tr>
-				</table>
-			</div>
-		</div>
-
-		<?php do_action( 'psts_gateway_settings' ); ?>
-		<?php do_action( 'psts_settings_page' ); ?>
-
-		<p class="submit">
-			<input type="submit" name="submit_settings" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
-		</p>
-		</form>
-		</div>
 		</div>
 	<?php
 	}
