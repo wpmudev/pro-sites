@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.1
+Version: 3.5.1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -2279,6 +2279,9 @@ Thanks!", 'psts' ),
 		if ( ! $old ) {
 			return $new_amt;
 		}
+		if ( $old->expire < time() ) {
+			return $new_amt;
+		}
 
 		if ( $new_level < $old->level && $new_period < $old->term ) // if customer is downgrading no need to charge them
 		{
@@ -2290,10 +2293,6 @@ Thanks!", 'psts' ),
 			}else{
 				return 0;
 			}
-		}
-
-		if ( $old->expire < time() ) {
-			return $new_amt;
 		}
 
 		$diff     = $old->expire - time();
