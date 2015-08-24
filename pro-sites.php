@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.1';
+	var $version = '3.5.2.1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -2343,9 +2343,10 @@ Thanks!", 'psts' ),
 		if ( isset( $_GET['page'] ) && $_GET['page'] == 'psts-bulk-upgrades' ) {
 			return true;
 		}
-
+		$psts_force_redirect = $this->get_setting('psts_force_redirect', 1 );
+		$psts_force_redirect = apply_filters( 'psts_force_redirect', $psts_force_redirect );
 		//force to checkout page
-		if ( ! is_super_admin() && ( ( get_option( 'psts_signed_up' ) && current_user_can( 'edit_pages' ) ) || apply_filters( 'psts_force_redirect', false ) ) ) {
+		if ( ! is_super_admin() && ( ( get_option( 'psts_signed_up' ) && current_user_can( 'edit_pages' ) ) && $psts_force_redirect ) ) {
 			wp_redirect( $this->checkout_url( $blog_id ) );
 			exit();
 		}

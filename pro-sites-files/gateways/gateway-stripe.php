@@ -75,6 +75,7 @@ class ProSites_Gateway_Stripe {
 		//update install script if necessary
 		if ( $psts->get_setting( 'stripe_version' ) != $psts->version ) {
 			$this->install();
+			$psts->update_setting( 'stripe_version', $psts->version );
 		}
 	}
 
@@ -107,7 +108,8 @@ class ProSites_Gateway_Stripe {
 	private static function install() {
 		global $wpdb, $psts;
 
-		$table1 = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}pro_sites_stripe_customers` (
+		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
+		$table1 = "CREATE TABLE " . $table_name ." IF NOT EXISTS  (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
 			subscription_id char(22) NOT NULL,
