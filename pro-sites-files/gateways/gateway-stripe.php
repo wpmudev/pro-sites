@@ -75,7 +75,6 @@ class ProSites_Gateway_Stripe {
 		//update install script if necessary
 		if ( $psts->get_setting( 'stripe_version' ) != $psts->version ) {
 			$this->install();
-			$psts->update_setting( 'stripe_version', $psts->version );
 		}
 	}
 
@@ -120,17 +119,9 @@ class ProSites_Gateway_Stripe {
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $table1 );
-
-			//3.5 upgrade - modify pro_sites table
-			if ( $psts->version <= '3.5' ) {
-				//Using dbDelta instead
-				// $wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD subscription_id char(22) NOT NULL" );
-				// $wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers DROP KEY ix_customer_id" );
-				// $wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites_stripe_customers ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
-			}
 		}
 
-		if ( $stripe_secret_key = $psts->get_setting( 'stripe_secret_key' ) ) {
+		if ( $psts->get_setting( 'stripe_secret_key' ) ) {
 			$psts->update_setting( 'stripe_version', $psts->version );
 
 			if ( $psts->get_setting( 'stripe_plan_ids_updated', false ) ) {
