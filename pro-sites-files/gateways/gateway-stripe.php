@@ -2715,7 +2715,7 @@ class ProSites_Gateway_Stripe {
 			if ( ! isset( $args['cancel'] ) ) {
 
 				// Get the last valid card
-				if ( isset( $customer_object->cards->data[0] ) && isset( $customer_object->default_card ) ) {
+				if ( isset( $customer_object->cards ) && isset( $customer_object->cards->data[0] ) && isset( $customer_object->default_card ) ) {
 					foreach ( $customer_object->cards->data as $tmpcard ) {
 						if ( $tmpcard->id == $customer_object->default_card ) {
 							$card = $tmpcard;

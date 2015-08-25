@@ -15,6 +15,7 @@ Change Log:
 - Fixed: Modules: Do not load modules on main site
 - Fixed: Paypal: Currency difference while a different currency is selected initially and changed later
 - Fixed: Paypal: Issue with new subscriptions
+- Fixed: Receipt: Handle exception while generating Receipt PDF
 - Fixed: Stripe: Pending status message not shown if signup on checkout is disabled
 - Fixed: Stripe: dbDelta issue, subscription_id column not added to existing table
 - Fixed: Stripe: Fetch customer details for older subscriptions, without subscription id

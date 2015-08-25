@@ -4665,12 +4665,17 @@ function admin_levels() {
 
 		$fname = K_PATH_CACHE . "{$uid}.pdf";
 		ob_clean();
-		//Close and output PDF document
-		$pdf->Output( $fname, 'F' );
-		$attachments[] = $fname;
+		try{
+			//Close and output PDF document
+			$pdf->Output( $fname, 'F' );
+			$attachments[] = $fname;
 
-		return $attachments;
+			return $attachments;
+		}catch( Exception $e ) {
+			error_log("Exception while Outputing PDF receipt: " . $e->getMessage() );
+		}
 
+		return '';
 	}
 
 	/**
