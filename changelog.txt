@@ -8,15 +8,16 @@ Change Log:
 ----------------------------------------------------------------------
 
 3.5.1.2 - 08/18/2015 - Umesh Kumar
+- Fixed: Payment amount comes to zero for existing expired sites
+- Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
+- Fixed: Checkout: Option to display a message on checkout page at the top
+- Fixed: Coupons: displayed twice if pricing table and feature table disabled
+- Fixed: Modules: Do not load modules on main site
 - Fixed: Paypal: Currency difference while a different currency is selected initially and changed later
 - Fixed: Paypal: Issue with new subscriptions
 - Fixed: Stripe: Pending status message not shown if signup on checkout is disabled
-- Fixed: Modules: Do not load modules on main site
-- Fixed: Payment amount comes to zero for existing expired sites
-- Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
-- Fixed: Option to display a message on checkout page at the top
-- Fixed: Coupons displayed twice if pricing table and feature table disabled
-- Fixed: Stripe dbDelta issue
+- Fixed: Stripe: dbDelta issue, subscription_id column not added to existing table
+- Fixed: Stripe: Fetch customer details for older subscriptions, without subscription id
 - Added: Option to disable Force redirect to checkout page if site is expired
 - Updated: Checkout: Call jQuery tabs only if there are multiple gateways
 

@@ -419,8 +419,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$args['timeout']     = 60;
 			$args['httpversion'] = '1.1';
 
-//			error_log("API Call");
-//			error_log( json_encode( $args ));
 			//use built in WP http class to work with most server setups
 			$response = wp_remote_post( $API_Endpoint, $args );
 

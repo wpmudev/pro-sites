@@ -1117,22 +1117,17 @@ class ProSites_Gateway_Stripe {
 
 		if ( ! empty ( $blog_id ) ) {
 			$row = $wpdb->get_row( $wpdb->prepare( "SELECT customer_id, subscription_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE blog_id = %d", $blog_id ) );
-			if ( empty( $row ) ) {
+			if ( empty( $row ) || is_wp_error( $row ) || empty( $row->customer_id ) ) {
+				//Try to get only Cutomer Id
+				$row = $wpdb->get_row( $wpdb->prepare( "SELECT customer_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE blog_id = %d", $blog_id ) );
+			}
+			if( empty( $row ) ){
 				$row                  = new stdClass();
 				$row->customer_id     = false;
 				$row->subscription_id = false;
 			}
 
 			return $row;
-		} else {
-			/**
-			 * @todo work something else out
-			 */
-			//Get customer id from signup meta
-//			$signup_meta = $psts->get_signup_meta( $domain );
-//			if ( ! empty ( $signup_meta['stripe'] ) ) {
-//				return ! empty ( $signup_meta['stripe']['customerid'] ) ? $signup_meta['stripe']['customerid'] : '';
-//			}
 		}
 	}
 
@@ -1731,14 +1726,19 @@ class ProSites_Gateway_Stripe {
 
 		$site_name = $current_site->site_name;
 
-		$error       = '';
-		$customer_id = self::get_customer_data( $blog_id )->customer_id;
-		if ( $customer_id ) {
+		$error         = '';
+		$customer_data = self::get_customer_data( $blog_id );
+		$customer_id   = $customer_data->customer_id;
+		$sub_id        = $customer_data->subscription_id;
+
+		if( empty( $customer_id ) ) {
+			//Can't really do anything
+			return;
+		}
+
+		if ( ! empty( $customer_id ) && ! empty( $sub_id ) ) {
 			try {
-				$customer_data = self::get_customer_data( $blog_id );
-				$customer_id   = $customer_data->customer_id;
-				$sub_id        = $customer_data->subscription_id;
-				$cu            = Stripe_Customer::retrieve( $customer_id );
+				$cu = Stripe_Customer::retrieve( $customer_id );
 				// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
 				$cu->subscriptions->retrieve( $sub_id )->cancel();
 			} catch ( Exception $e ) {
@@ -1760,6 +1760,42 @@ class ProSites_Gateway_Stripe {
 				}
 			} else {
 				self::$cancel_message = '<div id="message" class="error fade"><p>' . __( 'There was a problem canceling your subscription, please contact us for help: ', 'psts' ) . $error . '</p></div>';
+			}
+		} else {
+			//Legacy support, or if table structure is not proper, subsciption_id column is missing
+			//Check if user has single blog or multiple
+			$blogs_of_user = get_blogs_of_user( get_current_user_id(), false );
+			if ( count( $blogs_of_user ) == 1 ) {
+				try {
+					$cu = Stripe_Customer::retrieve( $customer_id );
+					//Check all the subscriptions
+					if ( ! empty( $cu->subscriptions ) ) {
+						$subs = $cu->subscriptions->data;
+						foreach ( $subs as $sub ) {
+							//Retrieve the subscription
+							try {
+								$metadata = $sub->metadata;
+								if ( ! empty( $metadata->blog_id ) && $blog_id == $metadata->blog_id ) {
+									$cu->subscriptions->retrieve( $sub->id )->cancel();
+								}
+							} catch ( Exception $e ) {
+								error_log( "Exception at 1785: " . $e->getMessage() );
+							}
+						}
+					}
+
+				} catch ( Exception $e ) {
+					error_log( "Exception at 1788: " . $e->getMessage() );
+				}
+			} else {
+				try {
+					$cu = Stripe_Customer::retrieve( $customer_id );
+					//Deletes all subscription for the customer
+					$cu->cancelSubscription();
+
+				} catch ( Exception $e ) {
+					error_log( "Exception at 1797: " . $e->getMessage() );
+				}
 			}
 		}
 	}
