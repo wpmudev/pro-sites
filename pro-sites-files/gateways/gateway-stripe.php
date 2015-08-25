@@ -1330,13 +1330,6 @@ class ProSites_Gateway_Stripe {
 						$plan_amount   = ! empty( $subscription ) ? $subscription->plan_amount : '';
 						$amount        = ! empty( $subscription ) ? $subscription->subscription_amount : '';
 						$invoice_items = ! empty( $subscription ) ? $subscription->invoice_items : '';
-//						$setup_fee_amt = $subscription->setup_fee;
-//						$has_setup_fee = $subscription->has_setup_fee;
-//						$plan_change_amount = $subscription->plan_change_amount;
-//						$has_plan_change = $subscription->plan_change;
-//						$plan_change_mode = $subscription->plan_change_mode;
-//						$discount_amount = $subscription->discount_amount;
-//						$has_discount = $subscription->has_discount;
 						break;
 
 					case 'customer.subscription.created' :
@@ -2394,10 +2387,12 @@ class ProSites_Gateway_Stripe {
 							list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
 						}
 
-						//Extend the Blog Subscription
-						$old_expire = $psts->get_expire( $blog_id );
-						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, $recurring );
+						$expire = !empty( $expire ) ? $expire : false;
+
+						if( !empty( $expire ) ) {
+							//Extend the Blog Subscription
+							self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, false, $recurring );
+						}
 						//$psts->email_notification( $blog_id, 'receipt' );
 
 						if ( isset( $current_plan_level ) ) {
@@ -2535,9 +2530,7 @@ class ProSites_Gateway_Stripe {
 							list( $current_plan_level, $current_plan_period ) = explode( '_', $current_plan );
 						}
 
-						$old_expire = $psts->get_expire( $blog_id );
-						$new_expire = ( $old_expire && $old_expire > time() ) ? $old_expire : false;
-						$psts->extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $new_expire, $recurring );
+						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, true, $recurring );
 						//$psts->email_notification( $blog_id, 'receipt' );
 
 						if ( isset( $current_plan_level ) ) {
