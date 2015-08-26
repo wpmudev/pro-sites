@@ -11,6 +11,8 @@ Change Log:
 - Fixed: Payment amount comes to zero for existing expired sites
 - Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
 - Fixed: Checkout: Option to display a message on checkout page at the top
+- Fixed: Checkout: Period selector style broken in firefox
+- Fixed: Checkout: Monthly plan details shown with Quarterly plan
 - Fixed: Coupons: displayed twice if pricing table and feature table disabled
 - Fixed: Modules: Do not load modules on main site
 - Fixed: Paypal: Currency difference while a different currency is selected initially and changed later

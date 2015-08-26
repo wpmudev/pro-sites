@@ -720,6 +720,6 @@ jQuery( document ).ready( function ( $ ) {
         //width += $( item );
         width += parseInt( $( item ).find( 'div' ).css('width' ).replace('px', '') );
     } );
-    $('.period-selector-container').css('width', width + 1 );
+    $('.period-selector-container').css('width', width + 2 );
 
 } );

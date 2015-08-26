@@ -1255,7 +1255,7 @@ Thanks!", 'psts' ),
 
 			//check for coupon session variable
 			if ( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
-				if ( $this->check_coupon( $session_coupon, $blog_id, intval( @$_POST['level'] ), $_POST['period'], '' ) ) {
+				if ( !empty( $_POST ) && $this->check_coupon( $session_coupon, $blog_id, intval( @$_POST['level'] ), $_POST['period'], '' ) ) {
 					$coupon = true;
 				} else {
 					if ( isset( $_POST['level'] ) && is_numeric( $_POST['level'] ) ) {

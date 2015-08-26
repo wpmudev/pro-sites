@@ -29,7 +29,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
 			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
-			if( $plans_table_enabled && $coupons_enabled && (  ( 'option2' == $pt_pos ) || ! $features_table_enabled ) ) {
+			if( 'option2' == $pt_pos  && $plans_table_enabled && $coupons_enabled ) {
 				//If Coupons are enabled and set to show at the bottom OR
 				//If feature column is not enabled, show coupon at the bottom
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
@@ -499,14 +499,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				$level_details['breakdown']   = array();
 				$level_details['savings_msg'] = array();
-				$period_count                 = 0;
 				foreach ( $periods as $period_key => $period ) {
 
 					if ( ! in_array( (int) str_replace( 'price_', '', $period_key ), $active_periods ) ) {
 						continue;
 					}
-
-					$period_count += 1;
 
 					switch ( $period_key ) {
 						case 'price_1':
@@ -523,7 +520,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$display_style = self::$default_period != $period_key ? ' hide' : '';
 					$create_hidden = false;
 
-					if ( 1 == $period_count ) {
+
+					if ( 1 == count( $active_periods ) ) {
 						$display_style = '';
 						$create_hidden = (int) str_replace( 'price_', '', $period_key );
 					}
@@ -540,7 +538,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$period_content .= '<div class="price-plain hidden plan-' . $level . '' . $months . '-plain">' . $price_plain . '</div>';
 					$period_content .= '<div class="period original-period">' . esc_html( $period ) . '</div>';
 					$period_content .= ! empty( $setup_msg ) ? $setup_msg : '';
-					if ( $period_count == 1 ) {
+					if ( count( $active_periods ) == 1 ) {
 						$period_content .= '<div class="hidden" name="single_period">' . $create_hidden . '</div>';
 					}
 					$period_content .= '</div>';
