@@ -7,7 +7,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1.2 - 08/18/2015 - Umesh Kumar
+3.5.1.2 - 08/27/2015 - Umesh Kumar
 - Fixed: Payment amount comes to zero for existing expired sites
 - Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
 - Fixed: Checkout: Option to display a message on checkout page at the top
