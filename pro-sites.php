@@ -1566,7 +1566,7 @@ Thanks!", 'psts' ),
 		$level_name = ! empty( $level_name ) ? $level_name : $level_list[ $psts->get_level( $transaction->blog_id ) ]['name'];
 		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
 		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
-		$term       = $result->term;
+		$term       = !empty( $result->term ) ? $result->term : false;
 
 		if ( $term == 1 || $term == 3 || $term == 12 ) {
 			$term = sprintf( __( 'Every %s Month(s)', 'psts' ), $result->term );
