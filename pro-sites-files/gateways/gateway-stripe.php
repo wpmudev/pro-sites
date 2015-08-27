@@ -1737,7 +1737,8 @@ class ProSites_Gateway_Stripe {
 
 		$site_name = $current_site->site_name;
 
-		$error         = '';
+		$error     = '';
+		$cancelled = false;
 		$customer_data = self::get_customer_data( $blog_id );
 		$customer_id   = $customer_data->customer_id;
 		$sub_id        = $customer_data->subscription_id;
@@ -1765,12 +1766,7 @@ class ProSites_Gateway_Stripe {
 				$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
 				$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
 
-				//Do not display message for add action
-				if ( $display_message ) {
-					self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
-				}
-			} else {
-				self::$cancel_message = '<div id="message" class="error fade"><p>' . __( 'There was a problem canceling your subscription, please contact us for help: ', 'psts' ) . $error . '</p></div>';
+				$cancelled = true;
 			}
 		} else {
 			//Legacy support, or if table structure is not proper, subsciption_id column is missing
@@ -1788,6 +1784,7 @@ class ProSites_Gateway_Stripe {
 								$metadata = $sub->metadata;
 								if ( ! empty( $metadata->blog_id ) && $blog_id == $metadata->blog_id ) {
 									$cu->subscriptions->retrieve( $sub->id )->cancel();
+									$cancelled = true;
 								}
 							} catch ( Exception $e ) {
 								error_log( "Exception at 1785: " . $e->getMessage() );
@@ -1803,11 +1800,18 @@ class ProSites_Gateway_Stripe {
 					$cu = Stripe_Customer::retrieve( $customer_id );
 					//Deletes all subscription for the customer
 					$cu->cancelSubscription();
+					$cancelled = true;
 
 				} catch ( Exception $e ) {
 					error_log( "Exception at 1797: " . $e->getMessage() );
 				}
 			}
+		}
+		if ( $cancelled && $display_message ) {
+			//Do not display message for add action
+			self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
+		}else{
+			self::$cancel_message = '<div id="message" class="error fade"><p>' . __( 'There was a problem canceling your subscription, please contact us for help: ', 'psts' ) . $error . '</p></div>';
 		}
 	}
 

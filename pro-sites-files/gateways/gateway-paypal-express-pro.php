@@ -2060,7 +2060,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 						}
 
 						$psts->record_stat( $blog_id, 'signup' );
-						$psts->email_notification( $blog_id, 'success' );
 
 						// Added for affiliate system link
 						do_action( 'supporter_payment_processed', $blog_id, $paymentAmount, $_POST['period'], $_POST['level'] );
@@ -2407,7 +2406,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								self::$complete_message = __( 'Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . self::parse_error_string( $resArray ) . '</strong>"';
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
 							}
-							$psts->email_notification( $blog_id, 'success' );
 							$psts->record_stat( $blog_id, 'signup' );
 
 							//Store Evidence string for the transaction ID
