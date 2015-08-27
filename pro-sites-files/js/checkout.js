@@ -508,20 +508,26 @@ jQuery( document ).ready( function ( $ ) {
         $( '#prosites-checkout-table' ).attr( 'data-level', level );
 
         //Update Period as well
-        var period_class = $( '.period-selector select' ).val();
-        var period = 0;
-        if ( typeof period_class !== 'undefined' ) {
-            period = parseInt( period_class.replace( 'price_', '' ) );
-        } else {
-            period = parseInt( $( '[name=single_period]' ).html() );
-        }
-        $( '.gateways [name=period]' ).val( period );
-        $( '#prosites-checkout-table' ).attr( 'data-period', period );
+        var period_selector = $( '.period-selector select').length > 0 ? $('.period-selector select') : ( $('input[name="period-selector-top"]').length > 0 ? $('input[name="period-selector-top"]:checked') : '' );
+	    if( typeof( period_selector ) !== 'undefined' ) {
+		    var period_class = period_selector.val();
+		    var period = 0;
+		    if (typeof period_class !== 'undefined') {
+			    period = parseInt(period_class.replace('price_', ''));
+		    } else {
+			    period = parseInt($('[name=single_period]').html());
+		    }
+		    $('.gateways [name=period]').val(period);
+		    $('#prosites-checkout-table').attr('data-period', period);
+	    }
 
 
     } );
 
-    $( '#gateways' ).tabs();
+    //More than 1 gateway?, Tabs
+    if( jQuery('#gateways>div').length > 1 ) {
+        $('#gateways').tabs();
+    }
 
     // Cancellation confirmation
     $( 'a.cancel-prosites-plan' ).click( function ( e ) {
@@ -651,7 +657,7 @@ jQuery( document ).ready( function ( $ ) {
             }
         }
 	    var new_blog = false;
-	    if ( false != action && 'new_blog' == action ) {
+	    if ( typeof(action) != 'undefined' && false != action && 'new_blog' == action ) {
 		    new_blog = true;
 	    }
 	    new_blog = prosites_checkout.new_blog != 'false' ? new_blog : false;
@@ -714,6 +720,6 @@ jQuery( document ).ready( function ( $ ) {
         //width += $( item );
         width += parseInt( $( item ).find( 'div' ).css('width' ).replace('px', '') );
     } );
-    $('.period-selector-container').css('width', width + 1 );
+    $('.period-selector-container').css('width', width + 2 );
 
 } );

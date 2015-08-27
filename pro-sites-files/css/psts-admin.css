@@ -143,6 +143,9 @@ input[name="coupon_code"] {
 .psts-help-div {
     position: relative;
 }
+th.psts-help-div {
+    width: 210px;
+}
 
 .post-page-quota .help_tip,
 .psts-free-trial .help_tip,
@@ -194,7 +197,7 @@ input[name="coupon_code"] {
     right: 56px;
 }
 .pay-for-signup .psts-help-text-wrapper {
-    left: 39px;
+    left: 49px;
     top: 35px;
 }
 
@@ -231,6 +234,9 @@ input[name="coupon_code"] {
 .psts-free-level .psts-help-text-wrapper {
     left: 0;
     width: 150px;
+}
+.force-redirect-expiraton .psts-help-text-wrapper {
+    left: 120px;
 }
 
 .psts-signup-message .psts-help-text-wrapper {

@@ -7,6 +7,25 @@ Change Log:
 
 ----------------------------------------------------------------------
 
+3.5.1.2 - 08/27/2015 - Umesh Kumar
+- Fixed: Payment amount comes to zero for existing expired sites
+- Fixed: Checkout: Monthly plan being selected if period selector is displayed at top
+- Fixed: Checkout: Option to display a message on checkout page at the top
+- Fixed: Checkout: Period selector style broken in firefox
+- Fixed: Checkout: Monthly plan details shown with Quarterly plan
+- Fixed: Coupons: displayed twice if pricing table and feature table disabled
+- Fixed: Modules: Do not load modules on main site
+- Fixed: Paypal: Currency difference while a different currency is selected initially and changed later
+- Fixed: Paypal: Issue with new subscriptions
+- Fixed: Paypal: Payments being made in USD only, even if other currency is being set
+- Fixed: Receipt: Handle exception while generating Receipt PDF
+- Fixed: Stripe: Pending status message not shown if signup on checkout is disabled
+- Fixed: Stripe: dbDelta issue, subscription_id column not added to existing table
+- Fixed: Stripe: Fetch customer details for older subscriptions, without subscription id
+- Fixed: Stripe: Warning: check if stripe object has card details
+- Added: Option to disable Force redirect to checkout page if site is expired
+- Updated: Checkout: Call jQuery tabs only if there are multiple gateways
+
 3.5.1 - 08/12/2015 - Umesh Kumar
 
 - Fixed: Division by zero for single column pricing table

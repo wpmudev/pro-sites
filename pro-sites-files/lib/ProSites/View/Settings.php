@@ -109,25 +109,27 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Hide Pro Status for Superadmin', 'psts' ); ?></th>
 						<td>
-							<label><input type="checkbox" name="psts[hide_adminbar_super]"
-							              value="1"<?php checked( $psts->get_setting( 'hide_adminbar_super' ) ); ?> />
+							<label><input type="checkbox" name="psts[hide_adminbar_super]" value="1"<?php checked( $psts->get_setting( 'hide_adminbar_super' ) ); ?> />
 								<?php _e( 'Remove the Super Admin Pro Site status menu from the admin bar', 'psts' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"
-						    class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
+						<th scope="row" class="psts-help-div force-redirect-expiraton"><?php echo __( 'Force redirect on Expiration', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Redirect site admin to Checkout page, on Pro Site expiration', 'psts' ), 'force-redirect' ); ?></th>
+						<td>
+							<label><input type="checkbox" name="psts[psts_force_redirect]" value="1"<?php checked( $psts->get_setting( 'psts_force_redirect', 1 ) ); ?> /></label>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
 						<td>
 							<label>
 								<span class="psts-label psts-label-name"><?php _e( 'Name', 'psts' ); ?></span>
-								<input type="text" name="psts[free_name]"
-								       value="<?php echo esc_attr( $psts->get_setting( 'free_name' ) ); ?>"/>
+								<input type="text" name="psts[free_name]" value="<?php echo esc_attr( $psts->get_setting( 'free_name' ) ); ?>"/>
 							</label><br/>
 							<label>
 								<span class="psts-label psts-label-message"><?php _e( 'Message', 'psts' ); ?></span>
-								<input type="text" size="50" name="psts[free_msg]"
-								       value="<?php echo esc_attr( $psts->get_setting( 'free_msg' ) ); ?>"/>
+								<input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr( $psts->get_setting( 'free_msg' ) ); ?>"/>
 							</label>
 						</td>
 					</tr>
@@ -155,10 +157,15 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 									value="1"<?php checked( $psts->get_setting( 'multiple_signup' ) ); ?> />
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row" class="psts-help-div psts-show-signup-message"><?php echo __( 'Show Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Display a signup message above the checkout table', 'psts' ) ); ?></th>
+						<td>
+							<label><input type="checkbox" name="psts[show_signup_message]" value="1"<?php checked( $psts->get_setting( 'show_signup_message' ) ); ?> />
+						</td>
+					</tr>
 
 					<tr valign="top">
-						<th scope="row"
-						    class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
+						<th scope="row" class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
 						<td>
 							<textarea name="psts[signup_message]" rows="3" wrap="soft" id="signup_message"
 							          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'signup_message' ) ); ?></textarea>

@@ -119,14 +119,13 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
 					<td><?php
-						$pos_bottom = ( $features_table_enabled == 'disabled' ) || ( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) == 'option2' ) ? 1 : 0;
-						if ( $features_table_enabled !== 'disabled' ) { ?>
+						$pos_bottom = $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) == 'option2' ? 1 : 0;
+						?>
 							<label>
 							<p>
 								<input type="radio" name="psts[pricing_table_coupon_position]" value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
-							</label><?php
-						} ?>
+						</label>
 						<label>
 							<p>
 								<input type="radio" name="psts[pricing_table_coupon_position]" value="option2" <?php checked( $pos_bottom, 1 ); ?> />

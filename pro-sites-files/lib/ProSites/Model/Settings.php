@@ -21,6 +21,8 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 						$_POST['psts']['hide_adminbar']           = isset( $_POST['psts']['hide_adminbar'] ) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
 						$_POST['psts']['hide_adminbar_super']     = isset( $_POST['psts']['hide_adminbar_super'] ) ? $_POST['psts']['hide_adminbar_super'] : 0; //handle checkbox
 						$_POST['psts']['show_signup']             = isset( $_POST['psts']['show_signup'] ) ? $_POST['psts']['show_signup'] : 0; //handle checkbox
+						$_POST['psts']['show_signup_message']     = isset( $_POST['psts']['show_signup_message'] ) ? $_POST['psts']['show_signup_message'] : 0; //handle checkbox
+						$_POST['psts']['psts_force_redirect']     = isset( $_POST['psts']['psts_force_redirect'] ) ? $_POST['psts']['psts_force_redirect'] : 0; //handle checkbox
 						$_POST['psts']['free_signup']             = isset( $_POST['psts']['free_signup'] ) ? $_POST['psts']['free_signup'] : 0; //handle checkbox
 						$_POST['psts']['multiple_signup']         = isset( $_POST['psts']['multiple_signup'] ) ? $_POST['psts']['multiple_signup'] : 0; //handle checkbox
 						$_POST['psts']['apply_setup_fee_upgrade'] = isset( $_POST['psts']['apply_setup_fee_upgrade'] ) ? $_POST['psts']['apply_setup_fee_upgrade'] : 0; //handle checkbox

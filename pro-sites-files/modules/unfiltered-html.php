@@ -20,6 +20,9 @@ class ProSites_Module_UnfilterHtml {
 	}
 
 	function __construct() {
+		if( is_main_site( get_current_blog_id() ) ) {
+			return;
+		}
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_action( 'admin_notices', array( &$this, 'message' ) );
 		add_filter( 'user_has_cap', array( &$this, 'unfilter_check' ), 100, 3 );

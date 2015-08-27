@@ -20,6 +20,9 @@ class ProSites_Module_PayToBlog {
 	}
 
 	function __construct() {
+		if( is_main_site( get_current_blog_id() ) ) {
+			return;
+		}
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_action( 'template_redirect', array( &$this, 'disable_front' ) );
