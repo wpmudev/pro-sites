@@ -1167,14 +1167,25 @@ class ProSites_Gateway_Stripe {
 	 * @return bool
 	 */
 	public static function get_default_card( $customer_object ) {
-		if ( ! isset( $customer_object->cards ) ) {
+		if ( ! isset( $customer_object->cards ) && empty( $customer_object->sources ) ) {
 			return false;
 		}
 
-		foreach ( $customer_object->cards->data as $card ) {
-			if ( $card->id == $customer_object->default_card ) {
-				return $card;
+		if ( ! empty( $customer_object->cards ) ) {
+			foreach ( $customer_object->cards->data as $card ) {
+				if ( $card->id == $customer_object->default_card ) {
+					return $card;
+				}
 			}
+		} elseif ( ! empty( $customer_object->sources ) && ! empty( $customer_object->sources->data ) ) {
+			$source_data = $customer_object->sources->data;
+			//Get the first source
+			foreach ( $source_data as $source => $source_details ) {
+				$card = $source_details;
+				break;
+			}
+
+			return $card;
 		}
 
 		return false;
@@ -2647,6 +2658,7 @@ class ProSites_Gateway_Stripe {
 	public static function get_existing_user_information( $blog_id, $domain, $get_all = true ) {
 		global $psts;
 		$args     = array();
+		$card     = '';
 		$img_base = $psts->plugin_url . 'images/';
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
@@ -2670,7 +2682,7 @@ class ProSites_Gateway_Stripe {
 			$args['thanks_message'] = '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
 
 			$args['visit_site_message'] = '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Go to your site &raquo;', 'psts' ) . '</a></p>';
-			self::$complete_message = false;
+			self::$complete_message     = false;
 		}
 
 		// Cancellation message
@@ -2724,12 +2736,19 @@ class ProSites_Gateway_Stripe {
 					}
 				} elseif ( isset( $customer_object->active_card ) ) { //for API pre 2013-07-25
 					$card = $customer_object->active_card;
+				} elseif ( ! empty( $customer_object->sources ) && ! empty( $customer_object->sources->data ) ) {
+					$source_data = $customer_object->sources->data;
+					//Get the first source
+					foreach ( $source_data as $source => $source_details ) {
+						$card = $source_details;
+						break;
+					}
 				}
-				$args['card_type']           = $card->brand;
-				$args['card_reminder']       = $card->last4;
+				$args['card_type']           = ! empty( $card->brand ) ? $card->brand : '';
+				$args['card_reminder']       = ! empty( $card->last4 ) ? $card->last4 : '';
 				$args['card_digit_location'] = 'end';
-				$args['card_expire_month']   = $card->exp_month;
-				$args['card_expire_year']    = $card->exp_year;
+				$args['card_expire_month']   = ! empty( $card->exp_month ) ? $card->exp_month : '';
+				$args['card_expire_year']    = ! empty( $card->exp_year ) ? $card->exp_year : '';
 
 				if ( ! empty( $customer_object->subscriptions->data ) ) {
 					// Get the period
