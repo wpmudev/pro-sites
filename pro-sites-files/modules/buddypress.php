@@ -20,20 +20,19 @@ class ProSites_Module_BP {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
-		add_filter( 'messages_template_compose', array( &$this, 'messages_template' ) );
-		add_filter( 'bp_user_can_create_groups', array( &$this, 'create_groups' ) );
-		add_filter( 'bp_blogs_is_blog_recordable', array( &$this, 'prosites_filter_blogs' ), 10, 2 );
-		add_filter( 'bp_blogs_is_blog_recordable_for_user', array( &$this, 'prosites_filter_blogs' ), 10, 3 );
-		add_filter( 'psts_downgrade', array( &$this, 'downgrade_blog' ), 10, 3 );
-		add_filter( 'psts_upgrade', array( &$this, 'upgrade_blog' ), 10, 3 );
-		add_action( 'wp_head', array( &$this, 'css_output' ) );
 		self::$user_label       = __( 'Buddy Press', 'psts' );
 		self::$user_description = __( 'Limited group creation and messaging', 'psts' );
+
+		if ( ! is_main_site( get_current_blog_id() ) ) {
+			add_filter( 'messages_template_compose', array( &$this, 'messages_template' ) );
+			add_filter( 'bp_user_can_create_groups', array( &$this, 'create_groups' ) );
+			add_filter( 'bp_blogs_is_blog_recordable', array( &$this, 'prosites_filter_blogs' ), 10, 2 );
+			add_filter( 'bp_blogs_is_blog_recordable_for_user', array( &$this, 'prosites_filter_blogs' ), 10, 3 );
+			add_filter( 'psts_downgrade', array( &$this, 'downgrade_blog' ), 10, 3 );
+			add_filter( 'psts_upgrade', array( &$this, 'upgrade_blog' ), 10, 3 );
+			add_action( 'wp_head', array( &$this, 'css_output' ) );
+		}
 	}
 
 	/**

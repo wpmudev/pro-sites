@@ -21,12 +21,10 @@ class ProSites_Module_XMLRPC {
 
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
-			return;
+		if ( ! is_main_site( get_current_blog_id() ) ) {
+			add_filter( 'init', array( &$this, 'xmlrpc_check' ) );
+			add_action( 'admin_notices', array( &$this, 'message' ) );
 		}
-		add_filter( 'init', array( &$this, 'xmlrpc_check' ) );
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_action( 'admin_notices', array( &$this, 'message' ) );
 
 		self::$user_label       = __( 'XML RPC', 'psts' );
 		self::$user_description = __( 'Can use XML RPC calls', 'psts' );

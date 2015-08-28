@@ -34,30 +34,29 @@ class ProSites_Module_Quota {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_action( 'psts_settings_process', array( &$this, 'settings_process' ), 10, 1 );
-
-		//add messages
-		add_action( 'activity_box_end', array( &$this, 'message' ), 11 );
-		add_action( 'pre-upload-ui', array( &$this, 'message' ), 11 );
-		add_action( 'admin_notices', array( &$this, 'out_message' ) );
-
 		self::$user_label       = __( 'Quota', 'psts' );
 		self::$user_description = __( 'Upload quota', 'psts' );
 
 		//add checkout grid text
 		$this->checkout_name = __( 'Upload Space', 'psts' ); //can only i18n in _construct()
 		$this->checkout_desc = __( 'Get additional upload space for your images, media, and other files.', 'psts' ); //can only i18n in _construct()
-		add_filter( 'psts_checkout_item-ProSites_Module_Quota', array(
-			&$this,
-			'checkout_output'
-		), 10, 2 ); //note the classname is part of the filter
 
-		// Using footer to make sure it loads after the media grid
-		add_action( 'admin_footer', array( &$this, 'add_quota_to_library' ) );
+		add_action( 'psts_settings_process', array( &$this, 'settings_process' ), 10, 1 );
+
+		if ( ! is_main_site( get_current_blog_id() ) ) {
+			//add messages
+			add_action( 'activity_box_end', array( &$this, 'message' ), 11 );
+			add_action( 'pre-upload-ui', array( &$this, 'message' ), 11 );
+			add_action( 'admin_notices', array( &$this, 'out_message' ) );
+
+			add_filter( 'psts_checkout_item-ProSites_Module_Quota', array(
+				&$this,
+				'checkout_output'
+			), 10, 2 ); //note the classname is part of the filter
+
+			// Using footer to make sure it loads after the media grid
+			add_action( 'admin_footer', array( &$this, 'add_quota_to_library' ) );
+		}
 	}
 
 	//get's passed a given level, return string for custom text, or bool for checkmark

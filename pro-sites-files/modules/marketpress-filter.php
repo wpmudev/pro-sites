@@ -27,9 +27,6 @@ class ProSites_Module_MarketPress_Global {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
 		add_filter( 'mp_list_global_products_results', array( &$this, 'filter' ) );
 
 		self::$user_label       = __( 'Market Press', 'psts' );

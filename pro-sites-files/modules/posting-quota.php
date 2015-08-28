@@ -20,27 +20,29 @@ class ProSites_Module_PostingQuota {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
-		/**
-		 * Add warning
-		 */
-		add_action( 'admin_notices', array( &$this, 'message' ) );
-		/**
-		 * Check limit before publishing
-		 */
-		add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
-		/**
-		 * Remove publish option if limit reached
-		 *
-		 */
-		add_action( 'post_submitbox_misc_actions', array( $this, 'remove_publish_option' ) );
+		global $psts;
 
 		self::$user_label       = __( 'Posting Quotas', 'psts' );
 		self::$user_description = __( 'Limited post types', 'psts' );
 
-		add_filter( 'wp_handle_upload_prefilter', array( $this, 'limit_media_upload' ) );
+		if ( ! is_main_site( get_current_blog_id() ) && !is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
+
+			/**
+			 * Add warning
+			 */
+			add_action( 'admin_notices', array( &$this, 'message' ) );
+			/**
+			 * Check limit before publishing
+			 */
+			add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
+			/**
+			 * Remove publish option if limit reached
+			 *
+			 */
+			add_action( 'post_submitbox_misc_actions', array( $this, 'remove_publish_option' ) );
+
+			add_filter( 'wp_handle_upload_prefilter', array( $this, 'limit_media_upload' ) );
+		}
 	}
 
 	function settings() {
@@ -97,14 +99,14 @@ class ProSites_Module_PostingQuota {
 								<input type="text" name="psts[pq_quotas][<?php echo $post_type->name; ?>][message]" value="<?php echo esc_attr( $quota_msg ); ?>" style="width: 90%"/>
 							</td>
 						</tr>
-					<?php
+						<?php
 					}
 				}
 				?>
 			</table>
 		</div>
 		<!--		</div>-->
-	<?php
+		<?php
 	}
 
 	/**
@@ -296,10 +298,10 @@ class ProSites_Module_PostingQuota {
 		if ( ! $this->media_upload_exceeded() ) {
 			return $file;
 		} else {
-			$level = $psts->get_level() + 1;
-			$name = $psts->get_level_setting( $level, 'name' );
+			$level   = $psts->get_level() + 1;
+			$name    = $psts->get_level_setting( $level, 'name' );
 			$message = ! empty( $quota_settings['attachment']['message'] ) ? $quota_settings['attachment']['message'] : __( "You've reached the publishing limit, To publish more Media, please upgrade to LEVEL »", 'psts' );
-			if( !empty( $name ) ) {
+			if ( ! empty( $name ) ) {
 				$message = str_replace( 'LEVEL', $name, $message );
 			}
 			$file['error'] = $message;

@@ -7,6 +7,11 @@ Change Log:
 
 ----------------------------------------------------------------------
 
+3.5.1.3 - 08/28/2015 - Umesh Kumar
+-Fixed: Premium Theme/ Plugin menu missing for admin
+-Fixed: Deprecated warning for widget
+-Fixed: Quota: Post/Page/Upload limit issue
+
 3.5.1.2 - 08/27/2015 - Umesh Kumar
 - Fixed: Payment amount comes to zero for existing expired sites
 - Fixed: Checkout: Monthly plan being selected if period selector is displayed at top

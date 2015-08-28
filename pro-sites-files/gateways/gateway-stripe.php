@@ -139,6 +139,9 @@ class ProSites_Gateway_Stripe {
 	function admin_notices() {
 		global $psts;
 		$blog_id = get_current_blog_id();
+		if( is_main_site( $blog_id ) ) {
+			return;
+		}
 		if ( 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
 			$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 			$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );

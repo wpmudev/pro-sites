@@ -98,7 +98,7 @@ class ProSites_Pro_Widget extends WP_Widget {
 		$widget_ops = array( 'classname'   => 'psts_widget',
 		                     'description' => sprintf( __( 'Proudly display your %s status in you sidebar!', 'psts' ), $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' ) )
 		);
-		$this->WP_Widget( 'psts_widget', sprintf( __( '%s Widget', 'psts' ), $psts->get_setting( 'rebrand' ) ), $widget_ops );
+		WP_Widget::__construct( 'psts_widget', sprintf( __( '%s Widget', 'psts' ), $psts->get_setting( 'rebrand' ) ), $widget_ops );
 	}
 
 	function widget( $args, $instance ) {
@@ -106,26 +106,23 @@ class ProSites_Pro_Widget extends WP_Widget {
 		$level      = $psts->get_level( $blog_id );
 		$level_name = $psts->get_level_setting( $level, 'name' );
 		$images     = $psts->get_setting( 'widget_imgs', array() );
-
-		//if image not set
-		//if ( !isset($images[$level]) || empty($images[$level]) )
-		//	return;
-
 		extract( $args );
+		if( !empty( $images[$level]) ) {
 
-		echo $before_widget;
-		?>
-		<center>
-			<?php if ( ! empty( $images['link'] ) ) {
-				echo '<a href="' . esc_url( $images['link'] ) . '">';
-			} ?>
-			<img src="<?php echo esc_url( $images[ $level ] ); ?>" alt="<?php printf( __( 'A proud %s site.', 'psts' ), esc_attr( $level_name ) ); ?>" border="0"/>
-			<?php if ( ! empty( $images['link'] ) ) {
-				echo '</a>';
-			} ?>
-		</center>
-		<?php
-		echo $after_widget;
+			echo $before_widget;
+			?>
+			<center>
+				<?php if ( ! empty( $images['link'] ) ) {
+					echo '<a href="' . esc_url( $images['link'] ) . '">';
+				} ?>
+				<img src="<?php echo esc_url( $images[ $level ] ); ?>" alt="<?php printf( __( 'A proud %s site.', 'psts' ), esc_attr( $level_name ) ); ?>" border="0"/>
+				<?php if ( ! empty( $images['link'] ) ) {
+					echo '</a>';
+				} ?>
+			</center>
+			<?php
+			echo $after_widget;
+		}
 	}
 
 	/*

@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.2
+Version: 3.5.1.3
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.2';
+	var $version = '3.5.1.3';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -103,7 +103,7 @@ class ProSites {
 		foreach ( $modules as $module ) {
 				ProSites_PluginLoader::require_module( $module );
 				// Making sure that important filters are in place rather than loading too late
-				if( method_exists( $module, 'run_critical_tasks' ) && !is_main_site( get_current_blog_id() ) ) {
+				if( method_exists( $module, 'run_critical_tasks' ) ) {
 					call_user_func( array(  $module, 'run_critical_tasks' ) );
 				}
 		}
