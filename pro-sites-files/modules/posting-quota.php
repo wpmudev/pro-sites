@@ -24,8 +24,9 @@ class ProSites_Module_PostingQuota {
 
 		self::$user_label       = __( 'Posting Quotas', 'psts' );
 		self::$user_description = __( 'Limited post types', 'psts' );
+		$blog_id = get_current_blog_id();
 
-		if ( ! is_main_site( get_current_blog_id() ) && !is_pro_site( false, $psts->get_setting( 'pq_level', 1 ) ) ) {
+		if ( ! is_main_site( $blog_id ) && !is_pro_site( $blog_id, $psts->get_setting( 'pq_level', 1 ) ) ) {
 
 			/**
 			 * Add warning

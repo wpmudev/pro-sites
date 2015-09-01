@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.3';
+	var $version = '3.5.1.4-beta2';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -4524,14 +4524,6 @@ function admin_levels() {
 				}
 				$content .= '</div>';
 
-				// Signup for another blog?
-				$allow_multi = $this->get_setting('multiple_signup');
-				$registeration = get_site_option('registration');
-				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
-
-				if( $allow_multi ) {
-					$content .= '<div id="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
-				}
 				$content .= apply_filters( 'prosites_myaccounts_list', '', $blog_id );
 
 			}
@@ -4551,13 +4543,15 @@ function admin_levels() {
 
 			if( !empty( $user_login ) ) {
 				//Query Signup table for domain name
-				$query = $wpdb->prepare("SELECT `domain` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
-				$user_domain = $wpdb->get_var( $query );
+				$query = $wpdb->prepare("SELECT `domain`, `active` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
+				$site = $wpdb->get_row( $query );
+				$user_domain = !empty( $site->domain ) ? $site->domain : false;
 			}
 
 			if( !empty( $user_domain ) && $allow_multi ) {
 				//Already have a site, allow to signup for another
-				$content .= '<div class="psts-signup-another">' . sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				$inactive_site = !empty( $site->active ) && 1 == $site->active ? '': sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/>';
+				$content .= '<div class="psts-signup-another">' . $inactive_site . '<a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 			}elseif( empty( $user_domain ) ) {
 				//Don't have a site, let user create one
 				$content .= '<div class="psts-signup"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for a site.', 'psts' ) . '</a>' . '</div>';
