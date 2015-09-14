@@ -7,7 +7,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1.4 - 09/01/2015 - Umesh Kumar
+3.5.1.4 - 09/09/2015 - Umesh Kumar
 
 -Fixed: Checkout: Multiple Signup link, if Multiple blog signup is allowed
 -Fixed: Stripe: Multiple Blog signup issue

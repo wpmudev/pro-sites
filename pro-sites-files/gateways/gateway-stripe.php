@@ -72,8 +72,9 @@ class ProSites_Gateway_Stripe {
 			'create_transaction_object'
 		), 10, 3 );
 
+		$stripe_version = $psts->get_setting( 'stripe_version' );
 		//update install script if necessary
-		if ( empty( $psts->get_setting( 'stripe_version' ) ) || $psts->get_setting( 'stripe_version' ) != $psts->version ) {
+		if ( empty( $stripe_version ) || $stripe_version != $psts->version ) {
 			$this->install();
 		}
 	}

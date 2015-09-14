@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites\n"
-"POT-Creation-Date: 2015-08-28 12:49+0530\n"
+"POT-Creation-Date: 2015-09-14 16:59+0530\n"
 "PO-Revision-Date: 2015-08-03 15:10+0530\n"
 "Last-Translator: Umesh <umeshsingla05@gmail.com>\n"
 "Language-Team: Umesh <umeshsingla05@gmail.com>\n"
@@ -347,7 +347,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:170
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:247
-#: pro-sites-files/gateways/gateway-stripe.php:253
+#: pro-sites-files/gateways/gateway-stripe.php:254
 msgid "Thank You Message"
 msgstr ""
 
@@ -370,7 +370,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1578
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1741
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2081
-#: pro-sites-files/gateways/gateway-stripe.php:1996
+#: pro-sites-files/gateways/gateway-stripe.php:1997
 msgid "Please choose your desired level and payment plan."
 msgstr ""
 
@@ -461,7 +461,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:580
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:908
-#: pro-sites-files/gateways/gateway-stripe.php:1040
+#: pro-sites-files/gateways/gateway-stripe.php:1041
 msgid ""
 "Please note that if you cancel your subscription you will not be immune to "
 "future price increases. The price of un-canceled subscriptions will never go "
@@ -476,7 +476,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:633
 #: pro-sites-files/gateways/gateway-manual.php:483
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1192
-#: pro-sites-files/gateways/gateway-stripe.php:1815
+#: pro-sites-files/gateways/gateway-stripe.php:1816
 #, php-format
 msgid ""
 "Your %1$s subscription has been canceled. You should continue to have access "
@@ -491,7 +491,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:639
-#: pro-sites-files/gateways/gateway-stripe.php:1817
+#: pro-sites-files/gateways/gateway-stripe.php:1818
 msgid ""
 "There was a problem canceling your subscription, please contact us for help: "
 msgstr ""
@@ -509,7 +509,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:667
 #: pro-sites-files/gateways/gateway-2checkout.php:729
 #: pro-sites-files/gateways/gateway-manual.php:119
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:211
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:208
 msgid "Level:"
 msgstr ""
 
@@ -540,7 +540,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-manual.php:133
 #: pro-sites-files/gateways/gateway-manual.php:138
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2449
-#: pro-sites-files/gateways/gateway-stripe.php:2784
+#: pro-sites-files/gateways/gateway-stripe.php:2785
 #: pro-sites-files/lib/ProSites/Helper/ProSite.php:90
 msgid "Cancel Your Subscription"
 msgstr ""
@@ -553,7 +553,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2538
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2559
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2593
-#: pro-sites-files/gateways/gateway-stripe.php:2783
+#: pro-sites-files/gateways/gateway-stripe.php:2784
 #: pro-sites-files/lib/ProSites/Helper/ProSite.php:89
 #, php-format
 msgid ""
@@ -563,13 +563,13 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:689
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2549
-#: pro-sites-files/gateways/gateway-stripe.php:2725
+#: pro-sites-files/gateways/gateway-stripe.php:2726
 msgid "Your subscription has been canceled"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:690
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2550
-#: pro-sites-files/gateways/gateway-stripe.php:2726
+#: pro-sites-files/gateways/gateway-stripe.php:2727
 #, php-format
 msgid "This site should continue to have %1$s features until %2$s."
 msgstr ""
@@ -671,7 +671,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:800
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1476
-#: pro-sites-files/gateways/gateway-stripe.php:1959
+#: pro-sites-files/gateways/gateway-stripe.php:1960
 msgid "Subscribe"
 msgstr ""
 
@@ -684,7 +684,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:979
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:491
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:516
-#: pro-sites-files/gateways/gateway-stripe.php:405
+#: pro-sites-files/gateways/gateway-stripe.php:406
 #, php-format
 msgid "They should continue to have access until %s."
 msgstr ""
@@ -709,7 +709,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:502
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:527
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:566
-#: pro-sites-files/gateways/gateway-stripe.php:433
+#: pro-sites-files/gateways/gateway-stripe.php:434
 #, php-format
 msgid "Last Payment Date: <strong>%s</strong>"
 msgstr ""
@@ -722,7 +722,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:504
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:529
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:567
-#: pro-sites-files/gateways/gateway-stripe.php:435
+#: pro-sites-files/gateways/gateway-stripe.php:436
 #, php-format
 msgid "Last Payment Amount: <strong>%s</strong>"
 msgstr ""
@@ -736,7 +736,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:1062
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:404
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:457
-#: pro-sites-files/gateways/gateway-stripe.php:371
+#: pro-sites-files/gateways/gateway-stripe.php:372
 #: pro-sites-files/lib/ProSites/View/Pricing.php:578
 #: pro-sites-files/lib/ProSites/View/Pricing.php:610
 #: pro-sites-files/lib/ProSites/View/Pricing.php:648
@@ -753,7 +753,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:944
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:479
-#: pro-sites-files/gateways/gateway-stripe.php:441
+#: pro-sites-files/gateways/gateway-stripe.php:442
 #, php-format
 msgid "Next Payment Date: <strong>%s</strong>"
 msgstr ""
@@ -824,13 +824,13 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1109
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:673
-#: pro-sites-files/gateways/gateway-stripe.php:574
+#: pro-sites-files/gateways/gateway-stripe.php:575
 msgid "Cancelations:"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1111
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:674
-#: pro-sites-files/gateways/gateway-stripe.php:575
+#: pro-sites-files/gateways/gateway-stripe.php:576
 msgid "Cancel Subscription Only"
 msgstr ""
 
@@ -840,15 +840,15 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:675
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:687
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:691
-#: pro-sites-files/gateways/gateway-stripe.php:576
-#: pro-sites-files/gateways/gateway-stripe.php:580
+#: pro-sites-files/gateways/gateway-stripe.php:577
+#: pro-sites-files/gateways/gateway-stripe.php:581
 #, php-format
 msgid "Their access will expire on %s"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1123
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:686
-#: pro-sites-files/gateways/gateway-stripe.php:579
+#: pro-sites-files/gateways/gateway-stripe.php:580
 #, php-format
 msgid "Cancel Subscription and Refund Full (%s) Last Payment"
 msgstr ""
@@ -863,7 +863,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:1149
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:695
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:707
-#: pro-sites-files/gateways/gateway-stripe.php:586
+#: pro-sites-files/gateways/gateway-stripe.php:587
 msgid "Refunds:"
 msgstr ""
 
@@ -871,7 +871,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:1151
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:696
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:708
-#: pro-sites-files/gateways/gateway-stripe.php:587
+#: pro-sites-files/gateways/gateway-stripe.php:588
 #, php-format
 msgid "Refund Full (%s) Last Payment"
 msgstr ""
@@ -884,8 +884,8 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:700
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:709
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:712
-#: pro-sites-files/gateways/gateway-stripe.php:588
-#: pro-sites-files/gateways/gateway-stripe.php:591
+#: pro-sites-files/gateways/gateway-stripe.php:589
+#: pro-sites-files/gateways/gateway-stripe.php:592
 msgid "Their subscription and access will continue"
 msgstr ""
 
@@ -893,7 +893,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:1155
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:699
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:711
-#: pro-sites-files/gateways/gateway-stripe.php:590
+#: pro-sites-files/gateways/gateway-stripe.php:591
 #, php-format
 msgid "Refund a Partial %s Amount of Last Payment"
 msgstr ""
@@ -902,8 +902,8 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-manual.php:479
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:746
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1188
-#: pro-sites-files/gateways/gateway-stripe.php:634
-#: pro-sites-files/gateways/gateway-stripe.php:1770
+#: pro-sites-files/gateways/gateway-stripe.php:635
+#: pro-sites-files/gateways/gateway-stripe.php:1771
 #, php-format
 msgid ""
 "Subscription successfully cancelled by %1$s. They should continue to have "
@@ -912,7 +912,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1190
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:747
-#: pro-sites-files/gateways/gateway-stripe.php:635
+#: pro-sites-files/gateways/gateway-stripe.php:636
 #, php-format
 msgid ""
 "Subscription successfully cancelled. They should continue to have access "
@@ -921,7 +921,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1193
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:750
-#: pro-sites-files/gateways/gateway-stripe.php:639
+#: pro-sites-files/gateways/gateway-stripe.php:640
 #, php-format
 msgid "Attempt to Cancel Subscription by %1$s failed with an error: %2$s"
 msgstr ""
@@ -987,7 +987,7 @@ msgstr ""
 #: pro-sites-files/gateways/gateway-2checkout.php:1269
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:795
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:826
-#: pro-sites-files/gateways/gateway-stripe.php:662
+#: pro-sites-files/gateways/gateway-stripe.php:663
 #, php-format
 msgid ""
 "Attempt to Cancel Subscription and Refund Prorated (%1$s) Last Payment by "
@@ -1003,7 +1003,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1261
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:818
-#: pro-sites-files/gateways/gateway-stripe.php:681
+#: pro-sites-files/gateways/gateway-stripe.php:682
 #, php-format
 msgid ""
 "Subscription cancelled and a prorated (%1$s) refund of last payment "
@@ -1012,7 +1012,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1262
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:819
-#: pro-sites-files/gateways/gateway-stripe.php:682
+#: pro-sites-files/gateways/gateway-stripe.php:683
 #, php-format
 msgid ""
 "Subscription cancelled and a prorated (%s) refund of last payment were "
@@ -1021,7 +1021,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1265
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:822
-#: pro-sites-files/gateways/gateway-stripe.php:685
+#: pro-sites-files/gateways/gateway-stripe.php:686
 #, php-format
 msgid ""
 "Subscription cancelled, but prorated (%1$s) refund of last payment by %2$s "
@@ -1030,7 +1030,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1266
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:823
-#: pro-sites-files/gateways/gateway-stripe.php:686
+#: pro-sites-files/gateways/gateway-stripe.php:687
 #, php-format
 msgid ""
 "Subscription cancelled, but prorated (%1$s) refund of last payment returned "
@@ -1039,7 +1039,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1281
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:839
-#: pro-sites-files/gateways/gateway-stripe.php:697
+#: pro-sites-files/gateways/gateway-stripe.php:698
 #, php-format
 msgid ""
 "A full (%1$s) refund of last payment completed by %2$s The subscription was "
@@ -1048,7 +1048,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1282
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:840
-#: pro-sites-files/gateways/gateway-stripe.php:698
+#: pro-sites-files/gateways/gateway-stripe.php:699
 #, php-format
 msgid ""
 "A full (%s) refund of last payment was successfully completed. The "
@@ -1057,7 +1057,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1285
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:843
-#: pro-sites-files/gateways/gateway-stripe.php:702
+#: pro-sites-files/gateways/gateway-stripe.php:703
 #, php-format
 msgid ""
 "Attempt to issue a full (%1$s) refund of last payment by %2$s returned an "
@@ -1066,7 +1066,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1286
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:844
-#: pro-sites-files/gateways/gateway-stripe.php:703
+#: pro-sites-files/gateways/gateway-stripe.php:704
 #, php-format
 msgid ""
 "Attempt to issue a full (%1$s) refund of last payment returned an error: %2$s"
@@ -1079,7 +1079,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1298
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:856
-#: pro-sites-files/gateways/gateway-stripe.php:713
+#: pro-sites-files/gateways/gateway-stripe.php:714
 #, php-format
 msgid ""
 "A partial (%1$s) refund of last payment completed by %2$s The subscription "
@@ -1088,7 +1088,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1299
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:857
-#: pro-sites-files/gateways/gateway-stripe.php:714
+#: pro-sites-files/gateways/gateway-stripe.php:715
 #, php-format
 msgid ""
 "A partial (%s) refund of last payment was successfully completed. The "
@@ -1097,7 +1097,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1302
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:860
-#: pro-sites-files/gateways/gateway-stripe.php:718
+#: pro-sites-files/gateways/gateway-stripe.php:719
 #, php-format
 msgid ""
 "Attempt to issue a partial (%1$s) refund of last payment by %2$s returned an "
@@ -1106,7 +1106,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-2checkout.php:1303
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:861
-#: pro-sites-files/gateways/gateway-stripe.php:719
+#: pro-sites-files/gateways/gateway-stripe.php:720
 #, php-format
 msgid ""
 "Attempt to issue a partial (%1$s) refund of last payment returned an error: "
@@ -1322,7 +1322,7 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:450
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2455
-#: pro-sites-files/gateways/gateway-stripe.php:2673
+#: pro-sites-files/gateways/gateway-stripe.php:2674
 #: pro-sites-files/lib/ProSites/Helper/ProSite.php:80
 msgid ""
 "You are still within your trial period. Once your trial finishes your "
@@ -1331,25 +1331,25 @@ msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:455
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2465
-#: pro-sites-files/gateways/gateway-stripe.php:151
-#: pro-sites-files/gateways/gateway-stripe.php:2681
+#: pro-sites-files/gateways/gateway-stripe.php:152
+#: pro-sites-files/gateways/gateway-stripe.php:2682
 msgid ""
 "There are pending changes to your account. This message will disappear once "
 "these pending changes are completed."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:566
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:618
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:615
 msgid "monthly"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:567
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:619
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:616
 msgid "quarterly"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:568
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:620
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:617
 msgid "anually"
 msgstr ""
 
@@ -1365,7 +1365,7 @@ msgid ""
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-manual.php:583
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:642
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:639
 msgid "Go back to your account."
 msgstr ""
 
@@ -1590,62 +1590,62 @@ msgid "Reminder to cancel previous %s subscription sent to %s"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:373
-#: pro-sites-files/gateways/gateway-stripe.php:341
+#: pro-sites-files/gateways/gateway-stripe.php:342
 msgid "Jan"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:374
-#: pro-sites-files/gateways/gateway-stripe.php:342
+#: pro-sites-files/gateways/gateway-stripe.php:343
 msgid "Feb"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:375
-#: pro-sites-files/gateways/gateway-stripe.php:343
+#: pro-sites-files/gateways/gateway-stripe.php:344
 msgid "Mar"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:376
-#: pro-sites-files/gateways/gateway-stripe.php:344
+#: pro-sites-files/gateways/gateway-stripe.php:345
 msgid "Apr"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:377
-#: pro-sites-files/gateways/gateway-stripe.php:345
+#: pro-sites-files/gateways/gateway-stripe.php:346
 msgid "May"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:378
-#: pro-sites-files/gateways/gateway-stripe.php:346
+#: pro-sites-files/gateways/gateway-stripe.php:347
 msgid "Jun"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:379
-#: pro-sites-files/gateways/gateway-stripe.php:347
+#: pro-sites-files/gateways/gateway-stripe.php:348
 msgid "Jul"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:380
-#: pro-sites-files/gateways/gateway-stripe.php:348
+#: pro-sites-files/gateways/gateway-stripe.php:349
 msgid "Aug"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:381
-#: pro-sites-files/gateways/gateway-stripe.php:349
+#: pro-sites-files/gateways/gateway-stripe.php:350
 msgid "Sep"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:382
-#: pro-sites-files/gateways/gateway-stripe.php:350
+#: pro-sites-files/gateways/gateway-stripe.php:351
 msgid "Oct"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:383
-#: pro-sites-files/gateways/gateway-stripe.php:351
+#: pro-sites-files/gateways/gateway-stripe.php:352
 msgid "Nov"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:384
-#: pro-sites-files/gateways/gateway-stripe.php:352
+#: pro-sites-files/gateways/gateway-stripe.php:353
 msgid "Dec"
 msgstr ""
 
@@ -1668,7 +1668,7 @@ msgid "PayPal Profile ID: <strong>%s</strong>"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:469
-#: pro-sites-files/gateways/gateway-stripe.php:427
+#: pro-sites-files/gateways/gateway-stripe.php:428
 #, php-format
 msgid ""
 "Payment Method: <strong>%1$s Card</strong> ending in <strong>%2$s</strong>. "
@@ -1695,7 +1695,7 @@ msgid "Aggregate Total With This Subscription: <strong>%s</strong>"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:483
-#: pro-sites-files/gateways/gateway-stripe.php:445
+#: pro-sites-files/gateways/gateway-stripe.php:446
 msgid ""
 "This does not include the initial payment at signup, or payments before the "
 "last payment method/plan change."
@@ -1884,25 +1884,25 @@ msgid "Card Type:"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1413
-#: pro-sites-files/gateways/gateway-stripe.php:1934
+#: pro-sites-files/gateways/gateway-stripe.php:1935
 msgid "Card Number:"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1419
-#: pro-sites-files/gateways/gateway-stripe.php:1940
+#: pro-sites-files/gateways/gateway-stripe.php:1941
 msgid "Expiration Date:"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1426
-#: pro-sites-files/gateways/gateway-stripe.php:1947
+#: pro-sites-files/gateways/gateway-stripe.php:1948
 msgid "Card Security Code:"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1427
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1428
-#: pro-sites-files/gateways/gateway-stripe.php:102
-#: pro-sites-files/gateways/gateway-stripe.php:1950
+#: pro-sites-files/gateways/gateway-stripe.php:103
 #: pro-sites-files/gateways/gateway-stripe.php:1951
+#: pro-sites-files/gateways/gateway-stripe.php:1952
 msgid ""
 "Please enter a valid card security code. This is the 3 digits on the "
 "signature panel, or 4 digits on the front of Amex cards."
@@ -1945,52 +1945,52 @@ msgid "Country:"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1477
-#: pro-sites-files/gateways/gateway-stripe.php:1960
+#: pro-sites-files/gateways/gateway-stripe.php:1961
 msgid "Processing..."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1685
-#: pro-sites-files/gateways/gateway-stripe.php:2180
+#: pro-sites-files/gateways/gateway-stripe.php:2181
 #, php-format
 msgid "%1$s for the first month, then %2$s each month"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1687
-#: pro-sites-files/gateways/gateway-stripe.php:2182
+#: pro-sites-files/gateways/gateway-stripe.php:2183
 #, php-format
 msgid "%1$s for the first %2$s month period, then %3$s every %4$s months"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1692
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1718
-#: pro-sites-files/gateways/gateway-stripe.php:2189
-#: pro-sites-files/gateways/gateway-stripe.php:2207
+#: pro-sites-files/gateways/gateway-stripe.php:2190
+#: pro-sites-files/gateways/gateway-stripe.php:2208
 #, php-format
 msgid "%1$s for 1 month"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1694
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1720
-#: pro-sites-files/gateways/gateway-stripe.php:2191
-#: pro-sites-files/gateways/gateway-stripe.php:2209
+#: pro-sites-files/gateways/gateway-stripe.php:2192
+#: pro-sites-files/gateways/gateway-stripe.php:2210
 #, php-format
 msgid "%1$s for %2$s months"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1704
-#: pro-sites-files/gateways/gateway-stripe.php:2197
+#: pro-sites-files/gateways/gateway-stripe.php:2198
 #, php-format
 msgid "%1$s %2$s each month"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1706
-#: pro-sites-files/gateways/gateway-stripe.php:2199
+#: pro-sites-files/gateways/gateway-stripe.php:2200
 #, php-format
 msgid "%1$s %2$s every %3$s months"
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:1726
-#: pro-sites-files/gateways/gateway-stripe.php:2495
+#: pro-sites-files/gateways/gateway-stripe.php:2496
 #, php-format
 msgid "(includes tax of %s%% [%s])"
 msgstr ""
@@ -2162,7 +2162,7 @@ msgid "Please choose a Card Type."
 msgstr ""
 
 #: pro-sites-files/gateways/gateway-paypal-express-pro.php:2092
-#: pro-sites-files/gateways/gateway-stripe.php:100
+#: pro-sites-files/gateways/gateway-stripe.php:101
 msgid "Please enter a valid Credit Card Number."
 msgstr ""
 
@@ -2317,22 +2317,22 @@ msgid ""
 "widely accepted payment method."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:99
+#: pro-sites-files/gateways/gateway-stripe.php:100
 msgid "Please enter the full Cardholder Name."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:101
+#: pro-sites-files/gateways/gateway-stripe.php:102
 msgid "Please choose a valid expiration date."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:150
+#: pro-sites-files/gateways/gateway-stripe.php:151
 #, php-format
 msgid ""
 "You are currently signed up for your chosen plan, %s. The first payment is "
 "due on %s. Enjoy your free trial."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:200
+#: pro-sites-files/gateways/gateway-stripe.php:201
 msgid ""
 "Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club "
 "cards directly on your site. You don't need a merchant account or gateway. "
@@ -2342,12 +2342,12 @@ msgid ""
 "requirements."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:201
-#: pro-sites-files/gateways/gateway-stripe.php:213
+#: pro-sites-files/gateways/gateway-stripe.php:202
+#: pro-sites-files/gateways/gateway-stripe.php:214
 msgid "More Info &raquo;"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:203
+#: pro-sites-files/gateways/gateway-stripe.php:204
 #, php-format
 msgid ""
 "To use Stripe you must <a href=\"https://manage.stripe.com/#account/webhooks"
@@ -2355,37 +2355,37 @@ msgid ""
 "account."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:206
+#: pro-sites-files/gateways/gateway-stripe.php:207
 msgid "Stripe Mode"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:209
+#: pro-sites-files/gateways/gateway-stripe.php:210
 msgid "Force SSL (Live Site)"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:210
+#: pro-sites-files/gateways/gateway-stripe.php:211
 msgid "No SSL (Testing)"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:212
+#: pro-sites-files/gateways/gateway-stripe.php:213
 msgid ""
 "When in live mode Stripe recommends you have an SSL certificate setup for "
 "your main blog/site where the checkout form will be displayed."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:217
+#: pro-sites-files/gateways/gateway-stripe.php:218
 msgid "Stripe API Credentials"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:219
+#: pro-sites-files/gateways/gateway-stripe.php:220
 msgid "Secret key"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:223
+#: pro-sites-files/gateways/gateway-stripe.php:224
 msgid "Publishable key"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:226
+#: pro-sites-files/gateways/gateway-stripe.php:227
 msgid ""
 "You must login to Stripe to <a target=\"_blank\" href=\"https://manage."
 "stripe.com/#account/apikeys\">get your API credentials</a>. You can enter "
@@ -2396,255 +2396,255 @@ msgid ""
 "checkout or management of the site."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:230
+#: pro-sites-files/gateways/gateway-stripe.php:231
 msgid "Stripe Currency"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:249
+#: pro-sites-files/gateways/gateway-stripe.php:250
 msgid "The currency must match the currency of your Stripe account."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:253
+#: pro-sites-files/gateways/gateway-stripe.php:254
 msgid ""
 "Displayed on successful checkout. This is also a good place to paste any "
 "conversion tracking scripts like from Google Analytics. - HTML allowed"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:404
+#: pro-sites-files/gateways/gateway-stripe.php:405
 msgid "The Subscription Has Been Cancelled in Stripe"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:408
+#: pro-sites-files/gateways/gateway-stripe.php:409
 #, php-format
 msgid ""
 "Stripe Customer ID: <strong><a href=\"https://manage.stripe.com/#test/"
 "customers/%s\" target=\"_blank\">%s</a></strong>"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:436
+#: pro-sites-files/gateways/gateway-stripe.php:437
 #, php-format
 msgid "Last Payment Invoice ID: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:448
+#: pro-sites-files/gateways/gateway-stripe.php:449
 msgid ""
 "This site is using different gateway so their information is not accessible."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:478
+#: pro-sites-files/gateways/gateway-stripe.php:479
 msgid "Type: "
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:479
+#: pro-sites-files/gateways/gateway-stripe.php:480
 msgid "Brand: "
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:480
+#: pro-sites-files/gateways/gateway-stripe.php:481
 msgid "Country: "
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:487
+#: pro-sites-files/gateways/gateway-stripe.php:488
 msgid "Stripe returned an error retrieving the customer:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:490
+#: pro-sites-files/gateways/gateway-stripe.php:491
 msgid ""
 "This site is using a different gateway so their information is not "
 "accessible."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:663
+#: pro-sites-files/gateways/gateway-stripe.php:664
 #, php-format
 msgid ""
 "Whoops, Stripe returned an error when attempting to cancel the subscription. "
 "Nothing was completed: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1377
+#: pro-sites-files/gateways/gateway-stripe.php:1378
 #, php-format
 msgid ""
 "Stripe webhook \"%s\" received: The %s payment was successfully received. "
 "Date: \"%s\", Charge ID \"%s\""
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1392
+#: pro-sites-files/gateways/gateway-stripe.php:1393
 #, php-format
 msgid ""
 "Stripe webhook \"%1$s\" received: Customer successfully subscribed to %2$s "
 "%3$s: %4$s every %5$s %6$s."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1411
+#: pro-sites-files/gateways/gateway-stripe.php:1412
 #, php-format
 msgid ""
 "Stripe webhook \"%s\" received. The customer's subscription was successfully "
 "updated to %2$s %3$s: %4$s every %5$s %6$s."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1417
+#: pro-sites-files/gateways/gateway-stripe.php:1418
 #, php-format
 msgid ""
 "Stripe webhook \"%s\" received: The %s payment has failed. Date: \"%s\", "
 "Charge ID \"%s\""
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1422
+#: pro-sites-files/gateways/gateway-stripe.php:1423
 #, php-format
 msgid ""
 "Stripe webhook \"%s\" received: The customer disputed a charge with their "
 "bank (chargeback), Charge ID \"%s\""
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1428
+#: pro-sites-files/gateways/gateway-stripe.php:1429
 #, php-format
 msgid "Stripe webhook \"%s\" received: The subscription has been canceled"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1432
+#: pro-sites-files/gateways/gateway-stripe.php:1433
 #, php-format
 msgid "Stripe webhook \"%s\" received"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1435
+#: pro-sites-files/gateways/gateway-stripe.php:1436
 #, php-format
 msgid ": Customer ID: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1641
+#: pro-sites-files/gateways/gateway-stripe.php:1642
 #, php-format
 msgid "Plan Adjustments: %s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1701
+#: pro-sites-files/gateways/gateway-stripe.php:1702
 msgid "Coupon Applied"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1826
-#: pro-sites-files/gateways/gateway-stripe.php:2982
+#: pro-sites-files/gateways/gateway-stripe.php:1827
+#: pro-sites-files/gateways/gateway-stripe.php:2983
 #: pro-sites-files/lib/ProSites/Helper/Tabs/Gateways.php:63
 msgid "Stripe"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1911
+#: pro-sites-files/gateways/gateway-stripe.php:1912
 msgid "Last 4 Digits:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1915
+#: pro-sites-files/gateways/gateway-stripe.php:1916
 msgid "WordPress Password:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1916
+#: pro-sites-files/gateways/gateway-stripe.php:1917
 msgid "Enter the WordPress password that you login with."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1923
+#: pro-sites-files/gateways/gateway-stripe.php:1924
 msgid "Checkout With a Credit Card:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:1929
+#: pro-sites-files/gateways/gateway-stripe.php:1930
 msgid "Cardholder Name:"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2000
+#: pro-sites-files/gateways/gateway-stripe.php:2001
 msgid ""
 "There was an error processing your Credit Card with Stripe. Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2037
+#: pro-sites-files/gateways/gateway-stripe.php:2038
 #, php-format
 msgid "Stripe plan %1$s does not exist."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2050
-#: pro-sites-files/gateways/gateway-stripe.php:2095
+#: pro-sites-files/gateways/gateway-stripe.php:2051
+#: pro-sites-files/gateways/gateway-stripe.php:2096
 #, php-format
 msgid "%s user"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2061
-#: pro-sites-files/gateways/gateway-stripe.php:2102
+#: pro-sites-files/gateways/gateway-stripe.php:2062
+#: pro-sites-files/gateways/gateway-stripe.php:2103
 #, php-format
 msgid "%s user - %s "
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2075
+#: pro-sites-files/gateways/gateway-stripe.php:2076
 msgid "The Stripe customer could not be created. Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2090
+#: pro-sites-files/gateways/gateway-stripe.php:2091
 msgid "The Stripe customer could not be retrieved. Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2115
+#: pro-sites-files/gateways/gateway-stripe.php:2116
 msgid "The password you entered is incorrect."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2168
+#: pro-sites-files/gateways/gateway-stripe.php:2169
 msgid ""
 "Temporary Stripe coupon could not be generated correctly. Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2275
+#: pro-sites-files/gateways/gateway-stripe.php:2276
 msgid "One-time setup fee"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2299
+#: pro-sites-files/gateways/gateway-stripe.php:2300
 msgid "Error charging setup fee. Attention required!"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2300
+#: pro-sites-files/gateways/gateway-stripe.php:2301
 #, php-format
 msgid ""
 "An error occurred while charging a setup fee of %1$s to Stripe customer "
 "%2$s. You will need to manually process this amount."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2605
+#: pro-sites-files/gateways/gateway-stripe.php:2606
 msgid ""
 "An unknown error occurred while processing your payment. Please try again."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2618
+#: pro-sites-files/gateways/gateway-stripe.php:2619
 msgid "Error deleting temporary Stripe coupon code. Attention required!."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2619
+#: pro-sites-files/gateways/gateway-stripe.php:2620
 #, php-format
 msgid ""
 "An error occurred when attempting to delete temporary Stripe coupon code "
 "%1$s. You will need to manually delete this coupon via your Stripe account."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2629
+#: pro-sites-files/gateways/gateway-stripe.php:2630
 #, php-format
 msgid ""
 "User creating new subscription via CC: Subscription created (%1$s) - "
 "Customer ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2631
+#: pro-sites-files/gateways/gateway-stripe.php:2632
 #, php-format
 msgid ""
 "User completed new payment via CC: Site created/extended (%1$s) - Customer "
 "ID: %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2635
+#: pro-sites-files/gateways/gateway-stripe.php:2636
 #, php-format
 msgid "User modifying subscription via CC: Plan changed to (%1$s) - %2$s"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2643
+#: pro-sites-files/gateways/gateway-stripe.php:2644
 msgid ""
 "Your payment was successfully recorded! You should be receiving an email "
 "receipt shortly."
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2691
+#: pro-sites-files/gateways/gateway-stripe.php:2692
 msgid "Go to your site &raquo;"
 msgstr ""
 
-#: pro-sites-files/gateways/gateway-stripe.php:2982
+#: pro-sites-files/gateways/gateway-stripe.php:2983
 msgid ""
 "Stripe handles everything, including storing cards, subscriptions, and "
 "direct payouts to your bank account."
@@ -3030,7 +3030,7 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/Model/Settings.php:63
 #: pro-sites-files/modules/premium-plugins.php:410
-#: pro-sites-files/modules/premium-themes.php:304 pro-sites.php:4702
+#: pro-sites-files/modules/premium-themes.php:304 pro-sites.php:4696
 msgid "Settings Saved!"
 msgstr ""
 
@@ -3064,7 +3064,7 @@ msgstr ""
 #: pro-sites-files/modules/ads.php:417
 #: pro-sites-files/modules/bulk-upgrades.php:744
 #: pro-sites-files/modules/premium-plugins.php:367 pro-sites.php:2687
-#: pro-sites.php:3088 pro-sites.php:3522 pro-sites.php:3823 pro-sites.php:4690
+#: pro-sites.php:3088 pro-sites.php:3522 pro-sites.php:3823 pro-sites.php:4684
 msgid "Nice Try..."
 msgstr ""
 
@@ -3185,7 +3185,7 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Coupons.php:318
 #: pro-sites-files/modules/post-throttling.php:395
 #: pro-sites-files/modules/post-throttling.php:414
-#: pro-sites-files/modules/posting-quota.php:87
+#: pro-sites-files/modules/posting-quota.php:88
 msgid "Unlimited"
 msgstr ""
 
@@ -3455,176 +3455,175 @@ msgstr ""
 msgid "Enter Coupon Code"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:124
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:121
 #: pro-sites-files/lib/ProSites/View/Gateways.php:72
 msgid "Payment"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:127
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:124
 #: pro-sites-files/lib/ProSites/View/Gateways.php:85
 msgid "Alternate Payment"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:130
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:127
 #: pro-sites-files/lib/ProSites/View/Gateways.php:99
 msgid "Offline Payment"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:205
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:202
 msgid ""
 "Your site is currently using manual payments and will not automatically "
 "renew. Please upgrade your site or contact us with your renewal request."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:215
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:212
 #, php-format
 msgid ""
 "Payment method: <strong>%1$s card</strong> ending in <strong>%2$s</strong>. "
 "Expires <strong>%3$s/%4$s</strong>"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:219
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:216
 msgid "Last payment date:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:223
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:220
 msgid "Next payment date:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:227
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:224
 msgid "Renewal Period:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:227
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:224
 #, php-format
 msgid " Every <strong>%d</strong> month(s)"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:231
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:228
 msgid "Plan expires on:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:233
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:230
 msgid "Renewal due on:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:257 pro-sites.php:4533
-#: pro-sites.php:4560
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:254 pro-sites.php:4554
 msgid "Sign up for another site."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:264
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:261
 msgid "Your current plan"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:419
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:416
 msgid "Change your plan"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:445
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:486
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:558
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:442
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:483
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:555
 msgid "Finalizing your site..."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:447
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:444
 msgid ""
 "Thank you for submitting your request for manual payment. We will review "
 "your information and email you once your site has been activated or extended."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:449
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:446
 #, php-format
 msgid "The email address we have for you is: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:476
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:473
 msgid "(password emailed to you)"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:488
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:485
 msgid ""
 "Your basic site has been setup and you should soon receive an email with "
 "your site details and password. You can always upgrade your site by logging "
 "in and viewing your account."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:490
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:575
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:487
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:572
 msgid "Your login details are:"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:491
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:576
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:488
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:573
 #, php-format
 msgid "Username: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:493
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:581
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:490
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:578
 msgid "Admin URL: "
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:492
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:580
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:632
+msgid "If you did not receive an email please try the following:"
+msgstr ""
+
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:494
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:582
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:634
+msgid "Wait a little bit longer."
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:495
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:583
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:635
-msgid "If you did not receive an email please try the following:"
+msgid "Check your spam folder just in case it ended up in there."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:497
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:585
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:637
-msgid "Wait a little bit longer."
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:496
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:584
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:636
+msgid "Make sure that your email address is correct ("
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:498
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:586
 #: pro-sites-files/lib/ProSites/View/Front/Gateway.php:638
-msgid "Check your spam folder just in case it ended up in there."
-msgstr ""
-
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:499
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:587
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:639
-msgid "Make sure that your email address is correct ("
-msgstr ""
-
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:501
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:589
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:641
 msgid ""
 "If your email address is incorrect or you noticed a problem, please contact "
 "us to resolve the issue."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:504
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:593
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:501
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:590
 msgid "Login Now"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:561
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:558
 msgid ""
 "Your payment is being processed and you should soon receive an email with "
 "your site details."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:563
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:560
 msgid ""
 "Your site trial has been setup and you should soon receive an email with "
 "your site details. Once your trial finishes you will be prompted to upgrade "
 "manually."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:579
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:576
 #, php-format
 msgid "Password: %s"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:633
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:630
 msgid "Plan updated..."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:634
+#: pro-sites-files/lib/ProSites/View/Front/Gateway.php:631
 #, php-format
 msgid ""
 "Your plan was successfully modified from %s to %s. You will receive a "
@@ -4412,7 +4411,7 @@ msgid ""
 "with the date when their Pro Site access ends."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:347 pro-sites.php:4610
+#: pro-sites-files/lib/ProSites/View/Settings.php:347 pro-sites.php:4604
 msgid "Payment Receipt"
 msgstr ""
 
@@ -5310,7 +5309,7 @@ msgid "Day Limits"
 msgstr ""
 
 #: pro-sites-files/modules/post-throttling.php:254
-#: pro-sites-files/modules/posting-quota.php:226
+#: pro-sites-files/modules/posting-quota.php:227
 msgid "Upgrade Your Account"
 msgstr ""
 
@@ -5357,49 +5356,49 @@ msgstr ""
 msgid "Limited post types"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:55
+#: pro-sites-files/modules/posting-quota.php:56
 #: pro-sites-files/modules/premium-support.php:53
 #: pro-sites-files/modules/unfiltered-html.php:86
 #: pro-sites-files/modules/write.php:72 pro-sites-files/modules/xmlrpc.php:79
 msgid "Pro Site Level"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:55
+#: pro-sites-files/modules/posting-quota.php:56
 msgid "Select the minimum level required to remove quotas"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:78
+#: pro-sites-files/modules/posting-quota.php:79
 #, php-format
 msgid ""
 "You've reached the publishing limit, To publish more %s, please upgrade to "
 "LEVEL &raquo;"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:81
+#: pro-sites-files/modules/posting-quota.php:82
 #, php-format
 msgid "%s Quota"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:84
+#: pro-sites-files/modules/posting-quota.php:85
 msgid "Publish Limit"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:97
+#: pro-sites-files/modules/posting-quota.php:98
 msgid "Upgrade message"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:97
+#: pro-sites-files/modules/posting-quota.php:98
 msgid ""
 "Displayed on the respective add post, page or media screen for sites that "
 "have used up their quota. \"LEVEL\" will be replaced with the needed level "
 "name"
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:273
+#: pro-sites-files/modules/posting-quota.php:274
 msgid "Publish Limits: "
 msgstr ""
 
-#: pro-sites-files/modules/posting-quota.php:303
+#: pro-sites-files/modules/posting-quota.php:304
 msgid ""
 "You've reached the publishing limit, To publish more Media, please upgrade "
 "to LEVEL »"
@@ -6829,20 +6828,20 @@ msgstr ""
 msgid "Please choose a site to Upgrade or Modify:"
 msgstr ""
 
-#: pro-sites.php:4560
+#: pro-sites.php:4553
 #, php-format
 msgid "Your site <strong>%s</strong> has not been activated yet."
 msgstr ""
 
-#: pro-sites.php:4563
+#: pro-sites.php:4557
 msgid "Sign up for a site."
 msgstr ""
 
-#: pro-sites.php:4565
+#: pro-sites.php:4559
 msgid "Sorry, but it appears you are not an administrator for any sites."
 msgstr ""
 
-#: pro-sites.php:4985
+#: pro-sites.php:4979
 msgid "The original Level doesn't exist, it might have been removed."
 msgstr ""
 
