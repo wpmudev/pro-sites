@@ -313,6 +313,7 @@ class ProSites {
 			'gateways_enabled'         => array(),
 			'modules_enabled'          => array(),
 			'enabled_periods'          => array( 1, 3, 12 ),
+			'send_receipts'             => 1,
 			'hide_adminmenu'           => 0,
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
@@ -1621,10 +1622,13 @@ Thanks!", 'psts' ),
 			'subject' => $psts->get_setting( 'receipt_subject' )
 		);
 		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
-
+		$pdf_receipt = '';
+		if( $psts->get_setting( 'send_receipts', 1 ) ) {
+			$pdf_receipt = $psts->pdf_receipt( $e['msg'] );
+		}
 		//It is converting Euro symbol to emoji, need to submit a trac ticket, until then remove emoji in email
 		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
-		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $psts->pdf_receipt( $e['msg'] ) );
+		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $pdf_receipt );
 		add_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
@@ -4646,8 +4650,13 @@ function admin_levels() {
 
 		$html .= make_clickable( wpautop( $payment_info ) );
 
-		// output the HTML content
-		$pdf->writeHTML( $html, true, false, true, false, '' );
+		try{
+			// output the HTML content
+			$pdf->writeHTML( $html, true, false, true, false, '' );
+		}catch (Exception $e ) {
+			error_log( "TCPDF couldn't write HTML to PDF" . $e->get_error_message() );
+			return '';
+		}
 
 		// ---------------------------------------------------------
 

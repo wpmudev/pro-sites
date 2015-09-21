@@ -14,6 +14,7 @@ Change Log:
                 Use Paypal IPN settings only
 -Fixed: Stripe: Multiple Blog signup issue
 -Fixed: Stripe: Table issue for new installations
+-Added: Option for disablinf PDF receipts
 
 3.5.1.3 - 08/28/2015 - Umesh Kumar
 -Fixed: Premium Theme/ Plugin menu missing for admin
