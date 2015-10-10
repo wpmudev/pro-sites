@@ -219,6 +219,9 @@ class ProSites_Module_Quota {
 	}
 
 	public static function display_space( $space ) {
+
+		$space = apply_filters( 'psts_quota_pre_get_space', $space );
+
 		if ( ! $space ) {
 			return '0' . __( 'MB', 'psts' );
 		}
