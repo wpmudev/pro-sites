@@ -64,6 +64,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			if ( ( 'wp-signup.php' == $pagenow || $bp_redirect ) && $show_signup ) {
 				//Check if already logged in
 				$new_blog = add_query_arg( array( "action" => "new_blog" ), $psts->checkout_url() );
+				$new_blog = apply_filters( 'psts_redirect_signup_page_url', $new_blog );
 				wp_redirect( $new_blog );
 				exit();
 			}
