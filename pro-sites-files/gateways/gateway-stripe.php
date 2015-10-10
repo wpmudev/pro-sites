@@ -228,6 +228,7 @@ class ProSites_Gateway_Stripe {
 					<td>
 						<select name="psts[stripe_currency]" class="chosen">
 							<?php
+							// https://support.stripe.com/questions/which-currencies-does-stripe-support
 							$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
 							$currencies   = array(
 								"AUD" => 'AUD - Australian Dollar',
@@ -235,6 +236,13 @@ class ProSites_Gateway_Stripe {
 								"EUR" => 'EUR - Euro',
 								"GBP" => 'GBP - Pounds Sterling',
 								"USD" => 'USD - U.S. Dollar',
+								"DKK" => 'DKK - Danish Krone',
+								"NOK" => 'NOK - Norwegian Krone',
+								"SEK" => 'SEK - Swedish Krona',
+								"JPY" => 'JPY - Japanese Yen (Private BETA)',
+								"MXN" => 'MXN - Mexican Peso (Private BETA)',
+								"SGD" => 'SGD - Singapore Dollar (Private BETA)',
+								"CHF" => 'CHF - Swiss Franc (Private BETA)',
 							);
 
 							foreach ( $currencies as $k => $v ) {
