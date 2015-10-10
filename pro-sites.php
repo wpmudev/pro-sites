@@ -1911,7 +1911,7 @@ Thanks!", 'psts' ),
 		}
 
 		//check cache
-		if ( isset( $this->level[ $blog_id ] ) ) {
+		if ( isset( $this->level ) && isset( $this->level[ $blog_id ] ) ) {
 			return $this->level[ $blog_id ];
 		} else if ( false !== ( $level = wp_cache_get( 'level_' . $blog_id, 'psts' ) ) ) //try local cache (could be 0)
 		{
@@ -2786,7 +2786,7 @@ _gaq.push(["_trackTrans"]);
 		<?php
 		if( $activation_key ) {
 			$result = ProSites_Helper_Registration::activate_blog( $activation_key );
-			$blog_id = $result;
+			$blog_id = (int) $result['blog_id'];
 		}
 
 		if ( $blog_id ) { ?>
