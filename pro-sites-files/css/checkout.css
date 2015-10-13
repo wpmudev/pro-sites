@@ -574,6 +574,9 @@ li.summary {
 	display:none;
 }
 
+.pricing-column:first-child li.title {
+	border: none;
+}
 .pricing-column:first-child li.summary {
 	position:relative;
 }
@@ -700,6 +703,7 @@ ul.pricing-column ul.feature-section li {
 
 .pricing-column .title.no-title {
 	border: none;
+	background: none;
 }
 
 .pricing-column .title.no-title:after {
@@ -723,8 +727,10 @@ ul.pricing-column ul.feature-section li {
 }
 
 .pricing-column .summary.no-periods {
-    border-width: 1px;
-    border-style: none solid;
+    /*border-width: 1px;*/
+    /*border-style: none solid;*/
+    border-style: none none solid;
+	/*background: solid;*/
     /*position:relative;*/
     /*font-size: 1em;*/
 }
@@ -809,7 +815,8 @@ ul.pricing-column ul.feature-section li {
 }
 
 .pricing-column .button-box.no-button {
-	border:none;
+	border-width: 1px;
+	border-style: solid none none;
 }
 
 /* Borders - featured */
@@ -962,7 +969,7 @@ ul.pricing-column ul.feature-section li {
 /*#prosites-checkout-table .coupon-wrapper .coupon-box button,*/
 /*#prosites-checkout-table .coupon-wrapper .coupon-box input,*/
 .pricing-column .coupon-box input {
-	/*font-size: 0.7em;*/
+	font-size: 0.8em;
     /*position:absolute;*/
     /*left:0;*/
     /*top:0;*/

@@ -159,6 +159,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					if ( ! empty( $column['summary'] ) ) {
 						$content .= '<li class="summary' . $override . '">' . ProSites::filter_html( $column['summary'] ) . '</li>';
+					} else {
+						$content .= '<li class="summary no-periods"></li>';
 					}
 				}
 
@@ -316,7 +318,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 			}
 			//If there are any modules to compare
-			if ( $show_features && $show_table && count( $enabled_modules ) > 0 ) {
+			if ( $show_features && $show_table && ( count( $enabled_modules ) > 0 || ! empty( $feature_table[ 'feature_order' ] ) ) ) {
 				// Set first row
 				$col_count                          = 0;
 				$row_count                          = 0;
@@ -448,6 +450,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			if ( empty( $level ) ) {
 
 				if ( 'option1' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
+					//return '<div class="period-selector placeholder"></div>';
 					return '';
 				}
 				$content = '<div class="period-selector"><div class="heading">' . esc_html( $plan_text['payment_type'] ) . '</div>
