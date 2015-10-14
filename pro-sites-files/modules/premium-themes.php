@@ -20,7 +20,7 @@ class ProSites_Module_PremiumThemes {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
+		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
 			return;
 		}
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );

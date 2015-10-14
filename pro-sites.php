@@ -103,7 +103,7 @@ class ProSites {
 		foreach ( $modules as $module ) {
 				ProSites_PluginLoader::require_module( $module );
 				// Making sure that important filters are in place rather than loading too late
-				if( method_exists( $module, 'run_critical_tasks' ) && !is_main_site( get_current_blog_id() ) ) {
+				if( method_exists( $module, 'run_critical_tasks' ) && ( is_admin() || ! is_main_site( get_current_blog_id() ) ) ) {
 					call_user_func( array(  $module, 'run_critical_tasks' ) );
 				}
 		}

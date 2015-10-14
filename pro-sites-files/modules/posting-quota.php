@@ -20,7 +20,7 @@ class ProSites_Module_PostingQuota {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
+		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
 			return;
 		}
 		/**

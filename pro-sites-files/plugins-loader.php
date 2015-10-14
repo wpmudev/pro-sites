@@ -24,6 +24,7 @@ class ProSites_PluginLoader {
 	);
 
   function __construct() {
+
     //load modules
 		add_action( 'plugins_loaded', array(&$this, 'load_modules'), 11 );
 
@@ -163,4 +164,3 @@ function psts_register_module($class_name, $name, $description, $demo = false) {
 		return false;
 	}
 }
-?>

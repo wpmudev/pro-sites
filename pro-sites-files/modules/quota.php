@@ -34,7 +34,7 @@ class ProSites_Module_Quota {
 	}
 
 	function __construct() {
-		if( is_main_site( get_current_blog_id() ) ) {
+		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
 			return;
 		}
 //		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
