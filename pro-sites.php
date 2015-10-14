@@ -3954,6 +3954,28 @@ function admin_levels() {
 			</form>
 
 		</div>
+		<script type="text/javascript">
+		jQuery(function($) {
+			
+			$('#psts_ProSites_Module_Plugins, #psts_ProSites_Module_Plugins_Manager').change(function() {
+				if( $(this).is(':checked') ){
+					var id = $(this).attr('id');
+					if( id == 'psts_ProSites_Module_Plugins' ){
+						if( $('#psts_ProSites_Module_Plugins_Manager').is(':checked') ){
+							alert('Enabling this module will disable Premium Plugin Manager module.');
+							$('#psts_ProSites_Module_Plugins_Manager').prop('checked', false);
+						}
+					}else if( id == 'psts_ProSites_Module_Plugins_Manager' ){
+						if( $('#psts_ProSites_Module_Plugins').is(':checked') ){
+							alert('Enabling this module will disable Premium Plugin module.');
+							$('#psts_ProSites_Module_Plugins').prop('checked', false);
+						}
+					}
+				}
+			});
+			
+		});
+		</script>
 	<?php
 	}
 
