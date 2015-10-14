@@ -1112,6 +1112,11 @@ ul.pricing-column.not-chosen-plan .button-box button {
     /*opacity: 0.5;*/
 }
 
+ul.pricing-column.chosen-plan {
+	background: rgba( 128, 128, 128, 0.1 );
+}
+
+
 /* === GATEWAYS === */
 .checkout-gateways {
     margin-top: 30px;

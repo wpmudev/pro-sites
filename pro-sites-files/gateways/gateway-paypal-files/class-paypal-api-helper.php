@@ -130,6 +130,28 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
 			$has_trial  = $psts->is_trial_allowed( $blog_id );
 
+			// Update trial days if user is already on a trial (we don't want them to cheat into having longer free trials!)
+			if( is_pro_trial( $blog_id ) ) {
+				global $wpdb;
+
+				$now    = time();
+				if ( ! empty( $blog_id ) ) {
+					$exists = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+				}
+				if( $exists ) {
+					$exists = $now - $exists;
+					$elapsed = floor( $exists/(60*60*24) );
+					// Calculate remaining trial days
+					if( $elapsed <= $trial_days ) {
+						$trial_days = $elapsed;
+					} else {
+						$trial_days = 0;
+						$has_trial = false;
+					}
+				}
+			}
+
+
 			$nvpstr = "&TOKEN=" . $token;
 			$nvpstr .= "&AMT=" . $paymentAmount;
 

@@ -148,10 +148,14 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			$allowed_html = wp_kses_allowed_html('post');
+			$last_gateway = ! empty ( $site_details['last_payment_gateway'] ) ? $site_details['last_payment_gateway'] : '';
 			// Primary
 			if ( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
-				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $primary_gateway ) {
+				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
+				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
+
+				if( ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && $last_gateway !== 'Trial' ) {
 
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -165,15 +169,18 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				}
 
-				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
-				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
 				$content .= '</div>';
+
 			}
 
 			// Secondary
 			if ( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
-				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $secondary_gateway ) {
 
+				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
+				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
+
+				if( ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && $last_gateway !== 'Trial' ) {
+//				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $secondary_gateway ) {
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
 						$name = call_user_func( $gateways[ $site_details['last_payment_gateway'] ]['class'] . '::get_name' );
@@ -186,16 +193,16 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				}
 
-				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
-				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 				$content .= '</div>';
 			}
 
 			// Manual
 			if ( ! empty( $manual_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
-				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $manual_gateway ) {
+				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
+				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
 
+				if( ! empty ( $last_gateway ) && $last_gateway !== $manual_gateway && $last_gateway !== 'Trial' ) {
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
 						$name = call_user_func( $gateways[ $site_details['last_payment_gateway'] ]['class'] . '::get_name' );
@@ -208,8 +215,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				}
 
-				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
-				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
 				$content .= '</div>';
 			}
 			$content .= '</div>';

@@ -7,12 +7,18 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1.3 - [date]
+3.5.1.4 - [date]
 - Fixed: Features table not displaying correctly.
 - Updated: Added additional Stripe currencies.
 - Fixed: Errors on new blog creation.
 - Fixed: When switching gateways the old gateway will attempt to cancel when setting up the new gateway.
 - Updated: Information message will appear to users wanting to change their payment gateway.
+- Fixed: Upgrading with PayPal while still within trial period.
+
+3.5.1.3
+- Fixed: Premium Theme/ Plugin menu missing for admin
+- Fixed: Deprecated warning for widget
+- Fixed: Quota: Post/Page/Upload limit issue
 
 3.5.1.2 - 08/27/2015 - Umesh Kumar
 - Fixed: Payment amount comes to zero for existing expired sites
