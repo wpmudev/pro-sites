@@ -1767,7 +1767,11 @@ class ProSites_Gateway_Stripe {
 			if ( empty( $error ) ) {
 				//record stat
 				$psts->record_stat( $blog_id, 'cancel' );
-				$psts->email_notification( $blog_id, 'canceled' );
+
+				$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
+				if( ! empty( $last_gateway ) && $last_gateway == self::get_slug() ) {
+					$psts->email_notification( $blog_id, 'canceled' );
+				}
 				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
 				update_blog_option( $blog_id, 'psts_is_canceled', 1 );
 

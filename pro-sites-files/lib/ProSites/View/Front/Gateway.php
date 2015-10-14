@@ -151,7 +151,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Primary
 			if ( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
-				if( $site_details['last_payment_gateway'] !== $primary_gateway ) {
+				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $primary_gateway ) {
 
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -172,7 +172,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			// Secondary
 			if ( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
-				if( $site_details['last_payment_gateway'] !== $secondary_gateway ) {
+				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $secondary_gateway ) {
 
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -194,7 +194,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Manual
 			if ( ! empty( $manual_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
-				if( $site_details['last_payment_gateway'] !== $manual_gateway ) {
+				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $manual_gateway ) {
 
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
