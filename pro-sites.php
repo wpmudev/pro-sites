@@ -2520,7 +2520,8 @@ Thanks!", 'psts' ),
 
 	/**
     * Hooked at prosites_inner_pricing_table_pre, to display a message before pricing table
-	* @param $content
+	*
+*@param $content
 	*
 	*@return mixed
 	*/
@@ -3956,18 +3957,18 @@ function admin_levels() {
 		</div>
 		<script type="text/javascript">
 		jQuery(function($) {
-			
+			// @todo: Move this into the JS and use localize script for alerts.
 			$('#psts_ProSites_Module_Plugins, #psts_ProSites_Module_Plugins_Manager').change(function() {
 				if( $(this).is(':checked') ){
 					var id = $(this).attr('id');
 					if( id == 'psts_ProSites_Module_Plugins' ){
 						if( $('#psts_ProSites_Module_Plugins_Manager').is(':checked') ){
-							alert('Enabling this module will disable Premium Plugin Manager module.');
+							alert('<?php _e('Enabling this module will disable Premium Plugin Manager module.', 'psts' ); ?>');
 							$('#psts_ProSites_Module_Plugins_Manager').prop('checked', false);
 						}
 					}else if( id == 'psts_ProSites_Module_Plugins_Manager' ){
 						if( $('#psts_ProSites_Module_Plugins').is(':checked') ){
-							alert('Enabling this module will disable Premium Plugin module.');
+							alert('<?php _e('Enabling this module will disable Premium Plugin module.', 'psts' ); ?>');
 							$('#psts_ProSites_Module_Plugins').prop('checked', false);
 						}
 					}
@@ -5036,7 +5037,8 @@ function admin_levels() {
 
 	/**
 	 * Displays a error on plugin activation
-	 * @param $message
+	 *
+*@param $message
 	 * @param $errno
 	 */
 	function trigger_install_error( $message, $errno ) {
@@ -5130,7 +5132,8 @@ function admin_levels() {
 	/**
     * Checks for Blog activation, if website was signed up using manual payment gateway
     * and assigns the pro site level as per the details in site meta
-	* @param $blog_id
+	*
+*@param $blog_id
 	* @param $user_id
 	* @param $password
 	* @param $signup_title

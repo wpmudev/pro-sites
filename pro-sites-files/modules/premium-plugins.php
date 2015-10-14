@@ -18,7 +18,7 @@ class ProSites_Module_Plugins {
 
 	// Module description for registering
 	public static function get_description() {
-		return __('Allows you to create plugin packages only available to selected Pro Site levels.', 'psts');
+		return __('Allows you to create plugin packages only available to selected Pro Site levels. (Can\'t be used with "Premium Plugins Manager")', 'psts');
 	}
 
 	static function run_critical_tasks() {
