@@ -498,9 +498,16 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$email      = $render_data['new_blog_details']['email'];
-			$blogname   = $render_data['new_blog_details']['blogname'];
-			$blog_title = $render_data['new_blog_details']['title'];
+			if( isset( $render_data ) && isset( $render_data['new_blog_details'] ) ) {
+				$email      = $render_data['new_blog_details']['email'];
+			} else {
+
+				if( isset( $_GET['bid'] ) && is_user_logged_in() ) {
+					$user = get_userdata( get_current_user_id() );
+					$email = $user->user_email;
+				}
+
+			}
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
