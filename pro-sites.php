@@ -2024,6 +2024,16 @@ Thanks!", 'psts' ),
 		$extra_sql .= $wpdb->prepare( ", is_recurring = %d", $is_recurring );
 
 		if ( $exists ) {
+
+			// If previous gateway is not the same, we need to cancel the old subscription if we can.
+			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
+			if( ! empty( $last_gateway ) && $last_gateway != $gateway ) {
+				$gateways = ProSites_Helper_Gateway::get_gateways();
+				if( ! empty( $gateways ) && isset( $gateways[ $last_gateway ] ) && method_exists( $gateways[ $last_gateway ]['class'], 'cancel_subscription' ) ) {
+					call_user_func( $gateways[ $last_gateway ]['class'] . '::cancel_subscription', $blog_id );
+				}
+			}
+
 			$wpdb->query( $wpdb->prepare( "
 	  		UPDATE {$wpdb->base_prefix}pro_sites
 	  		SET $extra_sql
