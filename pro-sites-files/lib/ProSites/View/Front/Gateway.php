@@ -36,6 +36,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 					return;
 				}
 
+				//If nonce not verified return, Verify Nonce
+//				if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'psts-cancel' ) ) {
+//					return;
+//				}
+
 				//If there is blog id
 				if ( ! empty( $blog_id ) ) {
 
