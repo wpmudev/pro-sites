@@ -38,17 +38,18 @@ class ProSites_Module_PostThrottling {
 	 * @access public
 	 */
 	public function __construct() {
-		// actions
-//		add_action( 'psts_settings_page', array( $this, 'renderModuleSettings' ) );
-		add_action( 'post_submitbox_misc_actions', array( $this, 'renderLimitsInformation' ) );
-		add_action( 'transition_post_status', array( $this, 'checkTransitionPostStatus' ), 10, 3 );
+		if ( ! is_main_site( get_current_blog_id() ) ) {
+			// actions
+			add_action( 'post_submitbox_misc_actions', array( $this, 'renderLimitsInformation' ) );
+			add_action( 'transition_post_status', array( $this, 'checkTransitionPostStatus' ), 10, 3 );
 
+			add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
+
+			//Admin Notice If limit exceeded
+			add_action( 'admin_notices', array( &$this, 'message' ) );
+		}
 		// filters
 		add_filter( 'psts_settings_filter', array( $this, 'saveModuleSettings' ), 10, 2 );
-		add_filter( 'wp_insert_post_data', array( $this, 'checkPostStatusBeforeSave' ), 10, 2 );
-
-		//Admin Notice If limit exceeded
-		add_action( 'admin_notices', array( &$this, 'message' ) );
 		self::$user_label       = __( 'Post Throttling', 'psts' );
 		self::$user_description = __( 'Limit Post publishing rate.', 'psts' );
 	}
@@ -250,7 +251,7 @@ class ProSites_Module_PostThrottling {
 
 			<div class="misc-pub-section">
 			<a id="psts-upgrade" class="button button-primary button-large"
-			   href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
+				href="<?php echo $psts->checkout_url( get_current_blog_id() ); ?>"><?php _e( 'Upgrade Your Account', 'psts' ); ?></a>
 			</div><?php
 		}
 	}
@@ -265,7 +266,7 @@ class ProSites_Module_PostThrottling {
 	 */
 	public function saveModuleSettings( $settings, $active_tab ) {
 
-		if( 'throttling' != $active_tab ) {
+		if ( 'throttling' != $active_tab ) {
 			return $settings;
 		}
 
@@ -330,7 +331,7 @@ class ProSites_Module_PostThrottling {
 			</table>
 		</div>
 		<!--		</div>-->
-	<?php
+		<?php
 	}
 
 	/**
@@ -350,7 +351,7 @@ class ProSites_Module_PostThrottling {
 					<div>
 					<label>
 						<input type="checkbox" name="throttling_types[]"
-						       value="<?php echo esc_attr( $type ); ?>" <?php echo checked( in_array( $type, $types ) ); ?>>
+							value="<?php echo esc_attr( $type ); ?>" <?php echo checked( in_array( $type, $types ) ); ?>>
 						<?php echo esc_html( $object->label ); ?>
 					</label>
 					</div><?php
@@ -480,10 +481,10 @@ class ProSites_Module_PostThrottling {
 	public static function get_level_status( $level_id ) {
 		global $psts;
 
-		$setting_daily = $psts->get_level_setting( $level_id, ProSites_Module_PostThrottling::PERIOD_DAILY );
+		$setting_daily  = $psts->get_level_setting( $level_id, ProSites_Module_PostThrottling::PERIOD_DAILY );
 		$setting_hourly = $psts->get_level_setting( $level_id, ProSites_Module_PostThrottling::PERIOD_HOURLY );
 
-		if( 0 == $setting_daily && 0 == $setting_hourly ) {
+		if ( 0 == $setting_daily && 0 == $setting_hourly ) {
 			return 'tick';
 		} else {
 			return 'cross';

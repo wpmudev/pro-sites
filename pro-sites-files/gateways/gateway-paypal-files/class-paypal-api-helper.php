@@ -96,7 +96,8 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 			$nvpstr .= "&PAYMENTREQUEST_0_CUSTOM=" . PSTS_PYPL_PREFIX . '_' . $blog_id . '_' . $level . '_' . $frequency . '_' . $paymentAmount . '_' . ProSites_Gateway_PayPalExpressPro::currency() . '_' . time() . '_' . $activation_key;
 
-			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
+			//Creates issue with IPN forwarder
+//			$nvpstr .= "&PAYMENTREQUEST_0_NOTIFYURL=" . urlencode( network_site_url( 'wp-admin/admin-ajax.php?action=psts_pypl_ipn', 'admin' ) );
 
 			if ( ! empty( $tax ) ) {
 				$nvpstr .= "&PAYMENTREQUEST_0_TAXAMT=" . $tax;

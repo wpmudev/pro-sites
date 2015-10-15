@@ -346,10 +346,14 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr>
 						<th scope="row" class="psts-help-div psts-payment-reciept"><?php echo __( 'Payment Receipt', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Payment confirmation receipt. You must include the "PAYMENTINFO" code which will be replaced with payment details.', 'psts' ) ); ?></th>
 						<td>
+							<label><input type="checkbox" name="psts[send_receipts]" value="1"<?php checked( $psts->get_setting( 'send_receipts', 1 ) ); ?> /><?php _e( 'Send PDF Receipts', 'psts' ); ?></label><br/>
+							<br />
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr( $psts->get_setting( 'receipt_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+							<br />
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
 								<textarea class="pp_emails_txt" name="psts[receipt_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'receipt_msg' ) ); ?></textarea></label><br/>
+							<br />
 							<label><?php _e( 'Header Image URL (for PDF attachment):', 'psts' ); ?><br/>
 								<input type="text" class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr( $psts->get_setting( 'receipt_image' ) ); ?>" maxlength="150" style="width: 65%"/></label>
 						</td>

@@ -20,13 +20,11 @@ class ProSites_Module_Writing {
 	}
 
 	function __construct() {
-		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
-		add_action( 'admin_notices', array( &$this, 'message' ) );
-		add_filter( 'user_has_cap', array( &$this, 'write_filter' ), 10, 3 );
+		if ( ! is_main_site( get_current_blog_id() ) ) {
+			add_action( 'admin_notices', array( &$this, 'message' ) );
+			add_filter( 'user_has_cap', array( &$this, 'write_filter' ), 10, 3 );
+		}
 
 		self::$user_label       = __( 'Limit Publishing', 'psts' );
 		self::$user_description = __( 'Limited post and pages content creation', 'psts' );

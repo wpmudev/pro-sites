@@ -72,8 +72,9 @@ class ProSites_Gateway_Stripe {
 			'create_transaction_object'
 		), 10, 3 );
 
+		$stripe_version = $psts->get_setting( 'stripe_version' );
 		//update install script if necessary
-		if ( $psts->get_setting( 'stripe_version' ) != $psts->version ) {
+		if ( empty( $stripe_version ) || $stripe_version != $psts->version ) {
 			$this->install();
 		}
 	}
@@ -108,7 +109,7 @@ class ProSites_Gateway_Stripe {
 		global $wpdb, $psts;
 
 		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
-		$table1 = "CREATE TABLE " . $table_name ." IF NOT EXISTS  (
+		$table1 = "CREATE TABLE $table_name (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
 			subscription_id char(22) NOT NULL,
@@ -139,6 +140,9 @@ class ProSites_Gateway_Stripe {
 	function admin_notices() {
 		global $psts;
 		$blog_id = get_current_blog_id();
+		if( is_main_site( $blog_id ) ) {
+			return;
+		}
 		if ( 1 == get_blog_option( $blog_id, 'psts_stripe_waiting' ) ) {
 			$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 			$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
@@ -1291,7 +1295,7 @@ class ProSites_Gateway_Stripe {
 				// Create generic class from Stripe\Subscription class
 
 				// Convert 3.4 -> 3.5+
-				if ( ! empty( $subscription ) && ! isset( $subscription->metadata->blog_id ) ) {
+				if ( ! empty( $subscription ) && ! isset( $subscription->metadata->blog_id ) && ! isset( $subscription->blog_id ) ) {
 					$blog_id = ProSites_Gateway_Stripe::get_blog_id( $customer_id );
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id, $blog_id );
 					$subscription->blog_id = $blog_id;
@@ -1316,7 +1320,7 @@ class ProSites_Gateway_Stripe {
 
 			}
 
-			if ( empty( $blog_id ) && isset( $subscription ) && isset( $subscription->blog_id ) && ! empty( $subscription->blog_id ) ) {
+			if ( empty( $blog_id ) && isset( $subscription ) && ! empty( $subscription->blog_id ) ) {
 				$blog_id = $subscription->blog_id;
 			}
 

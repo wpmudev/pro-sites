@@ -11,29 +11,28 @@ class ProSites_Module_UnfilterHtml {
 
 	// Module name for registering
 	public static function get_name() {
-		return __('Unfilter HTML', 'psts');
+		return __( 'Unfilter HTML', 'psts' );
 	}
 
 	// Module description for registering
 	public static function get_description() {
-		return __('Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts');
+		return __( 'Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' );
 	}
 
 	function __construct() {
-		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
-		add_action( 'admin_notices', array( &$this, 'message' ) );
-		add_filter( 'user_has_cap', array( &$this, 'unfilter_check' ), 100, 3 );
-		add_filter( 'map_meta_cap', array( &$this, 'unfilter_caps' ), 10, 4 );
-
 		self::$user_label       = __( 'Unfiltered HTML', 'psts' );
 		self::$user_description = __( 'Can use the unfiltered html permission', 'psts' );
 
-		if( ! defined('DISALLOW_UNFILTERED_HTML') )
-		{
+		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
+			return;
+		}
+		if ( ! defined( 'DISALLOW_UNFILTERED_HTML' ) ) {
 			define( 'DISALLOW_UNFILTERED_HTML', false );
+		}
+		if ( ! is_main_site( get_current_blog_id() ) ) {
+		add_action( 'admin_notices', array( &$this, 'message' ) );
+		add_filter( 'user_has_cap', array( &$this, 'unfilter_check' ), 100, 3 );
+		add_filter( 'map_meta_cap', array( &$this, 'unfilter_caps' ), 10, 4 );
 		}
 	}
 
@@ -151,7 +150,7 @@ class ProSites_Module_UnfilterHtml {
 
 		$min_level = $psts->get_setting( 'uh_level', 1 );
 
-		if( $level_id >= $min_level ) {
+		if ( $level_id >= $min_level ) {
 			return 'tick';
 		} else {
 			return 'cross';

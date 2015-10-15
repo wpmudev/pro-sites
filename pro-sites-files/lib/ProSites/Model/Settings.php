@@ -34,6 +34,7 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 				}
 
 				$_POST['psts']['pt_sortthemes']           = isset( $_POST['psts']['pt_sortthemes'] ) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox
+				$_POST['psts']['send_receipts']           = isset( $_POST['psts']['send_receipts'] ) ? $_POST['psts']['send_receipts'] : 0; //handle checkbox
 
 				//merge settings
 				$old_settings = get_site_option( 'psts_settings' );

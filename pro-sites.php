@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.2
+Version: 3.5.1.4
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.2';
+	var $version = '3.5.1.4';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -313,6 +313,7 @@ class ProSites {
 			'gateways_enabled'         => array(),
 			'modules_enabled'          => array(),
 			'enabled_periods'          => array( 1, 3, 12 ),
+			'send_receipts'             => 1,
 			'hide_adminmenu'           => 0,
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
@@ -1621,10 +1622,13 @@ Thanks!", 'psts' ),
 			'subject' => $psts->get_setting( 'receipt_subject' )
 		);
 		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
-
+		$pdf_receipt = '';
+		if( $psts->get_setting( 'send_receipts', 1 ) ) {
+			$pdf_receipt = $psts->pdf_receipt( $e['msg'] );
+		}
 		//It is converting Euro symbol to emoji, need to submit a trac ticket, until then remove emoji in email
 		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
-		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $psts->pdf_receipt( $e['msg'] ) );
+		wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $pdf_receipt );
 		add_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
@@ -2523,7 +2527,7 @@ Thanks!", 'psts' ),
 	/**
     * Hooked at prosites_inner_pricing_table_pre, to display a message before pricing table
 	*
-*@param $content
+	* @param $content
 	*
 	*@return mixed
 	*/
@@ -4586,13 +4590,15 @@ function admin_levels() {
 
 			if( !empty( $user_login ) ) {
 				//Query Signup table for domain name
-				$query = $wpdb->prepare("SELECT `domain` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
-				$user_domain = $wpdb->get_var( $query );
+				$query = $wpdb->prepare("SELECT `domain`, `active` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
+				$site = $wpdb->get_row( $query );
+				$user_domain = !empty( $site->domain ) ? $site->domain : false;
 			}
 
 			if( !empty( $user_domain ) && $allow_multi ) {
 				//Already have a site, allow to signup for another
-				$content .= '<div class="psts-signup-another">' . sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				$inactive_site = !empty( $site->active ) && 1 == $site->active ? '': sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/>';
+				$content .= '<div class="psts-signup-another">' . $inactive_site . '<a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 			}elseif( empty( $user_domain ) ) {
 				//Don't have a site, let user create one
 				$content .= '<div class="psts-signup"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for a site.', 'psts' ) . '</a>' . '</div>';
@@ -4687,8 +4693,13 @@ function admin_levels() {
 
 		$html .= make_clickable( wpautop( $payment_info ) );
 
+		try{
 		// output the HTML content
 		$pdf->writeHTML( $html, true, false, true, false, '' );
+		}catch (Exception $e ) {
+			error_log( "TCPDF couldn't write HTML to PDF" . $e->get_error_message() );
+			return '';
+		}
 
 		// ---------------------------------------------------------
 
