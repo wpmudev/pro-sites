@@ -7,7 +7,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1.4 - 10/15/2015 - Rheinard Korf & Umesh Kumar
+3.5.1.4 - 10/21/2015 - Rheinard Korf & Umesh Kumar
 - Fixed: Checkout: Multiple Signup link, if Multiple blog signup is allowed
 - Fixed: Paypal: Do not specify notification URL in direct payment as it breaks IPN forwarder, Use PayPal IPN settings only
 - Fixed: Stripe: Multiple Blog signup issue
