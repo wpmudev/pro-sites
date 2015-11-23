@@ -7,6 +7,13 @@ Change Log:
 
 ----------------------------------------------------------------------
 
+3.5.1.5 - 11/23/2015 - Rheinard Korf
+- Update: Stripe URLs updated
+- Fixed: Warnings with Premium Plugins Manager
+- Fixed: When changing "Method Name" for manual gateway it now alters the display correctly.
+- Fixed: Subscriptions no longer cancel immediately when using trial.
+- Fixed: Checking out with PayPal now show correct setup information.
+
 3.5.1.4 - 10/21/2015 - Rheinard Korf & Umesh Kumar
 - Fixed: Checkout: Multiple Signup link, if Multiple blog signup is allowed
 - Fixed: Paypal: Do not specify notification URL in direct payment as it breaks IPN forwarder, Use PayPal IPN settings only

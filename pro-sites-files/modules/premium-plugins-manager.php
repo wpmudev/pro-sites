@@ -289,7 +289,7 @@ class ProSites_Module_Plugins_Manager {
 		foreach( $levels as $level => $value ){
 			if( $exclude > 0 && $exclude == $level ) {continue;}
 
-			$pro_level_plugins = $psts->get_setting( 'psts_ppm_' . $level );
+			$pro_level_plugins = $psts->get_setting( 'psts_ppm_' . $level, array() );
 			foreach( $pro_level_plugins as $pro_level_plugin ){
 				$pro_plugins[] = $pro_level_plugin;
 			}

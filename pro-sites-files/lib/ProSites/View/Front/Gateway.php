@@ -126,6 +126,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			 * @todo Deal with upgraded_blog_details session
 			 */
 			$hidden_class = ( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
+			$hidden_class = isset( $render_data['new_blog_details']['site_activated'] ) && $render_data['new_blog_details']['site_activated'] ? 'hidden' : $hidden_class;
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
@@ -157,7 +158,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
 				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
 
-				if( ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && $last_gateway !== 'Trial' ) {
+				if( ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -181,7 +182,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
 				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 
-				if( ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && $last_gateway !== 'Trial' ) {
+				if( ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 //				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $secondary_gateway ) {
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -204,7 +205,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
 				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
 
-				if( ! empty ( $last_gateway ) && $last_gateway !== $manual_gateway && $last_gateway !== 'Trial' ) {
+				if( ! empty ( $last_gateway ) && $last_gateway !== $manual_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
 						$name = call_user_func( $gateways[ $site_details['last_payment_gateway'] ]['class'] . '::get_name' );
@@ -452,13 +453,18 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$session_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 
 			// No existing details for a new signup
-			if ( ! is_user_logged_in() || isset( $session_data['new_blog_details'] ) ) {
+			if ( ! is_user_logged_in() || ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['site_activated'] ) && ! $session_data['new_blog_details']['site_activated'] ) ) {
 				$pre_content = '';
 
 				if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
 				     ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
 				) {
 					$pre_content .= self::render_payment_submitted();
+				}
+
+				// PayPal Fix
+				if( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
+					return self::render_payment_submitted();
 				}
 
 				// Check manual payments
@@ -472,6 +478,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 					return $content;
 				}
 			}
+
 
 			//For gateways after redirection, upon page refresh
 			$page_reload = !empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );

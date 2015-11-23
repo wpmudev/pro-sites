@@ -112,6 +112,24 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				}
 				$result['user_id'] = $user_id;
 				$result['blog_id'] = (int) $blog_id;
+			} else {
+
+				if( isset( $result['password'] ) ) {
+					$creds = array(
+							'user_login'    => $result['user_id'],
+							'user_password' => $result['password']
+					);
+					$user  = wp_signon( $creds, true );
+					if( ! is_wp_error( $user ) ) {
+						wp_set_current_user( $user->ID );
+					}
+
+				}
+
+				$newblog_details = ProSites_Helper_Session::session( 'new_blog_details' );
+				$newblog_details['site_activated'] = true;
+				ProSites_Helper_Session::session( 'new_blog_details', $newblog_details );
+
 			}
 
 			/**

@@ -201,7 +201,7 @@ class ProSites_Gateway_Stripe {
 			<p class="description"><?php _e( "Accept Visa, MasterCard, American Express, Discover, JCB, and Diners Club cards directly on your site. You don't need a merchant account or gateway. Stripe handles everything, including storing cards, subscriptions, and direct payouts to your bank account. Credit cards go directly to Stripe's secure environment, and never hit your servers so you can avoid most PCI requirements.", 'psts' ); ?>
 				<a href="https://stripe.com/" target="_blank"><?php _e( 'More Info &raquo;', 'psts' ) ?></a></p>
 
-			<p><?php printf( __( 'To use Stripe you must <a href="https://manage.stripe.com/#account/webhooks" target="_blank">enter this webook url</a> (<strong>%s</strong>) in your account.', 'psts' ), network_site_url( 'wp-admin/admin-ajax.php?action=psts_stripe_webhook', 'admin' ) ); ?></p>
+			<p><?php printf( __( 'To use Stripe you must <a href="https://dashboard.stripe.com/account/webhooks" target="_blank">enter this webook url</a> (<strong>%s</strong>) in your account.', 'psts' ), network_site_url( 'wp-admin/admin-ajax.php?action=psts_stripe_webhook', 'admin' ) ); ?></p>
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Stripe Mode', 'psts' ) ?></th>
@@ -224,7 +224,7 @@ class ProSites_Gateway_Stripe {
 						<p><label><?php _e( 'Publishable key', 'psts' ) ?><br/>
 								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ) ); ?>" style="width: 100%; max-width: 500px;" name="psts[stripe_publishable_key]" type="text"/>
 							</label></p><br/>
-						<span class="description"><?php _e( 'You must login to Stripe to <a target="_blank" href="https://manage.stripe.com/#account/apikeys">get your API credentials</a>. You can enter your test credentials, then live ones when ready. When switching from test to live API credentials, if you were testing on a site that will be used in live mode, you need to manually clear the associated row from the *_pro_sites_stripe_customers table for the given blogid to prevent errors on checkout or management of the site.', 'psts' ) ?></span>
+						<span class="description"><?php _e( 'You must login to Stripe to <a target="_blank" href="https://dashboard.stripe.com/account/apikeys">get your API credentials</a>. You can enter your test credentials, then live ones when ready. When switching from test to live API credentials, if you were testing on a site that will be used in live mode, you need to manually clear the associated row from the *_pro_sites_stripe_customers table for the given blogid to prevent errors on checkout or management of the site.', 'psts' ) ?></span>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -414,7 +414,7 @@ class ProSites_Gateway_Stripe {
 				echo '<li>' . sprintf( __( 'They should continue to have access until %s.', 'psts' ), $end_date ) . '</li>';
 			}
 
-			echo '<li>' . sprintf( __( 'Stripe Customer ID: <strong><a href="https://manage.stripe.com/#test/customers/%s" target="_blank">%s</a></strong>', 'psts' ), $customer_id, $customer_id ) . '</li>';
+			echo '<li>' . sprintf( __( 'Stripe Customer ID: <strong><a href="https://dashboard.stripe.com/customers/%s" target="_blank">%s</a></strong>', 'psts' ), $customer_id, $customer_id ) . '</li>';
 
 			try {
 				$existing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );

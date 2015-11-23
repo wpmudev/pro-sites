@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.4
+Version: 3.5.1.5
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.4';
+	var $version = '3.5.1.5';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -2047,7 +2047,7 @@ Thanks!", 'psts' ),
 		}
 
 		// If previous gateway is not the same, we need to cancel the old subscription if we can.
-		if( ! empty( $last_gateway ) && $last_gateway != $gateway ) {
+		if( ! empty( $last_gateway ) && $last_gateway != $gateway && strtolower( $last_gateway ) != 'trial' && strtolower( $gateway ) != 'trial' ) {
 			$gateways = ProSites_Helper_Gateway::get_gateways();
 			if( ! empty( $gateways ) && isset( $gateways[ $last_gateway ] ) && method_exists( $gateways[ $last_gateway ]['class'], 'cancel_subscription' ) ) {
 				call_user_func( $gateways[ $last_gateway ]['class'] . '::cancel_subscription', $blog_id );
@@ -2084,7 +2084,8 @@ Thanks!", 'psts' ),
 
 		// Change trial status
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-		if( $trialing && ! 'Trial' == $gateway ) {
+
+		if( $trialing && 'Trial' != $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 		}
 		if( 'Trial' == $gateway ) {

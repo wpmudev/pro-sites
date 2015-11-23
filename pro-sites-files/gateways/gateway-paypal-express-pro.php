@@ -200,7 +200,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		}
 
 		// This is a new blog
-		if ( isset( $render_dataf['blog_activation_key'] ) ) {
+		if ( isset( $render_data['blog_activation_key'] ) ) {
 			$content .= '<input type="hidden" name="activation" value="' . $render_data['blog_activation_key'] . '" />';
 
 			if ( isset( $render_data['new_blog_details'] ) ) {
@@ -706,6 +706,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 		/* ------------------- PayPal Checkout ----------------- */
 		//!check for return from Express Checkout
+		$x = '';
 		if ( isset( $_GET['token'] ) && isset( $_POST['period'] ) && isset( $_POST['level'] ) ) {
 			if ( ! empty( $_GET['action'] ) && $_GET['action'] == 'canceled' ) {
 				return false;

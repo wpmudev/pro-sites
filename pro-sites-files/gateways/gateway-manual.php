@@ -188,8 +188,8 @@ class ProSites_Gateway_Manual {
 		$content .= '<input type="hidden" name="level" value="' . $level . '" />
 					<input type="hidden" name="period" value="' . $period . '" />';
 
-		$name = self::get_name();
-		$name = array_pop( $name );
+		$name = $psts->get_setting( "mp_name", self::get_name() );
+		$name = is_array( $name ) ? array_pop( $name ) : $name;
 		$content .= '<div id="psts-manual-checkout"><h2>' . $name . '</h2>';
 
 		$content .= '<div id="psts-manual-instructions">' . stripslashes( do_shortcode( $psts->get_setting( 'mp_instructions' ) ) ) . '</div>';
