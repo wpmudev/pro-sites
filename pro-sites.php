@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.5
+Version: 3.5.1.6
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.5';
+	var $version = '3.5.1.6';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -654,7 +654,7 @@ Thanks!", 'psts' ),
 		$trial_days = $this->get_setting( 'trial_days' );
 		if ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
-			$this->extend( $blog_id, $extend, 'Trial', $this->get_setting( 'trial_level', 1 ) );
+			$this->extend( $blog_id, $extend, 'trial', $this->get_setting( 'trial_level', 1 ) );
 		}
 	}
 
@@ -672,7 +672,7 @@ Thanks!", 'psts' ),
 				SELECT expire
 				FROM {$wpdb->base_prefix}pro_sites
 				WHERE blog_ID = %d
-					AND gateway = 'Trial'
+					AND ( gateway = 'Trial' OR gateway = 'trial' )
 					AND expire >= %s
 					AND (term = '' OR term IS NULL)
 				LIMIT 1", $blog_id, time()
@@ -695,7 +695,7 @@ Thanks!", 'psts' ),
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 		if( ! $trialing ) {
-			$trialing = empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND gateway = 'Trial' AND expire >= %s LIMIT 1", $blog_id, time() ) );
+			$trialing = empty( $blog_id ) ? false : $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d AND ( gateway = 'Trial' OR gateway = 'trial' ) AND expire >= %s LIMIT 1", $blog_id, time() ) );
 		}
 
 		return $trialing;
@@ -1456,7 +1456,7 @@ Thanks!", 'psts' ),
 					}
 				}
 
-				if ( $result->gateway == 'Trial' || ! empty( $trialing ) ) {
+				if ( $result->gateway == 'trial' || ! empty( $trialing ) ) {
 					$trial_info = "\n" . __( '*** PLEASE NOTE ***', 'psts' ) . "\n";
 					$trial_info .= sprintf( __( 'You will not be charged for your subscription until your trial ends on %s. If applicable, this does not apply to setup fees and other upfront costs.', 'psts' ), date_i18n( get_option( 'date_format' ), $result->expire ) );
 					$payment_info .= apply_filters( 'psts_trial_info', $trial_info, $blog_id );
@@ -1972,6 +1972,9 @@ Thanks!", 'psts' ),
     */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
+
+		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
+
 		$now    = time();
 		//	$exists = $this->get_expire( $blog_id ); // not reliable
 		$exists = false;
@@ -2031,6 +2034,7 @@ Thanks!", 'psts' ),
 
 			// Get last gateway if exists
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
+			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : $last_gateway;
 
 			$wpdb->query( $wpdb->prepare( "
 	  		UPDATE {$wpdb->base_prefix}pro_sites
@@ -2046,8 +2050,11 @@ Thanks!", 'psts' ),
 			) );
 		}
 
+		// Avoid trials and manual extensions from cancelling subscriptions
+		$exempted_gateways = array( 'trial', 'manual' );
+
 		// If previous gateway is not the same, we need to cancel the old subscription if we can.
-		if( ! empty( $last_gateway ) && $last_gateway != $gateway && strtolower( $last_gateway ) != 'trial' && strtolower( $gateway ) != 'trial' ) {
+		if( ! empty( $last_gateway ) && $last_gateway != $gateway && ! in_array( $last_gateway, $exempted_gateways ) && ! in_array( $gateway, $exempted_gateways ) ) {
 			$gateways = ProSites_Helper_Gateway::get_gateways();
 			if( ! empty( $gateways ) && isset( $gateways[ $last_gateway ] ) && method_exists( $gateways[ $last_gateway ]['class'], 'cancel_subscription' ) ) {
 				call_user_func( $gateways[ $last_gateway ]['class'] . '::cancel_subscription', $blog_id );
@@ -2085,11 +2092,17 @@ Thanks!", 'psts' ),
 		// Change trial status
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 
-		if( $trialing && 'Trial' != $gateway ) {
+		if( $trialing && 'trial' != $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 		}
-		if( 'Trial' == $gateway ) {
+		if( 'trial' == $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
+		}
+
+		if( ! empty( $gateway ) ) {
+			do_action( 'psts_' . $gateway . '_extension', $blog_id );
+			// Stripe Fix
+			ProSites_Gateway_Stripe::attempt_manual_reactivation( $blog_id );
 		}
 
 		//flip flag after action fired
@@ -2723,7 +2736,7 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$this->extend( (int) $_POST['bid'], $extend, __( 'Manual', 'psts' ), $_POST['extend_level'], false, false, true, true );
+			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
@@ -3769,6 +3782,7 @@ function admin_levels() {
 				<?php
 				}
 			} else {
+				$bgcolor = 'transparent';
 				?>
 				<tr style='background-color: <?php echo $bgcolor; ?>'>
 					<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
@@ -4931,7 +4945,7 @@ function admin_levels() {
 
 		//Set Trial
 		if ( $trial ) {
-			$this->extend( $result['blog_id'], $period, 'Trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
+			$this->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
 			//Redirect to checkout on next signup
 			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 		}
@@ -5171,7 +5185,7 @@ function admin_levels() {
 		}
 		//Check meta
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
-		$this->record_transaction( $blog_id, 'Manual', $amount );
+		$this->record_transaction( $blog_id, 'manual', $amount );
 	}
 
 	/**

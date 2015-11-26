@@ -7,6 +7,10 @@ Change Log:
 
 ----------------------------------------------------------------------
 
+3.5.1.6 - 11/23/2015 - Rheinard Korf
+- Priority Fix: Manual extension of site will re-activate cancelled Stipe subscription. User will only be charged at next expiry.
+- Fixed: Legacy gateways, trials and manual extensions no longer cancel subscriptions.
+
 3.5.1.5 - 11/23/2015 - Rheinard Korf
 - Update: Stripe URLs updated
 - Fixed: Warnings with Premium Plugins Manager
