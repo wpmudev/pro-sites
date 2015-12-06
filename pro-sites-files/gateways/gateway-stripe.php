@@ -2965,6 +2965,10 @@ class ProSites_Gateway_Stripe {
 					if ( count( $pair ) === 1 && preg_match( '/invoice\.created/', $memo ) ) {
 						$pair['create'] = $timestamp;
 					}
+					if ( count( $pair ) === 1 && preg_match( '/Manual extension/', $memo ) ) {
+						$pair['create'] = $timestamp;
+					}
+
 				}
 			}
 

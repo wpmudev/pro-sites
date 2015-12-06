@@ -4945,7 +4945,8 @@ function admin_levels() {
 
 		//Set Trial
 		if ( $trial ) {
-			$this->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
+			$this->extend( $result['blog_id'], $period, 'trial', $this->get_setting( 'trial_level', $level ), '', strtotime( '+ ' . $trial_days . ' days' ) );
+
 			//Redirect to checkout on next signup
 			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
 		}

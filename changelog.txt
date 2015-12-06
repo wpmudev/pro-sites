@@ -7,6 +7,9 @@ Change Log:
 
 ----------------------------------------------------------------------
 
+3.5.1.7 - 12/07/2015 - Rheinard Korf
+- Fixed: Pre 3.5 feature to set default trial levels restored.
+
 3.5.1.6 - 11/23/2015 - Rheinard Korf
 - Priority Fix: Manual extension of site will re-activate cancelled Stipe subscription. User will only be charged at next expiry.
 - Fixed: Legacy gateways, trials and manual extensions no longer cancel subscriptions.
