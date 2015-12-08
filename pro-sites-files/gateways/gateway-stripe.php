@@ -1316,6 +1316,20 @@ class ProSites_Gateway_Stripe {
 		if ( empty( $subscription->blog_id ) ) {
 			$subscription->blog_id = ProSites_Helper_ProSite::get_blog_id( $subscription->activation );
 		}
+		// We might have a legacy account on hand
+		$x = '';
+		if( empty( $subscription->blog_id ) ) {
+			$customer = Stripe_Customer::retrieve( $subscription->customer_id );
+			preg_match( '/\d*$/', $customer->description, $blog_id );
+			$blog_id = ! empty( $blog_id ) ? array_pop( $blog_id ) : 0;
+			// Meta data still not retrieved... get from sub
+			if( empty( $blog_id ) ) {
+				$sub                    = $customer->subscriptions->retrieve( $subscription->id );
+				$blog_id = (int) $sub->metadata->blog_id;
+			}
+			$subscription->blog_id = (int) $blog_id;
+			self::set_subscription_blog_id( $subscription,$subscription->customer_id, $blog_id, $blog_id );
+		}
 		$subscription->is_trial            = isset( $subscription->status ) && 'trialing' == $subscription->status ? true : false;
 		$subscription->trial_end           = isset( $subscription->trial_end ) ? $subscription->trial_end : false;
 		$subscription->trial_start         = isset( $subscription->trial_start ) ? $subscription->trial_start : false;
@@ -1355,6 +1369,7 @@ class ProSites_Gateway_Stripe {
 			$subscription->plan_change_mode = 'downgrade';
 		}
 
+		$subscription->blog_id = (int) $subscription->blog_id;
 		return $subscription;
 	}
 
