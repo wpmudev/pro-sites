@@ -7,7 +7,7 @@ Change Log:
 
 ----------------------------------------------------------------------
 
-3.5.1.7 - 12/07/2015 - Rheinard Korf
+3.5.1.7 - 12/08/2015 - Rheinard Korf
 - Fixed: Pre 3.5 feature to set default trial levels restored.
 - Added: When extending a site manually and Stripe is activated, there is an option to attempt to reactivate the Stripe account.
          Please note to only use this upon accidental cancellation or when you have explicit permission from the user.
