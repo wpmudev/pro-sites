@@ -13,7 +13,7 @@ Change Log:
          Please note to only use this upon accidental cancellation or when you have explicit permission from the user.
 - Update: Warnings about manual payment cancellations removed.
 - Update: New warnings when Stripe credit card transactions failed and prompt to re-enter credit card details on accounts page.
-- Fixed: Reactivating legacy 3.4 Stripe customers will restore correct metadata 
+- Fixed: Reactivating legacy 3.4 Stripe customers will restore correct metadata
 
 3.5.1.6 - 11/23/2015 - Rheinard Korf
 - Priority Fix: Manual extension of site will re-activate cancelled Stipe subscription. User will only be charged at next expiry.
