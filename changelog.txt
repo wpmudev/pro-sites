@@ -7,6 +7,9 @@ Change Log:
 
 ----------------------------------------------------------------------
 
+3.5.1.8 - 12/09/2015 - Rheinard Korf
+- Fixed: Error when Stripe is not active.
+
 3.5.1.7 - 12/08/2015 - Rheinard Korf
 - Fixed: Pre 3.5 feature to set default trial levels restored.
 - Added: When extending a site manually and Stripe is activated, there is an option to attempt to reactivate the Stripe account.

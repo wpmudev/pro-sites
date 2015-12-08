@@ -2105,7 +2105,7 @@ Thanks!", 'psts' ),
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 		}
 
-		if( ! empty( $gateway ) ) {
+		if( ! empty( $gateway ) && class_exists( 'ProSites_Gateway_Stripe' ) ) {
 			do_action( 'psts_' . $gateway . '_extension', $blog_id );
 			// Stripe Fix
 			ProSites_Gateway_Stripe::attempt_manual_reactivation( $blog_id );
