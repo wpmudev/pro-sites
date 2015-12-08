@@ -58,6 +58,9 @@ class ProSites_Gateway_Stripe {
 		//display admin notices
 		add_action( 'admin_notices', array( &$this, 'admin_notices' ), 99 );
 
+		//check failed payment
+		add_filter( 'psts_blog_info_payment_failed', array( 'ProSites_Gateway_Stripe', 'last_payment_failed' ), 10, 2 );
+
 		//transaction hooks
 		add_filter( 'prosites_transaction_object_create', array(
 			'ProSites_Gateway_Stripe',
@@ -1148,7 +1151,7 @@ class ProSites_Gateway_Stripe {
 						if ( $invoice_items ) {
 							$args['items'] = $invoice_items;
 						}
-
+						update_blog_option( $blog_id, 'psts_stripe_payment_failed', 0 );
 						self::maybe_extend( $blog_id, $period, $gateway, $level, $charge_amount, $plan_end, true, true, $args );
 						break;
 
@@ -1182,6 +1185,7 @@ class ProSites_Gateway_Stripe {
 					case 'invoice.payment_failed' :
 						$psts->log_action( $blog_id, sprintf( __( 'Stripe webhook "%s" received: The %s payment has failed. Date: "%s", Charge ID "%s"', 'psts' ), $event_type, $amount_formatted, $date, $charge_id ) );
 						$psts->email_notification( $blog_id, 'failed' );
+						update_blog_option( $blog_id, 'psts_stripe_payment_failed', 1 );
 						break;
 
 					case 'charge.disputed' :
@@ -1743,8 +1747,14 @@ class ProSites_Gateway_Stripe {
 			$card_object = self::get_default_card( $customer_object );
 
 			$content .= '<div id="psts-stripe-checkout-existing">
-					<h2>' . esc_html( 'Checkout Using Existing Credit Card', 'psts' ) . '</h2>
-					<table id="psts-cc-table-existing">
+					<h2>' . esc_html( 'Checkout Using Existing Credit Card', 'psts' ) . '</h2>';
+
+			$payment_failed = get_blog_option( $blog_id, 'psts_stripe_payment_failed' );
+			if( ! empty( $payment_failed ) ) {
+				$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Please note that your last payment failed. Please use the next section to re-enter your credit card details.', 'psts' ) . '</div>';
+			}
+
+			$content .= '		<table id="psts-cc-table-existing">
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Last 4 Digits:', 'psts' ) . '</td>
 							<td>' . esc_html( $card_object->last4 ) . '</td>
@@ -2722,6 +2732,11 @@ class ProSites_Gateway_Stripe {
 		return empty( $args ) ? array() : $args;
 	}
 
+	public static function last_payment_failed( $bool, $blog_id ) {
+		$payment_failed = get_blog_option( $blog_id, 'psts_stripe_payment_failed' );
+		return ! empty( $payment_failed );
+	}
+
 	public static function process_on_render() {
 		return true;
 	}
@@ -2948,6 +2963,7 @@ class ProSites_Gateway_Stripe {
 				try {
 					$subription->save();
 					$success = true;
+					update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
 				} catch ( Exception $e ) {}
 			}
 		} catch ( Exception $e ) {}
@@ -2956,6 +2972,9 @@ class ProSites_Gateway_Stripe {
 
 			$log  = get_blog_option( $blog_id, 'psts_action_log' );
 			$pair = array();
+
+			$force_attempt = isset( $_POST['attempt_stripe_reactivation'] ) && ! empty( $_POST['attempt_stripe_reactivation'] );
+
 			if ( is_array( $log ) && count( $log ) ) {
 				$log = array_reverse( $log, true );
 				foreach ( $log as $timestamp => $memo ) {
@@ -2965,16 +2984,15 @@ class ProSites_Gateway_Stripe {
 					if ( count( $pair ) === 1 && preg_match( '/invoice\.created/', $memo ) ) {
 						$pair['create'] = $timestamp;
 					}
-					if ( count( $pair ) === 1 && preg_match( '/Manual extension/', $memo ) ) {
+					if ( count( $pair ) === 1 && preg_match( '/Manual/i', $memo ) ) {
 						$pair['create'] = $timestamp;
 					}
-
 				}
 			}
 
 			// If cancellation happened in less than 2 minutes, its likely a mistake, so recreate
 			$elapsed = (int) $pair['delete'] - (int) $pair['create'];
-			if ( $elapsed > 0 && $elapsed < 120 ) {
+			if ( ( $elapsed > 0 && $elapsed < 120 ) || $force_attempt ) {
 				global $wpdb;
 
 				$prosite = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
@@ -2999,9 +3017,13 @@ class ProSites_Gateway_Stripe {
 					if( $result ) {
 						$sub_id = $result->id;
 						self::set_customer_data( $blog_id, $customer_id, $sub_id );
+						update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
+						$psts->log_action( $blog_id, __( 'Stripe subscription reactivated manually.', 'psts' ) );
+					} else {
+						$psts->log_action( $blog_id, __( 'Stripe cannot re-activate this subscription.', 'psts' ) );
 					}
 				} catch( Exception $e ) {
-
+					$psts->log_action( $blog_id, __( 'Stripe cannot re-activate this subscription.', 'psts' ) );
 				}
 
 			}

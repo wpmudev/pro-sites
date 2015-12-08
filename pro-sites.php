@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.6
+Version: 3.5.1.7
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.6';
+	var $version = '3.5.1.7';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -2025,7 +2025,13 @@ Thanks!", 'psts' ),
 
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
-		$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
+		if( 'manual' === $gateway && $exists ) {
+			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
+			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : $last_gateway;
+			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $last_gateway ) : $wpdb->prepare( ", gateway = %s", $gateway );
+		} else {
+			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
+		}
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
 		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
 		$extra_sql .= $wpdb->prepare( ", is_recurring = %d", $is_recurring );
@@ -2051,7 +2057,7 @@ Thanks!", 'psts' ),
 		}
 
 		// Avoid trials and manual extensions from cancelling subscriptions
-		$exempted_gateways = array( 'trial', 'manual' );
+		$exempted_gateways = array( 'trial', 'manual', 'bulk upgrade' );
 
 		// If previous gateway is not the same, we need to cancel the old subscription if we can.
 		if( ! empty( $last_gateway ) && $last_gateway != $gateway && ! in_array( $last_gateway, $exempted_gateways ) && ! in_array( $gateway, $exempted_gateways ) ) {
@@ -3003,6 +3009,24 @@ _gaq.push(["_trackTrans"]);
 											<br/><?php _e( 'Choose what level the site should have access to.', 'psts' ); ?>
 										</td>
 									</tr>
+									<?php
+									$active_gateways = (array) $this->get_setting('gateways_enabled');
+									$stripe_active =  array_search('ProSites_Gateway_Stripe', $active_gateways);
+									$stripe_active = ! empty( $stripe_active ) || $stripe_active === 0;
+									if( ! empty( $stripe_active ) || $stripe_active === 0 ) {
+										?>
+									<tr valign="top">
+										<th scope="row">
+											<?php esc_html_e( 'Stripe Reactivate', 'psts' ); ?>
+										</th>
+										<td>
+											<input type="checkbox" name="attempt_stripe_reactivation" value="1"/>
+											<br/><?php esc_html_e( 'Attempt to reactivate former Stripe subscription.', 'psts' ); ?><br/><small><?php esc_html_e( 'Note: Only do this if the subscription was accidentally cancelled or you have explicit permission from the customer.', 'psts' ); ?></small>
+										</td>
+									</tr>
+										<?php
+									}
+									?>
 									<tr valign="top">
 										<td colspan="2" style="text-align:right;">
 											<input class="button-primary" type="submit" name="psts_extend" value="<?php _e( 'Extend &raquo;', 'psts' ) ?>"/>

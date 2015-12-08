@@ -137,6 +137,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 					'cancel_info_link'          => $cancel_info_link,
 					'receipt_form'              => $psts->receipt_form( $blog_id ),
 					'all_fields'                => apply_filters( 'psts_blog_info_all_fields', true, $blog_id ),
+					'payment_failed'            => apply_filters( 'psts_blog_info_payment_failed', false, $blog_id ),
 				),
 				$blog_id
 			);

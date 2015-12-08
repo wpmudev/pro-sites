@@ -166,9 +166,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						$name = $name[ $site_details['last_payment_gateway'] ];
 					}
 
-					$content .= '<div id="psts-general-error" class="psts-warning">' .
-					            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.','psts' ), $allowed_html );
-					$content .= '</div>';
+					if( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
+						$content .= '<div id="psts-general-error" class="psts-warning">' .
+						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
+						$content .= '</div>';
+					}
 
 				}
 
@@ -190,9 +192,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						$name = $name[ $site_details['last_payment_gateway'] ];
 					}
 
-					$content .= '<div id="psts-general-error" class="psts-warning">' .
-					            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.','psts' ), $allowed_html );
-					$content .= '</div>';
+					if( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
+						$content .= '<div id="psts-general-error" class="psts-warning">' .
+						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
+						$content .= '</div>';
+					}
 
 				}
 
@@ -212,9 +216,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						$name = $name[ $site_details['last_payment_gateway'] ];
 					}
 
-					$content .= '<div id="psts-general-error" class="psts-warning">' .
-					            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.','psts' ), $allowed_html );
-					$content .= '</div>';
+					if( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
+						$content .= '<div id="psts-general-error" class="psts-warning">' .
+						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
+						$content .= '</div>';
+					}
 
 				}
 
@@ -270,7 +276,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				// Manual payments
 				if ( ! empty( $info_retrieved['last_payment_gateway'] ) && 'manual' == strtolower( $info_retrieved['last_payment_gateway'] ) ) {
-					$content .= '<div id="psts-general-error" class="psts-warning psts-manual-payment-notify">' . __( 'Your site is currently using manual payments and will not automatically renew. Please upgrade your site or contact us with your renewal request.', 'psts' ) . '</div>';
+					$content .= '<div id="psts-general-error" class="psts-warning psts-manual-payment-notify">' . __( 'Your site was extended manually and may not renew automatically. If you have an active subscription this message will disappear once payment is received. Please contact us if you have any concerns. ', 'psts' ) . '</div>';
+				}
+
+				// Last payment failed
+				if ( ! empty( $info_retrieved['payment_failed'] ) ) {
+					$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please select your plan below and choose a new payment option.', 'psts' ) . '</div>';
 				}
 
 				$content .= '<ul class="psts-info-list">';
