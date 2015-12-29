@@ -152,13 +152,16 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$allowed_html = wp_kses_allowed_html('post');
 			$last_gateway = ! empty ( $site_details['last_payment_gateway'] ) ? $site_details['last_payment_gateway'] : '';
+
+			$allow_cancel_gateway = ! defined( 'PSTS_CANCEL_ON_GATEWAY_CHANGE' ) || ( defined( 'PSTS_CANCEL_ON_GATEWAY_CHANGE' ) && PSTS_CANCEL_ON_GATEWAY_CHANGE != false );
+
 			// Primary
 			if ( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
 				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
 				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
 
-				if( ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
+				if( $allow_cancel_gateway && ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -184,7 +187,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
 				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 
-				if( ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
+				if( $allow_cancel_gateway && ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 //				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $secondary_gateway ) {
 					$name = "";
 					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
@@ -208,21 +211,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
 				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
-
-				if( ! empty ( $last_gateway ) && $last_gateway !== $manual_gateway && strtolower( $last_gateway ) !== 'trial' ) {
-					$name = "";
-					if( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
-						$name = call_user_func( $gateways[ $site_details['last_payment_gateway'] ]['class'] . '::get_name' );
-						$name = $name[ $site_details['last_payment_gateway'] ];
-					}
-
-					if( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
-						$content .= '<div id="psts-general-error" class="psts-warning">' .
-						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
-						$content .= '</div>';
-					}
-
-				}
 
 				$content .= '</div>';
 			}
@@ -291,7 +279,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 				//payment method
 				if ( ! empty( $info_retrieved['card_type'] ) ) {
-					$content .= '<li class="psts-payment-method">' . sprintf( __( 'Payment method: <strong>%1$s card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s/%4$s</strong>', 'psts' ), $info_retrieved['card_type'], $info_retrieved['card_reminder'], $info_retrieved['card_expire_month'], $info_retrieved['card_expire_year'] ) . '</li>';
+					$content .= '<li class="psts-payment-method">' . sprintf( __( 'Payment method: <strong>%1$s card</strong> ending in <strong>%2$s</strong>. Expires <strong>%3$s/%4$s</strong>', 'psts' ), $info_retrieved['card_type'], $info_retrieved['card_reminder'], $info_retrieved['card_expire_month'], $info_retrieved['card_expire_year'] );
+					// Update Credit Card Details (Stripe only)
+					if( ! empty( $info_retrieved['modify_card'] ) ) {
+						$content .= $info_retrieved['modify_card'];
+					}
+					$content .= '</li>';
 				}
 				//last payment
 				if ( ! empty( $info_retrieved['last_payment_date'] ) ) {
@@ -463,8 +456,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$session_data['new_blog_details']      = ProSites_Helper_Session::session( 'new_blog_details' );
 			$session_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 
-			// No existing details for a new signup
-			if ( ! is_user_logged_in() || ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['site_activated'] ) && ! $session_data['new_blog_details']['site_activated'] ) ) {
+			//if ( ! is_user_logged_in() || ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['site_activated'] ) && $session_data['new_blog_details']['site_activated'] ) ) {
 				$pre_content = '';
 
 				if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
@@ -485,10 +477,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				if ( ! empty( $pre_content ) ) {
 					return $pre_content;
-				} else {
-					return $content;
 				}
-			}
+			//}
 
 
 			//For gateways after redirection, upon page refresh

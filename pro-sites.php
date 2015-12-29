@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.1.8
+Version: 3.5.1.9
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.1.8';
+	var $version = '3.5.1.9';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -197,6 +197,9 @@ class ProSites {
 
 		//Show message before checkout table
 		add_filter('prosites_inner_pricing_table_pre', array($this, 'signup_output') );
+
+		// Take action when a gateway changes
+		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
 		$this->setup_ajax_hooks();
 
@@ -2056,17 +2059,6 @@ Thanks!", 'psts' ),
 			) );
 		}
 
-		// Avoid trials and manual extensions from cancelling subscriptions
-		$exempted_gateways = array( 'trial', 'manual', 'bulk upgrade' );
-
-		// If previous gateway is not the same, we need to cancel the old subscription if we can.
-		if( ! empty( $last_gateway ) && $last_gateway != $gateway && ! in_array( $last_gateway, $exempted_gateways ) && ! in_array( $gateway, $exempted_gateways ) ) {
-			$gateways = ProSites_Helper_Gateway::get_gateways();
-			if( ! empty( $gateways ) && isset( $gateways[ $last_gateway ] ) && method_exists( $gateways[ $last_gateway ]['class'], 'cancel_subscription' ) ) {
-				call_user_func( $gateways[ $last_gateway ]['class'] . '::cancel_subscription', $blog_id );
-			}
-		}
-
 		unset( $this->pro_sites[ $blog_id ] ); //clear local cache
 		wp_cache_delete( 'is_pro_site_' . $blog_id, 'psts' ); //clear object cache
 		unset( $this->level[ $blog_id ] ); //clear cache
@@ -2080,7 +2072,7 @@ Thanks!", 'psts' ),
 			}
 		}
 
-		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify );
+		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify, $gateway, $last_gateway );
 
 		//fire level change
 		if ( intval( $exists ) <= time() ) { //count reactivating account as upgrade
@@ -2152,6 +2144,25 @@ Thanks!", 'psts' ),
 		if ( $new_expire <= time() ) {
 			update_blog_option( $blog_id, 'psts_signed_up', 1 );
 		}
+	}
+
+	function cancel_on_gateway_change( $blog_id, $new_expire, $level, $manual_notify, $gateway, $last_gateway ) {
+
+		if( defined( 'PSTS_CANCEL_ON_GATEWAY_CHANGE' ) && PSTS_CANCEL_ON_GATEWAY_CHANGE === false ) {
+			return;
+		}
+
+		// Avoid trials and manual extensions from cancelling subscriptions
+		$exempted_gateways = array( 'trial', 'manual', 'bulk upgrade' );
+
+		// If previous gateway is not the same, we need to cancel the old subscription if we can.
+		if( ! empty( $last_gateway ) && $last_gateway != $gateway && ! in_array( $last_gateway, $exempted_gateways ) && ! in_array( $gateway, $exempted_gateways ) ) {
+			$gateways = ProSites_Helper_Gateway::get_gateways();
+			if( ! empty( $gateways ) && isset( $gateways[ $last_gateway ] ) && method_exists( $gateways[ $last_gateway ]['class'], 'cancel_subscription' ) ) {
+				call_user_func( $gateways[ $last_gateway ]['class'] . '::cancel_subscription', $blog_id );
+			}
+		}
+
 	}
 
 

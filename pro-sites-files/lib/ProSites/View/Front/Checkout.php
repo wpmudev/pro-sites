@@ -12,6 +12,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
 
+			do_action( 'prosites_before_checkout_page', $blog_id );
+
 			if ( $taxamo_enabled ) {
 				// Prepare for location based TAX (Taxamo does its own checking client side)
 				ProSites_Helper_Geolocation::init_geolocation();

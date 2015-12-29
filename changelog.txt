@@ -4,8 +4,15 @@ Developer: Aaron Edwards
 
 Change Log:
 ----------------------------------------------------------------------
-
 ----------------------------------------------------------------------
+
+3.5.1.9 - 12/29/2015 - Rheinard
+- Fixed: Checkout page now displaying proper confirmation.
+- Fixed: Manual payments no longer give cancellation warning.
+- Fixed: PayPal checkout shows confirmation after redirecting back from PayPal.
+- Added: Update your Stripe credit card by checking out your existing plan and selecting "Replace Existing Card". UX update coming soon.
+- Added: New constant to add to wp-config.php to avoid cancellation when changing gateways (make sure you know what you're doing first): define( 'PSTS_CANCEL_ON_GATEWAY_CHANGE', false);
+- Note: Above can also be achieved by removing the relevant hook in a plugin or theme file: remove_action( 'psts_extend', array( 'ProSites', 'cancel_on_gateway_change' ), 10, 6 );
 
 3.5.1.8 - 12/09/2015 - Rheinard Korf
 - Fixed: Error when Stripe is not active.

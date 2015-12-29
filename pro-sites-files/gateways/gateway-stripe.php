@@ -1814,7 +1814,21 @@ class ProSites_Gateway_Stripe {
 									<img src="' . esc_url( $img_base . 'buy-cvv.gif' ) . '" height="27" width="42" title="' . esc_attr__( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' ) . '" />
 								</label>
 							</td>
-						</tr>
+						</tr>';
+
+		if( isset( $customer_object ) ) {
+			$content .= '
+						<tr>
+							<td class="pypl_label" align="right"><nobr>' . esc_html__( 'Replace Existing Card:', 'psts' ) . '</nobr>&nbsp;</td>
+							<td valign="middle">
+								<label>
+									<input id="cc_replace_card" name="cc_replace_card" type="checkbox" class="" />
+								</label>
+							</td>
+						</tr>';
+		}
+
+		$content .='
 					</tbody>
 				</table>
 				<input type="hidden" name="cc_stripe_checkout" value="1" />
@@ -2053,6 +2067,10 @@ class ProSites_Gateway_Stripe {
 							$blog_string .= $user_blog->blogname . ', ';
 						}
 						$c->metadata->blogs = $blog_string;
+					}
+
+					if( isset( $_POST['cc_replace_card'] )  && 'on' == $_POST['cc_replace_card'] ) {
+						$c->card = $_POST['stripeToken'];
 					}
 
 					$c->save();
@@ -2727,6 +2745,8 @@ class ProSites_Gateway_Stripe {
 				}
 				// Cancellation link
 				if ( $is_recurring ) {
+					$args['modify_card'] = ' <small>' . esc_html__( 'Update your credit card by selecting your current plan below and proceed with checkout.', 'psts' ) . '</small>';
+
 					if ( is_pro_site( $blog_id ) ) {
 						$args['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 						$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
