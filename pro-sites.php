@@ -1296,18 +1296,33 @@ Thanks!", 'psts' ),
 	function check() {
 
 		global $blog_id, $wpdb;
+
 		if ( is_pro_site( $blog_id ) ) {
 			do_action( 'psts_active' );
 		} else if ( $wpdb->result ) { //only trigger withdrawls if it wasn't a db error
 			do_action( 'psts_inactive' );
 
-			//fire hooks on first encounter
-			if ( get_option( 'psts_withdrawn' ) === '0' ) {
-				$this->withdraw( $blog_id );
+			$current_expire = $this->get_expire( $blog_id );
 
-				//send email
-				if ( ! defined( 'PSTS_NO_EXPIRE_EMAIL' ) && '9999999999' != $this->get_expire( $blog_id ) ) {
-					$this->email_notification( $blog_id, 'expired' );
+			/*
+			 * Add 2 hour buffer before expiring allowing webhooks to process ( 1hr = 3600 )
+			 * Can override in wp-config by setting PSTS_EXPIRATION_BUFFER
+			 * 1 hr = 3600 seconds
+			 * 1 day = 86400 seconds
+			 */
+			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 7200;
+
+			// Check current expiration, if its '9999999999' then its indefinite, else calculate
+			if( '9999999999' == $current_expire || ( ( (int) $current_expire + $expiration_buffer ) < time() ) ) {
+
+				//fire hooks on first encounter
+				if ( get_option( 'psts_withdrawn' ) === '0' ) {
+					$this->withdraw( $blog_id );
+
+					//send email
+					if ( ! defined( 'PSTS_NO_EXPIRE_EMAIL' ) && '9999999999' != $this->get_expire( $blog_id ) ) {
+						$this->email_notification( $blog_id, 'expired' );
+					}
 				}
 			}
 		}
@@ -1750,7 +1765,7 @@ Thanks!", 'psts' ),
 		if ( ! $blog_id ) {
 			$blog_id = $wpdb->blogid;
 		}
-		$blog_id = intval( $blog_id );
+		$blog_id = (int) $blog_id;
 
 		// Allow plugins to short-circuit
 		$pro = apply_filters( 'is_pro_site', null, $blog_id );
