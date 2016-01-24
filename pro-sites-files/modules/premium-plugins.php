@@ -189,7 +189,16 @@ class ProSites_Module_Plugins {
 
 		if ( count( $level_plugins ) && is_pro_site( $blog_id, $new_level ) ) {
 			switch_to_blog( $blog_id );
-			activate_plugins( $level_plugins ); //activate any plugins
+			foreach ($level_plugins as $plugin ) {
+				    $current = get_option( 'active_plugins', array() );
+		            if ( ! in_array( $plugin, $current ) ) {
+                		array_push( $current, $plugin );
+                        do_action( 'activate_plugin', trim( $plugin ) );
+				        update_option( 'active_plugins', $current );
+				        do_action( 'activate_' . trim( $plugin ) );
+				        do_action( 'activated_plugin', trim( $plugin) );
+		            }
+			}
 			restore_current_blog();
 		}
 	}
@@ -209,7 +218,20 @@ class ProSites_Module_Plugins {
 
 		if ( count( $level_plugins ) ) {
 			switch_to_blog( $blog_id );
-			deactivate_plugins( $level_plugins, true ); //silently remove any plugins so that uninstall hooks aren't fired
+			foreach ($level_plugins as $plugin ) {
+				    $current = get_option( 'active_plugins', array() );
+		            if (  in_array( $plugin, $current ) ) {
+						$key = array_search( $plugin, $current );
+
+						if ( false !== $key ) {
+							array_splice( $current, $key, 1 );
+						}                        
+				        update_option( 'active_plugins', $current );
+				        do_action( 'deactivate_' . trim( $plugin ) );
+				        do_action( 'deactivated_plugin', trim( $plugin) );
+				        do_action( 'deactivate_plugin', trim( $plugin ) );
+		            }
+			}
 			restore_current_blog();
 		}
 	}
