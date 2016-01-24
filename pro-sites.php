@@ -2039,6 +2039,11 @@ Thanks!", 'psts' ),
 		//Add 1.5 hour extra to handle the delays in subscription renewal by stripe
 		$new_expire = $new_expire >= 9999999999 ? $new_expire : $new_expire + 5400;
 
+		// Are we changing a permanent extension back to a normal site?
+		if( $exists && (int) $exists >= 9999999999 && (int) $new_expire < 9999999999 && 'manual' == strtolower( $gateway ) ) {
+			$new_expire = $expires;
+		}
+
 		$old_level = $this->get_level( $blog_id );
 
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
@@ -4045,7 +4050,7 @@ function admin_levels() {
 					}
 				}
 			});
-			
+
 		});
 		</script>
 	<?php

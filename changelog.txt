@@ -5,6 +5,9 @@ Developer: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+3.5.2.0 - xxxx - developer
+- Premium plugins now auto activate or deactivate when a site's level changes.
+- Permanent extensions can now be reverted by extending a site manually.
 
 3.5.1.9 - 12/29/2015 - Rheinard
 - Fixed: Checkout page now displaying proper confirmation.
@@ -351,7 +354,7 @@ Change Log:
 ----------------------------------------------------------------------
 - Add ability for admins or user to resend an email receipt via manage/checkout page
 - Add styled upgrade button to admin bar (replaces old menu item)
-- Add pro status/manage link to admin bar for Super Admins 
+- Add pro status/manage link to admin bar for Super Admins
 - Fix wrong coupon discount amounts for Stripe checkouts
 - Fix error handling bug for Stripe gateway
 - Adjust response codes returned for non prosites IPNs: http://premium.wpmudev.org/forums/topic/paypal-ipn-problem
