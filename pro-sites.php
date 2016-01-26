@@ -183,7 +183,7 @@ class ProSites {
 		}
 
 		// Hooking here until the models get reworked.
-		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 4 );
+		add_action( 'psts_extend', array( $this, 'send_extension_email' ), 10, 7 );
 
 		// New receipt
 		add_action( 'prosites_transaction_record', array( get_class(), 'send_receipt' ) );
@@ -391,6 +391,15 @@ Many thanks again for being a member!", 'psts' ),
 			'extension_msg'               => __( "We have given you Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
 
 These benefits will be available to you until: ENDDATE.
+
+After this date your site will revert back to a standard site.
+
+You can subscribe at any time from the link below:
+CHECKOUTURL
+
+Thanks!", 'psts' ),
+			'revoked_subject'           => __( 'Your permanent Pro Site status has changed.', 'psts' ),
+			'revoked_msg'               => __( "Your permanent Pro Site status has been removed. You will continue to have all the benefits of your Pro Site membership until ENDDATE.
 
 After this date your site will revert back to a standard site.
 
@@ -1377,10 +1386,10 @@ Thanks!", 'psts' ),
 
 		switch ( $action ) {
 			case 'success':
-				$e = array(
+				$e = apply_filters( 'psts_email_success_fields', array(
 					'msg'     => $this->get_setting( 'success_msg' ),
 					'subject' => $this->get_setting( 'success_subject' )
-				);
+				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
@@ -1482,10 +1491,10 @@ Thanks!", 'psts' ),
 
 				$search_replace['PAYMENTINFO'] = apply_filters( 'psts_payment_info', $payment_info, $blog_id );
 
-				$e = array(
+				$e = apply_filters( 'psts_email_receipt_fields', array(
 					'msg'     => $this->get_setting( 'receipt_msg' ),
 					'subject' => $this->get_setting( 'receipt_subject' )
-				);
+				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $this->pdf_receipt( $e['msg'] ) );
@@ -1498,10 +1507,10 @@ Thanks!", 'psts' ),
 				$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $this->get_expire( $blog_id ) );
 
 				$search_replace['ENDDATE'] = $end_date;
-				$e                         = array(
+				$e                         = apply_filters( 'psts_email_cancelled_fields', array(
 					'msg'     => $this->get_setting( 'canceled_msg' ),
 					'subject' => $this->get_setting( 'canceled_subject' )
-				);
+				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
@@ -1510,10 +1519,10 @@ Thanks!", 'psts' ),
 				break;
 
 			case 'expired':
-				$e = array(
+				$e = apply_filters( 'psts_email_expired_fields', array(
 					'msg'     => $this->get_setting( 'expired_msg' ),
 					'subject' => $this->get_setting( 'expired_subject' )
-				);
+				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
@@ -1522,10 +1531,10 @@ Thanks!", 'psts' ),
 				break;
 
 			case 'failed':
-				$e = array(
+				$e = apply_filters( 'psts_email_payment_failed_fields',array(
 					'msg'     => $this->get_setting( 'failed_msg' ),
 					'subject' => $this->get_setting( 'failed_subject' )
-				);
+				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
@@ -1541,15 +1550,31 @@ Thanks!", 'psts' ),
 				}
 
 				$search_replace['ENDDATE'] = $end_date;
-				$e                         = array(
+				$e                         = apply_filters( 'psts_email_extension_fields', array(
 					'msg'     => $this->get_setting( 'extension_msg' ),
 					'subject' => $this->get_setting( 'extension_subject' )
-				);
+				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
 
 				$this->log_action( $blog_id, sprintf( __( 'Manual extension email sent to %s', 'psts' ), $email ) );
+				break;
+			case 'permanent_revoked':
+				//get end date from expiration
+				$end_date = date_i18n( get_blog_option( $blog_id, 'date_format' ), $this->get_expire( $blog_id ) );
+
+				$search_replace['ENDDATE'] = $end_date;
+				$defaults = ProSites::get_default_settings_array();
+				$e                         = apply_filters( 'psts_email_revoked_fields', array(
+					'msg'     => $this->get_setting( 'revoked_msg', $defaults['revoked_msg'] ),
+					'subject' => $this->get_setting( 'revoked_subject', $defaults['revoked_subject'] )
+				) );
+
+				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
+				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ) );
+
+				$this->log_action( $blog_id, sprintf( __( 'Permanent status revoked email sent to %s', 'psts' ), $email ) );
 				break;
 		}
 	}
@@ -1657,7 +1682,7 @@ Thanks!", 'psts' ),
 	/**
 	 * @todo: Rework this into a model
 	 */
-	public function send_extension_email( $blog_id, $new_expire, $level, $manual_notify ) {
+	public function send_extension_email( $blog_id, $new_expire, $level, $manual_notify, $gateway, $last_gateway, $extra ) {
 
 		if( $manual_notify ) {
 			$args = array();
@@ -1666,7 +1691,14 @@ Thanks!", 'psts' ),
 			}
 
 			if ( ! defined( 'PSTS_NO_EXTENSION_EMAIL' ) ) {
-				$this->email_notification( $blog_id, 'extension', false, $args );
+
+				if( isset( $extra['permanent_revoked'] ) && true === $extra['permanent_revoked'] ) {
+					$this->email_notification( $blog_id, 'permanent_revoked', false, $args );
+					unset( $args['indefinite'] );
+				} else {
+					$this->email_notification( $blog_id, 'extension', false, $args );
+				}
+
 			}
 		}
 	}
@@ -2040,8 +2072,10 @@ Thanks!", 'psts' ),
 		$new_expire = $new_expire >= 9999999999 ? $new_expire : $new_expire + 5400;
 
 		// Are we changing a permanent extension back to a normal site?
+		$permanent_revoked = false;
 		if( $exists && (int) $exists >= 9999999999 && (int) $new_expire < 9999999999 && 'manual' == strtolower( $gateway ) ) {
 			$new_expire = $expires;
+			$permanent_revoked = true;
 		}
 
 		$old_level = $this->get_level( $blog_id );
@@ -2092,7 +2126,10 @@ Thanks!", 'psts' ),
 			}
 		}
 
-		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify, $gateway, $last_gateway );
+		$extra = array(
+			'permanent_revoked' => $permanent_revoked
+		);
+		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify, $gateway, $last_gateway, $extra );
 
 		//fire level change
 		if ( intval( $exists ) <= time() ) { //count reactivating account as upgrade
