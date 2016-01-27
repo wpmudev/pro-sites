@@ -2803,10 +2803,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 				$req = 'cmd=_notify-validate';
 				foreach ( $_POST as $k => $v ) {
-					if ( get_magic_quotes_gpc() ) {
-						$v = stripslashes( $v );
-					}
-					$req .= '&' . $k . '=' . urlencode( $v );
+					//Stripslashes, as WordPress escapes the post data
+					$req .= '&' . $k . '=' . urlencode( stripslashes( $v ) );
 				}
 
 				$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express/Pro Gateway";

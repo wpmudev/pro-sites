@@ -6,6 +6,11 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.2 -
+
+-Fixed: Use stripslashes in Paypal IPN handler, as WordPress escapes the data, it was
+        leading to failed IPN verification
+
 3.5.1.9 - 12/29/2015 - Rheinard
 - Fixed: Checkout page now displaying proper confirmation.
 - Fixed: Manual payments no longer give cancellation warning.
