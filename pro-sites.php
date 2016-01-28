@@ -536,6 +536,8 @@ Thanks!", 'psts' ),
 		  KEY  (id, transaction_id)
 		);";
 
+		//@todo: A Check needs to be in place to see if all the table exists or not
+		// If we get an error while creating table, plugin user should be aware of it.
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $table1 );
