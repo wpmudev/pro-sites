@@ -338,6 +338,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			global $psts;
 
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Settings::get_active_tab() );
+			$defaults = ProSites::get_default_settings_array();
 			?>
 
 			<div class="inside">
@@ -404,6 +405,16 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 								<input type="text" class="pp_emails_sub" name="psts[extension_subject]" value="<?php echo esc_attr( $psts->get_setting( 'extension_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
 								<textarea class="pp_emails_txt" name="psts[extension_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'extension_msg' ) ); ?></textarea>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="psts-help-div psts-pro-permanent-revoked"><?php echo __( 'Pro Site Permanent Status Revoked', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site email sent to user when the permanent status has been revoked.', 'psts' ) ); ?></th>
+						<td>
+							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
+								<input type="text" class="pp_emails_sub" name="psts[revoked_subject]" value="<?php echo esc_attr( $psts->get_setting( 'revoked_subject', $defaults['revoked_subject'] ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+							<label><?php _e( 'Message:', 'psts' ); ?><br/>
+								<textarea class="pp_emails_txt" name="psts[revoked_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'revoked_msg', $defaults['revoked_msg'] ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
