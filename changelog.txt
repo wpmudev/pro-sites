@@ -5,14 +5,14 @@ Developer: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
-3.5.2.0 - xxxx - developer
-- Premium plugins now auto activate or deactivate when a site's level changes.
-- Permanent extensions can now be reverted by extending a site manually.
 
-3.5.2 - Umesh Kumar
+3.5.2 - 02/12/2016 - Umesh Kumar
 
+-Fixed: First payment coupons not working after single use
 -Fixed: Use stripslashes in Paypal IPN handler, as WordPress escapes the data, it was
         leading to failed IPN verification in some cases
+-Added: Premium plugins now auto activate or deactivate when a site's level changes.
+-Added: Permanent extensions can now be reverted by extending a site manually.
 
 3.5.1.9 - 12/29/2015 - Rheinard
 - Fixed: Checkout page now displaying proper confirmation.

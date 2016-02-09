@@ -88,7 +88,7 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				if ( is_array( $used ) && in_array( $coupon_code, $used ) ) {
 					return false;
 				}
-			} else {
+			} elseif ( ! empty( $domain ) ) {
 				//Check if domain has already used the coupon
 				$signup_meta = '';
 				$signup      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE domain = %s", $domain ) );
@@ -310,6 +310,7 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				$coupon_code = sanitize_text_field( $_POST['coupon_code'] );
 
 				$valid_coupon = self::check_coupon( $coupon_code );
+
 				if( ! empty( $valid_coupon ) ) {
 					$ajax_response['valid'] = true;
 					ProSites_Helper_Session::session( 'COUPON_CODE', $coupon_code );

@@ -191,176 +191,176 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 					'remaining' => __( 'Remaining Uses', 'psts' ),
 					'edit'      => __( 'Edit', 'psts' )
 				);
-				?>
+					?>
 
 					<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
 						<thead>
-							<tr>
-								<th scope="col" class="check-column"><input type="checkbox"/></th>
-								<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
-					$col_url = $column_display_name;
-					?>
-					<th scope="col"><?php echo $col_url ?></th>
-				<?php } ?>
-							</tr>
+						<tr>
+							<th scope="col" class="check-column"><input type="checkbox"/></th>
+							<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
+								$col_url = $column_display_name;
+								?>
+								<th scope="col"><?php echo $col_url ?></th>
+							<?php } ?>
+						</tr>
 						</thead>
 						<tbody id="the-list">
 						<?php
-				$bgcolor = isset( $class ) ? $class : '';
-				if ( is_array( $coupon_list ) && count( $coupon_list ) ) {
-					foreach ( $coupon_list as $coupon_code => $coupon ) {
-						$class = ( isset( $class ) && 'alternate' == $class ) ? '' : 'alternate';
+						$bgcolor = isset( $class ) ? $class : '';
+						if ( is_array( $coupon_list ) && count( $coupon_list ) ) {
+							foreach ( $coupon_list as $coupon_code => $coupon ) {
+								$class = ( isset( $class ) && 'alternate' == $class ) ? '' : 'alternate';
 
-						//assign classes based on coupon availability
-						//$class = ($psts->check_coupon($coupon_code)) ? $class . ' coupon-active' : $class . ' coupon-inactive';
+								//assign classes based on coupon availability
+								//$class = ($psts->check_coupon($coupon_code)) ? $class . ' coupon-active' : $class . ' coupon-inactive';
 
-						echo '<tr class="' . $class . ' blog-row"><th scope="row" class="check-column"><input type="checkbox" name="coupons_checks[]"" value="' . $coupon_code . '" /></th>';
+								echo '<tr class="' . $class . ' blog-row"><th scope="row" class="check-column"><input type="checkbox" name="coupons_checks[]"" value="' . $coupon_code . '" /></th>';
 
-						foreach ( $posts_columns as $column_name => $column_display_name ) {
-							switch ( $column_name ) {
-								case 'code':
-									?>
-									<th scope="row">
-													<?php echo $coupon_code; ?>
-												</th>
-									<?php
-									break;
-								case 'lifetime':
-									$lifetime_label = array(
-										'first' => __( 'First payment', 'psts' ),
-										'indefinite' => __( 'Indefinite', 'psts' ),
-									);
-									?>
-									<th scope="row">
-										<?php echo !empty( $coupon['lifetime'] ) ? $lifetime_label[ $coupon['lifetime'] ] : ''; ?>
-									</th>
-									<?php
-									break;
-								case 'discount':
-									?>
-									<th scope="row">
-													<?php
-													if ( $coupon['discount_type'] == 'pct' ) {
-														echo $coupon['discount'] . '%';
-													} else if ( $coupon['discount_type'] == 'amt' ) {
-														echo $psts->format_currency( '', $coupon['discount'] );
-													}
-													?>
-												</th>
-									<?php
-									break;
+								foreach ( $posts_columns as $column_name => $column_display_name ) {
+									switch ( $column_name ) {
+										case 'code':
+											?>
+											<th scope="row">
+												<?php echo $coupon_code; ?>
+											</th>
+											<?php
+											break;
+										case 'lifetime':
+											$lifetime_label = array(
+												'first'      => __( 'First payment', 'psts' ),
+												'indefinite' => __( 'Indefinite', 'psts' ),
+											);
+											?>
+											<th scope="row">
+												<?php echo ! empty( $coupon['lifetime'] ) ? $lifetime_label[ $coupon['lifetime'] ] : ''; ?>
+											</th>
+											<?php
+											break;
+										case 'discount':
+											?>
+											<th scope="row">
+												<?php
+												if ( $coupon['discount_type'] == 'pct' ) {
+													echo $coupon['discount'] . '%';
+												} else if ( $coupon['discount_type'] == 'amt' ) {
+													echo $psts->format_currency( '', $coupon['discount'] );
+												}
+												?>
+											</th>
+											<?php
+											break;
 
-								case 'start':
-									?>
-									<th scope="row">
-													<?php echo date_i18n( get_option( 'date_format' ), $coupon['start'] ); ?>
-												</th>
-									<?php
-									break;
+										case 'start':
+											?>
+											<th scope="row">
+												<?php echo date_i18n( get_option( 'date_format' ), $coupon['start'] ); ?>
+											</th>
+											<?php
+											break;
 
-								case 'end':
-									?>
-									<th scope="row">
-													<?php echo ( $coupon['end'] ) ? date_i18n( get_option( 'date_format' ), $coupon['end'] ) : __( 'No End', 'psts' ); ?>
-												</th>
-									<?php
-									break;
+										case 'end':
+											?>
+											<th scope="row">
+												<?php echo ( $coupon['end'] ) ? date_i18n( get_option( 'date_format' ), $coupon['end'] ) : __( 'No End', 'psts' ); ?>
+											</th>
+											<?php
+											break;
 
-								case 'level':
-									?>
-									<th scope="row">
-													<?php echo isset( $levels[ $coupon['level'] ] ) ? $coupon['level'] . ': ' . $levels[ $coupon['level'] ]['name'] : __( 'Any Level', 'psts' ); ?>
-												</th>
-									<?php
-									break;
+										case 'level':
+											?>
+											<th scope="row">
+												<?php echo isset( $levels[ $coupon['level'] ] ) ? $coupon['level'] . ': ' . $levels[ $coupon['level'] ]['name'] : __( 'Any Level', 'psts' ); ?>
+											</th>
+											<?php
+											break;
 
-								case 'period':
-									?>
-									<th scope="row">
-										<?php
-											//echo isset( $levels[ $coupon['period'] ] ) ? $coupon['period'] . ': ' . $levels[ $coupon['period'] ]['name'] : __( 'Any Level', 'psts' );
-											$zero = true;
-											if( isset( $coupon['valid_for_period'] ) ) {
+										case 'period':
+											?>
+											<th scope="row">
+												<?php
+												//echo isset( $levels[ $coupon['period'] ] ) ? $coupon['period'] . ': ' . $levels[ $coupon['period'] ]['name'] : __( 'Any Level', 'psts' );
+												$zero = true;
+												if ( isset( $coupon['valid_for_period'] ) ) {
 
-												foreach( $coupon['valid_for_period'] as $i => $period ) {
-													if( ! empty( $period ) ) {
-														$zero = false;
-														echo $period . __( 'm' );
-														if ( $i !== count( $coupon['valid_for_period'] ) - 1 ) {
-															echo ',';
+													foreach ( $coupon['valid_for_period'] as $i => $period ) {
+														if ( ! empty( $period ) ) {
+															$zero = false;
+															echo $period . __( 'm' );
+															if ( $i !== count( $coupon['valid_for_period'] ) - 1 ) {
+																echo ',';
+															}
 														}
 													}
 												}
-											}
-											if( $zero ) {
-												echo '-';
-											}
-										?>
-									</th>
-									<?php
-									break;
+												if ( $zero ) {
+													echo '-';
+												}
+												?>
+											</th>
+											<?php
+											break;
 
-								case 'used':
-									?>
-									<th scope="row">
-													<?php echo isset( $coupon['used'] ) ? number_format_i18n( $coupon['used'] ) : 0; ?>
-												</th>
-									<?php
-									break;
+										case 'used':
+											?>
+											<th scope="row">
+												<?php echo isset( $coupon['used'] ) ? number_format_i18n( $coupon['used'] ) : 0; ?>
+											</th>
+											<?php
+											break;
 
-								case 'remaining':
-									?>
-									<th scope="row">
-													<?php
-													if ( isset( $coupon['uses'] ) && ! empty( $coupon['uses'] ) ) {
-														echo number_format_i18n( intval( $coupon['uses'] ) - intval( @$coupon['used'] ) );
-													} else {
-														_e( 'Unlimited', 'psts' );
-													}
-													?>
-												</th>
-									<?php
-									break;
+										case 'remaining':
+											?>
+											<th scope="row">
+												<?php
+												if ( isset( $coupon['uses'] ) && ! empty( $coupon['uses'] ) ) {
+													echo number_format_i18n( intval( $coupon['uses'] ) - intval( @$coupon['used'] ) );
+												} else {
+													_e( 'Unlimited', 'psts' );
+												}
+												?>
+											</th>
+											<?php
+											break;
 
-								case 'edit':
-									?>
-									<th scope="row">
-													<a href="admin.php?page=psts-coupons<?php echo $page_link; ?>&amp;code=<?php echo $coupon_code; ?>#add_coupon"><?php _e( 'Edit', 'psts' ) ?>&raquo;</a>
-												</th>
-									<?php
-									break;
+										case 'edit':
+											?>
+											<th scope="row">
+												<a href="admin.php?page=psts-coupons<?php echo $page_link; ?>&amp;code=<?php echo $coupon_code; ?>#add_coupon"><?php _e( 'Edit', 'psts' ) ?>&raquo;</a>
+											</th>
+											<?php
+											break;
 
-							}
-						}
-						?>
-									</tr>
-									<?php
-					}
-				} else {
-					?>
-					<tr style='background-color: <?php echo $bgcolor; ?>'>
-									<td colspan="9"><?php _e( 'No coupons yet.', 'psts' ) ?></td>
+									}
+								}
+								?>
 								</tr>
-				<?php
-				} // end if coupons
-				?>
+								<?php
+							}
+						} else {
+							?>
+							<tr style='background-color: <?php echo $bgcolor; ?>'>
+								<td colspan="9"><?php _e( 'No coupons yet.', 'psts' ) ?></td>
+							</tr>
+							<?php
+						} // end if coupons
+						?>
 						</tbody>
 						<tfoot>
-							<tr>
-								<th scope="col" class="check-column"><input type="checkbox"/></th>
-								<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
-					$col_url = $column_display_name;
-					?>
-					<th scope="col"><?php echo $col_url ?></th>
-				<?php } ?>
-							</tr>
+						<tr>
+							<th scope="col" class="check-column"><input type="checkbox"/></th>
+							<?php foreach ( $posts_columns as $column_id => $column_display_name ) {
+								$col_url = $column_display_name;
+								?>
+								<th scope="col"><?php echo $col_url ?></th>
+							<?php } ?>
+						</tr>
 						</tfoot>
 					</table>
 
 					<div class="tablenav">
 						<?php if ( $coupon_navigation ) {
-					echo "<div class='tablenav-pages'>$coupon_navigation</div>";
-				} ?>
+							echo "<div class='tablenav-pages'>$coupon_navigation</div>";
+						} ?>
 					</div>
 
 					<div id="poststuff" class="metabox-holder">
@@ -368,36 +368,36 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 						<div class="postbox">
 							<h3 class="hndle" style="cursor:auto;"><span>
 							<?php
-				if ( isset( $_GET['code'] ) || $error ) {
-					_e( 'Edit Coupon', 'psts' );
-				} else {
-					_e( 'Add Coupon', 'psts' );
-				}
-				$periods = $psts->get_setting( 'enabled_periods', 0 );
-				?></span></h3>
+							if ( isset( $_GET['code'] ) || $error ) {
+								_e( 'Edit Coupon', 'psts' );
+							} else {
+								_e( 'Add Coupon', 'psts' );
+							}
+							$periods = $psts->get_setting( 'enabled_periods', 0 );
+							?></span></h3>
 
 							<div class="inside">
-							<?php
-				$coupon_life      = 'first';
-				$discount         = '';
-				$discount_type    = '';
-				$start            = date( 'Y-m-d' );
-				$end              = '';
-				$uses             = '';
-				$valid_for_period = array();
-				//setup defaults
-				if ( isset( $new_coupon_code ) && isset( $coupons[ $new_coupon_code ] ) ) {
-					$coupon_life      = $coupons[ $new_coupon_code ]['lifetime'];
-					$discount         = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
-					$discount_type    = $coupons[ $new_coupon_code ]['discount_type'];
-					$start            = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
-					$end              = ( $coupons[ $new_coupon_code ]['end'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['end'] ) : '';
-					$uses             = $coupons[ $new_coupon_code ]['uses'];
-					$valid_for_period = isset( $coupons[ $new_coupon_code ]['valid_for_period'] ) ? $coupons[ $new_coupon_code ]['valid_for_period'] : array();
-				}
-				?>
-							<table id="add_coupon">
-								<thead>
+								<?php
+								$coupon_life      = 'first';
+								$discount         = '';
+								$discount_type    = '';
+								$start            = date( 'Y-m-d' );
+								$end              = '';
+								$uses             = '';
+								$valid_for_period = array();
+								//setup defaults
+								if ( isset( $new_coupon_code ) && isset( $coupons[ $new_coupon_code ] ) ) {
+									$coupon_life      = $coupons[ $new_coupon_code ]['lifetime'];
+									$discount         = ( $coupons[ $new_coupon_code ]['discount'] && $coupons[ $new_coupon_code ]['discount_type'] == 'amt' ) ? round( $coupons[ $new_coupon_code ]['discount'], 2 ) : $coupons[ $new_coupon_code ]['discount'];
+									$discount_type    = $coupons[ $new_coupon_code ]['discount_type'];
+									$start            = ( $coupons[ $new_coupon_code ]['start'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['start'] ) : date( 'Y-m-d' );
+									$end              = ( $coupons[ $new_coupon_code ]['end'] ) ? date( 'Y-m-d', $coupons[ $new_coupon_code ]['end'] ) : '';
+									$uses             = $coupons[ $new_coupon_code ]['uses'];
+									$valid_for_period = isset( $coupons[ $new_coupon_code ]['valid_for_period'] ) ? $coupons[ $new_coupon_code ]['valid_for_period'] : array();
+								}
+								?>
+								<table id="add_coupon">
+									<thead>
 									<tr>
 										<th class="coupon-code">
 											<?php echo __( 'Coupon Code', 'psts' ) . $psts->help_text( __( 'Letters and numbers only', 'psts' ) ); ?>
@@ -420,67 +420,78 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 											<?php echo __( 'Allowed Uses', 'psts' ) . $psts->help_text( __( 'Unlimited if blank', 'psts' ) ); ?>
 										</th>
 									</tr>
-								</thead>
-								<tbody>
+									</thead>
+									<tbody>
 									<tr>
 										<td>
-											<input value="<?php echo $new_coupon_code ?>" name="coupon_code" type="text" style="text-transform: uppercase;"/>
+											<input value="<?php echo $new_coupon_code ?>" name="coupon_code" type="text"
+											       style="text-transform: uppercase;"/>
 										</td>
 										<td>
 											<select name="lifetime" class="chosen">
-												<option value="first"<?php selected( $coupon_life, 'first' ) ?>><?php esc_html_e( 'First payment'); ?></option>
-												<option value="indefinite"<?php selected( $coupon_life, 'indefinite' ) ?>><?php esc_html_e( 'Indefinite'); ?></option>
+												<option
+													value="first"<?php selected( $coupon_life, 'first' ) ?>><?php esc_html_e( 'First payment' ); ?></option>
+												<option
+													value="indefinite"<?php selected( $coupon_life, 'indefinite' ) ?>><?php esc_html_e( 'Indefinite' ); ?></option>
 											</select>
 										</td>
 										<td>
-											<input value="<?php echo $discount; ?>" size="3" name="discount" type="text"/>
+											<input value="<?php echo $discount; ?>" size="3" name="discount"
+											       type="text"/>
 											<select name="discount_type" class="chosen narrow">
-												<option value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $psts->format_currency(); ?></option>
+												<option
+													value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $psts->format_currency(); ?></option>
 												<option value="pct"<?php selected( $discount_type, 'pct' ) ?>>%</option>
 											</select>
 										</td>
 										<td>
-											<input value="<?php echo $start; ?>" class="pickdate" size="11" name="start" type="text"/>
+											<input value="<?php echo $start; ?>" class="pickdate" size="11" name="start"
+											       type="text"/>
 										</td>
 										<td>
-											<input value="<?php echo $end; ?>" class="pickdate" size="11" name="end" type="text"/>
+											<input value="<?php echo $end; ?>" class="pickdate" size="11" name="end"
+											       type="text"/>
 										</td>
 										<td>
 											<select name="level" class="chosen">
 												<option value="0"><?php _e( 'Any Level', 'psts' ) ?></option>
 												<?php
-				foreach ( $levels as $key => $value ) {
-					?>
-					<option value="<?php echo $key; ?>"<?php selected( @$coupons[ $new_coupon_code ]['level'], $key ) ?>><?php echo $key . ': ' . $value['name']; ?></option><?php
-				}
-				?>
+												foreach ( $levels as $key => $value ) {
+													?>
+													<option value="<?php echo $key; ?>"<?php selected( @$coupons[ $new_coupon_code ]['level'], $key ) ?>><?php echo $key . ': ' . $value['name']; ?></option><?php
+												}
+												?>
 											</select>
 										</td>
 										<?php
-				if ( ! empty( $periods ) ) {
-					?>
-					<td>
-					<select name="valid_for_period[]" multiple class="psts-period chosen" data-placeholder="Select Period">
-												<option value="0" <?php echo in_array( 0, $valid_for_period ) ? 'selected' : ''; ?>><?php _e( 'Any Period', 'psts' ) ?></option>
-						<?php
-						foreach ( $periods as $period ) {
-							$text = $period == 1 ? __( 'month', 'psts') : __( 'months', 'psts' );
-							?>
-							<option value="<?php echo $period; ?>"<?php echo in_array( $period, $valid_for_period ) ? 'selected' : ''; ?>><?php echo $period . ' ' . $text; ?></option><?php
-						}
-						?>
+										if ( ! empty( $periods ) ) {
+											?>
+											<td>
+												<select name="valid_for_period[]" multiple class="psts-period chosen"
+												        data-placeholder="Select Period">
+													<option
+														value="0" <?php echo in_array( 0, $valid_for_period ) ? 'selected' : ''; ?>><?php _e( 'Any Period', 'psts' ) ?></option>
+													<?php
+													foreach ( $periods as $period ) {
+														$text = $period == 1 ? __( 'month', 'psts' ) : __( 'months', 'psts' );
+														?>
+														<option value="<?php echo $period; ?>"<?php echo in_array( $period, $valid_for_period ) ? 'selected' : ''; ?>><?php echo $period . ' ' . $text; ?></option><?php
+													}
+													?>
 												</select>
-					</td><td>
-						<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
-					</td><?php
-				} ?>
+											</td>
+											<td>
+											<input value="<?php echo $uses; ?>" size="4" name="uses" type="text"/>
+											</td><?php
+										} ?>
 									</tr>
-								</tbody>
-							</table>
+									</tbody>
+								</table>
 
-							<p class="submit">
-								<input type="submit" name="submit_settings" class="button-primary" value="<?php _e( 'Save Coupon', 'psts' ) ?>"/>
-							</p>
+								<p class="submit">
+									<input type="submit" name="submit_settings" class="button-primary"
+									       value="<?php _e( 'Save Coupon', 'psts' ) ?>"/>
+								</p>
 							</div>
 						</div>
 
