@@ -16,7 +16,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		}
 
 		public static function ajax_check_prosite_blog() {
-			global $psts, $current_site;
+			global $psts, $current_site, $current_prosite_blog;
 
 			$blog_data = array();
 
@@ -120,8 +120,16 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
 						}
 
+						$recurring = $psts->get_setting( 'recurring_subscriptions', 1 );
+
+						//Check for 100% off coupons
+						if( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
+							$coupon_value = $psts->coupon_value( $session_coupon, 100 );
+							$show_finish = isset( $coupon_value['new_total'] ) && 0 == $coupon_value['new_total'] ? true : false;
+						}
+
+						//If site is on trial
 						if( $trial_active ) {
-							$recurring = $psts->get_setting( 'recurring_subscriptions', 1 );
 
 							if( $recurring ) {
 								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment information has been verified your trial period will begin. When your trial ends you will be automatically upgraded to your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
@@ -139,6 +147,34 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 								$ajax_response['show_finish'] = true;
 								$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_payment_submitted( $blog_data, true );
 							}
+
+						}elseif( !$recurring && $show_finish ){
+							//This is the case for 0 cost plans or if a 100% discount coupon is used
+							//Only for Non Recurring Subscriptions
+
+							//Activate the blog
+							$result = ProSites_Helper_Registration::activate_blog( $blog_data, false, $period, $level );
+
+							//Set the blog id in session, site_activated is set to true
+							$blog_data['new_blog_details']['blog_id'] = $blog_id = $result['blog_id'];
+							$blog_data['new_blog_details']['site_activated'] = true;
+
+							if( isset( $result['password'] ) ) {
+								$blog_data['new_blog_details']['user_pass'] = $result['password'];
+							}
+
+							//Update Activation Key for blog
+							ProSites_Helper_Registration::update_activation_key( $blog_id, $blog_data['activation_key']);
+
+							//Extend the site for the defined term and set it to non recurring by default
+							$psts->extend( $blog_id, $period, ProSites_Gateway_Manual::get_slug(), $level, 0, false, false );
+
+							$psts->record_stat( $blog_id, 'signup' );
+
+							//Formulate the Ajax response for the request
+							$ajax_response['show_finish'] = true;
+							$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_payment_submitted( $blog_data, false );
+							$ajax_response['show_finish'] = true;
 
 						} else {
 							$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment has been processed your site will become active with your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
@@ -207,6 +243,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 				// No longer need ajax session
 				ProSites_Helper_Session::unset_session( 'psts_ajax_session_activated' );
+//				ProSites_Helper_Session::unset_session( 'new_blog_details' );
 
 				// Buffer used to isolate AJAX response from unexpected output
 				@ob_end_clean();

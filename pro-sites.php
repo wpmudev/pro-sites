@@ -1796,11 +1796,15 @@ Thanks!", 'psts' ),
 	function is_pro_site( $blog_id = false, $level = false ) {
 		global $wpdb, $current_site;
 
-		if ( ! $blog_id ) {
+		if ( empty( $blog_id ) && is_user_logged_in() ) {
 			$blog_id = $wpdb->blogid;
 		}
+
 		$blog_id = (int) $blog_id;
 
+		if( empty( $blog_id ) ) {
+			return false;
+		}
 		// Allow plugins to short-circuit
 		$pro = apply_filters( 'is_pro_site', null, $blog_id );
 		if ( ! is_null( $pro ) ) {
@@ -2026,6 +2030,7 @@ Thanks!", 'psts' ),
 		global $wpdb, $current_site;
 
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
+		$last_gateway = '';
 
 		$now    = time();
 		//	$exists = $this->get_expire( $blog_id ); // not reliable
@@ -2086,7 +2091,7 @@ Thanks!", 'psts' ),
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
 		if( 'manual' === $gateway && $exists ) {
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
-			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : $last_gateway;
+			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $last_gateway ) : $wpdb->prepare( ", gateway = %s", $gateway );
 		} else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
@@ -2099,7 +2104,7 @@ Thanks!", 'psts' ),
 
 			// Get last gateway if exists
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
-			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : $last_gateway;
+			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
 
 			$wpdb->query( $wpdb->prepare( "
 	  		UPDATE {$wpdb->base_prefix}pro_sites

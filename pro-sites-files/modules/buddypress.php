@@ -75,10 +75,31 @@ class ProSites_Module_BP {
 		if ( empty( $blog_id ) ) {
 			return;
 		}
-		get_admin_users_for_domain( $blog_id );
 		if( function_exists( 'bp_blogs_remove_blog' ) ) {
 			bp_blogs_remove_blog( $blog_id );
 		}
+	}
+
+	/**
+	 * Original Function is deprecated, so we had to define ours
+	 *
+	 * @param string $sitedomain
+	 * @param string $path
+	 *
+	 * @return array|bool|null|object
+	 */
+	function psts_get_admin_users_for_domain( $sitedomain = '', $path = '' ) {
+		global $wpdb;
+
+		if ( ! $sitedomain )
+			$site_id = $wpdb->siteid;
+		else
+			$site_id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $wpdb->site WHERE domain = %s AND path = %s", $sitedomain, $path ) );
+
+		if ( $site_id )
+			return $wpdb->get_results( $wpdb->prepare( "SELECT u.ID, u.user_login, u.user_pass FROM $wpdb->users AS u, $wpdb->sitemeta AS sm WHERE sm.meta_key = 'admin_user_id' AND u.ID = sm.meta_value AND sm.site_id = %d", $site_id ), ARRAY_A );
+
+		return false;
 	}
 
 	/**
@@ -97,7 +118,7 @@ class ProSites_Module_BP {
 
 		// Get user ID
 		switch_to_blog( $blog_id );
-		$user = get_admin_users_for_domain();
+		$user = $this->psts_get_admin_users_for_domain();
 		restore_current_blog();
 
 		if( function_exists( 'bp_blogs_record_blog' ) ) {

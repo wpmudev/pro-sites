@@ -11,6 +11,7 @@ Change Log:
 -Fixed: First payment coupons not working after single use
 -Fixed: Use stripslashes in Paypal IPN handler, as WordPress escapes the data, it was
         leading to failed IPN verification in some cases
+-Fixed: Deprecated function `get_admin_users_for_domain`
 -Added: Premium plugins now auto activate or deactivate when a site's level changes.
 -Added: Permanent extensions can now be reverted by extending a site manually.
 

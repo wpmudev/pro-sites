@@ -421,9 +421,9 @@ class ProSites_Module_PremiumThemes {
 		global $psts;
 
 		$allowed_themes = $psts->get_setting( 'pt_allowed_themes', array() );
-		$access = false;
+		$access         = false;
 
-		if( ! empty( $allowed_themes ) ) {
+		if ( ! empty( $allowed_themes ) && sizeof( $allowed_themes ) > 0 ) {
 			foreach ( $allowed_themes as $theme => $level ) {
 				if ( $level_id == $level ) {
 					$access = true;

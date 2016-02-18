@@ -562,6 +562,8 @@ jQuery( document ).ready( function ( $ ) {
 
         var level = $( '#prosites-checkout-table' ).attr( 'data-level' );
         var period = $( '#prosites-checkout-table' ).attr( 'data-period' );
+        var coupon = $('input[name="apply-coupon"]').val();
+        form_data += '&' + $.param( { 'coupon' : coupon } );
 
         $.post(
             prosites_checkout.ajax_url, {

@@ -82,15 +82,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$site_details = ProSites_Helper_ProSite::get_blog_info( $blog_id );
 
-			if( $site_details ) {
-				//if( $primary_gateway !== $site_details['last_payment_gateway'] ) {
-				//	$temp = $primary_gateway;
-				//	$primary_gateway = $site_details['last_payment_gateway'];
-				//	$secondary_gateway = $temp;
-				//}
-			}
-
-
 			/**
 			 * Process forms
 			 */
@@ -233,7 +224,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( empty( $blog_id ) && isset( $_GET['bid'] ) ) {
 				$blog_id = (int) $_GET['bid'];
 			}
+
 			$blog_id = empty( $blog_id ) && ! empty( $current_prosite_blog ) ? $current_prosite_blog : $blog_id;
+
 			if ( empty( $blog_id ) ) {
 				return '';
 			}
@@ -262,8 +255,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Output level information
 			if ( ! empty( $info_retrieved ) && empty( $info_retrieved['complete_message'] ) ) {
 
-				// Manual payments
-				if ( ! empty( $info_retrieved['last_payment_gateway'] ) && 'manual' == strtolower( $info_retrieved['last_payment_gateway'] ) ) {
+				// Manual payments, Recurring subscription
+				if ( $info_retrieved['recurring'] && ! empty( $info_retrieved['last_payment_gateway'] ) && 'manual' == strtolower( $info_retrieved['last_payment_gateway'] ) ) {
 					$content .= '<div id="psts-general-error" class="psts-warning psts-manual-payment-notify">' . __( 'Your site was extended manually and may not renew automatically. If you have an active subscription this message will disappear once payment is received. Please contact us if you have any concerns. ', 'psts' ) . '</div>';
 				}
 
@@ -450,7 +443,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$plan_content    = '';
 			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
-			$is_pro_site     = is_pro_site( $blog_id );
+
+			$is_pro_site = is_pro_site( $blog_id );
 
 			$session_data                          = array();
 			$session_data['new_blog_details']      = ProSites_Helper_Session::session( 'new_blog_details' );
@@ -480,12 +474,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			//}
 
-
 			//For gateways after redirection, upon page refresh
 			$page_reload = !empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );
 
 			//If action is new_blog, but new blog is not allowed
 			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
+
 			if ( $is_pro_site && ( ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
 				// EXISTING DETAILS
 				if ( isset( $gateways ) && isset( $gateway_details ) ) {
