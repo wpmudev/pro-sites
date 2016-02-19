@@ -18,13 +18,17 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		public static function ajax_check_prosite_blog() {
 			global $psts, $current_site, $current_prosite_blog;
 
-			$blog_data = array();
+			$blog_data   = array();
+			$show_finish = false;
 
 			// Add ajax session var
-			ProSites_Helper_Session::session('psts_ajax_session_activated', true );
+			ProSites_Helper_Session::session( 'psts_ajax_session_activated', true );
 
 			// Introduce a fake error because we don't want to actually create the blog yet.
-			add_filter( 'registration_errors', array( 'ProSites_Model_Registration', 'prosite_blog_check_only' ), 10, 3 );
+			add_filter( 'registration_errors', array(
+				'ProSites_Model_Registration',
+				'prosite_blog_check_only'
+			), 10, 3 );
 
 			// replace $_POST with array data
 			$params = array();
@@ -42,8 +46,8 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$user_name  = sanitize_text_field( $_POST['user_name'] );
 				$user_email = sanitize_email( $_POST['user_email'] );
 
-				$blogname        = sanitize_text_field( $_POST['blogname'] );
-				$blog_title      = sanitize_text_field( urldecode( $_POST['blog_title'] ) );
+				$blogname   = sanitize_text_field( $_POST['blogname'] );
+				$blog_title = sanitize_text_field( urldecode( $_POST['blog_title'] ) );
 
 				// Process some cleaning up if needed
 				do_action( 'prosite_register_blog_pre_validation', $user_name, $user_email, $blogname );
@@ -51,16 +55,16 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$blog_validation = wpmu_validate_blog_signup( $blogname, $blog_title );
 
 				// Attempt to create a new user (knowing that it will fail, but it should only have our error)
-				if( ! isset( $_POST['new_blog' ] ) ) {
+				if ( ! isset( $_POST['new_blog'] ) ) {
 					$validation = wpmu_validate_user_signup( $user_name, $user_email );  // nicer errors, but doesn't deal with custom fields
 
-					$user_check    = register_new_user( $user_name, $user_email ); // checks custom fields, but ugly errors
+					$user_check = register_new_user( $user_name, $user_email ); // checks custom fields, but ugly errors
 
 					$user_check->errors = array_merge( $user_check->errors, $validation['errors']->errors );
 
 					$user_check->errors = array_merge( $user_check->errors, $blog_validation['errors']->errors );
 				} else {
-					$user_check = new WP_Error();
+					$user_check         = new WP_Error();
 					$user_check->errors = array_merge( $user_check->errors, $blog_validation['errors']->errors );
 				}
 
@@ -79,10 +83,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$blogtitle_available = true;
 
 				// Checking passed...
-				if( ( ! empty( $user_check->errors ) && 1 == count( $user_check->errors ) && ! isset( $_POST['new_blog'] ) ) || ( 0 == count( $user_check->errors ) && isset( $_POST['new_blog'] ) ) ) {
+				if ( ( ! empty( $user_check->errors ) && 1 == count( $user_check->errors ) && ! isset( $_POST['new_blog'] ) ) || ( 0 == count( $user_check->errors ) && isset( $_POST['new_blog'] ) ) ) {
 					$keys = array_keys( $user_check->errors );
 
-					if( $keys && ! in_array( 'availability_check_only', $keys ) && ! isset( $_POST['new_blog'] ) ) {
+					if ( $keys && ! in_array( 'availability_check_only', $keys ) && ! isset( $_POST['new_blog'] ) ) {
 						// Something went wrong!
 						$ajax_response['user_available'] = false;
 					} else {
@@ -98,8 +102,8 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						$errors     = $blog['errors'];
 
 						// Privacy setting
-						$public = (int) $_POST['blog_public'];
-						$signup_meta = array ('lang_id' => 1, 'public' => $public);
+						$public      = (int) $_POST['blog_public'];
+						$signup_meta = array( 'lang_id' => 1, 'public' => $public );
 
 						// Create the signup
 						$meta                        = apply_filters( 'add_signup_meta', $signup_meta );
@@ -110,11 +114,11 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							$blog_data['new_blog_details']['user_pass'] = $result['user_pass'];
 						}
 
-						$trial_days = $psts->get_setting( 'trial_days', 0 );
+						$trial_days   = $psts->get_setting( 'trial_days', 0 );
 						$trial_active = ! empty( $trial_days );
 
 						$site_name = '';
-						if ( !is_subdomain_install() ) {
+						if ( ! is_subdomain_install() ) {
 							$site_name = $current_site->domain . $current_site->path . $blogname;
 						} else {
 							$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
@@ -123,32 +127,37 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						$recurring = $psts->get_setting( 'recurring_subscriptions', 1 );
 
 						//Check for 100% off coupons
-						if( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
+						if ( $session_coupon = ProSites_Helper_Session::session( 'COUPON_CODE' ) ) {
 							$coupon_value = $psts->coupon_value( $session_coupon, 100 );
-							$show_finish = isset( $coupon_value['new_total'] ) && 0 == $coupon_value['new_total'] ? true : false;
+							$show_finish  = isset( $coupon_value['new_total'] ) && 0 == $coupon_value['new_total'] ? true : false;
+						}
+						//Check for 0 price Level, Skip the Payment and activate the blog in that case
+						$price = $psts->get_level_setting( $level, 'price_' . $period );
+						if ( 0 === (int) $price ) {
+							$show_finish = true;
 						}
 
 						//If site is on trial
-						if( $trial_active ) {
+						if ( $trial_active ) {
 
-							if( $recurring ) {
-								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment information has been verified your trial period will begin. When your trial ends you will be automatically upgraded to your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
+							if ( $recurring ) {
+								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment information has been verified your trial period will begin. When your trial ends you will be automatically upgraded to your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>', 'psts' ) . '</div>', $site_name );
 							} else {
 								// Non-recurring sites really should not do anything at checkout other than activate.
-								$result = ProSites_Helper_Registration::activate_blog( $blog_data, true, $period, $level );
+								$result  = ProSites_Helper_Registration::activate_blog( $blog_data, true, $period, $level );
 								$blog_id = $result['blog_id'];
-								if( isset( $result['password'] ) ) {
+								if ( isset( $result['password'] ) ) {
 									$blog_data['new_blog_details']['user_pass'] = $result['password'];
 								}
 								ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 								//Update Activation Key for blog
-								ProSites_Helper_Registration::update_activation_key( $blog_id, $blog_data['activation_key']);
+								ProSites_Helper_Registration::update_activation_key( $blog_id, $blog_data['activation_key'] );
 								$psts->record_stat( $blog_id, 'signup' );
-								$ajax_response['show_finish'] = true;
+								$ajax_response['show_finish']    = true;
 								$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_payment_submitted( $blog_data, true );
 							}
 
-						}elseif( !$recurring && $show_finish ){
+						} elseif ( ! $recurring && $show_finish ) {
 							//This is the case for 0 cost plans or if a 100% discount coupon is used
 							//Only for Non Recurring Subscriptions
 
@@ -156,15 +165,15 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							$result = ProSites_Helper_Registration::activate_blog( $blog_data, false, $period, $level );
 
 							//Set the blog id in session, site_activated is set to true
-							$blog_data['new_blog_details']['blog_id'] = $blog_id = $result['blog_id'];
+							$blog_data['new_blog_details']['blog_id']        = $blog_id = $result['blog_id'];
 							$blog_data['new_blog_details']['site_activated'] = true;
 
-							if( isset( $result['password'] ) ) {
+							if ( isset( $result['password'] ) ) {
 								$blog_data['new_blog_details']['user_pass'] = $result['password'];
 							}
 
 							//Update Activation Key for blog
-							ProSites_Helper_Registration::update_activation_key( $blog_id, $blog_data['activation_key']);
+							ProSites_Helper_Registration::update_activation_key( $blog_id, $blog_data['activation_key'] );
 
 							//Extend the site for the defined term and set it to non recurring by default
 							$psts->extend( $blog_id, $period, ProSites_Gateway_Manual::get_slug(), $level, 0, false, false );
@@ -172,29 +181,29 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							$psts->record_stat( $blog_id, 'signup' );
 
 							//Formulate the Ajax response for the request
-							$ajax_response['show_finish'] = true;
+							$ajax_response['show_finish']    = true;
 							$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_payment_submitted( $blog_data, false );
-							$ajax_response['show_finish'] = true;
+							$ajax_response['show_finish']    = true;
 
 						} else {
-							$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment has been processed your site will become active with your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>' , 'psts' ) . '</div>', $site_name );
+							$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment has been processed your site will become active with your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>', 'psts' ) . '</div>', $site_name );
 						}
 
 						// FREE basic site
-						if( 'free' == $blog_data['new_blog_details']['level'] ) {
-							if( isset( $blog_data['new_blog_details']['reserved_message'] ) ) {
+						if ( 'free' == $blog_data['new_blog_details']['level'] ) {
+							if ( isset( $blog_data['new_blog_details']['reserved_message'] ) ) {
 								unset( $blog_data['new_blog_details']['reserved_message'] );
 							}
-							$result = ProSites_Helper_Registration::activate_blog( $blog_data, false, false, false );
+							$result                                   = ProSites_Helper_Registration::activate_blog( $blog_data, false, false, false );
 							$blog_data['new_blog_details']['blog_id'] = $result['blog_id'];
-							if( isset( $result['password'] ) ) {
+							if ( isset( $result['password'] ) ) {
 								$blog_data['new_blog_details']['user_pass'] = $result['password'];
 							}
-							$ajax_response['show_finish'] = true;
+							$ajax_response['show_finish']    = true;
 							$ajax_response['finish_content'] = ProSites_View_Front_Gateway::render_free_confirmation( $blog_data );
 						}
 
-						if( isset( $blog_data['new_blog_details']['reserved_message'] ) ) {
+						if ( isset( $blog_data['new_blog_details']['reserved_message'] ) ) {
 							$ajax_response['reserved_message'] = $blog_data['new_blog_details']['reserved_message'];
 						}
 
@@ -206,32 +215,32 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					$ajax_response['gateways_form'] = ProSites_View_Front_Gateway::render_checkout( $blog_data );
 				} else {
 					// We had registration errors, redraw the form displaying errors
-					if( ! empty( $user_check ) && isset( $user_check->errors ) ) {
-						$ajax_response['form'] = ProSites_View_Front_Registration::render_signup_form( $blog_data, $user_check );
+					if ( ! empty( $user_check ) && isset( $user_check->errors ) ) {
+						$ajax_response['form']           = ProSites_View_Front_Registration::render_signup_form( $blog_data, $user_check );
 						$ajax_response['user_available'] = false;
 					}
 
 					// Isolate which standard fields are valid
 					$error_keys = array_keys( $user_check->errors );
 
-					foreach( $error_keys as $key ) {
-						if( preg_match( '/username|user_name/', $key ) ) {
+					foreach ( $error_keys as $key ) {
+						if ( preg_match( '/username|user_name/', $key ) ) {
 							$username_available = false;
 						}
-						if( preg_match( '/email/', $key ) ) {
+						if ( preg_match( '/email/', $key ) ) {
 							$email_available = false;
 						}
-						if( preg_match( '/blogname/', $key ) ) {
-							$blogname_available= false;
+						if ( preg_match( '/blogname/', $key ) ) {
+							$blogname_available = false;
 						}
-						if( preg_match( '/blog_title/', $key ) ) {
+						if ( preg_match( '/blog_title/', $key ) ) {
 							$blogtitle_available = false;
 						}
 					}
 				}
-				$ajax_response['username_available'] = $username_available;
-				$ajax_response['email_available'] = $email_available;
-				$ajax_response['blogname_available'] = $blogname_available;
+				$ajax_response['username_available']   = $username_available;
+				$ajax_response['email_available']      = $email_available;
+				$ajax_response['blogname_available']   = $blogname_available;
 				$ajax_response['blog_title_available'] = $blogtitle_available;
 
 				$response = array(
