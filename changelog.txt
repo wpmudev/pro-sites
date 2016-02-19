@@ -6,14 +6,14 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.5.2 - 02/12/2016 - Umesh Kumar
+3.5.2 - 02/20/2016 - Umesh Kumar
 
 -Fixed: First payment coupons not working after single use
 -Fixed: Use stripslashes in Paypal IPN handler, as WordPress escapes the data, it was
         leading to failed IPN verification in some cases
 -Fixed: Deprecated function `get_admin_users_for_domain`
--Fixed: Skip Payment gateway for Zero cost plans (Only Non Recurring )
--Fixed: Skip Payment gateway for 100% Off coupons
+-Fixed: Skip Payment gateway for Zero cost plans  (Only Non Recurring )
+-Fixed: Skip Payment gateway for 100% Off coupons (Only Non Recurring )
 -Fixed: Do not show "Change your plan heading" for New Signups
 -Added: Premium plugins now auto activate or deactivate when a site's level changes.
 -Added: Permanent extensions can now be reverted by extending a site manually.
