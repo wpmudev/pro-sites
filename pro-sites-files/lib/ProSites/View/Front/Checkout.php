@@ -422,6 +422,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$active_periods = (array) $psts->get_setting( 'enabled_periods' );
 
+			if ( ! empty( $active_periods ) && is_array( $active_periods ) ) {
+				self::$default_period = 'price_' . $active_periods[0];
+			}
+
 			$periods = array(
 				'price_1'  => __( 'every month', 'psts' ),
 				'price_3'  => __( 'every 3 months', 'psts' ),
@@ -524,7 +528,6 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					$display_style = self::$default_period != $period_key ? ' hide' : '';
 					$create_hidden = false;
-
 
 					if ( 1 == count( $active_periods ) ) {
 						$display_style = '';

@@ -15,6 +15,7 @@ Change Log:
 -Fixed: Skip Payment gateway for Zero cost plans  (Only Non Recurring )
 -Fixed: Skip Payment gateway for 100% Off coupons (Only Non Recurring )
 -Fixed: Do not show "Change your plan heading" for New Signups
+-Fixed: Price not being displayed on checkout page if monthly price is disabled
 -Added: Premium plugins now auto activate or deactivate when a site's level changes.
 -Added: Permanent extensions can now be reverted by extending a site manually.
 
