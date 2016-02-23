@@ -80,7 +80,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				}
 			}
 
-			$site_details = ProSites_Helper_ProSite::get_blog_info( $blog_id );
+			$site_details = !empty( $blog_id ) ? ProSites_Helper_ProSite::get_blog_info( $blog_id ) : '';
 
 			/**
 			 * Process forms
@@ -160,7 +160,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						$name = $name[ $site_details['last_payment_gateway'] ];
 					}
 
-					if( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
+					if ( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
 						$content .= '<div id="psts-general-error" class="psts-warning">' .
 						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
 						$content .= '</div>';

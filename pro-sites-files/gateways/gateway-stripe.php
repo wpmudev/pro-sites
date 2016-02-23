@@ -9,6 +9,10 @@ class ProSites_Gateway_Stripe {
 	private static $complete_message = false;
 	private static $cancel_message = false;
 	private static $stripe_plans = array();
+	private static $zero_decimal_currencies = array(
+		'JPY'   //Japanese Yen
+	);
+	private static $is_zdc; //is Zero decimal currency
 
 	function __construct() {
 		global $psts;
@@ -71,6 +75,14 @@ class ProSites_Gateway_Stripe {
 		//update install script if necessary
 		if ( empty( $stripe_version ) || $stripe_version != $psts->version ) {
 			$this->install();
+		}
+
+		//Set if a zero decimal currency or not
+		$currency = self::currency();
+		if ( ! empty( $currency ) && in_array( $currency, self::$zero_decimal_currencies ) ) {
+			self::$is_zdc = true;
+		} else {
+			self::$is_zdc = false;
 		}
 
 	}
@@ -179,13 +191,15 @@ class ProSites_Gateway_Stripe {
 				if ( self::plan_exists( $stripe_plan_id ) ) {
 					$plan_existing = self::get_plan_details( $stripe_plan_id );
 
+					$plan_price = self::$is_zdc ? $plan['price'] : $plan['price'] * 100;
+
 					// Nothing needs to happen
-					if ( $plan_existing->amount == ( $plan['price'] * 100 ) && $plan_existing->name == $plan_name && strtolower( $plan_existing->currency ) == strtolower( $currency ) ) {
+					if ( $plan_existing->amount == $plan_price && $plan_existing->name == $plan_name && strtolower( $plan_existing->currency ) == strtolower( $currency ) ) {
 						continue;
 					}
 
 					// Only the name needs changing, easy.
-					if ( $plan_existing->amount == ( $plan['price'] * 100 ) && strtolower( $plan_existing->currency ) == strtolower( $currency ) ) {
+					if ( $plan_existing->amount == $plan_price && strtolower( $plan_existing->currency ) == strtolower( $currency ) ) {
 						self::update_plan( $stripe_plan_id, $plan_name );
 						continue;
 					}
@@ -391,8 +405,10 @@ class ProSites_Gateway_Stripe {
 		try {
 			$currency = self::currency();
 
+			$plan_amount = self::$is_zdc ? $level_price : round( $level_price * 100 );
+
 			Stripe_Plan::create( array(
-				"amount"         => round( $level_price * 100 ),
+				"amount"         => $plan_amount,
 				"interval"       => $int,
 				"interval_count" => $int_count,
 				"name"           => "$name",
@@ -823,7 +839,7 @@ class ProSites_Gateway_Stripe {
 			$exitsing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );
 			$last_payment            = $exitsing_invoice_object->data[0]->total / 100;
 			$refund_value            = $_POST['refund_amount'];
-			$refund_amount           = $refund_value * 100;
+			$refund_amount           = self::$is_zdc ? $refund_value : ( $refund_value * 100 );
 			$refund_amount           = (int) $refund_amount;
 			$refund                  = $last_payment;
 
@@ -2141,7 +2157,7 @@ class ProSites_Gateway_Stripe {
 
 						$cpn         = false;
 						$coupon_args = array(
-							'amount_off'      => ( $amount_off * 100 ),
+							'amount_off'      => self::$is_zdc ? $amount_off : ( $amount_off * 100 ),
 							'duration'        => $lifetime,
 							'currency'        => $currency,
 							'max_redemptions' => 1,
@@ -2210,7 +2226,7 @@ class ProSites_Gateway_Stripe {
 
 					// Apply tax?
 					if ( $tax_object->apply_tax ) {
-						$args['tax_percent'] = $tax_object->tax_rate * 100;
+						$args['tax_percent'] = self::$is_zdc ? $tax_object->tax_rate : ( $tax_object->tax_rate * 100 );
 					}
 
 
@@ -2251,11 +2267,12 @@ class ProSites_Gateway_Stripe {
 
 					// Create Stripe Invoice for the setup fee
 					if ( $has_setup_fee ) {
+
 						try {
 
 							$customer_args = array(
 								'customer'    => $customer_id,
-								'amount'      => ( $setup_fee * 100 ),
+								'amount'      => self::$is_zdc ? $setup_fee : ( $setup_fee * 100 ),
 								'currency'    => $currency,
 								'description' => __( 'One-time setup fee', 'psts' ),
 								'metadata'    => array(
@@ -2331,7 +2348,7 @@ class ProSites_Gateway_Stripe {
 
 								// Apply tax?
 								if ( $tax_object->apply_tax ) {
-									$sub->tax_percent            = $tax_object->tax_rate * 100;
+									$sub->tax_percent            = self::$is_zdc ? $tax_object->tax_rate : ( $tax_object->tax_rate * 100 );
 									$sub->metadata->tax_evidence = $evidence_string;
 								}
 
@@ -2489,14 +2506,15 @@ class ProSites_Gateway_Stripe {
 
 						if ( $tax_object->apply_tax ) {
 							$amount = $initAmount + ( $initAmount * $tax_object->tax_rate );
-							$desc += sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), ( $tax_object->tax_rate * 100 ), $tax_object->country );
+							$tax_rate = self::$is_zdc ? $tax_object->tax_rate : ( $tax_object->tax_rate * 100 );
+							$desc += sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), $tax_rate, $tax_object->country );
 						} else {
 							$amount = $initAmount;
 						}
 
 						$customer_args = array(
 							'customer'    => $customer_id,
-							'amount'      => ( $amount * 100 ),
+							'amount'      => self::$is_zdc ? $amount : ( $amount * 100 ),
 							'currency'    => $currency,
 							'description' => $desc,
 							'metadata'    => array(
@@ -2990,6 +3008,8 @@ class ProSites_Gateway_Stripe {
 	public static function attempt_manual_reactivation( $blog_id ) {
 		global $current_site, $current_blog, $psts;
 
+		$current_blog = get_blog_details($blog_id, true );
+
 		$customer = self::get_customer_data( $blog_id );
 
 		// If they don't have a Stripe subsription, exit.
@@ -3072,7 +3092,7 @@ class ProSites_Gateway_Stripe {
 			}
 
 			// If cancellation happened in less than 2 minutes, its likely a mistake, so recreate
-			$elapsed = (int) $pair['delete'] - (int) $pair['create'];
+			$elapsed = !empty( $pair ) ? ( (int) $pair['delete'] - (int) $pair['create'] ) : 0;
 			if ( ( $elapsed > 0 && $elapsed < 120 ) || $force_attempt ) {
 				global $wpdb;
 
@@ -3208,12 +3228,13 @@ class ProSites_Gateway_Stripe {
 							);
 
 							foreach ( $currencies as $k => $v ) {
-								echo '		<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
+								echo '<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
 							}
 							?>
 						</select>
 
 						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
+						<p class="description"><strong><?php _e( 'For zero decimal currencies like Japanese Yen, minimum plan cost should be greater than 50 Cents equivalent.', 'psts' ); ?></strong></p>
 					</td>
 				</tr>
 				<tr valign="top">
