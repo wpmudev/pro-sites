@@ -75,12 +75,14 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 				} else {
 					$render_callback = array( get_class(), 'render_generic_tab' );
 				}
-				//				$render_callback = apply_filters(
-				//					'prosites_settings_tabs_render_callback',
-				//					$render_callback,
-				//					$active_tab,
-				//					'ProSites_Helper_Tabs_Settings'
-				//				);
+				/**
+				 * Allow to plugin external gateways
+				 */
+				$render_callback = apply_filters(
+					'prosites_settings_tabs_render_callback',
+					$render_callback,
+					$active_tab
+				);
 				?>
 				<div class="psts-settings">
 					<?php

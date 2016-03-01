@@ -1552,5 +1552,5 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 
 
 //register the gateway
-	psts_register_gateway( 'ProSites_Gateway_2Checkout', __( '2Checkout', 'psts' ), __( 'Online payment processing service that helps you accept credit cards, PayPal and debit cards', 'psts' ) );
+//	psts_register_gateway( 'ProSites_Gateway_2Checkout', __( '2Checkout', 'psts' ), __( 'Online payment processing service that helps you accept credit cards, PayPal and debit cards', 'psts' ) );
 }
