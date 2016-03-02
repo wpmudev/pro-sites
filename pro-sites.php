@@ -2893,7 +2893,7 @@ _gaq.push(["_trackTrans"]);
 			});
 		</script>
 		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/modify.png'; ?>"/></div>
-		<h2><?php _e( 'Pro Sites Management', 'psts' ); ?></h2>
+		<h1><?php _e( 'Pro Sites Management', 'psts' ); ?></h1>
 
 		<?php
 		if( $activation_key ) {
@@ -3575,7 +3575,7 @@ if ( $active_pro_sites ) {
 	</script>
 <div class="wrap">
 	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/stats.png'; ?>"/></div>
-	<h2><?php _e( 'Pro Sites Statistics', 'psts' ); ?></h2>
+	<h1><?php _e( 'Pro Sites Statistics', 'psts' ); ?></h1>
 
 <?php echo $this->weekly_summary(); ?>
 
@@ -3655,7 +3655,7 @@ function admin_levels() {
 	?>
 	<div class="wrap">
 	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/levels.png'; ?>"/></div>
-	<h2><?php _e( 'Pro Sites Levels', 'psts' ); ?></h2>
+	<h1><?php _e( 'Pro Sites Levels', 'psts' ); ?></h1>
 	<?php
 
 	$levels = (array) get_site_option( 'psts_levels' );
@@ -3969,7 +3969,7 @@ function admin_levels() {
 		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-plugins"></div>
-			<h2><?php _e( 'Pro Sites Modules and Gateways', 'psts' ); ?></h2>
+			<h1><?php _e( 'Pro Sites Modules and Gateways', 'psts' ); ?></h1>
 
 			<form method="post" action="">
 				<?php wp_nonce_field( 'psts_modules' ) ?>

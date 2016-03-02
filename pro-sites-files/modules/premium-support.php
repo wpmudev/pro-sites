@@ -99,7 +99,7 @@ class ProSites_Module_Support {
 		$disabled = '';
 		?>
 		<div class="wrap">
-			<h2><?php echo $psts->get_setting( 'ps_name' ); ?></h2>
+			<h1><?php echo $psts->get_setting( 'ps_name' ); ?></h1>
 
 			<?php
 			if ( isset( $_POST['support-message'] ) && is_supporter() ) {

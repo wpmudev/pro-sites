@@ -783,7 +783,7 @@ class ProSites_Module_BulkUpgrades {
 		?>
 		<div class="wrap">
 		<div class="icon32"><img src="<?php echo $psts->plugin_url . 'images/import.png'; ?>"/></div>
-		<h2><?php _e( 'Bulk Upgrades', 'psts' ) ?></h2>
+		<h1><?php _e( 'Bulk Upgrades', 'psts' ) ?></h1>
 
 
 		<div class="metabox-holder">

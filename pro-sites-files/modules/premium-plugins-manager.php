@@ -58,21 +58,7 @@ class ProSites_Module_Plugins_Manager {
 		) );
 
 		add_action( 'admin_print_styles-' . $module_page, array( &$this, 'load_settings_style' ) );
-		//add_action( 'admin_footer', array( &$this, 'load_settings_script' ) );
 	}
-
-	/*function load_settings_script() {
-		?>
-		<script type="text/javascript">
-		jQuery(function($) {
-			$('.ppm_level').change(function(){
-				if( $(this).val() != '' )
-					window.location.href = '<?php echo network_admin_url( 'admin.php?page=psts-plugins-manager&level=' ) ?>' + $(this).val();
-			});
-		});
-		</script>
-		<?php
-	}*/
 
 	function load_settings_style() {
 		ProSites_Helper_UI::load_psts_style();
@@ -102,8 +88,7 @@ class ProSites_Module_Plugins_Manager {
 
 		?>
 		<div class="wrap">
-			<div class="icon32" id="icon-plugins"></div>
-			<h2><?php _e( 'Premium Plugins Manager', 'psts' ); ?></h2>
+			<h1><?php _e( 'Premium Plugins Manager', 'psts' ); ?></h1>
 			<?php if( $updated ) { ?>
 			<div class="updated">
 				<p><?php _e( 'Setings saved!', 'psts' ); ?></p>

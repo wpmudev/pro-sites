@@ -138,12 +138,13 @@ class ProSites_Module_Plugins {
 	}
 
 	/*
-	Removes hactivated plugins that should not have been activated (multi). Single activations
-	are additionaly protected by a nonce field. Dirty hack in case someone uses firebug or
+	 * Removes activated plugins that should not have been activated (multi).
+	 * Single activations are additionally protected by a nonce field. Dirty hack in case someone uses firebug or
 	something to hack the post and simulate a bulk activation. I'd rather prevent
 	them from being activated in the first place, but there are no hooks for that! The
 	display will show the activated status, but really they are not. Only hacking attempts
-	will see this though! */
+	will see this though!
+	 */
 	function check_activated( $active_plugins ) {
 		global $psts;
 
@@ -190,14 +191,14 @@ class ProSites_Module_Plugins {
 		if ( count( $level_plugins ) && is_pro_site( $blog_id, $new_level ) ) {
 			switch_to_blog( $blog_id );
 			foreach ($level_plugins as $plugin ) {
-				    $current = get_option( 'active_plugins', array() );
-		            if ( ! in_array( $plugin, $current ) ) {
-                		array_push( $current, $plugin );
-                        do_action( 'activate_plugin', trim( $plugin ) );
-				        update_option( 'active_plugins', $current );
-				        do_action( 'activate_' . trim( $plugin ) );
-				        do_action( 'activated_plugin', trim( $plugin) );
-		            }
+				$current = get_option( 'active_plugins', array() );
+				if ( ! in_array( $plugin, $current ) ) {
+					array_push( $current, $plugin );
+					do_action( 'activate_plugin', trim( $plugin ) );
+					update_option( 'active_plugins', $current );
+					do_action( 'activate_' . trim( $plugin ) );
+					do_action( 'activated_plugin', trim( $plugin) );
+				}
 			}
 			restore_current_blog();
 		}
@@ -370,6 +371,7 @@ class ProSites_Module_Plugins {
 				}
 			}
 		}
+
 		//if any activate them
 		if ( count( $auto_activate ) ) {
 			activate_plugins( $auto_activate, '', false ); //silently activate any plugins
@@ -437,7 +439,7 @@ class ProSites_Module_Plugins {
 		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-plugins"></div>
-			<h2><?php _e( 'Premium Plugins', 'psts' ); ?></h2>
+			<h1><?php _e( 'Premium Plugins', 'psts' ); ?></h1>
 
 			<p><?php _e( 'Select the minimum Pro Site level for premium plugins that you want to enable for sites of that level or above. Selecting "None" will make the plugin unavailable to all but Super Admins. Checking Auto Activate will activate the plugin when they upgrade to that level. Network only and network activated plugins will not show in this list. Note you can also override plugin permissions on a per-site basis on the <a href="sites.php">edit sites</a> page.', 'psts' ); ?></p>
 
@@ -474,8 +476,7 @@ class ProSites_Module_Plugins {
 									}
 									?>
 								</select>
-								<label><input type="checkbox" name="plugins[<?php echo $file; ?>][auto]" value="1"<?php checked( @$psts_plugins[ $file ]['auto'] ); ?> /> <?php _e( 'Auto Activate', 'psts' ) ?>
-								</label>
+								<label><input type="checkbox" name="plugins[<?php echo $file; ?>][auto]" value="1"<?php checked( @$psts_plugins[ $file ]['auto'] ); ?> /><?php _e( 'Auto Activate', 'psts' ) ?></label>
 							</td>
 							<th scope="row"><p><?php echo $p['Name'] ?></p></th>
 							<th scope="row"><p><?php echo $p['Version'] ?></p></th>

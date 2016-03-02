@@ -317,7 +317,7 @@ class ProSites_Module_PremiumThemes {
 		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-themes"></div>
-			<h2><?php _e( 'Premium Themes', 'psts' ); ?></h2>
+			<h1><?php _e( 'Premium Themes', 'psts' ); ?></h1>
 
 			<p><?php _e( 'Select the minimum Pro Site level for premium themes that you want to enable for sites of that level or above. Only <a href="themes.php?theme_status=disabled">disabled network themes</a> are shown in this list. ', 'psts' ); ?></p>
 
