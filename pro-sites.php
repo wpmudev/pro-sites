@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.2-beta4';
+	var $version = '3.5.212';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -896,7 +896,7 @@ Thanks!", 'psts' ),
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
-		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules & Gateways', 'psts' ), __( 'Modules', 'psts' ), 'manage_network_options', 'psts-modules', array(
+		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules', 'psts' ), __( 'Modules', 'psts' ), 'manage_network_options', 'psts-modules', array(
 			&$this,
 			'admin_modules'
 		) );
@@ -2523,6 +2523,8 @@ Thanks!", 'psts' ),
 		), $this->version );
 		wp_localize_script( 'psts-js', 'prosites_admin', array(
 			'currency_select_placeholder' => __( 'Enable gateways', 'psts' ),
+			'disable_premium_plugin' => __( 'Enabling this module will disable Premium Plugin module.', 'psts' ),
+			'disable_premium_plugin_manager' => __( 'Enabling this module will disable Premium Plugin Manager module.', 'psts' ),
 		));
 
 		wp_register_script( 'psts-js-levels', $this->plugin_url . 'js/psts-admin-levels.js', array(
@@ -3946,30 +3948,22 @@ function admin_levels() {
 <?php
 }
 
-
-	function admin_modules() {
-		global $wpdb, $psts_modules, $psts_gateways;
+function admin_modules() {
+	global $psts_modules;
+	ProSites_Helper_UI::load_psts_style();
 
 		if ( ! is_super_admin() ) {
 			echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
 			return;
 		}
-
-		if ( isset( $_POST['submit_settings'] ) ) {
-			//check nonce
-			check_admin_referer( 'psts_modules' );
-
-			$this->update_setting( 'modules_enabled', @$_POST['allowed_modules'] );
-//			$this->update_setting( 'gateways_enabled', @$_POST['allowed_gateways'] );
-
-			do_action( 'psts_modules_save' );
-
-			echo '<div class="updated fade"><p>' . __( 'Modules Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
+		if ( get_option( 'psts_module_settings_updated' ) ) {
+			delete_option( 'psts_module_settings_updated' );
+			echo '<div class="updated notice-info is-dismissible"><p>' . __( 'Modules Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-plugins"></div>
-			<h1><?php _e( 'Pro Sites Modules and Gateways', 'psts' ); ?></h1>
+			<h1><?php _e( 'Pro Sites Modules', 'psts' ); ?></h1>
 
 			<form method="post" action="">
 				<?php wp_nonce_field( 'psts_modules' ) ?>
@@ -3978,20 +3972,22 @@ function admin_levels() {
 				<span class="description"><?php _e( 'Select the modules you would like to use below. You can then configure their options on the settings page.', 'psts' ) ?></span>
 				<table class="widefat">
 					<thead>
-					<tr>
-						<th style="width: 15px;"><?php _e( 'Enable', 'psts' ) ?></th>
-						<th><?php _e( 'Module Name', 'psts' ) ?></th>
-						<th><?php _e( 'Description', 'psts' ) ?></th>
-					</tr>
+						<tr>
+							<th style="width: 15px;"><?php _e( 'Enable', 'psts' ) ?></th>
+							<th><?php _e( 'Module Name', 'psts' ) ?></th>
+							<th><?php _e( 'Description', 'psts' ) ?></th>
+						</tr>
 					</thead>
-					<tbody id="plugins">
-					<?php
+					<tbody id="plugins"><?php
 					$css  = '';
 					$css2 = '';
 					uasort( $psts_modules, create_function( '$a,$b', 'if ($a[0] == $b[0]) return 0;return ($a[0] < $b[0])? -1 : 1;' ) ); //sort modules by name
+
+					$modules_enabled = (array) $this->get_setting( 'modules_enabled' );
+
 					foreach ( (array) $psts_modules as $class => $plugin ) {
 						$css = ( 'alt' == $css ) ? '' : 'alt';
-						if ( in_array( $class, (array) $this->get_setting( 'modules_enabled' ) ) ) {
+						if ( in_array( $class,  $modules_enabled ) ) {
 							$css2   = ' active';
 							$active = true;
 						} else {
@@ -4017,55 +4013,9 @@ function admin_levels() {
 							<td><?php echo esc_attr( $plugin[1] ); ?></td>
 						</tr>
 					<?php
-					}
-					?>
+					} ?>
 					</tbody>
 				</table>
-
-<!--				<h3>--><?php //_e( 'Choose a Gateway', 'psts' ) ?><!--</h3>-->
-<!--				<span class="description">--><?php //_e( 'Select the gateway you would like to enable below. You can then configure its options on the settings page.', 'psts' ) ?><!--</span>-->
-<!--				<table class="widefat">-->
-<!--					<thead>-->
-<!--					<tr>-->
-<!--						<th style="width: 15px;">--><?php //_e( 'Enable', 'psts' ) ?><!--</th>-->
-<!--						<th>--><?php //_e( 'Gateway Name', 'psts' ) ?><!--</th>-->
-<!--						<th>--><?php //_e( 'Description', 'psts' ) ?><!--</th>-->
-<!--					</tr>-->
-<!--					</thead>-->
-<!--					<tbody id="plugins">-->
-<!--					--><?php
-//					foreach ( (array) $psts_gateways as $class => $plugin ) {
-//						$css = ( 'alt' == $css ) ? '' : 'alt';
-//						if ( in_array( $class, (array) $this->get_setting( 'gateways_enabled' ) ) ) {
-//							$css2   = ' active';
-//							$active = true;
-//						} else {
-//							$active = false;
-//						}
-//
-//						?>
-<!--						<tr valign="top" class="--><?php //echo $css . $css2; ?><!--">-->
-<!--							<td style="text-align:center;">-->
-<!--								--><?php
-//								if ( $plugin[2] ) { //if demo
-//									?>
-<!--									<input type="radio" id="psts_--><?php //echo $class; ?><!--" name="allowed_gateways[]" value="--><?php //echo $class; ?><!--" disabled="disabled"/>-->
-<!--									<a class="psts-pro-update" href="http://premium.wpmudev.org/project/pro-sites" title="--><?php //_e( 'Upgrade', 'psts' ); ?><!-- &raquo;">--><?php //_e( 'Premium Only &raquo;', 'psts' ); ?><!--</a>--><?php
-//								} else {
-//									?>
-<!--									<input type="radio" id="psts_--><?php //echo $class; ?><!--" name="allowed_gateways[]" value="--><?php //echo $class; ?><!--"--><?php //checked( $active ); ?><!-- />--><?php
-//								}
-//								?>
-<!--							</td>-->
-<!--							<td><label for="psts_--><?php //echo $class; ?><!--">--><?php //echo esc_attr( $plugin[0] ); ?><!--</label>-->
-<!--							</td>-->
-<!--							<td>--><?php //echo esc_attr( $plugin[1] ); ?><!--</td>-->
-<!--						</tr>-->
-<!--					--><?php
-//					}
-//					?>
-<!--					</tbody>-->
-<!--				</table>-->
 
 				<?php do_action( 'psts_modules_page' ); ?>
 
@@ -4075,28 +4025,6 @@ function admin_levels() {
 			</form>
 
 		</div>
-		<script type="text/javascript">
-		jQuery(function($) {
-			// @todo: Move this into the JS and use localize script for alerts.
-			$('#psts_ProSites_Module_Plugins, #psts_ProSites_Module_Plugins_Manager').change(function() {
-				if( $(this).is(':checked') ){
-					var id = $(this).attr('id');
-					if( id == 'psts_ProSites_Module_Plugins' ){
-						if( $('#psts_ProSites_Module_Plugins_Manager').is(':checked') ){
-							alert('<?php _e('Enabling this module will disable Premium Plugin Manager module.', 'psts' ); ?>');
-							$('#psts_ProSites_Module_Plugins_Manager').prop('checked', false);
-						}
-					}else if( id == 'psts_ProSites_Module_Plugins_Manager' ){
-						if( $('#psts_ProSites_Module_Plugins').is(':checked') ){
-							alert('<?php _e('Enabling this module will disable Premium Plugin module.', 'psts' ); ?>');
-							$('#psts_ProSites_Module_Plugins').prop('checked', false);
-						}
-					}
-				}
-			});
-
-		});
-		</script>
 	<?php
 	}
 

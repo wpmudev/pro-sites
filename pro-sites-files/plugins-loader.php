@@ -26,7 +26,7 @@ class ProSites_PluginLoader {
 
   function __construct() {
 
-    //load modules
+	  //load modules
 		add_action( 'plugins_loaded', array(&$this, 'load_modules'), 11 );
 
 		//load gateways
@@ -54,6 +54,18 @@ class ProSites_PluginLoader {
 
 		ksort( $modules );
 
+		//Save the settings
+		if ( isset( $_POST['submit_settings'] ) ) {
+			//check nonce
+			check_admin_referer( 'psts_modules' );
+
+			$psts->update_setting( 'modules_enabled', @$_POST['allowed_modules'] );
+
+			do_action( 'psts_modules_save' );
+
+			update_option( 'psts_module_settings_updated', 1 );
+
+		}
 		//include them suppressing errors
 		foreach ( $modules as $file ) {
 			require_once( $dir . $file . '.php');
@@ -61,6 +73,8 @@ class ProSites_PluginLoader {
 
 		//allow plugins from an external location to register themselves
 		do_action('psts_load_modules');
+
+		$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
 
 		//load chosen plugin classes
 		foreach ( array_keys( $modules ) as $class ) {
@@ -76,7 +90,7 @@ class ProSites_PluginLoader {
 				psts_register_module( $class, $name, $description );
 			}
 
-			if ( class_exists( $class ) && in_array( $class, (array) $psts->get_setting( 'modules_enabled' ) ) ) {
+			if ( class_exists( $class ) && in_array( $class, $modules_enabled ) ) {
 				global $$class;
 				$$class = new $class;
 			}

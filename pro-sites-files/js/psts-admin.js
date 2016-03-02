@@ -32,12 +32,22 @@ jQuery(document).ready(function($){
      * Make sure that settings wrapper go as far as it needs to go.
      */
     var height = $('.psts-tab-container .psts-tabs').height() + 10;
-    $('.psts-wrap .psts-settings').css( 'min-height', height );
-
-
-
-
-
-
+    $('.psts-wrap .psts-settings').css('min-height', height);
+    $('#psts_ProSites_Module_Plugins, #psts_ProSites_Module_Plugins_Manager').change(function () {
+        if ($(this).is(':checked')) {
+            var id = $(this).attr('id');
+            if (id == 'psts_ProSites_Module_Plugins') {
+                if ($('#psts_ProSites_Module_Plugins_Manager').is(':checked')) {
+                    alert(prosites_admin.disable_premium_plugin_manager);
+                    $('#psts_ProSites_Module_Plugins_Manager').prop('checked', false);
+                }
+            } else if (id == 'psts_ProSites_Module_Plugins_Manager') {
+                if ($('#psts_ProSites_Module_Plugins').is(':checked')) {
+                    alert(prosites_admin.disable_premium_plugin);
+                    $('#psts_ProSites_Module_Plugins').prop('checked', false);
+                }
+            }
+        }
+    });
 
 });
