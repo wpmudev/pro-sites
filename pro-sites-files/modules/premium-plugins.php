@@ -11,6 +11,8 @@ class ProSites_Module_Plugins {
 
 	var $checkbox_rows = array();
 
+	var $is_admin_main_site = false;
+
 	// Module name for registering
 	public static function get_name() {
 		return __('Premium Plugins', 'psts');
@@ -28,9 +30,10 @@ class ProSites_Module_Plugins {
 	}
 
 	function __construct() {
-		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
-			return;
-		}
+		global $blog_id;
+
+		$this->is_admin_main_site = ( is_super_admin() || is_main_site( $blog_id ) ) ? true : false;
+
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
 		if ( ! defined( 'PSTS_HIDE_PLUGINS_MENU' ) ) {
@@ -41,7 +44,6 @@ class ProSites_Module_Plugins {
 		self::$user_label       = __( 'Premium Plugins', 'psts' );
 		self::$user_description = __( 'Include premium plugins', 'psts' );
 
-		if ( ! is_main_site( get_current_blog_id() ) ) {
 		add_action( 'admin_notices', array( &$this, 'message_output' ) );
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_all' ) );
 		add_action( 'psts_upgrade', array( &$this, 'auto_activate' ), 10, 3 );
@@ -58,7 +60,6 @@ class ProSites_Module_Plugins {
 
 		add_filter( 'plugin_row_meta', array( &$this, 'remove_plugin_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'remove_plugin_update_row' ) );
-		}
 	}
 
 	function plug_network_page() {
@@ -72,7 +73,9 @@ class ProSites_Module_Plugins {
 		ProSites_Helper_UI::load_chosen();
 	}
 
-	//adds Premium Plugins submenu under pro blogs
+	/*
+	 *  Add the Module Page under Pro Site settings in main site
+	 */
 	function plug_page() {
 		global $psts;
 
@@ -84,9 +87,9 @@ class ProSites_Module_Plugins {
 
 	//remove plugins with no user control
 	function remove_plugins( $all_plugins ) {
-		global $psts;
+		global $psts, $blog_id;
 
-		if ( is_super_admin() ) {
+		if ( $this->is_admin_main_site ) {
 			return $all_plugins;
 		}
 
@@ -105,7 +108,7 @@ class ProSites_Module_Plugins {
 	function action_links( $action_links, $plugin_file, $plugin_data, $context ) {
 		global $psts, $blog_id;
 
-		if ( is_super_admin() ) {
+		if ( $this->is_admin_main_site ) {
 			return $action_links;
 		}
 
@@ -148,7 +151,7 @@ class ProSites_Module_Plugins {
 	function check_activated( $active_plugins ) {
 		global $psts;
 
-		if ( is_super_admin() ) {
+		if ( $this->is_admin_main_site ) {
 			return $active_plugins;
 		}
 
@@ -172,13 +175,22 @@ class ProSites_Module_Plugins {
 		return $active_plugins;
 	}
 
-	//auto-activate pro plugins
+	/*
+	 * Auto Activate plugins for the given level
+	 *
+	 */
 	function auto_activate( $blog_id, $new_level, $old_level ) {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 
+		if( is_main_site( $blog_id ) ) {
+			return;
+		}
+
 		$psts_plugins  = (array) $psts->get_setting( 'pp_plugins' );
+
 		$level_plugins = array();
+
 		foreach ( $psts_plugins as $plugin_file => $data ) {
 			if( empty( $data ) ) {
 				continue;
@@ -191,13 +203,10 @@ class ProSites_Module_Plugins {
 		if ( count( $level_plugins ) && is_pro_site( $blog_id, $new_level ) ) {
 			switch_to_blog( $blog_id );
 			foreach ($level_plugins as $plugin ) {
-				$current = get_option( 'active_plugins', array() );
-				if ( ! in_array( $plugin, $current ) ) {
-					array_push( $current, $plugin );
-					do_action( 'activate_plugin', trim( $plugin ) );
-					update_option( 'active_plugins', $current );
-					do_action( 'activate_' . trim( $plugin ) );
-					do_action( 'activated_plugin', trim( $plugin) );
+				//Check If plugin file exists
+				$valid_plugin = validate_plugin( $plugin );
+				if ( !is_wp_error( $valid_plugin ) && ! is_plugin_active( $plugin ) ) {
+					activate_plugin( $plugin, false, false, true );
 				}
 			}
 			restore_current_blog();
@@ -208,6 +217,9 @@ class ProSites_Module_Plugins {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 
+		if( is_main_site( $blog_id ) ) {
+			return;
+		}
 		$psts_plugins     = (array) $psts->get_setting( 'pp_plugins' );
 		$override_plugins = (array) get_blog_option( $blog_id, 'psts_plugins' );
 		$level_plugins    = array();
@@ -220,18 +232,18 @@ class ProSites_Module_Plugins {
 		if ( count( $level_plugins ) ) {
 			switch_to_blog( $blog_id );
 			foreach ($level_plugins as $plugin ) {
-				    $current = get_option( 'active_plugins', array() );
-		            if (  in_array( $plugin, $current ) ) {
-						$key = array_search( $plugin, $current );
+				$current = get_option( 'active_plugins', array() );
+				if (  in_array( $plugin, $current ) ) {
+					$key = array_search( $plugin, $current );
 
-						if ( false !== $key ) {
-							array_splice( $current, $key, 1 );
-						}                        
-				        update_option( 'active_plugins', $current );
-				        do_action( 'deactivate_' . trim( $plugin ) );
-				        do_action( 'deactivated_plugin', trim( $plugin) );
-				        do_action( 'deactivate_plugin', trim( $plugin ) );
-		            }
+					if ( false !== $key ) {
+						array_splice( $current, $key, 1 );
+					}
+					update_option( 'active_plugins', $current );
+					do_action( 'deactivate_' . trim( $plugin ) );
+					do_action( 'deactivated_plugin', trim( $plugin) );
+					do_action( 'deactivate_plugin', trim( $plugin ) );
+				}
 			}
 			restore_current_blog();
 		}
@@ -242,7 +254,7 @@ class ProSites_Module_Plugins {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 
-		if ( is_pro_site( $blog_id ) ) {
+		if ( is_pro_site( $blog_id ) || is_main_site( $blog_id ) ) {
 			return;
 		}
 
@@ -356,6 +368,10 @@ class ProSites_Module_Plugins {
 
 	//activate on new blog
 	function new_blog( $blog_id ) {
+
+		if( is_main_site( $blog_id ) ) {
+			return;
+		}
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 

@@ -14,11 +14,12 @@ class ProSites_Module_Plugins_Manager {
 	// Module name for registering
 
 	function __construct() {
+
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
 		add_action( 'admin_notices', array( &$this, 'message_output' ) );
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_all' ) );
-		add_action( 'psts_upgrade', array( &$this, 'activate' ), 10, 3 );
+//		add_action( 'psts_upgrade', array( &$this, 'activate' ), 10, 3 );
 		add_action( 'psts_downgrade', array( &$this, 'deactivate' ), 10, 3 );
 
 		add_filter( 'all_plugins', array( &$this, 'remove_plugins' ) );
@@ -298,17 +299,37 @@ class ProSites_Module_Plugins_Manager {
 		}
 	}
 
+	/**
+    * Activate the plugins on blog setup
+	* @param $blog_id
+	* @param $new_level
+	* @param $old_level
+    */
 	function activate( $blog_id, $new_level, $old_level ) {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 
-		$old_level_plugins = $psts->get_setting( 'psts_ppm_' . $old_level );
-		$override_plugins = (array) get_blog_option( $blog_id, 'psts_plugins' );
-		$old_level_plugins = array_diff( $old_level_plugins, $override_plugins );
+		$psts_plugins  = (array) $psts->get_setting( 'psts_ppm_' . $new_level );
 
-		if ( count( $old_level_plugins ) ) {
+		$level_plugins = array();
+		foreach ( $psts_plugins as $plugin_file => $data ) {
+			if( empty( $data ) ) {
+				continue;
+			}
+			if ( $data['auto'] && is_numeric( $data['level'] ) && $data['level'] > $old_level && $data['level'] <= $new_level ) {
+				$level_plugins[] = $plugin_file;
+			}
+		}
+
+		if ( count( $level_plugins ) && is_pro_site( $blog_id, $new_level ) ) {
 			switch_to_blog( $blog_id );
-			deactivate_plugins( $old_level_plugins, true ); //silently remove any plugins so that uninstall hooks aren't fired
+			foreach ($level_plugins as $plugin ) {
+				//Check If plugin file exists
+				$valid_plugin = validate_plugin( $plugin );
+				if ( !is_wp_error( $valid_plugin ) && ! is_plugin_active( $plugin ) ) {
+					activate_plugin( $plugin, false, false, true );
+				}
+			}
 			restore_current_blog();
 		}
 	}
