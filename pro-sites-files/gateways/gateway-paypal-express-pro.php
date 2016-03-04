@@ -2944,8 +2944,8 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					}
 
 					$site       = ProSites_Helper_ProSite::get_site( $blog_id );
-					$last_level = $site->level;
-					$last_term  = $site->term;
+					$last_level = ! empty( $site->level ) ? $site->level : '';
+					$last_term  = ! empty( $site->term ) ? $site->term : '';
 
 					$force_upgrade = $last_level != $level || $last_term != $period;
 
