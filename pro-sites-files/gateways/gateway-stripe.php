@@ -1043,11 +1043,18 @@ class ProSites_Gateway_Stripe {
 
 		$domain  = '';
 		$blog_id = false;
+		$alt_cust_object = false;
 		try {
 			// retrieve the request's body and parse it as JSON
 			$body            = @file_get_contents( 'php://input' );
 			$event_json      = json_decode( $body );
-			$alt_cust_object = isset( $event_json->data->object->object ) && 'customer' == isset( $event_json->data->object->object );
+
+			$customer_id = '';
+			if ( ! empty( $event_json->data->object->object ) && 'customer' == $event_json->data->object->object ) {
+				$customer_id = $event_json->data->object->id;
+			} elseif ( ! empty( $event_json->data->object->customer ) ) {
+				$customer_id = $event_json->data->object->customer;
+			}
 
 			if ( ! isset( $event_json->data->object->customer ) && ! isset( $event_json->data->object->object ) ) {
 				return false;
@@ -1056,8 +1063,6 @@ class ProSites_Gateway_Stripe {
 				return false;
 			}
 			$event_type = $event_json->type;
-
-			$customer_id = ! $alt_cust_object ? $event_json->data->object->customer : $event_json->data->object->id;
 
 			$subscription = self::get_subscription( $event_json );
 
@@ -1465,7 +1470,23 @@ class ProSites_Gateway_Stripe {
 		}
 
 		if ( $exists ) {
-			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites_stripe_customers SET customer_id = %s, subscription_id = %s WHERE blog_id = %d", $customer_id, $sub_id, $blog_id ) );
+			$data  = array();
+			$table = $wpdb->base_prefix . 'pro_sites_stripe_customers';
+			//Sunscription id
+			if ( ! empty( $sub_id ) ) {
+				$data['subscription_id'] = $sub_id;
+			}
+			//Customer Id
+			if ( ! empty( $customer_id ) ) {
+				$data['customer_id'] = $customer_id;
+			}
+			//Where
+			$where = array(
+				'blog_id' => $blog_id
+			);
+			if ( ! empty( $data ) ) {
+				$wpdb->update( $table, $data, $where );
+			}
 		} else {
 			//If we have blog id update stripe customer id for blog id otherwise store in signup meta
 			if ( ! empty( $blog_id ) ) {
