@@ -4020,7 +4020,7 @@ function admin_modules() {
 				<?php do_action( 'psts_modules_page' ); ?>
 
 				<p class="submit">
-					<input type="submit" name="submit_settings" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
+					<input type="submit" name="submit_module_settings" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
 				</p>
 			</form>
 

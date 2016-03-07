@@ -55,7 +55,7 @@ class ProSites_PluginLoader {
 		ksort( $modules );
 
 		//Save the settings
-		if ( isset( $_POST['submit_settings'] ) ) {
+		if ( isset( $_POST['submit_module_settings'] ) ) {
 			//check nonce
 			check_admin_referer( 'psts_modules' );
 

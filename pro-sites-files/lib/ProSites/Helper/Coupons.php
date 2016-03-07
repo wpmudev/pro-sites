@@ -396,7 +396,7 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				);
 
 				// Buffer used to isolate AJAX response from unexpected output
-				ob_end_clean();
+				@ob_end_clean();
 				ob_start();
 				$xmlResponse = new WP_Ajax_Response( $response );
 				$xmlResponse->send();
