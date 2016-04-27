@@ -1304,6 +1304,11 @@ Thanks!", 'psts' ),
 		}
 	}
 
+	/**
+    * Check if a blog is expired
+    *
+	* @return bool
+    */
 	function check() {
 
 		global $blog_id, $wpdb;
@@ -1322,6 +1327,19 @@ Thanks!", 'psts' ),
 			 * 1 day = 86400 seconds
 			 */
 			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 7200;
+
+			//Confirm the expiry from subscription
+			if( $current_expire <= time() ) {
+				//Try to fetch subscription details from Gateway first
+				$expiry = $this->get_subscription_details( $blog_id );
+
+				//If the blog is not expired, return
+				if( !empty( $expiry ) && $expiry >= time() ) {
+					//Update the Expiry of the blog
+					$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = %s WHERE blog_ID = %d", $expiry, $blog_id ) );
+					return true;
+				}
+			}
 
 			// Check current expiration, if its '9999999999' then its indefinite, else calculate
 			if( '9999999999' == $current_expire || ( ( (int) $current_expire + $expiration_buffer ) < time() ) ) {
@@ -5240,6 +5258,28 @@ function admin_modules() {
 		}else{
 			return 'user';
 		}
+	}
+	/**
+    * Try to fetch the latest subscription detail from the respective Gateway
+    * to check if the blog is expired
+    *
+	* @param string $blog_id
+    *
+	* @return string|null Expiry Date
+    */
+	function get_subscription_details( $blog_id = '' ) {
+		$expiry = '';
+		if( empty( $blog_id ) ) {
+			return $expiry;
+		}
+		$gateway = ProSites_Helper_ProSite::get_site_gateway( $blog_id );
+		if( 'stripe' == $gateway ) {
+			$expiry = ProSites_Gateway_Stripe::get_blog_subscription_expiry( $blog_id );
+		}elseif( 'paypal' == $gateway ) {
+			$expiry = ProSites_Gateway_PayPalExpressPro::get_blog_subscription_expiry( $blog_id );
+		}
+
+		return $expiry;
 	}
 
 }

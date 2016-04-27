@@ -269,5 +269,20 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 				return false;
 			}
 		}
+
+		/**
+		 * Fetch the Gateway Name for the given blog id
+		 * 
+		 * @param $blog_id
+		 *
+		 * @return string
+		 */
+		public static function get_site_gateway( $blog_id ) {
+			global $wpdb;
+			$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
+			$result  = $wpdb->get_row( $sql );
+			$gateway = ! empty( $result->gateway ) ? strtolower( $result->gateway ) : '';
+			return $gateway;
+		}
 	}
 }

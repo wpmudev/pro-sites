@@ -3126,6 +3126,35 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		return ! empty( $data ) ? $data : '';
 	}
+
+	/**
+	 * Fetch the Next Billing Date for the subscription
+	 *
+	 * @param $blog_id
+	 *
+	 * @return string
+	 */
+	function get_blog_subscription_expiry( $blog_id ) {
+		//Return If we don't have any blog id
+		if ( empty( $blog_id ) ) {
+			return '';
+		}
+		$expiry = '';
+		$profile_id = $this->get_profile_id( $blog_id );
+		if ( $profile_id ) {
+			$resArray = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $profile_id );
+
+			if( empty( $resArray ) ) {
+				return $expiry;
+			}
+
+			//If the Profile is active
+			if ( ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) && $resArray['STATUS'] == 'Active' ) {
+				$expiry = !empty( $resArray['NEXTBILLINGDATE'] ) ? $resArray['NEXTBILLINGDATE'] : '';
+			}
+		}
+		return $expiry;
+	}
 }
 
 //register the gateway

@@ -3271,6 +3271,46 @@ class ProSites_Gateway_Stripe {
 		<?php
 	}
 
+	/**
+	 * Fetch Subscription End date
+	 *
+	 * @param $blog_id
+	 *
+	 * @return bool|string
+	 */
+	public static function get_blog_subscription_expiry( $blog_id ) {
+		//Return If we don't have any blog id
+		if( empty( $blog_id ) ) {
+			return '';
+		}
+
+		//retrieve Customer Subscription
+		$customer_data = self::get_customer_data( $blog_id );
+
+		$customer_id = !empty( $customer_data ) && !empty( $customer_data->customer_id ) ? $customer_data->customer_id : '';
+		$sub_id = !empty( $customer_data ) && !empty( $customer_data->subscription_id ) ? $customer_data->subscription_id : '';
+
+		//Return If we don't have customer id
+		if( empty( $customer_id ) || empty( $sub_id ) ) {
+			return '';
+		}
+
+		$expiry = '';
+
+		try {
+			//Get the Subscription details
+			$customer     = Stripe_Customer::retrieve( $customer_id );
+			$subscription = $customer->subscriptions->retrieve( $sub_id );
+			$expiry = !empty( $subscription->current_period_end ) ? $subscription->current_period_end : '';
+		}
+		catch ( Exception $e ) {
+			error_log( $e->getMessage() );
+		}
+
+		return $expiry;
+
+	}
+
 }
 
 // Init actions
