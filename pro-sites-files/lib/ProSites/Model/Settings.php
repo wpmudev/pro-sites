@@ -15,7 +15,7 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 
 				$active_tab = sanitize_text_field( $_POST['active_tab'] );
 
-				switch( $active_tab ) {
+				switch ( $active_tab ) {
 					case 'general':
 						$_POST['psts']['hide_adminmenu']          = isset( $_POST['psts']['hide_adminmenu'] ) ? $_POST['psts']['hide_adminmenu'] : 0; //handle checkbox
 						$_POST['psts']['hide_adminbar']           = isset( $_POST['psts']['hide_adminbar'] ) ? $_POST['psts']['hide_adminbar'] : 0; //handle checkbox
@@ -29,29 +29,29 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 						$_POST['psts']['checkout_roles']          = isset( $_POST['psts']['checkout_roles'] ) ? $_POST['psts']['checkout_roles'] : ''; //handle checkbox
 						break;
 					case 'taxes':
-						$_POST['psts']['taxamo_status']           = isset( $_POST['psts']['taxamo_status'] ) ? $_POST['psts']['taxamo_status'] : 0; //handle checkbox
+						$_POST['psts']['taxamo_status'] = isset( $_POST['psts']['taxamo_status'] ) ? $_POST['psts']['taxamo_status'] : 0; //handle checkbox
 						break;
 				}
 
-				$_POST['psts']['pt_sortthemes']           = isset( $_POST['psts']['pt_sortthemes'] ) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox
-				$_POST['psts']['send_receipts']           = isset( $_POST['psts']['send_receipts'] ) ? $_POST['psts']['send_receipts'] : 0; //handle checkbox
+				$_POST['psts']['pt_sortthemes'] = isset( $_POST['psts']['pt_sortthemes'] ) ? $_POST['psts']['pt_sortthemes'] : ''; //handle checkbox
+				$_POST['psts']['send_receipts'] = isset( $_POST['psts']['send_receipts'] ) ? $_POST['psts']['send_receipts'] : 0; //handle checkbox
 
 				//merge settings
 				$old_settings = get_site_option( 'psts_settings' );
 
 				// update levels?
 				$update_gateway_levels = false;
-				if( isset( $_POST['psts']['currency'] ) ) {
+				if ( isset( $_POST['psts']['currency'] ) ) {
 					$new_currency = sanitize_text_field( $_POST['psts']['currency'] );
-					if( strtolower( $old_settings['currency'] ) != strtolower( $new_currency ) ) {
+					if ( strtolower( $old_settings['currency'] ) != strtolower( $new_currency ) ) {
 						$update_gateway_levels = true;
 					}
 				}
 
-				$settings     = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $active_tab ) );
+				$settings = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $_POST['psts'], $active_tab ) );
 				update_site_option( 'psts_settings', $settings );
 
-				if( $update_gateway_levels ) {
+				if ( $update_gateway_levels ) {
 					do_action( 'update_site_option_psts_levels' );
 				}
 

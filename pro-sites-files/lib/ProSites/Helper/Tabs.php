@@ -28,24 +28,24 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 
 			// Get options
 			$defaults = array(
-				'header_save_button' => false,
+				'header_save_button'  => false,
 				'section_save_button' => false,
-				'nonce_name' => null,
-				'button_name' => null,
+				'nonce_name'          => null,
+				'button_name'         => null,
 			);
-			$options = wp_parse_args( $options, $defaults );
+			$options  = wp_parse_args( $options, $defaults );
 			extract( $options );
 
 			// Create $settings_header if not exist
 			if ( empty( $settings_header ) ) {
-				$settings_header = array (
-					'title'            => __( 'This title needs a new name.', 'psts' ),
-					'desc'             => __( 'Pass it as argument 2 in render()', 'psts' ),
+				$settings_header = array(
+					'title' => __( 'This title needs a new name.', 'psts' ),
+					'desc'  => __( 'Pass it as argument 2 in render()', 'psts' ),
 				);
 			}
 
 			// Note: IDE error, but it will be created from extract() function.
-			if( ! isset( $settings_header['page_header'] ) || ! $settings_header['page_header'] ) {
+			if ( ! isset( $settings_header['page_header'] ) || ! $settings_header['page_header'] ) {
 				$settings_header['header_save_button'] = $header_save_button;
 			}
 			$settings_header['button_name'] = $button_name;
@@ -56,7 +56,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			?>
 			<div class="psts-wrap wrap">
 				<?php
-				if( ! empty( $nonce_name ) ) {
+				if ( ! empty( $nonce_name ) ) {
 					$nonce_name = sanitize_text_field( $nonce_name );
 					wp_nonce_field( $nonce_name );
 				}
@@ -64,7 +64,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 				ProSites_Helper_Settings::settings_header( $settings_header );
 
 				reset( $tabs ); // If the first key has already been used
-				$active_tab = sanitize_html_class( @$_GET['tab'], key( $tabs ) );
+				$active_tab = ! empty( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : key( $tabs );
 
 				self::vertical_tabs( $tabs, $active_tab, $persistent );
 
@@ -89,10 +89,10 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 					//echo $callback_parent . '::' . $callback_name;
 					$html = call_user_func( $render_callback );
 
-					if( ! empty( $section_save_button ) && ! empty( $button_name ) ) {
+					if ( ! empty( $section_save_button ) && ! empty( $button_name ) ) {
 						$html .= '<hr />
 							<p class="section-save-button">
-								<input type="submit" name="submit_' . esc_attr( $button_name ) . '_section" class="button-primary" value="' .  esc_attr( __( 'Save Changes', 'psts' ) ) . '"/>
+								<input type="submit" name="submit_' . esc_attr( $button_name ) . '_section" class="button-primary" value="' . esc_attr( __( 'Save Changes', 'psts' ) ) . '"/>
 							</p>';
 					}
 					$html = apply_filters( 'prosites_settings_tab_content_' . $callback_name, $html );
@@ -122,7 +122,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 				<ul class="psts-tabs" style="">
 					<?php foreach ( $tabs as $tab_name => $tab ) :
 						$tab_class = $tab_name == $active_tab ? 'active' : '';
-						$url       = $tab['url'];
+						$url = $tab['url'];
 
 						if ( ! empty( $tab['class'] ) ) {
 							$tab_class .= ' ' . $tab['class'];
@@ -153,7 +153,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 			do_action( 'psts_settings_page' );
 			$content = ob_get_clean();
 
-			if( empty( $content ) ) {
+			if ( empty( $content ) ) {
 				_e( 'Settings page not found.', 'psts' );
 			} else {
 				echo $content;
@@ -168,8 +168,9 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 		public static function get_active_tab_child( $child ) {
 			$tabs = call_user_func( array( $child, 'get_tabs' ) );
 			reset( $tabs ); // If the first key has already been used
-			$active_tab = sanitize_html_class( @$_GET['tab'], key( $tabs ) );
+			$active_tab                     = ! empty( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : key( $tabs );
 			$tabs[ $active_tab ]['tab_key'] = $active_tab;
+
 			return $tabs[ $active_tab ];
 		}
 

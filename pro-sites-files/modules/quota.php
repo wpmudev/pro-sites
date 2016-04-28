@@ -34,7 +34,7 @@ class ProSites_Module_Quota {
 	}
 
 	function __construct() {
-		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
+		if ( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
 			return;
 		}
 		self::$user_label       = __( 'Quota', 'psts' );
@@ -108,7 +108,7 @@ class ProSites_Module_Quota {
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"
-						class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
+					    class="psts-help-div psts-quota-amounts"><?php echo __( 'Quota Amounts', 'psts' ) . $psts->help_text( __( 'Each level should have an identical or progressively higher quota.', 'psts' ) ); ?></th>
 					<td><?php
 						if ( function_exists( 'psts_ads_upgrade_active' ) && psts_ads_upgrade_active() ) {
 							$level = 0;
@@ -129,29 +129,30 @@ class ProSites_Module_Quota {
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-						class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
+					    class="psts-help-div psts-quota-message"><?php echo __( 'Quota Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard and media upload form as an advertisment to upgrade to the next level. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
 					<td>
 						<input type="text" name="psts[quota_message]" id="quota_message"
-							value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>"
-							style="width: 95%"/>
+						       value="<?php echo esc_attr( $psts->get_setting( "quota_message" ) ); ?>"
+						       style="width: 95%"/>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"
-						class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
+					    class="psts-help-div psts-out-of-space"><?php echo __( 'Out of Space Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the dashboard when out of upload space. "LEVEL" will be replaced with the needed level name, and "SPACE" will be replaced with the extra upload space in the next level.', 'psts' ) ); ?></th>
 					<td>
 						<input type="text" name="psts[quota_out_message]" id="quota_out_message"
-							value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>"
-							style="width: 95%"/>
+						       value="<?php echo esc_attr( $psts->get_setting( "quota_out_message" ) ); ?>"
+						       style="width: 95%"/>
 					</td>
 				</tr>
 			</table>
 			<p>
-				<span class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
+				<span
+					class="description"><?php _e( 'NOTE: If you need to be able to override the upload quota on a per site basis when editing the site, add this to your wp-config.php file:', 'psts' ) ?>
 					<pre>define('PSTS_QUOTA_ALLOW_OVERRIDE', true);</pre></span><br/></p>
 		</div>
 		<!--		</div>-->
-	<?php
+		<?php
 	}
 
 	function quota_select( $level, $selected ) {
@@ -172,7 +173,7 @@ class ProSites_Module_Quota {
 			}
 			?>
 		</select>
-	<?php
+		<?php
 	}
 
 	function message( $output = true, $para = 'default' ) {
@@ -299,7 +300,6 @@ class ProSites_Module_Quota {
 	}
 
 	public function add_quota_to_library() {
-		global $psts;
 
 		$quota = get_space_allowed();
 		$used  = get_space_used();

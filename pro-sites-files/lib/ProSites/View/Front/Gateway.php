@@ -235,13 +235,17 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$sql    = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 			$result = $wpdb->get_row( $sql );
 
-			if ( ! empty( $result ) && 'Trial' == $result->gateway ) {
-				$info_retrieved = ProSites_Gateway_Trial::get_existing_user_information( $blog_id, $domain );
-			} else {
-				foreach ( $gateway_order as $key ) {
-					// @todo: replace the called method with hooks with different names in the gateways (filter is from ProSites_Helper_ProSite::get_blog_info() )
-					if ( ! empty( $key ) && $result->gateway == $key && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
-						$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
+			if( !empty( $result ) ) {
+
+
+				if ( 'Trial' == $result->gateway ) {
+					$info_retrieved = ProSites_Gateway_Trial::get_existing_user_information( $blog_id, $domain );
+				} else {
+					foreach ( $gateway_order as $key ) {
+						// @todo: replace the called method with hooks with different names in the gateways (filter is from ProSites_Helper_ProSite::get_blog_info() )
+						if ( ! empty( $key ) && $result->gateway == $key && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
+							$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
+						}
 					}
 				}
 			}

@@ -272,7 +272,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		/**
 		 * Fetch the Gateway Name for the given blog id
-		 * 
+		 *
 		 * @param $blog_id
 		 *
 		 * @return string
@@ -282,6 +282,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 			$result  = $wpdb->get_row( $sql );
 			$gateway = ! empty( $result->gateway ) ? strtolower( $result->gateway ) : '';
+
 			return $gateway;
 		}
 	}

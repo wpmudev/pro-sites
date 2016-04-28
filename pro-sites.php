@@ -1080,7 +1080,7 @@ Thanks!", 'psts' ),
 	}
 
 	function checkout_url( $blog_id = false, $domain = false ) {
-		global $current_site;
+		global $psts;
 
 		$url = $this->get_setting( 'checkout_url' );
 

@@ -35,7 +35,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 				?>
 
 			</form>
-		<?php
+			<?php
 
 		}
 
@@ -56,9 +56,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 
 			//insert new page if not existing
 			switch_to_blog( $checkout_site );
-			$page_id = $psts->get_setting( 'checkout_page' );
-			$post_status = get_post_status( $page_id );
-			$checkout_link =  false !== $post_status && 'trash' != $post_status ? get_edit_post_link( $page_id ) : false;
+			$page_id       = $psts->get_setting( 'checkout_page' );
+			$post_status   = get_post_status( $page_id );
+			$checkout_link = false !== $post_status && 'trash' != $post_status ? get_edit_post_link( $page_id ) : false;
 			restore_current_blog();
 
 			?>
@@ -109,27 +109,33 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Hide Pro Status for Superadmin', 'psts' ); ?></th>
 						<td>
-							<label><input type="checkbox" name="psts[hide_adminbar_super]" value="1"<?php checked( $psts->get_setting( 'hide_adminbar_super' ) ); ?> />
+							<label><input type="checkbox" name="psts[hide_adminbar_super]"
+							              value="1"<?php checked( $psts->get_setting( 'hide_adminbar_super' ) ); ?> />
 								<?php _e( 'Remove the Super Admin Pro Site status menu from the admin bar', 'psts' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="psts-help-div force-redirect-expiraton"><?php echo __( 'Force redirect on Expiration', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Redirect site admin to Checkout page, on Pro Site expiration', 'psts' ), 'force-redirect' ); ?></th>
+						<th scope="row"
+						    class="psts-help-div force-redirect-expiraton"><?php echo __( 'Force redirect on Expiration', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Redirect site admin to Checkout page, on Pro Site expiration', 'psts' ), 'force-redirect' ); ?></th>
 						<td>
-							<label><input type="checkbox" name="psts[psts_force_redirect]" value="1"<?php checked( $psts->get_setting( 'psts_force_redirect', 1 ) ); ?> /></label>
+							<label><input type="checkbox" name="psts[psts_force_redirect]"
+							              value="1"<?php checked( $psts->get_setting( 'psts_force_redirect', 1 ) ); ?> /></label>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-free-level psts-help-div"><?php echo __( 'Free Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Sites has a built-in free level by default. Configure how this level is displayed on the checkout form:', 'psts' ) ); ?></th>
 						<td>
 							<label>
 								<span class="psts-label psts-label-name"><?php _e( 'Name', 'psts' ); ?></span>
-								<input type="text" name="psts[free_name]" value="<?php echo esc_attr( $psts->get_setting( 'free_name' ) ); ?>"/>
+								<input type="text" name="psts[free_name]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'free_name' ) ); ?>"/>
 							</label><br/>
 							<label>
 								<span class="psts-label psts-label-message"><?php _e( 'Message', 'psts' ); ?></span>
-								<input type="text" size="50" name="psts[free_msg]" value="<?php echo esc_attr( $psts->get_setting( 'free_msg' ) ); ?>"/>
+								<input type="text" size="50" name="psts[free_msg]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'free_msg' ) ); ?>"/>
 							</label>
 						</td>
 					</tr>
@@ -143,29 +149,34 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="free-signup"><?php echo __( 'Allow Free Signup<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow user to sign up for a standard non-Pro Sites blog.', 'psts' ) ); ?></th>
+						    class="free-signup"><?php echo __( 'Allow Free Signup<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow user to sign up for a standard non-Pro Sites blog.', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[free_signup]"
-									value="1"<?php checked( $psts->get_setting( 'free_signup' ) ); ?> />
+							              value="1"<?php checked( $psts->get_setting( 'free_signup' ) ); ?> />
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="multiple-signup"><?php echo __( 'Allow multiple blogs<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow single users to register multiple blogs.', 'psts' ) ); ?></th>
+						    class="multiple-signup"><?php echo __( 'Allow multiple blogs<br /><small>* Signup on Checkout</small>', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Allow single users to register multiple blogs.', 'psts' ) ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[multiple_signup]"
-									value="1"<?php checked( $psts->get_setting( 'multiple_signup' ) ); ?> />
+							              value="1"<?php checked( $psts->get_setting( 'multiple_signup' ) ); ?> />
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-show-signup-message"><?php echo __( 'Show Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Display a signup message above the checkout table', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-show-signup-message"><?php echo __( 'Show Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Display a signup message above the checkout table', 'psts' ) ); ?></th>
 						<td>
-							<label><input type="checkbox" name="psts[show_signup_message]" value="1"<?php checked( $psts->get_setting( 'show_signup_message' ) ); ?> />
+							<label>
+								<input type="checkbox" name="psts[show_signup_message]"
+								       value="1"<?php checked( $psts->get_setting( 'show_signup_message' ) ); ?> />
+							</label>
 						</td>
 					</tr>
 
 					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-signup-message"><?php echo __( 'Signup Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Optional - HTML allowed - This message is displayed on the signup page if the box is checked above.', 'psts' ) ); ?></th>
 						<td>
 							<textarea name="psts[signup_message]" rows="3" wrap="soft" id="signup_message"
 							          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'signup_message' ) ); ?></textarea>
@@ -180,7 +191,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 							<?php } else { ?>
 								<a href="<?php echo $checkout_link; ?>"
 								   title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a>
-							<?php } ?>
+							<?php }?>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -240,11 +251,11 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 						    class="psts-free-trial-level psts-help-div"><?php echo __( 'Free Trial Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'The level assigned to new Trials', 'psts' ) ); ?></th>
 						<td><select name="psts[trial_level]" class="chosen">
 								<?php
-								$trial_level         = $psts->get_setting( 'trial_level', 1 );
+								$trial_level      = $psts->get_setting( 'trial_level', 1 );
 								$trial_days_level = '';
 
 								$levels = ( array ) get_site_option( 'psts_levels' );
-								foreach( $levels as $key => $level ) {
+								foreach ( $levels as $key => $level ) {
 									$trial_days_level .= '<option value="' . $key . '"' . ( $key == $trial_level ? ' selected' : '' ) . '>' . $level['name'] . '</option>' . "\n";
 								}
 
@@ -324,8 +335,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			</div>
 
 
-
-
 			<?php
 		}
 
@@ -344,77 +353,109 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			<div class="inside">
 				<table class="form-table">
 					<tr>
-						<th scope="row" class="psts-help-div psts-pro-signup"><?php echo __( 'Pro Site Signup', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site signup confirmation email sent to user', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-pro-signup"><?php echo __( 'Pro Site Signup', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site signup confirmation email sent to user', 'psts' ) ); ?></th>
 						<td>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[success_subject]" value="<?php echo esc_attr( $psts->get_setting( 'success_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[success_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'success_subject' ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[success_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'success_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[success_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'success_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="psts-help-div psts-pro-site-cancelled"><?php echo __( 'Pro Site Canceled', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Membership cancellation email sent to user, "ENDDATE" will be replaced with the date when their Pro Site access ends.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-pro-site-cancelled"><?php echo __( 'Pro Site Canceled', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Membership cancellation email sent to user, "ENDDATE" will be replaced with the date when their Pro Site access ends.', 'psts' ) ); ?></th>
 						<td>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[canceled_subject]" value="<?php echo esc_attr( $psts->get_setting( 'canceled_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[canceled_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'canceled_subject' ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[canceled_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'canceled_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[canceled_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'canceled_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="psts-help-div psts-payment-reciept"><?php echo __( 'Payment Receipt', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Payment confirmation receipt. You must include the "PAYMENTINFO" code which will be replaced with payment details.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-payment-reciept"><?php echo __( 'Payment Receipt', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Payment confirmation receipt. You must include the "PAYMENTINFO" code which will be replaced with payment details.', 'psts' ) ); ?></th>
 						<td>
-							<label><input type="checkbox" name="psts[send_receipts]" value="1"<?php checked( $psts->get_setting( 'send_receipts', 1 ) ); ?> /><?php _e( 'Send PDF Receipts', 'psts' ); ?></label><br/>
-							<br />
+							<label><input type="checkbox" name="psts[send_receipts]"
+							              value="1"<?php checked( $psts->get_setting( 'send_receipts', 1 ) ); ?> /><?php _e( 'Send PDF Receipts', 'psts' ); ?>
+							</label><br/>
+							<br/>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[receipt_subject]" value="<?php echo esc_attr( $psts->get_setting( 'receipt_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
-							<br />
+								<input type="text" class="pp_emails_sub" name="psts[receipt_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'receipt_subject' ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
+							<br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[receipt_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'receipt_msg' ) ); ?></textarea></label><br/>
-							<br />
+								<textarea class="pp_emails_txt" name="psts[receipt_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'receipt_msg' ) ); ?></textarea></label><br/>
+							<br/>
 							<label><?php _e( 'Header Image URL (for PDF attachment):', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_img" name="psts[receipt_image]" value="<?php echo esc_attr( $psts->get_setting( 'receipt_image' ) ); ?>" maxlength="150" style="width: 65%"/></label>
+								<input type="text" class="pp_emails_img" name="psts[receipt_image]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'receipt_image' ) ); ?>"
+								       maxlength="150" style="width: 65%"/></label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="psts-help-div psts-expiration-mail"><?php echo __( 'Expiration Email', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site expiration email sent to user. "CHECKOUTURL" will be replaced with the url to upgrade the site.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-expiration-mail"><?php echo __( 'Expiration Email', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site expiration email sent to user. "CHECKOUTURL" will be replaced with the url to upgrade the site.', 'psts' ) ); ?></th>
 						<td>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[expired_subject]" value="<?php echo esc_attr( $psts->get_setting( 'expired_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[expired_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'expired_subject' ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[expired_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'expired_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[expired_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'expired_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="psts-help-div psts-payment-problem"><?php echo __( 'Payment Problem', 'psts' ) . ProSites_Helper_UI::help_text( __( 'The email text sent to your customer when a scheduled payment fails.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-payment-problem"><?php echo __( 'Payment Problem', 'psts' ) . ProSites_Helper_UI::help_text( __( 'The email text sent to your customer when a scheduled payment fails.', 'psts' ) ); ?></th>
 						<td>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[failed_subject]" value="<?php echo esc_attr( $psts->get_setting( 'failed_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[failed_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'failed_subject' ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[failed_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'failed_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[failed_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'failed_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="psts-help-div psts-pro-manual-extension"><?php echo __( 'Pro Site Manual Extension', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site email sent to user when site is manually extended.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-pro-manual-extension"><?php echo __( 'Pro Site Manual Extension', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site email sent to user when site is manually extended.', 'psts' ) ); ?></th>
 						<td>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[extension_subject]" value="<?php echo esc_attr( $psts->get_setting( 'extension_subject' ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[extension_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'extension_subject' ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[extension_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'extension_msg' ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[extension_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'extension_msg' ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="psts-help-div psts-pro-permanent-revoked"><?php echo __( 'Pro Site Permanent Status Revoked', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site email sent to user when the permanent status has been revoked.', 'psts' ) ); ?></th>
+						<th scope="row"
+						    class="psts-help-div psts-pro-permanent-revoked"><?php echo __( 'Pro Site Permanent Status Revoked', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Pro Site email sent to user when the permanent status has been revoked.', 'psts' ) ); ?></th>
 						<td>
 							<label><?php _e( 'Subject:', 'psts' ); ?><br/>
-								<input type="text" class="pp_emails_sub" name="psts[revoked_subject]" value="<?php echo esc_attr( $psts->get_setting( 'revoked_subject', $defaults['revoked_subject'] ) ); ?>" maxlength="150" style="width: 95%"/></label><br/>
+								<input type="text" class="pp_emails_sub" name="psts[revoked_subject]"
+								       value="<?php echo esc_attr( $psts->get_setting( 'revoked_subject', $defaults['revoked_subject'] ) ); ?>"
+								       maxlength="150" style="width: 95%"/></label><br/>
 							<label><?php _e( 'Message:', 'psts' ); ?><br/>
-								<textarea class="pp_emails_txt" name="psts[revoked_msg]" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'revoked_msg', $defaults['revoked_msg'] ) ); ?></textarea>
+								<textarea class="pp_emails_txt" name="psts[revoked_msg]"
+								          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'revoked_msg', $defaults['revoked_msg'] ) ); ?></textarea>
 							</label>
 						</td>
 					</tr>
@@ -438,37 +479,49 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 			<div class="inside">
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Currency', 'psts' ); ?><?php echo $psts->help_text( esc_html__( 'This is the currency that customers will be charged in. Your gateway currency is a fall-back option.', 'psts' ), 'site-currency' );?></th>
+						<th scope="row"><?php _e( 'Currency', 'psts' ); ?><?php echo $psts->help_text( esc_html__( 'This is the currency that customers will be charged in. Your gateway currency is a fall-back option.', 'psts' ), 'site-currency' ); ?></th>
 						<td>
-							<select id="psts-currency-select" name="psts[currency]" class="chosen" data-placeholder="<?php echo esc_attr__( 'Enable gateways', 'psts' ); ?>">
+							<select id="psts-currency-select" name="psts[currency]" class="chosen"
+							        data-placeholder="<?php echo esc_attr__( 'Enable gateways', 'psts' ); ?>">
 								<?php
-								$super = array( '&#8304;', '&#185;', '&#178;', '&#179;', '&#8308;', '&#8309;', '&#8310;', '&#8311;', '&#8312;', '&#8313;' );
+								$super    = array(
+									'&#8304;',
+									'&#185;',
+									'&#178;',
+									'&#179;',
+									'&#8308;',
+									'&#8309;',
+									'&#8310;',
+									'&#8311;',
+									'&#8312;',
+									'&#8313;'
+								);
 								$gateways = ProSites_Helper_Gateway::get_gateways();
 
-								$count = 0;
+								$count         = 0;
 								$supported_key = '';
-								foreach( $gateways as $key => $gateway ) {
-									if( 'manual' == $key ) {
+								foreach ( $gateways as $key => $gateway ) {
+									if ( 'manual' == $key ) {
 										continue;
 									}
-									$count++;
+									$count ++;
 									$gateways[ $key ]['idx'] = $count;
-									if( $count > 1 ) {
+									if ( $count > 1 ) {
 										$supported_key .= '<sup> | </sup>';
 									}
 									$supported_key .= '<sup>' . $count . ' - ' . $gateway['name'] . '</sup>';
 
 								}
-//								supports_currency
-//								foreach ( $psts->currencies as $key => $value ) {
+								//								supports_currency
+								//								foreach ( $psts->currencies as $key => $value ) {
 								$all_currencies = ProSites_Model_Data::$currencies;
 								ksort( $all_currencies );
 								foreach ( $all_currencies as $key => $currency ) {
 
 									$supported_by = '';
-									foreach( $gateways as $slug => $gateway ) {
-										if( ProSites_Helper_Gateway::supports_currency( $key, $slug ) ) {
-											if( strlen( $supported_by ) > 0 ) {
+									foreach ( $gateways as $slug => $gateway ) {
+										if ( ProSites_Helper_Gateway::supports_currency( $key, $slug ) ) {
+											if ( strlen( $supported_by ) > 0 ) {
 												$supported_by .= '&#x207B;';
 											}
 											$supported_by .= $super[ $gateway['idx'] ];
@@ -480,7 +533,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 								?>
 							</select>
 							<div>
-								<?php echo $supported_key; ?><br />
+								<?php echo $supported_key; ?><br/>
 								<?php echo sprintf( '<sup>%s</sup>', esc_html__( 'Note: Where a currency is not supported by your gateway it may revert to your merchant account currency. (e.g. Stripe)', 'psts' ) ); ?>
 								<?php echo sprintf( '<sup><br />%s</sup>', esc_html__( 'Note: Updating your site currency might take time to load, please be patient.', 'psts' ) ); ?>
 							</div>
@@ -489,22 +542,28 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Currency Symbol Position', 'psts' ) ?></th>
 						<td>
-							<label><input value="1" name="psts[curr_symbol_position]" type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position', 1 ), 1 ); ?>>
+							<label><input value="1" name="psts[curr_symbol_position]"
+							              type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position', 1 ), 1 ); ?>>
 								<?php echo $psts->format_currency(); ?>100</label><br/>
-							<label><input value="2" name="psts[curr_symbol_position]" type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position' ), 2 ); ?>>
+							<label><input value="2" name="psts[curr_symbol_position]"
+							              type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position' ), 2 ); ?>>
 								<?php echo $psts->format_currency(); ?> 100</label><br/>
-							<label><input value="3" name="psts[curr_symbol_position]" type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position' ), 3 ); ?>>
+							<label><input value="3" name="psts[curr_symbol_position]"
+							              type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position' ), 3 ); ?>>
 								100<?php echo $psts->format_currency(); ?></label><br/>
-							<label><input value="4" name="psts[curr_symbol_position]" type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position' ), 4 ); ?>>
+							<label><input value="4" name="psts[curr_symbol_position]"
+							              type="radio"<?php checked( $psts->get_setting( 'curr_symbol_position' ), 4 ); ?>>
 								100 <?php echo $psts->format_currency(); ?></label>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Show Decimal in Prices', 'psts' ) ?></th>
 						<td>
-							<label><input value="1" name="psts[curr_decimal]" type="radio"<?php checked( $psts->get_setting( 'curr_decimal', 1 ), 1 ); ?>>
+							<label><input value="1" name="psts[curr_decimal]"
+							              type="radio"<?php checked( $psts->get_setting( 'curr_decimal', 1 ), 1 ); ?>>
 								<?php _e( 'Yes', 'psts' ) ?></label>
-							<label><input value="0" name="psts[curr_decimal]" type="radio"<?php checked( $psts->get_setting( 'curr_decimal' ), 0 ); ?>>
+							<label><input value="0" name="psts[curr_decimal]"
+							              type="radio"<?php checked( $psts->get_setting( 'curr_decimal' ), 0 ); ?>>
 								<?php _e( 'No', 'psts' ) ?></label>
 						</td>
 					</tr>
@@ -527,38 +586,40 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 				<!--<table class="form-table">-->
 				<!--</table>-->
 				<!--<hr />-->
-				<h3 class="psts-settings-title"><br />EU VAT - Taxamo Integration</h3>
-				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT requirements. Taxamo pricing starts at €0.20c per transaction when switching to LIVE mode.</div>
+				<h3 class="psts-settings-title"><br/>EU VAT - Taxamo Integration</h3>
+				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT
+					requirements. Taxamo pricing starts at €0.20c per transaction when switching to LIVE mode.
+				</div>
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"
-							class="pay-for-signup"><?php echo __( 'Enable Taxamo', 'psts' ); ?></th>
+						    class="pay-for-signup"><?php echo __( 'Enable Taxamo', 'psts' ); ?></th>
 						<td>
 							<label><input type="checkbox" name="psts[taxamo_status]"
-									value="1"<?php checked( $psts->get_setting( 'taxamo_status' ) ); ?> />
+							              value="1"<?php checked( $psts->get_setting( 'taxamo_status' ) ); ?> />
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo Public Key', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
+						    class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo Public Key', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[taxamo_token]"
-								value="<?php echo esc_attr( $psts->get_setting( 'taxamo_token' ) ); ?>"/>
+							       value="<?php echo esc_attr( $psts->get_setting( 'taxamo_token' ) ); ?>"/>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-							class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo Private Key', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
+						    class="psts-help-div psts-rebrand-pro"><?php echo __( 'Taxamo Private Key', 'psts' ) . ProSites_Helper_UI::help_text( __( 'You will need to setup your API token in the Taxamo dashboard. Once you switch Taxamo to "LIVE" you will need to update this key.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[taxamo_private_token]"
-								value="<?php echo esc_attr( $psts->get_setting( 'taxamo_private_token' ) ); ?>"/>
+							       value="<?php echo esc_attr( $psts->get_setting( 'taxamo_private_token' ) ); ?>"/>
 						</td>
 					</tr>
 				</table>
-				<p class="description"><?php echo sprintf( __( 'Create an account at Taxamo.com. You can then get your API keys from the <a href="%s">API Access</a> page.', 'psts'), esc_url('https://dashboard.taxamo.com/merchant/app.html#/account/api') ); ?></p>
-				<p class="description"><?php echo sprintf( __( 'Please also add your site domain to the "Web API referers" section on the <a href="%s">JavaScript API</a> page for Taxamo integration to work.', 'psts'), esc_url('https://dashboard.taxamo.com/merchant/app.html#/account/api/javascript') ); ?></p>
+				<p class="description"><?php echo sprintf( __( 'Create an account at Taxamo.com. You can then get your API keys from the <a href="%s">API Access</a> page.', 'psts' ), esc_url( 'https://dashboard.taxamo.com/merchant/app.html#/account/api' ) ); ?></p>
+				<p class="description"><?php echo sprintf( __( 'Please also add your site domain to the "Web API referers" section on the <a href="%s">JavaScript API</a> page for Taxamo integration to work.', 'psts' ), esc_url( 'https://dashboard.taxamo.com/merchant/app.html#/account/api/javascript' ) ); ?></p>
 			</div>
-		<?php
+			<?php
 		}
 
 		/**
