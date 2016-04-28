@@ -9,6 +9,8 @@ Change Log:
 3.5.2 - 02/20/2016 - Umesh Kumar
 *Fixes
     * Check subscription expiration from respective gateway before withdrawing Pro Site status
+    * Unable to update feature description under Feature Tables settings
+
 
 3.5.2 - 02/20/2016 - Umesh Kumar
 

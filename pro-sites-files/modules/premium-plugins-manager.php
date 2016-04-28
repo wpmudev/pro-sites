@@ -92,7 +92,7 @@ class ProSites_Module_Plugins_Manager {
 			<h1><?php _e( 'Premium Plugins Manager', 'psts' ); ?></h1>
 			<?php if( $updated ) { ?>
 			<div class="updated">
-				<p><?php _e( 'Setings saved!', 'psts' ); ?></p>
+				<p><?php _e( 'Settings saved!', 'psts' ); ?></p>
 			</div>
 			<?php } ?>
 			<form method="post" action="">

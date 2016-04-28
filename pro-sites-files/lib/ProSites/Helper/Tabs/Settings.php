@@ -39,114 +39,114 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 			);
 
 			$tabs = array(
-				'general'            => array_merge( $section_options, array (
+				'general'             => array_merge( $section_options, array(
 					'title' => __( 'General Settings', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Setup the basic settings for your Pro Sites network.', 'psts' ),
 					),
 				) ),
-				'email'              => array_merge( $section_options, array(
+				'email'               => array_merge( $section_options, array(
 					'title' => __( 'E-mail Notifications', 'psts' ),
-					'desc'               => array(
-						__('"LEVEL", "SITENAME", "SITEURL" and "CHECKOUTURL" will be replaced with their associated values. No HTML allowed.', 'psts'),
+					'desc'  => array(
+						__( '"LEVEL", "SITENAME", "SITEURL" and "CHECKOUTURL" will be replaced with their associated values. No HTML allowed.', 'psts' ),
 					),
 				) ),
-				'payment'            => array_merge( $section_options, array(
+				'payment'             => array_merge( $section_options, array(
 					'title' => __( 'Currency Settings', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'These preferences affect display only. Your payment gateway of choice may not support every currency listed here.', 'psts' ),
 					),
 				) ),
-				'taxes'            => array_merge( $section_options, array(
+				'taxes'               => array_merge( $section_options, array(
 					'title' => __( 'TAX Settings', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Setting up TAX for compliance and legal requirements.', 'psts' ),
 					),
 				) ),
-				'ads'                => array_merge( $section_options, array(
+				'ads'                 => array_merge( $section_options, array(
 					'title' => __( 'Advertising', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ),
 					),
 				) ),
 //				'messages_automated' => array(
 //					'title' => __( 'Automated Email Responses', 'psts' ),
 //				),
-				'prowidget'          => array_merge( $section_options, array(
+				'prowidget'           => array_merge( $section_options, array(
 					'title' => __( 'Pro Sites Widget', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows Pro Sites to put a widget in their sidebar to proudly display their Pro level.', 'psts' ),
 					),
 				) ),
-				'buddypress'         => array_merge( $section_options, array(
+				'buddypress'          => array_merge( $section_options, array(
 					'title' => __( 'Limit BuddyPress Features', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to limit BuddyPress group creation and messaging to users of a Pro Site.', 'psts' ),
 					),
 				) ),
-				'bulkupgrades'       => array_merge( $section_options, array(
+				'bulkupgrades'        => array_merge( $section_options, array(
 					'title' => __( 'Bulk Upgrades', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to sell Pro Site level upgrades in bulk packages.', 'psts' ),
 					),
 				) ),
-				'paytoblog'          => array_merge( $section_options, array(
+				'paytoblog'           => array_merge( $section_options, array(
 					'title' => __( 'Pay to Blog', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to completely disable a site both front end and back until paid.', 'psts' ),
 					),
 				) ),
-				'throttling'         => array_merge( $section_options, array(
+				'throttling'          => array_merge( $section_options, array(
 					'title' => __( 'Post/Page Throttling', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to limit the number of posts/pages to be published daily/hourly per site.', 'psts' ),
 					),
 				) ),
-				'quotas'             => array_merge( $section_options, array(
+				'quotas'              => array_merge( $section_options, array(
 					'title' => __( 'Post/Page Quotas', 'psts' ),
-					'desc'               => array(
-						__( 'Allows you to limit the number of post types for selected Pro Site levels.', 'psts' ),
+					'desc'  => array(
+						__( 'Allows you to limit the number of post types for selected minimum Pro Site level.', 'psts' ),
 					),
 				) ),
-				'renaming'           => array_merge( $section_options, array(
+				'renaming'            => array_merge( $section_options, array(
 					'title' => __( 'Rename Plugin/Theme Features', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to rename your Premium Themes and Premium Plugins packages.', 'psts' ),
 					),
 				) ),
-				'support'            => array_merge( $section_options, array(
+				'support'             => array_merge( $section_options, array(
 					'title' => __( 'Premium Support', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to provide a premium direct to email support page for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
-				'upload_quota'       => array_merge( $section_options, array(
+				'upload_quota'        => array_merge( $section_options, array(
 					'title' => __( 'Upload Quotas', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to give additional upload space to Pro Sites.', 'psts' ),
 					),
 				) ),
-				'upgrade_admin_links'       => array_merge( $section_options, array(
+				'upgrade_admin_links' => array_merge( $section_options, array(
 					'title' => __( 'Upgrade Admin Menu Links', 'psts' ),
-					'desc'               => array(
-						__('Allows you to add custom menu items in admin panel that will encourage admins to get higher level by redirecting to upgrade page.', 'psts'),
+					'desc'  => array(
+						__( 'Allows you to add custom menu items in admin panel that will encourage admins to get higher level by redirecting to upgrade page.', 'psts' ),
 					),
 				) ),
-				'filters'            => array_merge( $section_options, array(
+				'filters'             => array_merge( $section_options, array(
 					'title' => __( 'Unfiltered HTML', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to provide the "unfiltered_html" permission to specific user types for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
-				'writing'            => array_merge( $section_options, array(
+				'writing'             => array_merge( $section_options, array(
 					'title' => __( 'Limit Publishing', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to only enable writing posts and/or pages for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
-				'xmlrpc'             => array_merge( $section_options, array(
+				'xmlrpc'              => array_merge( $section_options, array(
 					'title' => __( 'Restrict XML-RPC', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' ),
 					),
 				) ),
@@ -163,6 +163,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 			}
 
 			$tabs = self::remove_disabled_module_tabs( $tabs );
+
 			return apply_filters( 'prosites_settings_tabs', $tabs );
 		}
 

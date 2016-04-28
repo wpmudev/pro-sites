@@ -81,6 +81,7 @@ select.chosen.narrow {
 input[name="uses"] {
     width: 100px;
 }
+
 input[name="coupon_code"] {
     max-width: 125px;
 }
@@ -91,7 +92,7 @@ input[name="coupon_code"] {
 .allowed-users .help_tip,
 .coupon-period .help_tip {
     top: 3px;
-    width:auto;
+    width: auto;
 }
 
 .coupon-code .psts-help-text-wrapper {
@@ -120,6 +121,7 @@ input[name="coupon_code"] {
     min-width: 115px;
     width: 115px;
 }
+
 #add_coupon .chosen.narrow {
     min-width: 40px;
     width: 40px;
@@ -143,6 +145,7 @@ input[name="coupon_code"] {
 .psts-help-div {
     position: relative;
 }
+
 th.psts-help-div {
     width: 210px;
 }
@@ -173,10 +176,12 @@ th.psts-help-div {
 .pay-for-signup {
     position: relative;
 }
+
 .free-signup .help_tip {
     position: absolute;
     top: 23px;
 }
+
 .multiple-signup .help_tip {
     position: absolute;
     top: 22px;
@@ -187,15 +192,18 @@ th.psts-help-div {
     left: 53px;
     top: 36px;
 }
+
 .multiple-signup .psts-help-text-wrapper {
     left: 68px;
     top: 36px;
 }
+
 .pay-for-signup .help_tip {
     position: absolute;
     top: 21px;
     right: 56px;
 }
+
 .pay-for-signup .psts-help-text-wrapper {
     left: 49px;
     top: 35px;
@@ -205,6 +213,7 @@ th.psts-help-div {
     left: -6px;
     top: 35px;
 }
+
 .psts-trial-message .psts-help-text-wrapper {
     left: 30px;
 }
@@ -235,6 +244,7 @@ th.psts-help-div {
     left: 0;
     width: 150px;
 }
+
 .force-redirect-expiraton .psts-help-text-wrapper {
     left: 120px;
 }
@@ -716,7 +726,6 @@ th.psts-help-div {
     width: 100px;
 }
 
-
 /* ------------- */
 /**
  * Navigational tabs.
@@ -729,16 +738,19 @@ th.psts-help-div {
     float: left;
     width: 190px;
 }
+
 .psts-wrap .psts-tabs-titlerow {
     margin-left: 15px;
     font-weight: bold;
 }
+
 .psts-wrap .psts-tabs {
     float: left;
     width: 190px;
     margin: 0;
     padding: 0;
 }
+
 .psts-wrap .psts-tab {
     position: relative;
     z-index: 10;
@@ -748,11 +760,13 @@ th.psts-help-div {
     font-size: .9em;
     font-weight: 500;
 }
+
 .psts-wrap .psts-tab.active {
     background: #fff;
     border-color: #e5e5e5;
     box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.04);
 }
+
 .psts-wrap .psts-tab.active:after {
     content: "";
     display: block;
@@ -765,11 +779,12 @@ th.psts-help-div {
     font-size: 0;
     line-height: 0;
 }
+
 .psts-wrap .psts-tab.active .psts-tab-link {
     color: #222;
 }
 
-.psts-wrap .psts-tab.prosites-gateway-pref  {
+.psts-wrap .psts-tab.prosites-gateway-pref {
     /*display: block;*/
     border-bottom: 1px solid #cccccc;
     border-radius: 0;
@@ -796,13 +811,16 @@ th.psts-help-div {
     border: 1px solid #E5E5E5;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 }
+
 .psts-wrap .psts-wrapper-center {
     max-width: 800px;
     margin: 0 auto;
 }
+
 .psts-wrap .psts-wrapper-center.wide {
     max-width: 1200px;
 }
+
 .psts-wrap .psts-part-4,
 .psts-wrap .psts-part-3,
 .psts-wrap .psts-part-2,
@@ -815,6 +833,7 @@ th.psts-help-div {
     margin: 0;
     padding: 0;
 }
+
 .psts-wrap .psts-part-4.space,
 .psts-wrap .psts-part-3.space,
 .psts-wrap .psts-part-2.space,
@@ -823,6 +842,7 @@ th.psts-help-div {
 .psts-wrap .psts-half.space {
     padding-right: 30px;
 }
+
 .psts-wrap .psts-part-4.right,
 .psts-wrap .psts-part-3.right,
 .psts-wrap .psts-part-2.right,
@@ -831,14 +851,17 @@ th.psts-help-div {
 .psts-wrap .psts-half.right {
     float: right;
 }
+
 .psts-wrap .psts-part-3,
 .psts-wrap .psts-third {
     width: 33.33333%;
 }
+
 .psts-wrap .psts-part-4,
 .psts-wrap .psts-quarter {
     width: 25%;
 }
+
 .psts-wrap .psts-fixed-height .inside,
 .psts-wrap .psts-settings-box.psts-fixed-height .inside {
     overflow: auto;
@@ -846,6 +869,7 @@ th.psts-help-div {
     padding: 0;
     margin: 20px 20px 0 0;
 }
+
 .psts-wrap .psts-min-height .inside,
 .psts-wrap .psts-settings-box.psts-min-height .inside {
     min-height: 200px;
@@ -870,21 +894,26 @@ th.psts-help-div {
     position: relative;
     margin-bottom: 15px;
 }
+
 .psts-wrap .psts-settings-box {
     padding: 10px;
 }
+
 .psts-wrap .psts-settings-box .psts-header {
     padding: 10px;
     margin: -10px;
     border-bottom: 1px solid #E5E5E5;
     background: #F9F9F9;
 }
+
 .psts-wrap .psts-settings-box .psts-settings-description {
     margin-bottom: 0;
 }
+
 .psts-wrap .psts-settings-box .inside {
     padding-top: 20px;
 }
+
 .psts-wrap .psts-settings-box .handlediv {
     position: absolute;
     top: 0;
@@ -893,6 +922,7 @@ th.psts-help-div {
     height: 30px;
     cursor: pointer;
 }
+
 .psts-wrap .psts-settings-box .handlediv:before {
     content: '\f142';
     position: relative;
@@ -906,12 +936,15 @@ th.psts-help-div {
     -moz-osx-font-smoothing: grayscale;
     text-decoration: none !important;
 }
+
 .psts-wrap .psts-settings-box.closed .handlediv:before {
     content: '\f140';
 }
+
 .psts-wrap .psts-settings-box.nohead .psts-header {
     display: none;
 }
+
 .psts-wrap .psts-settings-box.nohead .inside {
     padding: 0;
 }
@@ -961,11 +994,11 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 
 #add-feature-box td,
 #module-comparison-table td {
- padding: 15px 0;
+    padding: 15px 0;
 }
 
 #module-comparison-table .form-description {
-    float:left;
+    float: left;
     font-style: oblique;
     color: #888;
 }
@@ -1002,8 +1035,9 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 }
 
 #prosites-level-list.feature-table td textarea {
-    width:100%;
+    width: 100%;
 }
+
 #prosites-level-list.feature-table td:last-child textarea {
     width: 100%;
     min-height: 70px;
@@ -1012,33 +1046,37 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 #prosites-level-list.feature-table .order-col {
     text-align: center;
 }
+
 #prosites-level-list.feature-table .order-col .delete {
     padding: 10px 0;
-    display:block;
+    display: block;
     margin-left: -5px;
 }
+
 #prosites-level-list.feature-table .order-col .delete:hover {
     cursor: pointer;
 }
-#prosites-level-list.feature-table .order-col .dashicons-trash{
+
+#prosites-level-list.feature-table .order-col .dashicons-trash {
     color: #aaa;
 }
+
 #prosites-level-list.feature-table .order-col .delete:hover .dashicons-trash {
     color: #EC3B4B;
 }
+
 #prosites-level-list.feature-table td:first-child {
-    border-left:3px solid #fff;
+    border-left: 3px solid #fff;
 }
+
 #prosites-level-list.feature-table .alternate td:first-child {
     border-left-color: #f9f9f9;
 }
 
-
-
 .level-select-bar a {
     padding: 0 5px;
     text-decoration: none;
-    border:none;
+    border: none;
     cursor: pointer;
 }
 
@@ -1053,7 +1091,6 @@ table.widefat.prosites-premium-plugins tbody tr th p {
     color: #fff;
     text-decoration: none;
 }
-
 
 #add-pricing-feature th,
 #add-pricing-feature td {
@@ -1080,9 +1117,10 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 #prosites-level-list th {
     padding-left: 10px;
 }
+
 #prosites-level-list .ui-sortable-handle:hover > td:first-child,
 #prosites-level-list.feature-table tr.new-feature:hover td:first-child {
-    border-left: 3px solid rgba( 57, 57, 57, 0.6 );
+    border-left: 3px solid rgba(57, 57, 57, 0.6);
 }
 
 #prosites-level-list .ui-sortable-handle:hover,
@@ -1093,11 +1131,12 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 #prosites-level-list .prosite-level-placeholder {
     height: 46px;
     line-height: 1.2em;
-    background: rgba( 57,57,57, 0.1);
-    border:1px dashed #444444;
+    background: rgba(57, 57, 57, 0.1);
+    border: 1px dashed #444444;
 }
+
 #prosites-level-list .prosite-level-placeholder td:first-child {
-    border-left:none;
+    border-left: none;
 }
 
 .save_levels_dirty {
@@ -1117,16 +1156,17 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 
 /** Fix WP Footer... at least on ProSites pages. */
 #wpfooter {
-    position:relative;
+    position: relative;
 }
 
 /** Pricing Tables > Styling */
-.table-layout label > input{ /* HIDE RADIO */
-    display:none;
+.table-layout label > input { /* HIDE RADIO */
+    display: none;
 }
-.table-layout label > input + .layout-img{ /* IMAGE STYLES */
-    cursor:pointer;
-    border:2px solid transparent;
+
+.table-layout label > input + .layout-img { /* IMAGE STYLES */
+    cursor: pointer;
+    border: 2px solid transparent;
 }
 
 .table-layout .layout-img {
@@ -1134,43 +1174,55 @@ table.widefat.prosites-premium-plugins tbody tr th p {
     height: 51px;
     background: url(../images/pricing-tables.svg) no-repeat 0 0;
     background-size: 300%;
-    margin:10px;
+    margin: 10px;
     border: 1px solid red;
     float: left;
 }
+
 .table-layout .layout-img.option1 {
     background-position: -2px -2px;
 }
+
 .table-layout .layout-img.option2 {
     background-position: -2px -103px;
 }
+
 .table-layout .layout-img.option3 {
     background-position: -2px -205px;
 }
+
 .table-layout .layout-img.option4 {
     background-position: -2px -307px;
 }
+
 .table-layout .layout-img.option5 {
     background-position: -2px -409px;
 }
+
 .table-layout label > input:checked + .layout-img.option1 {
     background-position: -169px -2px;
 }
+
 .table-layout label > input:checked + .layout-img.option2 {
     background-position: -169px -103px;
 }
+
 .table-layout label > input:checked + .layout-img.option3 {
     background-position: -169px -205px;
 }
+
 .table-layout label > input:checked + .layout-img.option4 {
     background-position: -169px -307px;
 }
+
 .table-layout label > input:checked + .layout-img.option5 {
     background-position: -169px -409px;
 }
+
 .pricing-styles h3 {
     clear: both;
 }
+
 .pricing-styles .form-table th,
 .pricing-styles .form-table td {
     padding-top: 10px;
@@ -1180,8 +1232,9 @@ table.widefat.prosites-premium-plugins tbody tr th p {
     position: relative;
     top: -8px;
 }
+
 .pricing-styles .form-table td table td {
-    margin:0;
+    margin: 0;
     padding: 0 10px 0 0;
 }
 
@@ -1192,4 +1245,8 @@ table.widefat.prosites-premium-plugins tbody tr th p {
 .pricing-styles .custom-css {
     width: 100%;
     height: 200px;
+}
+
+.feature-table .edit-box {
+    opacity: 1;
 }
