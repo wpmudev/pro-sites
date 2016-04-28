@@ -520,26 +520,25 @@ class ProSites_Gateway_PayPalExpressPro {
 			}
 
 			//prepare vars
-			$currency   = self::currency();
-			$trial_days = $psts->get_setting( 'trial_days', 0 );
-			$is_trial   = $psts->is_trial_allowed( $blog_id );
-			$setup_fee  = (float) $psts->get_setting( 'setup_fee', 0 );
-			$trial_desc = ( $is_trial ) ? ProSites_Gateway_PayPalExpressPro::get_free_trial_desc( $trial_days ) : '';
-			$recurring  = $psts->get_setting( 'recurring_subscriptions', true );
+			$currency    = self::currency();
+
+			$is_trial    = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+
+			$setup_fee   = (float) $psts->get_setting( 'setup_fee', 0 );
+
+			$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
 
 			//If free level is selected, activate a trial
-			if ( isset( $_POST['level'] ) && isset( $_POST['period'] ) ) {
-				if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
-					$esc_domain = esc_url( $domain );
-					ProSites_Helper_Registration::activate_blog( $process_data['activation_key'], $is_trial, $process_data[ $signup_type ]['period'], $process_data[ $signup_type ]['level'] );
+			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
+				$esc_domain = esc_url( $domain );
+				ProSites_Helper_Registration::activate_blog( $process_data['activation_key'], $is_trial, $process_data[ $signup_type ]['period'], $process_data[ $signup_type ]['level'] );
 
-					//Set complete message
-					self::$complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
+				//Set complete message
+				self::$complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
 
-					return;
-				}
-
+				return;
 			}
+
 			//Current site name as per the payment procedure
 			$site_name = ! empty ( $domain ) ? $domain : ( ! empty( $process_data[ $signup_type ]['domain'] ) ? $process_data[ $signup_type ]['domain'] : $current_site->site_name );
 
@@ -1394,7 +1393,11 @@ class ProSites_Gateway_PayPalExpressPro {
 		return $sel_currency;
 	}
 
-	public static function get_free_trial_desc( $trial_days ) {
+	public static function get_free_trial_desc() {
+		global $psts;
+
+		$trial_days  = $psts->get_setting( 'trial_days', 0 );
+
 		return ' (billed after ' . $trial_days . ' day free trial)';
 	}
 

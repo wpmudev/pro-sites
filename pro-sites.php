@@ -4373,10 +4373,19 @@ function admin_modules() {
 	 * @return bool
 	 */
 
-	function is_trial_allowed( $blog_id ) {
+	function is_trial_allowed( $blog_id, $level = '' ) {
+
 		$trial_days = $this->get_setting( 'trial_days', 0 );
 
+		$trial_level = $this->get_setting( 'trial_level' );
+
+		//If Trial is not set
 		if ( $trial_days == 0 ) {
+			return false;
+		}
+
+		//If the selected level is not same as allowed trial level
+		if( !empty( $level ) && $trial_level != $level ) {
 			return false;
 		}
 

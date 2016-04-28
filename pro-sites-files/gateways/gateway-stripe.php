@@ -2257,7 +2257,7 @@ class ProSites_Gateway_Stripe {
 					}
 
 					// If this is a trial before the subscription starts
-					if ( $psts->is_trial_allowed( $blog_id ) ) {
+					if ( $psts->is_trial_allowed( $blog_id, $_POST['level'] ) ) {
 						if ( isset( $process_data['new_blog_details'] ) || ! $psts->is_existing( $blog_id ) ) {
 							//customer is new - add trial days
 							$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
