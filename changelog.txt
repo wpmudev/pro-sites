@@ -7,9 +7,12 @@ Change Log:
 ----------------------------------------------------------------------
 
 3.5.2 - 02/20/2016 - Umesh Kumar
-*Fixes
+*Fixed
     * Check subscription expiration from respective gateway before withdrawing Pro Site status
     * Unable to update feature description under Feature Tables settings
+    * Allow trial for selected level only, Charge regular amount for other levels
+    * Issue with setting trial for recurring subscription
+    * Multiple notices and warnings in error log
 
 
 3.5.2 - 02/20/2016 - Umesh Kumar

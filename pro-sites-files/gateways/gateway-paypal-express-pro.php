@@ -833,8 +833,9 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Upgrade
 				if ( $modify ) {
 
+					$is_trial    = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
 					//! create the recurring profile
-					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment );
+					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment, $is_trial );
 					if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
 						$new_profile_id = $resArray["PROFILEID"];
 
@@ -958,7 +959,7 @@ class ProSites_Gateway_PayPalExpressPro {
 						update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 
 						//create the recurring profile
-						$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, '', $tax_amt_payment );
+						$resArray       = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], '', $activation_key, '', $tax_amt_payment, $is_trial );
 						$profile_status = ! empty( $resArray['PROFILESTATUS'] ) ? $resArray['PROFILESTATUS'] : '';
 
 						//If Profile is created

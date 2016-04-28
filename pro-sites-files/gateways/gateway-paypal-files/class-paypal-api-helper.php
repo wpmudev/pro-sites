@@ -124,12 +124,12 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 		 *
 		 * @return bool
 		 */
-		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '', $tax = false ) {
+		public static function CreateRecurringPaymentsProfileExpress( $token, $paymentAmount, $frequency, $desc, $blog_id, $level, $modify = false, $activation_key = '', $total_billing_cycle = '', $tax = false, $has_trial = false ) {
 			global $psts;
+
 			$setup_fee = self::init_amount($blog_id, $level );
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
-			$has_trial  = $psts->is_trial_allowed( $blog_id );
 
 			// Update trial days if user is already on a trial (we don't want them to cheat into having longer free trials!)
 			if( is_pro_trial( $blog_id ) ) {
@@ -139,15 +139,16 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				if ( ! empty( $blog_id ) ) {
 					$exists = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
 				}
-				if( $exists ) {
-					$exists = $now - $exists;
-					$elapsed = floor( $exists/(60*60*24) );
+				$exists = $exists && $exists > $now ? $now - $exists : false;
+				if ( $exists && $exists > 0 ) {
+					$elapsed = floor( $exists / ( 60 * 60 * 24 ) );
+
 					// Calculate remaining trial days
-					if( $elapsed <= $trial_days ) {
+					if ( $elapsed <= $trial_days ) {
 						$trial_days = $elapsed;
 					} else {
 						$trial_days = 0;
-						$has_trial = false;
+						$has_trial  = false;
 					}
 				}
 			}
@@ -204,7 +205,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
-			$has_trial  = $psts->is_trial_allowed( $blog_id );
+			$has_trial  = $psts->is_trial_allowed( $blog_id, $level );
 			$setup_fee = self::init_amount( $blog_id, $level );
 
 			$nvpstr = "&AMT=" . $paymentAmount;

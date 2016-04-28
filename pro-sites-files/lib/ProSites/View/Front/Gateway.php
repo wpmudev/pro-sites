@@ -429,7 +429,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$info_retrieved = '';
 
 			foreach ( $gateway_order as $key ) {
-				if ( ! empty( $key ) && empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
+				//If the key is empty or The gateway is not enabled
+				if( empty( $key ) || empty( $gateways[ $key ] ) ) {
+					continue;
+				}
+
+				if ( empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 					$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain, false );
 				}
 			}
