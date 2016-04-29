@@ -191,7 +191,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 							<?php } else { ?>
 								<a href="<?php echo $checkout_link; ?>"
 								   title="<?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?>"><?php _e( 'Edit Checkout Page &raquo;', 'psts' ); ?></a>
-							<?php }?>
+							<?php } ?>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -501,9 +501,6 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 								$count         = 0;
 								$supported_key = '';
 								foreach ( $gateways as $key => $gateway ) {
-									if ( 'manual' == $key ) {
-										continue;
-									}
 									$count ++;
 									$gateways[ $key ]['idx'] = $count;
 									if ( $count > 1 ) {
@@ -512,8 +509,8 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 									$supported_key .= '<sup>' . $count . ' - ' . $gateway['name'] . '</sup>';
 
 								}
-								//								supports_currency
-								//								foreach ( $psts->currencies as $key => $value ) {
+								//supports_currency
+								//foreach ( $psts->currencies as $key => $value ) {
 								$all_currencies = ProSites_Model_Data::$currencies;
 								ksort( $all_currencies );
 								foreach ( $all_currencies as $key => $currency ) {
@@ -526,11 +523,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 											}
 											$supported_by .= $super[ $gateway['idx'] ];
 										}
-									}
-									?>
+									} ?>
 									<option value="<?php echo $key; ?>"<?php selected( $psts->get_setting( 'currency' ), $key ); ?>><?php echo esc_attr( strtoupper( $key ) ) . '' . $supported_by . ' - ' . esc_attr( $currency['name'] ) . ' - ' . $psts->format_currency( $key ); ?></option><?php
-								}
-								?>
+								} ?>
 							</select>
 							<div>
 								<?php echo $supported_key; ?><br/>

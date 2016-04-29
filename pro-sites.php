@@ -1615,21 +1615,25 @@ Thanks!", 'psts' ),
 		// Get the user
 		if ( !empty( $transaction->username ) ) {
 			$user = get_user_by( 'login', $transaction->username );
-			$email = $user->user_email;
+			$email = !empty( $user ) ? $user->user_email : '';
 		} elseif ( !empty( $transaction->email ) ) {
 			$user = get_user_by( 'email', $transaction->email );
 			$email = $transaction->email;
 		}
-		if ( ! $user ) {
+
+		//Get admin email for the blog id
+		if ( ! $user || empty( $email ) ) {
 			$email = get_blog_option( $transaction->blog_id, 'admin_email' );
 		}
 
 		// Get current plan
 		$level_list = get_site_option( 'psts_levels' );
-		$level_name = !empty($transaction->level ) ? $level_list[ $transaction->level ]['name'] : '';
+		$level_name = !empty($transaction->level ) && !empty( $level_list[ $transaction->level ] ) ? $level_list[ $transaction->level ]['name'] : '';
 		$level_name = ! empty( $level_name ) ? $level_name : $level_list[ $psts->get_level( $transaction->blog_id ) ]['name'];
+
 		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
 		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
+
 		$term       = !empty( $result->term ) ? $result->term : false;
 
 		if ( $term == 1 || $term == 3 || $term == 12 ) {

@@ -12,6 +12,7 @@ Change Log:
     * Unable to update feature description under Feature Tables settings
     * Allow trial for selected level only, Charge regular amount for other levels
     * Issue with setting trial for recurring subscription
+    * Allow updating currency if only Manual Payment is enabled
     * Multiple notices and warnings in error log
 
 

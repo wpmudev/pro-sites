@@ -431,11 +431,10 @@ class ProSites_Module_PremiumThemes {
 			}
 		}
 
-		if( $access ) {
+		if ( $access ) {
 			return 'tick';
 		} else {
 			return 'cross';
 		}
-
 	}
 }
