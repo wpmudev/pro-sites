@@ -75,7 +75,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			do_action( 'preprocess_signup_form' );
 			$content .= ob_get_clean();
 
-			if( 'sign_up' == $action || 'another_blog' == $action ) {
+			if ( 'sign_up' == $action || 'another_blog' == $action ) {
 
 				// Need to first check if user can sign up
 				// WP hook
@@ -84,7 +84,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
 				$content .= ob_get_clean();
 
-				$user_name = '';
+				$user_name  = '';
 				$user_email = '';
 
 				$content .= '<h2>' . esc_html__( 'Setup your site', 'psts' ) . '</h2>';

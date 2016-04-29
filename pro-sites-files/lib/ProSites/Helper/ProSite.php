@@ -61,7 +61,15 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			if ( class_exists( 'BuddyPress' ) && bp_is_register_page() ) {
 				$bp_redirect = true;
 			}
+
 			if ( ( 'wp-signup.php' == $pagenow || $bp_redirect ) && $show_signup ) {
+				//If Blog templates class exists and Page is redirected to add new user, do not add query args
+				if ( class_exists( 'blog_templates' ) ) {
+					if ( ! empty( $_GET['blog_template'] ) && 'just_user' == $_GET['blog_template'] ) {
+						return;
+					}
+				}
+
 				//Check if already logged in
 				$new_blog = add_query_arg( array( "action" => "new_blog" ), $psts->checkout_url() );
 				$new_blog = apply_filters( 'psts_redirect_signup_page_url', $new_blog );

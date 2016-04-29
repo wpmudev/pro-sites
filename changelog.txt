@@ -13,6 +13,7 @@ Change Log:
     * Issue with setting trial for recurring subscription
     * JS error period_selector.val is not a function, if single period is enabled
     * Pay To Blog: Do not disable free sites if Pay to Blog is enabled
+    * Plugin Compatibility: Do not redirect if user clicks on "Just username" link on Blog templates page
     * Unable to update feature description under Feature Tables settings
     * Allow updating currency if only Manual Payment is enabled
     * Preserve Level prices for a period even if it's set to not visible in Levels settings
