@@ -11,19 +11,18 @@ class ProSites_Module_PayToBlog {
 
 	// Module name for registering
 	public static function get_name() {
-		return __('Pay To Blog', 'psts');
+		return __( 'Pay To Blog', 'psts' );
 	}
 
 	// Module description for registering
 	public static function get_description() {
-		return __('Allows you to completely disable a site both front end and back until paid.', 'psts');
+		return __( 'Allows you to completely disable a site both front end and back until paid.', 'psts' );
 	}
 
 	function __construct() {
-		if( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
+		if ( ! is_admin() && is_main_site( get_current_blog_id() ) ) {
 			return;
 		}
-//		add_action( 'psts_settings_page', array( &$this, 'settings' ) );
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_action( 'template_redirect', array( &$this, 'disable_front' ) );
 		add_filter( 'psts_prevent_dismiss', create_function( null, 'return true;' ) );
@@ -59,7 +58,14 @@ class ProSites_Module_PayToBlog {
 			return;
 		}
 
-		if ( $psts->get_setting( 'ptb_front_disable' ) && ! is_pro_site( $blog_id, 1 ) ) {
+		$is_pro_site = !empty( $psts->pro_sites ) ? isset( $psts->pro_sites[$blog_id] ) : $psts->is_pro_site( $blog_id, 1 );
+
+		//If a pro site
+		$is_free_site =   !$is_pro_site && $psts->get_setting('free_signup');
+
+
+		//Check if free site is enabled and
+		if ( $psts->get_setting( 'ptb_front_disable' ) && ! $is_free_site ) {
 
 			//send temporary headers
 			header( 'HTTP/1.1 503 Service Temporarily Unavailable' );
@@ -92,7 +98,7 @@ class ProSites_Module_PayToBlog {
 
 	function settings_process( $settings, $active_tab ) {
 
-		if( 'paytoblog' == $active_tab ) {
+		if ( 'paytoblog' == $active_tab ) {
 			$settings['ptb_front_disable'] = isset( $settings['ptb_front_disable'] ) ? $settings['ptb_front_disable'] : 0;
 		}
 
@@ -100,37 +106,37 @@ class ProSites_Module_PayToBlog {
 	}
 
 	function settings() {
-		global $psts;
-		?>
-<!--		<div class="postbox">-->
-<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Pay To Blog', 'psts' ) ?><!--</span> --->
-<!--				<span class="description">--><?php //_e( 'Allows you to completely disable a site both front end and back until paid.', 'psts' ) ?><!--</span>-->
-<!--			</h3>-->
+		global $psts; ?>
 
-			<div class="inside">
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-checkout-message"><?php echo __( 'Checkout Message', 'psts' ) .  $psts->help_text( __( 'Required - This message is displayed on the checkout page if the site is unpaid. HTML Allowed', 'psts' ) ); ?></th>
-						<td>
-							<textarea name="psts[ptb_checkout_msg]" rows="5" wrap="soft" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'ptb_checkout_msg' ) ); ?></textarea>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Disable Front End', 'psts' ); ?></th>
-						<td>
-							<label><input type="checkbox" name="psts[ptb_front_disable]" value="1"<?php checked( $psts->get_setting( 'ptb_front_disable' ) ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
-							</label></td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-frontend-restricted"><?php echo __( 'Front End Restricted Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on front end of the site if it is unpaid and disabling the front end is enabled. HTML Allowed', 'psts' ) ); ?></th>
-						<td>
-							<textarea name="psts[ptb_front_msg]" rows="5" wrap="soft" style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'ptb_front_msg' ) ); ?></textarea>
-						</td>
-					</tr>
-				</table>
-			</div>
-<!--		</div>-->
-	<?php
+		<div class="inside">
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-checkout-message"><?php echo __( 'Checkout Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the checkout page if the site is unpaid. HTML Allowed', 'psts' ) ); ?></th>
+					<td>
+						<textarea name="psts[ptb_checkout_msg]" rows="5" wrap="soft"
+						          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'ptb_checkout_msg' ) ); ?></textarea>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Disable Front End', 'psts' ); ?></th>
+					<td>
+						<label><input type="checkbox" name="psts[ptb_front_disable]"
+						              value="1"<?php checked( $psts->get_setting( 'ptb_front_disable' ) ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
+						</label></td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-frontend-restricted"><?php echo __( 'Front End Restricted Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on front end of the site if it is unpaid and disabling the front end is enabled. HTML Allowed', 'psts' ) ); ?></th>
+					<td>
+						<textarea name="psts[ptb_front_msg]" rows="5" wrap="soft"
+						          style="width: 95%"><?php echo esc_textarea( $psts->get_setting( 'ptb_front_msg' ) ); ?></textarea>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<!--		</div>-->
+		<?php
 	}
 
 	public static function is_included( $level_id ) {
@@ -139,6 +145,7 @@ class ProSites_Module_PayToBlog {
 				return false;
 		}
 	}
+
 	/**
 	 * Returns the staring pro level as pro widget is available for all sites
 	 */

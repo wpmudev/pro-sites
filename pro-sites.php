@@ -3982,7 +3982,7 @@ function admin_modules() {
 		}
 		if ( get_option( 'psts_module_settings_updated' ) ) {
 			delete_option( 'psts_module_settings_updated' );
-			echo '<div class="updated notice-info is-dismissible"><p>' . __( 'Modules Saved. Please <a href="admin.php?page=psts-settings">visit Settings</a> to configure them.', 'psts' ) . '</p></div>';
+			echo '<div class="updated notice-info is-dismissible"><p>' . __( 'Modules Saved. Please visit <a href="admin.php?page=psts-settings">Settings</a> to configure them.', 'psts' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap">
