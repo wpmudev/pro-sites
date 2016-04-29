@@ -3771,13 +3771,15 @@ function admin_levels() {
 		$this->update_setting( 'enabled_periods', $periods );
 
 		$old_levels = $levels;
+
 		foreach ( $_POST['name'] as $level => $name ) {
 			$stripped_name                  = stripslashes( trim( wp_filter_nohtml_kses( $name ) ) );
 			$name                           = empty( $stripped_name ) ? $levels[ $level ]['name'] : $stripped_name;
 			$levels[ $level ]['name']       = $name;
-			$levels[ $level ]['price_1']    = round( @$_POST['price_1'][ $level ], 2 );
-			$levels[ $level ]['price_3']    = round( @$_POST['price_3'][ $level ], 2 );
-			$levels[ $level ]['price_12']   = round( @$_POST['price_12'][ $level ], 2 );
+			$levels[ $level ]['price_1']    = isset($_POST['price_1'] ) ? round( @$_POST['price_1'][ $level ], 2 ) : $old_levels[$level]['price_1'];
+			$levels[ $level ]['price_3']    = isset($_POST['price_3'] ) ? round( @$_POST['price_3'][ $level ], 2 ) : $old_levels[$level]['price_3'];
+			$levels[ $level ]['price_12']   = isset($_POST['price_12'] ) ? round( @$_POST['price_12'][ $level ], 2 ) : $old_levels[$level]['price_12'];
+
 			$levels[ $level ]['is_visible'] = intval( @$_POST['is_visible'][ $level ] );
 		}
 

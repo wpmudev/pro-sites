@@ -6,13 +6,15 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.5.2 - 02/20/2016 - Umesh Kumar
+3.5.3 - 02/20/2016 - Umesh Kumar
 *Fixed
     * Check subscription expiration from respective gateway before withdrawing Pro Site status
-    * Unable to update feature description under Feature Tables settings
     * Allow trial for selected level only, Charge regular amount for other levels
     * Issue with setting trial for recurring subscription
+    * JS error period_selector.val is not a function, if single period is enabled
+    * Unable to update feature description under Feature Tables settings
     * Allow updating currency if only Manual Payment is enabled
+    * Preserve Level prices for a period even if it's set to not visible in Levels settings
     * Multiple notices and warnings in error log
 
 

@@ -509,7 +509,7 @@ jQuery( document ).ready( function ( $ ) {
 
         //Update Period as well
         var period_selector = $( '.period-selector select').length > 0 ? $('.period-selector select') : ( $('input[name="period-selector-top"]').length > 0 ? $('input[name="period-selector-top"]:checked') : '' );
-	    if( typeof( period_selector ) !== 'undefined' ) {
+	    if( typeof( period_selector ) !== 'undefined' && '' != period_selector ) {
 		    var period_class = period_selector.val();
 		    var period = 0;
 		    if (typeof period_class !== 'undefined') {
