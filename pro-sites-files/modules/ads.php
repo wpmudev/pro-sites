@@ -49,7 +49,7 @@ class ProSites_Module_Ads {
 		  supporter_blog_ID bigint(20) NOT NULL default '0',
 		  blog_ID bigint(20) NOT NULL default '0',
 		  expire bigint(20) NOT NULL default '0',
-		  PRIMARY KEY  ( supporter_ads_ID )
+		  PRIMARY KEY  (supporter_ads_ID)
 		) $charset_collate;";
 
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
@@ -192,6 +192,9 @@ class ProSites_Module_Ads {
 	function advertising_output( $content ) {
 		global $psts;
 
+		if (!in_the_loop () || !is_main_query ()) {
+			return $content;
+	    }
 		if ( $this->show_ads() && ! is_feed() ) {
 			$per_page = $psts->get_setting( 'ads_count', 3 );
 

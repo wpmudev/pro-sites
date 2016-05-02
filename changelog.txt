@@ -17,6 +17,8 @@ Change Log:
     * Unable to update feature description under Feature Tables settings
     * Allow updating currency if only Manual Payment is enabled
     * Preserve Level prices for a period even if it's set to not visible in Levels settings
+    * Database error while modifying the existing Ads table
+    * Added a check for displaying advertisements (Do not show adds if not in the loop or main query )
     * Multiple notices and warnings in error log
 
 
