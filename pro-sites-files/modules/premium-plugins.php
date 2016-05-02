@@ -25,7 +25,7 @@ class ProSites_Module_Plugins {
 
 	static function run_critical_tasks() {
 		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
-			add_filter( 'site_option_menu_items', array( get_class(), 'enable_plugins_page' ) );
+//			add_filter( 'site_option_menu_items', array( get_class(), 'enable_plugins_page' ) );
 		}
 	}
 
@@ -450,6 +450,14 @@ class ProSites_Module_Plugins {
 				$psts->update_setting( 'pp_plugins', $psts_plugins );
 
 				echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
+			}
+
+			if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
+				//Enable Plugin Administration menu
+				$menu_items = get_site_option('menu_items', array() );
+				$menu_items['plugins'] = 1;
+
+				update_site_option( 'menu_items', $menu_items );
 			}
 		}
 		?>

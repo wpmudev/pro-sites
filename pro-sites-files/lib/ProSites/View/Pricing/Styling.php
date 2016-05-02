@@ -354,7 +354,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 				<h3><?php esc_html_e( 'Custom CSS', 'psts' ); ?></h3>
 				<p class="description clear"><?php esc_html_e( 'You can use this box to enter your CSS, customise your theme or use a custom CSS plugin. You can avoid altering the CSS of the rest of your site by prefixing all rules you specify with "#prosites-checkout-table". Note: The CSS you specify in this box will be filtered before saving to protect your site. Any non-CSS text will be removed.', 'psts' ); ?></p>
-				<textarea class="custom-css" name="psts[checkout_style][pricing_table_custom_css]"><?php echo self::get_style( 'pricing_table_custom_css', '', $styles ); ?></textarea>
+				<textarea class="custom-css" name="psts[checkout_style][pricing_table_custom_css]"><?php echo stripslashes( self::get_style( 'pricing_table_custom_css', '', $styles ) ); ?></textarea>
 
 			</div>
 		<?php
@@ -384,7 +384,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 
 
-			$value = self::get_style( 'pricing_table_custom_css', '', $options );
+			$value = stripslashes( self::get_style( 'pricing_table_custom_css', '', $options ) );
 			$style .= ! empty( $value ) ? $value : '';
 
 			return $style;

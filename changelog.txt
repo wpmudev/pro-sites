@@ -19,6 +19,8 @@ Change Log:
     * Preserve Level prices for a period even if it's set to not visible in Levels settings
     * Database error while modifying the existing Ads table
     * Added a check for displaying advertisements (Do not show adds if not in the loop or main query )
+    * Enable Plugin administration menu on save settings in module, if Premium Plugin Manager/Plugin Manger is active
+    * Stripslashes in Custom CSS section for Pricing table
     * Multiple notices and warnings in error log
 
 

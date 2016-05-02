@@ -42,9 +42,9 @@ class ProSites_Module_Plugins_Manager {
 	}
 
 	static function run_critical_tasks() {
-		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
-			add_filter( 'site_option_menu_items', array( get_class(), 'enable_plugins_page' ) );
-		}
+//		if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
+//			add_filter( 'site_option_menu_items', array( get_class(), 'enable_plugins_page' ) );
+//		}
 	}
 
 	public static function enable_plugins_page($menu_items) {
@@ -69,22 +69,34 @@ class ProSites_Module_Plugins_Manager {
 	function admin_page() {
 
 		global $psts;
-		$levels 	= (array) get_site_option( 'psts_levels' );
-		array_unshift( $levels, 0 );
-		$levels[0] = array( 'name' => 'Free' );
-		$level_ids 	= array_keys( $levels );
-		$plugins      	= get_plugins();
-		$updated	= false;
+		$levels = (array) get_site_option( 'psts_levels' );
 
-		foreach( $levels as $level => $value ){
-			if( isset( $_POST['supporter_plugins_manager'] ) ){
+		array_unshift( $levels, 0 );
+
+		$levels[0] = array( 'name' => 'Free' );
+
+		$plugins    = get_plugins();
+		$updated    = false;
+
+		//Process Settings
+		if( isset( $_POST['supporter_plugins_manager'] ) ){
+			foreach( $levels as $level => $value ){
 				$checked = isset( $_POST['psts_ppm'] ) && isset( $_POST['psts_ppm']['level_' . $level] ) ? $_POST['psts_ppm']['level_' . $level] : false;
 				$psts->update_setting( 'psts_ppm_' . $level, $checked );
 				$updated = true;
 			}
+			if ( ! defined( 'PSTS_DISABLE_PLUGINS_PAGE_OVERRIDE' ) ) {
+				//Enable Plugin Administration menu
+				$menu_items = get_site_option('menu_items', array() );
+				$menu_items['plugins'] = 1;
 
+				update_site_option( 'menu_items', $menu_items );
+			}
+		}
+
+		foreach( $levels as $level => $value ){
 			$fn_name = 'active_plugins_' . $level;
-			$$fn_name = $psts->get_setting( 'psts_ppm_' . $level );
+			$$fn_name = (array)$psts->get_setting( 'psts_ppm_' . $level );
 		}
 
 		?>
