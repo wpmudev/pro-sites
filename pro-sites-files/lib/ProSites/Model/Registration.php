@@ -16,7 +16,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		}
 
 		public static function ajax_check_prosite_blog() {
-			global $psts, $current_site, $current_prosite_blog;
+			global $psts, $current_site;
 
 			$blog_data   = array();
 			$show_finish = false;

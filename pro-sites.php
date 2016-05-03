@@ -4637,15 +4637,6 @@ function admin_modules() {
 					$content .= '<div class="alignright"><a href="' . add_query_arg( array( 'blogs-start' => $next_start ), get_permalink() ) . '">Next</a></div>';
 				}
 				$content .= '</div>';
-
-				// Signup for another blog?
-				$allow_multi = $this->get_setting('multiple_signup');
-				$registeration = get_site_option('registration');
-				$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
-
-				if( $allow_multi ) {
-					$content .= '<div id="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
-				}
 				$content .= apply_filters( 'prosites_myaccounts_list', '', $blog_id );
 
 			}

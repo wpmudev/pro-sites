@@ -26,23 +26,28 @@ class ProSites_Gateway_Manual {
 		<div class="inside">
 			<table class="form-table">
 				<tr>
-					<th scope="row" class="psts-help-div psts-method-name"><?php echo __( 'Method Name', 'psts' ) . $psts->help_text( __( 'Enter a public name for this payment method that is displayed to users - No HTML', 'psts' ) ); ?></th>
+					<th scope="row"
+					    class="psts-help-div psts-method-name"><?php echo __( 'Method Name', 'psts' ) . $psts->help_text( __( 'Enter a public name for this payment method that is displayed to users - No HTML', 'psts' ) ); ?></th>
 					<td>
 						<span class="description"><?php ?></span>
 
 						<p>
-							<input value="<?php echo esc_attr( $psts->get_setting( "mp_name" ) ); ?>" style="width: 100%;" name="psts[mp_name]" type="text"/>
+							<input value="<?php echo esc_attr( $psts->get_setting( "mp_name" ) ); ?>"
+							       style="width: 100%;" name="psts[mp_name]" type="text"/>
 						</p>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row" class="psts-help-div psts-user-instruction"><?php echo __( 'User Instructions', 'psts' ) . $psts->help_text( __( 'Manual payment instructions to display on the checkout screen - HTML allowed', 'psts' ) ); ?></th>
+					<th scope="row"
+					    class="psts-help-div psts-user-instruction"><?php echo __( 'User Instructions', 'psts' ) . $psts->help_text( __( 'Manual payment instructions to display on the checkout screen - HTML allowed', 'psts' ) ); ?></th>
 					<td>
-						<textarea name="psts[mp_instructions]" type="text" rows="4" wrap="soft" id="mp_instructions" style="width: 100%;"/><?php echo esc_textarea( stripslashes( $psts->get_setting( 'mp_instructions' ) ) ); ?></textarea>
+						<textarea name="psts[mp_instructions]" type="text" rows="4" wrap="soft" id="mp_instructions"
+						          style="width: 100%;"/><?php echo esc_textarea( stripslashes( $psts->get_setting( 'mp_instructions' ) ) ); ?></textarea>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row" class="psts-help-div psts-show-submission"><?php echo __( 'Show Submission Form', 'psts' ) . $psts->help_text( __( 'Displays a textarea to allow user to enter payment details. The form submission will come to the network admin email address.', 'psts' ) ); ?></th>
+					<th scope="row"
+					    class="psts-help-div psts-show-submission"><?php echo __( 'Show Submission Form', 'psts' ) . $psts->help_text( __( 'Displays a textarea to allow user to enter payment details. The form submission will come to the network admin email address.', 'psts' ) ); ?></th>
 					<td>
 						<label>
 							<input type="radio" name="psts[mp_show_form]" value="1"<?php checked( $show_form, 1 ); ?>>
@@ -56,9 +61,12 @@ class ProSites_Gateway_Manual {
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row" class="psts-help-div psts-submission-form-email"><?php echo __( 'Submission Form Email', 'psts' ) . $psts->help_text( __( 'The email address to send manual payment form submissions to.', 'psts' ) ); ?></th>
+					<th scope="row"
+					    class="psts-help-div psts-submission-form-email"><?php echo __( 'Submission Form Email', 'psts' ) . $psts->help_text( __( 'The email address to send manual payment form submissions to.', 'psts' ) ); ?></th>
 					<td>
-						<input type="text" name="psts[mp_email]" id="mp_email" value="<?php echo esc_attr( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ) ); ?>" size="40"/>
+						<input type="text" name="psts[mp_email]" id="mp_email"
+						       value="<?php echo esc_attr( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ) ); ?>"
+						       size="40"/>
 					</td>
 				</tr>
 			</table>
@@ -310,7 +318,7 @@ class ProSites_Gateway_Manual {
 			}
 
 			$current_payment = self::calculate_cost( $blog_id, $_POST['level'], $_POST['period'], $process_data['COUPON_CODE'] );
-			$modify = self::is_modifying($blog_id, $_POST, $current_payment );
+			$modify          = self::is_modifying( $blog_id, $_POST, $current_payment );
 			if ( $modify ) {
 				//Plan Update
 				$psts->log_action( $blog_id, sprintf( __( 'User submitted Manual Payment for blog upgrade from %s to %s.', 'psts' ), $psts->get_level_setting( intval( $current->level ), 'name' ), $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) ) );
@@ -327,25 +335,25 @@ class ProSites_Gateway_Manual {
 				$subject = __( 'Pro Sites Manual Payment Submission for Plan update', 'psts' );
 
 				$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
-					'username'        => $username,
-					'level'           => intval( $_POST['level'] ),
-					'level_name'      => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
-					'period'          => intval( $_POST['period'] ),
-					'user_email'      => $email,
-					'site_address'    => get_home_url(),
-					'manage_link'     => $blog_admin_url,
-					'coupon_code'     => ! empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
+					'username'     => $username,
+					'level'        => intval( $_POST['level'] ),
+					'level_name'   => $psts->get_level_setting( intval( $_POST['level'] ), 'name' ),
+					'period'       => intval( $_POST['period'] ),
+					'user_email'   => $email,
+					'site_address' => get_home_url(),
+					'manage_link'  => $blog_admin_url,
+					'coupon_code'  => ! empty( $process_data['COUPON_CODE'] ) ? $process_data['COUPON_CODE'] : ''
 				) );
 
 				$message_parts = apply_filters( 'prosites_manual_payment_email_info', array(
-					'description'     => sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $message_fields['username'] ) . "\n",
-					'level_text'      => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
-					'period_text'     => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
-					'email_text'      => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
-					'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
-					'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
-					'coupon_used'     => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
-					'payment_amount'  => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
+					'description'    => sprintf( __( 'The user "%s" has submitted a manual payment request via the Pro Sites checkout form.', 'psts' ), $message_fields['username'] ) . "\n",
+					'level_text'     => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
+					'period_text'    => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
+					'email_text'     => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
+					'site_text'      => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
+					'manage_text'    => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
+					'coupon_used'    => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
+					'payment_amount' => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
 				), $message_fields );
 
 				if ( ! empty( $_POST['psts_mp_text'] ) ) {
@@ -357,20 +365,26 @@ class ProSites_Gateway_Manual {
 
 				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
 
-			}else {
+			} else {
 
 				$subject = __( 'Pro Sites Manual Payment Submission', 'psts' );
-				// Send email with activation link.
-				if ( class_exists( 'BuddyPress' ) ) {
-					// Set up activation link
-					$activate_url = bp_get_activation_page() . "?key=$activation_key";
-				} elseif ( ! is_subdomain_install() || get_current_site()->id != 1 ) {
-					$activate_url = network_site_url( "wp-activate.php?key=$activation_key" );
-				} else {
-					$activate_url = "http://{$domain}{$path}wp-activate.php?key=$activation_key"; // @todo use *_url() API
-				}
 
-				$activate_url = esc_url($activate_url);
+				$activate_url = '';
+
+				//Form the activation URL only if we have the activation key
+				if ( ! empty( $activation_key ) ) {
+					// Send email with activation link.
+					if ( class_exists( 'BuddyPress' ) ) {
+						// Set up activation link
+						$activate_url = bp_get_activation_page() . "?key=$activation_key";
+					} elseif ( ! is_subdomain_install() || get_current_site()->id != 1 ) {
+						$activate_url = network_site_url( "wp-activate.php?key=$activation_key" );
+					} else {
+						$activate_url = ! empty( $path ) && ! empty( $domain ) ? "http://{$domain}{$path}wp-activate.php?key=$activation_key" : ''; // @todo use *_url() API
+					}
+
+					$activate_url = esc_url( $activate_url );
+				}
 
 				$message_fields = apply_filters( 'prosites_manual_payment_email_info_fields', array(
 					'username'        => $username,
@@ -390,11 +404,11 @@ class ProSites_Gateway_Manual {
 					'level_text'      => __( 'Level: ', 'psts' ) . $message_fields['level'] . ' - ' . $message_fields['level_name'],
 					'period_text'     => __( 'Period: ', 'psts' ) . sprintf( __( 'Every %d Months', 'psts' ), $message_fields['period'] ),
 					'email_text'      => sprintf( __( "User Email: %s", 'psts' ), $message_fields['user_email'] ),
-					'activation_text' => sprintf( __( "Activation Key: %s", 'psts' ), $message_fields['activation_key'] ),
-					'activation_link' => sprintf( __( "Activation Link: %s", 'psts' ), $message_fields['activation_link'] ),
+					'activation_text' => ! empty( $message_fields['activation_key'] ) ? sprintf( __( "Activation Key: %s", 'psts' ), $message_fields['activation_key'] ) : '',
+					'activation_link' => ! empty( $message_fields['activation_link'] ) ? sprintf( __( "Activation Link: %s", 'psts' ), $message_fields['activation_link'] ) : '',
 					'site_text'       => sprintf( __( "Site Address: %s", 'psts' ), $message_fields['site_address'] ),
 					'manage_text'     => sprintf( __( "Manage Site: %s", 'psts' ), $blog_admin_url ),
-					'coupon_used'     => sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ),
+					'coupon_used'     => ! empty( $message_fields['coupon_code'] ) ? sprintf( __( "Coupon Used: %s", 'psts' ), $message_fields['coupon_code'] ) : '',
 					'payment_amount'  => sprintf( __( "Payment Amount: %s", 'psts' ), $current_payment ),
 				), $message_fields );
 
@@ -473,7 +487,7 @@ class ProSites_Gateway_Manual {
 		$psts->record_stat( $blog_id, 'cancel' );
 
 		$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
-		if( ! empty( $last_gateway ) && $last_gateway == self::get_slug() ) {
+		if ( ! empty( $last_gateway ) && $last_gateway == self::get_slug() ) {
 			$psts->email_notification( $blog_id, 'canceled' );
 		}
 		update_blog_option( $blog_id, 'psts_is_canceled', 1 );
@@ -553,6 +567,7 @@ class ProSites_Gateway_Manual {
 
 		return $modify;
 	}
+
 	public static function render_account_modified( $content, $blog_id, $domain ) {
 		global $psts;
 
@@ -593,7 +608,7 @@ class ProSites_Gateway_Manual {
 
 	/**
 	 * Returns list of all the currencies for Manual Gateway
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function get_supported_currencies() {

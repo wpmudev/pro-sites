@@ -21,6 +21,8 @@ Change Log:
     * Added a check for displaying advertisements (Do not show adds if not in the loop or main query )
     * Enable Plugin administration menu on save settings in module, if Premium Plugin Manager/Plugin Manger is active
     * Stripslashes in Custom CSS section for Pricing table
+    * Do not include activation details in upgrade message for manual payments
+    * Show correct admin url for Paypal checkouts
     * Multiple notices and warnings in error log
 
 
