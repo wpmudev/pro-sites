@@ -547,6 +547,9 @@ ul.pricing-column li, .pricing-column ul li {
 .feature-section-wrapper {
     overflow: hidden;
 }
+.feature-section-wrapper .feature-section {
+	margin-left: 0;
+}
 
 .feature-section,
 .pricing-column {

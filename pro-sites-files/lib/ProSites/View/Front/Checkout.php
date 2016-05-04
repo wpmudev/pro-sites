@@ -129,7 +129,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$feature_width = $column_width + 6.0;
 			$normal_style  = 'width: ' . $column_width . '%; ';
 			$feature_style = 'width: ' . $feature_width . '%; ';
-			//			$show_buy_buttons = false;
+			//$show_buy_buttons = false;
 
 			foreach ( $columns as $key => $column ) {
 				$style     = true === $column['featured'] ? $feature_style : $normal_style;
@@ -181,13 +181,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 						$content .= '<li class="feature feature-' . $index . ' ' . $alt . '"><div class="feature-content">';
 
-						if ( isset( $feature['name'] ) && ! empty( $feature['name'] ) ) {
+						if ( ! empty( $feature['name'] ) ) {
 							$content .= '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
 						}
-						if ( isset( $feature['indicator'] ) && ! empty( $feature['indicator'] ) ) {
+						if ( ! empty( $feature['indicator'] ) ) {
 							$content .= '<div class="feature-indicator">' . ProSites::filter_html( $feature['indicator'] ) . '</div>';
 						}
-						if ( isset( $feature['text'] ) && ! empty( $feature['text'] ) ) {
+						if ( ! empty( $feature['text'] ) ) {
 							$content .= '<div class="feature-text">' . ProSites::filter_html( $feature['text'] ) . '</div>';
 						}
 
@@ -422,9 +422,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$active_periods = (array) $psts->get_setting( 'enabled_periods' );
 
-			if ( ! empty( $active_periods ) && is_array( $active_periods ) ) {
-				self::$default_period = 'price_' . $active_periods[0];
-			}
+			self::$default_period = 'price_' . ProSites_Helper_ProSite::default_period();
 
 			$periods = array(
 				'price_1'  => __( 'every month', 'psts' ),
@@ -558,8 +556,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$monthly_calculated = $level_list[ $level ][ $period_key ] / $months * 1.0;
 					$difference         = ( $monthly_price - $monthly_calculated ) * $months;
 
-					$calculated_monthly   = ProSites_Helper_UI::rich_currency_format( $monthly_calculated, true );
-					$calculated_saving    = ProSites_Helper_UI::rich_currency_format( $difference, true );
+					$calculated_monthly   = ProSites_Helper_UI::rich_currency_format( $monthly_calculated );
+					$calculated_saving    = ProSites_Helper_UI::rich_currency_format( $difference );
 					$formatted_calculated = '<div class="monthly-price original-amount">' . $calculated_monthly . '</div>';
 					$formatted_calculated .= '<div class="monthly-price-hidden hidden">' . $calculated_monthly . '</div>';
 					$formatted_savings = '<div class="savings-price original-amount">' . $calculated_saving . '</div>';

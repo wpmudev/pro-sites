@@ -293,5 +293,23 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			return $gateway;
 		}
+
+		/**
+		 * Returns the default period
+		 *
+		 * @return int Default active period
+		 *
+		 */
+		public static function default_period() {
+			global $psts;
+
+			$active_periods = (array) $psts->get_setting( 'enabled_periods' );
+
+			if ( ! empty( $active_periods ) && is_array( $active_periods ) ) {
+				return $active_periods[0];
+			}
+
+			return 1;
+		}
 	}
 }

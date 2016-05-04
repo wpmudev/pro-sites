@@ -168,7 +168,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		$button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
 		$button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
 
-		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : '';
+		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : ProSites_Helper_ProSite::default_period();
 		$period = empty( $period ) ? ( ! empty( $render_data['new_blog_details'] ) ? $render_data['new_blog_details']['period'] : '' ) : $period;
 		$level  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
 		$level  = isset( $render_data['upgraded_blog_details'] ) && isset( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
@@ -511,7 +511,6 @@ class ProSites_Gateway_PayPalExpressPro {
 		     isset( $_POST['cc_paypal_checkout'] ) ||
 		     isset( $_GET['token'] )
 		) {
-
 			//Check for level, if there is no level and period, return back
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );

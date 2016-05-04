@@ -8,9 +8,11 @@ Change Log:
 
 3.5.3 - 02/20/2016 - Umesh Kumar
 *Fixed
+    * Follow the currency position setting in Pricing table description as well
     * Check subscription expiration from respective gateway before withdrawing Pro Site status
     * Allow trial for selected level only, Charge regular amount for other levels
     * Issue with setting trial for recurring subscription
+    * Issue with Paypal upgrade if only single period is enabled
     * JS error period_selector.val is not a function, if single period is enabled
     * Pay To Blog: Do not disable free sites if Pay to Blog is enabled
     * Plugin Compatibility: Do not redirect if user clicks on "Just username" link on Blog templates page

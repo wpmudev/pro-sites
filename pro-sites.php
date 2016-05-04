@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.2';
+	var $version = '3.5.3 - beta1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -3780,7 +3780,7 @@ function admin_levels() {
 			$levels[ $level ]['price_3']    = isset($_POST['price_3'] ) ? round( @$_POST['price_3'][ $level ], 2 ) : $old_levels[$level]['price_3'];
 			$levels[ $level ]['price_12']   = isset($_POST['price_12'] ) ? round( @$_POST['price_12'][ $level ], 2 ) : $old_levels[$level]['price_12'];
 
-			$levels[ $level ]['is_visible'] = intval( @$_POST['is_visible'][ $level ] );
+			$levels[ $level ]['is_visible'] = isset( $_POST['is_visible'][ $level ] ) ? intval( $_POST['is_visible'][ $level ] ) : 0;
 		}
 
 		do_action( 'update_site_option_psts_levels', '', $levels, $old_levels );
