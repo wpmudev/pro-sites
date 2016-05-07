@@ -93,7 +93,7 @@ class ProSites_Module_ProWidget {
 //Declare the widget class
 class ProSites_Pro_Widget extends WP_Widget {
 
-	function ProSites_Pro_Widget() {
+	function __construct() {
 		global $psts, $blog_id;
 		$widget_ops = array( 'classname'   => 'psts_widget',
 		                     'description' => sprintf( __( 'Proudly display your %s status in you sidebar!', 'psts' ), $psts->get_level_setting( $psts->get_level( $blog_id ), 'name' ) )
