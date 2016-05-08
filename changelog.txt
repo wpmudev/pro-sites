@@ -7,7 +7,7 @@ Change Log:
 ----------------------------------------------------------------------
 3.5.4 - 02/08/2016 - Umesh Kumar
 
-- Critical Fix: Pay to blog disabling all Pro Sites after the update 3.5.3
+-Fixed: Pay to blog disabling all Pro Sites after the update 3.5.3
 
 3.5.3 - 05/7/2016 - Umesh Kumar
 *Fixed
