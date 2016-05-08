@@ -58,14 +58,18 @@ class ProSites_Module_PayToBlog {
 			return;
 		}
 
-		$is_pro_site = !empty( $psts->pro_sites ) ? isset( $psts->pro_sites[$blog_id] ) : $psts->is_pro_site( $blog_id, 1 );
+		$is_pro_site = ! empty( $psts->pro_sites ) ? isset( $psts->pro_sites[ $blog_id ] ) : $psts->is_pro_site( $blog_id, 1 );
 
-		//If a pro site
-		$is_free_site =   !$is_pro_site && $psts->get_setting('free_signup');
+		//Whether to disable Site or not
+		$disable_site = ! $is_pro_site;
 
+		//Do not disable if free sites are enabled
+		if ( $disable_site && $psts->get_setting( 'free_signup' ) ) {
+			$disable_site = false;
+		}
 
 		//Check if free site is enabled and
-		if ( $psts->get_setting( 'ptb_front_disable' ) && ! $is_free_site ) {
+		if ( $psts->get_setting( 'ptb_front_disable' ) && $disable_site ) {
 
 			//send temporary headers
 			header( 'HTTP/1.1 503 Service Temporarily Unavailable' );

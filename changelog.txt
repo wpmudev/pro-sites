@@ -5,8 +5,11 @@ Developer: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+3.5.4 - 02/08/2016 - Umesh Kumar
 
-3.5.3 - 02/20/2016 - Umesh Kumar
+- Critical Fix: Pay to blog disabling all Pro Sites after the update 3.5.3
+
+3.5.3 - 05/7/2016 - Umesh Kumar
 *Fixed
     * Follow the currency position setting in Pricing table description as well
     * Check subscription expiration from respective gateway before withdrawing Pro Site status
