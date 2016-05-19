@@ -155,7 +155,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				if ( $allow_cancel_gateway && ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 
 					$name = "";
-					if ( method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
+					if ( isset( $gateways[ $site_details['last_payment_gateway'] ] ) && isset( $gateways[ $site_details['last_payment_gateway'] ]['class'] ) && method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
 						$name = call_user_func( $gateways[ $site_details['last_payment_gateway'] ]['class'] . '::get_name' );
 						$name = $name[ $site_details['last_payment_gateway'] ];
 					}
