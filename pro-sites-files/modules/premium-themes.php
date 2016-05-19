@@ -201,7 +201,7 @@ class ProSites_Module_PremiumThemes {
 		global $psts;
 
 		$current_theme       = get_blog_option( $blog_id, 'stylesheet' );
-		$psts_allowed_themes = $psts->get_setting( 'pt_allowed_themes' );
+		$psts_allowed_themes = $psts->get_setting( 'pt_allowed_themes', array() );
 		$blog_allowed_themes = get_blog_option( $blog_id, 'psts_blog_allowed_themes' );
 
 		$is_pro_site = is_pro_site( $blog_id );
