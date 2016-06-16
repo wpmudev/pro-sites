@@ -317,6 +317,7 @@ class ProSites_Gateway_Stripe {
 			}
 			$plans = Stripe_Plan::all( $args );
 		} catch ( Exception $e ) {
+			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			return;
 		}
 
@@ -416,6 +417,7 @@ class ProSites_Gateway_Stripe {
 				"id"             => "$stripe_plan_id"
 			) );
 		} catch ( Exception $e ) {
+			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 		}
 	}
 
@@ -622,13 +624,13 @@ class ProSites_Gateway_Stripe {
 			try {
 				$existing_invoice_object = Stripe_Invoice::all( array( "customer" => $customer_id, "count" => 1 ) );
 			} catch ( Exception $e ) {
-				$error = $e->getMessage();
+				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
 			try {
 				$customer_object = Stripe_Customer::retrieve( $customer_id );
 			} catch ( Exception $e ) {
-				$error = $e->getMessage();
+				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
 			if ( isset( $customer_object->active_card ) ) {
@@ -704,7 +706,7 @@ class ProSites_Gateway_Stripe {
 					}
 				}
 			} catch ( Exception $e ) {
-				$error = $e->getMessage();
+				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
 			// Keep it to this blog and this subscription
@@ -820,7 +822,7 @@ class ProSites_Gateway_Stripe {
 			}
 
 		} catch ( Exception $e ) {
-			echo $e->getMessage();
+			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 		}
 	}
 
@@ -991,8 +993,13 @@ class ProSites_Gateway_Stripe {
 			// Nothing to update if all the ids match the subscription id
 			return $the_blog_id;
 		} else {
-			// Blog ID doesn't exist or a new blog ID has been given.
-			$customer = Stripe_Customer::retrieve( $customer_id );
+			try {
+				// Blog ID doesn't exist or a new blog ID has been given.
+				$customer = Stripe_Customer::retrieve( $customer_id );
+			}
+			catch ( Exception $e ) {
+				error_log( "Error retrieving Stripe Customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+			}
 
 			// If the customer is deleted, just return the ID, most likely 0
 			if ( isset( $customer->deleted ) && $customer->deleted ) {
@@ -1314,8 +1321,13 @@ class ProSites_Gateway_Stripe {
 			}
 			if ( ! $subscription ) {
 				if ( 'invoiceitem' == $line_item->type && isset( $line_item->subscription ) && isset( $line_item->period ) && isset( $line_item->plan ) ) {
-					$customer     = Stripe_Customer::retrieve( $object->customer );
-					$subscription = $customer->subscriptions->retrieve( $line_item->subscription );
+					try {
+						$customer     = Stripe_Customer::retrieve( $object->customer );
+						$subscription = $customer->subscriptions->retrieve( $line_item->subscription );
+					}
+					catch ( Exception $e ) {
+						error_log( "Error in retrievng Stripe customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+					}
 				} else {
 					return false;
 				}
@@ -1445,7 +1457,12 @@ class ProSites_Gateway_Stripe {
 	}
 
 	public static function set_subscription_meta( $subscription, $customer_id ) {
-		$customer = Stripe_Customer::retrieve( $customer_id );
+		try {
+			$customer = Stripe_Customer::retrieve( $customer_id );
+		}
+		catch ( Exception $e ) {
+			error_log( "Error in retrieving Stripe customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+		}
 		if ( is_object( $subscription ) && ! empty( $customer ) ) {
 			$sub                   = $customer->subscriptions->retrieve( $subscription->id );
 			$sub->metadata->level  = $subscription->level;
@@ -1607,7 +1624,7 @@ class ProSites_Gateway_Stripe {
 				$object->sub_id   = $sub_id;
 			}
 		} catch ( Exception $e ) {
-			$error = $e->getMessage();
+			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 		}
 
 		// Evidence -> evidence_from_json()
@@ -1817,15 +1834,18 @@ class ProSites_Gateway_Stripe {
 		if ( isset( $customer_object ) ) {
 			$card_object = self::get_default_card( $customer_object );
 
-			$content .= '<div id="psts-stripe-checkout-existing">
+			if( !empty( $card_object )) {
+				$content .= '<div id="psts-stripe-checkout-existing">
 					<h2>' . esc_html( 'Checkout Using Existing Credit Card', 'psts' ) . '</h2>';
 
+			}
 			$payment_failed = get_blog_option( $blog_id, 'psts_stripe_payment_failed' );
 			if ( ! empty( $payment_failed ) ) {
 				$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Please note that your last payment failed. Please use the next section to re-enter your credit card details.', 'psts' ) . '</div>';
 			}
 
-			$content .= '		<table id="psts-cc-table-existing">
+			if( !empty( $card_object )) {
+				$content .= '		<table id="psts-cc-table-existing">
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Last 4 Digits:', 'psts' ) . '</td>
 							<td>' . esc_html( $card_object->last4 ) . '</td>
@@ -1836,6 +1856,7 @@ class ProSites_Gateway_Stripe {
 						</tr>
 					</table>
 				</div>';
+			}
 		}
 
 		$content .= '<div id="psts-stripe-checkout">
@@ -2693,7 +2714,6 @@ class ProSites_Gateway_Stripe {
 			}
 
 		}
-
 	}
 
 	/**
@@ -2751,7 +2771,7 @@ class ProSites_Gateway_Stripe {
 			try {
 				$customer_object = Stripe_Customer::retrieve( $customer_id );
 			} catch ( Exception $e ) {
-				$error = $e->getMessage();
+				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
 			// Move to render info class
@@ -2770,6 +2790,7 @@ class ProSites_Gateway_Stripe {
 													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
 													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				}
+				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
 			$args['level']   = $level;
@@ -2816,7 +2837,7 @@ class ProSites_Gateway_Stripe {
 						"count"    => 1
 					) );
 				} catch ( Exception $e ) {
-					$error = $e->getMessage();
+					error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 				}
 				if ( isset( $existing_invoice_object->data[0] ) && $customer_object->subscriptions->data[0]->status != 'trialing' ) {
 					$args['last_payment_date'] = $existing_invoice_object->data[0]->date;
@@ -3052,6 +3073,7 @@ class ProSites_Gateway_Stripe {
 		try {
 			$c = Stripe_Customer::retrieve( $customer_id );
 		} catch ( Exception $e ) {
+			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			return;
 		}
 
@@ -3122,10 +3144,17 @@ class ProSites_Gateway_Stripe {
 
 				// Assign plan to customer
 				$args = array(
-					"plan"      => $plan,
-					"prorate"   => true,
-					"trial_end" => $prosite->expire
+					"plan"    => $plan,
+					"prorate" => true
 				);
+
+				//Set trial if enabled
+				$trial_days  = $psts->get_setting( 'trial_days', 0 );
+				$trial_level = $psts->get_setting( 'trial_level', false );
+				if ( $trial_days && $prosite->level == $trial_level ) {
+					$args["trial_end"] = $prosite->expire;
+				}
+
 				// Meta data for `pay before blog` creation
 				$args['metadata'] = array(
 					'period'  => $prosite->term,
@@ -3304,7 +3333,7 @@ class ProSites_Gateway_Stripe {
 			$expiry = !empty( $subscription->current_period_end ) ? $subscription->current_period_end : '';
 		}
 		catch ( Exception $e ) {
-			error_log( $e->getMessage() );
+			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 		}
 
 		return $expiry;

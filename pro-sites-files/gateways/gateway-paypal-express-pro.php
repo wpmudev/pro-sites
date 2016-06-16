@@ -519,13 +519,13 @@ class ProSites_Gateway_PayPalExpressPro {
 			}
 
 			//prepare vars
-			$currency    = self::currency();
+			$currency = self::currency();
 
-			$is_trial    = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+			$is_trial = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
 
-			$setup_fee   = (float) $psts->get_setting( 'setup_fee', 0 );
+			$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
 
-			$recurring   = $psts->get_setting( 'recurring_subscriptions', true );
+			$recurring = $psts->get_setting( 'recurring_subscriptions', true );
 
 			//If free level is selected, activate a trial
 			if ( ! empty ( $domain ) && ! $psts->prevent_dismiss() && '0' === $_POST['level'] && '0' === $_POST['period'] ) {
@@ -832,7 +832,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Upgrade
 				if ( $modify ) {
 
-					$is_trial    = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+					$is_trial = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
 					//! create the recurring profile
 					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment, $is_trial );
 					if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
@@ -1396,7 +1396,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	public static function get_free_trial_desc() {
 		global $psts;
 
-		$trial_days  = $psts->get_setting( 'trial_days', 0 );
+		$trial_days = $psts->get_setting( 'trial_days', 0 );
 
 		return ' (billed after ' . $trial_days . ' day free trial)';
 	}
@@ -2291,6 +2291,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	/**
 	 * Fetch the Subscription details for the given blog id
+	 *
 	 * @param $blog_id
 	 *
 	 * @return bool
@@ -2438,7 +2439,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		} else if ( ProSites_Helper_Gateway::is_only_active( self::get_slug() ) ) {
 			echo '<p>' . __( "This site is using an older gateway so their information is not accessible until the next payment comes through.", 'psts' ) . '</p>';
-		}else{
+		} else {
 			$data = $this->get_transaction_details( $blog_id );
 
 			if ( ! empty( $data['L_NAME0'] ) ) {
@@ -2801,7 +2802,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$('#paypal_processing').show();
 				});
 				$("a#pypl_cancel").click(function (e) {
-					if (!confirm("<?php echo __('Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts'); ?>"))
+					if (!confirm("<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>"))
 						e.preventDefault();
 				});
 			});
@@ -2970,7 +2971,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							}
 
 							//in case of new member send notification
-							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' ) ) {
+							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) ) {
 
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $payment );
 
@@ -3108,6 +3109,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		ProSites_Helper_Transaction::record( $object );
 
 	}
+
 	/**
 	 * Get the last payment details for the given blog id
 	 *
@@ -3142,20 +3144,21 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		if ( empty( $blog_id ) ) {
 			return '';
 		}
-		$expiry = '';
+		$expiry     = '';
 		$profile_id = $this->get_profile_id( $blog_id );
 		if ( $profile_id ) {
 			$resArray = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $profile_id );
 
-			if( empty( $resArray ) ) {
+			if ( empty( $resArray ) ) {
 				return $expiry;
 			}
 
 			//If the Profile is active
 			if ( ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) && $resArray['STATUS'] == 'Active' ) {
-				$expiry = !empty( $resArray['NEXTBILLINGDATE'] ) ? $resArray['NEXTBILLINGDATE'] : '';
+				$expiry = ! empty( $resArray['NEXTBILLINGDATE'] ) ? $resArray['NEXTBILLINGDATE'] : '';
 			}
 		}
+
 		return $expiry;
 	}
 }
