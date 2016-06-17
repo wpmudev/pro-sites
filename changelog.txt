@@ -5,6 +5,14 @@ Developer: Aaron Edwards
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+
+3.5.5 - 06/19/2016 - Umesh Kumar
+
+*Fixed:
+    - Stripe: Set trial for the specified level only while manually extending site
+    - Paypal: Paypal Pro wasn't creating pro sites
+    - Paypal: Possible fix for sites not being assigned Pro Site status sometimes
+
 3.5.4 - 05/08/2016 - Umesh Kumar
 
 *Fixed:

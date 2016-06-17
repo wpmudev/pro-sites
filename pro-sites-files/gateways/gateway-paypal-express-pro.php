@@ -1312,6 +1312,8 @@ class ProSites_Gateway_PayPalExpressPro {
 
 						if ( ! empty( $blog_id ) ) {
 
+							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
+
 							//Store activation key in Pro Sites table
 							self::set_blog_identifier( $activation_key, $blog_id );
 
@@ -1344,6 +1346,7 @@ class ProSites_Gateway_PayPalExpressPro {
 							} else {
 								self::$complete_message = __( 'Your initial payment was successful, but there was a problem creating the subscription with your credit card so you may need to renew when the first period is up. Your site should be upgraded shortly.', 'psts' ) . '<br />"<strong>' . self::parse_error_string( $resArray ) . '</strong>"';
 								$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
+								error_log( "Exception in " . __FILE__ . " at line " . __LINE__ . self::parse_error_string( $resArray ) );
 							}
 							$psts->record_stat( $blog_id, 'signup' );
 
@@ -2970,6 +2973,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
 
+							$GLOBALS['wp_object_cache']->delete( 'psts_waiting_step', 'options' );
 							//in case of new member send notification
 							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) ) {
 
