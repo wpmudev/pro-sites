@@ -318,6 +318,7 @@ class ProSites_Gateway_Stripe {
 			$plans = Stripe_Plan::all( $args );
 		} catch ( Exception $e ) {
 			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+
 			return;
 		}
 
@@ -854,14 +855,15 @@ class ProSites_Gateway_Stripe {
 						$customer_id   = $customer_data->customer_id;
 						$sub_id        = $customer_data->subscription_id;
 						$cu            = Stripe_Customer::retrieve( $customer_id );
-						// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
-						$cu->subscriptions->retrieve( $sub_id )->cancel();
-
-						//record stat
-						$psts->record_stat( $blog_id, 'cancel' );
-						$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
-						$success_msg = sprintf( __( 'Subscription successfully cancelled. They should continue to have access until %s.', 'psts' ), $end_date );
-						update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
+						if ( ! empty( $cu->subscriptions ) ) {
+							// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
+							$cu->subscriptions->retrieve( $sub_id )->cancel();
+							//record stat
+							$psts->record_stat( $blog_id, 'cancel' );
+							$psts->log_action( $blog_id, sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $current_user->display_name, $end_date ) );
+							$success_msg = sprintf( __( 'Subscription successfully cancelled. They should continue to have access until %s.', 'psts' ), $end_date );
+							update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
+						}
 					} catch ( Exception $e ) {
 						$error_msg = $e->getMessage();
 						$psts->log_action( $blog_id, sprintf( __( 'Attempt to Cancel Subscription by %1$s failed with an error: %2$s', 'psts' ), $current_user->display_name, $error_msg ) );
@@ -877,10 +879,11 @@ class ProSites_Gateway_Stripe {
 						$customer_id   = $customer_data->customer_id;
 						$sub_id        = $customer_data->subscription_id;
 						$cu            = Stripe_Customer::retrieve( $customer_id );
-						// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
-						$cu->subscriptions->retrieve( $sub_id )->cancel();
-
-						$cancellation_success = true;
+						if ( ! empty( $cu->subscriptions ) ) {
+							// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
+							$cu->subscriptions->retrieve( $sub_id )->cancel();
+							$cancellation_success = true;
+						}
 						//record stat
 					} catch ( Exception $e ) {
 						$error_msg = $e->getMessage();
@@ -996,8 +999,7 @@ class ProSites_Gateway_Stripe {
 			try {
 				// Blog ID doesn't exist or a new blog ID has been given.
 				$customer = Stripe_Customer::retrieve( $customer_id );
-			}
-			catch ( Exception $e ) {
+			} catch ( Exception $e ) {
 				error_log( "Error retrieving Stripe Customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
@@ -1026,15 +1028,15 @@ class ProSites_Gateway_Stripe {
 	 */
 	public static function checkout_js() {
 		?>
-		<script type="text/javascript"> jQuery( document ).ready( function () {
-				jQuery( "a#stripe_cancel" ).click( function () {
-					if ( confirm( "<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>" ) ) {
+		<script type="text/javascript"> jQuery(document).ready(function () {
+				jQuery("a#stripe_cancel").click(function () {
+					if (confirm("<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>")) {
 						return true;
 					} else {
 						return false;
 					}
-				} );
-			} );</script><?php
+				});
+			});</script><?php
 	}
 
 	/**
@@ -1048,13 +1050,13 @@ class ProSites_Gateway_Stripe {
 		global $wpdb, $psts, $current_site;
 		$site_name = $current_site->site_name;
 
-		$domain  = '';
-		$blog_id = false;
+		$domain          = '';
+		$blog_id         = false;
 		$alt_cust_object = false;
 		try {
 			// retrieve the request's body and parse it as JSON
-			$body            = @file_get_contents( 'php://input' );
-			$event_json      = json_decode( $body );
+			$body       = @file_get_contents( 'php://input' );
+			$event_json = json_decode( $body );
 
 			$customer_id = '';
 			if ( ! empty( $event_json->data->object->object ) && 'customer' == $event_json->data->object->object ) {
@@ -1249,7 +1251,7 @@ class ProSites_Gateway_Stripe {
 			 * Actions like: customer.created, customer.updated
 			 *
 			 */
-			if( $alt_cust_object ) {
+			if ( $alt_cust_object ) {
 				// Nothing to do here for now.
 			}
 
@@ -1323,9 +1325,10 @@ class ProSites_Gateway_Stripe {
 				if ( 'invoiceitem' == $line_item->type && isset( $line_item->subscription ) && isset( $line_item->period ) && isset( $line_item->plan ) ) {
 					try {
 						$customer     = Stripe_Customer::retrieve( $object->customer );
-						$subscription = $customer->subscriptions->retrieve( $line_item->subscription );
-					}
-					catch ( Exception $e ) {
+						if( !empty( $customer->subscriptions ) ) {
+							$subscription = $customer->subscriptions->retrieve( $line_item->subscription );
+						}
+					} catch ( Exception $e ) {
 						error_log( "Error in retrievng Stripe customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 					}
 				} else {
@@ -1374,7 +1377,7 @@ class ProSites_Gateway_Stripe {
 			preg_match( '/\d*$/', $customer->description, $blog_id );
 			$blog_id = ! empty( $blog_id ) ? array_pop( $blog_id ) : 0;
 			// Meta data still not retrieved... get from sub
-			if ( empty( $blog_id ) ) {
+			if ( empty( $blog_id ) && !empty( $customer->subscriptions ) ) {
 				$sub     = $customer->subscriptions->retrieve( $subscription->id );
 				$blog_id = (int) $sub->metadata->blog_id;
 			}
@@ -1459,11 +1462,10 @@ class ProSites_Gateway_Stripe {
 	public static function set_subscription_meta( $subscription, $customer_id ) {
 		try {
 			$customer = Stripe_Customer::retrieve( $customer_id );
-		}
-		catch ( Exception $e ) {
+		} catch ( Exception $e ) {
 			error_log( "Error in retrieving Stripe customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 		}
-		if ( is_object( $subscription ) && ! empty( $customer ) ) {
+		if ( is_object( $subscription ) && ! empty( $customer->subscriptions ) ) {
 			$sub                   = $customer->subscriptions->retrieve( $subscription->id );
 			$sub->metadata->level  = $subscription->level;
 			$sub->metadata->period = $subscription->period;
@@ -1619,8 +1621,10 @@ class ProSites_Gateway_Stripe {
 			if ( ! empty( $cu->metadata ) ) {
 				$object->username = $cu->metadata->user;
 				$object->email    = $cu->email;
-				$sub              = $cu->subscriptions->retrieve( $sub_id );
-				$object->blog_id  = $sub->metadata->blog_id;
+				if( !empty( $cu->subscriptions ) ) {
+					$sub             = $cu->subscriptions->retrieve( $sub_id );
+					$object->blog_id = $sub->metadata->blog_id;
+				}
 				$object->sub_id   = $sub_id;
 			}
 		} catch ( Exception $e ) {
@@ -1680,8 +1684,10 @@ class ProSites_Gateway_Stripe {
 		if ( ! empty( $customer_id ) && ! empty( $sub_id ) ) {
 			try {
 				$cu = Stripe_Customer::retrieve( $customer_id );
-				// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
-				$cu->subscriptions->retrieve( $sub_id )->cancel();
+				if( !empty( $cu->subscriptions ) ) {
+					// Don't use ::cancelSubscription because it doesn't know which subscription if we have multiple
+					$cu->subscriptions->retrieve( $sub_id )->cancel();
+				}
 			} catch ( Exception $e ) {
 				$error = $e->getMessage();
 			}
@@ -1834,7 +1840,7 @@ class ProSites_Gateway_Stripe {
 		if ( isset( $customer_object ) ) {
 			$card_object = self::get_default_card( $customer_object );
 
-			if( !empty( $card_object )) {
+			if ( ! empty( $card_object ) ) {
 				$content .= '<div id="psts-stripe-checkout-existing">
 					<h2>' . esc_html( 'Checkout Using Existing Credit Card', 'psts' ) . '</h2>';
 
@@ -1844,7 +1850,7 @@ class ProSites_Gateway_Stripe {
 				$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Please note that your last payment failed. Please use the next section to re-enter your credit card details.', 'psts' ) . '</div>';
 			}
 
-			if( !empty( $card_object )) {
+			if ( ! empty( $card_object ) ) {
 				$content .= '		<table id="psts-cc-table-existing">
 						<tr>
 							<td class="pypl_label" align="right">' . esc_html__( 'Last 4 Digits:', 'psts' ) . '</td>
@@ -2403,9 +2409,9 @@ class ProSites_Gateway_Stripe {
 										'subscription' => $sub_id,
 										'metadata'     => array(
 											'plan_change' => 'yes',
-											'period' => $args['metadata']['period'],
-											'level' => $args['metadata']['level'],
-											'blog_id' => $blog_id
+											'period'      => $args['metadata']['period'],
+											'level'       => $args['metadata']['level'],
+											'blog_id'     => $blog_id
 										),
 									);
 									$invoice       = Stripe_Invoice::create( $customer_args );
@@ -2547,7 +2553,7 @@ class ProSites_Gateway_Stripe {
 						$activation_key = ! empty( $activation_key ) ? $activation_key : ProSites_Helper_ProSite::get_activation_key( $blog_id );
 
 						if ( $tax_object->apply_tax ) {
-							$amount = $initAmount + ( $initAmount * $tax_object->tax_rate );
+							$amount   = $initAmount + ( $initAmount * $tax_object->tax_rate );
 							$tax_rate = self::$is_zdc ? $tax_object->tax_rate : ( $tax_object->tax_rate * 100 );
 							$desc += sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), $tax_rate, $tax_object->country );
 						} else {
@@ -3050,7 +3056,7 @@ class ProSites_Gateway_Stripe {
 	public static function attempt_manual_reactivation( $blog_id ) {
 		global $current_site, $current_blog, $psts;
 
-		$current_blog = get_blog_details($blog_id, true );
+		$current_blog = get_blog_details( $blog_id, true );
 
 		$customer = self::get_customer_data( $blog_id );
 
@@ -3074,6 +3080,7 @@ class ProSites_Gateway_Stripe {
 			$c = Stripe_Customer::retrieve( $customer_id );
 		} catch ( Exception $e ) {
 			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+
 			return;
 		}
 
@@ -3135,7 +3142,7 @@ class ProSites_Gateway_Stripe {
 			}
 
 			// If cancellation happened in less than 2 minutes, its likely a mistake, so recreate
-			$elapsed = !empty( $pair ) ? ( (int) $pair['delete'] - (int) $pair['create'] ) : 0;
+			$elapsed = ! empty( $pair ) ? ( (int) $pair['delete'] - (int) $pair['create'] ) : 0;
 			if ( ( $elapsed > 0 && $elapsed < 120 ) || $force_attempt ) {
 				global $wpdb;
 
@@ -3284,7 +3291,9 @@ class ProSites_Gateway_Stripe {
 						</select>
 
 						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
-						<p class="description"><strong><?php _e( 'For zero decimal currencies like Japanese Yen, minimum plan cost should be greater than 50 Cents equivalent.', 'psts' ); ?></strong></p>
+						<p class="description">
+							<strong><?php _e( 'For zero decimal currencies like Japanese Yen, minimum plan cost should be greater than 50 Cents equivalent.', 'psts' ); ?></strong>
+						</p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -3309,18 +3318,18 @@ class ProSites_Gateway_Stripe {
 	 */
 	public static function get_blog_subscription_expiry( $blog_id ) {
 		//Return If we don't have any blog id
-		if( empty( $blog_id ) ) {
+		if ( empty( $blog_id ) ) {
 			return '';
 		}
 
 		//retrieve Customer Subscription
 		$customer_data = self::get_customer_data( $blog_id );
 
-		$customer_id = !empty( $customer_data ) && !empty( $customer_data->customer_id ) ? $customer_data->customer_id : '';
-		$sub_id = !empty( $customer_data ) && !empty( $customer_data->subscription_id ) ? $customer_data->subscription_id : '';
+		$customer_id = ! empty( $customer_data ) && ! empty( $customer_data->customer_id ) ? $customer_data->customer_id : '';
+		$sub_id      = ! empty( $customer_data ) && ! empty( $customer_data->subscription_id ) ? $customer_data->subscription_id : '';
 
 		//Return If we don't have customer id
-		if( empty( $customer_id ) || empty( $sub_id ) ) {
+		if ( empty( $customer_id ) || empty( $sub_id ) ) {
 			return '';
 		}
 
@@ -3328,11 +3337,13 @@ class ProSites_Gateway_Stripe {
 
 		try {
 			//Get the Subscription details
-			$customer     = Stripe_Customer::retrieve( $customer_id );
-			$subscription = $customer->subscriptions->retrieve( $sub_id );
-			$expiry = !empty( $subscription->current_period_end ) ? $subscription->current_period_end : '';
-		}
-		catch ( Exception $e ) {
+			$customer = Stripe_Customer::retrieve( $customer_id );
+			//If there are any active subscriptions
+			if ( ! empty( $customer->subscriptions ) ) {
+				$subscription = $customer->subscriptions->retrieve( $sub_id );
+				$expiry       = ! empty( $subscription->current_period_end ) ? $subscription->current_period_end : '';
+			}
+		} catch ( Exception $e ) {
 			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 		}
 
