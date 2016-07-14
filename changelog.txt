@@ -12,6 +12,7 @@ Change Log:
     - Stripe: Set trial for the specified level only while manually extending site
     - Paypal: Paypal Pro wasn't creating pro sites
     - Paypal: Possible fix for sites not being assigned Pro Site status sometimes
+    - Gateway Settings: Gateway list not being generated if a registered external gateway is not available
 
 3.5.4 - 05/08/2016 - Umesh Kumar
 

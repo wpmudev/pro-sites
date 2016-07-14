@@ -1629,7 +1629,14 @@ Thanks!", 'psts' ),
 		// Get current plan
 		$level_list = get_site_option( 'psts_levels' );
 		$level_name = !empty($transaction->level ) && !empty( $level_list[ $transaction->level ] ) ? $level_list[ $transaction->level ]['name'] : '';
-		$level_name = ! empty( $level_name ) ? $level_name : $level_list[ $psts->get_level( $transaction->blog_id ) ]['name'];
+		if( empty( $level_name ) ) {
+			$level = $psts->get_level( $transaction->blog_id );
+		}
+
+		//If we have level and level name is empty
+		if( !empty( $level ) && empty( $level_name ) ) {
+			$level_name = $level_list[$level]['name'];
+		}
 
 		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
 		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
