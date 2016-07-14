@@ -2115,6 +2115,12 @@ class ProSites_Gateway_Stripe {
 					$new = true;
 				}
 
+				//Return, if we don't have stripe customer
+				if( ! is_object( $c ) ) {
+					$psts->errors->add( 'general', __( 'Unable to Create/Retrieve Stripe Customer.', 'psts' ) );
+					return;
+				}
+
 				if( is_object( $c ) ) {
 					$customer_id = $c->id;
 
@@ -3328,6 +3334,17 @@ class ProSites_Gateway_Stripe {
 
 	}
 
+	/**
+	 * Tries to create a new stripe customer with the given details
+	 * 
+	 * @param $email
+	 * @param $site_name
+	 * @param $domain
+	 * @param $blog_id
+	 * @param string $activation_key
+	 *
+	 * @return Stripe_Customer|void
+	 */
 	static function create_stripe_customer( $email, $site_name, $domain, $blog_id, $activation_key = '' ) {
 		global $psts;
 		try {
