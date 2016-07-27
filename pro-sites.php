@@ -1369,6 +1369,12 @@ Thanks!", 'psts' ),
 	function is_blog_canceled( $blog_id ) {
 		global $wpdb;
 
+		//If we don't have a blog id, bailout
+		if( empty( $blog_id ) ) {
+			return;
+		}
+
+		//Check the option table for cancellation
 		if ( get_blog_option( $blog_id, 'psts_is_canceled' ) || get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
 			return true;
 		}
@@ -1599,8 +1605,21 @@ Thanks!", 'psts' ),
 		}
 	}
 
+	/**
+    * Send a Receipt for the transaction
+    *
+	* @param $transaction Transaction Object
+    *
+	* @return bool True/False If the email was sent or not
+    *
+    */
 	public static function send_receipt( $transaction ) {
 		global $psts, $wpdb;
+
+		//Don't send receipt if there is no blog id or level set for the transaction
+		if( empty( $transaction->blog_id ) || empty( $transaction->level ) ) {
+			return false;
+		}
 
 		// used in all emails
 		$search_replace = array(
@@ -1707,6 +1726,7 @@ Thanks!", 'psts' ),
 
 		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 
+		return true;
 	}
 
 

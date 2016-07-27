@@ -698,21 +698,25 @@ class ProSites_Gateway_Stripe {
 			}
 
 			try {
+				//Get the Invoice object for the Given customer ID
 				$invoice_object = Stripe_Invoice::upcoming( array( "customer" => $customer_id ) );
 				$subscription   = false;
+				//Iterate over the Invoice bject to find the subscription for the given blog id
 				foreach ( $invoice_object->lines->data as $line_item ) {
 					if ( 'subscription' == $line_item->type ) {
 						$subscription = $line_item;
 						break;
 					}
 				}
+				echo "<pre>Invoice Object";
+				print_r( $invoice_object );
+				echo "</pre>";
 			} catch ( Exception $e ) {
 				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
 
 			// Keep it to this blog and this subscription
 			if ( ! empty( $subscription ) && $subscription->id == $subscription_id ) {
-				$next_amount = $invoice_object->total / 100;
 
 				if ( isset( $invoice_object->next_payment_attempt ) ) {
 					$next_billing = $invoice_object->next_payment_attempt;
@@ -1001,6 +1005,7 @@ class ProSites_Gateway_Stripe {
 				$customer = Stripe_Customer::retrieve( $customer_id );
 			} catch ( Exception $e ) {
 				error_log( "Error retrieving Stripe Customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				return $the_blog_id;
 			}
 
 			// If the customer is deleted, just return the ID, most likely 0
@@ -1075,7 +1080,8 @@ class ProSites_Gateway_Stripe {
 
 			$subscription = self::get_subscription( $event_json );
 
-			if ( 'invoice.payment_succeeded' == $event_type ) {
+			//If we have subscription object and Payment succeeded, Add it to DB
+			if ( $subscription && 'invoice.payment_succeeded' == $event_type ) {
 				self::record_transaction( $event_json );
 			}
 
@@ -1330,6 +1336,7 @@ class ProSites_Gateway_Stripe {
 						}
 					} catch ( Exception $e ) {
 						error_log( "Error in retrievng Stripe customer " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+						return false;
 					}
 				} else {
 					return false;
@@ -1387,6 +1394,8 @@ class ProSites_Gateway_Stripe {
 			}
 			catch ( Exception $e ) {
 				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				//If we couldn't retrieve customer
+				return false;
 			}
 		}
 		$subscription->is_trial            = isset( $subscription->status ) && 'trialing' == $subscription->status ? true : false;
@@ -1634,6 +1643,7 @@ class ProSites_Gateway_Stripe {
 			}
 		} catch ( Exception $e ) {
 			error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+			return $object;
 		}
 
 		// Evidence -> evidence_from_json()
@@ -1696,7 +1706,22 @@ class ProSites_Gateway_Stripe {
 			} catch ( Exception $e ) {
 				$error = $e->getMessage();
 			}
-			if ( empty( $error ) ) {
+			//If there is error, but we have Customer subscriptions
+			//Try to lookup for the subscription id in the list
+			if( !empty( $error ) && !empty( $cu ) && !empty( $cu->subscriptions) ) {
+				$cancelled = true;
+				if( !empty( $cu ) && !empty( $cu->subscriptions ) ) {
+					foreach( $cu->subscriptions as $subs ) {
+						//If we found the subscription id in cubscriptions list, it isn't cancelled
+						if( $sub_id == $subs->id ) {
+							$cancelled = false;
+						}
+					}
+				}
+			}
+
+			//If we still have error
+			if ( $cancelled || empty( $error ) ) {
 				//record stat
 				$psts->record_stat( $blog_id, 'cancel' );
 
@@ -1751,6 +1776,7 @@ class ProSites_Gateway_Stripe {
 				}
 			}
 		}
+		//Display Error or Success
 		if ( $cancelled && $display_message ) {
 			//Do not display message for add action
 			self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
@@ -2754,7 +2780,10 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Existing customer information --- only if $get_all is true (default)
-		$customer_id = self::get_customer_data( $blog_id )->customer_id;
+		$customer = self::get_customer_data( $blog_id );
+		$customer_id = $customer->customer_id;
+		$sub_id = $customer->subscription_id;
+
 		if ( ! empty( $customer_id ) && $get_all ) {
 
 			try {
@@ -2769,6 +2798,25 @@ class ProSites_Gateway_Stripe {
 
 			$is_recurring      = $psts->is_blog_recurring( $blog_id );
 			$args['recurring'] = $is_recurring;
+			$args['level']   = $level;
+			$args['expires'] = $end_date;
+
+			$subscription = '';
+
+			//Get Subscription details for the given blog id
+			try {
+				$subscription = ! empty( $customer_object->subscriptions ) ? $customer_object->subscriptions->retrieve( $sub_id ) : '';
+			}
+			catch ( Exception $e ) {
+				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				if ( $is_recurring ) {
+					$args['cancel']               = true;
+					$args['cancellation_message'] = '<div class="psts-cancel-notification">
+													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
+													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+				}
+			}
+
 			// If invoice cant be created, its not looking good. Cancel.
 			try {
 				$invoice_object = Stripe_Invoice::upcoming( array( "customer" => $customer_id ) );
@@ -2781,9 +2829,6 @@ class ProSites_Gateway_Stripe {
 				}
 				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
-
-			$args['level']   = $level;
-			$args['expires'] = $end_date;
 
 			// All good, keep populating the array.
 			if ( ! isset( $args['cancel'] ) ) {
@@ -2828,18 +2873,22 @@ class ProSites_Gateway_Stripe {
 				} catch ( Exception $e ) {
 					error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 				}
+				//Last Payment Date
 				if ( isset( $existing_invoice_object->data[0] ) && $customer_object->subscriptions->data[0]->status != 'trialing' ) {
 					$args['last_payment_date'] = $existing_invoice_object->data[0]->date;
 				}
+
 				// Get next payment date
-				if ( isset( $invoice_object->next_payment_attempt ) ) {
-					$args['next_payment_date'] = $invoice_object->next_payment_attempt;
+				if ( !empty( $subscription['current_period_end'] ) || isset( $invoice_object->next_payment_attempt ) ) {
+					$args['next_payment_date'] = !empty( $subscription['current_period_end'] ) ? $subscription['current_period_end'] : $invoice_object->next_payment_attempt;
+					$args['next_payment_date'] = !empty( $subscription['current_period_end'] ) ? $subscription['current_period_end'] : $invoice_object->next_payment_attempt;
 				}
+
 				// Cancellation link
 				if ( $is_recurring ) {
 					$args['modify_card'] = ' <small>' . esc_html__( 'Update your credit card by selecting your current plan below and proceed with checkout.', 'psts' ) . '</small>';
 
-					if ( is_pro_site( $blog_id ) ) {
+					if ( is_pro_site( $blog_id ) && ! $psts->is_blog_canceled( $blog_id ) ) {
 						$args['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 						$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
 						// CSS class of <a> is important to handle confirmations
