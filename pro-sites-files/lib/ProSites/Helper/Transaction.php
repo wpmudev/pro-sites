@@ -107,6 +107,7 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 				$tax = $total - $subtotal;
 			}
 
+			$transaction_evidence = !empty( $transaction->evidence ) ? maybe_serialize( $transaction->evidence ) : '';
 			$sql = $wpdb->prepare(
 				"INSERT INTO {$wpdb->base_prefix}pro_sites_transactions(transaction_id, transaction_date, items, total, sub_total, tax_amount, tax_percentage, country, currency, meta)
 				 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s )",
@@ -119,7 +120,8 @@ if ( ! class_exists( 'ProSites_Helper_Transaction' ) ) {
 				$tax_rate,
 				$country_code,
 				$transaction->currency_code,
-				maybe_serialize( $transaction->evidence )
+				$transaction_evidence
+
 			);
 
 			// ... and record.

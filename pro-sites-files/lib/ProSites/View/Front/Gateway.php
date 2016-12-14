@@ -85,13 +85,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			/**
 			 * Process forms
 			 */
-			if ( ! empty( $primary_gateway ) &&
+			if ( ! empty( $primary_gateway ) && isset( $gateways[ $primary_gateway ] ) &&
 			     method_exists( $gateways[ $primary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_on_render' ) &&
 			     method_exists( $gateways[ $primary_gateway ]['class'], 'process_checkout_form' )
 			) {
 				$primary_args = call_user_func( $gateways[ $primary_gateway ]['class'] . '::process_checkout_form', $render_data, $blog_id, $domain );
 			}
-			if ( ! empty( $secondary_gateway ) &&
+			if ( ! empty( $secondary_gateway ) && isset( $gateways[ $secondary_gateway ] ) &&
 			     method_exists( $gateways[ $secondary_gateway ]['class'], 'process_on_render' ) && call_user_func( $gateways[ $secondary_gateway ]['class'] . '::process_on_render' ) &&
 			     method_exists( $gateways[ $secondary_gateway ]['class'], 'process_checkout_form' )
 			) {
@@ -147,7 +147,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$allow_cancel_gateway = ! defined( 'PSTS_CANCEL_ON_GATEWAY_CHANGE' ) || ( defined( 'PSTS_CANCEL_ON_GATEWAY_CHANGE' ) && PSTS_CANCEL_ON_GATEWAY_CHANGE != false );
 
 			// Primary
-			if ( ! empty( $primary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
+			if ( ! empty( $primary_gateway ) && isset ( $gateways[ $primary_gateway ] ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
 				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
 				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
@@ -173,7 +173,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			// Secondary
-			if ( ! empty( $secondary_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
+			if ( ! empty( $secondary_gateway ) && isset( $gateways[ $secondary_gateway ] ) && method_exists( $gateways[ $secondary_gateway ]['class'], 'render_gateway' ) ) {
 
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
 				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );

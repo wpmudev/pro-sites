@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: http://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.3
+Version: 3.5.5-beta1
 Author URI: http://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.3';
+	var $version = '3.5.5-beta1';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -1372,6 +1372,12 @@ Thanks!", 'psts' ),
 	function is_blog_canceled( $blog_id ) {
 		global $wpdb;
 
+		//If we don't have a blog id, bailout
+		if( empty( $blog_id ) ) {
+			return;
+		}
+
+		//Check the option table for cancellation
 		if ( get_blog_option( $blog_id, 'psts_is_canceled' ) || get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
 			return true;
 		}
@@ -1602,8 +1608,21 @@ Thanks!", 'psts' ),
 		}
 	}
 
+	/**
+    * Send a Receipt for the transaction
+    *
+	* @param $transaction Transaction Object
+    *
+	* @return bool True/False If the email was sent or not
+    *
+    */
 	public static function send_receipt( $transaction ) {
 		global $psts, $wpdb;
+
+		//Don't send receipt if there is no blog id or level set for the transaction
+		if( empty( $transaction->blog_id ) || empty( $transaction->level ) ) {
+			return false;
+		}
 
 		// used in all emails
 		$search_replace = array(
@@ -1632,7 +1651,14 @@ Thanks!", 'psts' ),
 		// Get current plan
 		$level_list = get_site_option( 'psts_levels' );
 		$level_name = !empty($transaction->level ) && !empty( $level_list[ $transaction->level ] ) ? $level_list[ $transaction->level ]['name'] : '';
-		$level_name = ! empty( $level_name ) ? $level_name : $level_list[ $psts->get_level( $transaction->blog_id ) ]['name'];
+		if( empty( $level_name ) ) {
+			$level = $psts->get_level( $transaction->blog_id );
+		}
+
+		//If we have level and level name is empty
+		if( !empty( $level ) && empty( $level_name ) ) {
+			$level_name = $level_list[$level]['name'];
+		}
 
 		$gateway    = ProSites_Helper_Gateway::get_nice_name_from_class( $transaction->gateway );
 		$result     = $wpdb->get_row( $wpdb->prepare( "SELECT term FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $transaction->blog_id ) );
@@ -1703,6 +1729,7 @@ Thanks!", 'psts' ),
 
 		$psts->log_action( $transaction->blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 
+		return true;
 	}
 
 

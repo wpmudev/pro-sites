@@ -94,7 +94,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			$cancel_info_message = $cancel_info_link = '';
 
-			if ( $is_recurring ) {
+			if ( $is_recurring && ! $psts->is_blog_canceled( $blog_id )  ) {
 				$cancel_info_message = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
 				// CSS class of <a> is important to handle confirmations

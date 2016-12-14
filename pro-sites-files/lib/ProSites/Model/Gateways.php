@@ -25,7 +25,7 @@ if ( ! class_exists( 'ProSites_Model_Gateways' ) ) {
 					$active_gateways[] = $gateway_class;
 				}
 
-				$active_gateways = array_values( $active_gateways );
+				$active_gateways = array_filter( array_values( $active_gateways ) );
 				$old_settings = get_site_option( 'psts_settings' );
 				$old_settings['gateways_enabled'] = $active_gateways;
 

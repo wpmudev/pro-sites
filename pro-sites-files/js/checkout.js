@@ -654,10 +654,11 @@ jQuery( document ).ready( function ( $ ) {
             }
 
             $( '#gateways' ).tabs();
-            if ( !is_free ) {
+            // if ( !is_free ) {
                 $( '.gateways.checkout-gateways' ).removeClass( 'hidden' );
-            }
+            // }
         }
+
 	    var new_blog = false;
 	    if ( typeof(action) != 'undefined' && false != action && 'new_blog' == action ) {
 		    new_blog = true;

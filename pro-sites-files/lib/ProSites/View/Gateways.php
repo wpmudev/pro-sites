@@ -229,8 +229,10 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 
 			$names = array();
 			foreach( $active_gateways as $gateway ) {
-				$name = call_user_func( $gateway . '::get_name' );
-				$names = array_merge( $names, $name );
+				if( method_exists( $gateway, 'get_name' ) ) {
+					$name  = call_user_func( $gateway . '::get_name' );
+					$names = array_merge( $names, $name );
+				}
 			}
 			ksort( $names );
 
