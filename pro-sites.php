@@ -591,10 +591,9 @@ Thanks!", 'psts' ),
 			$wpdb->query( "UPDATE {$wpdb->base_prefix}pro_sites SET expire = '9999999999' WHERE expire = '1410065407'" );
 		}
 
-		//3.5 upgrade - modify pro_sites table
-		if ( version_compare( $this->get_setting( 'version' ), '3.5', '<=' ) ) {
-			// Using dbDelta above, but add other code here.
-			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
+		//3.5.4 or before, Show Paypal Gateway else hide it
+		if ( version_compare( $this->get_setting( 'version' ), '3.5.4', '<=' ) ) {
+			update_site_option('psts_allow_paypal', 1 );
 		}
 
 		$this->update_setting( 'version', $this->version );
@@ -4497,7 +4496,7 @@ function admin_modules() {
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$registeration = get_site_option('registration');

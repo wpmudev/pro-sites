@@ -144,6 +144,11 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 		 */
 		public static function render_tab_paypal() {
 			global $psts;
+			//Add a check, if the setup is older than or on 3.5.4, Show Paypal, Else Don't render it
+			$allow_paypal = get_site_option('psts_allow_paypal');
+			if( !$allow_paypal ) {
+				return;
+			}
 
 			ProSites_Helper_Settings::settings_header( ProSites_Helper_Tabs_Gateways::get_active_tab() );
 			$class_name = 'ProSites_Gateway_PayPalExpressPro';

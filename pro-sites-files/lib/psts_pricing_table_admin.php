@@ -20,7 +20,7 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		if ( $which == "top" ) {
 			$cur_level = 1;
 			if ( ! empty ( $_REQUEST['level_id'] ) ) {
-				$cur_level = $_REQUEST['level_id'];
+				$cur_level = intval( $_REQUEST['level_id'] );
 			}
 			$levels = (array) get_site_option( 'psts_levels' );
 			if ( ! ( defined( 'PSTS_DONT_REVERSE_LEVELS' ) && PSTS_DONT_REVERSE_LEVELS ) ) {
@@ -28,12 +28,13 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 			}
 			$level_nav = '<ul class="subsubsub">';
 			$count     = 1;
+			$page = sanitize_text_field( $_REQUEST['page'] );
 			foreach ( $levels as $level_id => $level ) {
 				$class_name = $cur_level == $level_id ? "current" : "";
 				if ( $count == count( $levels ) ) {
-					$level_nav .= '<li class="' . strtolower( $level['name'] ) . '"><a class="' . $class_name . '" href="?page=' . $_REQUEST['page'] . '&action=filter&level_id=' . $level_id . '">' . $level['name'] . '</a></li>';
+					$level_nav .= '<li class="' . strtolower( $level['name'] ) . '"><a class="' . $class_name . '" href="?page=' . $page . '&action=filter&level_id=' . $level_id . '">' . $level['name'] . '</a></li>';
 				} else {
-					$level_nav .= '<li class="' . strtolower( $level['name'] ) . '"><a class="' . $class_name . '" href="?page=' . $_REQUEST['page'] . '&action=filter&level_id=' . $level_id . '">' . $level['name'] . '</a> | </li>';
+					$level_nav .= '<li class="' . strtolower( $level['name'] ) . '"><a class="' . $class_name . '" href="?page=' . $page . '&action=filter&level_id=' . $level_id . '">' . $level['name'] . '</a> | </li>';
 				}
 				$count ++;
 			}

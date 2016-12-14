@@ -708,9 +708,6 @@ class ProSites_Gateway_Stripe {
 						break;
 					}
 				}
-				echo "<pre>Invoice Object";
-				print_r( $invoice_object );
-				echo "</pre>";
 			} catch ( Exception $e ) {
 				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
@@ -2880,7 +2877,6 @@ class ProSites_Gateway_Stripe {
 
 				// Get next payment date
 				if ( !empty( $subscription['current_period_end'] ) || isset( $invoice_object->next_payment_attempt ) ) {
-					$args['next_payment_date'] = !empty( $subscription['current_period_end'] ) ? $subscription['current_period_end'] : $invoice_object->next_payment_attempt;
 					$args['next_payment_date'] = !empty( $subscription['current_period_end'] ) ? $subscription['current_period_end'] : $invoice_object->next_payment_attempt;
 				}
 

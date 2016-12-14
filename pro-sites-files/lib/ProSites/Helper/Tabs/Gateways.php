@@ -38,40 +38,37 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 				'button_name'        => 'gateways',
 			);
 
+			$allow_paypal = get_site_option( 'psts_allow_paypal' );
 			$tabs = array(
 				'gateway_prefs' => array_merge( $section_options, array(
 					'title' => __( 'Gateway Settings', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Choose how Pro Sites should handle multiple active payment gateways', 'psts' ),
 					),
 					'class' => 'prosites-gateway-pref',
-				) ),
-//				'twocheckout' => array_merge( $section_options, array(
-//					'title' => __( '2Checkout', 'psts' ),
-//					'desc'               => array(
-//						__( "Accept Credit Cards, PayPal, and Debit Cards", 'psts' ) .
-//						' <a href="https://www.2checkout.com" target="_blank">' . __( 'More Info &raquo;', 'psts' ) . '</a>',
-//					),
-//				) ),
-				'paypal' => array_merge( $section_options, array(
+				) )
+			);
+			//Add a check, if the setup is older than or on 3.5.4, Show Paypal, Else Don't render it
+			if ( $allow_paypal ) {
+				$tabs['paypal'] = array_merge( $section_options, array(
 					'title' => __( 'PayPal Express/Pro', 'psts' ),
-					'desc'               => array(
+					'desc'  => array(
 						__( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts' ),
 					),
-				) ),
-				'stripe' => array_merge( $section_options, array(
-					'title' => __( 'Stripe', 'psts' ),
-					'desc'               => array(
-						__( 'Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts' ),
-					),
-				) ),
-				'manual' => array_merge( $section_options, array(
-					'title' => __( 'Manual Payments', 'psts' ),
-					'desc'               => array(
-						__( 'Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts' ),
-					),
-				) ),
-			);
+				) );
+			}
+			$tabs['stripe'] = array_merge( $section_options, array(
+				'title' => __( 'Stripe', 'psts' ),
+				'desc'  => array(
+					__( 'Stripe makes it easy to start accepting credit cards directly on your site with full PCI compliance', 'psts' ),
+				),
+			) );
+			$tabs['manual'] = array_merge( $section_options, array(
+				'title' => __( 'Manual Payments', 'psts' ),
+				'desc'  => array(
+					__( 'Record payments manually, such as by Cash, Check, EFT, or an unsupported gateway.', 'psts' ),
+				),
+			) );
 
 			$page = sanitize_html_class( @$_GET['page'], 'gateway_prefs' );
 
@@ -83,7 +80,6 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 				);
 			}
 
-//			$tabs = self::remove_disabled_module_tabs( $tabs );
 			return apply_filters( 'prosites_gateways_tabs', $tabs );
 
 		}

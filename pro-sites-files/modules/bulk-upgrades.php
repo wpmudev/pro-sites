@@ -747,7 +747,7 @@ class ProSites_Module_BulkUpgrades {
 
 		if ( isset( $_GET['msg'] ) ) {
 			?>
-			<div id="message" class="updated fade"><p><?php echo urldecode( $_GET['msg'] ); ?></p></div><?php
+			<div id="message" class="updated fade"><p><?php echo urldecode( sanitize_text_field( $_GET['msg'] ) ); ?></p></div><?php
 		}
 
 		//handle adding new blogs

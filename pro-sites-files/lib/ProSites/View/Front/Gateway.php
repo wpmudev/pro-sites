@@ -236,8 +236,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$result = $wpdb->get_row( $sql );
 
 			if ( ! empty( $result ) ) {
-
-
 				if ( 'Trial' == $result->gateway ) {
 					$info_retrieved = ProSites_Gateway_Trial::get_existing_user_information( $blog_id, $domain );
 				} else {
@@ -468,7 +466,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$pre_content .= self::render_payment_submitted();
 			}
 
-			// PayPal Fix
+			// PayPal Fix, As the user is redirected to Paypal and then sent back over to the site
 			if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
 				return self::render_payment_submitted('', '', $blog_id );
 			}
@@ -481,7 +479,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( ! empty( $pre_content ) ) {
 				return $pre_content;
 			}
-			//}
 
 			//For gateways after redirection, upon page refresh
 			$page_reload = ! empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );

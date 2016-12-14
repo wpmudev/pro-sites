@@ -558,15 +558,18 @@ class ProSites_Gateway_PayPalExpressPro {
 					//apply coupon
 					$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $process_data['COUPON_CODE'] );
 					$coupon_obj      = ProSites_Helper_Coupons::get_coupon( $process_data['COUPON_CODE'] );
+
 					$lifetime        = isset( $coupon_obj['lifetime'] ) && 'indefinite' == $coupon_obj['lifetime'] ? 'forever' : 'once';
 
 					//Coupon valus is the price after discount itself, for some reason, it was being done reverse @todo: Make it simple
 					$coupon_value = $adjusted_values[ $_POST['level'] ][ 'price_' . $_POST['period'] ];
+
 					$amount_off   = $paymentAmount - $coupon_value;
 
 					//Round the value to two digits
 					$amount_off = number_format( $amount_off, 2, '.', '' );
 				}
+
 				if ( ! $recurring && ! empty( $blog_id ) ) {
 					//Calculate Upgrade or downgrade cost, use original cost to calculate the Upgrade cost
 					$paymentAmount = $psts->calc_upgrade_cost( $blog_id, $_POST['level'], $_POST['period'], $paymentAmount );
@@ -577,38 +580,35 @@ class ProSites_Gateway_PayPalExpressPro {
 
 				//Apply Discount
 				if ( ! empty( $amount_off ) ) {
+					//Give the discount on payment amount, $paymentAmountInitial contains the payment amount for first term
+					$paymentAmountInitial = $paymentAmount - $amount_off;
+
+					//if discount value is greater than payment amount, subtract from init amount too (paymentamount would be negative in that case );
+					$initAmount = $paymentAmountInitial < 0 ? $initAmount + $paymentAmountInitial : $initAmount;
+
+					//This situation shouldn't arise, but let's be safe
+					$initAmount = $initAmount < 0 ? 0 : $initAmount;
+
+					//If negative, set to 0
+					$paymentAmountInitial = $paymentAmountInitial < 0 ? 0 : $paymentAmountInitial;
+
 					if ( $lifetime == 'once' ) {
-						//Give the discount on payment amount, $paymentAmountInitial contains the payment amount for first term
-						$paymentAmountInitial = $paymentAmount - $amount_off;
-
-						//if discount value is greater than payment amount, subtract from init amount too (paymentamount would be negative in that case );
-						$initAmount = $paymentAmountInitial < 0 ? $initAmount + $paymentAmountInitial : $initAmount;
-
-						//If negative, set to 0
-						$paymentAmountInitial = $paymentAmountInitial < 0 ? 0 : $paymentAmountInitial;
-
 						if ( ! $recurring ) {
 							//If Not recurring, and coupon is on time
 							$paymentAmount = $paymentAmountInitial;
 						}
 					} else {
-						//Give the discount on payment amount, $paymentAmountInitial contains the payment amount for first term
-						$paymentAmountInitial = $paymentAmount - $amount_off;
-
-						//if discount value is greater than payment amount, subtract from init amount too (paymentamount would be negative in that case );
-						$initAmount = $paymentAmountInitial < 0 ? $initAmount + $paymentAmountInitial : $initAmount;
-
-						//If negative, set to 0
-						$paymentAmountInitial = $paymentAmountInitial < 0 ? 0 : $paymentAmountInitial;
-
 						//For Lifetime coupon, cost for each term is going to be same
 						$paymentAmount = $paymentAmountInitial;
 					}
 				}
+
 				//Calculate Tax
+				//Initial Tax Amount ( Setup Fee and all ), And the amount to be shown in description
 				$tax_amt_init   = self::calculate_tax( $tax_object, $initAmount, true );
 				$initAmountDesc = $initAmount + $tax_amt_init;
 
+				//Tax on rest of the Payment and amount to be shown in description
 				$tax_amt_payment   = self::calculate_tax( $tax_object, $paymentAmount, true );
 				$paymentAmountDesc = $paymentAmount + $tax_amt_payment;
 
@@ -691,7 +691,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				$resArray = PaypalApiHelper::SetExpressCheckout( $initAmount + $paymentAmount, $desc, $blog_id, $domain, $force_recurring );
 			} else {
 				//We specify only the subscription charges, in set express checkout, rest of the amount is set as initamount in doexpresscheckout or createrecurringprofile operation
-				$resArray = PaypalApiHelper::SetExpressCheckout( $paymentAmount, $desc, $blog_id, $domain, $force_recurring );
+				$resArray = PaypalApiHelper::SetExpressCheckout( $paymentAmountInitial, $desc, $blog_id, $domain, $force_recurring );
 			}
 
 			if ( isset( $resArray['ACK'] ) && ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) ) {
@@ -924,7 +924,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					$initAmount = $is_trial ? $initAmount : $initAmount + $paymentAmountInitial;
 
 					//If not trial, or if there is a setup fee
-					if ( ! $is_trial || $initAmount != 0 ) {
+					if ( ! $is_trial || $initAmount > 0 ) {
 						//Do Express checkout for initial Payment and handle rest with subscription
 						$resArrayDirect = PaypalApiHelper::DoExpressCheckoutPayment( $_GET['token'], $_GET['PayerID'], $initAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $activation_key, $tax_amt_init );
 					} else {
@@ -943,8 +943,8 @@ class ProSites_Gateway_PayPalExpressPro {
 						//Activate the blog for trial
 						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 					} else {
-						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
-						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
+						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
+						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
 
 						return;
 					}
@@ -1933,7 +1933,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		$line_obj->custom_id   = $line_obj->id = $data['PAYERID'];
 		$line_obj->amount      = $data['AMT'];
 		$line_obj->quantity    = ! empty( $data['L_QTY0'] ) ? $data['L_QTY0'] : 1;
-		$line_obj->description = $data['SUBJECT'];
+		$line_obj->description = ! empty( $data['SUBJECT'] ) ? $data['SUBJECT'] : '';
 		$lines[]               = $line_obj;
 
 		//Check if trial is allowed
@@ -2217,7 +2217,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			'SEK' => array( 'Swedish Krona', '6b, 72' ),
 			'SGD' => array( 'Singapore Dollar', '24' ),
 			'THB' => array( 'Thai Baht', 'e3f' ),
-			'TRY' => array( 'Turkish Lira', '20ba' ),
 			'TWD' => array( 'New Taiwan Dollar', '4e, 54, 24' ),
 			'USD' => array( 'United States Dollar', '24' ),
 			'RUB' => array( 'Russian Ruble', '20', 'bd' )
@@ -3143,13 +3142,13 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 	 *
 	 * @return string
 	 */
-	function get_blog_subscription_expiry( $blog_id ) {
+	static function get_blog_subscription_expiry( $blog_id ) {
 		//Return If we don't have any blog id
 		if ( empty( $blog_id ) ) {
 			return '';
 		}
 		$expiry     = '';
-		$profile_id = $this->get_profile_id( $blog_id );
+		$profile_id = self::get_profile_id( $blog_id );
 		if ( $profile_id ) {
 			$resArray = PaypalApiHelper::GetRecurringPaymentsProfileDetails( $profile_id );
 
