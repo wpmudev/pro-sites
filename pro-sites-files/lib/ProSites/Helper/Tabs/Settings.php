@@ -69,9 +69,6 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Settings' ) ) {
 						__( 'Allows you to disable ads for a Pro Site level, or give a Pro Site level the ability to disable ads on a number of other sites.', 'psts' ),
 					),
 				) ),
-//				'messages_automated' => array(
-//					'title' => __( 'Automated Email Responses', 'psts' ),
-//				),
 				'prowidget'           => array_merge( $section_options, array(
 					'title' => __( 'Pro Sites Widget', 'psts' ),
 					'desc'  => array(
