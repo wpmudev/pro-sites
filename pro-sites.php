@@ -201,8 +201,8 @@ class ProSites {
 		// Take action when a gateway changes
 		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
-                // Delete blog
-                add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+        // Delete blog
+        add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
 
 		$this->setup_ajax_hooks();
 
@@ -5317,14 +5317,13 @@ function admin_modules() {
 		return $expiry;
 	}
 
-        public function delete_blog( $blog_id )
-        {
-                global $wpdb;
-                $main_site = defined( 'BLOG_ID_CURRENT_SITE' ) ? BLOG_ID_CURRENT_SITE : 1;
-                switch_to_blog( $main_site );
-                $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
-                restore_current_blog();
-        }
+    public function delete_blog( $blog_id ) {
+        global $wpdb;
+        $main_site = defined( 'BLOG_ID_CURRENT_SITE' ) ? BLOG_ID_CURRENT_SITE : 1;
+        switch_to_blog( $main_site );
+        $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
+        restore_current_blog();
+    }
 
 }
 
