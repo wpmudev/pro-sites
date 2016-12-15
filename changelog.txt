@@ -1,12 +1,12 @@
 Plugin Name: Pro Sites
-Author:	WPMU Dev
-Developer: Aaron Edwards
+Author:	WPMU DEV
 
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-- Fixed: Checkout url should be default to current page ssl
+- Fix: Checkout url should be default to current page ssl
+- Fix: Make maximum coupon discount $0.01 to avoid breaking checkout
 
 3.5.5 - 06/19/2016 - Umesh Kumar
 

@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Pro Sites
-Plugin URI: http://premium.wpmudev.org/project/pro-sites/
+Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
 Version: 3.5.5-beta1
-Author URI: http://premium.wpmudev.org/
+Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
 Network: true
@@ -13,7 +13,7 @@ WDP ID: 49
 */
 
 /*
-Copyright 2007-2014 Incsub (http://incsub.com)
+Copyright 2007-2017 Incsub (http://incsub.com)
 Author - Aaron Edwards
 Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
 

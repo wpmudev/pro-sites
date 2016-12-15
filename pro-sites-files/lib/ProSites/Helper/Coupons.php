@@ -119,13 +119,13 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 				$coupon_code = preg_replace( '/[^A-Z0-9_-]/', '', strtoupper( $code ) );
 				if ( $coupons[ $coupon_code ]['discount_type'] == 'amt' ) {
 					$new_total = round( $total - $coupons[ $coupon_code ]['discount'], 2 );
-					$new_total = ( $new_total < 0 ) ? 0.00 : $new_total;
+					$new_total = ( $new_total <= 0 ) ? 0.01 : $new_total;
 					$discount  = '-' . $psts->format_currency( '', $coupons[ $coupon_code ]['discount'] );
 
 					return array( 'discount' => $discount, 'new_total' => $new_total );
 				} else {
 					$new_total = round( $total - ( $total * ( $coupons[ $coupon_code ]['discount'] * 0.01 ) ), 2 );
-					$new_total = ( $new_total < 0 ) ? 0.00 : $new_total;
+					$new_total = ( $new_total <= 0 ) ? 0.01 : $new_total;
 					$discount  = '-' . $coupons[ $coupon_code ]['discount'] . '%';
 
 					return array( 'discount' => $discount, 'new_total' => $new_total );
@@ -252,8 +252,8 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 								} else {
 									$discounted = $original - $discount;
 								}
-								if( 0 > $discounted ) {
-									$discounted = 0.0;
+								if( 0 >= $discounted ) {
+									$discounted = 0.01;
 								}
 								$level_list[ $level_id ][ 'price_' . $period ] = $discounted * 1.0;
 							}
@@ -269,14 +269,12 @@ if ( ! class_exists( 'ProSites_Helper_Coupons' ) ) {
 								} else {
 									$discounted = $original - $discount;
 								}
-								if( 0 > $discounted ) {
-									$discounted = 0.0;
+								if( 0 >= $discounted ) {
+									$discounted = 0.01;
 								}
 								$level_list[ $level_id ][ $price_key ] = $discounted * 1.0;
 							}
 						}
-
-
 					}
 
 				}
