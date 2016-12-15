@@ -2955,14 +2955,19 @@ _gaq.push(["_trackTrans"]);
 			$blog_id = (int) $result['blog_id'];
 		}
 
-		if ( $blog_id ) { ?>
-			<h3><?php _e( 'Manage Site', 'psts' ) ?>
-			<?php
-			if ( $name = get_blog_option( $blog_id, 'blogname' ) ) {
+		if ( $blog_id ) {
+		    //Get blog details
+		    $blog = get_blog_details( $blog_id ); ?>
+			<h3><?php _e( 'Manage Site', 'psts' );
+			if ( $name = !empty( $blog->blogname ) ? $blog->blogname : get_blog_option( $blog_id, 'blogname' ) ) {
 				echo ': ' . $name . ' (Blog ID: ' . $blog_id . ')';
 			}
 
 			echo '</h3>';
+
+			if( !empty( $blog ) && !empty( $blog->siteurl ) ) {
+			    echo esc_html__("Blog URL: ") . make_clickable( $blog->siteurl );
+			}
 
 			$levels        = (array) get_site_option( 'psts_levels' );
 			$current_level = $this->get_level( $blog_id );
