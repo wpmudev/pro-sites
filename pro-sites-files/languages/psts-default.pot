@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites 3.5.5-beta1\n"
 "Report-Msgid-Bugs-To: http://premium.wpmudev.org/\n"
-"POT-Creation-Date: 2016-12-15 22:03:32+00:00\n"
+"POT-Creation-Date: 2016-12-15 22:30:08+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3705,7 +3705,7 @@ msgid "Setup Fee"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:287
-msgid "If \"Apply setup fee to upgrades\" is left unchecked then only <strong>free sites</strong> will be charged a setup fee. Otherwise, all levels will be charged a setup fee upon upgrading to a higher level."
+msgid "Only paid levels (not the default free level) will be charged a setup fee."
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Settings.php:298
