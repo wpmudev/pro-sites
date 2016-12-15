@@ -436,9 +436,9 @@ class ProSites_Gateway_PayPalExpressPro {
 		$tax_amt_payment = $tax_amt_init = 0;
 
 		//Blog id, Level Period
-		$blog_id = ! empty( $_REQUEST['bid'] ) ? $_REQUEST['bid'] : 0;
-		$level   = ! empty( $_POST['level'] ) ? $_POST['level'] : '';
-		$period  = ! empty( $_POST['period'] ) ? $_POST['period'] : '';
+		$blog_id = ! empty( $_REQUEST['bid'] ) ? (int) $_REQUEST['bid'] : 0;
+		$level   = ! empty( $_POST['level'] ) ? (int) $_POST['level'] : '';
+		$period  = ! empty( $_POST['period'] ) ? (int) $_POST['period'] : '';
 
 		// TAX Object
 		$tax_object = ProSites_Helper_Session::session( 'tax_object' );
