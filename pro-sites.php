@@ -1101,9 +1101,9 @@ Thanks!", 'psts' ),
 		/**
 		 * Filter the force SSl option
 		 *
-		 * @param bool , default is set to false
+		 * @param bool , default is set to wether current page is ssl
 		 */
-		if ( apply_filters( 'psts_force_ssl', false ) ) {
+		if ( apply_filters( 'psts_force_ssl', is_ssl() ) ) {
 			$url = str_replace( 'http://', 'https://', $url );
 		}
 
