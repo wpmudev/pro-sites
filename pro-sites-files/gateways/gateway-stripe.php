@@ -91,7 +91,7 @@ class ProSites_Gateway_Stripe {
 		global $wpdb, $psts;
 
 		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
-		$table1     = "CREATE TABLE IF NOT EXISTS $table_name (
+		$table1     = "CREATE TABLE $table_name (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
 			subscription_id char(22) NOT NULL,
