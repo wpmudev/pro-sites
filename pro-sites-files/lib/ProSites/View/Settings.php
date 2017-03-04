@@ -231,7 +231,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"
 						    class="psts-free-trial psts-help-div"><?php echo __( 'Free Trial', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Free days for all new sites', 'psts' ) ); ?></th>
-						<td><select name="psts[trial_days]" class="chosen">
+						<td><select name="psts[trial_days]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$trial_days         = $psts->get_setting( 'trial_days' );
 								$trial_days_options = '';
@@ -249,7 +249,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"
 						    class="psts-free-trial-level psts-help-div"><?php echo __( 'Free Trial Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'The level assigned to new Trials', 'psts' ) ); ?></th>
-						<td><select name="psts[trial_level]" class="chosen">
+						<td><select name="psts[trial_level]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$trial_level      = $psts->get_setting( 'trial_level', 1 );
 								$trial_days_level = '';
@@ -318,7 +318,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Google Analytics Ecommerce Tracking', 'psts' ) ?></th>
 						<td>
-							<select name="psts[ga_ecommerce]" class="chosen">
+							<select name="psts[ga_ecommerce]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<option
 									value="none"<?php selected( $psts->get_setting( 'ga_ecommerce' ), 'none' ) ?>><?php _e( 'None', 'psts' ) ?></option>
 								<option
@@ -481,7 +481,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Currency', 'psts' ); ?><?php echo $psts->help_text( esc_html__( 'This is the currency that customers will be charged in. Your gateway currency is a fall-back option.', 'psts' ), 'site-currency' ); ?></th>
 						<td>
-							<select id="psts-currency-select" name="psts[currency]" class="chosen"
+							<select id="psts-currency-select" name="psts[currency]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>"
 							        data-placeholder="<?php echo esc_attr__( 'Enable gateways', 'psts' ); ?>">
 								<?php
 								$super    = array(

@@ -71,7 +71,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					<tr>
 						<td><?php _e( 'Columns Border Width', 'psts' ) ?></td>
 						<td>
-							<select name="psts[checkout_style][pricing_style_border_width]" class="chosen">
+							<select name="psts[checkout_style][pricing_style_border_width]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$border_width         = self::get_style( 'pricing_style_border_width', $styles );
 								$border_width_options = '';
@@ -84,7 +84,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 							</select>
 						</td>
 						<td>
-							<select name="psts[checkout_style][pricing_style_border_width_selected]" class="chosen">
+							<select name="psts[checkout_style][pricing_style_border_width_selected]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$border_width         = self::get_style( 'pricing_style_border_width_selected', $styles );
 								$border_width_options = '';
@@ -97,7 +97,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 							</select>
 						</td>
 						<td>
-							<select name="psts[checkout_style][pricing_style_border_width_featured]" class="chosen">
+							<select name="psts[checkout_style][pricing_style_border_width_featured]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$border_width         = self::get_style( 'pricing_style_border_width_featured', $styles );
 								$border_width_options = '';
@@ -304,7 +304,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					<tr>
 						<td><?php _e( 'Border Width', 'psts' ) ?></td>
 						<td>
-							<select name="psts[checkout_style][pricing_style_coupon_border_width]" class="chosen">
+							<select name="psts[checkout_style][pricing_style_coupon_border_width]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$border_width         = self::get_style( 'pricing_style_coupon_border_width', $styles );
 								$border_width_options = '';

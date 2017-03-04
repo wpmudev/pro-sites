@@ -389,7 +389,7 @@ class ProSites_Module_PostThrottling {
 			<td>
 				<!--				Free Plan-->
 				<div class="plan-th-limits">
-					<select name="<?php echo $key . '[0]'; ?>" class="chosen">
+					<select name="<?php echo $key . '[0]'; ?>" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 						<?php $free_value = isset( $limits[ $key ] ) ? intval( $limits[ $key ] ) : 0; ?>
 						<option
 							value="unlimited"<?php selected( $free_value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
@@ -409,7 +409,7 @@ class ProSites_Module_PostThrottling {
 				<td><?php echo $level; ?> - <?php echo $data['name']; ?></td>
 				<td>
 					<div class="plan-th-limits">
-						<select name="<?php echo $key . '[' . $level . ']'; ?>" class="chosen">
+						<select name="<?php echo $key . '[' . $level . ']'; ?>" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<option
 								value="unlimited"<?php selected( $value, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
 							<?php

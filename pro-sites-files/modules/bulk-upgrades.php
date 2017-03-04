@@ -307,7 +307,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
-					<td><select name="psts[bu_site]" class="chosen">
+					<td><select name="psts[bu_site]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							$paypal_site = $psts->get_setting( 'bu_site' );
 							$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
@@ -341,7 +341,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
-					<td><select name="psts[bu_currency]" class="chosen">
+					<td><select name="psts[bu_currency]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							$currency     = $psts->get_setting( 'bu_currency' );
 							$sel_currency = empty( $currency ) ? $psts->get_setting( 'currency' ) : $currency;
@@ -379,7 +379,7 @@ class ProSites_Module_BulkUpgrades {
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
-					<td><select name="psts[bu_status]" class="chosen">
+					<td><select name="psts[bu_status]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<option
 								value="live"<?php selected( $psts->get_setting( 'bu_status' ), 'live' ); ?>><?php _e( 'Live Site', 'psts' ) ?></option>
 							<option
@@ -390,7 +390,7 @@ class ProSites_Module_BulkUpgrades {
 				<tr valign="top">
 					<th scope="row"
 						class="psts-help-div psts-bulk-payment-type"><?php echo __( 'PayPal Payment Type', 'psts' ) . $psts->help_text( __( 'Recurring = PayPal 12 month subscription', 'psts' ) ); ?></th>
-					<td><select name="psts[bu_payment_type]" class="chosen">
+					<td><select name="psts[bu_payment_type]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<option
 								value="single"<?php selected( $psts->get_setting( 'bu_payment_type' ), 'single' ); ?>><?php _e( 'Single', 'psts' ) ?></option>
 							<option
@@ -402,7 +402,7 @@ class ProSites_Module_BulkUpgrades {
 					<th scope="row"
 						class="psts-help-div psts-credit-level"><?php echo __( 'Credit Level', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to.', 'psts' ) ); ?></th>
 					<td>
-						<select name="psts[bu_level]" class="chosen">
+						<select name="psts[bu_level]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							foreach ( $levels as $level => $value ) {
 								?>
@@ -416,7 +416,7 @@ class ProSites_Module_BulkUpgrades {
 					<th scope="row"
 						class="psts-help-div psts-option1-settings"><?php echo __( 'Option 1 Settings', 'psts' ) . $psts->help_text( __( 'What Pro Site level credits will upgrade to. One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
-							<select name="psts[bu_credits_1]" class="chosen">
+							<select name="psts[bu_credits_1]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<?php
 								$credits_1 = $psts->get_setting( 'bu_credits_1', 10 );
 								for ( $counter = 1; $counter <= 900; $counter ++ ) {
@@ -436,7 +436,7 @@ class ProSites_Module_BulkUpgrades {
 					<th scope="row"
 						class="psts-help-div psts-option2-settings"><?php echo __( 'Option 2 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
-							<select name="psts[bu_credits_2]" class="chosen">
+							<select name="psts[bu_credits_2]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
 								<?php
 								$credits_2 = $psts->get_setting( 'bu_credits_2' );
@@ -457,7 +457,7 @@ class ProSites_Module_BulkUpgrades {
 					<th scope="row"
 						class="psts-help-div psts-option3-settings"><?php echo __( 'Option 3 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
-							<select name="psts[bu_credits_3]" class="chosen">
+							<select name="psts[bu_credits_3]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
 								<?php
 								$credits_3 = $psts->get_setting( 'bu_credits_3' );
@@ -478,7 +478,7 @@ class ProSites_Module_BulkUpgrades {
 					<th scope="row"
 						class="psts-help-div psts-option4-settings"><?php echo __( 'Option 4 Settings', 'psts' ) . $psts->help_text( __( 'One credit allows for one site to be upgraded for one year.', 'psts' ) ); ?></th>
 					<td><label><?php _e( 'Credits', 'psts' ) ?>:
-							<select name="psts[bu_credits_4]" class="chosen">
+							<select name="psts[bu_credits_4]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 								<option value="0"><?php _e( 'Disabled', 'psts' ) ?></option>
 								<?php
 								$credits_4 = $psts->get_setting( 'bu_credits_4' );
