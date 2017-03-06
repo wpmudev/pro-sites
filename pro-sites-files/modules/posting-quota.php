@@ -48,6 +48,17 @@ class ProSites_Module_PostingQuota {
 
 	function settings() {
 		global $psts;
+		
+		if ( isset (  $_GET['level'] ) ) {
+			$selected_level = esc_attr($_GET['level']);
+			$settings = get_site_option( 'psts_settings' );
+			$quota_settings = $settings['levels_quotas']['level'.$selected_level];
+			
+		}else{
+			$quota_settings = $psts->get_setting( "pq_quotas" );
+			$selected_level = $psts->get_setting( 'pq_level', 1 );;
+		}
+		
 		?>
 
 		<div class="inside">
@@ -55,7 +66,7 @@ class ProSites_Module_PostingQuota {
 				<tr valign="top">
 					<th scope="row" class="pro-site-level psts-quota-prosite-level"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to remove quotas', 'psts' ) ); ?></th>
 					<td>
-						<select name="psts[pq_level]" class="chosen">
+						<select name="psts[pq_level]" class="chosen" onchange="self.location=self.location+'&level='+this.options[this.selectedIndex].value">
 							<?php
 							$levels = (array) get_site_option( 'psts_levels' );
 							foreach ( $levels as $level => $value ) {
@@ -64,10 +75,12 @@ class ProSites_Module_PostingQuota {
 							}
 							?>
 						</select>
+						<!-- Required to store quota settings for each level -->
+						<input type="hidden" name="quotas_for_level" value="level<?php echo $selected_level;?>" />
 					</td>
 				</tr>
 				<?php
-				$quota_settings = $psts->get_setting( "pq_quotas" );
+				//$quota_settings = $psts->get_setting( "pq_quotas" );
 				$post_types     = get_post_types( array( 'show_ui' => true ), 'objects', 'and' );
 				if ( is_array( $post_types ) ) {
 					foreach ( $post_types as $post_type ) {

@@ -38,6 +38,17 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 
 				//merge settings
 				$old_settings = get_site_option( 'psts_settings' );
+				
+				/**
+				* save quotas for each level in an array, 
+				* this will allow reloading of previously stored values for the level when reloading the page by selecting a level.
+				*/
+				$quotas_for_level = esc_attr( $_POST['quotas_for_level'] );								
+				$levels_quotas = $old_settings['levels_quotas'];
+				$levels_quotas[$quotas_for_level] = $_POST['psts']['pq_quotas'];
+				
+				//add or update levels quotas in old settings before medging old_settings below
+				$old_settings['levels_quotas'] = $levels_quotas;
 
 				// update levels?
 				$update_gateway_levels = false;
