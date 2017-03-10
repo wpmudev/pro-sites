@@ -531,7 +531,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 												?>
 												<td scope="row">
 													<div
-														class="text-item"><?php echo ProSites::filter_html( $setting['name'] ); ?></div>
+														class="text-item"><?php echo esc_html( $setting['name'] ); ?></div>
 													<div class="edit-box" style="display:none">
 														<input class="editor" type="text"
 														       name="psts[feature_table][<?php echo $key; ?>][name]"
