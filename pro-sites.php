@@ -5205,7 +5205,8 @@ function admin_modules() {
 			'style' => $allowed_atts,
 		);
 
-		return wp_kses( $content, $allowed );
+		$allowedposthtml =  wp_kses_allowed_html( 'post' );		
+		return wp_kses( $content, array_merge($allowed, $allowedposthtml) );
 	}
 
 	function registration_page_styles() {

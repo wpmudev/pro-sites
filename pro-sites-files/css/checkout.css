@@ -568,6 +568,16 @@ ul.pricing-column li, .pricing-column ul li {
     /*font-size: 17px;*/
     text-align: center;
 }
+/** styles for styling the html tags: strong, b, em, i **/
+.feature-name strong, .feature-name b,.feature-name * strong,.feature-name * b{
+	font-weight:bold;
+}
+.feature-name em,.feature-name i,.feature-name * em,.feature-name * i{
+  font-style: italic;
+}
+.feature-name br,.feature-name * br{
+  display:block;clear:all;
+}
 
 li.summary {
 	position:relative;
