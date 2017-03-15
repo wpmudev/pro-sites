@@ -329,7 +329,6 @@ class ProSites {
 			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
-			'trial_level'              => 1,
 			'trial_days'               => get_site_option( "supporter_free_days" ),
 			'trial_message'            => __( 'You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts' ),
 			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
@@ -671,7 +670,7 @@ Thanks!", 'psts' ),
 		$trial_days = $this->get_setting( 'trial_days' );
 		if ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
-			$this->extend( $blog_id, $extend, 'trial', $this->get_setting( 'trial_level', 1 ) );
+			$this->extend( $blog_id, $extend, 'trial', $_POST['level'] );
 		}
 	}
 
@@ -697,7 +696,7 @@ Thanks!", 'psts' ),
 
 			if ( $expire ) {
 				$days   = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
-				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_setting( 'trial_level', 1 ), 'name' ), $this->get_setting( 'trial_message' ) );
+				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_level(), 'name' ), $this->get_setting( 'trial_message' ) );
 				$notice = str_replace( 'DAYS', $days, $notice );
 				echo '
 					<div class="update-nag">
@@ -4409,19 +4408,12 @@ function admin_modules() {
 	 * @return bool
 	 */
 
-	function is_trial_allowed( $blog_id, $level = '' ) {
+	function is_trial_allowed( $blog_id ) {
 
 		$trial_days = $this->get_setting( 'trial_days', 0 );
 
-		$trial_level = $this->get_setting( 'trial_level' );
-
 		//If Trial is not set
 		if ( $trial_days == 0 ) {
-			return false;
-		}
-
-		//If the selected level is not same as allowed trial level
-		if( !empty( $level ) && $trial_level != $level ) {
 			return false;
 		}
 
@@ -5026,7 +5018,7 @@ function admin_modules() {
 
 		//Set Trial
 		if ( $trial ) {
-			$this->extend( $result['blog_id'], $period, 'trial', $this->get_setting( 'trial_level', $level ), '', strtotime( '+ ' . $trial_days . ' days' ) );
+			$this->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 			//Redirect to checkout on next signup
 			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );

@@ -521,7 +521,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			//prepare vars
 			$currency = self::currency();
 
-			$is_trial = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+			$is_trial = $psts->is_trial_allowed( $blog_id );
 
 			$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
 
@@ -832,7 +832,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Upgrade
 				if ( $modify ) {
 
-					$is_trial = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+					$is_trial = $psts->is_trial_allowed( $blog_id );
 					//! create the recurring profile
 					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment, $is_trial );
 					if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
