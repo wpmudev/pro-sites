@@ -3754,7 +3754,7 @@ function admin_levels() {
 			$error[] = __( 'Please enter a valid level name.', 'psts' );
 		}
 
-		if ( empty( $_POST['add_price_1'] ) && empty( $_POST['add_price_3'] ) && empty( $_POST['add_price_12'] ) ) {
+		if ( ! is_numeric( $_POST['add_price_1'] ) && ! is_numeric( $_POST['add_price_3'] ) && ! is_numeric( $_POST['add_price_12'] ) ) {
 			$error[] = __( 'You must enter a price for at least one payment period.', 'psts' );
 		}
 
