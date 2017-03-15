@@ -93,7 +93,7 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 				//Text for modules, in place of right or wrong mark
 				$cur_level = 1;
 				if ( ! empty ( $_REQUEST['level_id'] ) ) {
-					$cur_level = $_REQUEST['level_id'];
+					$cur_level = (int) $_REQUEST['level_id'];
 				}
 				if ( ( $item ['psts_co_class_name'] == $this->edit_item ) && ( $item ['psts_co_level_id'] == $cur_level ) ) {
 					$field_value = $this->get_include_text( $item ['psts_co_class_name'], $item ['psts_co_level_id'] );
@@ -114,10 +114,10 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 	function column_psts_co_name( $item ) {
 		$cur_level = 1;
 		if ( ! empty ( $_REQUEST['level_id'] ) ) {
-			$cur_level = $_REQUEST['level_id'];
+			$cur_level = (int) $_REQUEST['level_id'];
 		}
 		$actions = array(
-			'edit' => sprintf( '<a href="?page=%s&action=%s&module=%s&level_id=%s">Edit</a>', $_REQUEST['page'], 'feature_edit', $item['psts_co_class_name'], $cur_level )
+			'edit' => sprintf( '<a href="?page=%s&action=%s&module=%s&level_id=%s">Edit</a>', sanitize_text_field( $_REQUEST['page'] ), 'feature_edit', $item['psts_co_class_name'], $cur_level )
 		);
 		if ( $item ['psts_co_class_name'] == $this->edit_item ) {
 			$field = '<input type="text" class="ptitle" name="psts[pricing_table_module_' . $item ['psts_co_class_name'] . '_label]" value="' . $item['psts_co_name'] . '" />';
@@ -195,7 +195,7 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		$data      = array();
 		$cur_level = 1;
 		if ( ! empty ( $_REQUEST['level_id'] ) ) {
-			$cur_level = $_REQUEST['level_id'];
+			$cur_level = (int) $_REQUEST['level_id'];
 		}
 		$cur_level = intval( $cur_level );
 
