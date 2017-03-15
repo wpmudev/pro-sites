@@ -119,6 +119,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$hidden_class = ( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
 			$hidden_class = isset( $render_data['new_blog_details']['site_activated'] ) && $render_data['new_blog_details']['site_activated'] ? 'hidden' : $hidden_class;
 
+
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
 
 			// How many gateways can we use at checkout?
@@ -130,13 +131,22 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( $tabbed && $available_gateways > 1 ) {
 				$content .= '<ul>';
 				if ( ! empty( $primary_gateway ) ) {
-					$content .= '<li><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
+					//If there are errors associated with the gateway, Mark the gateway tab as active
+					$error = $psts->errors->get_error_message( $primary_gateway );
+					$class = !empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
+					$content .= '<li class="' . $class . '"><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				if ( ! empty( $secondary_gateway ) ) {
-					$content .= '<li><a href="#gateways-2">' . esc_html( $psts->get_setting( 'checkout_gateway_secondary_label', __( 'Alternate Payment', 'psts' ) ) ) . '</a></li>';
+					//If there are errors associated with the gateway, Mark the gateway tab as active
+					$error = $psts->errors->get_error_message( $secondary_gateway );
+					$class = !empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
+					$content .= '<li class="' . $class . '"><a href="#gateways-2">' . esc_html( $psts->get_setting( 'checkout_gateway_secondary_label', __( 'Alternate Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				if ( ! empty( $manual_gateway ) ) {
-					$content .= '<li><a href="#gateways-3">' . esc_html( $psts->get_setting( 'checkout_gateway_manual_label', __( 'Offline Payment', 'psts' ) ) ) . '</a></li>';
+					//If there are errors associated with the gateway, Mark the gateway tab as active
+					$error = $psts->errors->get_error_message( $manual_gateway );
+					$class = !empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
+					$content .= '<li class="' . $class . '"><a href="#gateways-3">' . esc_html( $psts->get_setting( 'checkout_gateway_manual_label', __( 'Offline Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				$content .= '</ul>';
 			}

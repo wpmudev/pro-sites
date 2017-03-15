@@ -218,7 +218,13 @@ class ProSites_Gateway_PayPalExpressPro {
 
 		$content .= '<div id="psts-paypal-checkout">
 			<h2>' . __( 'Checkout With PayPal', 'psts' ) . '</h2>';
-		$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'general' ) : false;
+
+		$g_errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'general' ) : false;
+		if ( $g_errmsg ) {
+			$content .= '<div id="psts-processcard-error" class="psts-error">' . $g_errmsg . '</div>';
+		}
+
+		$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'paypal' ) : false;
 		if ( $errmsg ) {
 			$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
 		}
@@ -698,7 +704,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				$token = $resArray["TOKEN"];
 				PaypalApiHelper::RedirectToPayPal( $token );
 			} else {
-				$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+				$psts->errors->add( 'paypal', sprintf( __( 'There was a problem setting up the paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 			}
 		}
 
@@ -904,7 +910,7 @@ class ProSites_Gateway_PayPalExpressPro {
 							self::update_evidence( $blog_id, $txn_id, $evidence_string );
 						}
 					} else {
-						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+						$psts->errors->add( 'paypal', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 						$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
 					}
 				} else {
@@ -943,7 +949,7 @@ class ProSites_Gateway_PayPalExpressPro {
 						//Activate the blog for trial
 						$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 					} else {
-						$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
+						$psts->errors->add( 'paypal', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
 						$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
 
 						return;
@@ -983,7 +989,7 @@ class ProSites_Gateway_PayPalExpressPro {
 							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via PayPal Express: Problem creating the subscription after successful initial payment. User may need to renew when the first period is up: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
 						} else {
 							//If payment was declined, or user returned
-							$psts->errors->add( 'general', sprintf( __( 'There was a problem processing the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+							$psts->errors->add( 'paypal', sprintf( __( 'There was a problem processing the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 							$psts->log_action( $blog_id, sprintf( __( 'User creating subscription via PayPal Express: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArray ) ), $domain );
 						}
 
@@ -1026,7 +1032,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			if ( isset( $_POST['cc_form'] ) ) {
 
 				$error_message = array(
-					'general'    => __( 'Whoops, looks like you may have tried to submit    your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ),
+					'general'    => __( 'Whoops, looks like you may have tried to submit your payment twice so we prevented it. Check your subscription info below to see if it was created. If not, please try again.', 'psts' ),
 					'card-type'  => __( 'Please choose a Card Type.', 'psts' ),
 					'number'     => __( 'Please enter a valid Credit Card Number.', 'psts' ),
 					'expiration' => __( 'Please choose an expiration date.', 'psts' ),
@@ -1038,7 +1044,6 @@ class ProSites_Gateway_PayPalExpressPro {
 					'state'      => __( 'Please enter your billing State/Province.', 'psts' ),
 					'zip'        => __( 'Please enter your billing Zip/Postal Code.', 'psts' ),
 					'country'    => __( 'Please enter your billing Country.', 'psts' )
-
 				);
 
 				//clean up $_POST
@@ -1182,7 +1187,7 @@ class ProSites_Gateway_PayPalExpressPro {
 								self::update_evidence( $blog_id, $init_transaction, $evidence_string );
 							}
 						} elseif ( $resArray['ACK'] == 'Failure' && ! empty( $resArray['L_SHORTMESSAGE0'] ) ) {
-							$psts->errors->add( 'general', $resArray['L_SHORTMESSAGE0'] );
+							$psts->errors->add( 'paypal', $resArray['L_SHORTMESSAGE0'] );
 						} else {
 							update_blog_option( $blog_id, 'psts_waiting_step', 1 );
 						}
@@ -1267,7 +1272,7 @@ class ProSites_Gateway_PayPalExpressPro {
 							}
 
 						} else {
-							$psts->errors->add( 'general', sprintf( __( 'There was a problem with your Credit Card information:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
+							$psts->errors->add( 'paypal', sprintf( __( 'There was a problem with your Credit Card information:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArray ) ) );
 							$psts->log_action( $blog_id, sprintf( __( 'User modifying subscription via CC: PayPal returned a problem with Credit Card info: %s', 'psts' ), self::parse_error_string( $resArray ) ) );
 						}
 
@@ -1301,7 +1306,7 @@ class ProSites_Gateway_PayPalExpressPro {
 							//Activate the blog for trial
 							$site_details = ProSites_Helper_Registration::activate_blog( $activation_key, $is_trial, $_POST['period'], $_POST['level'] );
 						} else {
-							$psts->errors->add( 'general', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
+							$psts->errors->add( 'paypal', sprintf( __( 'There was a problem setting up the Paypal payment:<br />"<strong>%s</strong>"<br />Please try again.', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
 							$psts->log_action( $blog_id, sprintf( __( 'User creating new subscription via CC: PayPal returned an error: %s', 'psts' ), self::parse_error_string( $resArrayDirect ) ) );
 
 							return;
@@ -1366,7 +1371,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					}
 
 				} else {
-					$psts->errors->add( 'general', __( 'There was a problem with your credit card information. Please check all fields and try again.', 'psts' ) );
+					$psts->errors->add( 'paypal', __( 'There was a problem with your credit card information. Please check all fields and try again.', 'psts' ) );
 				}
 			}
 		};
