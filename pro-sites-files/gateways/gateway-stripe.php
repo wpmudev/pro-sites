@@ -708,9 +708,6 @@ class ProSites_Gateway_Stripe {
 						break;
 					}
 				}
-				echo "<pre>Invoice Object";
-				print_r( $invoice_object );
-				echo "</pre>";
 			} catch ( Exception $e ) {
 				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
