@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Pro Sites
-Plugin URI: http://premium.wpmudev.org/project/pro-sites/
+Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
 Version: 3.5.5-beta1
-Author URI: http://premium.wpmudev.org/
+Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
 Network: true
@@ -13,7 +13,7 @@ WDP ID: 49
 */
 
 /*
-Copyright 2007-2014 Incsub (http://incsub.com)
+Copyright 2007-2017 Incsub (http://incsub.com)
 Author - Aaron Edwards
 Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
 
@@ -329,7 +329,6 @@ class ProSites {
 			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
-			'trial_level'              => 1,
 			'trial_days'               => get_site_option( "supporter_free_days" ),
 			'trial_message'            => __( 'You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts' ),
 			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
@@ -668,9 +667,10 @@ Thanks!", 'psts' ),
 
 	function trial_extend( $blog_id ) {
 		$trial_days = $this->get_setting( 'trial_days' );
+		$level = !empty( $_POST['level'] ) ? intval( $_POST['level'] ) : 1;
 		if ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
-			$this->extend( $blog_id, $extend, 'trial', $this->get_setting( 'trial_level', 1 ) );
+			$this->extend( $blog_id, $extend, 'trial', $level );
 		}
 	}
 
@@ -696,7 +696,7 @@ Thanks!", 'psts' ),
 
 			if ( $expire ) {
 				$days   = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
-				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_setting( 'trial_level', 1 ), 'name' ), $this->get_setting( 'trial_message' ) );
+				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_level($blog_id), 'name' ), $this->get_setting( 'trial_message' ) );
 				$notice = str_replace( 'DAYS', $days, $notice );
 				echo '
 					<div class="update-nag">
@@ -1100,9 +1100,9 @@ Thanks!", 'psts' ),
 		/**
 		 * Filter the force SSl option
 		 *
-		 * @param bool , default is set to false
+		 * @param bool , default is set to wether current page is ssl
 		 */
-		if ( apply_filters( 'psts_force_ssl', false ) ) {
+		if ( apply_filters( 'psts_force_ssl', is_ssl() ) ) {
 			$url = str_replace( 'http://', 'https://', $url );
 		}
 
@@ -2954,14 +2954,19 @@ _gaq.push(["_trackTrans"]);
 			$blog_id = (int) $result['blog_id'];
 		}
 
-		if ( $blog_id ) { ?>
-			<h3><?php _e( 'Manage Site', 'psts' ) ?>
-			<?php
-			if ( $name = get_blog_option( $blog_id, 'blogname' ) ) {
+		if ( $blog_id ) {
+		    //Get blog details
+		    $blog = get_blog_details( $blog_id ); ?>
+			<h3><?php _e( 'Manage Site', 'psts' );
+			if ( $name = !empty( $blog->blogname ) ? $blog->blogname : get_blog_option( $blog_id, 'blogname' ) ) {
 				echo ': ' . $name . ' (Blog ID: ' . $blog_id . ')';
 			}
 
 			echo '</h3>';
+
+			if( !empty( $blog ) && !empty( $blog->siteurl ) ) {
+			    echo esc_html__("Blog URL: ") . make_clickable( $blog->siteurl );
+			}
 
 			$levels        = (array) get_site_option( 'psts_levels' );
 			$current_level = $this->get_level( $blog_id );
@@ -3753,7 +3758,7 @@ function admin_levels() {
 			$error[] = __( 'Please enter a valid level name.', 'psts' );
 		}
 
-		if ( empty( $_POST['add_price_1'] ) && empty( $_POST['add_price_3'] ) && empty( $_POST['add_price_12'] ) ) {
+		if ( ! is_numeric( $_POST['add_price_1'] ) && ! is_numeric( $_POST['add_price_3'] ) && ! is_numeric( $_POST['add_price_12'] ) ) {
 			$error[] = __( 'You must enter a price for at least one payment period.', 'psts' );
 		}
 
@@ -4408,19 +4413,12 @@ function admin_modules() {
 	 * @return bool
 	 */
 
-	function is_trial_allowed( $blog_id, $level = '' ) {
+	function is_trial_allowed( $blog_id ) {
 
 		$trial_days = $this->get_setting( 'trial_days', 0 );
 
-		$trial_level = $this->get_setting( 'trial_level' );
-
 		//If Trial is not set
 		if ( $trial_days == 0 ) {
-			return false;
-		}
-
-		//If the selected level is not same as allowed trial level
-		if( !empty( $level ) && $trial_level != $level ) {
 			return false;
 		}
 
