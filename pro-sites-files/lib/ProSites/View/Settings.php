@@ -284,7 +284,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-						    class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . ProSites_Helper_UI::help_text( __( 'If "Apply setup fee to upgrades" is left unchecked then only <strong>free sites</strong> will be charged a setup fee. Otherwise, all levels will be charged a setup fee upon upgrading to a higher level.', 'psts' ) ); ?></th>
+						    class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Free sites are not charged a setup fee until upgraded to a paid level. If you want upgrades from any level to be charged a setup fee then check "Apply setup fee to upgrades".', 'psts' ) ); ?></th>
 						<td>
 							<label><?php echo $psts->format_currency(); ?></label><input type="text"
 							                                                             name="psts[setup_fee]" size="4"

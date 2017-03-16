@@ -105,6 +105,9 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 					if ( $coupons[ $new_coupon_code ]['discount'] <= 0 ) {
 						$error[] = __( 'Please enter a valid Discount Amount', 'psts' );
 					}
+					if ( 'pct' == $_POST['discount_type'] && $coupons[ $new_coupon_code ]['discount'] >= 100 ) {
+						$error[] = __( '100% off coupons are not allowed, use Free Trial or Manual Extension functionality instead', 'psts' );
+					}
 
 					$coupons[ $new_coupon_code ]['discount_type'] = $_POST['discount_type'];
 					if ( $coupons[ $new_coupon_code ]['discount_type'] != 'amt' && $coupons[ $new_coupon_code ]['discount_type'] != 'pct' ) {
@@ -130,7 +133,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 					if ( ! $error ) {
 						update_site_option( 'psts_coupons', $coupons );
 						$new_coupon_code = '';
-						echo '<div class="updated fade"><p>' . __( 'Coupon succesfully saved.', 'psts' ) . '</p></div>';
+						echo '<div class="updated fade"><p>' . __( 'Coupon successfully saved.', 'psts' ) . '</p></div>';
 					} else {
 						echo '<div class="error"><p>' . implode( '<br />', $error ) . '</p></div>';
 					}
@@ -147,7 +150,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				$total       = ( is_array( $coupon_list ) ) ? count( $coupon_list ) : 0;
 
 				if ( ! empty( $total ) ) {
-					$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ) );
+					$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ), true );
 				}
 
 				$request = remove_query_arg( 'apage' );
@@ -405,7 +408,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 										<th class="coupon-life">
 											<?php echo __( 'Lifetime', 'psts' ) . $psts->help_text( __( 'For the first payment only or the life of the account.', 'psts' ) ); ?>
 										</th>
-										<th><?php _e( 'Discount', 'psts' ) ?></th>
+										<th><?php echo __( 'Discount', 'psts' ) . $psts->help_text( sprintf( __( 'If discount results in a free checkout then the amount will be adjusted to %s to avoid gateway errors. Use Free Trial or Manual Extension functionality instead.', 'psts' ), $psts->format_currency( '', 0.01 ) ) ); ?></th>
 										<th><?php _e( 'Start Date', 'psts' ) ?></th>
 										<th class="expire-date">
 											<?php echo __( 'Expire Date', 'psts' ) . $psts->help_text( __( 'No end if left blank', 'psts' ) ); ?>

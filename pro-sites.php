@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Pro Sites
-Plugin URI: http://premium.wpmudev.org/project/pro-sites/
+Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
 Version: 3.5.5-beta1
-Author URI: http://premium.wpmudev.org/
+Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
 Network: true
@@ -13,7 +13,7 @@ WDP ID: 49
 */
 
 /*
-Copyright 2007-2014 Incsub (http://incsub.com)
+Copyright 2007-2017 Incsub (http://incsub.com)
 Author - Aaron Edwards
 Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
 
@@ -1101,9 +1101,9 @@ Thanks!", 'psts' ),
 		/**
 		 * Filter the force SSl option
 		 *
-		 * @param bool , default is set to false
+		 * @param bool , default is set to wether current page is ssl
 		 */
-		if ( apply_filters( 'psts_force_ssl', false ) ) {
+		if ( apply_filters( 'psts_force_ssl', is_ssl() ) ) {
 			$url = str_replace( 'http://', 'https://', $url );
 		}
 
@@ -3759,7 +3759,7 @@ function admin_levels() {
 			$error[] = __( 'Please enter a valid level name.', 'psts' );
 		}
 
-		if ( empty( $_POST['add_price_1'] ) && empty( $_POST['add_price_3'] ) && empty( $_POST['add_price_12'] ) ) {
+		if ( ! is_numeric( $_POST['add_price_1'] ) && ! is_numeric( $_POST['add_price_3'] ) && ! is_numeric( $_POST['add_price_12'] ) ) {
 			$error[] = __( 'You must enter a price for at least one payment period.', 'psts' );
 		}
 

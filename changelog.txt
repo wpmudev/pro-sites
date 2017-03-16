@@ -1,10 +1,17 @@
 Plugin Name: Pro Sites
-Author:	WPMU Dev
-Developer: Aaron Edwards
+Author:	WPMU DEV
 
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+
+3.6 - 04/10/2017
+
+*Fixed:
+    - Updated Pay to blog is_pro_site check
+    - Checkout url should be default to current page ssl
+    - Make maximum coupon discount $0.01 to avoid breaking checkout
+    - Confusing text in Setup Fee tooltip
 
 3.5.5 - 06/19/2016 - Umesh Kumar
 
