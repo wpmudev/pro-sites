@@ -92,9 +92,6 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 			// Activate the user signup
 			$result = wpmu_activate_signup( $key );
-			echo "<pre>Result";
-			print_r( $result );
-			echo "</pre>";
 
 			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
 

@@ -2309,7 +2309,7 @@ class ProSites_Gateway_Stripe {
 				}
 
 				// If this is a trial before the subscription starts
-				if ( $psts->is_trial_allowed( $blog_id, $_POST['level'] ) ) {
+				if ( $psts->is_trial_allowed( $blog_id ) ) {
 					if ( isset( $process_data['new_blog_details'] ) || ! $psts->is_existing( $blog_id ) ) {
 						//customer is new - add trial days
 						$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
@@ -3208,8 +3208,7 @@ class ProSites_Gateway_Stripe {
 
 				//Set trial if enabled
 				$trial_days  = $psts->get_setting( 'trial_days', 0 );
-				$trial_level = $psts->get_setting( 'trial_level', false );
-				if ( $trial_days && $prosite->level == $trial_level ) {
+				if ( $trial_days ) {
 					$args["trial_end"] = $prosite->expire;
 				}
 
