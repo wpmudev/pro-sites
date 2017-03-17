@@ -205,7 +205,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
-			$has_trial  = $psts->is_trial_allowed( $blog_id, $level );
+			$has_trial  = $psts->is_trial_allowed( $blog_id );
 			$setup_fee = self::init_amount( $blog_id, $level );
 
 			$nvpstr = "&AMT=" . $paymentAmount;
