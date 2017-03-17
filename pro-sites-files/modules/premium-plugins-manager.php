@@ -268,12 +268,16 @@ class ProSites_Module_Plugins_Manager {
 		}
 
 		$pro_plugins = $this->get_all_pro_plugins();
+
 		// Withdrawal level will be 0. So get the free level plugins.
 		$new_level_plugins = (array) $psts->get_setting( 'psts_ppm_0' );
+
 		// Get the overridden plugins if any.
 		$override_plugins = (array) get_blog_option( $blog_id, 'psts_plugins' );
+
 		// Merge new level and overridden plugins.
 		$override_plugins = array_merge( $new_level_plugins, $override_plugins );
+
 		// Get the plugins to deactivate.
 		$pro_plugins = array_diff( $pro_plugins, $override_plugins );
 
@@ -307,12 +311,16 @@ class ProSites_Module_Plugins_Manager {
 		global $psts;
 
 		$old_level_plugins = $psts->get_setting( 'psts_ppm_' . $old_level );
-		// Withdrawal level will be 0. So get the free level plugins.
+
+		// Get the plugins for existing level
 		$new_level_plugins = (array) $psts->get_setting( 'psts_ppm_' . $new_level );
+
 		// Get the overridden plugins if any.
 		$override_plugins = (array) get_blog_option( $blog_id, 'psts_plugins' );
+
 		// Merge new level and overridden plugins.
 		$override_plugins = array_merge( $new_level_plugins, $override_plugins );
+
 		// Get the plugins to deactivate.
 		$old_level_plugins = array_diff( $old_level_plugins, $override_plugins );
 
