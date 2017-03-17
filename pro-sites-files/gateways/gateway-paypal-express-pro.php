@@ -1383,15 +1383,18 @@ class ProSites_Gateway_PayPalExpressPro {
 	 */
 	public static function currency() {
 		global $psts;
-		//Get the general currency set in Pro Sites
-		$paypal_currency = $psts->get_setting( 'pypl_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $paypal_currency );
 
-		//Check if PayPal supports the selected currency
-		$supported = ProSites_Helper_Gateway::supports_currency( $currency, 'paypal' );
+		// Get the general currency set in Pro Sites.
+		$currency = $psts->get_setting( 'currency', 'USD' );
 
-		//Choose the selected currency
-		$sel_currency = $supported ? $currency : $psts->get_setting( 'pypl_currency' );
+		// Get the currency set in PayPal.
+		$paypal_currency = $psts->get_setting( 'pypl_currency', $currency );
+
+		// Check if PayPal supports the selected currency.
+		$supported = ProSites_Helper_Gateway::supports_currency( $paypal_currency, 'paypal' );
+
+		// Choose the selected currency.
+		$sel_currency = $supported ? $paypal_currency : 'USD';
 
 		return $sel_currency;
 	}
