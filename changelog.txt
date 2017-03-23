@@ -12,6 +12,7 @@ Change Log:
     - Checkout url should be default to current page ssl
     - Make maximum coupon discount $0.01 to avoid breaking checkout
     - Confusing text in Setup Fee tooltip
+    - Allow to set checkout page as home page
 
 3.5.5 - 06/19/2016 - Umesh Kumar
 
