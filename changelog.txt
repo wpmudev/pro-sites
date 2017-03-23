@@ -14,6 +14,7 @@ Change Log:
     - Confusing text in Setup Fee tooltip
     - Allow to set checkout page as home page
     - Unable to change PayPal currency.
+    - Create checkout page if rebranding text is updated
 
 3.5.5 - 06/19/2016 - Umesh Kumar
 

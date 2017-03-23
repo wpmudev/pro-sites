@@ -1131,12 +1131,15 @@ Thanks!", 'psts' ),
 		//default brand title
 		$default_title = $this->get_default_settings_array();
 		$default_title = $default_title['rebrand'];
+		$rebranded_title = $this->get_setting( 'rebrand', $default_title );
+
 		//insert new page if not existing
 		switch_to_blog( $checkout_site );
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
-		if ( ! $page || $page->post_status == 'trashed' ) {
+
+		if ( ! $page || $page->post_status == 'trashed' || $page->post_title != $rebranded_title ) {
 			$id = wp_insert_post( array(
-				'post_title'     => $this->get_setting( 'rebrand', $default_title ),
+				'post_title'     => $rebranded_title,
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
 				'comment_status' => 'closed',
@@ -1146,6 +1149,11 @@ Thanks!", 'psts' ),
 			$this->update_setting( 'checkout_page', $id );
 			$url = get_permalink( $id );
 			$this->update_setting( 'checkout_url', $url );
+
+			//Delete the existing page
+			if( !empty( $page ) ) {
+			    wp_delete_post( $page->ID, true );
+			}
 		} else {
 			$url = get_permalink( $this->get_setting( 'checkout_page' ) );
 			$this->update_setting( 'checkout_url', $url );
