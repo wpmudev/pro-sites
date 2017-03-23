@@ -1385,9 +1385,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		global $psts;
 
 		// Get the general currency set in Pro Sites.
-		$currency = $psts->get_setting( 'currency', 'USD' );
-
-		return $currency;
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 
 	public static function get_free_trial_desc() {
@@ -2030,7 +2028,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
 					<td>
 						<p>
-							<strong><?php echo self::get_supported_currencies(self::currency())[0]; ?></strong> &ndash;
+							<strong><?php echo self::currency(); ?></strong> &ndash;
 							<span class="description"><?php printf( __( 'Currency can be changed from <a href="%s">global currency settings.</a>', 'psts' ), network_admin_url('admin.php?page=psts-settings&tab=payment')); ?></span>
 						</p>
 					</td>

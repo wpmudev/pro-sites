@@ -226,9 +226,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		// Get the general currency set in Pro Sites.
-		$currency = $psts->get_setting( 'currency', 'USD' );
-
-		return $currency;
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 
 	/**
