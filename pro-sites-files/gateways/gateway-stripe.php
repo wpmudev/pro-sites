@@ -217,8 +217,8 @@ class ProSites_Gateway_Stripe {
 	/**
 	 * Get the currency to use for Stripe transactions.
 	 *
-	 * At all stages attempt to use the Site Currency and ultimately fallback to the Stripe currency set in the gateway
-	 * settings. Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
+	 * At all stages use the Site Currency settings.
+	 * Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
 	 *
 	 * @return mixed|void
 	 */
@@ -227,8 +227,6 @@ class ProSites_Gateway_Stripe {
 
 		// Get the general currency set in Pro Sites.
 		$currency = $psts->get_setting( 'currency', 'USD' );
-		// Check if Stripe supports the selected currency.
-		$currency = ProSites_Helper_Gateway::supports_currency( $currency, 'stripe' ) ? $currency : 'USD';
 
 		return $currency;
 	}
