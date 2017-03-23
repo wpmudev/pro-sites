@@ -225,9 +225,10 @@ class ProSites_Gateway_Stripe {
 	public static function currency() {
 		global $psts;
 
-		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $stripe_currency );
-		$currency        = ProSites_Helper_Gateway::supports_currency( $currency, 'stripe' ) ? $currency : $stripe_currency;
+		// Get the general currency set in Pro Sites.
+		$currency = $psts->get_setting( 'currency', 'USD' );
+		// Check if Stripe supports the selected currency.
+		$currency = ProSites_Helper_Gateway::supports_currency( $currency, 'stripe' ) ? $currency : 'USD';
 
 		return $currency;
 	}
@@ -3293,31 +3294,10 @@ class ProSites_Gateway_Stripe {
 					<th scope="row"
 					    class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ); ?></th>
 					<td>
-						<select name="psts[stripe_currency]" class="chosen">
-							<?php
-							// https://support.stripe.com/questions/which-currencies-does-stripe-support
-							$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
-							$currencies   = array(
-								"AUD" => 'AUD - Australian Dollar',
-								"CAD" => 'CAD - Canadian Dollar',
-								"EUR" => 'EUR - Euro',
-								"GBP" => 'GBP - Pounds Sterling',
-								"USD" => 'USD - U.S. Dollar',
-								"DKK" => 'DKK - Danish Krone',
-								"NOK" => 'NOK - Norwegian Krone',
-								"SEK" => 'SEK - Swedish Krona',
-								"JPY" => 'JPY - Japanese Yen (Private BETA)',
-								"MXN" => 'MXN - Mexican Peso (Private BETA)',
-								"SGD" => 'SGD - Singapore Dollar (Private BETA)',
-								"CHF" => 'CHF - Swiss Franc (Private BETA)',
-							);
-
-							foreach ( $currencies as $k => $v ) {
-								echo '<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
-							}
-							?>
-						</select>
-
+						<p>
+							<strong><?php echo self::currency(); ?></strong> &ndash;
+							<span class="description"><?php printf( __( 'Currency can be changed from <a href="%s">global currency settings.</a>', 'psts' ), network_admin_url('admin.php?page=psts-settings&tab=payment')); ?></span>
+						</p>
 						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
 						<p class="description">
 							<strong><?php _e( 'For zero decimal currencies like Japanese Yen, minimum plan cost should be greater than 50 Cents equivalent.', 'psts' ); ?></strong>
