@@ -1176,8 +1176,14 @@ Thanks!", 'psts' ),
 			return;
 		}
 
-		// using get_queried_object_id() causes child forums in bbpress to give 404 results.
-		$queried_object_id = intval( isset( $query->queried_object_id ) ? $query->queried_object_id : 0 );
+		//Get the id of the current item
+		$queried_object_id = 0;
+		if( !empty( $query->queried_object_id ) ) {
+		    $queried_object_id = intval( $query->queried_object_id );
+		}elseif( $page_id = $query->get('page_id') ) {
+		    //Check if page id is set
+		    $queried_object_id = intval( $page_id );
+		}
 
 		//check if on checkout page or exit
 		if ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) {
