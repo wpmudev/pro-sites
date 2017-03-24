@@ -312,11 +312,19 @@ jQuery(document).ready(function($){
         feature_description += '<div class="edit-box" style="display:none">';
         feature_description += '<textarea class="editor" name="psts[feature_table][' + key + '][description]">' + description + '</textarea><br />';
         feature_description += '<span><a class="save-link">' + save_action + '</a> <a style="margin-left: 10px;" class="reset-link">' + reset_action + '</a></span></div>';
-        feature_description += '<input type="hidden" value="' + description + '" />'
+        feature_description += '<input type="hidden" value="' + description + '" />';
 
-        var feature_indicator = '<td scope="row" class="level-settings">'
+        var feature_indicator = '<td scope="row" class="level-settings">';
+		
+		//interface fix for rtl languages
+		var rtl;
+		if ( is_rtl = true ){
+			rtl = " chosen-rtl";
+		}else{
+			rtl = "";
+		}
         for( var i = 1; i <= levels ; i++ ) {
-            feature_indicator += '<select class="chosen" name="psts[feature_table][' + key + '][levels][' + i + '][status]">';
+            feature_indicator += '<select class="chosen '+rtl+'" name="psts[feature_table][' + key + '][levels][' + i + '][status]">';
             feature_indicator += '<option value="tick">&#x2713;</option>';
             feature_indicator += '<option value="cross">&#x2718;</option>';
             feature_indicator += '<option value="none">' + none_label + '</option>';
