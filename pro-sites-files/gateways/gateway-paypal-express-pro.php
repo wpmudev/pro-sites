@@ -521,7 +521,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			//prepare vars
 			$currency = self::currency();
 
-			$is_trial = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+			$is_trial = $psts->is_trial_allowed( $blog_id );
 
 			$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
 
@@ -832,7 +832,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Upgrade
 				if ( $modify ) {
 
-					$is_trial = $psts->is_trial_allowed( $blog_id, $_POST['level'] );
+					$is_trial = $psts->is_trial_allowed( $blog_id );
 					//! create the recurring profile
 					$resArray = PaypalApiHelper::CreateRecurringPaymentsProfileExpress( $_GET['token'], $paymentAmount, $_POST['period'], $desc, $blog_id, $_POST['level'], $modify, $activation_key, '', $tax_amt_payment, $is_trial );
 					if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
@@ -1383,15 +1383,18 @@ class ProSites_Gateway_PayPalExpressPro {
 	 */
 	public static function currency() {
 		global $psts;
-		//Get the general currency set in Pro Sites
-		$paypal_currency = $psts->get_setting( 'pypl_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $paypal_currency );
 
-		//Check if PayPal supports the selected currency
-		$supported = ProSites_Helper_Gateway::supports_currency( $currency, 'paypal' );
+		// Get the general currency set in Pro Sites.
+		$currency = $psts->get_setting( 'currency', 'USD' );
 
-		//Choose the selected currency
-		$sel_currency = $supported ? $currency : $psts->get_setting( 'pypl_currency' );
+		// Get the currency set in PayPal.
+		$paypal_currency = $psts->get_setting( 'pypl_currency', $currency );
+
+		// Check if PayPal supports the selected currency.
+		$supported = ProSites_Helper_Gateway::supports_currency( $paypal_currency, 'paypal' );
+
+		// Choose the selected currency.
+		$sel_currency = $supported ? $paypal_currency : 'USD';
 
 		return $sel_currency;
 	}

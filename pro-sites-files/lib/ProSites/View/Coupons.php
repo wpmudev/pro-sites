@@ -150,7 +150,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				$total       = ( is_array( $coupon_list ) ) ? count( $coupon_list ) : 0;
 
 				if ( ! empty( $total ) ) {
-					$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ) );
+					$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ), true );
 				}
 
 				$request = remove_query_arg( 'apage' );
