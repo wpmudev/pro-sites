@@ -55,7 +55,7 @@ class ProSites_Module_PostingQuota {
 				<tr valign="top">
 					<th scope="row" class="pro-site-level psts-quota-prosite-level"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to remove quotas', 'psts' ) ); ?></th>
 					<td>
-						<select name="psts[pq_level]" class="chosen">
+						<select name="psts[pq_level]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							$levels = (array) get_site_option( 'psts_levels' );
 							foreach ( $levels as $level => $value ) {
@@ -84,7 +84,7 @@ class ProSites_Module_PostingQuota {
 						<tr>
 							<td><?php printf( __( 'Publish Limit', 'psts' ), $post_type->label ); ?></td>
 							<td>
-								<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen">
+								<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 									<option value="unlimited"<?php selected( $quota, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
 									<?php
 									for ( $counter = 1; $counter <= 1000; $counter ++ ) {
