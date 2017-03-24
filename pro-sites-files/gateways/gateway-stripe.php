@@ -708,9 +708,6 @@ class ProSites_Gateway_Stripe {
 						break;
 					}
 				}
-				echo "<pre>Invoice Object";
-				print_r( $invoice_object );
-				echo "</pre>";
 			} catch ( Exception $e ) {
 				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
 			}
@@ -2297,7 +2294,7 @@ class ProSites_Gateway_Stripe {
 				}
 
 				// If this is a trial before the subscription starts
-				if ( $psts->is_trial_allowed( $blog_id, $_POST['level'] ) ) {
+				if ( $psts->is_trial_allowed( $blog_id ) ) {
 					if ( isset( $process_data['new_blog_details'] ) || ! $psts->is_existing( $blog_id ) ) {
 						//customer is new - add trial days
 						$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
@@ -3189,8 +3186,7 @@ class ProSites_Gateway_Stripe {
 
 				//Set trial if enabled
 				$trial_days  = $psts->get_setting( 'trial_days', 0 );
-				$trial_level = $psts->get_setting( 'trial_level', false );
-				if ( $trial_days && $prosite->level == $trial_level ) {
+				if ( $trial_days ) {
 					$args["trial_end"] = $prosite->expire;
 				}
 
@@ -3263,7 +3259,7 @@ class ProSites_Gateway_Stripe {
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Stripe Mode', 'psts' ) ?></th>
 					<td>
-						<select name="psts[stripe_ssl]" class="chosen">
+						<select name="psts[stripe_ssl]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<option
 								value="1"<?php selected( $psts->get_setting( 'stripe_ssl' ), 1 ); ?>><?php _e( 'Force SSL (Live Site)', 'psts' ) ?></option>
 							<option
@@ -3297,7 +3293,7 @@ class ProSites_Gateway_Stripe {
 					<th scope="row"
 					    class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ); ?></th>
 					<td>
-						<select name="psts[stripe_currency]" class="chosen">
+						<select name="psts[stripe_currency]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							// https://support.stripe.com/questions/which-currencies-does-stripe-support
 							$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );

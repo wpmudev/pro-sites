@@ -62,7 +62,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 				<tr>
 					<th scope="row"><?php _e( 'Primary gateway', 'psts' ); ?></th>
 					<td>
-						<select name="psts[gateway_pref_primary]" class="chosen">
+						<select name="psts[gateway_pref_primary]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							$setting = 'gateway_pref_primary';
 							echo self::gateway_input_options( $active_gateways, $setting );
@@ -75,7 +75,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 				<tr>
 					<th scope="row"><?php _e( 'Secondary gateway', 'psts' ); ?></th>
 					<td>
-						<select name="psts[gateway_pref_secondary]" class="chosen">
+						<select name="psts[gateway_pref_secondary]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							$setting = 'gateway_pref_secondary';
 							echo self::gateway_input_options( $active_gateways, $setting, true );

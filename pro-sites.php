@@ -329,7 +329,6 @@ class ProSites {
 			'multiple_signup'          => 1,
 			'free_name'                => __( 'Free', 'psts' ),
 			'free_msg'                 => __( 'No thank you, I will continue with a basic site for now', 'psts' ),
-			'trial_level'              => 1,
 			'trial_days'               => get_site_option( "supporter_free_days" ),
 			'trial_message'            => __( 'You have DAYS days left in your LEVEL free trial. Checkout now to prevent losing LEVEL features &raquo;', 'psts' ),
 			'cancel_message'           => __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ),
@@ -669,9 +668,10 @@ Thanks!", 'psts' ),
 
 	function trial_extend( $blog_id ) {
 		$trial_days = $this->get_setting( 'trial_days' );
+		$level = !empty( $_POST['level'] ) ? intval( $_POST['level'] ) : 1;
 		if ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
-			$this->extend( $blog_id, $extend, 'trial', $this->get_setting( 'trial_level', 1 ) );
+			$this->extend( $blog_id, $extend, 'trial', $level );
 		}
 	}
 
@@ -697,7 +697,7 @@ Thanks!", 'psts' ),
 
 			if ( $expire ) {
 				$days   = round( ( $expire - time() ) / 86400 ); //calculate days left rounded
-				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_setting( 'trial_level', 1 ), 'name' ), $this->get_setting( 'trial_message' ) );
+				$notice = str_replace( 'LEVEL', $this->get_level_setting( $this->get_level($blog_id), 'name' ), $this->get_setting( 'trial_message' ) );
 				$notice = str_replace( 'DAYS', $days, $notice );
 				echo '
 					<div class="update-nag">
@@ -1131,12 +1131,15 @@ Thanks!", 'psts' ),
 		//default brand title
 		$default_title = $this->get_default_settings_array();
 		$default_title = $default_title['rebrand'];
+		$rebranded_title = $this->get_setting( 'rebrand', $default_title );
+
 		//insert new page if not existing
 		switch_to_blog( $checkout_site );
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
-		if ( ! $page || $page->post_status == 'trashed' ) {
+
+		if ( ! $page || $page->post_status == 'trashed' || $page->post_title != $rebranded_title ) {
 			$id = wp_insert_post( array(
-				'post_title'     => $this->get_setting( 'rebrand', $default_title ),
+				'post_title'     => $rebranded_title,
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
 				'comment_status' => 'closed',
@@ -1146,6 +1149,11 @@ Thanks!", 'psts' ),
 			$this->update_setting( 'checkout_page', $id );
 			$url = get_permalink( $id );
 			$this->update_setting( 'checkout_url', $url );
+
+			//Delete the existing page
+			if( !empty( $page ) ) {
+			    wp_delete_post( $page->ID, true );
+			}
 		} else {
 			$url = get_permalink( $this->get_setting( 'checkout_page' ) );
 			$this->update_setting( 'checkout_url', $url );
@@ -1176,8 +1184,14 @@ Thanks!", 'psts' ),
 			return;
 		}
 
-		// using get_queried_object_id() causes child forums in bbpress to give 404 results.
-		$queried_object_id = intval( isset( $query->queried_object_id ) ? $query->queried_object_id : 0 );
+		//Get the id of the current item
+		$queried_object_id = 0;
+		if( !empty( $query->queried_object_id ) ) {
+		    $queried_object_id = intval( $query->queried_object_id );
+		}elseif( $page_id = $query->get('page_id') ) {
+		    //Check if page id is set
+		    $queried_object_id = intval( $page_id );
+		}
 
 		//check if on checkout page or exit
 		if ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) {
@@ -2955,14 +2969,19 @@ _gaq.push(["_trackTrans"]);
 			$blog_id = (int) $result['blog_id'];
 		}
 
-		if ( $blog_id ) { ?>
-			<h3><?php _e( 'Manage Site', 'psts' ) ?>
-			<?php
-			if ( $name = get_blog_option( $blog_id, 'blogname' ) ) {
+		if ( $blog_id ) {
+		    //Get blog details
+		    $blog = get_blog_details( $blog_id ); ?>
+			<h3><?php _e( 'Manage Site', 'psts' );
+			if ( $name = !empty( $blog->blogname ) ? $blog->blogname : get_blog_option( $blog_id, 'blogname' ) ) {
 				echo ': ' . $name . ' (Blog ID: ' . $blog_id . ')';
 			}
 
 			echo '</h3>';
+
+			if( !empty( $blog ) && !empty( $blog->siteurl ) ) {
+			    echo esc_html__("Blog URL: ") . make_clickable( $blog->siteurl );
+			}
 
 			$levels        = (array) get_site_option( 'psts_levels' );
 			$current_level = $this->get_level( $blog_id );
@@ -3754,7 +3773,7 @@ function admin_levels() {
 			$error[] = __( 'Please enter a valid level name.', 'psts' );
 		}
 
-		if ( empty( $_POST['add_price_1'] ) && empty( $_POST['add_price_3'] ) && empty( $_POST['add_price_12'] ) ) {
+		if ( ! is_numeric( $_POST['add_price_1'] ) && ! is_numeric( $_POST['add_price_3'] ) && ! is_numeric( $_POST['add_price_12'] ) ) {
 			$error[] = __( 'You must enter a price for at least one payment period.', 'psts' );
 		}
 
@@ -4409,19 +4428,12 @@ function admin_modules() {
 	 * @return bool
 	 */
 
-	function is_trial_allowed( $blog_id, $level = '' ) {
+	function is_trial_allowed( $blog_id ) {
 
 		$trial_days = $this->get_setting( 'trial_days', 0 );
 
-		$trial_level = $this->get_setting( 'trial_level' );
-
 		//If Trial is not set
 		if ( $trial_days == 0 ) {
-			return false;
-		}
-
-		//If the selected level is not same as allowed trial level
-		if( !empty( $level ) && $trial_level != $level ) {
 			return false;
 		}
 
@@ -5026,7 +5038,7 @@ function admin_modules() {
 
 		//Set Trial
 		if ( $trial ) {
-			$this->extend( $result['blog_id'], $period, 'trial', $this->get_setting( 'trial_level', $level ), '', strtotime( '+ ' . $trial_days . ' days' ) );
+			$this->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 			//Redirect to checkout on next signup
 			update_blog_option( $result['blog_id'], 'psts_signed_up', 1 );
@@ -5426,4 +5438,29 @@ function supporter_get_expire( $blog_id = false ) {
 	global $psts;
 
 	return $psts->get_expire( $blog_id );
+}
+
+
+/**
+* Javascript and CSS for rtl languages
+*/
+add_action('admin_head','chosen_rtl_script');
+function chosen_rtl_script(){
+	var  is_rtl = false;
+	if ( is_rtl() ){ ?>
+		<script>
+            jQuery(document).ready(function($){
+                $(".chosen").addClass('chosen-rtl');
+				is_rtl = true;
+            });
+        </script>
+        <style>
+            .chosen{
+                text-align: right;
+                clear: right;
+				direction: rtl;
+            }
+        </style>
+    <?php
+    }
 }
