@@ -2011,7 +2011,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Site', 'psts' ) ?></th>
-					<td><select name="psts[pypl_site]" class="chosen">
+					<td><select name="psts[pypl_site]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<?php
 							$paypal_site = $psts->get_setting( 'pypl_site' );
 							$sel_locale  = empty( $paypal_site ) ? 'US' : $paypal_site;
@@ -2035,7 +2035,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
-					<td><select name="psts[pypl_status]" class="chosen">
+					<td><select name="psts[pypl_status]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
 							<option
 								value="live"<?php selected( $psts->get_setting( 'pypl_status' ), 'live' ); ?>><?php _e( 'Live Site', 'psts' ) ?></option>
 							<option
