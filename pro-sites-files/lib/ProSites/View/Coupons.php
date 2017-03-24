@@ -431,7 +431,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 											       style="text-transform: uppercase;"/>
 										</td>
 										<td>
-											<select name="lifetime" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+											<select name="lifetime" class="chosen">
 												<option
 													value="first"<?php selected( $coupon_life, 'first' ) ?>><?php esc_html_e( 'First payment' ); ?></option>
 												<option
@@ -441,7 +441,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 										<td>
 											<input value="<?php echo $discount; ?>" size="3" name="discount"
 											       type="text"/>
-											<select name="discount_type" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?> narrow">
+											<select name="discount_type" class="chosen narrow">
 												<option
 													value="amt"<?php selected( $discount_type, 'amt' ) ?>><?php echo $psts->format_currency(); ?></option>
 												<option value="pct"<?php selected( $discount_type, 'pct' ) ?>>%</option>
@@ -456,7 +456,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 											       type="text"/>
 										</td>
 										<td>
-											<select name="level" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+											<select name="level" class="chosen">
 												<option value="0"><?php _e( 'Any Level', 'psts' ) ?></option>
 												<?php
 												foreach ( $levels as $key => $value ) {
@@ -470,7 +470,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 										if ( ! empty( $periods ) ) {
 											?>
 											<td>
-												<select name="valid_for_period[]" multiple class="psts-period chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>"
+												<select name="valid_for_period[]" multiple class="psts-period chosen"
 												        data-placeholder="Select Period">
 													<option
 														value="0" <?php echo in_array( 0, $valid_for_period ) ? 'selected' : ''; ?>><?php _e( 'Any Period', 'psts' ) ?></option>
