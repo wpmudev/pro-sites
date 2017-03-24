@@ -458,7 +458,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					return '';
 				}
 				$content = '<div class="period-selector"><div class="heading">' . esc_html( $plan_text['payment_type'] ) . '</div>
-				<select class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">';
+				<select class="chosen">';
 				if ( in_array( 1, $active_periods ) ) {
 					$content .= '<option value="price_1" ' . selected( self::$default_period, 'price_1', false ) . '>' . esc_html( $payment_type['price_1'] ) . '</option>';
 				}

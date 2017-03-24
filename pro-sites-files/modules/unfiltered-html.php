@@ -87,7 +87,7 @@ class ProSites_Module_UnfilterHtml {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-unfilter-level"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to enable unfiltered html.', 'psts' ) ); ?></th>
 						<td>
-							<select name="psts[uh_level]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+							<select name="psts[uh_level]" class="chosen">
 								<?php
 								foreach ( $levels as $level => $value ) {
 									?>

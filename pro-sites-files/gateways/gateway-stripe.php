@@ -3256,7 +3256,7 @@ class ProSites_Gateway_Stripe {
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Stripe Mode', 'psts' ) ?></th>
 					<td>
-						<select name="psts[stripe_ssl]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+						<select name="psts[stripe_ssl]" class="chosen">
 							<option
 								value="1"<?php selected( $psts->get_setting( 'stripe_ssl' ), 1 ); ?>><?php _e( 'Force SSL (Live Site)', 'psts' ) ?></option>
 							<option

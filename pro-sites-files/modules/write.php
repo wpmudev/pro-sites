@@ -71,7 +71,7 @@ class ProSites_Module_Writing {
 					<tr valign="top">
 						<th scope="row" class="psts-help-div psts-limit-prolevel"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to enable publishing posts or pages.', 'psts' ) ); ?></th>
 						<td>
-							<select name="psts[publishing_level]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+							<select name="psts[publishing_level]" class="chosen">
 								<?php
 								foreach ( $levels as $level => $value ) {
 									?>
