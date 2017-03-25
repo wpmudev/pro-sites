@@ -436,7 +436,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 
 
 			//build args
-			$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express/Pro Gateway";
+			$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express Gateway";
 			$args['body']        = $query_string;
 			$args['sslverify']   = false; //many servers don't have an updated CA bundle
 			$args['timeout']     = 60;
