@@ -8,6 +8,7 @@ Change Log:
 3.6 - 04/10/2017
 
 *Fixed:
+	- PayPal Pro option hidden from new websites until a newer version of PayPal Pro can be integrated
     - Updated Pay to blog is_pro_site check
     - Checkout url should be default to current page ssl
     - Make maximum coupon discount $0.01 to avoid breaking checkout
