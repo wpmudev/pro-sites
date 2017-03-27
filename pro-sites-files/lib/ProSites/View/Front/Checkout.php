@@ -20,18 +20,18 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 
 			// Reposition coupon based on option
-			$coupons_enabled        = $psts->get_setting( 'coupons_enabled' );
-			$coupons_enabled        = 'enabled' === $coupons_enabled ? true : false;
-			$pt_pos                 = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
+			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
+			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
+			$pt_pos          = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
 
 			// Are the tables enabled?
-			$plans_table_enabled    = $psts->get_setting( 'plans_table_enabled', 'enabled' );
-			$plans_table_enabled    = 'enabled' === $plans_table_enabled ? true : false;
+			$plans_table_enabled = $psts->get_setting( 'plans_table_enabled', 'enabled' );
+			$plans_table_enabled = 'enabled' === $plans_table_enabled ? true : false;
 
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
 			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
-			if( 'option2' == $pt_pos  && $plans_table_enabled && $coupons_enabled ) {
+			if ( 'option2' == $pt_pos && $plans_table_enabled && $coupons_enabled ) {
 				//If Coupons are enabled and set to show at the bottom OR
 				//If feature column is not enabled, show coupon at the bottom
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
@@ -122,8 +122,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$total_columns = count( $columns ) - 1;
 			}
 
-			$total_width = 100.0;
-			$total_width -= 6.0; // account for extra space around featured plan
+			$total_width   = 100.0;
+			$total_width   -= 6.0; // account for extra space around featured plan
 			$column_width  = $total_width / $total_columns;
 			$column_width  = ! empty( $column_width ) ? number_format( $column_width, 1 ) : $column_width;
 			$feature_width = $column_width + 6.0;
@@ -144,7 +144,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				// Remove the 0 column
 				$override = '';
 				if ( empty( $level_id ) ) {
-					$override = $show_first_column ? '' : ' hidden';
+					$override  = $show_first_column ? '' : ' hidden';
 					$col_class .= ' ' . $override;
 					//continue;
 				}
@@ -154,7 +154,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					if ( empty( $column['title'] ) ) {
 						//Add No summary class for feature section styling
 						$no_summary = empty( $column['summary'] ) ? ' no-summary' : '';
-						$content .= '<li class="title no-title' . $no_summary . '"></li>';
+						$content    .= '<li class="title no-title' . $no_summary . '"></li>';
 					} else {
 						$content .= '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
 					}
@@ -221,8 +221,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$allow_free = $psts->get_setting( 'free_signup' );
 			$style      = $total_columns > 1 ? 'margin-left: ' . $column_width . '%; ' : 'top: 18px; margin-bottom: 15px;';
-			$style .= $total_columns > 1 ? 'width: ' . ( 100 - $column_width ) . '%; ' : '';
-			$content = apply_filters( 'psts_checkout_before_free', $content, $blog_id, $style );
+			$style      .= $total_columns > 1 ? 'width: ' . ( 100 - $column_width ) . '%; ' : '';
+			$content    = apply_filters( 'psts_checkout_before_free', $content, $blog_id, $style );
 			if ( $allow_free ) {
 				$content .= self::render_free( $style, $blog_id );
 			}
@@ -294,19 +294,19 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				if ( $show_periods ) {
 					$columns[ $col_count ]['title']   = '';
 					$columns[ $col_count ]['summary'] = self::get_header_details();
-					$col_count += 1;
+					$col_count                        += 1;
 				} else {
 					if ( $show_features ) {
 						$columns[ $col_count ]['title']   = '';
 						$columns[ $col_count ]['summary'] = '';
-						$col_count += 1;
+						$col_count                        += 1;
 					}
 				}
 
 				foreach ( $pricing_levels_order as $level ) {
 					$columns[ $col_count ]             = self::get_header_details( $level );
 					$columns[ $col_count ]['level_id'] = $level;
-					$col_count += 1;
+					$col_count                         += 1;
 				}
 			}
 			$enabled_modules = $psts->get_setting( 'modules_enabled', array() );
@@ -320,19 +320,19 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 			}
 			//If there are any modules to compare
-			if ( $show_features && $show_table && ( count( $enabled_modules ) > 0 || ! empty( $feature_table[ 'feature_order' ] ) ) ) {
+			if ( $show_features && $show_table && ( count( $enabled_modules ) > 0 || ! empty( $feature_table['feature_order'] ) ) ) {
 				// Set first row
 				$col_count                          = 0;
 				$row_count                          = 0;
 				$columns[ $col_count ]['alt']       = $row_count % 2 != 0;
 				$columns[ $col_count ]['sub_title'] = __( 'Compare Features', 'psts' );
 				$columns[ $col_count ]['features']  = array();
-				$col_count += 1;
+				$col_count                          += 1;
 				foreach ( $pricing_levels_order as $level ) {
 					$columns[ $col_count ]['alt']       = $row_count % 2 != 0;
 					$columns[ $col_count ]['sub_title'] = '';
 					$columns[ $col_count ]['features']  = array();
-					$col_count += 1;
+					$col_count                          += 1;
 				}
 				$row_count += 1;
 
@@ -353,13 +353,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$col_count                                           = 0;
 					$columns[ $col_count ]['features'][ $index ]['name'] = $feature_table[ $feature_key ]['description'];
 					$columns[ $col_count ]['features'][ $index ]['alt']  = $row_count % 2 != 0;
-					$col_count += 1;
+					$col_count                                           += 1;
 
 					foreach ( $pricing_levels_order as $level ) {
 						$columns[ $col_count ]['features'][ $index ]['indicator'] = self::get_feature_indicator( $feature_table[ $feature_key ], $level );
 						$columns[ $col_count ]['features'][ $index ]['text']      = isset( $feature_table[ $feature_key ]['levels'][ $level ] ) ? $feature_table[ $feature_key ]['levels'][ $level ]['text'] : '';
 						$columns[ $col_count ]['features'][ $index ]['alt']       = $row_count % 2 != 0;
-						$col_count += 1;
+						$col_count                                                += 1;
 					}
 
 					$row_count += 1;
@@ -374,7 +374,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					if ( $show_periods || $show_features ) {
 						$columns[ $col_count ]['button'] = '';
-						$col_count += 1;
+						$col_count                       += 1;
 					}
 
 					foreach ( $pricing_levels_order as $level ) {
@@ -497,11 +497,23 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$level_details['featured'] = apply_filters( 'prosites_pricing_level_featured', $level_details['featured'], $level );
 
 				$setup_msg = '';
-				if ( ! empty( $setup_fee_amount ) ) {
+				$display_setup_fee = false;
+
+				//Check if we need to display for upgrades or not
+				$apply_setup_fee_upgrade = $psts->get_setting( 'apply_setup_fee_upgrade', false );
+				if ( is_user_logged_in() && $apply_setup_fee_upgrade ) {
+					$display_setup_fee = true;
+				} elseif ( ! is_user_logged_in() ) {
+					//For new users
+					$display_setup_fee = true;
+				}
+
+				//If there is a setup fee and it is suppose to be displayed
+				if ( ! empty( $setup_fee_amount ) && $display_setup_fee ) {
 					$setup_fee       = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
 					$setup_fee_plain = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount, true );
 					$setup_msg       = '<div class="setup-fee">' . sprintf( $plan_text['setup'], $setup_fee ) . '</div>';
-					$setup_msg .= '<div class="price-plain hidden setup-fee-plain">' . $setup_fee_plain . '</div>';
+					$setup_msg       .= '<div class="price-plain hidden setup-fee-plain">' . $setup_fee_plain . '</div>';
 				}
 
 				$level_details['breakdown']   = array();
@@ -547,9 +559,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					if ( count( $active_periods ) == 1 ) {
 						$period_content .= '<div class="hidden" name="single_period">' . $create_hidden . '</div>';
 					}
-					$period_content .= '</div>';
+					$period_content                            .= '</div>';
 					$level_details['breakdown'][ $period_key ] = str_replace( 'hide', '', $period_content );
-					$content .= $period_content;
+					$content                                   .= $period_content;
 
 					$monthly_price = $level_list[ $level ]['price_1'];
 
@@ -560,8 +572,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$calculated_saving    = ProSites_Helper_UI::rich_currency_format( $difference );
 					$formatted_calculated = '<div class="monthly-price original-amount">' . $calculated_monthly . '</div>';
 					$formatted_calculated .= '<div class="monthly-price-hidden hidden">' . $calculated_monthly . '</div>';
-					$formatted_savings = '<div class="savings-price original-amount">' . $calculated_saving . '</div>';
-					$formatted_savings .= '<div class="savings-price-hidden hidden">' . $calculated_saving . '</div>';
+					$formatted_savings    = '<div class="savings-price original-amount">' . $calculated_saving . '</div>';
+					$formatted_savings    .= '<div class="savings-price-hidden hidden">' . $calculated_saving . '</div>';
 
 					$summary_msg = sprintf( $plan_text['monthly'] );
 
@@ -834,8 +846,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$content .= '</tr>';
 			}
 
-			$column_keys = !empty( $columns ) ?  array_keys( $columns[0] ) : '';
-			$add_coupon  = !empty( $column_keys ) ? in_array( 'coupon', $column_keys ) : false;
+			$column_keys = ! empty( $columns ) ? array_keys( $columns[0] ) : '';
+			$add_coupon  = ! empty( $column_keys ) ? in_array( 'coupon', $column_keys ) : false;
 			if ( $add_coupon ) {
 				$content .= '<tr>';
 				$content .= '<td colspan="' . ( count( $periods ) + 1 ) . '">';
@@ -853,7 +865,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$allow_free = $psts->get_setting( 'free_signup' );
 			$content    = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
 			if ( $allow_free ) {
-				$style = 'width: ' . $free_width . '; ';
+				$style   = 'width: ' . $free_width . '; ';
 				$content .= self::render_free( $style, $blog_id );
 			}
 			$content = apply_filters( 'psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width );
