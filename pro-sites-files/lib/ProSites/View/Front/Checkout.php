@@ -497,19 +497,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$level_details['featured'] = apply_filters( 'prosites_pricing_level_featured', $level_details['featured'], $level );
 
 				$setup_msg = '';
-				$display_setup_fee = false;
 
-				//Check if we need to display for upgrades or not
-				$apply_setup_fee_upgrade = $psts->get_setting( 'apply_setup_fee_upgrade', false );
-				if ( is_user_logged_in() && $apply_setup_fee_upgrade ) {
-					$display_setup_fee = true;
-				} elseif ( ! is_user_logged_in() ) {
-					//For new users
-					$display_setup_fee = true;
-				}
+				$show_setup_fee = self::show_setup_fee( $setup_fee_amount );
 
 				//If there is a setup fee and it is suppose to be displayed
-				if ( ! empty( $setup_fee_amount ) && $display_setup_fee ) {
+				if ( $show_setup_fee ) {
 					$setup_fee       = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
 					$setup_fee_plain = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount, true );
 					$setup_msg       = '<div class="setup-fee">' . sprintf( $plan_text['setup'], $setup_fee ) . '</div>';
@@ -929,6 +921,47 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 
 			return $content;
+		}
+
+
+		/**
+		 * Whether to display setup fee in pricing table
+		 *
+		 * @param $setup_fee_amount
+		 *
+		 * @return bool
+		 */
+		static function show_setup_fee( $setup_fee_amount ) {
+
+			//If there is no setup fee
+			if( empty( $setup_fee_amount ) ) {
+				return false;
+			}
+
+			global $psts;
+			$display_setup_fee = false;
+
+			//Check if we need to display for upgrades or not
+			$apply_setup_fee_upgrade = $psts->get_setting( 'apply_setup_fee_upgrade', false );
+
+			//Check if blog id is set
+			$blog_id = ! empty( $_GET['bid'] );
+
+			//If user is logged in 1. Another Blog, 2. Upgrade the existing blog
+			if ( is_user_logged_in() ) {
+				//If there is blog id -> Upgrade Page
+				if ( $blog_id && $apply_setup_fee_upgrade ) {
+					$display_setup_fee = true;
+				} elseif ( ! empty( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) {
+					//For setting up a new blog
+					$display_setup_fee = true;
+				}
+			} elseif ( ! is_user_logged_in() ) {
+				//For new users
+				$display_setup_fee = true;
+			}
+
+			return $display_setup_fee;
 		}
 
 	}
