@@ -155,7 +155,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 						           style="font-weight:normal; color:#888; "><?php _e( 'Select how the gateways will be shown.', 'psts' ) ?></span>
 					</th>
 					<td>
-						<select name="psts[pricing_gateways_style]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+						<select name="psts[pricing_gateways_style]" class="chosen">
 							<option
 								value="tabbed"<?php selected( $pricing_gateways_style, 'tabbed' ) ?>><?php _e( 'Tabbed layout', 'psts' ) ?></option>
 							<option
@@ -605,7 +605,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 																}
 																?>
 																<!-- Change name... -->
-																<select class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>"
+																<select class="chosen"
 																        name="psts[feature_table][<?php echo $key; ?>][levels][<?php echo $level_id; ?>][status]"
 																        data-level="level-<?php echo $level_id; ?>[status]">
 																	<?php
@@ -638,7 +638,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 																?>
 
-																<select class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>"
+																<select class="chosen"
 																        name="psts[feature_table][<?php echo $key; ?>][levels][<?php echo $level_id; ?>][status][selection]">
 																	<?php
 																	$value     = $setting['levels'][ $level_id ]['status']['value'];
@@ -680,7 +680,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 														}
 
 														?>
-														<select class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>"
+														<select class="chosen"
 														        name="psts[feature_table][<?php echo $key; ?>][active]">
 															<?php
 															echo $option;
