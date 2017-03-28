@@ -231,7 +231,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"
 						    class="psts-free-trial psts-help-div"><?php echo __( 'Free Trial', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Free days for all new sites', 'psts' ) ); ?></th>
-						<td><select name="psts[trial_days]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+						<td><select name="psts[trial_days]" class="chosen">
 								<?php
 								$trial_days         = $psts->get_setting( 'trial_days' );
 								$trial_days_options = '';
@@ -248,26 +248,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-						    class="psts-free-trial-level psts-help-div"><?php echo __( 'Free Trial Level', 'psts' ) . ProSites_Helper_UI::help_text( __( 'The level assigned to new Trials', 'psts' ) ); ?></th>
-						<td><select name="psts[trial_level]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
-								<?php
-								$trial_level      = $psts->get_setting( 'trial_level', 1 );
-								$trial_days_level = '';
-
-								$levels = ( array ) get_site_option( 'psts_levels' );
-								foreach ( $levels as $key => $level ) {
-									$trial_days_level .= '<option value="' . $key . '"' . ( $key == $trial_level ? ' selected' : '' ) . '>' . $level['name'] . '</option>' . "\n";
-								}
-
-								//allow plugins to modify the trial days options (some people want to display as years, more than one year, etc)
-								echo apply_filters( 'psts_trial_days_level', $trial_days_level );
-								?>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"
-						    class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
+                            class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[trial_message]" id="trial_message"
 							       value="<?php esc_attr_e( $psts->get_setting( 'trial_message' ) ); ?>"
@@ -318,7 +299,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Google Analytics Ecommerce Tracking', 'psts' ) ?></th>
 						<td>
-							<select name="psts[ga_ecommerce]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>">
+							<select name="psts[ga_ecommerce]" class="chosen">
 								<option
 									value="none"<?php selected( $psts->get_setting( 'ga_ecommerce' ), 'none' ) ?>><?php _e( 'None', 'psts' ) ?></option>
 								<option
@@ -481,7 +462,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'Currency', 'psts' ); ?><?php echo $psts->help_text( esc_html__( 'This is the currency that customers will be charged in. Your gateway currency is a fall-back option.', 'psts' ), 'site-currency' ); ?></th>
 						<td>
-							<select id="psts-currency-select" name="psts[currency]" class="chosen <?php if ( is_rtl() ) echo "chosen-rtl"; ?>"
+							<select id="psts-currency-select" name="psts[currency]" class="chosen"
 							        data-placeholder="<?php echo esc_attr__( 'Enable gateways', 'psts' ); ?>">
 								<?php
 								$super    = array(

@@ -5439,28 +5439,3 @@ function supporter_get_expire( $blog_id = false ) {
 
 	return $psts->get_expire( $blog_id );
 }
-
-
-/**
-* Javascript and CSS for rtl languages
-*/
-add_action('admin_head','chosen_rtl_script');
-function chosen_rtl_script(){
-	var  is_rtl = false;
-	if ( is_rtl() ){ ?>
-		<script>
-            jQuery(document).ready(function($){
-                $(".chosen").addClass('chosen-rtl');
-				is_rtl = true;
-            });
-        </script>
-        <style>
-            .chosen{
-                text-align: right;
-                clear: right;
-				direction: rtl;
-            }
-        </style>
-    <?php
-    }
-}
