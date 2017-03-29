@@ -5300,6 +5300,7 @@ function admin_modules() {
 		}
 
 		$allow_new_blog = ProSites_Helper_ProSite::allow_new_blog();
+
 		//Check if multiple signups are allowed for blog, return the value in that case
 		if( $allow_new_blog ) {
 			return $value;
