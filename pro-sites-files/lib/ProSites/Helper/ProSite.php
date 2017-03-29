@@ -269,13 +269,17 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			if ( ! is_user_logged_in() ) {
 				return true;
 			}
+
 			//If we are here -> No Multiple blog
 			//count number of blogs
 			$count = get_blogs_of_user( get_current_user_id(), false );
+			$count = is_array( $count ) ? sizeof( $count ) : $count;
 			if ( $count > 1 ) {
 				//If count is greater than 1, don't allow new blogs
 				return false;
 			}
+
+			return true;
 		}
 
 		/**
