@@ -201,10 +201,13 @@ class ProSites {
 		// Take action when a gateway changes
 		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
-                // Delete blog
-                add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+		// Delete blog
+		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
 
 		$this->setup_ajax_hooks();
+
+		// Add checkout page shortcode.
+		add_shortcode( 'psts_checkout', array( $this, 'checkout_page_load' ) );
 
 		$this->errors = new WP_Error();
 
@@ -1186,15 +1189,18 @@ Thanks!", 'psts' ),
 
 		//Get the id of the current item
 		$queried_object_id = 0;
-		if( !empty( $query->queried_object_id ) ) {
-		    $queried_object_id = intval( $query->queried_object_id );
-		}elseif( $page_id = $query->get('page_id') ) {
-		    //Check if page id is set
-		    $queried_object_id = intval( $page_id );
-		}
+		// Get current queried object id, only if it is a valid WP_Query object.
+		if ( ! empty( $query ) && $query instanceof WP_Query ) {
+			if( ! empty( $query->queried_object_id ) ) {
+				$queried_object_id = intval( $query->queried_object_id );
+			} elseif( $page_id = $query->get('page_id') ) {
+				//Check if page id is set
+				$queried_object_id = intval( $page_id );
+			}
+        }
 
-		//check if on checkout page or exit
-		if ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) {
+		// Check if on checkout page or shortcode available, else exit.
+		if ( ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) && ! shortcode_exists( 'psts_checkout' ) ) {
 
 			return;
 		}
