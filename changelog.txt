@@ -5,25 +5,26 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.6 - 04/10/2017
+3.5.5 - 04/10/2017
+
+*Added:
+    - Allow trial for all levels
 
 *Fixed:
-    - Updated Pay to blog is_pro_site check
-    - Checkout url should be default to current page ssl
-    - Make maximum coupon discount $0.01 to avoid breaking checkout
-    - Confusing text in Setup Fee tooltip
-    - Allow to set checkout page as home page
-    - Unable to change PayPal currency.
-    - Create checkout page if rebranding text is updated
+    - Checkout: Url should be default to current page ssl
+    - Coupons: Make maximum coupon discount $0.01 to avoid breaking checkout
+    - Checkout: Allow to set checkout page as home page
     - Checkout page doesn't appears for a logged in user with no existing blog, if multiple blog signup is kept off
-
-3.5.5 - 06/19/2016 - Umesh Kumar
-
-*Fixed:
-    - Stripe: Set trial for the specified level only while manually extending site
+    - Checkout: Feature names not appearing
+    - Checkout: Update checkout page if rebranding text is updated
+    - Gateway Settings: Gateway list not being generated if a registered external gateway is not available
+    - Pay to Blog: Updated Pay to blog is_pro_site check
     - Paypal: Paypal Pro wasn't creating pro sites
     - Paypal: Possible fix for sites not being assigned Pro Site status sometimes
-    - Gateway Settings: Gateway list not being generated if a registered external gateway is not available
+    - Paypal: Unable to change PayPal currency.
+    - Settings: Confusing text in Setup Fee tooltip
+    - Stripe: Email not sent after checkout
+    - Stripe: Set trial for the specified level only while manually extending site
 
 3.5.4 - 05/08/2016 - Umesh Kumar
 
