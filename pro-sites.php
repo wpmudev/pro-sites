@@ -206,9 +206,6 @@ class ProSites {
 
 		$this->setup_ajax_hooks();
 
-		// Add checkout page shortcode.
-		add_shortcode( 'psts_checkout', array( $this, 'checkout_page_load' ) );
-
 		$this->errors = new WP_Error();
 
 	}
@@ -1189,18 +1186,15 @@ Thanks!", 'psts' ),
 
 		//Get the id of the current item
 		$queried_object_id = 0;
-		// Get current queried object id, only if it is a valid WP_Query object.
-		if ( ! empty( $query ) && $query instanceof WP_Query ) {
-			if( ! empty( $query->queried_object_id ) ) {
-				$queried_object_id = intval( $query->queried_object_id );
-			} elseif( $page_id = $query->get('page_id') ) {
-				//Check if page id is set
-				$queried_object_id = intval( $page_id );
-			}
-        }
+		if( !empty( $query->queried_object_id ) ) {
+		    $queried_object_id = intval( $query->queried_object_id );
+		}elseif( $page_id = $query->get('page_id') ) {
+		    //Check if page id is set
+		    $queried_object_id = intval( $page_id );
+		}
 
-		// Check if on checkout page or shortcode available, else exit.
-		if ( ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) && ! shortcode_exists( 'psts_checkout' ) ) {
+		//check if on checkout page or exit
+		if ( ! $this->get_setting( 'checkout_page' ) || $queried_object_id != $this->get_setting( 'checkout_page' ) ) {
 
 			return;
 		}

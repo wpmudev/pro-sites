@@ -1864,15 +1864,6 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 
-		$error_messages = $psts->errors->get_error_messages();
-		if( count( $error_messages ) > 0 ) {
-			$content .= '<div id="psts-stripe-error-messages" class="psts-warning"><ul>';
-			foreach ( $error_messages as $error_message) {
-				$content .= '<li>'.$error_message.'</li>';
-			}
-			$content .= '</ul></div>';
-		}
-
 		//if existing customer, offer ability to checkout using saved credit card info
 		if ( isset( $customer_object ) ) {
 			$card_object = self::get_default_card( $customer_object );
