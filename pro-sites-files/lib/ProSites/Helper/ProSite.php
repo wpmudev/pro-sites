@@ -269,14 +269,60 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			if ( ! is_user_logged_in() ) {
 				return true;
 			}
-			//If we are here -> No Multiple blog
-			//count number of blogs
-			$count = get_blogs_of_user( get_current_user_id(), false );
-			if ( $count > 1 ) {
-				//If count is greater than 1, don't allow new blogs
-				return false;
-			}
+            
+            if( defined( 'PSTS_ALLOW_MULTIPLE_BLOGS_AS_ADMIN' ) && PSTS_ALLOW_MULTIPLE_BLOGS_AS_ADMIN )
+            {
+                $user_id = get_current_user_id();
+                $blogs = self::get_user_blogs_by_role( $user_id, 'administrator' );
+                if( count( $blogs ) == 0 ) return true;
+                return false;
+            }
+            else
+            {
+                //If we are here -> No Multiple blog
+                //count number of blogs
+                $count = get_blogs_of_user( get_current_user_id(), false );
+                if ( $count > 1 ) {
+                    //If count is greater than 1, don't allow new blogs
+                    return false;
+                }
+                return true;
+            }
 		}
+        
+         /**
+          * Get blogs where the user has he given code
+          *
+          * @see http://wordpress.stackexchange.com/questions/72116/how-can-i-display-all-multisite-blogs-where-this-user-is-administrator
+          *
+          * @param int $user_id
+          * @param string $role
+          * 
+          * @return array
+          */
+        public static function get_user_blogs_by_role( $user_id, $role )
+        {
+            $out   = array ();
+            $regex = '~' . $GLOBALS['wpdb']->base_prefix . '(\d+)_capabilities~';
+            $meta  = get_user_meta( $user_id );
+    
+            if ( ! $meta )
+                return array ();
+    
+            foreach ( $meta as $key => $value )
+            {
+                if ( preg_match( $regex, $key, $matches ) )
+                {
+                    $roles = maybe_unserialize( $meta[$key][0] );
+    
+                    // the number is a string
+                    if ( isset ( $roles[$role] ) and 1 === (int) $roles[$role] )
+                        $out[] = $matches[1];
+                }
+            }
+    
+            return $out;
+        }
 
 		/**
 		 * Fetch the Gateway Name for the given blog id
