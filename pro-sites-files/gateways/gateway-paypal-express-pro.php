@@ -1038,7 +1038,6 @@ class ProSites_Gateway_PayPalExpressPro {
 					'state'      => __( 'Please enter your billing State/Province.', 'psts' ),
 					'zip'        => __( 'Please enter your billing Zip/Postal Code.', 'psts' ),
 					'country'    => __( 'Please enter your billing Country.', 'psts' )
-
 				);
 
 				//clean up $_POST

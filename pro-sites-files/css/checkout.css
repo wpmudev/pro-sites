@@ -565,8 +565,13 @@ ul.pricing-column li, .pricing-column ul li {
 }
 
 .feature-content .feature-name {
-    /*font-size: 17px;*/
     text-align: center;
+    font-weight: 600;
+}
+
+.feature-content .feature-description {
+    text-align: center;
+    font-size: 13px;
 }
 
 li.summary {

@@ -1565,7 +1565,7 @@ class ProSites_Gateway_Stripe {
 				/* blog has already been extended by another webhook within the past
 					 5 minutes - don't extend again, but send receipt if its a payment */
 				if ( $is_payment ) {
-					//$psts->email_notification( $blog_id, 'receipt', false, $args );
+					$psts->email_notification( $blog_id, 'receipt', false, $args );
 				}
 
 				return false;
@@ -1576,7 +1576,7 @@ class ProSites_Gateway_Stripe {
 
 		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
 		if ( $is_payment ) {
-			//$psts->email_notification( $blog_id, 'receipt', false, $args );
+			$psts->email_notification( $blog_id, 'receipt', false, $args );
 		}
 
 		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
@@ -2517,7 +2517,7 @@ class ProSites_Gateway_Stripe {
 
 					if ( ! empty( $expire ) ) {
 						//Extend the Blog Subscription
-						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, false, $recurring );
+						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, true, $recurring );
 					}
 					//$psts->email_notification( $blog_id, 'receipt' );
 
