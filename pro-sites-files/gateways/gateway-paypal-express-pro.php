@@ -1384,18 +1384,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		global $psts;
 
 		// Get the general currency set in Pro Sites.
-		$currency = $psts->get_setting( 'currency', 'USD' );
-
-		// Get the currency set in PayPal.
-		$paypal_currency = $psts->get_setting( 'pypl_currency', $currency );
-
-		// Check if PayPal supports the selected currency.
-		$supported = ProSites_Helper_Gateway::supports_currency( $paypal_currency, 'paypal' );
-
-		// Choose the selected currency.
-		$sel_currency = $supported ? $paypal_currency : 'USD';
-
-		return $sel_currency;
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 
 	public static function get_free_trial_desc() {
@@ -2036,18 +2025,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
-					<?php
-					$sel_currency = self::currency();
-
-					//List of currencies
-					$supported_currencies = self::get_supported_currencies(); ?>
-					<td><select name="psts[pypl_currency]" class="chosen">
-							<?php
-							foreach ( $supported_currencies as $k => $v ) {
-								echo '<option value="' . $k . '"' . selected( $k, $sel_currency, false ) . '>' . esc_attr( $v[0] ) . '</option>' . "\n";
-							}
-							?>
-						</select></td>
+					<td>
+						<p>
+							<strong><?php echo self::currency(); ?></strong> &ndash;
+							<span class="description"><?php printf( __( 'Currency can be changed from <a href="%s">global currency settings.</a>', 'psts' ), network_admin_url('admin.php?page=psts-settings&tab=payment')); ?></span>
+						</p>
+					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
