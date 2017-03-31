@@ -22,6 +22,7 @@ Change Log:
     - Paypal: Paypal Pro wasn't creating pro sites
     - Paypal: Possible fix for sites not being assigned Pro Site status sometimes
     - Paypal: Unable to change PayPal currency.
+    - Signup: Wrong login password for manual payments
     - Settings: Confusing text in Setup Fee tooltip
     - Stripe: Email not sent after checkout
     - Stripe: Set trial for the specified level only while manually extending site
