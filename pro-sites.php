@@ -5282,6 +5282,9 @@ function admin_modules() {
 		//Check meta
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
 		$this->record_transaction( $blog_id, 'manual', $amount );
+
+		//Update password, because a new one is generated during wpmu_activate_signup().
+		wp_set_password( $password, $user_id );
 	}
 
 	/**
