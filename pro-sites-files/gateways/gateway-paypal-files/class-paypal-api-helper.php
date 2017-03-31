@@ -434,7 +434,6 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			//NVPRequest for submitting to server
 			$query_string = "METHOD=" . urlencode( $methodName ) . "&VERSION=63.0&PWD=" . urlencode( $psts->get_setting( 'pypl_api_pass' ) ) . "&USER=" . urlencode( $psts->get_setting( 'pypl_api_user' ) ) . "&SIGNATURE=" . urlencode( $psts->get_setting( 'pypl_api_sig' ) ) . $nvpStr;
 
-
 			//build args
 			$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express Gateway";
 			$args['body']        = $query_string;
