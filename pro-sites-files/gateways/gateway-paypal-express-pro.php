@@ -2028,7 +2028,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					<td>
 						<p>
 							<strong><?php echo self::currency(); ?></strong> &ndash;
-							<span class="description"><?php printf( __( 'Currency can be changed from <a href="%s">global currency settings.</a>', 'psts' ), network_admin_url('admin.php?page=psts-settings&tab=payment')); ?></span>
+                            <span class="description"><?php printf( __( '<a href="%s">Change Currency</a>', 'psts' ), network_admin_url( 'admin.php?page=psts-settings&tab=payment' ) ); ?></span>
 						</p>
 					</td>
 				</tr>

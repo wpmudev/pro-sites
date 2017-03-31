@@ -2919,19 +2919,19 @@ class ProSites_Gateway_Stripe {
 			'IE' => 'Ireland',
 			'UK' => 'United Kingdom',
 			'US' => 'United States',
-			'BE' => 'Belgium (Beta)',
-			'FI' => 'Finland (Beta)',
-			'FR' => 'France (Beta)',
-			'DE' => 'Germany (Beta)',
-			'LU' => 'Luxembourg (Beta)',
-			'NL' => 'Netherlands (Beta)',
-			'ES' => 'Spain (Beta)',
-			'DK' => 'Denmark (Beta)',
-			'NO' => 'Norway (Beta)',
-			'SE' => 'Sweden (Beta)',
-			'AT' => 'Austria (Beta)',
-			'IT' => 'Italy (Beta)',
-			'CH' => 'Switzerland (Private Beta)',
+			'BE' => 'Belgium',
+			'FI' => 'Finland',
+			'FR' => 'France',
+			'DE' => 'Germany',
+			'LU' => 'Luxembourg',
+			'NL' => 'Netherlands',
+			'ES' => 'Spain',
+			'DK' => 'Denmark',
+			'NO' => 'Norway',
+			'SE' => 'Sweden',
+			'AT' => 'Austria',
+			'IT' => 'Italy',
+			'CH' => 'Switzerland',
 		);
 	}
 
@@ -3292,7 +3292,7 @@ class ProSites_Gateway_Stripe {
 					<td>
 						<p>
 							<strong><?php echo self::currency(); ?></strong> &ndash;
-							<span class="description"><?php printf( __( 'Currency can be changed from <a href="%s">global currency settings.</a>', 'psts' ), network_admin_url('admin.php?page=psts-settings&tab=payment')); ?></span>
+                            <span class="description"><?php printf( __( '<a href="%s">Change Currency</a>', 'psts' ), network_admin_url( 'admin.php?page=psts-settings&tab=payment' ) ); ?></span>
 						</p>
 						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
 						<p class="description">
