@@ -7,7 +7,7 @@ Pro Sites (Gateway: Paypal Express/Pro Payment Gateway)
 class ProSites_Gateway_PayPalExpressPro {
 
 	public static $pending_str = array();
-	private static $complete_message = false;
+	private static $complete_message = true;
 	private static $cancel_message = false;
 
 	function __construct() {
@@ -1724,7 +1724,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		//Check if its a recurring subscription or not
 		$is_recurring      = $psts->is_blog_recurring( $blog_id );
 		$args['recurring'] = $is_recurring;
-
 		//if Payment was successful display a complete message
 		if ( self::$complete_message ) {
 			$content = '<div id="psts-complete-msg">' . self::$complete_message . '</div>';

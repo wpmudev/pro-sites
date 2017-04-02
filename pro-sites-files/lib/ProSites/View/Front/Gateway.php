@@ -677,6 +677,14 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
+			// Notifications
+			$gateways        = ProSites_Helper_Gateway::get_gateways();
+			$gateway_details = self::get_gateway_details( $gateways );
+			$info_retrieved  = call_user_func( $gateways[$gateway_details['primary']]['class'] . '::get_existing_user_information', $blog_id, $domain, false );
+			if ( ! empty( $info_retrieved['thanks_message'] ) ) {
+				$content .= $info_retrieved['thanks_message'];
+			}
+
 			if ( ! $show_trial ) {
 				$content .= '<p>' . esc_html__( 'Your payment is being processed and you should soon receive an email with your site details.', 'psts' ) . '</p>';
 			} else {
