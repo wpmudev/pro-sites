@@ -184,6 +184,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						if ( ! empty( $feature['name'] ) ) {
 							$content .= '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
 						}
+						if ( ! empty( $feature['description'] ) ) {
+							$content .= '<div class="feature-description">' . ProSites::filter_html( $feature['description'] ) . '</div>';
+						}
 						if ( ! empty( $feature['indicator'] ) ) {
 							$content .= '<div class="feature-indicator">' . ProSites::filter_html( $feature['indicator'] ) . '</div>';
 						}
@@ -351,7 +354,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					}
 
 					$col_count                                           = 0;
-					$columns[ $col_count ]['features'][ $index ]['name'] = $feature_table[ $feature_key ]['description'];
+					$columns[ $col_count ]['features'][ $index ]['name'] = $feature_table[ $feature_key ]['name'];
+					$columns[ $col_count ]['features'][ $index ]['description'] = $feature_table[ $feature_key ]['description'];
 					$columns[ $col_count ]['features'][ $index ]['alt']  = $row_count % 2 != 0;
 					$col_count                                           += 1;
 

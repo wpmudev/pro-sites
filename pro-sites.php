@@ -201,8 +201,8 @@ class ProSites {
 		// Take action when a gateway changes
 		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
-                // Delete blog
-                add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+		// Delete blog
+		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
 
 		$this->setup_ajax_hooks();
 
@@ -1540,7 +1540,9 @@ Thanks!", 'psts' ),
 				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
+				ob_start();
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $this->pdf_receipt( $e['msg'] ) );
+				ob_end_clean();
 
 				$this->log_action( $blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 				break;
@@ -5280,6 +5282,9 @@ function admin_modules() {
 		//Check meta
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
 		$this->record_transaction( $blog_id, 'manual', $amount );
+
+		//Update password, because a new one is generated during wpmu_activate_signup().
+		wp_set_password( $password, $user_id );
 	}
 
 	/**
