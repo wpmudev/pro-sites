@@ -7,7 +7,7 @@ Pro Sites (Gateway: Paypal Express/Pro Payment Gateway)
 class ProSites_Gateway_PayPalExpressPro {
 
 	public static $pending_str = array();
-	private static $complete_message = true;
+	private static $complete_message = false;
 	private static $cancel_message = false;
 
 	function __construct() {

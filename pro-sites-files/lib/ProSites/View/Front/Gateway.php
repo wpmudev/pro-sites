@@ -680,6 +680,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			// Notifications
 			$gateways        = ProSites_Helper_Gateway::get_gateways();
 			$gateway_details = self::get_gateway_details( $gateways );
+			if ( empty( $domain ) ) {
+				$domain = '';
+			}
 			$info_retrieved  = call_user_func( $gateways[$gateway_details['primary']]['class'] . '::get_existing_user_information', $blog_id, $domain, false );
 			if ( ! empty( $info_retrieved['thanks_message'] ) ) {
 				$content .= $info_retrieved['thanks_message'];
