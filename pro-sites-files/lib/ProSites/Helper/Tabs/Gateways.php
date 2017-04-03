@@ -54,7 +54,7 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 //					),
 //				) ),
 				'paypal' => array_merge( $section_options, array(
-					'title' => __( 'PayPal Express/Pro', 'psts' ),
+					'title' => __( 'PayPal Express', 'psts' ),
 					'desc'               => array(
 						__( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts' ),
 					),

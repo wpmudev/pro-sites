@@ -11,6 +11,7 @@ Change Log:
     - Allow trial for all levels
 
 *Fixed:
+    - PayPal Pro option hidden from new websites until a newer version of PayPal Pro can be integrated
     - Checkout: Url should be default to current page ssl
     - Coupons: Make maximum coupon discount $0.01 to avoid breaking checkout
     - Checkout: Allow to set checkout page as home page
