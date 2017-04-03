@@ -599,6 +599,11 @@ Thanks!", 'psts' ),
 			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
 		}
 
+		// If upgrading from a version lesser than or equal to 3.5.4 display options for Paypal pro, otherwise hide them
+		if ( $this->get_setting( 'version' ) && version_compare( $this->get_setting( 'version' ), '3.5.4', '<=' ) ) {
+			$this->update_setting( 'display_paypal_pro_option', true );
+		}
+
 		$this->update_setting( 'version', $this->version );
 	}
 
