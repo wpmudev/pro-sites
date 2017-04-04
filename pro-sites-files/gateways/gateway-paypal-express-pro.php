@@ -144,7 +144,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 	public static function get_name() {
 		return array(
-			'paypal' => __( 'PayPal Express/Pro', 'psts' ),
+			'paypal' => __( 'PayPal Express', 'psts' ),
 		);
 	}
 
@@ -1038,7 +1038,6 @@ class ProSites_Gateway_PayPalExpressPro {
 					'state'      => __( 'Please enter your billing State/Province.', 'psts' ),
 					'zip'        => __( 'Please enter your billing Zip/Postal Code.', 'psts' ),
 					'country'    => __( 'Please enter your billing Country.', 'psts' )
-
 				);
 
 				//clean up $_POST
@@ -1385,18 +1384,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		global $psts;
 
 		// Get the general currency set in Pro Sites.
-		$currency = $psts->get_setting( 'currency', 'USD' );
-
-		// Get the currency set in PayPal.
-		$paypal_currency = $psts->get_setting( 'pypl_currency', $currency );
-
-		// Check if PayPal supports the selected currency.
-		$supported = ProSites_Helper_Gateway::supports_currency( $paypal_currency, 'paypal' );
-
-		// Choose the selected currency.
-		$sel_currency = $supported ? $paypal_currency : 'USD';
-
-		return $sel_currency;
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 
 	public static function get_free_trial_desc() {
@@ -2013,6 +2001,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 	function settings() {
 		global $psts;
+		$display_paypal_pro_option = $psts->get_setting('display_paypal_pro_option', false);
 		?>
 		<div class="inside">
 			<p><?php _e( 'Unlike PayPal Pro, there are no additional fees to use Express Checkout, though you may need to do a free upgrade to a business account. <a target="_blank" href="https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted">More Info &raquo;</a>', 'psts' ); ?></p>
@@ -2036,18 +2025,12 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Paypal Currency', 'psts' ) ?></th>
-					<?php
-					$sel_currency = self::currency();
-
-					//List of currencies
-					$supported_currencies = self::get_supported_currencies(); ?>
-					<td><select name="psts[pypl_currency]" class="chosen">
-							<?php
-							foreach ( $supported_currencies as $k => $v ) {
-								echo '<option value="' . $k . '"' . selected( $k, $sel_currency, false ) . '>' . esc_attr( $v[0] ) . '</option>' . "\n";
-							}
-							?>
-						</select></td>
+					<td>
+						<p>
+							<strong><?php echo self::currency(); ?></strong> &ndash;
+                            <span class="description"><?php printf( __( '<a href="%s">Change Currency</a>', 'psts' ), network_admin_url( 'admin.php?page=psts-settings&tab=payment' ) ); ?></span>
+						</p>
+					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'PayPal Mode', 'psts' ) ?></th>
@@ -2081,26 +2064,29 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							</label></p>
 					</td>
 				</tr>
-				<th scope="row"><?php _e( 'Enable PayPal Pro', 'psts' ) ?></th>
-				<td>
-					<span
-						class="description"><?php _e( 'PayPal Website Payments Pro 3.0 allows you to seemlessly accept credit cards on your site, and gives you the most professional look with a widely accepted payment method. There are a few requirements you must meet to use PayPal Website Payments Pro:', 'psts' ) ?></span>
-					<ul style="list-style:disc outside none;margin-left:25px;">
-						<li><?php _e( 'You must signup (and pay the monthly fees) for <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_wp-pro-overview-outside" target="_blank">PayPal Website Payments Pro</a>. Note this uses the older Website Payments Pro 3.0 API, you will have to contact PayPal and have them manually setup or create a new account that supports Website Payments Pro 3.0', 'psts' ) ?></li>
-						<li><?php _e( 'You must signup (and pay the monthly fees) for the <a href="https://www.paypal.com/cgi-bin/webscr?cmd=xpt/Marketing/general/ProRecurringPayments-outside" target="_blank">PayPal Website Payments Pro Recurring Payments addon</a>.', 'psts' ) ?></li>
-						<li><?php _e( 'You must have an SSL certificate setup for your main blog/site where the checkout form will be displayed.', 'psts' ) ?></li>
-						<li><?php _e( 'You additionaly must be <a href="https://www.paypal.com/pcicompliance" target="_blank">PCI compliant</a>, which means your server must meet security requirements for collecting and transmitting payment data.', 'psts' ) ?></li>
-						<li><?php _e( 'The checkout form will be added to a page on your main site. You may need to adjust your theme stylesheet for it to look nice with your theme.', 'psts' ) ?></li>
-						<li><?php _e( 'Due to PayPal policies, PayPal Express will always be offered in addition to credit card payments.', 'psts' ) ?></li>
-						<li><?php _e( 'Be aware that PayPal Website Payments Pro only supports PayPal accounts in select countries.', 'psts' ) ?></li>
-						<li><?php _e( 'Tip: When testing you will need to setup a preconfigured Website Payments Pro seller account in your sandbox.', 'psts' ) ?></li>
-					</ul>
-					<label><input type="checkbox" name="psts[pypl_enable_pro]"
-					              value="1"<?php echo checked( $psts->get_setting( "pypl_enable_pro" ), 1 ); ?> /> <?php _e( 'Enable PayPal Pro', 'psts' ) ?>
-						<br/>
-					</label>
-				</td>
-				</tr>
+				<?php if($display_paypal_pro_option): ?>
+					<tr>
+						<th scope="row"><?php _e( 'Enable PayPal Pro', 'psts' ) ?></th>
+						<td>
+							<span
+								class="description"><?php _e( 'PayPal Website Payments Pro 3.0 allows you to seemlessly accept credit cards on your site, and gives you the most professional look with a widely accepted payment method. There are a few requirements you must meet to use PayPal Website Payments Pro:', 'psts' ) ?></span>
+							<ul style="list-style:disc outside none;margin-left:25px;">
+								<li><?php _e( 'You must signup (and pay the monthly fees) for <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_wp-pro-overview-outside" target="_blank">PayPal Website Payments Pro</a>. Note this uses the older Website Payments Pro 3.0 API, you will have to contact PayPal and have them manually setup or create a new account that supports Website Payments Pro 3.0', 'psts' ) ?></li>
+								<li><?php _e( 'You must signup (and pay the monthly fees) for the <a href="https://www.paypal.com/cgi-bin/webscr?cmd=xpt/Marketing/general/ProRecurringPayments-outside" target="_blank">PayPal Website Payments Pro Recurring Payments addon</a>.', 'psts' ) ?></li>
+								<li><?php _e( 'You must have an SSL certificate setup for your main blog/site where the checkout form will be displayed.', 'psts' ) ?></li>
+								<li><?php _e( 'You additionaly must be <a href="https://www.paypal.com/pcicompliance" target="_blank">PCI compliant</a>, which means your server must meet security requirements for collecting and transmitting payment data.', 'psts' ) ?></li>
+								<li><?php _e( 'The checkout form will be added to a page on your main site. You may need to adjust your theme stylesheet for it to look nice with your theme.', 'psts' ) ?></li>
+								<li><?php _e( 'Due to PayPal policies, PayPal Express will always be offered in addition to credit card payments.', 'psts' ) ?></li>
+								<li><?php _e( 'Be aware that PayPal Website Payments Pro only supports PayPal accounts in select countries.', 'psts' ) ?></li>
+								<li><?php _e( 'Tip: When testing you will need to setup a preconfigured Website Payments Pro seller account in your sandbox.', 'psts' ) ?></li>
+							</ul>
+							<label><input type="checkbox" name="psts[pypl_enable_pro]"
+										  value="1"<?php echo checked( $psts->get_setting( "pypl_enable_pro" ), 1 ); ?> /> <?php _e( 'Enable PayPal Pro', 'psts' ) ?>
+								<br/>
+							</label>
+						</td>
+					</tr>
+				<?php endif; ?>
 				<tr>
 					<th scope="row"
 					    class="psts-help-div psts-paypal-header"><?php echo __( 'PayPal Header Image (optional)', 'psts' ) . $psts->help_text( __( 'https url of an 750 x 90 image displayed at the top left of the payment page. If a image is not specified, the business name is displayed.', 'psts' ) ); ?></th>
@@ -2845,7 +2831,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 					$req .= '&' . $k . '=' . urlencode( stripslashes( $v ) );
 				}
 
-				$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express/Pro Gateway";
+				$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express Gateway";
 				$args['body']        = $req;
 				$args['sslverify']   = false;
 				$args['timeout']     = 60;

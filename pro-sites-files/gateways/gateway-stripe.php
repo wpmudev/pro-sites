@@ -217,19 +217,16 @@ class ProSites_Gateway_Stripe {
 	/**
 	 * Get the currency to use for Stripe transactions.
 	 *
-	 * At all stages attempt to use the Site Currency and ultimately fallback to the Stripe currency set in the gateway
-	 * settings. Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
+	 * At all stages use the Site Currency settings.
+	 * Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
 	 *
 	 * @return mixed|void
 	 */
 	public static function currency() {
 		global $psts;
 
-		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $stripe_currency );
-		$currency        = ProSites_Helper_Gateway::supports_currency( $currency, 'stripe' ) ? $currency : $stripe_currency;
-
-		return $currency;
+		// Get the general currency set in Pro Sites.
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 
 	/**
@@ -1565,7 +1562,7 @@ class ProSites_Gateway_Stripe {
 				/* blog has already been extended by another webhook within the past
 					 5 minutes - don't extend again, but send receipt if its a payment */
 				if ( $is_payment ) {
-					//$psts->email_notification( $blog_id, 'receipt', false, $args );
+					$psts->email_notification( $blog_id, 'receipt', false, $args );
 				}
 
 				return false;
@@ -1576,7 +1573,7 @@ class ProSites_Gateway_Stripe {
 
 		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
 		if ( $is_payment ) {
-			//$psts->email_notification( $blog_id, 'receipt', false, $args );
+			$psts->email_notification( $blog_id, 'receipt', false, $args );
 		}
 
 		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
@@ -2517,7 +2514,7 @@ class ProSites_Gateway_Stripe {
 
 					if ( ! empty( $expire ) ) {
 						//Extend the Blog Subscription
-						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, false, $recurring );
+						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, true, $recurring );
 					}
 					//$psts->email_notification( $blog_id, 'receipt' );
 
@@ -2922,19 +2919,19 @@ class ProSites_Gateway_Stripe {
 			'IE' => 'Ireland',
 			'UK' => 'United Kingdom',
 			'US' => 'United States',
-			'BE' => 'Belgium (Beta)',
-			'FI' => 'Finland (Beta)',
-			'FR' => 'France (Beta)',
-			'DE' => 'Germany (Beta)',
-			'LU' => 'Luxembourg (Beta)',
-			'NL' => 'Netherlands (Beta)',
-			'ES' => 'Spain (Beta)',
-			'DK' => 'Denmark (Beta)',
-			'NO' => 'Norway (Beta)',
-			'SE' => 'Sweden (Beta)',
-			'AT' => 'Austria (Beta)',
-			'IT' => 'Italy (Beta)',
-			'CH' => 'Switzerland (Private Beta)',
+			'BE' => 'Belgium',
+			'FI' => 'Finland',
+			'FR' => 'France',
+			'DE' => 'Germany',
+			'LU' => 'Luxembourg',
+			'NL' => 'Netherlands',
+			'ES' => 'Spain',
+			'DK' => 'Denmark',
+			'NO' => 'Norway',
+			'SE' => 'Sweden',
+			'AT' => 'Austria',
+			'IT' => 'Italy',
+			'CH' => 'Switzerland',
 		);
 	}
 
@@ -3293,31 +3290,10 @@ class ProSites_Gateway_Stripe {
 					<th scope="row"
 					    class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ); ?></th>
 					<td>
-						<select name="psts[stripe_currency]" class="chosen">
-							<?php
-							// https://support.stripe.com/questions/which-currencies-does-stripe-support
-							$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
-							$currencies   = array(
-								"AUD" => 'AUD - Australian Dollar',
-								"CAD" => 'CAD - Canadian Dollar',
-								"EUR" => 'EUR - Euro',
-								"GBP" => 'GBP - Pounds Sterling',
-								"USD" => 'USD - U.S. Dollar',
-								"DKK" => 'DKK - Danish Krone',
-								"NOK" => 'NOK - Norwegian Krone',
-								"SEK" => 'SEK - Swedish Krona',
-								"JPY" => 'JPY - Japanese Yen (Private BETA)',
-								"MXN" => 'MXN - Mexican Peso (Private BETA)',
-								"SGD" => 'SGD - Singapore Dollar (Private BETA)',
-								"CHF" => 'CHF - Swiss Franc (Private BETA)',
-							);
-
-							foreach ( $currencies as $k => $v ) {
-								echo '<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
-							}
-							?>
-						</select>
-
+						<p>
+							<strong><?php echo self::currency(); ?></strong> &ndash;
+                            <span class="description"><?php printf( __( '<a href="%s">Change Currency</a>', 'psts' ), network_admin_url( 'admin.php?page=psts-settings&tab=payment' ) ); ?></span>
+						</p>
 						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
 						<p class="description">
 							<strong><?php _e( 'For zero decimal currencies like Japanese Yen, minimum plan cost should be greater than 50 Cents equivalent.', 'psts' ); ?></strong>
