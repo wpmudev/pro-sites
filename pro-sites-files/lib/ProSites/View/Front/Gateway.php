@@ -677,6 +677,26 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
+			// Notifications
+			$gateways        = ProSites_Helper_Gateway::get_gateways();
+			$gateway_details = self::get_gateway_details( $gateways );
+
+			$thank_you_message = array();
+			foreach ( array_keys( $gateways ) as $key ) {
+				if ( 'stripe' === $key ) {
+					$thank_you_message[$key] = $psts->get_setting( "stripe_thankyou" );
+				} elseif ( 'paypal' === $key ) {
+					$thank_you_message[$key] = $psts->get_setting( "pypl_thankyou" );
+				}
+			}
+
+			if ( ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, $gateway_details['primary'] ) ) {
+				$content .= '<p>' . $thank_you_message[$gateway_details['primary']] . '</p>';
+			}
+			if ( ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, $gateway_details['secondary'] ) ) {
+				$content .= '<p>' . $thank_you_message[$gateway_details['secondary']] . '</p>';
+			}
+
 			if ( ! $show_trial ) {
 				$content .= '<p>' . esc_html__( 'Your payment is being processed and you should soon receive an email with your site details.', 'psts' ) . '</p>';
 			} else {
