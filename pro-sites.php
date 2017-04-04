@@ -1343,7 +1343,7 @@ Thanks!", 'psts' ),
 			 * 1 hr = 3600 seconds
 			 * 1 day = 86400 seconds
 			 */
-			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 7200;
+			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 86400;
 
 			//Confirm the expiry from subscription
 			if( $current_expire <= time() ) {
@@ -1362,7 +1362,7 @@ Thanks!", 'psts' ),
 			if( '9999999999' == $current_expire || ( ( (int) $current_expire + $expiration_buffer ) < time() ) ) {
 
 				//fire hooks on first encounter
-				if ( get_option( 'psts_withdrawn' ) === '0' ) {
+				if ( get_blog_option( $blog_id, 'psts_withdrawn' ) === '0' ) {
 					$this->withdraw( $blog_id );
 
 					//send email

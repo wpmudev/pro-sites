@@ -26,6 +26,7 @@ Change Log:
     - Settings: Confusing text in Setup Fee tooltip
     - Stripe: Email not sent after checkout
     - Stripe: Set trial for the specified level only while manually extending site
+    - Premium Theme not disabled after subscription expiry
 
 3.5.4 - 05/08/2016 - Umesh Kumar
 
