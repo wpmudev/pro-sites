@@ -201,8 +201,8 @@ class ProSites {
 		// Take action when a gateway changes
 		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
-                // Delete blog
-                add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+		// Delete blog
+		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
 
 		$this->setup_ajax_hooks();
 
@@ -597,6 +597,11 @@ Thanks!", 'psts' ),
 		if ( version_compare( $this->get_setting( 'version' ), '3.5', '<=' ) ) {
 			// Using dbDelta above, but add other code here.
 			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
+		}
+
+		// If upgrading from a version lesser than or equal to 3.5.4 display options for Paypal pro, otherwise hide them
+		if ( $this->get_setting( 'version' ) && version_compare( $this->get_setting( 'version' ), '3.5.4', '<=' ) ) {
+			$this->update_setting( 'display_paypal_pro_option', true );
 		}
 
 		$this->update_setting( 'version', $this->version );
@@ -1343,7 +1348,7 @@ Thanks!", 'psts' ),
 			 * 1 hr = 3600 seconds
 			 * 1 day = 86400 seconds
 			 */
-			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 7200;
+			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 86400;
 
 			//Confirm the expiry from subscription
 			if( $current_expire <= time() ) {
@@ -1362,7 +1367,7 @@ Thanks!", 'psts' ),
 			if( '9999999999' == $current_expire || ( ( (int) $current_expire + $expiration_buffer ) < time() ) ) {
 
 				//fire hooks on first encounter
-				if ( get_option( 'psts_withdrawn' ) === '0' ) {
+				if ( get_blog_option( $blog_id, 'psts_withdrawn' ) === '0' ) {
 					$this->withdraw( $blog_id );
 
 					//send email
@@ -1540,7 +1545,9 @@ Thanks!", 'psts' ),
 				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
+				ob_start();
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $this->pdf_receipt( $e['msg'] ) );
+				ob_end_clean();
 
 				$this->log_action( $blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 				break;
@@ -5280,6 +5287,9 @@ function admin_modules() {
 		//Check meta
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
 		$this->record_transaction( $blog_id, 'manual', $amount );
+
+		//Update password, because a new one is generated during wpmu_activate_signup().
+		wp_set_password( $password, $user_id );
 	}
 
 	/**

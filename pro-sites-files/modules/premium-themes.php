@@ -25,22 +25,22 @@ class ProSites_Module_PremiumThemes {
 		}
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
-		if ( ! is_main_site( get_current_blog_id() ) ) {
-		add_action( 'psts_withdraw', array( &$this, 'deactivate_theme' ) );
-		add_action( 'psts_downgrade', array( &$this, 'deactivate_theme' ) );
+		if ( is_admin() || ! is_main_site( get_current_blog_id() ) ) {
+			add_action( 'psts_withdraw', array( &$this, 'deactivate_theme' ) );
+			add_action( 'psts_downgrade', array( &$this, 'deactivate_theme' ) );
 
-		add_action( 'admin_print_styles-themes.php', array( &$this, 'themes_styles' ) );
-		add_action( 'admin_footer-themes.php', array( &$this, 'themes_scripts' ) );
+			add_action( 'admin_print_styles-themes.php', array( &$this, 'themes_styles' ) );
+			add_action( 'admin_footer-themes.php', array( &$this, 'themes_scripts' ) );
 
-		add_action( 'customize_controls_print_footer_scripts', array(
+			add_action( 'customize_controls_print_footer_scripts', array(
 				&$this,
 				'customize_controls_print_footer_scripts'
 			) );
 
-		add_filter( 'theme_action_links', array( &$this, 'theme_action_links' ), 100, 2 ); // WP <= 3.7
-		add_filter( 'wp_prepare_themes_for_js', array( &$this, 'theme_action_links_js' ), 100 ); //WP >= 3.8
+			add_filter( 'theme_action_links', array( &$this, 'theme_action_links' ), 100, 2 ); // WP <= 3.7
+			add_filter( 'wp_prepare_themes_for_js', array( &$this, 'theme_action_links_js' ), 100 ); //WP >= 3.8
 
-		add_filter( 'site_option_allowedthemes', array( &$this, 'site_option_allowedthemes' ), 100 );
+			add_filter( 'site_option_allowedthemes', array( &$this, 'site_option_allowedthemes' ), 100 );
 		}
 
 		self::$user_label       = __( 'Premium Themes', 'psts' );
