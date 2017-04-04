@@ -20,18 +20,18 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 
 			// Reposition coupon based on option
-			$coupons_enabled = $psts->get_setting( 'coupons_enabled' );
-			$coupons_enabled = 'enabled' === $coupons_enabled ? true : false;
-			$pt_pos          = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
+			$coupons_enabled        = $psts->get_setting( 'coupons_enabled' );
+			$coupons_enabled        = 'enabled' === $coupons_enabled ? true : false;
+			$pt_pos                 = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
 
 			// Are the tables enabled?
-			$plans_table_enabled = $psts->get_setting( 'plans_table_enabled', 'enabled' );
-			$plans_table_enabled = 'enabled' === $plans_table_enabled ? true : false;
+			$plans_table_enabled    = $psts->get_setting( 'plans_table_enabled', 'enabled' );
+			$plans_table_enabled    = 'enabled' === $plans_table_enabled ? true : false;
 
 			$features_table_enabled = $psts->get_setting( 'comparison_table_enabled' );
 			$features_table_enabled = 'enabled' === $features_table_enabled ? true : false;
 
-			if ( 'option2' == $pt_pos && $plans_table_enabled && $coupons_enabled ) {
+			if( 'option2' == $pt_pos  && $plans_table_enabled && $coupons_enabled ) {
 				//If Coupons are enabled and set to show at the bottom OR
 				//If feature column is not enabled, show coupon at the bottom
 				add_filter( 'prosites_inner_pricing_table_post', array( get_class(), 'render_standalone_coupon' ) );
@@ -122,8 +122,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$total_columns = count( $columns ) - 1;
 			}
 
-			$total_width   = 100.0;
-			$total_width   -= 6.0; // account for extra space around featured plan
+			$total_width = 100.0;
+			$total_width -= 6.0; // account for extra space around featured plan
 			$column_width  = $total_width / $total_columns;
 			$column_width  = ! empty( $column_width ) ? number_format( $column_width, 1 ) : $column_width;
 			$feature_width = $column_width + 6.0;
@@ -144,7 +144,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				// Remove the 0 column
 				$override = '';
 				if ( empty( $level_id ) ) {
-					$override  = $show_first_column ? '' : ' hidden';
+					$override = $show_first_column ? '' : ' hidden';
 					$col_class .= ' ' . $override;
 					//continue;
 				}
@@ -154,7 +154,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					if ( empty( $column['title'] ) ) {
 						//Add No summary class for feature section styling
 						$no_summary = empty( $column['summary'] ) ? ' no-summary' : '';
-						$content    .= '<li class="title no-title' . $no_summary . '"></li>';
+						$content .= '<li class="title no-title' . $no_summary . '"></li>';
 					} else {
 						$content .= '<li class="title">' . ProSites::filter_html( $column['title'] ) . '</li>';
 					}

@@ -26,6 +26,7 @@ Change Log:
     - Paypal: Unable to change PayPal currency.
     - Signup: Wrong login password for manual payments
     - Settings: Confusing text in Setup Fee tooltip
+    - Settings: Unable to edit feature description if all text removed
     - Stripe: Email not sent after checkout
     - Stripe: Set trial for the specified level only while manually extending site
     - Premium Theme not disabled after subscription expiry

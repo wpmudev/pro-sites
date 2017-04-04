@@ -4528,7 +4528,7 @@ function admin_modules() {
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$registeration = get_site_option('registration');
@@ -5350,14 +5350,13 @@ function admin_modules() {
 		return $expiry;
 	}
 
-        public function delete_blog( $blog_id )
-        {
-                global $wpdb;
-                $main_site = defined( 'BLOG_ID_CURRENT_SITE' ) ? BLOG_ID_CURRENT_SITE : 1;
-                switch_to_blog( $main_site );
-                $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
-                restore_current_blog();
-        }
+    public function delete_blog( $blog_id ) {
+        global $wpdb;
+        $main_site = defined( 'BLOG_ID_CURRENT_SITE' ) ? BLOG_ID_CURRENT_SITE : 1;
+        switch_to_blog( $main_site );
+        $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
+        restore_current_blog();
+    }
 
 }
 
