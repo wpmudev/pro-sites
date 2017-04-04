@@ -2128,8 +2128,8 @@ class ProSites_Gateway_Stripe {
 			//If customer already exists, retrieve customer from stripe
 
 			if ( ! $customer_id ) {
-				$c = self::create_stripe_customer( $email, $site_name, $domain, $blog_id, $activation_key );
-				$new         = true;
+				$c   = self::create_stripe_customer( $email, $site_name, $domain, $blog_id, $activation_key );
+				$new = true;
 			} else {
 				// Get a customer if they exist
 				try {
