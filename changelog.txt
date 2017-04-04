@@ -18,12 +18,14 @@ Change Log:
     - Checkout: Feature names not appearing
     - Checkout: Update checkout page if rebranding text is updated
     - Checkout: Do not show trial message for free signups
+    - Checkout: Show errors on respective gateway tabs
     - Gateway: Thank you message not displayed for the gateway
     - Gateway Settings: Gateway list not being generated if a registered external gateway is not available
     - Pay to Blog: Updated Pay to blog is_pro_site check
     - Paypal: Paypal Pro wasn't creating pro sites
     - Paypal: Possible fix for sites not being assigned Pro Site status sometimes
     - Paypal: Unable to change PayPal currency.
+    - Paypal: Fatal error get_profile_id() function
     - Signup: Wrong login password for manual payments
     - Settings: Confusing text in Setup Fee tooltip
     - Settings: Unable to edit feature description if all text removed
