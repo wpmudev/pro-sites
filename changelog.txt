@@ -17,6 +17,7 @@ Change Log:
     - Checkout page doesn't appears for a logged in user with no existing blog, if multiple blog signup is kept off
     - Checkout: Feature names not appearing
     - Checkout: Update checkout page if rebranding text is updated
+    - Checkout: Do not show trial message for free signups
     - Gateway Settings: Gateway list not being generated if a registered external gateway is not available
     - Pay to Blog: Updated Pay to blog is_pro_site check
     - Paypal: Paypal Pro wasn't creating pro sites

@@ -671,10 +671,19 @@ Thanks!", 'psts' ),
 		return update_site_option( 'psts_levels', $levels );
 	}
 
+	/**
+	* Add trial days
+	*
+	* @param $blog_id
+	*/
 	function trial_extend( $blog_id ) {
 		$trial_days = $this->get_setting( 'trial_days' );
+		$free_signup = $this->get_setting( 'free_signup' );
+
 		$level = !empty( $_POST['level'] ) ? intval( $_POST['level'] ) : 1;
-		if ( $trial_days > 0 ) {
+		if( $free_signup ) {
+		    return;
+		}elseif ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
 			$this->extend( $blog_id, $extend, 'trial', $level );
 		}
