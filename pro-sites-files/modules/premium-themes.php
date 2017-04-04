@@ -25,7 +25,7 @@ class ProSites_Module_PremiumThemes {
 		}
 		add_action( 'psts_page_after_modules', array( &$this, 'plug_network_page' ) );
 
-		if ( ! is_main_site( get_current_blog_id() ) ) {
+		if ( is_admin() || ! is_main_site( get_current_blog_id() ) ) {
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_theme' ) );
 		add_action( 'psts_downgrade', array( &$this, 'deactivate_theme' ) );
 
