@@ -17,14 +17,21 @@ Change Log:
     - Checkout page doesn't appears for a logged in user with no existing blog, if multiple blog signup is kept off
     - Checkout: Feature names not appearing
     - Checkout: Update checkout page if rebranding text is updated
+    - Checkout: Do not show trial message for free signups
+    - Checkout: Show errors on respective gateway tabs
+    - Gateway: Thank you message not displayed for the gateway
     - Gateway Settings: Gateway list not being generated if a registered external gateway is not available
     - Pay to Blog: Updated Pay to blog is_pro_site check
     - Paypal: Paypal Pro wasn't creating pro sites
     - Paypal: Possible fix for sites not being assigned Pro Site status sometimes
     - Paypal: Unable to change PayPal currency.
+    - Paypal: Fatal error get_profile_id() function
+    - Signup: Wrong login password for manual payments
     - Settings: Confusing text in Setup Fee tooltip
+    - Settings: Unable to edit feature description if all text removed
     - Stripe: Email not sent after checkout
     - Stripe: Set trial for the specified level only while manually extending site
+    - Premium Theme not disabled after subscription expiry
 
 3.5.4 - 05/08/2016 - Umesh Kumar
 

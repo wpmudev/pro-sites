@@ -140,7 +140,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				}
 
 				//if editing a coupon
-				$new_coupon_code = isset ( $_GET['code'] ) ? $_GET['code'] : '';
+				$new_coupon_code = isset ( $_GET['code'] ) ? sanitize_text_field ( $_GET['code'] ) : '';
 
 				$apage = isset( $_GET['apage'] ) ? intval( $_GET['apage'] ) : 1;
 				$num   = isset( $_GET['num'] ) ? intval( $_GET['num'] ) : 20;

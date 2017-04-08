@@ -235,7 +235,7 @@ class ProSites_Module_BulkUpgrades {
 
 	public static function user_profile_update() {
 		global $current_user;
-		$user_id = $_REQUEST['user_id'];
+		$user_id = (int) $_REQUEST['user_id'];
 
 		if ( is_super_admin() && isset( $_POST['psts_credits'] ) ) {
 			self::credit_credits( $user_id, intval( $_POST['psts_credits'] ) );
@@ -256,7 +256,7 @@ class ProSites_Module_BulkUpgrades {
 		}
 
 		if ( isset( $_REQUEST['user_id'] ) ) {
-			$user_id = $_REQUEST['user_id'];
+			$user_id = (int) $_REQUEST['user_id'];
 		} else {
 			$user_id = $current_user->ID;
 		}
@@ -747,7 +747,7 @@ class ProSites_Module_BulkUpgrades {
 
 		if ( isset( $_GET['msg'] ) ) {
 			?>
-			<div id="message" class="updated fade"><p><?php echo urldecode( $_GET['msg'] ); ?></p></div><?php
+			<div id="message" class="updated fade"><p><?php echo esc_html( urldecode( $_GET['msg'] ) ); ?></p></div><?php
 		}
 
 		//handle adding new blogs

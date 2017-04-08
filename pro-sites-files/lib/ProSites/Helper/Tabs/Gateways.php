@@ -46,15 +46,8 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 					),
 					'class' => 'prosites-gateway-pref',
 				) ),
-//				'twocheckout' => array_merge( $section_options, array(
-//					'title' => __( '2Checkout', 'psts' ),
-//					'desc'               => array(
-//						__( "Accept Credit Cards, PayPal, and Debit Cards", 'psts' ) .
-//						' <a href="https://www.2checkout.com" target="_blank">' . __( 'More Info &raquo;', 'psts' ) . '</a>',
-//					),
-//				) ),
 				'paypal' => array_merge( $section_options, array(
-					'title' => __( 'PayPal Express/Pro', 'psts' ),
+					'title' => __( 'PayPal Express', 'psts' ),
 					'desc'               => array(
 						__( 'Express Checkout is PayPal\'s premier checkout solution, which streamlines the checkout process for buyers and keeps them on your site after making a purchase.', 'psts' ),
 					),
@@ -83,7 +76,6 @@ if ( ! class_exists( 'ProSites_Helper_Tabs_Gateways' ) ) {
 				);
 			}
 
-//			$tabs = self::remove_disabled_module_tabs( $tabs );
 			return apply_filters( 'prosites_gateways_tabs', $tabs );
 
 		}

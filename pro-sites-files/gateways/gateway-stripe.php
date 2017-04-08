@@ -217,19 +217,16 @@ class ProSites_Gateway_Stripe {
 	/**
 	 * Get the currency to use for Stripe transactions.
 	 *
-	 * At all stages attempt to use the Site Currency and ultimately fallback to the Stripe currency set in the gateway
-	 * settings. Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
+	 * At all stages use the Site Currency settings.
+	 * Note, Stripe will revert to merchant currency if a currency is not supported. Bonus!
 	 *
 	 * @return mixed|void
 	 */
 	public static function currency() {
 		global $psts;
 
-		$stripe_currency = $psts->get_setting( 'stripe_currency', 'USD' );
-		$currency        = $psts->get_setting( 'currency', $stripe_currency );
-		$currency        = ProSites_Helper_Gateway::supports_currency( $currency, 'stripe' ) ? $currency : $stripe_currency;
-
-		return $currency;
+		// Get the general currency set in Pro Sites.
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 
 	/**
@@ -1807,6 +1804,16 @@ class ProSites_Gateway_Stripe {
 	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
 		global $psts, $wpdb, $current_site, $current_user;
 
+		//If there were any errors in checkout
+		if ( ! empty( $_POST['errors'] ) ) {
+			if ( is_wp_error( $_POST['errors'] ) ) {
+				$error_messages = $_POST['errors']->get_error_messages();
+				if ( ! empty( $error_messages ) ) {
+					$psts->errors = $_POST['errors'];
+				}
+			}
+		}
+
 		$content = '';
 
 		$site_name = $current_site->site_name;
@@ -1851,11 +1858,11 @@ class ProSites_Gateway_Stripe {
 		if ( isset( $render_data['activation_key'] ) ) {
 			$content .= '<input type="hidden" name="activation" value="' . $render_data['activation_key'] . '" />';
 
-			if ( isset( $render_data['new_blog_details'] ) ) {
-				$user_name  = $render_data['new_blog_details']['username'];
-				$user_email = $render_data['new_blog_details']['email'];
-				$blogname   = $render_data['new_blog_details']['blogname'];
-				$blog_title = $render_data['new_blog_details']['title'];
+			if ( !empty( $render_data['new_blog_details'] ) ) {
+				$user_name  = ! empty( $render_data['new_blog_details']['username'] ) ? $render_data['new_blog_details']['username'] : '';
+				$user_email = ! empty( $render_data['new_blog_details']['email'] ) ? $render_data['new_blog_details']['email'] : '';
+				$blogname   = ! empty( $render_data['new_blog_details']['blogname'] ) ? $render_data['new_blog_details']['blogname'] : '';
+				$blog_title = ! empty( $render_data['new_blog_details']['title'] ) ? $render_data['new_blog_details']['title'] : '';
 
 				$content .= '<input type="hidden" name="blog_username" value="' . $user_name . '" />';
 				$content .= '<input type="hidden" name="blog_email" value="' . $user_email . '" />';
@@ -1894,9 +1901,14 @@ class ProSites_Gateway_Stripe {
 		}
 
 		$content .= '<div id="psts-stripe-checkout">
-				<h2>' . esc_html__( 'Checkout With a Credit Card:', 'psts' ) . '</h2>
-				<div id="psts-processcard-error"></div>
-				<table id="psts-cc-table">
+				<h2>' . esc_html__( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
+		//Stripe Related Errors
+		$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'stripe' ) : false;
+		if ( $errmsg ) {
+			$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
+		}
+
+		$content .='<table id="psts-cc-table">
 					<tbody>
 						<!-- Cardholder Name -->
 						<tr>
@@ -2070,7 +2082,7 @@ class ProSites_Gateway_Stripe {
 
 				return false;
 			} else if ( ! isset( $_POST['stripeToken'] ) && empty( $_POST['wp_password'] ) ) {
-				$psts->errors->add( 'general', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
+				$psts->errors->add( 'stripe', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 			}
 
 			// TAX Object
@@ -2116,8 +2128,8 @@ class ProSites_Gateway_Stripe {
 			//If customer already exists, retrieve customer from stripe
 
 			if ( ! $customer_id ) {
-				$c = self::create_stripe_customer( $email, $site_name, $domain, $blog_id, $activation_key );
-				$new         = true;
+				$c   = self::create_stripe_customer( $email, $site_name, $domain, $blog_id, $activation_key );
+				$new = true;
 			} else {
 				// Get a customer if they exist
 				try {
@@ -2361,6 +2373,12 @@ class ProSites_Gateway_Stripe {
 						);
 					}
 				}
+
+				//If Customer object is not set/ Or we have checkout errors
+                if( empty( $c ) || !empty( $psts->errors  ) ){
+				    self::update_checkout_error();
+				    return;
+                }
 
 				// Create/update subscription
 				try {
@@ -2682,7 +2700,7 @@ class ProSites_Gateway_Stripe {
 				} catch ( Stripe_CardError $e ) {
 					$body = $e->getJsonBody();
 					$err  = $body['error'];
-					$psts->errors->add( 'general', $e['message'] );
+					$psts->errors->add( 'stripe', $e['message'] );
 				} catch ( Exception $e ) {
 					$psts->errors->add( 'general', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
 				}
@@ -2726,6 +2744,8 @@ class ProSites_Gateway_Stripe {
 			}
 
 		}
+		self::update_checkout_error();
+
 	}
 
 	/**
@@ -2878,7 +2898,6 @@ class ProSites_Gateway_Stripe {
 				// Get next payment date
 				if ( !empty( $subscription['current_period_end'] ) || isset( $invoice_object->next_payment_attempt ) ) {
 					$args['next_payment_date'] = !empty( $subscription['current_period_end'] ) ? $subscription['current_period_end'] : $invoice_object->next_payment_attempt;
-					$args['next_payment_date'] = !empty( $subscription['current_period_end'] ) ? $subscription['current_period_end'] : $invoice_object->next_payment_attempt;
 				}
 
 				// Cancellation link
@@ -2922,19 +2941,19 @@ class ProSites_Gateway_Stripe {
 			'IE' => 'Ireland',
 			'UK' => 'United Kingdom',
 			'US' => 'United States',
-			'BE' => 'Belgium (Beta)',
-			'FI' => 'Finland (Beta)',
-			'FR' => 'France (Beta)',
-			'DE' => 'Germany (Beta)',
-			'LU' => 'Luxembourg (Beta)',
-			'NL' => 'Netherlands (Beta)',
-			'ES' => 'Spain (Beta)',
-			'DK' => 'Denmark (Beta)',
-			'NO' => 'Norway (Beta)',
-			'SE' => 'Sweden (Beta)',
-			'AT' => 'Austria (Beta)',
-			'IT' => 'Italy (Beta)',
-			'CH' => 'Switzerland (Private Beta)',
+			'BE' => 'Belgium',
+			'FI' => 'Finland',
+			'FR' => 'France',
+			'DE' => 'Germany',
+			'LU' => 'Luxembourg',
+			'NL' => 'Netherlands',
+			'ES' => 'Spain',
+			'DK' => 'Denmark',
+			'NO' => 'Norway',
+			'SE' => 'Sweden',
+			'AT' => 'Austria',
+			'IT' => 'Italy',
+			'CH' => 'Switzerland',
 		);
 	}
 
@@ -3293,31 +3312,10 @@ class ProSites_Gateway_Stripe {
 					<th scope="row"
 					    class="psts-help-div psts-stripe-currency"><?php echo __( 'Stripe Currency', 'psts' ); ?></th>
 					<td>
-						<select name="psts[stripe_currency]" class="chosen">
-							<?php
-							// https://support.stripe.com/questions/which-currencies-does-stripe-support
-							$sel_currency = $psts->get_setting( "stripe_currency", 'USD' );
-							$currencies   = array(
-								"AUD" => 'AUD - Australian Dollar',
-								"CAD" => 'CAD - Canadian Dollar',
-								"EUR" => 'EUR - Euro',
-								"GBP" => 'GBP - Pounds Sterling',
-								"USD" => 'USD - U.S. Dollar',
-								"DKK" => 'DKK - Danish Krone',
-								"NOK" => 'NOK - Norwegian Krone',
-								"SEK" => 'SEK - Swedish Krona',
-								"JPY" => 'JPY - Japanese Yen (Private BETA)',
-								"MXN" => 'MXN - Mexican Peso (Private BETA)',
-								"SGD" => 'SGD - Singapore Dollar (Private BETA)',
-								"CHF" => 'CHF - Swiss Franc (Private BETA)',
-							);
-
-							foreach ( $currencies as $k => $v ) {
-								echo '<option value="' . $k . '"' . ( $k == $sel_currency ? ' selected' : '' ) . '>' . esc_html( $v, true ) . '</option>' . "\n";
-							}
-							?>
-						</select>
-
+						<p>
+							<strong><?php echo self::currency(); ?></strong> &ndash;
+                            <span class="description"><?php printf( __( '<a href="%s">Change Currency</a>', 'psts' ), network_admin_url( 'admin.php?page=psts-settings&tab=payment' ) ); ?></span>
+						</p>
 						<p class="description"><?php _e( 'The currency must match the currency of your Stripe account.', 'psts' ); ?></p>
 						<p class="description">
 							<strong><?php _e( 'For zero decimal currencies like Japanese Yen, minimum plan cost should be greater than 50 Cents equivalent.', 'psts' ); ?></strong>
@@ -3392,43 +3390,59 @@ class ProSites_Gateway_Stripe {
 	 */
 	static function create_stripe_customer( $email, $site_name, $domain, $blog_id, $activation_key = '' ) {
 		global $psts;
+		$customer_args = array(
+			'email'       => $email,
+			'description' => sprintf( __( '%s user', 'psts' ), $site_name ),
+			'card'        => $_POST['stripeToken'],
+			'metadata'    => array(
+				'domain' => $domain,
+			)
+		);
+
+		$user = get_user_by( 'email', $email );
+		if ( $user ) {
+			$blog_string                       = '';
+			$customer_args['metadata']['user'] = $user->user_login;
+			$customer_args['description']      = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
+			$user_blogs                        = get_blogs_of_user( $user->ID );
+			foreach ( $user_blogs as $user_blog ) {
+				$blog_string .= $user_blog->blogname . ', ';
+			}
+			$customer_args['metadata']['blogs'] = $blog_string;
+		}
+
+		if ( ! $domain ) {
+			unset( $customer_args['metadata']['domain'] );
+		}
+
+		//Try Creating a Customer
 		try {
-			$customer_args = array(
-				'email'       => $email,
-				'description' => sprintf( __( '%s user', 'psts' ), $site_name ),
-				'card'        => $_POST['stripeToken'],
-				'metadata'    => array(
-					'domain' => $domain,
-				)
-			);
-
-			$user = get_user_by( 'email', $email );
-			if ( $user ) {
-				$blog_string                       = '';
-				$customer_args['metadata']['user'] = $user->user_login;
-				$customer_args['description']      = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
-				$user_blogs                        = get_blogs_of_user( $user->ID );
-				foreach ( $user_blogs as $user_blog ) {
-					$blog_string .= $user_blog->blogname . ', ';
-				}
-				$customer_args['metadata']['blogs'] = $blog_string;
-			}
-
-			if ( ! $domain ) {
-				unset( $customer_args['metadata']['domain'] );
-			}
-
 			$c = Stripe_Customer::create( $customer_args );
 		} catch ( Exception $e ) {
-			$psts->errors->add( 'general', __( 'The Stripe customer could not be created. Please try again.', 'psts' ) );
+			$message = $e->getMessage();
+			$message = empty( $message ) ? __( 'The Stripe customer could not be created. Please try again.', 'psts' ) : $message;
+			$psts->errors->add( 'stripe', $message );
 
 			return;
 		}
 
 		//Update the stripe customer id, this is temporary, will be overridden by subscription or charge id
 		self::set_customer_data( $blog_id, $c->id, 'ak_' . $activation_key );
+
 		return $c;
 	}
+
+	/**
+	 * Store Checkout errors in $_POST
+	 */
+	static function update_checkout_error() {
+	    global $psts;
+		//If there are any errors, store them in $_POST
+		$error_codes = $psts->errors->get_error_codes();
+		if ( is_wp_error( $psts->errors ) && ! empty( $error_codes ) ) {
+			$_POST['errors'] = $psts->errors;
+		}
+    }
 }
 
 // Init actions
