@@ -1834,7 +1834,7 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 
-		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : ProSites_Helper_ProSite::default_period();
+		$period  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['period'] ) ? (int) $render_data['new_blog_details']['period'] : ProSites_Helper_ProSite::default_period();
 		$level  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
 		$level  = isset( $render_data['upgraded_blog_details'] ) && isset( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
 
