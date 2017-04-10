@@ -526,7 +526,7 @@ jQuery( document ).ready( function ( $ ) {
 
     // If period value is set, make it selected.
     if( $( '.period' + $( '.gateways [name=period]' ).val() ).length ) {
-	    $( '.period' + $( '.gateways [name=period]' ).val() ).trigger( 'click' );
+        $( '.period' + $( '.gateways [name=period]' ).val() ).trigger( 'click' );
     }
 
     //More than 1 gateway?, Tabs
