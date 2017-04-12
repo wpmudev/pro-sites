@@ -686,6 +686,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$last_gateway     = ProSites_Helper_ProSite::last_gateway( $blog_id );
 
+			//Fix for Paypal
+			if ( empty( $last_gateway ) && isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
+				$last_gateway = 'paypal';
+			}
+
 			$ty_message = '';
 			if ( ! empty( $last_gateway ) ) {
 				if ( 'stripe' == $last_gateway ) {
