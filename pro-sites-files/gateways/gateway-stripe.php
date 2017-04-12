@@ -1368,9 +1368,12 @@ class ProSites_Gateway_Stripe {
 		$subscription->level      = ! empty( $subscription->metadata->level ) ? $subscription->metadata->level : $level;
 		$subscription->activation = isset( $subscription->metadata->activation ) ? $subscription->metadata->activation : false;
 		$subscription->blog_id    = isset( $subscription->metadata->blog_id ) ? (int) $subscription->metadata->blog_id : false;
+
+		//Try to get blog id from activation key
 		if ( empty( $subscription->blog_id ) ) {
 			$subscription->blog_id = ProSites_Helper_ProSite::get_blog_id( $subscription->activation );
 		}
+
 		// We might have a legacy account on hand
 		$x = '';
 		if ( empty( $subscription->blog_id ) ) {
@@ -1489,45 +1492,14 @@ class ProSites_Gateway_Stripe {
 	 * @param string $domain
 	 */
 	public static function set_customer_data( $blog_id, $customer_id, $sub_id, $domain = 'deprecated' ) {
-		global $wpdb, $psts;
+		global $wpdb;
 
-		$exists = false;
-		if ( ! empty( $blog_id ) ) {
-			$exists = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE blog_id = %d", $blog_id ) );
-		}
-
-		if ( $exists ) {
-			$data  = array();
-			$table = $wpdb->base_prefix . 'pro_sites_stripe_customers';
-			//Sunscription id
-			if ( ! empty( $sub_id ) ) {
-				$data['subscription_id'] = $sub_id;
-			}
-			//Customer Id
-			if ( ! empty( $customer_id ) ) {
-				$data['customer_id'] = $customer_id;
-			}
-			//Where
-			$where = array(
-				'blog_id' => $blog_id
-			);
-			if ( ! empty( $data ) ) {
-				$wpdb->update( $table, $data, $where );
-			}
-		} else {
-			//If we have blog id update stripe customer id for blog id otherwise store in signup meta
-			if ( ! empty( $blog_id ) ) {
-				$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->base_prefix}pro_sites_stripe_customers(blog_id, customer_id, subscription_id) VALUES (%d, %s, %s)", $blog_id, $customer_id, $sub_id ) );
-			} else {
-				/**
-				 * @todo: work something else out
-				 */
-//				$signup_meta                          = '';
-//				$signup_meta                          = $psts->get_signup_meta( $domain );
-//				$signup_meta['stripe']['customer_id'] = $customer_id;
-//				$psts->update_signup_meta( $signup_meta, $domain );
-			}
-		}
+        //If we have blog id update stripe customer id for blog id otherwise store in signup meta
+        if ( ! empty( $blog_id ) ) {
+            $sql = "INSERT INTO {$wpdb->base_prefix}pro_sites_stripe_customers(blog_id, customer_id, subscription_id) VALUES (%d, %s, %s) ON DUPLICATE KEY UPDATE customer_id = VALUES(customer_id), subscription_id = VALUES(subscription_id)";
+            $sql = $wpdb->prepare( $sql,$blog_id, $customer_id, $sub_id );
+            $wpdb->query(  $sql );
+        }
 	}
 
 	/**
@@ -2374,11 +2346,13 @@ class ProSites_Gateway_Stripe {
 					}
 				}
 
+				$error_code = ! empty( $psts->errors ) ? $psts->errors->get_error_codes() : '';
 				//If Customer object is not set/ Or we have checkout errors
-                if( empty( $c ) || !empty( $psts->errors  ) ){
-				    self::update_checkout_error();
-				    return;
-                }
+				if ( empty( $c ) || ! empty( $error_code ) ) {
+					self::update_checkout_error();
+
+					return;
+				}
 
 				// Create/update subscription
 				try {
