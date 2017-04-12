@@ -2127,38 +2127,39 @@ class ProSites_Gateway_Stripe {
 					$psts->errors->add( 'general', __( 'Unable to Create/Retrieve Stripe Customer.', 'psts' ) );
 					return;
 				}
+			}
 
-				if( is_object( $c ) ) {
-					$customer_id = $c->id;
+			//We have the customer object, Get the latest customer id
+			if ( is_object( $c ) ) {
+				$customer_id = $c->id;
 
-					$c->description = sprintf( __( '%s user', 'psts' ), $site_name );
-					$c->email       = $email;
+				$c->description = sprintf( __( '%s user', 'psts' ), $site_name );
+				$c->email       = $email;
 
-					$user = get_user_by( 'email', $email );
-					if ( $user ) {
-						$blog_string       = '';
-						$c->metadata->user = $user->user_login;
-						$c->description    = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
-						$user_blogs        = get_blogs_of_user( $user->ID );
-						foreach ( $user_blogs as $user_blog ) {
-							$blog_string .= $user_blog->blogname . ', ';
-						}
-						$c->metadata->blogs = $blog_string;
+				$user = get_user_by( 'email', $email );
+				if ( $user ) {
+					$blog_string       = '';
+					$c->metadata->user = $user->user_login;
+					$c->description    = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
+					$user_blogs        = get_blogs_of_user( $user->ID );
+					foreach ( $user_blogs as $user_blog ) {
+						$blog_string .= $user_blog->blogname . ', ';
 					}
-
-					if ( isset( $_POST['cc_replace_card'] ) && 'on' == $_POST['cc_replace_card'] ) {
-						$c->card = $_POST['stripeToken'];
-					}
-
-					$c->save();
+					$c->metadata->blogs = !empty( $blog_string ) ? $blog_string : NULL;
 				}
 
-				//validate wp password (if applicable)
-				if ( ! empty( $_POST['wp_password'] ) && ! wp_check_password( $_POST['wp_password'], $current_user->data->user_pass, $current_user->ID ) ) {
-					$psts->errors->add( 'general', __( 'The password you entered is incorrect.', 'psts' ) );
-
-					return;
+				if ( isset( $_POST['cc_replace_card'] ) && 'on' == $_POST['cc_replace_card'] ) {
+					$c->card = $_POST['stripeToken'];
 				}
+
+				$c->save();
+			}
+
+			//validate wp password (if applicable)
+			if ( ! empty( $_POST['wp_password'] ) && ! wp_check_password( $_POST['wp_password'], $current_user->data->user_pass, $current_user->ID ) ) {
+				$psts->errors->add( 'general', __( 'The password you entered is incorrect.', 'psts' ) );
+
+				return;
 			}
 
 			//prepare vars
@@ -2338,6 +2339,7 @@ class ProSites_Gateway_Stripe {
 						}
 						Stripe_InvoiceItem::create( $customer_args );
 					} catch ( Exception $e ) {
+					    error_log( "Setup Fee charge error: " . $e->getMessage() );
 						wp_mail(
 							get_blog_option( $blog_id, 'admin_email' ),
 							__( 'Error charging setup fee. Attention required!', 'psts' ),
