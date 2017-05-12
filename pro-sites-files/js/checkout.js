@@ -606,7 +606,7 @@ jQuery( document ).ready( function ( $ ) {
 
         var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
 
-        if ( typeof response == 'null' || typeof response == 'undefined' ) {
+        if ( response === null || typeof response == 'undefined' ) {
             return false;
         }
 
@@ -631,7 +631,7 @@ jQuery( document ).ready( function ( $ ) {
             $.each( form_data, function ( key, val ) {
                 // Restore values
                 if ( key != "signup_form_id" && key != "_signup_form" ) {
-                    $( '[name=' + key + ']' ).val( val );
+                    $( "[name='" + key + "']" ).val( val );
                 }
             } );
 
