@@ -36,7 +36,13 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			$period = (int) $_POST['period'];
 			$level  = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
-			$_POST  = array_map( "sanitize_text_field", $params );
+
+			// Santitize each values in $_POST
+			array_walk_recursive($params, function( &$item, $key ) {
+				$item = sanitize_text_field( $item );
+			});
+			// Update the $_POST data.
+			$_POST = $params;
 
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
 			$ajax_response = array();
