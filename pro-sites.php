@@ -1245,7 +1245,8 @@ Thanks!", 'psts' ),
 			'button_choose' => __( "Choose Plan", 'psts' ),
 			'button_chosen' => __( "Chosen Plan", 'psts' ),
 			'logged_in' => is_user_logged_in(),
-			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false'
+			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false',
+			'nbt_update_required' => $this->nbt_update_required(),
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
@@ -5356,6 +5357,36 @@ function admin_modules() {
         switch_to_blog( $main_site );
         $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
         restore_current_blog();
+    }
+
+    /**
+     * Check if it is required to update the blog templates or plans.
+     *
+     * This is to add New Blog Templates support with Premium Plugins Manager
+     * and Premium Plugins.
+     *
+	 * @return bool
+     */
+    public function nbt_update_required() {
+
+		// If NBT is not active, no need to update.
+		if ( ! class_exists( 'blog_templates' ) ) {
+			return false;
+		}
+
+		// If no templates are set inn NBT, no need to update.
+		$settings = nbt_get_settings();
+		if ( empty( $settings ) || empty( $settings['templates'] ) ) {
+			return false;
+		}
+
+		// Update if Premium Plugins Manager or Premium Plugins or Premium Themes modules are active along with NBT.
+        $modules_enabled = (array) $this->get_setting( 'modules_enabled' );
+        if ( in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled ) || in_array( 'ProSites_Module_Plugins', $modules_enabled ) || in_array( 'ProSites_Module_PremiumThemes', $modules_enabled ) ) {
+            return true;
+        }
+
+		return false;
     }
 
 }

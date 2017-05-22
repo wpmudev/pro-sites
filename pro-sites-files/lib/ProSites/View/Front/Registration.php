@@ -79,6 +79,12 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				// WP hook
 				ob_start();
 				do_action( 'before_signup_form' );
+
+				// Hidden loader for updating NBT templates.
+				$content .= '<div class="hidden" id="nbt_processing"><img src="' . $img_base . 'loading.gif"> ';
+				$content .= __( 'Updating available templates for the plan...', 'psts' );
+				$content .= '</div><br/>';
+
 				$content .= '<div id="prosites-signup-form-checkout" class="hidden">';
 				$content .= ob_get_clean();
 

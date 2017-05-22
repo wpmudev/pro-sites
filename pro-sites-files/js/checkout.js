@@ -521,7 +521,10 @@ jQuery( document ).ready( function ( $ ) {
 		    $('#prosites-checkout-table').attr('data-period', period);
 	    }
 
-
+	    // NBT support: Update templates or plans if required.
+	    if ( prosites_checkout.nbt_update_required ) {
+            nbt_template_update( level );
+        }
     } );
 
     //More than 1 gateway?, Tabs
@@ -600,6 +603,46 @@ jQuery( document ).ready( function ( $ ) {
         $( field + ' + .input_available' ).css( 'top', Math.ceil( pos.top + (height - item_h) / 2 ) + 'px' );
         $( field + ' + .input_available' ).css( 'left', Math.ceil( pos.left + width - ( item_w * 2 ) ) + 'px' );
 
+    }
+
+    /**
+     * NBT Support: Update the nbt templates.
+     *
+     * To support New Blog Templates, update the available templates
+     * when a plan is selected from the pricing table.
+     *
+     * @param level
+     */
+    function nbt_template_update( level ) {
+
+        // NBT temmplate selector.
+        var template_selector = $( 'select[name=blog_template]' );
+
+        if ( template_selector.length ) {
+
+            // Show the processing message.
+            $('#nbt_processing').removeClass("hidden");
+            // Send ajax request to update templates.
+            $.post(
+                prosites_checkout.ajax_url, {
+                    action: 'update_nbt_templates',
+                    'level': level
+                }
+            ).done(function (response) {
+                // Clear templates dropdown.
+                template_selector.html('');
+                // Set a default "None" option.
+                template_selector.append('<option value="none">None</option>');
+                // If response is not empty, append new option for each templates.
+                if ('' != response) {
+                    $.each(response, function (key, value) {
+                        template_selector.append("<option value='" + key + "'>" + value + "</option>");
+                    });
+                }
+                // After processing, hide the processing message.
+                $('#nbt_processing').addClass('hidden');
+            });
+        }
     }
 
     function post_registration_process( data, status, form_data ) {

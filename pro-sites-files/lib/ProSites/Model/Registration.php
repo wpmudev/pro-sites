@@ -13,6 +13,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		public static function add_ajax_hook() {
 			add_action( 'wp_ajax_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
 			add_action( 'wp_ajax_nopriv_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
+			add_action( 'wp_ajax_nopriv_update_nbt_templates', array( 'ProSites_Model_Registration', 'update_nbt_templates' ) );
 		}
 
 		public static function ajax_check_prosite_blog() {
@@ -272,6 +273,97 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$errors->add( 'availability_check_only', __( 'User/Blog availability check only.', 'psts' ) );
 
 			return $errors;
+		}
+
+		/**
+		 * Update the NBT templates based on the plan.
+		 *
+		 * To support New Blog Templates:
+		 * Update the NBT template selector based on the Pro Sites
+		 * plan selected. If a restricted theme/plugin is active on a NBT
+		 * template, hide that template from registration form.
+		 *
+		 * @return array
+		 */
+		public function update_nbt_templates() {
+
+			global  $psts;
+
+			$output = array();
+
+			// Do not continue if NBT and Premium plugin/theme manager modules
+			// are not enbled, or the level value is not available from the request.
+			if ( ! $psts->nbt_update_required() || ! isset( $_POST['level'] ) ) {
+				return $output;
+			}
+
+			// Selected pro sites level.
+			$level = intval( $_POST['level'] );
+
+			// Get the enabled modules in Pro Sites.
+			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
+
+			// Do not continue if no templates are available if NBT.
+			$settings = nbt_get_settings();
+			if ( empty( $settings['templates'] ) ) {
+				return $output;
+			}
+
+			// Premium enabled themes.
+			$premium_themes = $psts->get_setting( 'pt_allowed_themes', array() );
+			// Get premium plugins.
+			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
+			// Get the available plugins for the selected level.
+			$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
+
+			// Loop through each templates.
+			foreach ( $settings['templates'] as $key => $template ) {
+				// If incase it is main blog, skip.
+				if ( is_main_site( $template['blog_id'] ) ) {
+					continue;
+				}
+
+				// Switch to the template blog.
+				switch_to_blog( $template['blog_id'] );
+
+				// If Premium themes module is enabled.
+				if ( in_array( 'ProSites_Module_PremiumThemes', $modules_enabled ) ) {
+					// Current active theme of the blog.
+					$theme_name = get_template();
+					// If the current active theme of the blog is not available for this template, remove this template.
+					if ( ! array_key_exists( $theme_name, $premium_themes ) || ( isset( $premium_themes[ $theme_name ] ) && $premium_themes[ $theme_name ] > $level ) ) {
+						unset( $settings['templates'][ $key ] );
+					}
+				}
+
+				// If Premium plugins module is active.
+				if ( in_array( 'ProSites_Module_Plugins', $modules_enabled ) ) {
+					foreach ( $premium_plugins as $plugin => $data ) {
+						// If any of the active plugin of the blog is not available for this template, remove this template.
+						if ( is_plugin_active( $plugin ) && ( ( isset( $data['level'] ) && $data['level'] > $level ) || ! isset( $data['level'] ) ) ) {
+							unset( $settings['templates'][ $key ] );
+						}
+					}
+				}
+
+				// If Premium Plugins Manager is active.
+				if ( in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled ) ) {
+					// Get all active plugins of the blog.
+					$get_active_plugins = (array) get_option( 'active_plugins' );
+					// If any of the active plugin is not avaible for the plan, remove the template.
+					if ( ! empty( array_diff( $get_active_plugins, $premium_manager_plugins ) ) ) {
+						unset( $settings['templates'][ $key ] );
+					}
+				}
+			}
+
+			// Restore current blog.
+			restore_current_blog();
+
+			// Get the templates array with ID as key and name as value.
+			$output = array_column( $settings['templates'], 'name', 'ID' );
+
+			wp_send_json( $output );
 		}
 
 		/**
