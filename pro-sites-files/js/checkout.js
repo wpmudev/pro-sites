@@ -525,7 +525,7 @@ jQuery( document ).ready( function ( $ ) {
     } );
 
     // If period value is set, make it selected.
-    var period_option = $( '.period-option.period' + $( '.gateways [name=period]' ).val() );
+    var period_option = $( '.period-option.period' + $( '#stripe-payment-form [name=period]' ).val() );
     if( period_option.length ) {
         period_option.trigger( 'click' );
     }
