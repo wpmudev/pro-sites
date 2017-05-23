@@ -2963,7 +2963,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $currency_code, $payment ), $_POST['txn_type'], $txn_id ) . $profile_string );
 
 							//extend only if a recurring payment, first payments are handled below
-							if ( $_POST['txn_type'] == 'recurring_payment' && ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
+							if ( $_POST['txn_type'] == 'recurring_payment' && get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
 
