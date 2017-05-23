@@ -525,8 +525,9 @@ jQuery( document ).ready( function ( $ ) {
     } );
 
     // If period value is set, make it selected.
-    if( $( '.period-option.period' + $( '.gateways [name=period]' ).val() ).length ) {
-        $( '.period-option.period' + $( '.gateways [name=period]' ).val() ).trigger( 'click' );
+    var period_option = $( '.period-option.period' + $( '.gateways [name=period]' ).val() );
+    if( period_option.length ) {
+        period_option.trigger( 'click' );
     }
 
     //More than 1 gateway?, Tabs
