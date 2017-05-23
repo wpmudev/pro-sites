@@ -1806,9 +1806,9 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 
-		$period = ( isset( $render_data['new_blog_details']['period'] ) && ! empty( $render_data['new_blog_details']['period'] ) ) ? (int) $render_data['new_blog_details']['period'] : ProSites_Helper_ProSite::default_period();
-		$level = ( isset( $render_data['new_blog_details']['level'] ) && ! empty( $render_data['new_blog_details']['level'] ) ) ? (int) $render_data['new_blog_details']['level'] : 0;
-		$level = ( isset( $render_data['upgraded_blog_details']['level'] ) && ! empty( $render_data['upgraded_blog_details']['level'] ) ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
+		$period = ! empty( $render_data['new_blog_details']['period'] ) ? (int) $render_data['new_blog_details']['period'] : ProSites_Helper_ProSite::default_period();
+		$level = ! empty( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
+		$level = ! empty( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
 
 		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="stripe-payment-form">
 
