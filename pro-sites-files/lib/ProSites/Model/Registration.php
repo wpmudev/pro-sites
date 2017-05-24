@@ -338,6 +338,17 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			return $templates;
 		}
 
+		/**
+		 * Get the available NBT templates for the level.
+		 *
+		 * Get the available templates for NBT based on the
+		 * selected level. Remove the templates if restricted
+		 * plugins or themes are active within the template.
+		 *
+		 * @param $level Selected level.
+		 *
+		 * @return array Filtered templates.
+		 */
 		public static function get_filtered_nbt_templates( $level ) {
 
 			global  $psts;
