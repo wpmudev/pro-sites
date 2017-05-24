@@ -286,9 +286,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 * plan selected. If a restricted theme/plugin is active on a NBT
 		 * template, hide that template from registration form.
 		 *
-		 * @return array
+		 * @return strng
 		 */
-		public function update_nbt_templates() {
+		public static function update_nbt_templates() {
 
 			global  $psts;
 
@@ -301,12 +301,15 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$templates = self::get_filtered_nbt_templates( $level );
 			}
 
+			// Create new options based on the filtered data.
+			$content = '<option value="none">' . __( "None", "psts" ) . '</option>';
 			if ( ! empty( $templates ) ) {
-				// Get the templates array with ID as key and name as value.
-				$templates = array_column( $templates, 'name', 'ID' );
+				foreach ( $templates as $key => $template ) {
+					$content .= '<option value="' . $key . '">' . strip_tags( $template['name'] ) . '</option>';
+				}
 			}
 
-			wp_send_json( $templates );
+			wp_send_json( $content );
 		}
 
 		/**
@@ -321,7 +324,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$level = 0;
 			// If level value is available on $_POST.
 			if ( ! empty( $_POST['level'] ) ) {
-				$level = intavl( $_POST['level'] );
+				$level = intval( $_POST['level'] );
 			} else {
 				// If level value is set in session.
 				$session = ProSites_Helper_Session::session( 'new_blog_details' );

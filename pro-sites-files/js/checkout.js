@@ -631,13 +631,9 @@ jQuery( document ).ready( function ( $ ) {
             ).done(function (response) {
                 // Clear templates dropdown.
                 template_selector.html('');
-                // Set a default "None" option.
-                template_selector.append('<option value="none">None</option>');
                 // If response is not empty, append new option for each templates.
                 if ('' != response) {
-                    $.each(response, function (key, value) {
-                        template_selector.append("<option value='" + key + "'>" + value + "</option>");
-                    });
+                    template_selector.append(response);
                 }
                 // After processing, hide the processing message.
                 $('#nbt_processing').addClass('hidden');
