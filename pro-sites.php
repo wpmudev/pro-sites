@@ -146,6 +146,8 @@ class ProSites {
 		// Add Registration AJAX handler
 		ProSites_Model_Registration::add_ajax_hook();
 		add_filter( 'prosite_register_blog_pre_validation', array( 'ProSites_Model_Registration', 'cleanup_unused_user' ), 10, 3 );
+		// NBT support.
+		add_filter( 'nbt_signup_templates', array( 'ProSites_Model_Registration', 'filter_nbt_signup_templates' ) );
 
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );

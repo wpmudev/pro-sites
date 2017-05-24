@@ -37,6 +37,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			$period = (int) $_POST['period'];
 			$level  = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
+			// Keep the period and level data in $_POST.
+			$params['level'] = $level;
+			$params['period'] = $period;
 			$_POST  = array_map( "sanitize_text_field", $params );
 
 			$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
@@ -289,16 +292,57 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			global  $psts;
 
-			$output = array();
+			$templates = array();
 
 			// Do not continue if NBT and Premium plugin/theme manager modules
 			// are not enbled, or the level value is not available from the request.
-			if ( ! $psts->nbt_update_required() || ! isset( $_POST['level'] ) ) {
-				return $output;
+			if ( $psts->nbt_update_required() && ! empty( $_POST['level'] ) ) {
+				$level = intval( $_POST['level'] );
+				$templates = self::get_filtered_nbt_templates( $level );
 			}
 
-			// Selected pro sites level.
-			$level = intval( $_POST['level'] );
+			if ( ! empty( $templates ) ) {
+				// Get the templates array with ID as key and name as value.
+				$templates = array_column( $templates, 'name', 'ID' );
+			}
+
+			wp_send_json( $templates );
+		}
+
+		/**
+		 * Filter the NBT templates based on the level selected.
+		 *
+		 * @param $templates All available NBT templates.
+		 *
+		 * @return array Filtered NBT templates.
+		 */
+		public static function filter_nbt_signup_templates( $templates ) {
+
+			$level = 0;
+			// If level value is available on $_POST.
+			if ( ! empty( $_POST['level'] ) ) {
+				$level = intavl( $_POST['level'] );
+			} else {
+				// If level value is set in session.
+				$session = ProSites_Helper_Session::session( 'new_blog_details' );
+				if ( ! empty( $session['level'] ) ) {
+					$level = $session['level'];
+				}
+			}
+
+			// Filter the templates only if valid level is available.
+			if ( ! empty( $level ) ) {
+				$templates = self::get_filtered_nbt_templates( $level );
+			}
+
+			return $templates;
+		}
+
+		public static function get_filtered_nbt_templates( $level ) {
+
+			global  $psts;
+
+			$templates = array();
 
 			// Get the enabled modules in Pro Sites.
 			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
@@ -306,7 +350,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			// Do not continue if no templates are available if NBT.
 			$settings = nbt_get_settings();
 			if ( empty( $settings['templates'] ) ) {
-				return $output;
+				return $templates;
 			}
 
 			// Premium enabled themes.
@@ -316,8 +360,11 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			// Get the available plugins for the selected level.
 			$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
 
+			// All available NBT templates.
+			$templates = $settings['templates'];
+
 			// Loop through each templates.
-			foreach ( $settings['templates'] as $key => $template ) {
+			foreach ( $templates as $key => $template ) {
 				// If incase it is main blog, skip.
 				if ( is_main_site( $template['blog_id'] ) ) {
 					continue;
@@ -332,7 +379,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					$theme_name = get_template();
 					// If the current active theme of the blog is not available for this template, remove this template.
 					if ( ! array_key_exists( $theme_name, $premium_themes ) || ( isset( $premium_themes[ $theme_name ] ) && $premium_themes[ $theme_name ] > $level ) ) {
-						unset( $settings['templates'][ $key ] );
+						unset( $templates[ $key ] );
 					}
 				}
 
@@ -341,7 +388,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					foreach ( $premium_plugins as $plugin => $data ) {
 						// If any of the active plugin of the blog is not available for this template, remove this template.
 						if ( is_plugin_active( $plugin ) && ( ( isset( $data['level'] ) && $data['level'] > $level ) || ! isset( $data['level'] ) ) ) {
-							unset( $settings['templates'][ $key ] );
+							unset( $templates[ $key ] );
 						}
 					}
 				}
@@ -352,7 +399,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					$get_active_plugins = (array) get_option( 'active_plugins' );
 					// If any of the active plugin is not avaible for the plan, remove the template.
 					if ( ! empty( array_diff( $get_active_plugins, $premium_manager_plugins ) ) ) {
-						unset( $settings['templates'][ $key ] );
+						unset( $templates[ $key ] );
 					}
 				}
 			}
@@ -360,10 +407,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			// Restore current blog.
 			restore_current_blog();
 
-			// Get the templates array with ID as key and name as value.
-			$output = array_column( $settings['templates'], 'name', 'ID' );
-
-			wp_send_json( $output );
+			return $templates;
 		}
 
 		/**
