@@ -605,6 +605,56 @@ jQuery( document ).ready( function ( $ ) {
 
     }
 
+    // NBT support: Update plans on template selection.
+    $( 'select[name=blog_template]' ).on( "change", nbt_level_update );
+
+    /**
+     * NBT Support: Update the pro sites levels.
+     *
+     * To support New Blog Templates, update the available plans
+     * when a template is selected from the NBT select box.
+     */
+    function nbt_level_update() {
+
+        // NBT temmplate selector.
+        var template_selector = $( 'select[name=blog_template]' );
+        var plan_selector = $( '.pricing-column' );
+        // Selected template.
+        var template = template_selector.val();
+
+        // Send ajax request if a template is selected.
+        if ( plan_selector.length && 'none' != template ) {
+            // Show the processing message.
+            $( '#nbt_processing' ).removeClass( 'hidden' );
+            // Send ajax request to get unavailable plans.
+            $.post(
+                prosites_checkout.ajax_url, {
+                    action: 'update_nbt_levels',
+                    'template': template_selector.val()
+                }
+            ).done(function ( response ) {
+                // If nothing found, show all plans.
+                if ( '' != response ) {
+                    // If any of the plans are unavailable, hide them.
+                    $.each( response, function ( key, value ) {
+                        var level_ul = $( '.pricing-column.psts-level-' + value );
+                        if ( level_ul.length ) {
+                            $('.pricing-column.psts-level-' + value).hide();
+                        }
+                    });
+                } else {
+                    // If nothing found, show all.
+                    $( '.pricing-column' ).show();
+                }
+                // After processing, hide the processing message.
+                $( '#nbt_processing' ).addClass( 'hidden' );
+            });
+        } else if ( 'none' == template || '' == template ) {
+            // If no option or none is selected, show all levels.
+            $( '.pricing-column' ).show();
+        }
+    }
+
     /**
      * NBT Support: Update the nbt templates.
      *
