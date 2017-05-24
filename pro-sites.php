@@ -5361,14 +5361,14 @@ function admin_modules() {
         restore_current_blog();
     }
 
-    /**
-     * Check if it is required to update the blog templates or plans.
-     *
-     * This is to add New Blog Templates support with Premium Plugins Manager
-     * and Premium Plugins.
-     *
+	/**
+	 * Check if it is required to update the blog templates or plans.
+	 *
+	 * This is to add New Blog Templates support with Premium Plugins Manager
+	 * and Premium Plugins.
+	 *
 	 * @return bool
-     */
+	 */
     public function nbt_update_required() {
 
 		// If NBT is not active, no need to update.
@@ -5383,10 +5383,10 @@ function admin_modules() {
 		}
 
 		// Update if Premium Plugins Manager or Premium Plugins or Premium Themes modules are active along with NBT.
-        $modules_enabled = (array) $this->get_setting( 'modules_enabled' );
-        if ( in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled ) || in_array( 'ProSites_Module_Plugins', $modules_enabled ) || in_array( 'ProSites_Module_PremiumThemes', $modules_enabled ) ) {
-            return true;
-        }
+		$modules_enabled = (array) $this->get_setting( 'modules_enabled' );
+		if ( in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled ) || in_array( 'ProSites_Module_Plugins', $modules_enabled ) || in_array( 'ProSites_Module_PremiumThemes', $modules_enabled ) ) {
+			return true;
+		}
 
 		return false;
     }
