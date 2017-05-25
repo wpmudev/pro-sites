@@ -1802,14 +1802,14 @@ Thanks!", 'psts' ),
 		//append
 		$timestamp = microtime( true );
 
-		//make sure timestamp is unique by padding seconds, or they will be overwritten
-		while ( isset( $log[ $timestamp ] ) ) {
-			$timestamp += 0.0001;
-		}
-
 		if ( ! empty( $blog_id ) ) {
 			//grab data
 			$log = get_blog_option( $blog_id, 'psts_action_log' );
+
+			//make sure timestamp is unique by padding seconds, or they will be overwritten
+			while ( isset( $log[ $timestamp ] ) ) {
+				$timestamp += 0.0001;
+			}
 
 			if ( ! is_array( $log ) ) {
 				$log = array();
@@ -1822,6 +1822,12 @@ Thanks!", 'psts' ),
 		} else {
 
 			$signup_meta                                  = $this->get_signup_meta( $domain );
+
+			//make sure timestamp is unique by padding seconds, or they will be overwritten
+			while ( isset( $signup_meta['psts_action_log'][ $timestamp ] ) ) {
+				$timestamp += 0.0001;
+			}
+
 			$signup_meta['psts_action_log'][ $timestamp ] = $note;
 
 			//Update signup meta
