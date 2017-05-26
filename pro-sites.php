@@ -3196,6 +3196,24 @@ _gaq.push(["_trackTrans"]);
 											<br/><?php _e( 'Choose what level the site should have access to.', 'psts' ); ?>
 										</td>
 									</tr>
+									<tr valign="top">
+										<th scope="row"><?php _e( 'Extend as', 'psts' ) ?></th>
+										<td>
+                                        	<?php
+											$gateway = $wpdb->get_var( $wpdb->prepare( "
+												SELECT gateway
+												FROM {$wpdb->base_prefix}pro_sites
+												WHERE blog_ID = %d", $blog_id
+											) );
+											
+											?>
+                                        	<select name="extend_type">
+												<option value="trial" <?php if ($gateway == 'trial') echo "selected"; ?>>Trial</option>
+                                                <option value="paid" <?php if ($gateway != 'trial') echo "selected"; ?>>Paid</option>
+											</select>
+											<br/><?php _e( 'Choose whether to keep the user on trial or upgrade as paid member.', 'psts' ); ?>
+										</td>
+									</tr>
 									<?php
 									$active_gateways = (array) $this->get_setting('gateways_enabled');
 									$stripe_active =  array_search('ProSites_Gateway_Stripe', $active_gateways);
