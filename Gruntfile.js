@@ -1,4 +1,38 @@
 module.exports = function(grunt) {
+	
+	require( 'load-grunt-tasks' )(grunt);
+	
+	var conf = {
+		plugin_branches: {
+			include_files: [
+				'**',
+				'!**/node_modules/**',
+				'!**/tests/**',
+				'!**/releases/*.zip',
+				'!releases/*.zip',
+				'!**/releases/**',
+				'!**/Gruntfile.js',
+				'!**/package.json',
+				'!**/build/**',
+                '!**/bin/**',
+                '!**/src/**',
+				'!node_modules/**',
+				'!.sass-cache/**',
+				'!releases/**',
+				'!Gruntfile.js',
+				'!package.json',
+				'!build/**',
+				'!tests/**',
+				'!.git/**',
+				'!.git',
+				'!**/.svn/**',
+				'!.log'
+			]
+		},
+        
+        plugin_dir: 'pro-sites/',
+		plugin_file: 'pro-sites.php'
+	};
   
 	// Project configuration.
 	grunt.initConfig({
@@ -26,6 +60,38 @@ module.exports = function(grunt) {
 		        expand: true,
 		    },
 		},
+		
+		clean: {
+			temp: {
+				src: [
+					'**/*.tmp',
+					'**/.afpDeleted*',
+					'**/.DS_Store'
+				],
+				dot: true,
+				filter: 'isFile'
+			}
+        },
+        
+        copy: {
+            files: {
+                src: conf.plugin_branches.include_files,
+                dest: 'releases/<%= pkg.name %>-<%= pkg.version %>/'
+            }
+		},
+        
+        compress: {
+            files: {
+                options: {
+                    mode: 'zip',
+                    archive: './releases/<%= pkg.name %>-<%= pkg.version %>.zip'
+                },
+                expand: true,
+                cwd: 'releases/<%= pkg.name %>-<%= pkg.version %>/',
+                src: [ '**/*' ],
+                dest: conf.plugin_dir
+            }
+		}
 	});
 
 	// Load wp-i18n
@@ -54,6 +120,16 @@ module.exports = function(grunt) {
 	
 	// Default task(s).
 	grunt.registerTask( 'default', ['makepot', 'wpmu_pot2mo'] );
+	
+	grunt.registerTask( 'build', 'Run all tasks.', function() {
+
+		// Run the default tasks (js/css/php validation).
+		grunt.task.run( 'default' );
+
+        grunt.task.run( 'clean' );        
+        grunt.task.run( 'copy' );
+		grunt.task.run( 'compress' );
+	});
 	
 
 };

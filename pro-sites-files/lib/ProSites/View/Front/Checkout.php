@@ -184,6 +184,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 						if ( ! empty( $feature['name'] ) ) {
 							$content .= '<div class="feature-name">' . ProSites::filter_html( $feature['name'] ) . '</div>';
 						}
+						if ( ! empty( $feature['description'] ) ) {
+							$content .= '<div class="feature-description">' . ProSites::filter_html( $feature['description'] ) . '</div>';
+						}
 						if ( ! empty( $feature['indicator'] ) ) {
 							$content .= '<div class="feature-indicator">' . ProSites::filter_html( $feature['indicator'] ) . '</div>';
 						}
@@ -221,8 +224,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			$allow_free = $psts->get_setting( 'free_signup' );
 			$style      = $total_columns > 1 ? 'margin-left: ' . $column_width . '%; ' : 'top: 18px; margin-bottom: 15px;';
-			$style .= $total_columns > 1 ? 'width: ' . ( 100 - $column_width ) . '%; ' : '';
-			$content = apply_filters( 'psts_checkout_before_free', $content, $blog_id, $style );
+			$style      .= $total_columns > 1 ? 'width: ' . ( 100 - $column_width ) . '%; ' : '';
+			$content    = apply_filters( 'psts_checkout_before_free', $content, $blog_id, $style );
 			if ( $allow_free ) {
 				$content .= self::render_free( $style, $blog_id );
 			}
@@ -294,19 +297,19 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				if ( $show_periods ) {
 					$columns[ $col_count ]['title']   = '';
 					$columns[ $col_count ]['summary'] = self::get_header_details();
-					$col_count += 1;
+					$col_count                        += 1;
 				} else {
 					if ( $show_features ) {
 						$columns[ $col_count ]['title']   = '';
 						$columns[ $col_count ]['summary'] = '';
-						$col_count += 1;
+						$col_count                        += 1;
 					}
 				}
 
 				foreach ( $pricing_levels_order as $level ) {
 					$columns[ $col_count ]             = self::get_header_details( $level );
 					$columns[ $col_count ]['level_id'] = $level;
-					$col_count += 1;
+					$col_count                         += 1;
 				}
 			}
 			$enabled_modules = $psts->get_setting( 'modules_enabled', array() );
@@ -320,19 +323,19 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 			}
 			//If there are any modules to compare
-			if ( $show_features && $show_table && ( count( $enabled_modules ) > 0 || ! empty( $feature_table[ 'feature_order' ] ) ) ) {
+			if ( $show_features && $show_table && ( count( $enabled_modules ) > 0 || ! empty( $feature_table['feature_order'] ) ) ) {
 				// Set first row
 				$col_count                          = 0;
 				$row_count                          = 0;
 				$columns[ $col_count ]['alt']       = $row_count % 2 != 0;
 				$columns[ $col_count ]['sub_title'] = __( 'Compare Features', 'psts' );
 				$columns[ $col_count ]['features']  = array();
-				$col_count += 1;
+				$col_count                          += 1;
 				foreach ( $pricing_levels_order as $level ) {
 					$columns[ $col_count ]['alt']       = $row_count % 2 != 0;
 					$columns[ $col_count ]['sub_title'] = '';
 					$columns[ $col_count ]['features']  = array();
-					$col_count += 1;
+					$col_count                          += 1;
 				}
 				$row_count += 1;
 
@@ -351,15 +354,16 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					}
 
 					$col_count                                           = 0;
-					$columns[ $col_count ]['features'][ $index ]['name'] = $feature_table[ $feature_key ]['description'];
+					$columns[ $col_count ]['features'][ $index ]['name'] = $feature_table[ $feature_key ]['name'];
+					$columns[ $col_count ]['features'][ $index ]['description'] = $feature_table[ $feature_key ]['description'];
 					$columns[ $col_count ]['features'][ $index ]['alt']  = $row_count % 2 != 0;
-					$col_count += 1;
+					$col_count                                           += 1;
 
 					foreach ( $pricing_levels_order as $level ) {
 						$columns[ $col_count ]['features'][ $index ]['indicator'] = self::get_feature_indicator( $feature_table[ $feature_key ], $level );
 						$columns[ $col_count ]['features'][ $index ]['text']      = isset( $feature_table[ $feature_key ]['levels'][ $level ] ) ? $feature_table[ $feature_key ]['levels'][ $level ]['text'] : '';
 						$columns[ $col_count ]['features'][ $index ]['alt']       = $row_count % 2 != 0;
-						$col_count += 1;
+						$col_count                                                += 1;
 					}
 
 					$row_count += 1;
@@ -374,7 +378,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 					if ( $show_periods || $show_features ) {
 						$columns[ $col_count ]['button'] = '';
-						$col_count += 1;
+						$col_count                       += 1;
 					}
 
 					foreach ( $pricing_levels_order as $level ) {
@@ -497,11 +501,15 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$level_details['featured'] = apply_filters( 'prosites_pricing_level_featured', $level_details['featured'], $level );
 
 				$setup_msg = '';
-				if ( ! empty( $setup_fee_amount ) ) {
+
+				$show_setup_fee = self::show_setup_fee( $setup_fee_amount );
+
+				//If there is a setup fee and it is suppose to be displayed
+				if ( $show_setup_fee ) {
 					$setup_fee       = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount );
 					$setup_fee_plain = ProSites_Helper_UI::rich_currency_format( $setup_fee_amount, true );
 					$setup_msg       = '<div class="setup-fee">' . sprintf( $plan_text['setup'], $setup_fee ) . '</div>';
-					$setup_msg .= '<div class="price-plain hidden setup-fee-plain">' . $setup_fee_plain . '</div>';
+					$setup_msg       .= '<div class="price-plain hidden setup-fee-plain">' . $setup_fee_plain . '</div>';
 				}
 
 				$level_details['breakdown']   = array();
@@ -547,9 +555,9 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					if ( count( $active_periods ) == 1 ) {
 						$period_content .= '<div class="hidden" name="single_period">' . $create_hidden . '</div>';
 					}
-					$period_content .= '</div>';
+					$period_content                            .= '</div>';
 					$level_details['breakdown'][ $period_key ] = str_replace( 'hide', '', $period_content );
-					$content .= $period_content;
+					$content                                   .= $period_content;
 
 					$monthly_price = $level_list[ $level ]['price_1'];
 
@@ -560,8 +568,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					$calculated_saving    = ProSites_Helper_UI::rich_currency_format( $difference );
 					$formatted_calculated = '<div class="monthly-price original-amount">' . $calculated_monthly . '</div>';
 					$formatted_calculated .= '<div class="monthly-price-hidden hidden">' . $calculated_monthly . '</div>';
-					$formatted_savings = '<div class="savings-price original-amount">' . $calculated_saving . '</div>';
-					$formatted_savings .= '<div class="savings-price-hidden hidden">' . $calculated_saving . '</div>';
+					$formatted_savings    = '<div class="savings-price original-amount">' . $calculated_saving . '</div>';
+					$formatted_savings    .= '<div class="savings-price-hidden hidden">' . $calculated_saving . '</div>';
 
 					$summary_msg = sprintf( $plan_text['monthly'] );
 
@@ -834,8 +842,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				$content .= '</tr>';
 			}
 
-			$column_keys = !empty( $columns ) ?  array_keys( $columns[0] ) : '';
-			$add_coupon  = !empty( $column_keys ) ? in_array( 'coupon', $column_keys ) : false;
+			$column_keys = ! empty( $columns ) ? array_keys( $columns[0] ) : '';
+			$add_coupon  = ! empty( $column_keys ) ? in_array( 'coupon', $column_keys ) : false;
 			if ( $add_coupon ) {
 				$content .= '<tr>';
 				$content .= '<td colspan="' . ( count( $periods ) + 1 ) . '">';
@@ -853,7 +861,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$allow_free = $psts->get_setting( 'free_signup' );
 			$content    = apply_filters( 'psts_checkout_grid_before_free', $content, $blog_id, $periods, $free_width );
 			if ( $allow_free ) {
-				$style = 'width: ' . $free_width . '; ';
+				$style   = 'width: ' . $free_width . '; ';
 				$content .= self::render_free( $style, $blog_id );
 			}
 			$content = apply_filters( 'psts_checkout_grid_after_free', $content, $blog_id, $periods, $free_width );
@@ -917,6 +925,47 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 
 			return $content;
+		}
+
+
+		/**
+		 * Whether to display setup fee in pricing table
+		 *
+		 * @param $setup_fee_amount
+		 *
+		 * @return bool
+		 */
+		static function show_setup_fee( $setup_fee_amount ) {
+
+			//If there is no setup fee
+			if( empty( $setup_fee_amount ) ) {
+				return false;
+			}
+
+			global $psts;
+			$display_setup_fee = false;
+
+			//Check if we need to display for upgrades or not
+			$apply_setup_fee_upgrade = $psts->get_setting( 'apply_setup_fee_upgrade', false );
+
+			//Check if blog id is set
+			$blog_id = ! empty( $_GET['bid'] );
+
+			//If user is logged in 1. Another Blog, 2. Upgrade the existing blog
+			if ( is_user_logged_in() ) {
+				//If there is blog id -> Upgrade Page
+				if ( $blog_id && $apply_setup_fee_upgrade ) {
+					$display_setup_fee = true;
+				} elseif ( ! empty( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) {
+					//For setting up a new blog
+					$display_setup_fee = true;
+				}
+			} elseif ( ! is_user_logged_in() ) {
+				//For new users
+				$display_setup_fee = true;
+			}
+
+			return $display_setup_fee;
 		}
 
 	}
