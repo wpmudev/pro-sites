@@ -2110,6 +2110,15 @@ Thanks!", 'psts' ),
     */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
+			if (is_array( $gateway ) ) {
+			$extend_type = $gateway[1]; //get the type first before changing gateway from array to string
+			$gateway = $gateway[0]; //get gateway string from array
+			
+			$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
+		}else{
+			$extend_type = "";
+		}
+		$last_gateway = '';
 
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
 		$last_gateway = '';
@@ -2174,10 +2183,20 @@ Thanks!", 'psts' ),
 		if( 'manual' === $gateway && $exists ) {
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
 			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
-			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $last_gateway ) : $wpdb->prepare( ", gateway = %s", $gateway );
+			
+			//control whether we are upgrading the user or extending trial period
+			if ( $extend_type == "trial" ) {
+				//force gateway to trial because we are extending trial and not upgrading
+				$extra_sql .= $wpdb->prepare( ", gateway = %s", 'trial' );
+			}
+			else{
+				//change gateway to manual, meaning client paid using manual/admin exended manually
+				$extra_sql .= $wpdb->prepare( ", gateway = %s", $gateway );
+			}			
 		} else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
+		
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
 		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
 		$extra_sql .= $wpdb->prepare( ", is_recurring = %d", $is_recurring );
@@ -2901,6 +2920,10 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
+			$gateway = array(
+				'manual',
+				esc_attr($_POST['extend_type'])
+			);
 			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
