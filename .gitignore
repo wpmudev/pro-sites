@@ -61,3 +61,7 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+
+
+# Releases folder
+releases/

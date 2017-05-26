@@ -205,7 +205,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			global $psts;
 
 			$trial_days = $psts->get_setting( 'trial_days', 0 );
-			$has_trial  = $psts->is_trial_allowed( $blog_id, $level );
+			$has_trial  = $psts->is_trial_allowed( $blog_id );
 			$setup_fee = self::init_amount( $blog_id, $level );
 
 			$nvpstr = "&AMT=" . $paymentAmount;
@@ -434,9 +434,8 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			//NVPRequest for submitting to server
 			$query_string = "METHOD=" . urlencode( $methodName ) . "&VERSION=63.0&PWD=" . urlencode( $psts->get_setting( 'pypl_api_pass' ) ) . "&USER=" . urlencode( $psts->get_setting( 'pypl_api_user' ) ) . "&SIGNATURE=" . urlencode( $psts->get_setting( 'pypl_api_sig' ) ) . $nvpStr;
 
-
 			//build args
-			$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express/Pro Gateway";
+			$args['user-agent']  = "Pro Sites: http://premium.wpmudev.org/project/pro-sites | PayPal Express Gateway";
 			$args['body']        = $query_string;
 			$args['sslverify']   = false; //many servers don't have an updated CA bundle
 			$args['timeout']     = 60;
