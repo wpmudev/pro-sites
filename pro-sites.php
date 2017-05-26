@@ -1440,7 +1440,9 @@ Thanks!", 'psts' ),
 		);
 		// send emails as html (fixes some formatting issues with currencies)
 		$mail_headers = array( 'Content-Type: text/html' );
-
+		
+		add_action('phpmailer_init', 'psts_text_body' );
+		
 		switch ( $action ) {
 			case 'success':
 				$e = apply_filters( 'psts_email_success_fields', array(
@@ -1636,6 +1638,7 @@ Thanks!", 'psts' ),
 				$this->log_action( $blog_id, sprintf( __( 'Permanent status revoked email sent to %s', 'psts' ), $email ) );
 				break;
 		}
+		remove_action('phpmailer_init', 'psts_text_body');
 	}
 
 	/**
@@ -5456,4 +5459,8 @@ function supporter_get_expire( $blog_id = false ) {
 	global $psts;
 
 	return $psts->get_expire( $blog_id );
+}
+
+function psts_text_body($phpmailer) {
+	$phpmailer->AltBody = strip_tags($phpmailer->Body);
 }

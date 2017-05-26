@@ -2047,7 +2047,11 @@ class ProSites_Gateway_Stripe {
 
 		//Process Checkout
 		if ( isset( $_POST['cc_stripe_checkout'] ) && 1 == (int) $_POST['cc_stripe_checkout'] ) {
-
+			$headers = array(
+				'content-type' => 'text/html'
+			);
+			add_action('phpmailer_init', 'psts_text_body' );
+		
 			//check for level, if empty don't go ahead and return
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
@@ -2343,7 +2347,8 @@ class ProSites_Gateway_Stripe {
 						wp_mail(
 							get_blog_option( $blog_id, 'admin_email' ),
 							__( 'Error charging setup fee. Attention required!', 'psts' ),
-							sprintf( __( 'An error occurred while charging a setup fee of %1$s to Stripe customer %2$s. You will need to manually process this amount.', 'psts' ), $psts->format_currency( $currency, $setup_fee ), $customer_id )
+							sprintf( __( 'An error occurred while charging a setup fee of %1$s to Stripe customer %2$s. You will need to manually process this amount.', 'psts' ), $psts->format_currency( $currency, $setup_fee ), $customer_id ),
+							$headers
 						);
 					}
 				}
@@ -2692,7 +2697,8 @@ class ProSites_Gateway_Stripe {
 					wp_mail(
 						get_blog_option( $blog_id, 'admin_email' ),
 						__( 'Error deleting temporary Stripe coupon code. Attention required!.', 'psts' ),
-						sprintf( __( 'An error occurred when attempting to delete temporary Stripe coupon code %1$s. You will need to manually delete this coupon via your Stripe account.', 'psts' ), $cp_code )
+						sprintf( __( 'An error occurred when attempting to delete temporary Stripe coupon code %1$s. You will need to manually delete this coupon via your Stripe account.', 'psts' ), $cp_code ),
+						$headers
 					);
 				}
 
@@ -2718,7 +2724,8 @@ class ProSites_Gateway_Stripe {
 				// Message is redundant now, but still used as a flag.
 				self::$complete_message = __( 'Your payment was successfully recorded! You should be receiving an email receipt shortly.', 'psts' );
 			}
-
+			
+			remove_action('phpmailer_init', 'psts_text_body');
 		}
 		self::update_checkout_error();
 
