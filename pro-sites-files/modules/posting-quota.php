@@ -53,7 +53,6 @@ class ProSites_Module_PostingQuota {
 			$selected_level = esc_attr($_GET['level']);
 			$settings = get_site_option( 'psts_settings' );
 			$quota_settings = $settings['levels_quotas']['level'.$selected_level];
-			
 		}else{
 			$quota_settings = $psts->get_setting( "pq_quotas" );
 			$selected_level = $psts->get_setting( 'pq_level', 1 );;
