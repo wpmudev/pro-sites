@@ -298,6 +298,9 @@ class ProSites_Module_Plugins_Manager {
 			if( $exclude > 0 && $exclude == $level ) {continue;}
 
 			$pro_level_plugins = $psts->get_setting( 'psts_ppm_' . $level, array() );
+			if( empty( $pro_level_plugins ) ) {
+			    return $pro_plugins;
+			}
 			foreach( $pro_level_plugins as $pro_level_plugin ){
 				$pro_plugins[] = $pro_level_plugin;
 			}
@@ -310,10 +313,10 @@ class ProSites_Module_Plugins_Manager {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 
-		$old_level_plugins = $psts->get_setting( 'psts_ppm_' . $old_level );
+		$old_level_plugins = $psts->get_setting( 'psts_ppm_' . $old_level, array() );
 
 		// Get the plugins for existing level
-		$new_level_plugins = (array) $psts->get_setting( 'psts_ppm_' . $new_level );
+		$new_level_plugins = (array) $psts->get_setting( 'psts_ppm_' . $new_level, array() );
 
 		// Get the overridden plugins if any.
 		$override_plugins = (array) get_blog_option( $blog_id, 'psts_plugins' );

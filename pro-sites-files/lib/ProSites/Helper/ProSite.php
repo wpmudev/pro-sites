@@ -41,7 +41,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			global $wpdb;
 			$blog_id = 0;
 			$row     = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
-			if ( $row && $row->activation_key == $activation_key ) {
+			if ( $row ) {
 				$blog_id = domain_exists( $row->domain, $row->path, $wpdb->siteid );
 				// As a fallback, try the site domain
 				if ( empty( $blog_id ) ) {
@@ -269,13 +269,63 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			if ( ! is_user_logged_in() ) {
 				return true;
 			}
-			//If we are here -> No Multiple blog
-			//count number of blogs
-			$count = get_blogs_of_user( get_current_user_id(), false );
-			if ( $count > 1 ) {
-				//If count is greater than 1, don't allow new blogs
-				return false;
+			$user_id = get_current_user_id();
+
+			/**
+			 * Role to check for while fetching a ist of blogs for the user
+			 *
+			 * @param string $role Role of the user
+			 *
+			 */
+			$role  = apply_filters( 'psts_user_role', 'administrator' );
+			$blogs = self::get_user_blogs_by_role( $user_id, $role );
+			if ( count( $blogs ) == 0 ) {
+				return true;
 			}
+
+			return false;
+		}
+
+		/**
+		 * Get blogs for the user, with administrative role
+		 *
+		 * @see http://wordpress.stackexchange.com/questions/72116/how-can-i-display-all-multisite-blogs-where-this-user-is-administrator
+		 *
+		 * @param int $user_id
+		 * @param string $role
+		 *
+		 * @return array
+		 */
+		public static function get_user_blogs_by_role( $user_id, $role ) {
+
+			//If $role is not set to administrator, return the default blog count
+			if ( empty( $role ) || is_array( $role ) || 'administrator' != $role ) {
+				$count = get_blogs_of_user( $user_id, false );
+
+				return $count;
+			}
+
+			//Get the list of blog for which given user is administrator
+			$out   = array();
+			$regex = '~' . $GLOBALS['wpdb']->base_prefix . '(\d+)_capabilities~';
+			$meta  = get_user_meta( $user_id );
+
+			if ( ! $meta ) {
+				return array();
+			}
+
+			foreach ( $meta as $key => $value ) {
+				if ( preg_match( $regex, $key, $matches ) ) {
+					$roles = maybe_unserialize( $meta[ $key ][0] );
+
+					// the number is a string
+					if ( isset ( $roles[ $role ] ) and 1 === (int) $roles[ $role ] ) {
+						$out[] = $matches[1];
+					}
+				}
+			}
+
+			return $out;
 		}
 
 		/**

@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.5-beta1
+Version: 3.5.5
 Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.5-beta1';
+	var $version = '3.5.5';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -201,8 +201,8 @@ class ProSites {
 		// Take action when a gateway changes
 		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
-                // Delete blog
-                add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+		// Delete blog
+		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
 
 		$this->setup_ajax_hooks();
 
@@ -599,6 +599,11 @@ Thanks!", 'psts' ),
 			//$wpdb->query( "ALTER TABLE {$wpdb->base_prefix}pro_sites ADD meta longtext NOT NULL" );
 		}
 
+		// If upgrading from a version lesser than or equal to 3.5.4 display options for Paypal pro, otherwise hide them
+		if ( $this->get_setting( 'version' ) && version_compare( $this->get_setting( 'version' ), '3.5.4', '<=' ) ) {
+			$this->update_setting( 'display_paypal_pro_option', true );
+		}
+
 		$this->update_setting( 'version', $this->version );
 	}
 
@@ -666,10 +671,19 @@ Thanks!", 'psts' ),
 		return update_site_option( 'psts_levels', $levels );
 	}
 
+	/**
+	* Add trial days
+	*
+	* @param $blog_id
+	*/
 	function trial_extend( $blog_id ) {
 		$trial_days = $this->get_setting( 'trial_days' );
+		$free_signup = $this->get_setting( 'free_signup' );
+
 		$level = !empty( $_POST['level'] ) ? intval( $_POST['level'] ) : 1;
-		if ( $trial_days > 0 ) {
+		if( $free_signup ) {
+		    return;
+		}elseif ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
 			$this->extend( $blog_id, $extend, 'trial', $level );
 		}
@@ -1343,7 +1357,7 @@ Thanks!", 'psts' ),
 			 * 1 hr = 3600 seconds
 			 * 1 day = 86400 seconds
 			 */
-			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 7200;
+			$expiration_buffer = defined( 'PSTS_EXPIRATION_BUFFER' ) ? (int) PSTS_EXPIRATION_BUFFER : 86400;
 
 			//Confirm the expiry from subscription
 			if( $current_expire <= time() ) {
@@ -1362,7 +1376,7 @@ Thanks!", 'psts' ),
 			if( '9999999999' == $current_expire || ( ( (int) $current_expire + $expiration_buffer ) < time() ) ) {
 
 				//fire hooks on first encounter
-				if ( get_option( 'psts_withdrawn' ) === '0' ) {
+				if ( get_blog_option( $blog_id, 'psts_withdrawn' ) === '0' ) {
 					$this->withdraw( $blog_id );
 
 					//send email
@@ -1540,7 +1554,9 @@ Thanks!", 'psts' ),
 				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
+				ob_start();
 				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $this->pdf_receipt( $e['msg'] ) );
+				ob_end_clean();
 
 				$this->log_action( $blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
 				break;
@@ -4512,7 +4528,7 @@ function admin_modules() {
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || isset( $session_data ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$registeration = get_site_option('registration');
@@ -5281,6 +5297,9 @@ function admin_modules() {
 		//Check meta
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
 		$this->record_transaction( $blog_id, 'manual', $amount );
+
+		//Update password, because a new one is generated during wpmu_activate_signup().
+		wp_set_password( $password, $user_id );
 	}
 
 	/**
@@ -5301,6 +5320,7 @@ function admin_modules() {
 		}
 
 		$allow_new_blog = ProSites_Helper_ProSite::allow_new_blog();
+
 		//Check if multiple signups are allowed for blog, return the value in that case
 		if( $allow_new_blog ) {
 			return $value;
@@ -5331,14 +5351,13 @@ function admin_modules() {
 		return $expiry;
 	}
 
-        public function delete_blog( $blog_id )
-        {
-                global $wpdb;
-                $main_site = defined( 'BLOG_ID_CURRENT_SITE' ) ? BLOG_ID_CURRENT_SITE : 1;
-                switch_to_blog( $main_site );
-                $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
-                restore_current_blog();
-        }
+    public function delete_blog( $blog_id ) {
+        global $wpdb;
+        $main_site = defined( 'BLOG_ID_CURRENT_SITE' ) ? BLOG_ID_CURRENT_SITE : 1;
+        switch_to_blog( $main_site );
+        $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
+        restore_current_blog();
+    }
 
 }
 
