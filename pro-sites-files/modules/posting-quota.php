@@ -71,7 +71,7 @@ class ProSites_Module_PostingQuota {
 							$levels = (array) get_site_option( 'psts_levels' );
 							foreach ( $levels as $level => $value ) {
 								?>
-								<option value="<?php echo $level; ?>"<?php selected( $psts->get_setting( 'pq_level', 1 ), $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
+								<option value="<?php echo $level; ?>"<?php selected( $selected_level, $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
 							}
 							?>
 						</select>
@@ -80,7 +80,6 @@ class ProSites_Module_PostingQuota {
 					</td>
 				</tr>
 				<?php
-				//$quota_settings = $psts->get_setting( "pq_quotas" );
 				$post_types     = get_post_types( array( 'show_ui' => true ), 'objects', 'and' );
 				if ( is_array( $post_types ) ) {
 					foreach ( $post_types as $post_type ) {
