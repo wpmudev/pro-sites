@@ -574,13 +574,13 @@ ul.pricing-column li, .pricing-column ul li {
     font-size: 13px;
 }
 /** styles for styling the html tags: strong, b, em, i **/
-.feature-name strong, .feature-name b,.feature-name * strong,.feature-name * b{
+.feature-description * strong,.feature-description * b{
 	font-weight:bold;
 }
-.feature-name em,.feature-name i,.feature-name * em,.feature-name * i{
+.feature-description * em,.feature-description * i{
   font-style: italic;
 }
-.feature-name br,.feature-name * br{
+.feature-description * br{
   display:block;clear:all;
 }
 
