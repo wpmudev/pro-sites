@@ -164,7 +164,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			if ( $trial ) {
 				$trial_days = $psts->get_setting( 'trial_days', 0 );
 				// Set to first level for $trial_days
-				$psts->extend( $result['blog_id'], $period, 'trial', $psts->get_setting( 'trial_level', $level ), '', strtotime( '+ ' . $trial_days . ' days' ) );
+				$psts->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
 
 				//Redirect to checkout on next signup
 				/**

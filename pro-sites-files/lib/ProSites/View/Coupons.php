@@ -140,7 +140,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				}
 
 				//if editing a coupon
-				$new_coupon_code = isset ( $_GET['code'] ) ? $_GET['code'] : '';
+				$new_coupon_code = isset ( $_GET['code'] ) ? sanitize_text_field ( $_GET['code'] ) : '';
 
 				$apage = isset( $_GET['apage'] ) ? intval( $_GET['apage'] ) : 1;
 				$num   = isset( $_GET['num'] ) ? intval( $_GET['num'] ) : 20;
@@ -150,7 +150,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				$total       = ( is_array( $coupon_list ) ) ? count( $coupon_list ) : 0;
 
 				if ( ! empty( $total ) ) {
-					$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ) );
+					$coupon_list = array_slice( $coupon_list, intval( ( $apage - 1 ) * $num ), intval( $num ), true );
 				}
 
 				$request = remove_query_arg( 'apage' );
