@@ -47,8 +47,11 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 				$levels_quotas = $old_settings['levels_quotas'];
 				$levels_quotas[$quotas_for_level] = $_POST['psts']['pq_quotas'];
 				
+				$per_level = isset($_POST['psts']['per_level'])? $_POST['psts']['per_level'] : 0 ;
+				error_log( "Per level : $per_level ");
 				//add or update levels quotas in old settings before medging old_settings below
 				$old_settings['levels_quotas'] = $levels_quotas;
+				$old_settings['levels_quotas']['per_level'] = $per_level;
 
 				// update levels?
 				$update_gateway_levels = false;
