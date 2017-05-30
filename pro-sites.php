@@ -3209,8 +3209,8 @@ _gaq.push(["_trackTrans"]);
 											
 											?>
                                         	<select name="extend_type">
-												<option value="trial" <?php if ($gateway == 'trial') echo "selected"; ?>>Trial</option>
-                                                <option value="paid" <?php if ($gateway != 'trial') echo "selected"; ?>>Paid</option>
+												<option value="trial" <?php selected( $gateway,'trial' ); ?>><?php echo ProSites_Helper_Gateway::get_nice_name( 'trial' ); ?></option>
+                                                <option value="paid" <?php if ($gateway != 'trial') echo 'selected="selected"'; ?>>Paid</option>
 											</select>
 											<br/><?php _e( 'Choose whether to keep the user on trial or upgrade as paid member.', 'psts' ); ?>
 										</td>
