@@ -509,22 +509,22 @@ jQuery( document ).ready( function ( $ ) {
 
         //Update Period as well
         var period_selector = $( '.period-selector select').length > 0 ? $('.period-selector select') : ( $('input[name="period-selector-top"]').length > 0 ? $('input[name="period-selector-top"]:checked') : '' );
-	if( typeof( period_selector ) !== 'undefined' && '' != period_selector ) {
-	    var period_class = period_selector.val();
-	    var period = 0;
-	    if (typeof period_class !== 'undefined') {
-		period = parseInt(period_class.replace('price_', ''));
-	    } else {
-		period = parseInt($('[name=single_period]').html());
-	    }
-	    $('.gateways [name=period]').val(period);
-	    $('#prosites-checkout-table').attr('data-period', period);
-	}
+		if( typeof( period_selector ) !== 'undefined' && '' != period_selector ) {
+		    var period_class = period_selector.val();
+		    var period = 0;
+		    if (typeof period_class !== 'undefined') {
+			period = parseInt(period_class.replace('price_', ''));
+		    } else {
+			period = parseInt($('[name=single_period]').html());
+		    }
+		    $('.gateways [name=period]').val(period);
+		    $('#prosites-checkout-table').attr('data-period', period);
+		}
 
-	// NBT support: Update templates or plans if required.
-	if ( prosites_checkout.nbt_update_required ) {
-	    nbt_template_update( level );
-	}
+		// NBT support: Update templates or plans if required.
+		if ( prosites_checkout.nbt_update_required ) {
+		    nbt_template_update( level );
+		}
     } );
 
     //More than 1 gateway?, Tabs
