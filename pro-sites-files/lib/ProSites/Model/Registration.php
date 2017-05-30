@@ -13,7 +13,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		public static function add_ajax_hook() {
 			add_action( 'wp_ajax_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
 			add_action( 'wp_ajax_nopriv_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
+			add_action( 'wp_ajax_update_nbt_templates', array( 'ProSites_Model_Registration', 'update_nbt_templates' ) );
 			add_action( 'wp_ajax_nopriv_update_nbt_templates', array( 'ProSites_Model_Registration', 'update_nbt_templates' ) );
+			add_action( 'wp_ajax_update_nbt_levels', array( 'ProSites_Model_Registration', 'update_levels_by_template' ) );
 			add_action( 'wp_ajax_nopriv_update_nbt_levels', array( 'ProSites_Model_Registration', 'update_levels_by_template' ) );
 		}
 
