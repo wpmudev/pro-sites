@@ -2110,7 +2110,8 @@ Thanks!", 'psts' ),
     */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
-			if (is_array( $gateway ) ) {
+		
+		if (is_array( $gateway ) ) {
 			$extend_type = $gateway[1]; //get the type first before changing gateway from array to string
 			$gateway = $gateway[0]; //get gateway string from array
 			
@@ -2924,7 +2925,7 @@ _gaq.push(["_trackTrans"]);
 				'manual',
 				esc_attr($_POST['extend_type'])
 			);
-			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true );
+			$this->extend( (int) $_POST['bid'], $extend, $gateway, $_POST['extend_level'], false, false, true, true );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
