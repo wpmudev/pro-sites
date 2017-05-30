@@ -410,10 +410,6 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			// Loop through each templates.
 			foreach ( $templates as $key => $template ) {
-				// If incase it is main blog, skip.
-				if ( is_main_site( $template['blog_id'] ) ) {
-					continue;
-				}
 
 				// Switch to the template blog.
 				switch_to_blog( $template['blog_id'] );
