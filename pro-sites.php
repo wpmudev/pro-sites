@@ -2101,7 +2101,7 @@ Thanks!", 'psts' ),
 	/**
 	* @param $blog_id
 	* @param $extend Period of Subscription
-	* @param bool|false $gateway (Manual, Trial, Stripe, Paypal)
+	* @param array|string $gateway (Manual, Trial, Stripe, Paypal)
 	* @param int $level
 	* @param bool|false $amount
 	* @param bool|false $expires
@@ -2119,9 +2119,6 @@ Thanks!", 'psts' ),
 		}else{
 			$extend_type = "";
 		}
-		$last_gateway = '';
-
-		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
 		$last_gateway = '';
 
 		$now    = time();
@@ -2192,7 +2189,7 @@ Thanks!", 'psts' ),
 			}
 			else{
 				//change gateway to manual, meaning client paid using manual/admin exended manually
-				$extra_sql .= $wpdb->prepare( ", gateway = %s", $gateway );
+				$extra_sql .= ( $last_gateway ) ? $wpdb->prepare( ", gateway = %s", $last_gateway ) : $wpdb->prepare( ", gateway = %s", $gateway );
 			}			
 		} else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
@@ -3200,7 +3197,7 @@ _gaq.push(["_trackTrans"]);
 									<tr valign="top">
 										<th scope="row"><?php _e( 'Extend as', 'psts' ) ?></th>
 										<td>
-                                        	<?php
+										<?php
 											$gateway = $wpdb->get_var( $wpdb->prepare( "
 												SELECT gateway
 												FROM {$wpdb->base_prefix}pro_sites
@@ -3208,9 +3205,9 @@ _gaq.push(["_trackTrans"]);
 											) );
 											
 											?>
-                                        	<select name="extend_type">
+											<select name="extend_type">
 												<option value="trial" <?php selected( $gateway,'trial' ); ?>><?php echo ProSites_Helper_Gateway::get_nice_name( 'trial' ); ?></option>
-                                                <option value="paid" <?php if ($gateway != 'trial') echo 'selected="selected"'; ?>>Paid</option>
+												<option value="paid" <?php selected( $gateway != 'trial' ); ?>><?php _e( 'Paid', 'psts' ); ?></option>
 											</select>
 											<br/><?php _e( 'Choose whether to keep the user on trial or upgrade as paid member.', 'psts' ); ?>
 										</td>
