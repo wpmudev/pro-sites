@@ -102,14 +102,19 @@ class ProSites_Module_PostingQuota {
 				<tr valign="top">
 					<th scope="row" class="pro-site-level psts-quota-prosite-level"><?php echo __( 'Set Quotas Per Level', 'psts' ) . $psts->help_text( __( 'Choose if you want to ser quotas per level on your network. If enabed, each level will have different Quotas', 'psts' ) ); ?></th>
 					<td>
-						<input type="radio" name="psts[per_level]" value="1" <?php checked( $per_level, 1); ?> /><?php echo __('Yes', 'psts'); ?> <br />
-						<input type="radio" name="psts[per_level]" value="0" <?php checked( $per_level, 0); ?> /><?php echo __('No', 'psts'); ?>
+						<input type="radio" name="psts[per_level]" class="per_level" value="1" <?php checked( $per_level, 1); ?> /><?php echo __('Yes', 'psts'); ?> <br />
+						<input type="radio" name="psts[per_level]" class="per_level" value="0" <?php checked( $per_level, 0); ?> /><?php echo __('No', 'psts'); ?>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row" class="pro-site-level psts-quota-prosite-level"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to remove quotas', 'psts' ) ); ?></th>
+					<th scope="row" class="pro-site-level psts-quota-prosite-level">
+					<?php
+						$label_description = ($per_level==1)? __( 'Select a level to define its Quotas', 'psts' ): __( 'Select the minimum level required to remove quotas', 'psts' );
+						echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( $label_description );
+					?>
+					</th>
 					<td>
-						<select name="psts[pq_level]" class="chosen" onchange="self.location=self.location+'&level='+this.options[this.selectedIndex].value">
+						<select name="psts[pq_level]" id="pq_level" class="chosen">
 							<?php
 							$levels = (array) get_site_option( 'psts_levels' );
 							foreach ( $levels as $level => $value ) {
