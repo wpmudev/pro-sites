@@ -2181,10 +2181,9 @@ Thanks!", 'psts' ),
 		if( 'manual' === $gateway && $exists ) {
 			//control whether we are upgrading the user or extending trial period
 			$extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : 'manual' ) . "'";            
-        }else {
+        }else{
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
-		
 		
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
 		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
