@@ -2114,11 +2114,11 @@ Thanks!", 'psts' ),
 		if (is_array( $gateway ) ) {
 			$extend_type = $gateway[1]; //get the type first before changing gateway from array to string
 			$gateway = $gateway[0]; //get gateway string from array
-			
-			$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
 		}else{
 			$extend_type = "";
 		}
+		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
+		
 		$last_gateway = '';
 
 		$now    = time();
