@@ -2179,8 +2179,8 @@ Thanks!", 'psts' ),
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
 		if( 'manual' === $gateway && $exists ) {
-            //control whether we are upgrading the user or extending trial period
-            $extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : 'manual' ) . "'";            
+			//control whether we are upgrading the user or extending trial period
+			$extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : 'manual' ) . "'";            
         }else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
