@@ -90,10 +90,11 @@ class ProSites_Module_PostingQuota {
 			$selected_level = esc_attr($_GET['level']);		
 		}else{
 			$selected_level = $psts->get_setting( 'pq_level', 1 );
-		}
+		}		
+		$quota_settings = $this->get_quota_settings($selected_level);
 		
-		$quota_settings = $this->get_quota_settings($level);
-		$per_level = isset( $settings['per_level'] ) ? $settings['per_level'] : 0 ;	
+		$per_level = $psts->get_setting('per_level');
+		$per_level = isset($per_level)?$per_level:0;
 		?>
 
 		<div class="inside">
@@ -101,8 +102,8 @@ class ProSites_Module_PostingQuota {
 				<tr valign="top">
 					<th scope="row" class="pro-site-level psts-quota-prosite-level"><?php echo __( 'Set Quotas Per Level', 'psts' ) . $psts->help_text( __( 'Choose if you want to ser quotas per level on your network. If enabed, each level will have different Quotas', 'psts' ) ); ?></th>
 					<td>
-						<input type="radio" name="psts[per_level]" value="1" <?php checked( $per_level, 1); ?> /> Yes <br /> 
-                        <input type="radio" name="psts[per_level]" value="0" <?php checked( $per_level, 0); ?> /> No
+						<input type="radio" name="psts[per_level]" value="1" <?php checked( $per_level, 1); ?> /><?php echo __('Yes', 'psts'); ?> <br />
+						<input type="radio" name="psts[per_level]" value="0" <?php checked( $per_level, 0); ?> /><?php echo __('No', 'psts'); ?>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -166,9 +167,9 @@ class ProSites_Module_PostingQuota {
 						<?php echo __( 'Message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed when you have set limits for the higest level and those limits have been reached. All site owners in the highest level who have reached their limits will see this message.', 'psts' ) . '</div></div>'; ?></td>
                         <td>
                         	<?php
-								$message = isset( $quota_settings['highest_level_message'] )? $quota_settings['highest_level_message'] : "You have reached your publishing limits, no upgrades for this levell. Contact Administrator. &raquo;";
+								$message = isset( $quota_settings['highest_level_message'] )? $quota_settings['highest_level_message'] : __('You have reached your publishing limits, no upgrades for this levell. Contact Administrator. &raquo;','psts');
 							?>
-                            <input type="text" name="psts[pq_quotas][highest_level_message]" value="<?php echo esc_attr( $message ); ?>" style="width: 90%"/>
+							<input type="text" name="psts[pq_quotas][highest_level_message]" value="<?php echo esc_attr( $message ); ?>" style="width: 90%"/>
                         </td>
                     </td>
                 </tr>
