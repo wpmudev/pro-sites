@@ -2179,21 +2179,18 @@ Thanks!", 'psts' ),
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
 		if( 'manual' === $gateway && $exists ) {
-			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
-			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
-			
-			//control whether we are upgrading the user or extending trial period
-			if ( $extend_type == "trial" ) {
-				//force gateway to trial because we are extending trial and not upgrading
-				$extra_sql .= $wpdb->prepare( ", gateway = %s", 'trial' );
-			}
-			else{
-				//change gateway to manual, meaning client paid using manual/admin exended manually
-				$extra_sql .= ( $last_gateway ) ? $wpdb->prepare( ", gateway = %s", $last_gateway ) : $wpdb->prepare( ", gateway = %s", $gateway );
-			}			
-		} else {
+            //control whether we are upgrading the user or extending trial period
+            $extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : 'manual' ) . "'";            
+        }else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
+		
+		
+		if( 'manual' === $gateway && $exists ) {
+            //control whether we are upgrading the user or extending trial period
+            $extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : 'manual' ) . "'";            
+        } else {
+		
 		
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
 		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
@@ -3207,7 +3204,7 @@ _gaq.push(["_trackTrans"]);
 											?>
 											<select name="extend_type">
 												<option value="trial" <?php selected( $gateway,'trial' ); ?>><?php echo ProSites_Helper_Gateway::get_nice_name( 'trial' ); ?></option>
-												<option value="paid" <?php selected( $gateway != 'trial' ); ?>><?php _e( 'Paid', 'psts' ); ?></option>
+												<option value="manual" <?php selected( $gateway != 'trial' ); ?>><?php _e( 'Manual', 'psts' ); ?></option>
 											</select>
 											<br/><?php _e( 'Choose whether to keep the user on trial or upgrade as paid member.', 'psts' ); ?>
 										</td>
