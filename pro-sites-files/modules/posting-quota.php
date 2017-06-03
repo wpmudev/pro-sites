@@ -74,15 +74,37 @@ class ProSites_Module_PostingQuota {
 	*/
 	function get_quota_settings($level){
 		global $psts;
-		$settings = get_site_option( 'psts_settings' );		
-		if ( isset ( $settings['levels_quotas']['level'.$level] ) && $this->is_per_level ){			
-			$quota_settings = $settings['levels_quotas']['level'.$level]; //new per level quotas
-		}else{
-			$quota_settings = $psts->get_setting( "pq_quotas" ); //old single level quotas		
+		$settings = get_site_option( 'psts_settings' );
+		if ( isset ( $settings['levels_quotas']['level'.$level] ) && $this->is_per_level ){ //per level quotas
+			$quota_settings = $settings['levels_quotas']['level'.$level]; 
+		} elseif ( ! isset ( $settings['levels_quotas']['level'.$level] ) && $this->is_per_level ){//default quotas if not defined for this $level
+			$quota_settings = isset ( $settings['levels_quotas']['level_default'] ) ? $settings['levels_quotas']['level_default'] : $this->get_default_quotas();
+		} else {
+			$quota_settings = $psts->get_setting( "pq_quotas" ); //old single level quotas
 		}
 		return $quota_settings;
 	}
-
+	
+	/**
+	* Return Default Quotas
+	* Used for new levels without quotas set
+	* return type: array
+	*/
+	function get_default_quotas(){
+		$post_types = get_post_types( array( 'show_ui' => true ), 'objects', 'and' );
+		$defaults = array();
+		if ( is_array( $post_types ) ) {
+			foreach ( $post_types as $post_type ) {
+				if ( ! current_user_can( $post_type->cap->publish_posts ) ) continue;
+				$defaults[$post_type->name] = array(
+					'quota' => 'unlimited',
+					'message' => sprintf( __( "You've reached the publishing limit, To publish more %s, please upgrade to LEVEL &raquo;", 'psts' ), $post_type->label )
+				);
+			}
+		}
+		return $defaults;
+	}
+	
 	function settings() {
 		global $psts;
 				
