@@ -2179,8 +2179,11 @@ Thanks!", 'psts' ),
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
 		if( 'manual' === $gateway && $exists ) {
+			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
+			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
 			//control whether we are upgrading the user or extending trial period
-			$extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : 'manual' ) . "'"; 
+			$manual = ( $last_gateway == $gateway ) ? 'manual' : $last_gateway;
+			$extra_sql .= ", gateway = '" . ( $extend_type == "trial" ?  'trial' : $manual ) . "'"; 
 		}else{
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
