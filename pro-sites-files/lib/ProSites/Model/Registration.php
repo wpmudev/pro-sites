@@ -400,6 +400,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			// Premium enabled themes.
 			$premium_themes = $psts->get_setting( 'pt_allowed_themes', array() );
+			// Network enabled themes.
+			$network_themes = get_site_option( 'allowedthemes', array() );
+			// Allowed themes.
+			$allowed_themes = array_merge( $premium_themes, $network_themes );
 			// Get premium plugins.
 			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
 			// Get the available plugins for the selected level.
@@ -419,7 +423,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					// Current active theme of the blog.
 					$theme_name = get_template();
 					// If the current active theme of the blog is not available for this template, remove this template.
-					if ( ! array_key_exists( $theme_name, $premium_themes ) || ( isset( $premium_themes[ $theme_name ] ) && $premium_themes[ $theme_name ] > $level ) ) {
+					if ( ! array_key_exists( $theme_name, $allowed_themes ) || ( isset( $allowed_themes[ $theme_name ] ) && $allowed_themes[ $theme_name ] > $level ) ) {
 						unset( $templates[ $key ] );
 					}
 				}
@@ -495,6 +499,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
 			// Premium enabled themes.
 			$premium_themes = $psts->get_setting( 'pt_allowed_themes', array() );
+			// Network enabled themes.
+			$network_themes = get_site_option( 'allowedthemes', array() );
+			// Allowed themes.
+			$allowed_themes = array_merge( $premium_themes, $network_themes );
 
 			// Switch to the template blog.
 			switch_to_blog( $template['blog_id'] );
@@ -505,7 +513,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					// Current active theme of the blog.
 					$theme_name = get_template();
 					// If the current active theme of the blog is not available for this template, remove this template.
-					if ( ! array_key_exists( $theme_name, $premium_themes ) || ( isset( $premium_themes[ $theme_name ] ) && $premium_themes[ $theme_name ] > $level ) ) {
+					if ( ! array_key_exists( $theme_name, $allowed_themes ) || ( isset( $allowed_themes[ $theme_name ] ) && $allowed_themes[ $theme_name ] > $level ) ) {
 						$unavailable_levels[] = $level;
 					}
 				}
