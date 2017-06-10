@@ -480,7 +480,10 @@ class ProSites_Gateway_Stripe {
 			'expiration'    => __( 'Please choose a valid expiration date.', 'psts' ),
 			'cvv2'          => __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' )
 		) );
-		add_action( 'wp_head', array( 'ProSites_Gateway_Stripe', 'checkout_js' ) );
+
+		// Add inline script for checkout page.
+		$inline_script = self::checkout_js();
+		wp_add_inline_script( 'psts-checkout', $inline_script );
 	}
 
 	/**
@@ -1023,19 +1026,24 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * JS to be printed only on checkout page
+	 * JS to be printed only on checkout page.
+	 *
+	 * @return string
 	 */
 	public static function checkout_js() {
-		?>
-		<script type="text/javascript"> jQuery(document).ready(function () {
-				jQuery("a#stripe_cancel").click(function () {
-					if (confirm("<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>")) {
+
+		$message = __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' );
+		$script = "jQuery(document).ready(function () {
+				jQuery('a#stripe_cancel').click(function () {
+					if (confirm('" . $message . "')) {
 						return true;
 					} else {
 						return false;
 					}
 				});
-			});</script><?php
+			});";
+
+		return $script;
 	}
 
 	/**

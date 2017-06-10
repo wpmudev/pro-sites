@@ -2003,7 +2003,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		wp_enqueue_script( 'jquery' );
-		add_action( 'wp_head', array( &$this, 'checkout_js' ) );
+
+		// Add inline script for checkout page.
+		$inline_script = $this->checkout_js();
+		wp_add_inline_script( 'psts-checkout', $inline_script );
 	}
 
 	function settings() {
@@ -2790,20 +2793,27 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		update_blog_option( $from_id, 'psts_paypal_profile_id', $trans_meta );
 	}
 
+	/**
+	 * Inline script for PayPal checkout.
+	 *
+	 * @return string
+	 */
 	function checkout_js() {
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function ($) {
+
+		$message = __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' );
+		$script = "jQuery(document).ready(function ($) {
 				$('form').submit(function () {
 					$('#cc_paypal_checkout').hide();
 					$('#paypal_processing').show();
 				});
-				$("a#pypl_cancel").click(function (e) {
-					if (!confirm("<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>"))
+				$('a#pypl_cancel').click(function (e) {
+					if (!confirm('" . $message . "')) {
 						e.preventDefault();
+					}
 				});
-			});
-		</script><?php
+			});";
+
+		return $script;
 	}
 
 	/**
