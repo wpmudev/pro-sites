@@ -4530,7 +4530,7 @@ function admin_modules() {
 		// Get the registration settings of network.
 		$registration = get_site_option('registration');
 
-		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ( ! empty( $session_data ) && ! empty( $session_data['username'] ) ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data['username'] ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
 			$show_signup = 'all' == $registration ? $show_signup : false;
