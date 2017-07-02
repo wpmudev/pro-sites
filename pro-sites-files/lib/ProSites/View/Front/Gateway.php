@@ -584,8 +584,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			//Get admin URL for the blog
 			if ( ! empty( $blog_id ) ) {
-
-				$blog_admin_url = get_admin_url( $blog_id );
+				$scheme = ProSites_Helper_ProSite::ssl_scheme();
+				$blog_admin_url = get_admin_url( $blog_id, '', $scheme );
 			}
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
@@ -677,7 +677,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			//If we have the blog id, get the admin url
 			if( !empty( $blog_id ) ) {
-				$blog_admin_url = get_admin_url( $blog_id );
+				$scheme = ProSites_Helper_ProSite::ssl_scheme();
+				$blog_admin_url = get_admin_url( $blog_id, '', $scheme );
 			}
 
 			$blog_admin_url = empty( $blog_admin_url ) ? admin_url() :  $blog_admin_url;

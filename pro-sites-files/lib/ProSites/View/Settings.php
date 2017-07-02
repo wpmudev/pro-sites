@@ -311,6 +311,20 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 								class="description"><?php _e( 'If you already use Google Analytics for your website, you can track detailed ecommerce information by enabling this setting. Choose whether you are using the new asynchronous or old tracking code. Before Google Analytics can report ecommerce activity for your website, you must enable ecommerce tracking on the profile settings page for your website. <a href="http://analytics.blogspot.com/2009/05/how-to-use-ecommerce-tracking-in-google.html" target="_blank">More information &raquo;</a>', 'psts' ) ?></span>
 						</td>
 					</tr>
+					<?php if ( is_ssl() ) : ?>
+					<tr valign="top">
+						<th scope="row"
+						    class="psts-help-div psts-ssl"><?php echo __( 'SSL for new sites', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enable this if wild card SSL available for all new sub sites. This will be applicable only if SSL is enabled and multisite is using sub domain setup.', 'psts' ) ); ?></th>
+						<td>
+							<label for="psts-subsites-ssl-on">
+								<input type="radio" name="psts[subsites_ssl]" id="psts-subsites-ssl-on" value="1" <?php checked( $psts->get_setting( 'subsites_ssl', 1 ), 1 ); ?> /> <?php _e( 'Enable', 'psts' ); ?>
+							</label>
+							<label for="psts-subsites-ssl-off">
+								<input type="radio" name="psts[subsites_ssl]" id="psts-subsites_ssl-off" value="0" <?php checked( $psts->get_setting( 'subsites_ssl', 1 ), 0 ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
+							</label>
+						</td>
+					</tr>
+					<?php endif; ?>
 					<?php do_action( 'psts_general_settings' ); ?>
 				</table>
 			</div>
