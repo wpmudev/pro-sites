@@ -753,6 +753,7 @@ Thanks!", 'psts' ),
 
 		//get level counts
 		$levels = get_site_option( 'psts_levels' );
+		$level_count = array();
 		for ( $i = 1; $i <= 10; $i ++ ) {
 			$level_count[ $i ] = 0;
 		} //prefill the array
@@ -3437,7 +3438,8 @@ if ( $active_pro_sites ) {
 	$date = date( 'Y-m-d', strtotime( '-' . PSTS_STATS_MONTHS . ' months', time() ) );
 	$days = $wpdb->get_results( "SELECT * FROM {$wpdb->base_prefix}pro_sites_daily_stats WHERE date >= '$date' ORDER BY date", ARRAY_A );
 	if ( $days ) {
-		$level_count = array();
+		$level_count = $pro_sites = $term_1 = $term_3 = $term_12 = $term_manual = array();
+
 		foreach ( $days as $day => $nums ) {
 			$day_code = strtotime( $nums['date'] ) * 1000;
 
@@ -3454,11 +3456,11 @@ if ( $active_pro_sites ) {
 				}
 			}
 		}
-		$pro_sites   = implode( ', ', (array) $pro_sites );
-		$term_1      = implode( ', ', (array) $term_1 );
-		$term_3      = implode( ', ', (array) $term_3 );
-		$term_12     = implode( ', ', (array) $term_12 );
-		$term_manual = implode( ', ', (array) $term_manual );
+		$pro_sites   = implode( ', ', $pro_sites );
+		$term_1      = implode( ', ', $term_1 );
+		$term_3      = implode( ', ', $term_3 );
+		$term_12     = implode( ', ', $term_12 );
+		$term_manual = implode( ', ', $term_manual );
 		foreach ( $level_count as $level => $data ) {
 			$level_counts[ $level ] = implode( ', ', (array) $data );
 		}
