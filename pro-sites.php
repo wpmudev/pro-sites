@@ -2111,12 +2111,13 @@ Thanks!", 'psts' ),
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
 		global $wpdb, $current_site;
 		
-		if (is_array( $gateway ) ) {
+		if ( is_array( $gateway ) ) {
 			$extend_type = $gateway[1]; //get the type first before changing gateway from array to string
 			$gateway = $gateway[0]; //get gateway string from array
-		}else{
+		} else {
 			$extend_type = "";
 		}
+		
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
 		
 		$last_gateway = '';
@@ -2178,15 +2179,15 @@ Thanks!", 'psts' ),
 
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
-		if( 'manual' === $gateway && $exists ) {
+		if ( 'manual' === $gateway && $exists ) {
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
 			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
 			//control whether we are upgrading the user or extending trial period
-			if ('manual' === $extend_type && $last_gateway != 'trial'){
+			if ( 'manual' === $extend_type && $last_gateway != 'trial' ){
 				$new_gateway = ($last_gateway == $gateway)? 'manual': $last_gateway;			
-			}elseif('manual' === $extend_type && 'trial' === $last_gateway){
+			} elseif ('manual' === $extend_type && 'trial' === $last_gateway ){
 				$new_gateway = 'manual';
-			}else{
+			} else {
 				$new_gateway = 'trial';
 			}
 			
@@ -2918,10 +2919,7 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$gateway = array(
-				'manual',
-				esc_attr($_POST['extend_type'])
-			);
+			$gateway = array( 'manual', esc_attr( $_POST['extend_type'] ) );
 			$this->extend( (int) $_POST['bid'], $extend, $gateway, $_POST['extend_level'], false, false, true, true );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
