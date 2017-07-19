@@ -2101,14 +2101,15 @@ Thanks!", 'psts' ),
 	/**
 	* @param $blog_id
 	* @param $extend Period of Subscription
-	* @param array|string $gateway (Manual, Trial, Stripe, Paypal)
+	* @param bool|string $gateway (Manual, Trial, Stripe, Paypal)
 	* @param int $level
 	* @param bool|false $amount
 	* @param bool|false $expires
 	* @param bool|true $is_recurring
 	* @param bool|false $manual_notify
+	* @param string $extend_type
     */
-	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = 'manual' ) {
+	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = '' ) {
 		global $wpdb, $current_site;
 		
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
@@ -2177,8 +2178,8 @@ Thanks!", 'psts' ),
 			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
 			//control whether we are upgrading the user or extending trial period
 			if ( 'manual' === $extend_type && $last_gateway != 'trial' ){
-				$new_gateway = ($last_gateway == $gateway)? 'manual': $last_gateway;			
-			} elseif ('manual' === $extend_type && 'trial' === $last_gateway ){
+				$new_gateway = ( $last_gateway == $gateway ) ? 'manual': $last_gateway;			
+			} elseif ( 'manual' === $extend_type && 'trial' === $last_gateway ){
 				$new_gateway = 'manual';
 			} else {
 				$new_gateway = 'trial';
