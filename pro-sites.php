@@ -2108,15 +2108,8 @@ Thanks!", 'psts' ),
 	* @param bool|true $is_recurring
 	* @param bool|false $manual_notify
     */
-	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
+	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = 'manual' ) {
 		global $wpdb, $current_site;
-		
-		if ( is_array( $gateway ) ) {
-			$extend_type = $gateway[1]; //get the type first before changing gateway from array to string
-			$gateway = $gateway[0]; //get gateway string from array
-		} else {
-			$extend_type = "";
-		}
 		
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
 		
@@ -2919,8 +2912,9 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$gateway = array( 'manual', esc_attr( $_POST['extend_type'] ) );
-			$this->extend( (int) $_POST['bid'], $extend, $gateway, $_POST['extend_level'], false, false, true, true );
+			// Get the extension type from post.
+			$extend_type = empty( $_POST['extend_type'] ) ? 'manual' : esc_attr( $_POST['extend_type'] );
+			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true, $extend_type );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
