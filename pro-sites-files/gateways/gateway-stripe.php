@@ -1523,7 +1523,7 @@ class ProSites_Gateway_Stripe {
 		$new_plan     = ( $level . '_' . $period );
 
 		// Last extended + 5 minutes.
-		$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300;
+		$receipt_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_email_receipt' ) + 300;
 
 		if ( $current_plan == $new_plan ) {
 			if ( ! $is_payment ) {
@@ -1531,11 +1531,13 @@ class ProSites_Gateway_Stripe {
 				return false;
 			}
 
-			if ( time() < $extend_window ) {
+			if ( time() < $receipt_window ) {
 				/* blog has already been extended by another webhook within the past
 					 5 minutes - don't extend again, but send receipt if its a payment */
 				if ( $is_payment ) {
 					$psts->email_notification( $blog_id, 'receipt', false, $args );
+					// Track email receipt sent.
+					update_blog_option( $blog_id, 'psts_stripe_last_email_receipt', time() );
 				}
 
 				return false;
@@ -1545,11 +1547,11 @@ class ProSites_Gateway_Stripe {
 		$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
 
 		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
-		if ( $is_payment && time() < $extend_window ) {
+		if ( $is_payment && time() < $receipt_window ) {
 			$psts->email_notification( $blog_id, 'receipt', false, $args );
+			// Track email receipt sent.
+			update_blog_option( $blog_id, 'psts_stripe_last_email_receipt', time() );
 		}
-
-		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
 
 		return true;
 	}
