@@ -2186,7 +2186,7 @@ Thanks!", 'psts' ),
 			}
 			
 			$extra_sql .= ", gateway = '" . $new_gateway . "'";
-		}else{
+		} else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
 		
