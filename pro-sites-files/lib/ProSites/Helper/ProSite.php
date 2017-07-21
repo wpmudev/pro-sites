@@ -361,5 +361,34 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			return 1;
 		}
+
+		/**
+		 * Get the scheme for urls.
+		 *
+		 * If the multisite setup is on sub domains, make sure we have
+		 * wild-card ssl is available before applying https to site_url or
+		 * admin_url values.
+		 *
+		 * @param string $scheme Default scheme.
+		 *
+		 * @return string $scheme
+		 */
+		public static function ssl_scheme( $scheme = 'admin' ) {
+
+			global $psts;
+
+			if ( is_ssl() ) {
+				// Is multisite using sub domain setup?
+				$subdomain = ( defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL );
+				// Is wildcard setting enabled?
+				$wildcard = (bool) $psts->get_setting( 'subsites_ssl', 0 );
+				// Decide the scheme.
+				if ( $subdomain && ! $wildcard ) {
+					$scheme = 'http';
+				}
+			}
+
+			return $scheme;
+		}
 	}
 }
