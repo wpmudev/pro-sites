@@ -1525,40 +1525,33 @@ class ProSites_Gateway_Stripe {
 	 * @return bool
 	 */
 	public static function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false, $is_recurring = true, $args = array() ) {
+
 		global $psts;
 
 		$current_plan = self::get_current_plan( $blog_id );
 		$new_plan     = ( $level . '_' . $period );
 
-		if ( $current_plan == $new_plan ) {
-			if ( ! $is_payment ) {
-				//is not a payment, nothing to do
-				return false;
-			}
+		// Last extended + 5 minutes.
+		$receipt_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_email_receipt' ) + 300;
 
-			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300; //last extended + 5 minutes
-
-			if ( time() < $extend_window ) {
-				/* blog has already been extended by another webhook within the past
-					 5 minutes - don't extend again, but send receipt if its a payment */
-				if ( $is_payment ) {
-					$psts->email_notification( $blog_id, 'receipt', false, $args );
-				}
-
-				return false;
-			}
+		$extended = false;
+		// If new subscription.
+		if ( $current_plan != $new_plan ) {
+			$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
+			$extended = true;
+		} elseif ( ! $is_payment ) {
+			// If not a payment, nothing to do.
+			return $extended;
 		}
 
-		$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
-
-		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
-		if ( $is_payment ) {
+		// We need to send receipt, if not sent already.
+		if ( $is_payment && time() < $receipt_window ) {
 			$psts->email_notification( $blog_id, 'receipt', false, $args );
+			// Track email receipt sent.
+			update_blog_option( $blog_id, 'psts_stripe_last_email_receipt', time() );
 		}
 
-		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
-
-		return true;
+		return $extended;
 	}
 
 	public static function get_current_plan( $blog_id ) {
