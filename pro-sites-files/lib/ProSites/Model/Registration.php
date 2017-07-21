@@ -13,6 +13,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		public static function add_ajax_hook() {
 			add_action( 'wp_ajax_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
 			add_action( 'wp_ajax_nopriv_check_prosite_blog', array( 'ProSites_Model_Registration', 'ajax_check_prosite_blog' ) );
+			add_action( 'wp_ajax_update_nbt_templates', array( 'ProSites_Model_Registration', 'update_nbt_templates' ) );
+			add_action( 'wp_ajax_nopriv_update_nbt_templates', array( 'ProSites_Model_Registration', 'update_nbt_templates' ) );
+			add_action( 'wp_ajax_update_nbt_levels', array( 'ProSites_Model_Registration', 'update_levels_by_template' ) );
+			add_action( 'wp_ajax_nopriv_update_nbt_levels', array( 'ProSites_Model_Registration', 'update_levels_by_template' ) );
 		}
 
 		public static function ajax_check_prosite_blog() {
@@ -36,6 +40,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			$period = (int) $_POST['period'];
 			$level  = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
+
+			// Keep the period and level data in $_POST.
+			$params['level'] = $level;
+			$params['period'] = $period;
 
 			// Santitize each values in $_POST
 			array_walk_recursive($params, function( &$item, $key ) {
@@ -281,6 +289,272 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$errors->add( 'availability_check_only', __( 'User/Blog availability check only.', 'psts' ) );
 
 			return $errors;
+		}
+
+		/**
+		 * Update the NBT templates based on the plan.
+		 *
+		 * To support New Blog Templates:
+		 * Update the NBT template selector based on the Pro Sites
+		 * plan selected. If a restricted theme/plugin is active on a NBT
+		 * template, hide that template from registration form.
+		 *
+		 * @return strng
+		 */
+		public static function update_nbt_templates() {
+
+			global  $psts;
+
+			$templates = array();
+
+			// Do not continue if NBT and Premium plugin/theme manager modules
+			// are not enbled, or the level value is not available from the request.
+			if ( $psts->nbt_update_required() && ! empty( $_POST['level'] ) ) {
+				$level = intval( $_POST['level'] );
+				$templates = self::get_filtered_nbt_templates( $level );
+			}
+
+			// Create new options based on the filtered data.
+			$content = '<option value="none">' . __( "None", "psts" ) . '</option>';
+			if ( ! empty( $templates ) ) {
+				foreach ( $templates as $key => $template ) {
+					$content .= '<option value="' . $key . '">' . strip_tags( $template['name'] ) . '</option>';
+				}
+			}
+
+			wp_send_json( $content );
+		}
+
+		/**
+		 * Update plans based on the selected NBT template.
+		 *
+		 * To support New Blog Templates:
+		 * Update the available pricing plans when a template
+		 * is selected from NBT templates.
+		 *
+		 * @return strng
+		 */
+		public static function update_levels_by_template() {
+
+			global  $psts;
+
+			$unavailable_levels = array();
+
+			// Do not continue if NBT and Premium plugin/theme manager modules
+			// are not enbled, or the template value is not available from the request.
+			if ( $psts->nbt_update_required() && ! empty( $_POST['template'] ) ) {
+				$template = intval( $_POST['template'] );
+				$unavailable_levels = self::get_filtered_levels_by_template( $template );
+			}
+
+			wp_send_json( $unavailable_levels );
+		}
+
+		/**
+		 * Filter the NBT templates based on the level selected.
+		 *
+		 * @param $templates All available NBT templates.
+		 *
+		 * @return array Filtered NBT templates.
+		 */
+		public static function filter_nbt_signup_templates( $templates ) {
+
+			$level = 0;
+			// If level value is available on $_POST.
+			if ( ! empty( $_POST['level'] ) ) {
+				$level = intval( $_POST['level'] );
+			} else {
+				// If level value is set in session.
+				$session = ProSites_Helper_Session::session( 'new_blog_details' );
+				if ( ! empty( $session['level'] ) ) {
+					$level = $session['level'];
+				}
+			}
+
+			// Filter the templates only if valid level is available.
+			if ( ! empty( $level ) ) {
+				$templates = self::get_filtered_nbt_templates( $level );
+			}
+
+			return $templates;
+		}
+
+		/**
+		 * Get the available NBT templates for the level.
+		 *
+		 * Get the available templates for NBT based on the
+		 * selected level. Remove the templates if restricted
+		 * plugins or themes are active within the template.
+		 *
+		 * @param $level Selected level.
+		 *
+		 * @return array Filtered templates.
+		 */
+		public static function get_filtered_nbt_templates( $level ) {
+
+			global  $psts;
+
+			$templates = array();
+
+			// Get the enabled modules in Pro Sites.
+			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
+			$premium_themes_enabled = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
+			$premium_plugins_enabled = in_array( 'ProSites_Module_Plugins', $modules_enabled );
+			$plugin_manager_enabled = in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled );
+
+			// Do not continue if no templates are available if NBT.
+			$nbt_model = nbt_get_model();
+			if ( empty( $nbt_model->get_templates() ) ) {
+				return $templates;
+			}
+
+			// Premium enabled themes.
+			$premium_themes = $psts->get_setting( 'pt_allowed_themes', array() );
+			// Network enabled themes.
+			$network_themes = get_site_option( 'allowedthemes', array() );
+			// Allowed themes.
+			$allowed_themes = array_merge( $premium_themes, $network_themes );
+			// Get premium plugins.
+			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
+			// Get the available plugins for the selected level.
+			$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
+
+			// All available NBT templates.
+			$templates = $nbt_model->get_templates();
+
+			// Loop through each templates.
+			foreach ( $templates as $key => $template ) {
+
+				// Switch to the template blog.
+				switch_to_blog( $template['blog_id'] );
+
+				// If Premium themes module is enabled.
+				if ( $premium_themes_enabled ) {
+					// Current active theme of the blog.
+					$theme_name = get_template();
+					// If the current active theme of the blog is not available for this template, remove this template.
+					if ( ! array_key_exists( $theme_name, $allowed_themes ) || ( isset( $allowed_themes[ $theme_name ] ) && $allowed_themes[ $theme_name ] > $level ) ) {
+						unset( $templates[ $key ] );
+					}
+				}
+
+				// If Premium plugins module is active.
+				if ( $premium_plugins_enabled ) {
+					foreach ( $premium_plugins as $plugin => $data ) {
+						// If any of the active plugin of the blog is not available for this template, remove this template.
+						if ( is_plugin_active( $plugin ) && ( ( isset( $data['level'] ) && $data['level'] > $level ) || ! isset( $data['level'] ) ) ) {
+							unset( $templates[ $key ] );
+						}
+					}
+				}
+
+				// If Premium Plugins Manager is active.
+				if ( $plugin_manager_enabled ) {
+					// Get all active plugins of the blog.
+					$get_active_plugins = (array) get_option( 'active_plugins' );
+					// If any of the active plugin is not avaible for the plan, remove the template.
+					if ( ! empty( array_diff( $get_active_plugins, $premium_manager_plugins ) ) ) {
+						unset( $templates[ $key ] );
+					}
+				}
+			}
+
+			// Restore current blog.
+			restore_current_blog();
+
+			return $templates;
+		}
+
+		/**
+		 * Get the UNAVAILABLE plans based on the NBT template selected.
+		 *
+		 * Get the unavailable plans for based on the selected NBT template.
+		 * If restricted plugins or themes are active within the template,
+		 * that plan should not be available.
+		 *
+		 * @param $template_id Selected template.
+		 *
+		 * @return array Unavailable plans.
+		 */
+		public static function get_filtered_levels_by_template( $template_id ) {
+
+			global  $psts;
+
+			$unavailable_levels = array();
+
+			// Do not continue if no templates are available from NBT.
+			$nbt_model = nbt_get_model();
+			$template = $nbt_model->get_template( $template_id );
+			if ( empty( $template ) ) {
+				return $unavailable_levels;
+			}
+
+			// If incase it is main blog, skip.
+			if ( is_main_site( $template['blog_id'] ) ) {
+				return $unavailable_levels;
+			}
+
+			$levels = get_site_option( 'psts_levels' );
+			// Do not continue if levels not found.
+			if ( empty( $levels ) || ! is_array( $levels ) ) {
+				return $unavailable_levels;
+			}
+
+			// Get the enabled modules in Pro Sites.
+			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
+			$premium_themes_enabled = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
+			$premium_plugins_enabled = in_array( 'ProSites_Module_Plugins', $modules_enabled );
+			$plugin_manager_enabled = in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled );
+			// Get premium plugins.
+			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
+			// Premium enabled themes.
+			$premium_themes = $psts->get_setting( 'pt_allowed_themes', array() );
+			// Network enabled themes.
+			$network_themes = get_site_option( 'allowedthemes', array() );
+			// Allowed themes.
+			$allowed_themes = array_merge( $premium_themes, $network_themes );
+
+			// Switch to the template blog.
+			switch_to_blog( $template['blog_id'] );
+
+			foreach ( $levels as $level => $level_data ) {
+				// If Premium themes module is enabled.
+				if ( $premium_themes_enabled ) {
+					// Current active theme of the blog.
+					$theme_name = get_template();
+					// If the current active theme of the blog is not available for this template, remove this template.
+					if ( ! array_key_exists( $theme_name, $allowed_themes ) || ( isset( $allowed_themes[ $theme_name ] ) && $allowed_themes[ $theme_name ] > $level ) ) {
+						$unavailable_levels[] = $level;
+					}
+				}
+
+				// If Premium plugins module is active.
+				if ( $premium_plugins_enabled ) {
+					foreach ( $premium_plugins as $plugin => $plugin_data ) {
+						// If any of the active plugin of the blog is not available for this template, remove this template.
+						if ( is_plugin_active( $plugin ) && ( ( isset( $plugin_data['level'] ) && $plugin_data['level'] > $level ) || ! isset( $plugin_data['level'] ) ) ) {
+							$unavailable_levels[] = $level;
+						}
+					}
+				}
+
+				// If Premium Plugins Manager is active.
+				if ( $plugin_manager_enabled ) {
+					// Get the available plugins for the selected level.
+					$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
+					// Get all active plugins of the blog.
+					$get_active_plugins = (array) get_option( 'active_plugins' );
+					// If any of the active plugin is not avaible for the plan, remove the template.
+					if ( ! empty( array_diff( $get_active_plugins, $premium_manager_plugins ) ) ) {
+						$unavailable_levels[] = $level;
+					}
+				}
+			}
+
+			// Restore current blog.
+			restore_current_blog();
+
+			return $unavailable_levels;
 		}
 
 		/**

@@ -146,6 +146,8 @@ class ProSites {
 		// Add Registration AJAX handler
 		ProSites_Model_Registration::add_ajax_hook();
 		add_filter( 'prosite_register_blog_pre_validation', array( 'ProSites_Model_Registration', 'cleanup_unused_user' ), 10, 3 );
+		// NBT support.
+		add_filter( 'nbt_signup_templates', array( 'ProSites_Model_Registration', 'filter_nbt_signup_templates' ) );
 
 		add_action( 'wp_enqueue_scripts', array( &$this, 'registration_page_styles' ) );
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'alter_welcome_for_existing_users' ), 10, 6 );
@@ -1246,7 +1248,8 @@ Thanks!", 'psts' ),
 			'button_choose' => __( "Choose Plan", 'psts' ),
 			'button_chosen' => __( "Chosen Plan", 'psts' ),
 			'logged_in' => is_user_logged_in(),
-			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false'
+			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false',
+			'nbt_update_required' => $this->nbt_update_required(),
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
@@ -5398,6 +5401,36 @@ function admin_modules() {
         switch_to_blog( $main_site );
         $wpdb->query( "DELETE from {$wpdb->prefix}pro_sites where blog_id='$blog_id'" );
         restore_current_blog();
+    }
+
+	/**
+	 * Check if it is required to update the blog templates or plans.
+	 *
+	 * This is to add New Blog Templates support with Premium Plugins Manager
+	 * and Premium Plugins.
+	 *
+	 * @return bool
+	 */
+    public function nbt_update_required() {
+
+		// If NBT is not active, no need to update.
+		if ( ! class_exists( 'blog_templates' ) ) {
+			return false;
+		}
+
+		// If no templates are set inn NBT, no need to update.
+		$nbt_model = nbt_get_model();
+		if ( empty( $nbt_model->get_templates() ) ) {
+			return false;
+		}
+
+		// Update if Premium Plugins Manager or Premium Plugins or Premium Themes modules are active along with NBT.
+		$modules_enabled = (array) $this->get_setting( 'modules_enabled' );
+		if ( in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled ) || in_array( 'ProSites_Module_Plugins', $modules_enabled ) || in_array( 'ProSites_Module_PremiumThemes', $modules_enabled ) ) {
+			return true;
+		}
+
+		return false;
     }
 
 }
