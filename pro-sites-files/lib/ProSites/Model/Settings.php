@@ -40,19 +40,19 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 				$old_settings = get_site_option( 'psts_settings' );
 				
 				/**
-				* save quotas for each level in an array, 
-				* this will allow reloading of previously stored values for the level when reloading the page by selecting a level.
-				*/
+				 * Save quotas for each level in an array, 
+				 * this will allow reloading of previously stored values for the level when reloading the page by selecting a level.
+				 */
 				$quotas_for_level = esc_attr( $_POST['quotas_for_level'] );								
 				$levels_quotas = $old_settings['levels_quotas'];
 				$levels_quotas[$quotas_for_level] = $_POST['psts']['pq_quotas'];
 				
 				$per_level = isset($_POST['psts']['per_level'])? $_POST['psts']['per_level'] : 0 ;
-				//add or update levels quotas in old settings before medging old_settings below
+				// Add or update levels quotas in old settings before medging old_settings below
 				$old_settings['levels_quotas'] = $levels_quotas;
 				$old_settings['per_level'] = $per_level;
 
-				// update levels?
+				// Update levels?
 				$update_gateway_levels = false;
 				if ( isset( $_POST['psts']['currency'] ) ) {
 					$new_currency = sanitize_text_field( $_POST['psts']['currency'] );
