@@ -625,9 +625,9 @@ class ProSites_Gateway_PayPalExpressPro {
 				if ( $recurring ) {
 					$descAmount = $is_trial ? $initAmountDesc : $initAmountDesc + $paymentAmountInitial;
 					if ( $_POST['period'] == 1 ) {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $descAmount ), $psts->format_currency( $currency, $paymentAmountDesc ) );
+						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s each month, plus a one time %2$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $psts->format_currency( $currency, $descAmount ) );
 					} else {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first %2$s month period, then %3$s every %4$s months', 'psts' ), $psts->format_currency( $currency, $descAmount ), $_POST['period'], $psts->format_currency( $currency, $paymentAmountDesc ), $_POST['period'] );
+						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s every %2$s months, plus a one time %3$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $_POST['period'], $psts->format_currency( $currency, $descAmount ) );
 					}
 				} else {
 					$descAmount = $paymentAmountDesc + $initAmountDesc;
