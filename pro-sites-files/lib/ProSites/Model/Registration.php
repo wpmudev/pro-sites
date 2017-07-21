@@ -258,7 +258,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 				// No longer need ajax session
 				ProSites_Helper_Session::unset_session( 'psts_ajax_session_activated' );
-				ProSites_Helper_Session::unset_session( 'new_blog_details' );
+				// Unset session only if it was success.
+				if ( empty( $user_check->errors ) ) {
+					ProSites_Helper_Session::unset_session( 'new_blog_details' );
+				}
 
 				// Buffer used to isolate AJAX response from unexpected output
 				@ob_end_clean();
