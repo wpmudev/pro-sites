@@ -4528,12 +4528,13 @@ function admin_modules() {
 
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
+		// Get the registration settings of network.
+		$registration = get_site_option('registration');
 
-		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data ) )  {
+		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data['username'] ) )  {
 
 			$show_signup = $this->get_setting( 'show_signup' );
-			$registeration = get_site_option('registration');
-			$show_signup = 'all' == $registeration ? $show_signup : false;
+			$show_signup = 'all' == $registration ? $show_signup : false;
 
 			if( ! is_user_logged_in() && ! $show_signup ) {
 				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
@@ -4636,6 +4637,10 @@ function admin_modules() {
 			}
 		}
 
+		//Check if multiple signups are allowed
+		$allow_multi = $this->get_setting('multiple_signup');
+		$allow_multi = 'all' == $registration || 'blog' == $registration ? $allow_multi : false;
+
 		if ( $blog_id ) {
 
 			//check for admin permissions for this blog
@@ -4656,6 +4661,10 @@ function admin_modules() {
 				$content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
 
 				return $content;
+			}
+
+			if( $allow_multi ) {
+				$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 			}
 
 			//this is the main hook for new checkout page
@@ -4702,11 +4711,6 @@ function admin_modules() {
 
 			//show message if no valid blogs
 			$session_domain = ProSites_Helper_Session::session( 'domain' );
-
-			//Check if multiple signups are allowed
-			$allow_multi = $this->get_setting('multiple_signup');
-			$registeration = get_site_option('registration');
-			$allow_multi = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
 
 			//Check if user has signed up for a site already
 			$current_user = wp_get_current_user();
