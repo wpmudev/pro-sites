@@ -1619,9 +1619,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		$email = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
-
-		wp_mail( $email, __( "Don't forget to cancel your old subscription!", 'psts' ), $message );
-
+		
+		$headers = array(
+			'content-type' => 'text/html'
+		);
+		add_action('phpmailer_init', 'psts_text_body' );
+		
+		wp_mail( $email, __( "Don't forget to cancel your old subscription!", 'psts' ), $message, $headers );
+		
+		remove_action('phpmailer_init', 'psts_text_body');
+		
 		$psts->log_action( $blog_id, sprintf( __( 'Reminder to cancel previous %s subscription sent to %s', 'psts' ), $old_gateway, get_blog_option( $blog_id, 'admin_email' ) ) );
 	}
 
