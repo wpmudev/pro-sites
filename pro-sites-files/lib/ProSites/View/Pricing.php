@@ -542,7 +542,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 																class="reset-link"><?php echo esc_html( $hover_actions['reset'] ); ?></a></span>
 													</div>
 													<input type="hidden"
-													       value="<?php echo esc_html( $original_value ); ?>"/>
+													       value='<?php echo esc_html( $original_value ); ?>'/>
 												</td>
 												<?php
 												break;
@@ -559,17 +559,17 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 												?>
 												<td scope="row">
 													<div
-														class="text-item"><?php echo esc_html( $setting['description'] ); ?></div>
+														class="text-item"><?php echo ProSites::filter_html( $setting['description'] ); ?></div>
 													<div class="edit-box" style="display:none">
 														<textarea class="editor" type="text"
-														          name="psts[feature_table][<?php echo $key; ?>][description]"><?php echo esc_html( $setting['description'] ); ?></textarea><br/>
+														          name="psts[feature_table][<?php echo $key; ?>][description]"><?php echo ProSites::filter_html( $setting['description'] ); ?></textarea><br/>
 														<span><a
 																class="save-link"><?php echo esc_html( $hover_actions['save'] ); ?></a> <a
 																style="margin-left: 10px;"
 																class="reset-link"><?php echo esc_html( $hover_actions['reset'] ); ?></a></span>
 													</div>
 													<input type="hidden"
-													       value="<?php echo esc_html( $original_value ); ?>"/>
+													       value='<?php echo ProSites::filter_html( $original_value ); ?>'/>
 												</td>
 												<?php
 												break;
@@ -759,7 +759,8 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 							<thead>
 							<tr>
 								<th><?php _e( 'Name', 'psts' ); ?></th>
-								<th><?php _e( 'Description', 'psts' ); ?></th>
+								<th class="psts-help-div"><?php _e( 'Description', 'psts' ); ?>
+								<?php echo $psts->help_text( __( 'Note: use double quotes to enclose values, like: <code>style=&quot;color:#f00&quot;</code>, otherwise you may see some tags not rendered on this page.', 'psts' ) ); ?></th>
 								<th><?php _e( 'Custom text', 'psts' ); ?></th>
 								<th></th>
 							</tr>

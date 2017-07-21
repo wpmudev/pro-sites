@@ -49,5 +49,16 @@ jQuery(document).ready(function($){
             }
         }
     });
-
+	
+	/**
+	* On posting quota settings, if the level is selected
+	* reload the page if per level posting quotas are enabled
+	*/
+	$(document).ready(function(e) {
+		$('#pq_level').on('change', function(e){
+			if ( $(".per_level:checked").val() == 1 ){
+			   self.location=self.location+'&level='+this.options[this.selectedIndex].value;
+			} 
+		});
+	});
 });

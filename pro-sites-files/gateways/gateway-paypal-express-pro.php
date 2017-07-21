@@ -625,9 +625,9 @@ class ProSites_Gateway_PayPalExpressPro {
 				if ( $recurring ) {
 					$descAmount = $is_trial ? $initAmountDesc : $initAmountDesc + $paymentAmountInitial;
 					if ( $_POST['period'] == 1 ) {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $psts->format_currency( $currency, $descAmount ), $psts->format_currency( $currency, $paymentAmountDesc ) );
+						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s each month, plus a one time %2$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $psts->format_currency( $currency, $descAmount ) );
 					} else {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s for the first %2$s month period, then %3$s every %4$s months', 'psts' ), $psts->format_currency( $currency, $descAmount ), $_POST['period'], $psts->format_currency( $currency, $paymentAmountDesc ), $_POST['period'] );
+						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s every %2$s months, plus a one time %3$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $_POST['period'], $psts->format_currency( $currency, $descAmount ) );
 					}
 				} else {
 					$descAmount = $paymentAmountDesc + $initAmountDesc;
@@ -1619,9 +1619,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		$email = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
-
-		wp_mail( $email, __( "Don't forget to cancel your old subscription!", 'psts' ), $message );
-
+		
+		$headers = array(
+			'content-type' => 'text/html'
+		);
+		add_action('phpmailer_init', 'psts_text_body' );
+		
+		wp_mail( $email, __( "Don't forget to cancel your old subscription!", 'psts' ), $message, $headers );
+		
+		remove_action('phpmailer_init', 'psts_text_body');
+		
 		$psts->log_action( $blog_id, sprintf( __( 'Reminder to cancel previous %s subscription sent to %s', 'psts' ), $old_gateway, get_blog_option( $blog_id, 'admin_email' ) ) );
 	}
 
@@ -2003,7 +2010,10 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		}
 
 		wp_enqueue_script( 'jquery' );
-		add_action( 'wp_head', array( &$this, 'checkout_js' ) );
+
+		// Add inline script for checkout page.
+		$inline_script = $this->checkout_js();
+		wp_add_inline_script( 'psts-checkout', $inline_script );
 	}
 
 	function settings() {
@@ -2790,20 +2800,27 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		update_blog_option( $from_id, 'psts_paypal_profile_id', $trans_meta );
 	}
 
+	/**
+	 * Inline script for PayPal checkout.
+	 *
+	 * @return string
+	 */
 	function checkout_js() {
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function ($) {
+
+		$message = __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' );
+		$script = "jQuery(document).ready(function ($) {
 				$('form').submit(function () {
 					$('#cc_paypal_checkout').hide();
 					$('#paypal_processing').show();
 				});
-				$("a#pypl_cancel").click(function (e) {
-					if (!confirm("<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>"))
+				$('a#pypl_cancel').click(function (e) {
+					if (!confirm('" . $message . "')) {
 						e.preventDefault();
+					}
 				});
-			});
-		</script><?php
+			});";
+
+		return $script;
 	}
 
 	/**
@@ -2963,7 +2980,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $currency_code, $payment ), $_POST['txn_type'], $txn_id ) . $profile_string );
 
 							//extend only if a recurring payment, first payments are handled below
-							if ( $_POST['txn_type'] == 'recurring_payment' && ! get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
+							if ( $_POST['txn_type'] == 'recurring_payment' && get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
 
