@@ -470,15 +470,15 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			//if ( ! is_user_logged_in() || ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['site_activated'] ) && $session_data['new_blog_details']['site_activated'] ) ) {
 			$pre_content = '';
 
+			// PayPal Fix, As the user is redirected to Paypal and then sent back over to the site
+			if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
+				return self::render_payment_submitted('', '', $blog_id );
+			}
+
 			if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
 			     ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
 			) {
 				$pre_content .= self::render_payment_submitted();
-			}
-
-			// PayPal Fix, As the user is redirected to Paypal and then sent back over to the site
-			if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
-				return self::render_payment_submitted('', '', $blog_id );
 			}
 
 			// Check manual payments
@@ -686,9 +686,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$last_gateway     = ProSites_Helper_ProSite::last_gateway( $blog_id );
 
-			//Fix for Paypal
-			if ( empty( $last_gateway ) && isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
-				$last_gateway = 'paypal';
+			// Fix for Paypal and Stripe when trial is enabled and gateway name is trial.
+			if ( empty( $last_gateway ) || 'trial' == strtolower( $last_gateway ) ) {
+				if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
+					$last_gateway = 'paypal';
+				} elseif ( ! empty( $_POST['stripeToken'] ) ) {
+					$last_gateway = 'stripe';
+				}
 			}
 
 			$ty_message = '';
