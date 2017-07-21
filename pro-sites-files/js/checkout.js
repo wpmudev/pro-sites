@@ -524,6 +524,18 @@ jQuery( document ).ready( function ( $ ) {
 
     } );
 
+    var period_value = $( '#stripe-payment-form [name=period]' ).val();
+    // For first period selector layout.
+    var period_option = $( '.period-option.period' + period_value );
+    // For second period selector layout.
+    var period_selector = $( '.period-selector option[value="price_' + period_value + '"]' );
+    // If period value is set, make it selected.
+    if( period_option.length ) {
+        period_option.trigger( 'click' );
+    } else if ( period_selector.length ) {
+        period_selector.prop( 'selected', 'selected' ).change();
+    }
+
     //More than 1 gateway?, Tabs
     if( jQuery('#gateways>div').length > 1 ) {
         $('#gateways').tabs();
