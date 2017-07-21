@@ -705,7 +705,6 @@ Thanks!", 'psts' ),
 				WHERE blog_ID = %d
 					AND ( gateway = 'Trial' OR gateway = 'trial' )
 					AND expire >= %s
-					AND (term = '' OR term IS NULL)
 				LIMIT 1", $blog_id, time()
 			) );
 
