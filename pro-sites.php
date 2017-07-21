@@ -2101,17 +2101,19 @@ Thanks!", 'psts' ),
 	/**
 	* @param $blog_id
 	* @param $extend Period of Subscription
-	* @param bool|false $gateway (Manual, Trial, Stripe, Paypal)
+	* @param bool|string $gateway (Manual, Trial, Stripe, Paypal)
 	* @param int $level
 	* @param bool|false $amount
 	* @param bool|false $expires
 	* @param bool|true $is_recurring
 	* @param bool|false $manual_notify
+	* @param string $extend_type
     */
-	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false ) {
+	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = '' ) {
 		global $wpdb, $current_site;
-
+		
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
+		
 		$last_gateway = '';
 
 		$now    = time();
@@ -2171,13 +2173,23 @@ Thanks!", 'psts' ),
 
 		$extra_sql = $wpdb->prepare( "expire = %s", $new_expire );
 		$extra_sql .= ( $level ) ? $wpdb->prepare( ", level = %d", $level ) : '';
-		if( 'manual' === $gateway && $exists ) {
+		if ( 'manual' === $gateway && $exists ) {
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
 			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
-			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $last_gateway ) : $wpdb->prepare( ", gateway = %s", $gateway );
+			//control whether we are upgrading the user or extending trial period
+			if ( 'manual' === $extend_type && $last_gateway != 'trial' ){
+				$new_gateway = ( $last_gateway == $gateway ) ? 'manual': $last_gateway;			
+			} elseif ( 'manual' === $extend_type && 'trial' === $last_gateway ){
+				$new_gateway = 'manual';
+			} else {
+				$new_gateway = 'trial';
+			}
+			
+			$extra_sql .= ", gateway = '" . $new_gateway . "'";
 		} else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
+		
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
 		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
 		$extra_sql .= $wpdb->prepare( ", is_recurring = %d", $is_recurring );
@@ -2901,7 +2913,9 @@ _gaq.push(["_trackTrans"]);
 				$days   = $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
-			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true );
+			// Get the extension type from post.
+			$extend_type = empty( $_POST['extend_type'] ) ? 'manual' : esc_attr( $_POST['extend_type'] );
+			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true, $extend_type );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
@@ -3171,6 +3185,24 @@ _gaq.push(["_trackTrans"]);
 												?>
 											</select>
 											<br/><?php _e( 'Choose what level the site should have access to.', 'psts' ); ?>
+										</td>
+									</tr>
+									<tr valign="top">
+										<th scope="row"><?php _e( 'Extend as', 'psts' ) ?></th>
+										<td>
+										<?php
+											$gateway = $wpdb->get_var( $wpdb->prepare( "
+												SELECT gateway
+												FROM {$wpdb->base_prefix}pro_sites
+												WHERE blog_ID = %d", $blog_id
+											) );
+											
+											?>
+											<select name="extend_type">
+												<option value="trial" <?php selected( $gateway,'trial' ); ?>><?php echo ProSites_Helper_Gateway::get_nice_name( 'trial' ); ?></option>
+												<option value="manual" <?php selected( $gateway != 'trial' ); ?>><?php _e( 'Manual', 'psts' ); ?></option>
+											</select>
+											<br/><?php _e( 'Choose whether to keep the user on trial or upgrade as paid member.', 'psts' ); ?>
 										</td>
 									</tr>
 									<?php
