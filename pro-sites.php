@@ -5426,7 +5426,8 @@ function admin_modules() {
 
 		// If no templates are set inn NBT, no need to update.
 		$nbt_model = nbt_get_model();
-		if ( empty( $nbt_model->get_templates() ) ) {
+		$templates = $nbt_model->get_templates();
+		if ( empty( $templates ) ) {
 			return false;
 		}
 
