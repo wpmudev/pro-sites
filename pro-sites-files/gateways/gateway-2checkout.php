@@ -218,7 +218,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 					$esc_domain = esc_url( $domain );
 
 					//Set complete message
-					$this->complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
+					$this->complete_message = sprintf( __( 'Your trial blog has been setup at <a href="%1$s">%1$s</a>', 'psts' ), $esc_domain );
 
 					return;
 				}
