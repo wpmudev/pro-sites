@@ -3346,7 +3346,7 @@ _gaq.push(["_trackTrans"]);
 
 function admin_stats() {
 	global $wpdb;
-	$pro_sites = $level_counts = $term_1 = $term_12 = $term_3 = '';
+	$pro_sites = $level_counts = $term_1 = $term_12 = $term_3 = array();
 	$term_manual = $daily_stats_levels = '';
 	if ( ! is_super_admin() ) {
 		echo "<p>" . __( 'Nice Try...', 'psts' ) . "</p>"; //If accessed properly, this message doesn't appear.
