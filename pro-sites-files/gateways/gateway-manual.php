@@ -319,6 +319,12 @@ class ProSites_Gateway_Manual {
 
 			$current_payment = self::calculate_cost( $blog_id, $_POST['level'], $_POST['period'], $process_data['COUPON_CODE'] );
 			$modify          = self::is_modifying( $blog_id, $_POST, $current_payment );
+			
+			$headers = array(
+				'content-type' => 'text/html'
+			);
+			add_action('phpmailer_init', 'psts_text_body' );
+			
 			if ( $modify ) {
 				//Plan Update
 				$psts->log_action( $blog_id, sprintf( __( 'User submitted Manual Payment for blog upgrade from %s to %s.', 'psts' ), $psts->get_level_setting( intval( $current->level ), 'name' ), $psts->get_level_setting( intval( $_POST['level'] ), 'name' ) ) );
@@ -363,7 +369,7 @@ class ProSites_Gateway_Manual {
 
 				$message = apply_filters( 'prosites_manual_payment_email_body', implode( "\n", $message_parts ) . "\n", $message_parts, $message_fields );
 
-				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message, $headers );
 
 			} else {
 
@@ -419,7 +425,7 @@ class ProSites_Gateway_Manual {
 
 				$message = apply_filters( 'prosites_manual_payment_email_body', implode( "\n", $message_parts ) . "\n", $message_parts, $message_fields );
 
-				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message );
+				wp_mail( $psts->get_setting( 'mp_email', get_site_option( "admin_email" ) ), $subject, $message, $headers );
 				ProSites_Helper_Session::session( array(
 					'new_blog_details',
 					'reserved_message'
@@ -445,7 +451,8 @@ class ProSites_Gateway_Manual {
 
 			//Update
 			$psts->update_signup_meta( $signup_meta, $activation_key );
-
+			
+			remove_action('phpmailer_init', 'psts_text_body' );
 		}
 
 	}

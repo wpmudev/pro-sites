@@ -480,7 +480,10 @@ class ProSites_Gateway_Stripe {
 			'expiration'    => __( 'Please choose a valid expiration date.', 'psts' ),
 			'cvv2'          => __( 'Please enter a valid card security code. This is the 3 digits on the signature panel, or 4 digits on the front of Amex cards.', 'psts' )
 		) );
-		add_action( 'wp_head', array( 'ProSites_Gateway_Stripe', 'checkout_js' ) );
+
+		// Add inline script for checkout page.
+		$inline_script = self::checkout_js();
+		wp_add_inline_script( 'psts-checkout', $inline_script );
 	}
 
 	/**
@@ -1023,19 +1026,24 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * JS to be printed only on checkout page
+	 * JS to be printed only on checkout page.
+	 *
+	 * @return string
 	 */
 	public static function checkout_js() {
-		?>
-		<script type="text/javascript"> jQuery(document).ready(function () {
-				jQuery("a#stripe_cancel").click(function () {
-					if (confirm("<?php echo __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' ); ?>")) {
+
+		$message = __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' );
+		$script = "jQuery(document).ready(function () {
+				jQuery('a#stripe_cancel').click(function () {
+					if (confirm('" . $message . "')) {
 						return true;
 					} else {
 						return false;
 					}
 				});
-			});</script><?php
+			});";
+
+		return $script;
 	}
 
 	/**
@@ -1517,40 +1525,33 @@ class ProSites_Gateway_Stripe {
 	 * @return bool
 	 */
 	public static function maybe_extend( $blog_id, $period, $gateway, $level, $amount, $expire = false, $is_payment = false, $is_recurring = true, $args = array() ) {
+
 		global $psts;
 
 		$current_plan = self::get_current_plan( $blog_id );
 		$new_plan     = ( $level . '_' . $period );
 
-		if ( $current_plan == $new_plan ) {
-			if ( ! $is_payment ) {
-				//is not a payment, nothing to do
-				return false;
-			}
+		// Last extended + 5 minutes.
+		$receipt_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_email_receipt' ) + 300;
 
-			$extend_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_webhook_extend' ) + 300; //last extended + 5 minutes
-
-			if ( time() < $extend_window ) {
-				/* blog has already been extended by another webhook within the past
-					 5 minutes - don't extend again, but send receipt if its a payment */
-				if ( $is_payment ) {
-					$psts->email_notification( $blog_id, 'receipt', false, $args );
-				}
-
-				return false;
-			}
+		$extended = false;
+		// If new subscription.
+		if ( $current_plan != $new_plan ) {
+			$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
+			$extended = true;
+		} elseif ( ! $is_payment ) {
+			// If not a payment, nothing to do.
+			return $extended;
 		}
 
-		$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
-
-		//send receipt email - this needs to be done AFTER extend is called and if it is a payment
-		if ( $is_payment ) {
+		// We need to send receipt, if not sent already.
+		if ( $is_payment && time() < $receipt_window ) {
 			$psts->email_notification( $blog_id, 'receipt', false, $args );
+			// Track email receipt sent.
+			update_blog_option( $blog_id, 'psts_stripe_last_email_receipt', time() );
 		}
 
-		update_blog_option( $blog_id, 'psts_stripe_last_webhook_extend', time() );
-
-		return true;
+		return $extended;
 	}
 
 	public static function get_current_plan( $blog_id ) {
@@ -1806,9 +1807,9 @@ class ProSites_Gateway_Stripe {
 			}
 		}
 
-		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : ProSites_Helper_ProSite::default_period();
-		$level  = isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
-		$level  = isset( $render_data['upgraded_blog_details'] ) && isset( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
+		$period = ! empty( $render_data['new_blog_details']['period'] ) ? (int) $render_data['new_blog_details']['period'] : ProSites_Helper_ProSite::default_period();
+		$level = ! empty( $render_data['new_blog_details']['level'] ) ? (int) $render_data['new_blog_details']['level'] : 0;
+		$level = ! empty( $render_data['upgraded_blog_details']['level'] ) ? (int) $render_data['upgraded_blog_details']['level'] : $level;
 
 		$content .= '<form action="' . $psts->checkout_url( $blog_id, $domain ) . '" method="post" autocomplete="off"  id="stripe-payment-form">
 
@@ -2047,7 +2048,11 @@ class ProSites_Gateway_Stripe {
 
 		//Process Checkout
 		if ( isset( $_POST['cc_stripe_checkout'] ) && 1 == (int) $_POST['cc_stripe_checkout'] ) {
-
+			$headers = array(
+				'content-type' => 'text/html'
+			);
+			add_action('phpmailer_init', 'psts_text_body' );
+		
 			//check for level, if empty don't go ahead and return
 			if ( empty( $_POST['level'] ) || empty( $_POST['period'] ) ) {
 				$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
@@ -2343,7 +2348,8 @@ class ProSites_Gateway_Stripe {
 						wp_mail(
 							get_blog_option( $blog_id, 'admin_email' ),
 							__( 'Error charging setup fee. Attention required!', 'psts' ),
-							sprintf( __( 'An error occurred while charging a setup fee of %1$s to Stripe customer %2$s. You will need to manually process this amount.', 'psts' ), $psts->format_currency( $currency, $setup_fee ), $customer_id )
+							sprintf( __( 'An error occurred while charging a setup fee of %1$s to Stripe customer %2$s. You will need to manually process this amount.', 'psts' ), $psts->format_currency( $currency, $setup_fee ), $customer_id ),
+							$headers
 						);
 					}
 				}
@@ -2692,7 +2698,8 @@ class ProSites_Gateway_Stripe {
 					wp_mail(
 						get_blog_option( $blog_id, 'admin_email' ),
 						__( 'Error deleting temporary Stripe coupon code. Attention required!.', 'psts' ),
-						sprintf( __( 'An error occurred when attempting to delete temporary Stripe coupon code %1$s. You will need to manually delete this coupon via your Stripe account.', 'psts' ), $cp_code )
+						sprintf( __( 'An error occurred when attempting to delete temporary Stripe coupon code %1$s. You will need to manually delete this coupon via your Stripe account.', 'psts' ), $cp_code ),
+						$headers
 					);
 				}
 
@@ -2718,7 +2725,8 @@ class ProSites_Gateway_Stripe {
 				// Message is redundant now, but still used as a flag.
 				self::$complete_message = __( 'Your payment was successfully recorded! You should be receiving an email receipt shortly.', 'psts' );
 			}
-
+			
+			remove_action('phpmailer_init', 'psts_text_body');
 		}
 		self::update_checkout_error();
 

@@ -573,6 +573,13 @@ ul.pricing-column li, .pricing-column ul li {
     text-align: center;
     font-size: 13px;
 }
+/** styles for styling the html tags: strong, b, em, i **/
+.feature-description strong,.feature-description b{
+	font-weight:bold;
+}
+.feature-description em,.feature-description i{
+  font-style: italic;
+}
 
 li.summary {
 	position:relative;

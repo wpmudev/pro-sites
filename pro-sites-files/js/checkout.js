@@ -509,20 +509,35 @@ jQuery( document ).ready( function ( $ ) {
 
         //Update Period as well
         var period_selector = $( '.period-selector select').length > 0 ? $('.period-selector select') : ( $('input[name="period-selector-top"]').length > 0 ? $('input[name="period-selector-top"]:checked') : '' );
-	    if( typeof( period_selector ) !== 'undefined' && '' != period_selector ) {
-		    var period_class = period_selector.val();
-		    var period = 0;
-		    if (typeof period_class !== 'undefined') {
-			    period = parseInt(period_class.replace('price_', ''));
-		    } else {
-			    period = parseInt($('[name=single_period]').html());
-		    }
-		    $('.gateways [name=period]').val(period);
-		    $('#prosites-checkout-table').attr('data-period', period);
+	if( typeof( period_selector ) !== 'undefined' && '' != period_selector ) {
+	    var period_class = period_selector.val();
+	    var period = 0;
+	    if (typeof period_class !== 'undefined') {
+	        period = parseInt(period_class.replace('price_', ''));
+	    } else {
+	        period = parseInt($('[name=single_period]').html());
 	    }
+	    $('.gateways [name=period]').val(period);
+	    $('#prosites-checkout-table').attr('data-period', period);
+	}
 
-
+	// NBT support: Update templates or plans if required.
+	if ( prosites_checkout.nbt_update_required ) {
+	    nbt_template_update( level );
+	}
     } );
+
+    var period_value = $( '#stripe-payment-form [name=period]' ).val();
+    // For first period selector layout.
+    var period_option = $( '.period-option.period' + period_value );
+    // For second period selector layout.
+    var period_selector = $( '.period-selector option[value="price_' + period_value + '"]' );
+    // If period value is set, make it selected.
+    if( period_option.length ) {
+        period_option.trigger( 'click' );
+    } else if ( period_selector.length ) {
+        period_selector.prop( 'selected', 'selected' ).change();
+    }
 
     //More than 1 gateway?, Tabs
     if( jQuery('#gateways>div').length > 1 ) {
@@ -602,11 +617,97 @@ jQuery( document ).ready( function ( $ ) {
 
     }
 
+    // NBT support: Update plans on template selection.
+    $( 'select[name=blog_template]' ).on( "change", nbt_level_update );
+
+    /**
+     * NBT Support: Update the pro sites levels.
+     *
+     * To support New Blog Templates, update the available plans
+     * when a template is selected from the NBT select box.
+     */
+    function nbt_level_update() {
+
+        // NBT temmplate selector.
+        var template_selector = $( 'select[name=blog_template]' );
+        var plan_selector = $( '.pricing-column' );
+        // Selected template.
+        var template = template_selector.val();
+
+        // Send ajax request if a template is selected.
+        if ( plan_selector.length && 'none' != template ) {
+            // Show the processing message.
+            $( '#nbt_processing' ).removeClass( 'hidden' );
+            // Send ajax request to get unavailable plans.
+            $.post(
+                prosites_checkout.ajax_url, {
+                    action: 'update_nbt_levels',
+                    'template': template_selector.val()
+                }
+            ).done(function ( response ) {
+                // If nothing found, show all plans.
+                if ( '' != response ) {
+                    // If any of the plans are unavailable, hide them.
+                    $.each( response, function ( key, value ) {
+                        var level_ul = $( '.pricing-column.psts-level-' + value );
+                        if ( level_ul.length ) {
+                            $('.pricing-column.psts-level-' + value).hide();
+                        }
+                    });
+                } else {
+                    // If nothing found, show all.
+                    $( '.pricing-column' ).show();
+                }
+                // After processing, hide the processing message.
+                $( '#nbt_processing' ).addClass( 'hidden' );
+            });
+        } else if ( 'none' == template || '' == template ) {
+            // If no option or none is selected, show all levels.
+            $( '.pricing-column' ).show();
+        }
+    }
+
+    /**
+     * NBT Support: Update the nbt templates.
+     *
+     * To support New Blog Templates, update the available templates
+     * when a plan is selected from the pricing table.
+     *
+     * @param level
+     */
+    function nbt_template_update( level ) {
+
+        // NBT temmplate selector.
+        var template_selector = $( 'select[name=blog_template]' );
+
+        if ( template_selector.length ) {
+
+            // Show the processing message.
+            $('#nbt_processing').removeClass("hidden");
+            // Send ajax request to update templates.
+            $.post(
+                prosites_checkout.ajax_url, {
+                    action: 'update_nbt_templates',
+                    'level': level
+                }
+            ).done(function (response) {
+                // Clear templates dropdown.
+                template_selector.html('');
+                // If response is not empty, append new option for each templates.
+                if ('' != response) {
+                    template_selector.append(response);
+                }
+                // After processing, hide the processing message.
+                $('#nbt_processing').addClass('hidden');
+            });
+        }
+    }
+
     function post_registration_process( data, status, form_data ) {
 
         var response = $.parseJSON( $( data ).find( 'response_data' ).text() );
 
-        if ( typeof response == 'null' || typeof response == 'undefined' ) {
+        if ( response === null || typeof response == 'undefined' ) {
             return false;
         }
 
@@ -631,7 +732,7 @@ jQuery( document ).ready( function ( $ ) {
             $.each( form_data, function ( key, val ) {
                 // Restore values
                 if ( key != "signup_form_id" && key != "_signup_form" ) {
-                    $( '[name=' + key + ']' ).val( val );
+                    $( "[name='" + key + "']" ).val( val );
                 }
             } );
 

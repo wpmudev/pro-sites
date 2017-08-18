@@ -111,7 +111,7 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 				'int'  => array( 'visible', 'order' ),
 				'text' => array(
 					'name',
-					'description',
+					//'description',
 					'module',
 					'custom',
 					'status',
