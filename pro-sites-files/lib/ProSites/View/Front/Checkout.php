@@ -16,7 +16,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 					'echo'           => false,
 					'remember'       => true,
 					'redirect'       => ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-				) );
+					) 
+				);
 				return $content;
 			}
 			
