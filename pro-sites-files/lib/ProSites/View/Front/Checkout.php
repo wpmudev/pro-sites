@@ -9,7 +9,17 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts, $current_prosite_blog, $wpdb;
-
+			
+			if ( isset( $_GET['bid'] ) && $_GET['bid'] > 0 && ! is_user_logged_in() ) {
+				$content = "<p>" . esc_attr__( 'You must be logged in to upgrade this blog. Please login below.', 'psts' ) . "</p>";
+				$content .= wp_login_form( array(
+					'echo'           => false,
+					'remember'       => true,
+					'redirect'       => ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+            	) );
+				return $content;
+			}
+			
 			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
 
 			do_action( 'prosites_before_checkout_page', $blog_id );

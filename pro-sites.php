@@ -2542,7 +2542,10 @@ Thanks!", 'psts' ),
 
 		$url = str_replace( 'http://', '', get_home_url( $blog_id, '', 'http' ) );
 
-		return sprintf( __( '%1$s: %2$s (%3$s)', 'psts' ), $title, get_blog_option( $blog_id, 'blogname' ), $url );
+		if ( ! is_user_logged_in() && isset( $_GET['bid'] ) )
+			return sprintf( __('%1$s: %2$s', 'psts'), $title, __('Please login', 'psts') );
+		else			
+			return sprintf( __( '%1$s: %2$s (%3$s)', 'psts' ), $title, get_blog_option( $blog_id, 'blogname' ), $url );
 	}
 
 	function signup_redirect() {
