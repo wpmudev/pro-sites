@@ -2617,6 +2617,14 @@ Thanks!", 'psts' ),
 	 * Register PSTS Style
 	 */
 	function register_psts_style() {
+
+		global $pagenow;
+
+		// Do not load Pro Sites scripts/styles all over admin.
+		if ( 'admin.php' !== $pagenow || ! isset( $_GET['page'] ) || 0 !== strpos( $_GET['page'], 'psts' ) ) {
+			return;
+		}
+
 		wp_register_style( 'psts-style', $this->plugin_url . 'css/psts-admin.css' );
 
 		//Check if chosen css is already registered
