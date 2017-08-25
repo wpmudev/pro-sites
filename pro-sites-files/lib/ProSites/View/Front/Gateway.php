@@ -48,6 +48,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 					$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
 					$result  = $wpdb->get_row( $sql );
 					$gateway = ! empty( $result->gateway ) ? strtolower( $result->gateway ) : '';
+					// Fix for PayPal gateway. No other gateways have name as "trial".
+					$gateway = 'trial' === $gateway ? 'paypal' : $gateway;
 					if ( ! empty( $gateway ) ) {
 						//Check if a respective gateway class exists, and call cancel subscription function
 						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
