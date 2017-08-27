@@ -394,8 +394,6 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			global  $psts;
 
-			$templates = array();
-
 			// Get the enabled modules in Pro Sites.
 			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
 			$premium_themes_enabled = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
@@ -404,8 +402,11 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			// Do not continue if no templates are available if NBT.
 			$nbt_model = nbt_get_model();
-			if ( empty( $nbt_model->get_templates() ) ) {
-				return $templates;
+			
+			// All available NBT templates.
+			$templates = $nbt_model->get_templates();
+			if ( empty( $templates ) ) {
+				return array();
 			}
 
 			// Premium enabled themes.
@@ -418,9 +419,6 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
 			// Get the available plugins for the selected level.
 			$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
-
-			// All available NBT templates.
-			$templates = $nbt_model->get_templates();
 
 			// Loop through each templates.
 			foreach ( $templates as $key => $template ) {
