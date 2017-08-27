@@ -2153,7 +2153,7 @@ class ProSites_Gateway_Stripe {
 					$c->metadata->blogs = !empty( $blog_string ) ? $blog_string : NULL;
 				}
 
-				if ( isset( $_POST['cc_replace_card'] ) && 'on' == $_POST['cc_replace_card'] ) {
+				if ( isset( $_POST['cc_replace_card'] ) && 'on' == $_POST['cc_replace_card'] && isset( $_POST['stripeToken'] ) ) {
 					$c->card = $_POST['stripeToken'];
 				}
 
