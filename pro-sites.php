@@ -2873,28 +2873,23 @@ try{
 
 		} else if ( $this->get_setting( 'ga_ecommerce' ) == 'new' ) {
 
-			$js = '<script type="text/javascript">
-_gaq.push(["_addTrans",
-	"' . $order_id . '",          // order ID - required
-	"' . esc_js( $store_name ) . '",// affiliation or store name
-	"' . $amount . '",            // total - required
-	"",                       // tax
-	"",                       // shipping
-	"' . esc_js( $city ) . '",      // city
-	"' . esc_js( $state ) . '",     // state or province
-	"' . esc_js( $country ) . '"    // country
-]);
-_gaq.push(["_addItem",
-	"' . $order_id . '",    // order ID - necessary to associate item with transaction
-	"' . $sku . '",         // SKU/code - required
-	"' . esc_js( $name ) . '",// product name
-	"' . $category . '",    // category
-	"' . $amount . '",      // unit price - required
-	"1"                 // quantity - required
-]);
-_gaq.push(["_trackTrans"]);
-</script>
-';
+			$js = '<script>
+					ga("require", "ecommerce");
+					ga("ecommerce:addTransaction", {
+						"id": "' . $order_id . '",
+						"affiliation": "' . esc_js( $store_name ) . '",
+						"revenue": "' . $amount . '",
+					});
+					ga("ecommerce:addItem", {
+						"id": "' . $order_id . '",
+						"name": "' . esc_js( $name ) . '",
+						"sku": "' . $sku . '",
+						"category": "' . $category . '",
+						"price": "' . $amount . '",
+						"quantity": "1",
+					});
+					ga("ecommerce:send");
+				</script>';
 
 		}
 
