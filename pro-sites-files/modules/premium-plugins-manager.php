@@ -313,7 +313,7 @@ class ProSites_Module_Plugins_Manager {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		global $psts;
 
-		$old_level_plugins = $psts->get_setting( 'psts_ppm_' . $old_level, array() );
+		$old_level_plugins = (array) $psts->get_setting( 'psts_ppm_' . $old_level, array() );
 
 		// Get the plugins for existing level
 		$new_level_plugins = (array) $psts->get_setting( 'psts_ppm_' . $new_level, array() );
