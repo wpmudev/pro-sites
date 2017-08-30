@@ -167,6 +167,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 		// Default button image url.
 		$button_url = "https://www.paypalobjects.com/webstatic/en_US/i/btn/png/gold-rect-paypalcheckout-26px.png";
+		// If the locale based button is selected, get the deprecated locale button.
 		if ( 'locale' === $psts->get_setting( 'pypl_checkout_btn' ) ) {
 			$button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
 		}
