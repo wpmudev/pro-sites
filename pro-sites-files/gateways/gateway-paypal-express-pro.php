@@ -165,7 +165,12 @@ class ProSites_Gateway_PayPalExpressPro {
 		$site_name = $current_site->site_name;
 		$img_base  = $psts->plugin_url . 'images/';
 
-		$button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
+		// Default button image url.
+		$button_url = "https://www.paypalobjects.com/webstatic/en_US/i/btn/png/gold-rect-paypalcheckout-26px.png";
+		if ( 'locale' === $psts->get_setting( 'pypl_checkout_btn' ) ) {
+			$button_url = "https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image&locale=" . get_locale();
+		}
+
 		$button_url = apply_filters( 'psts_pypl_checkout_image_url', $button_url );
 
 		$period = isset( $args['period'] ) && ! empty( $args['period'] ) ? $args['period'] : ProSites_Helper_ProSite::default_period();
@@ -2112,6 +2117,16 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_img" ) ); ?>" size="40"
 							       name="psts[pypl_header_img]" type="text"/>
 						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"
+					    class="psts-help-div psts-paypal-checkout-btn"><?php echo __( 'PayPal Checkout Button', 'psts' ) . $psts->help_text( __( 'Choose whether you want to use checkout button based on the locale or the default English button.', 'psts' ) ); ?></th>
+					<td>
+						<select name="psts[pypl_checkout_btn]" class="chosen">
+							<option value="default" <?php selected( $psts->get_setting( 'pypl_checkout_btn' ), 'default' ); ?>><?php _e( 'Default', 'psts' ) ?></option>
+							<option value="locale" <?php selected( $psts->get_setting( 'pypl_checkout_btn' ), 'locale' ); ?>><?php _e( 'Locale Button', 'psts' ) ?></option>
+						</select>
 					</td>
 				</tr>
 				<tr>
