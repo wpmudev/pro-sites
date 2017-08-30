@@ -450,8 +450,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				if ( $plugin_manager_enabled ) {
 					// Get all active plugins of the blog.
 					$get_active_plugins = (array) get_option( 'active_plugins' );
-					// If any of the active plugin is not avaible for the plan, remove the template.
-					if ( ! empty( array_diff( $get_active_plugins, $premium_manager_plugins ) ) ) {
+					$extra_plugins = array_diff( $get_active_plugins, $premium_manager_plugins );
+					// If any of the active plugin is not available for the plan, remove the template.
+					if ( ! empty( $extra_plugins ) ) {
 						unset( $templates[ $key ] );
 					}
 				}
@@ -542,8 +543,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
 					// Get all active plugins of the blog.
 					$get_active_plugins = (array) get_option( 'active_plugins' );
+					$extra_plugins = array_diff( $get_active_plugins, $premium_manager_plugins );
 					// If any of the active plugin is not avaible for the plan, remove the template.
-					if ( ! empty( array_diff( $get_active_plugins, $premium_manager_plugins ) ) ) {
+					if ( ! empty( $extra_plugins ) ) {
 						$unavailable_levels[] = $level;
 					}
 				}
