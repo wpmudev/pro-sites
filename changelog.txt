@@ -5,6 +5,42 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.6 - 04/09/2017
+
+*Added:
+    - Allow HTML in pricing table description field.
+    - Added Really Simple SSL support.
+    - New setting to select PayPal checkout button image.
+*Updated:
+    - Use wp_add_inline_script instead of hp_head to add checkout page scripts.
+    - Updated message on PayPal when setup fee is used.
+    - Updated Google Analytics ecommerce tracking code.
+    - Load Pro Sites scripts only on Pro Sites admin pages.
+*Fixed:
+    - JavaScript error on Pro Sites checkout.
+    - Duplicate payment receipts being sent.
+    - Not all events were logged in site logs.
+    - Notification emails become blank on text only email clients.
+    - Manually extending pro sites extends trial period.
+    - Setting up Posts/Quotas doesn't work.
+    - PayPal "Thank You" Message isn't displaying after purchase.
+    - Free trial message is not being displayed.
+    - Error on stats page (PHP 7.1).
+    - Site categories can't be selected.
+    - Users cannot create new additional sites.
+    - Expired sites does not activate after payment.
+    - Fixed issues with New Blog Templates template selection.
+    - Wrong url is shown in confirmation page.
+    - Pro Sites Widget not showing when logged out.
+    - PHP notices after saving the settings.
+    - Fatal errors on PHP 5.3 and 5.4.
+    - Subscription cancellation was not working for PayPal during trial period.
+    - BuddyPress compatibility issue.
+    - Error on the confirmation page after signup.
+    - Conflict with GeoDirectory chosen select.
+    - Error when trying to update credit card checkout page.
+
+
 3.5.5 - 04/12/2017
 
 *Added:
