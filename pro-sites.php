@@ -501,7 +501,7 @@ Thanks!", 'psts' ),
 		  meta longtext NOT NULL,
 		  identifier varchar(50) NULL,
 		  PRIMARY KEY  (blog_ID),
-		  KEY  (blog_ID,level,expire)
+		  KEY ps_indexes (blog_ID,level,expire)
 		);";
 
 		$table2 = "CREATE TABLE {$wpdb->base_prefix}pro_sites_signup_stats (
@@ -547,7 +547,7 @@ Thanks!", 'psts' ),
 		  currency varchar(3) NULL,
 		  meta longtext NULL,
 		  PRIMARY KEY  (id),
-		  KEY  (id, transaction_id)
+		  KEY ps_trans_indexes (id, transaction_id)
 		);";
 
 		//@todo: A Check needs to be in place to see if all the table exists or not
