@@ -826,4 +826,22 @@ jQuery( document ).ready( function ( $ ) {
     } );
     $('.period-selector-container').css('width', width + 2 );
 
+    // Confirm before cancelling Stripe subscriptions.
+    if ( typeof stripe_checkout !== 'undefined' ) {
+        $( 'a#stripe_cancel' ).click( function () {
+            return confirm( prosites_checkout.confirm_cancel );
+        });
+    }
+
+    // Confirm before cancelling PayPal subscription.
+    if ( typeof paypal_checkout !== 'undefined' ) {
+        $( 'form' ).submit( function () {
+            $( '#cc_paypal_checkout' ).hide();
+            $( '#paypal_processing' ).show();
+        } );
+        $( 'a#pypl_cancel' ).click( function ( e ) {
+            return confirm( prosites_checkout.confirm_cancel );
+        } );
+    }
+
 } );

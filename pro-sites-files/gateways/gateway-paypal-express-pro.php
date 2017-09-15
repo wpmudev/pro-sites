@@ -2017,9 +2017,7 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 
 		wp_enqueue_script( 'jquery' );
 
-		// Add inline script for checkout page.
-		$inline_script = $this->checkout_js();
-		wp_add_inline_script( 'psts-checkout', $inline_script );
+		wp_localize_script( 'psts-checkout', 'paypal_checkout', array( 'cancel_message' => true ) );
 	}
 
 	function settings() {
@@ -2814,29 +2812,6 @@ Simply go to https://payments.amazon.com/, click Your Account at the top of the 
 		unset( $trans_meta[ $profile_id ] );
 
 		update_blog_option( $from_id, 'psts_paypal_profile_id', $trans_meta );
-	}
-
-	/**
-	 * Inline script for PayPal checkout.
-	 *
-	 * @return string
-	 */
-	function checkout_js() {
-
-		$message = __( 'Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!', 'psts' );
-		$script = "jQuery(document).ready(function ($) {
-				$('form').submit(function () {
-					$('#cc_paypal_checkout').hide();
-					$('#paypal_processing').show();
-				});
-				$('a#pypl_cancel').click(function (e) {
-					if (!confirm('" . $message . "')) {
-						e.preventDefault();
-					}
-				});
-			});";
-
-		return $script;
 	}
 
 	/**
