@@ -111,7 +111,6 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 				'int'  => array( 'visible', 'order' ),
 				'text' => array(
 					'name',
-					//'description',
 					'module',
 					'custom',
 					'status',
@@ -119,7 +118,7 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 					'display',
 					'value',
 					'text',
-					'active'
+					'active',
 				),
 			);
 
@@ -130,6 +129,9 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 					}
 					if ( in_array( $key, $sanitize['text'] ) ) {
 						$array[ $key ] = stripslashes( sanitize_text_field( $value ) );
+					}
+					if ( 'description' === $key ) {
+						$array[ $key ] = stripslashes( ProSites::filter_html( $value ) );
 					}
 				} else {
 					$value         = self::sanitize_post_vars( $value );
