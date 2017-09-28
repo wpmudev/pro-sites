@@ -1545,11 +1545,11 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// We need to send receipt, if not sent already.
-		//if ( $is_payment && time() < $receipt_window ) {
+		if ( $is_payment && time() < $receipt_window ) {
 			$psts->email_notification( $blog_id, 'receipt', false, $args );
 			// Track email receipt sent.
 			update_blog_option( $blog_id, 'psts_stripe_last_email_receipt', time() );
-		//}
+		}
 
 		return $extended;
 	}
@@ -2325,8 +2325,8 @@ class ProSites_Gateway_Stripe {
 							'description' => __( 'One-time setup fee', 'psts' ),
 							'metadata'    => array(
 								'domain'    => ! empty( $domain ) ? $domain : '',
-								'period'    => intval( $_POST['period'] ),
-								'level'     => intval( $_POST['level'] ),
+								'period'    => (int) $_POST['period'],
+								'level'     => (int) $_POST['level'],
 								'setup_fee' => 'yes',
 							)
 						);

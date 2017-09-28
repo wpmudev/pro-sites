@@ -2925,8 +2925,8 @@ try{
 			if ( isset( $_POST['extend_permanent'] ) ) {
 				$extend = 9999999999;
 			} else {
-				$months = intval( $_POST['extend_months'] );
-				$days   = intval( $_POST['extend_days'] );
+				$months = (int) $_POST['extend_months'];
+				$days   = (int) $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
 			// Get the extension type from post.
