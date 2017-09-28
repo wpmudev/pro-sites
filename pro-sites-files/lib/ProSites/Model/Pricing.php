@@ -131,6 +131,9 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 					if ( in_array( $key, $sanitize['text'] ) ) {
 						$array[ $key ] = stripslashes( sanitize_text_field( $value ) );
 					}
+					if ( 'description' === $key ) {
+						$array[ $key ] = stripslashes( ProSites::filter_html( $value ) );
+					}
 				} else {
 					$value         = self::sanitize_post_vars( $value );
 					$array[ $key ] = $value;

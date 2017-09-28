@@ -331,8 +331,8 @@ class ProSites_Gateway_Manual {
 				$updated = array(
 					'render'      => true,
 					'blog_id'     => $blog_id,
-					'level'       => $_POST['level'],
-					'period'      => $_POST['period'],
+					'level'       => (int) $_POST['level'],
+					'period'      => (int) $_POST['period'],
 					'prev_level'  => ! empty( $current->level ) ? $current->level : '',
 					'prev_period' => ! empty( $current->term ) ? $current->term : '',
 					'gateway'     => 'manual'
@@ -439,8 +439,8 @@ class ProSites_Gateway_Manual {
 
 			//Store level and period in Signup meta
 			$manual_signup = array(
-				'level'     => $_POST['level'],
-				'period'    => $_POST['period'],
+				'level'     => (int) $_POST['level'],
+				'period'    => (int) $_POST['period'],
 				'gateway'   => self::get_slug(),
 				'amount'    => $current_payment,
 				'recurring' => $recurring

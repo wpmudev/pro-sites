@@ -569,7 +569,7 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 																class="reset-link"><?php echo esc_html( $hover_actions['reset'] ); ?></a></span>
 													</div>
 													<input type="hidden"
-													       value='<?php echo ProSites::filter_html( $original_value ); ?>'/>
+													       value='<?php echo esc_html( ProSites::filter_html( $original_value ) ); ?>'/>
 												</td>
 												<?php
 												break;
