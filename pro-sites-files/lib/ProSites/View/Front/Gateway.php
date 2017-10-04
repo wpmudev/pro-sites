@@ -174,7 +174,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 					if ( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
 						$content .= '<div id="psts-general-error" class="psts-warning">' .
-						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
+						            wp_kses( sprintf( __( 'You signed up with the <strong>%1$s</strong> payment gateway. We will attempt to cancel your <strong>%1$s</strong> payments and setup new payments if you choose to continue.', 'psts' ), esc_html( $name ) ), $allowed_html );
 						$content .= '</div>';
 					}
 
@@ -200,7 +200,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 					if ( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
 						$content .= '<div id="psts-general-error" class="psts-warning">' .
-						            wp_kses( __( 'You signed up with the <strong>' . esc_html( $name ) . '</strong> payment gateway. We will attempt to cancel your <strong>' . esc_html( $name ) . '</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html );
+						            wp_kses( sprintf( __( 'You signed up with the <strong>%1$s</strong> payment gateway. We will attempt to cancel your <strong>%1$s</strong> payments and setup new payments if you choose to continue.', 'psts' ), esc_html( $name ) ), $allowed_html );
 						$content .= '</div>';
 					}
 
@@ -596,13 +596,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
 			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
-			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
+			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html( $blog_admin_url ) . '</a></p>';
 
 			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';
 			$content .= '<ul>' .
 			            '<li>' . esc_html__( 'Wait a little bit longer.', 'psts' ) . '</li>' .
 			            '<li>' . esc_html__( 'Check your spam folder just in case it ended up in there.', 'psts' ) . '</li>' .
-			            '<li>' . esc_html__( 'Make sure that your email address is correct (' . $email . ')', 'psts' ) . '</li>' .
+			            '<li>' . sprintf( esc_html__( 'Make sure that your email address is correct (%s)', 'psts' ), $email ) . '</li>' .
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
@@ -734,13 +734,13 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( ! empty( $userpass ) ) {
 				$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );
 			}
-			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html__( $blog_admin_url ) . '</a></p>';
+			$content .= '<br />' . esc_html__( 'Admin URL: ', 'psts' ) . '<a href="' . esc_url( $blog_admin_url ) . '">' . esc_html( $blog_admin_url ) . '</a></p>';
 
 			$content .= '<p>' . esc_html__( 'If you did not receive an email please try the following:', 'psts' ) . '</p>';
 			$content .= '<ul>' .
 			            '<li>' . esc_html__( 'Wait a little bit longer.', 'psts' ) . '</li>' .
 			            '<li>' . esc_html__( 'Check your spam folder just in case it ended up in there.', 'psts' ) . '</li>' .
-			            '<li>' . esc_html__( 'Make sure that your email address is correct (' . $email . ')', 'psts' ) . '</li>' .
+			            '<li>' . sprintf( esc_html__( 'Make sure that your email address is correct (%s)', 'psts' ), $email ) . '</li>' .
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 
@@ -792,7 +792,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$content .= '<ul>' .
 			            '<li>' . esc_html__( 'Wait a little bit longer.', 'psts' ) . '</li>' .
 			            '<li>' . esc_html__( 'Check your spam folder just in case it ended up in there.', 'psts' ) . '</li>' .
-			            '<li>' . esc_html__( 'Make sure that your email address is correct (' . $email . ')', 'psts' ) . '</li>' .
+			            '<li>' . sprintf( esc_html__( 'Make sure that your email address is correct (%s)', 'psts' ), $email ) . '</li>' .
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
 			$content .= '<a href="' . $psts->checkout_url( $blog_id ) . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';

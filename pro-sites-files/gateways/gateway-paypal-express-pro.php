@@ -545,7 +545,7 @@ class ProSites_Gateway_PayPalExpressPro {
 				ProSites_Helper_Registration::activate_blog( $process_data['activation_key'], $is_trial, $process_data[ $signup_type ]['period'], $process_data[ $signup_type ]['level'] );
 
 				//Set complete message
-				self::$complete_message = __( 'Your trial blog has been setup at <a href="' . $esc_domain . '">' . $esc_domain . '</a>', 'psts' );
+				self::$complete_message = sprintf( __( 'Your trial blog has been setup at <a href="%1$s">%1$s</a>', 'psts' ), $esc_domain );
 
 				return;
 			}
