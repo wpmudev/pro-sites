@@ -268,11 +268,17 @@ jQuery(document).ready(function($){
 
     /* ---- ---- ---- ADD FEATURES BUTTON ---- ---- ---- */
     $( '#add-feature-button').click( function( e ) {
-        var no_features = $('.no-features').hide().detach();
         var name = $('[name=new-feature-name]').val();
         var description = $('[name=new-feature-description]').val();
         var text = $('[name=new-feature-text]').val();
         var levels = $('[name=new-feature-levels]').val();
+
+        // Do not add if values are empty.
+        if ( name === '' && description === '' && text === '' ) {
+            return false;
+        }
+
+        var no_features = $('.no-features').hide().detach();
 
         // Get the following with script translation
         var save_action = 'save';
