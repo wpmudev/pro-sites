@@ -355,6 +355,9 @@ jQuery(document).ready(function($){
             });
         }
 
+        // Clear inputs.
+        $( this ).parents('tr').find('input[type=text], textarea').val('');
+
         set_inline_editing();
         switch_level( get_active_level() );
         rearrange_feature_rows();
