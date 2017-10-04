@@ -253,6 +253,18 @@ jQuery(document).ready(function($){
     function set_active_level( level ) {
         $( '.level-select-bar [name=current_level]').val( level );
     }
+    
+    function escapeHtml(text) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
 
     /* ---- ---- ---- ADD FEATURES BUTTON ---- ---- ---- */
     $( '#add-feature-button').click( function( e ) {
@@ -312,7 +324,7 @@ jQuery(document).ready(function($){
         feature_description += '<div class="edit-box" style="display:none">';
         feature_description += '<textarea class="editor" name="psts[feature_table][' + key + '][description]">' + description + '</textarea><br />';
         feature_description += '<span><a class="save-link">' + save_action + '</a> <a style="margin-left: 10px;" class="reset-link">' + reset_action + '</a></span></div>';
-		feature_description += '<input type="hidden" value="' + description + '" />';
+		feature_description += '<input type="hidden" value="' + escapeHtml( description ) + '" />';
 		
         var feature_indicator = '<td scope="row" class="level-settings">';
         for( var i = 1; i <= levels ; i++ ) {
