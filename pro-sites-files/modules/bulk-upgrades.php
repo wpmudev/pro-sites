@@ -199,10 +199,10 @@ class ProSites_Module_BulkUpgrades {
 					// case: denied
 					$note = __( 'Last transaction has been reversed. Reason: Payment Denied', 'psts' );
 					list( $bid, $uid, $credits, $amount, $currency, $stamp ) = explode( '_', $_POST['custom'] );
-					$paypal_ID = $_POST['parent_txn_id'];
-					if ( empty( $paypal_ID ) ) {
-						$paypal_ID = $_POST['txn_id'];
-					}
+					//$paypal_ID = $_POST['parent_txn_id'];
+					//if ( empty( $paypal_ID ) ) {
+					//	$paypal_ID = $_POST['txn_id'];
+					//}
 					self::update_note( $uid, $note );
 					break;
 

@@ -758,8 +758,8 @@ class ProSites_Gateway_PayPalExpressPro {
 						$updated = array(
 							'render'      => true,
 							'blog_id'     => $blog_id,
-							'level'       => $_POST['level'],
-							'period'      => $_POST['period'],
+							'level'       => (int) $_POST['level'],
+							'period'      => (int) $_POST['period'],
 							'prev_level'  => ! empty( $current->level ) ? $current->level : '',
 							'prev_period' => ! empty( $current->term ) ? $current->term : '',
 						);
@@ -803,8 +803,8 @@ class ProSites_Gateway_PayPalExpressPro {
 							$updated = array(
 								'render'      => true,
 								'blog_id'     => $blog_id,
-								'level'       => $_POST['level'],
-								'period'      => $_POST['period'],
+								'level'       => (int) $_POST['level'],
+								'period'      => (int) $_POST['period'],
 								'prev_level'  => ! empty( $current->level ) ? $current->level : '',
 								'prev_period' => ! empty( $current->term ) ? $current->term : '',
 							);
@@ -875,8 +875,8 @@ class ProSites_Gateway_PayPalExpressPro {
 						$updated = array(
 							'render'      => true,
 							'blog_id'     => $blog_id,
-							'level'       => $_POST['level'],
-							'period'      => $_POST['period'],
+							'level'       => (int) $_POST['level'],
+							'period'      => (int) $_POST['period'],
 							'prev_level'  => ! empty( $current->level ) ? $current->level : '',
 							'prev_period' => ! empty( $current->term ) ? $current->term : '',
 						);
@@ -1134,8 +1134,8 @@ class ProSites_Gateway_PayPalExpressPro {
 								$updated = array(
 									'render'      => true,
 									'blog_id'     => $blog_id,
-									'level'       => $_POST['level'],
-									'period'      => $_POST['period'],
+									'level'       => (int) $_POST['level'],
+									'period'      => (int) $_POST['period'],
 									'prev_level'  => ! empty( $current->level ) ? $current->level : '',
 									'prev_period' => ! empty( $current->term ) ? $current->term : '',
 								);
@@ -1235,8 +1235,8 @@ class ProSites_Gateway_PayPalExpressPro {
 							$updated = array(
 								'render'      => true,
 								'blog_id'     => $blog_id,
-								'level'       => $_POST['level'],
-								'period'      => $_POST['period'],
+								'level'       => (int) $_POST['level'],
+								'period'      => (int) $_POST['period'],
 								'prev_level'  => ! empty( $current->level ) ? $current->level : '',
 								'prev_period' => ! empty( $current->term ) ? $current->term : '',
 							);
@@ -1554,6 +1554,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	 * @return bool|void
 	 */
 	public static function update_session_vars( $process_data, $data = array() ) {
+
 		if ( empty( $process_data ) || empty( $data ) || empty( $data['blog_id'] ) ) {
 			return false;
 		}

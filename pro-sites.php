@@ -2925,8 +2925,8 @@ try{
 			if ( isset( $_POST['extend_permanent'] ) ) {
 				$extend = 9999999999;
 			} else {
-				$months = $_POST['extend_months'];
-				$days   = $_POST['extend_days'];
+				$months = (int) $_POST['extend_months'];
+				$days   = (int) $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
 			// Get the extension type from post.
@@ -2988,7 +2988,7 @@ try{
 
 		$activation_key = false;
 		if ( isset( $_GET['activation_key'] ) ) {
-			$activation_key = $_GET['activation_key'];
+			$activation_key = sanitize_key( $_GET['activation_key'] );
 		}
 
 		?>

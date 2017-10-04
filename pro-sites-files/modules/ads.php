@@ -431,12 +431,14 @@ class ProSites_Module_Ads {
 		if ( isset( $_POST['submit_process'] ) ) {
 			$expire = $psts->get_expire();
 			$blogs  = $_POST['blogs'];
-			foreach ( $blogs as $blog_id => $value ) {
-				if ( $ad_free_blogs_remaining > 0 && $value == '1' ) {
-					$existing_check = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}supporter_ads WHERE supporter_blog_ID = %d AND blog_ID = %d", $wpdb->blogid, $blog_id ) );
-					if ( $existing_check < 1 ) {
-						$ad_free_blogs_remaining --;
-						$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->base_prefix}supporter_ads (blog_ID, supporter_blog_ID) VALUES ( %s, %s )", $blog_id, $wpdb->blogid ) );
+			if ( is_array( $blogs ) ) {
+				foreach ( $blogs as $blog_id => $value ) {
+					if ( $ad_free_blogs_remaining > 0 && $value == '1' ) {
+						$existing_check = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->base_prefix}supporter_ads WHERE supporter_blog_ID = %d AND blog_ID = %d", $wpdb->blogid, $blog_id ) );
+						if ( $existing_check < 1 ) {
+							$ad_free_blogs_remaining --;
+							$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->base_prefix}supporter_ads (blog_ID, supporter_blog_ID) VALUES ( %s, %s )", $blog_id, $wpdb->blogid ) );
+						}
 					}
 				}
 			}
