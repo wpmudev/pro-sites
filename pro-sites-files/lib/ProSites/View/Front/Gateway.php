@@ -200,7 +200,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 					if ( ! empty( $last_gateway ) && 'manual' != $last_gateway ) {
 						$content .= '<div id="psts-general-error" class="psts-warning">' .
-						            wp_kses( sprintf( __( 'You signed up with the <strong>%1$s</strong> payment gateway. We will attempt to cancel your <strong>%1$s</strong> payments and setup new payments if you choose to continue.', 'psts' ), esc_html( $name ) ), $allowed_html );
+						            sprintf( wp_kses( __( 'You signed up with the <strong>%1$s</strong> payment gateway. We will attempt to cancel your <strong>%1$s</strong> payments and setup new payments if you choose to continue.', 'psts' ), $allowed_html ), esc_html( $name ) );
 						$content .= '</div>';
 					}
 
