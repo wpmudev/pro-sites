@@ -5,6 +5,18 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.7 - 04/10/2017
+
+*Updated:
+    - Added sanitization to activation key and few other $_GET parameters.
+    - Moved inline scripts to checkout js.
+*Fixed:
+    - Text escaping issue on pricing tables.
+    - Database error on logs after activation.
+    - Few translation strings were not escaping properly.
+    - Added php compatibility check for Taxmo module. Taxo requires PHP 5.3+
+    - Fixed undefined error on anonymous function in PHP 5.2
+
 3.5.6 - 04/09/2017
 
 *Added:

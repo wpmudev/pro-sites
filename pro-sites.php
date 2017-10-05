@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.6
+Version: 3.5.7-beta1
 Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.6';
+	var $version = '3.5.7';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -112,7 +112,6 @@ class ProSites {
 		 * @todo make Taxamo load as module above (above needs changing first)
 		 */
 		ProSites_Module_Taxamo::init();
-
 
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
