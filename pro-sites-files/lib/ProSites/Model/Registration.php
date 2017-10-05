@@ -46,9 +46,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$params['period'] = $period;
 
 			// Santitize each values in $_POST
-			array_walk_recursive($params, function( &$item, $key ) {
-				$item = sanitize_text_field( $item );
-			});
+			array_walk_recursive( $params, array( __CLASS__, 'array_walk_sanitize' ) );
 			// Update the $_POST data.
 			$_POST = $params;
 
@@ -555,6 +553,16 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			restore_current_blog();
 
 			return $unavailable_levels;
+		}
+
+		/**
+		 * Sanitize given item of an array.
+		 *
+		 * @param mixed $item
+		 */
+		public static function array_walk_sanitize( &$item ) {
+
+			$item = sanitize_text_field( $item );
 		}
 
 		/**
