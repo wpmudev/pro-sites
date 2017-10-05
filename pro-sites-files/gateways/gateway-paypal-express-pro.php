@@ -1606,36 +1606,29 @@ class ProSites_Gateway_PayPalExpressPro {
 
 		//show instructions for old gateways
 		if ( $old_gateway == 'PayPal' ) {
-			$message = sprintf( __( "Thank you for modifying your subscription!
-
-We want to remind you that because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones!
-
-Cancel your subscription in your PayPal account:
-%s
-
-You can also cancel following these steps:
-https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing", 'psts' ), 'https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=' . urlencode( get_site_option( "supporter_paypal_email" ) ) );
+			$message = __( "Thank you for modifying your subscription!\n\n", 'psts' );
+			$message .= __( "We want to remind you that because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your PayPal account, otherwise the old payments will continue along with new ones!\n\n", 'psts' );
+			$message .= __( "Cancel your subscription in your PayPal account:\n", 'psts' );
+			$message .= sprintf( __( "https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=%s\n\n", 'psts' ), urlencode( get_site_option( "supporter_paypal_email" ) ) );
+			$message .= sprintf( __( "You can also cancel following these steps:\n%s", 'psts' ), 'https://www.paypal.com/webapps/helpcenter/article/?articleID=94044#canceling_recurring_paymemt_subscription_automatic_billing' );
 		} else if ( $old_gateway == 'Amazon' ) {
-			$message = __( "Thank you for modifying your subscription!
-
-We want to remind you that because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones!
-
-To cancel your subscription:
-
-Simply go to https://payments.amazon.com/, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.", 'psts' );
+			$message = __( "Thank you for modifying your subscription!\n\n", 'psts' );
+			$message .= __( "We want to remind you that because of billing system upgrades, we were unable to cancel your old subscription automatically, so it is important that you cancel the old one yourself in your Amazon Payments account, otherwise the old payments will continue along with new ones!\n\n", 'psts' );
+			$message .= __( "To cancel your subscription:\n", 'psts' );
+			$message .= __( "Simply go to https://payments.amazon.com/, click Your Account at the top of the page, log in to your Amazon Payments account (if asked), and then click the Your Subscriptions link. This page displays your subscriptions, showing the most recent, active subscription at the top. To view the details of a specific subscription, click Details. Then cancel your subscription by clicking the Cancel Subscription button on the Subscription Details page.", 'psts' );
 		}
 
 		$email = isset( $current_user->user_email ) ? $current_user->user_email : get_blog_option( $blog_id, 'admin_email' );
-		
+
 		$headers = array(
 			'content-type' => 'text/html'
 		);
 		add_action('phpmailer_init', 'psts_text_body' );
-		
+
 		wp_mail( $email, __( "Don't forget to cancel your old subscription!", 'psts' ), $message, $headers );
-		
+
 		remove_action('phpmailer_init', 'psts_text_body');
-		
+
 		$psts->log_action( $blog_id, sprintf( __( 'Reminder to cancel previous %s subscription sent to %s', 'psts' ), $old_gateway, get_blog_option( $blog_id, 'admin_email' ) ) );
 	}
 
