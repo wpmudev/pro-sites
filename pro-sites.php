@@ -109,9 +109,11 @@ class ProSites {
 		}
 
 		/**
-		 * @todo make Taxamo load as module above (above needs changing first)
+		 * Taxamo external module works only with PHP 5.3+.
 		 */
-		ProSites_Module_Taxamo::init();
+		if ( defined( 'PHP_VERSION' ) && version_compare( PHP_VERSION, '5.3', '>=' ) ) {
+			ProSites_Module_Taxamo::init();
+		}
 
 		//localize
 		add_action( 'plugins_loaded', array( &$this, 'localization' ) );
