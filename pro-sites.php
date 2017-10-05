@@ -341,77 +341,19 @@ class ProSites {
 			'feature_message'          => __( 'Upgrade to LEVEL to access this feature &raquo;', 'psts' ),
 			'active_message'           => __( 'Your Pro Site privileges will expire on: DATE<br />Unless you have canceled your subscription or your site was upgraded via the Bulk Upgrades tool, your Pro Site privileges will automatically be renewed.', 'psts' ),
 			'success_subject'          => __( 'Thank you for becoming a Pro Site member!', 'psts' ),
-			'success_msg'              => __( "Thank you for becoming a Pro Site member!
-
-We have received your first subscription payment and you can now access all LEVEL features!
-
-Subscription payments should show on your credit card or bank statement as \"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
-CHECKOUTURL
-
-If you ever have any billing questions please contact us:
-http://mysite.com/contact/
-
-Thanks again for joining!", 'psts' ),
+			'success_msg'              => __( "Thank you for becoming a Pro Site member!\n\nWe have received your first subscription payment and you can now access all LEVEL features!\n\nSubscription payments should show on your credit card or bank statement as \"THIS COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:\nCHECKOUTURL\n\nIf you ever have any billing questions please contact us:\nhttp://mysite.com/contact/\n\nThanks again for joining!", 'psts' ),
 			'canceled_subject'         => __( 'Your Pro Site subscription has been canceled', 'psts' ),
-			'canceled_msg'             => __( "Your Pro Site subscription has been canceled.
-
-You should continue to have access until ENDDATE.
-
-We are very sorry to see you go, but we are looking forward to you subscribing to our services again.
-
-You can resubscribe at any time here:
-CHECKOUTURL
-
-Thanks!", 'psts' ),
+			'canceled_msg'             => __( "Your Pro Site subscription has been canceled.\n\nYou should continue to have access until ENDDATE.\n\nWe are very sorry to see you go, but we are looking forward to you subscribing to our services again.\n\nYou can resubscribe at any time here:\nCHECKOUTURL\n\nThanks!", 'psts' ),
 			'receipt_subject'          => __( 'Your Pro Site payment receipt', 'psts' ),
-			'receipt_msg'              => __( "Your Pro Site subscription payment was successful!
-
-PAYMENTINFO
-
-Subscription payments should show on your credit card or bank statement as \"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:
-CHECKOUTURL
-
-If you ever have any billing questions please contact us:
-http://mysite.com/contact/
-
-Thanks again for being a valued member!", 'psts' ),
+			'receipt_msg'              => __( "Your Pro Site subscription payment was successful!\n\nPAYMENTINFO\n\nSubscription payments should show on your credit card or bank statement as \"YOUR COMPANY\". If you ever need to view, modify, upgrade, or cancel your Pro Site subscription you can do so here:\nCHECKOUTURL\n\nIf you ever have any billing questions please contact us:\nhttp://mysite.com/contact/\n\nThanks again for being a valued member!", 'psts' ),
 			'expired_subject'          => __( 'Your Pro Site status has expired', 'psts' ),
-			'expired_msg'              => __( "Unfortunately the Pro status for your site SITENAME (SITEURL) has lapsed.
-
-You can renew your Pro Site status here:
-CHECKOUTURL
-
-If you're having billing problems please contact us for help:
-http://mysite.com/contact/
-
-Looking forward to having you back as a valued member!", 'psts' ),
+			'expired_msg'              => __( "Unfortunately the Pro status for your site SITENAME (SITEURL) has lapsed.\n\nYou can renew your Pro Site status here:\nCHECKOUTURL\n\nIf you're having billing problems please contact us for help:\nhttp://mysite.com/contact/\n\nLooking forward to having you back as a valued member!", 'psts' ),
 			'failed_subject'           => __( 'Your Pro Site subscription payment failed', 'psts' ),
-			'failed_msg'               => __( "It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.
-
-Please update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features. If you're still having billing problems please contact us for help:
-http://mysite.com/contact/
-
-Many thanks again for being a member!", 'psts' ),
+			'failed_msg'               => __( "It seems like there is a problem with your latest Pro Site subscription payment, sorry about that.\n\nPlease update your payment information or change your payment method as soon as possible to avoid a lapse in Pro Site features. If you're still having billing problems please contact us for help:\nhttp://mysite.com/contact/\n\nMany thanks again for being a member!", 'psts' ),
 			'extension_subject'           => __( 'You have been given free Pro Site membership.', 'psts' ),
-			'extension_msg'               => __( "We have given you Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.
-
-These benefits will be available to you until: ENDDATE.
-
-After this date your site will revert back to a standard site.
-
-You can subscribe at any time from the link below:
-CHECKOUTURL
-
-Thanks!", 'psts' ),
+			'extension_msg'               => __( "We have given you Pro Site access. You will now be able to enjoy all the benefits of being a Pro Site member.\n\nThese benefits will be available to you until: ENDDATE.\n\nAfter this date your site will revert back to a standard site.\n\nYou can subscribe at any time from the link below:\nCHECKOUTURL\n\nThanks!", 'psts' ),
 			'revoked_subject'           => __( 'Your permanent Pro Site status has changed.', 'psts' ),
-			'revoked_msg'               => __( "Your permanent Pro Site status has been removed. You will continue to have all the benefits of your Pro Site membership until ENDDATE.
-
-After this date your site will revert back to a standard site.
-
-You can subscribe at any time from the link below:
-CHECKOUTURL
-
-Thanks!", 'psts' ),
+			'revoked_msg'               => __( "Your permanent Pro Site status has been removed. You will continue to have all the benefits of your Pro Site membership until ENDDATE.\n\nAfter this date your site will revert back to a standard site.\n\nYou can subscribe at any time from the link below:\nCHECKOUTURL\n\nThanks!", 'psts' ),
 			'pypl_site'                => 'US',
 			'pypl_currency'            => 'USD',
 			'pypl_status'              => 'test',
