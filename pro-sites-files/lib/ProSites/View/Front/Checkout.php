@@ -416,7 +416,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 			}
 
-			return $columns;
+			return apply_filters( 'prosites_pricing_table_columns', $columns );
 		}
 
 		private static function get_header_details( $level = false ) {
