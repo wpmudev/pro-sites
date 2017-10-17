@@ -2964,14 +2964,14 @@ class ProSites_Gateway_PayPalExpressPro {
 
 							$psts->log_action( $blog_id, sprintf( __( 'PayPal IPN "%s" received: %s %s payment received, transaction ID %s', 'psts' ), $payment_status, $psts->format_currency( $currency_code, $payment ), $_POST['txn_type'], $txn_id ) . $profile_string );
 
-							//extend only if a recurring payment, first payments are handled below
-							if ( $_POST['txn_type'] == 'recurring_payment' && get_blog_option( $blog_id, 'psts_waiting_step' ) ) {
+							//extend only if a recurring payment, first and reccuring payments are handled below
+							if ( $_POST['txn_type'] == 'recurring_payment' ) {
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $_POST['mc_gross'] );
 							}
 
 							$GLOBALS['wp_object_cache']->delete( 'psts_waiting_step', 'options' );
 							//in case of new member send notification
-							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) ) {
+							if ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
 
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $payment );
 
