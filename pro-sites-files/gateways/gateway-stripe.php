@@ -1854,9 +1854,11 @@ class ProSites_Gateway_Stripe {
 				<h2>' . esc_html__( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
 		//Stripe Related Errors
 		$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'stripe' ) : false;
+		$content .= '<div id="psts-processcard-error">';
 		if ( $errmsg ) {
-			$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
+			$content .= '<div class="psts-error">' . $errmsg . '</div>';
 		}
+		$content .= '</div>';
 
 		$content .='<table id="psts-cc-table">
 					<tbody>
