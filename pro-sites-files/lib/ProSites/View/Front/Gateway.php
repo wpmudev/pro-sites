@@ -531,7 +531,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			//If we don't have email yet
-			if ( empty( $email ) && isset( $_GET['bid'] ) && is_user_logged_in() ) {
+			if ( empty( $email ) && is_user_logged_in() ) {
 				$user  = get_userdata( get_current_user_id() );
 				$email = $user->user_email;
 			}
