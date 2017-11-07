@@ -1834,7 +1834,7 @@ class ProSites {
 	function is_pro_site( $blog_id = false, $level = false ) {
 		global $wpdb, $current_site;
 
-		if ( empty( $blog_id ) && is_user_logged_in() ) {
+		if ( empty( $blog_id ) && function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 			$blog_id = $wpdb->blogid;
 		}
 
