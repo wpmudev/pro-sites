@@ -191,7 +191,7 @@ class ProSites_Gateway_Stripe {
 				if ( self::plan_exists( $stripe_plan_id ) ) {
 					$plan_existing = self::get_plan_details( $stripe_plan_id );
 
-					$plan_price = self::$is_zdc ? $plan['price'] : $plan['price'] * 100;
+					$plan_price = self::$is_zdc ? $plan['price'] : floatval( $plan['price'] ) * 100;
 
 					// Nothing needs to happen
 					if ( $plan_existing->amount == $plan_price && $plan_existing->name == $plan_name && strtolower( $plan_existing->currency ) == strtolower( $currency ) ) {
