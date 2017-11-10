@@ -12,10 +12,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			
 			if ( isset( $_GET['bid'] ) && $_GET['bid'] > 0 && ! is_user_logged_in() ) {
 				$content = "<p>" . esc_attr__( 'You must be logged in to upgrade this blog. Please login below.', 'psts' ) . "</p>";
-				$content .= wp_login_form( array(
-					'echo'           => false,
-					'remember'       => true,
-					'redirect'       => ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+				$content .= wp_login_form(
+					array(
+						'echo'     => false,
+						'remember' => true,
+						'redirect' => ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
 					) 
 				);
 				
