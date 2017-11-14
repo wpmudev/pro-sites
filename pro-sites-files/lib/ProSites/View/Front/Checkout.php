@@ -10,6 +10,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_checkout_page( $content, $blog_id, $domain = false, $selected_period = 'price_1', $selected_level = false ) {
 			global $psts, $current_prosite_blog, $wpdb;
 
+			// Clear sessions if user is not logged in.
+			if ( ! is_user_logged_in() ) {
+				ProSites_Helper_Session::unset_session( 'new_blog_details' );
+				ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+				ProSites_Helper_Session::unset_session( 'activation_key' );
+			}
+
 			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
 
 			do_action( 'prosites_before_checkout_page', $blog_id );
