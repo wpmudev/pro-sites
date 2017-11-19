@@ -2483,6 +2483,11 @@ class ProSites {
 			return $title;
 		}
 
+		// Do not continue if site doesn't exist.
+		if ( empty( ProSites_Helper_ProSite::get_site( $blog_id ) ) ) {
+			return $title;
+		}
+
 		$url = str_replace( 'http://', '', get_home_url( $blog_id, '', 'http' ) );
 
 		if ( ! is_user_logged_in() && isset( $_GET['bid'] ) ) {
