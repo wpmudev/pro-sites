@@ -17,6 +17,11 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				ProSites_Helper_Session::unset_session( 'activation_key' );
 			}
 
+			// If user is not logged in, show login form and redirect.
+			if ( isset( $_GET['bid'] ) && $_GET['bid'] > 0 && ! is_user_logged_in() ) {
+				return self::get_login_form();
+			}
+
 			$taxamo_enabled = $psts->get_setting( 'taxamo_status', 0 );
 
 			do_action( 'prosites_before_checkout_page', $blog_id );
@@ -721,6 +726,27 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				esc_attr__( 'Login', 'psts' ), // Anchor Title
 				esc_html__( 'Login now.', 'psts' ), // Anchor Text
 				wp_login_form( array( 'echo' => false ) ) // Login Form
+			);
+
+			return $content;
+		}
+
+		/**
+		 * Get login form html.
+		 *
+		 * @return string
+		 */
+		public static function get_login_form() {
+
+			$is_ssl = is_ssl() ? 'https://' : 'http://';
+
+			$content = "<p>" . esc_attr__( 'You must be logged in to upgrade this blog. Please login below.', 'psts' ) . "</p>";
+			$content .= wp_login_form(
+				array(
+					'echo'     => false,
+					'remember' => true,
+					'redirect' => $is_ssl . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+				)
 			);
 
 			return $content;
