@@ -3342,11 +3342,7 @@ class ProSites_Gateway_Stripe {
 		if ( empty( $customer_id ) || empty( $sub_id ) ) {
 			return '';
 		}
-		
-		global $psts;
-		
-		$expired = ( $psts->get_expire( $blog_id ) < time() ) ? true : false;
-		
+
 		// Return if pro site status alread expired and or stripe plan canceled.
 		if ( 1 == get_blog_option( $blog_id, 'psts_stripe_canceled' ) || 1 == get_blog_option( $blog_id, 'psts_withdrawn' ) ) {
 			return '';
