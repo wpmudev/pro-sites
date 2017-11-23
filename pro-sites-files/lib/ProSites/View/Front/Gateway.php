@@ -327,15 +327,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 					}
 				}
 
-				// Signup for another blog?
-				$allow_multi   = $psts->get_setting( 'multiple_signup' );
-				$registeration = get_site_option( 'registration' );
-				$allow_multi   = 'all' == $registeration || 'blog' == $registeration ? $allow_multi : false;
-
-				if ( $allow_multi ) {
-					$content .= '<div id="psts-signup-another"><a href="' . esc_url( $psts->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
-				}
-
 				$content .= apply_filters( 'prosites_myaccount_details', '', $blog_id );
 
 			}
