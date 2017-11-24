@@ -5,6 +5,20 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.8 - 23/11/2017
+
+*Updated:
+    - Do not let users upgrade a site without logging in.
+*Fixed:
+    - Fixed conflict with WP User Avatar.
+    - Email was empty on confirmation page.
+    - Payment button appears after logging out.
+    - Updating card info was not working.
+    - Fixed non-numeric value error in PHP 7.1.
+    - Pay to Blog module was not working when free signup is enabled.
+    - Fixed SQL error on Pro Sites page if blog id is invalid.
+    - Remove duplicate link to signup on checkout page.
+
 3.5.7 - 04/10/2017
 
 *Updated:
