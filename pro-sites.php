@@ -2484,7 +2484,8 @@ class ProSites {
 		}
 
 		// Do not continue if site doesn't exist.
-		if ( empty( ProSites_Helper_ProSite::get_site( $blog_id ) ) ) {
+		$is_site = ProSites_Helper_ProSite::get_site( $blog_id );
+		if ( empty( $is_site ) ) {
 			return $title;
 		}
 
