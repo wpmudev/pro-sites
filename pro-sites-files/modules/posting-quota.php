@@ -137,7 +137,7 @@ class ProSites_Module_PostingQuota {
 					</th>
 					<td>
 						<select name="psts[pq_level]" id="pq_level" class="chosen">
-						<option value="0"<?php selected( $selected_level, 0 ) ?>><?php _e( 'Default - No level', 'psts' ); ?></option>
+							<option value="0" <?php selected( $selected_level, 0 ); ?>><?php _e( 'Default - Free level', 'psts' ); ?></option>
 							<?php
 							$levels = (array) get_site_option( 'psts_levels' );
 							foreach ( $levels as $level => $value ) {
