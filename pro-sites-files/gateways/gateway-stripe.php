@@ -262,6 +262,9 @@ class ProSites_Gateway_Stripe {
 			$plan = self::retrieve_plan( $stripe_plan_id );
 			if ( ! empty( $plan ) ) {
 				$plan->delete();
+
+				// Delete cached plans.
+				wp_cache_delete( 'stripe_plans_cached', 'psts' );
 			}
 		} catch ( Exception $e ) {
 			//oh well
