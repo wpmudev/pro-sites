@@ -1364,7 +1364,7 @@ class ProSites_Gateway_Stripe {
 
 		// We might have a legacy account on hand
 		$x = '';
-		if ( empty( $subscription->blog_id ) ) {
+		if ( empty( $subscription->blog_id ) && isset( $subscription->customer_id ) ) {
 			try {
 				$customer = Stripe_Customer::retrieve( $subscription->customer_id );
 				preg_match( '/\d*$/', $customer->description, $blog_id );
