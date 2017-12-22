@@ -115,8 +115,8 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 
 				$newblog_details = ProSites_Helper_Session::session( 'new_blog_details' );
 				$newblog_details['site_activated'] = true;
-				$newblog_details[ 'blog_id' ] = (int) $blog_id;
-				$newblog_details[ 'activation_key' ] = $key;
+				$newblog_details['blog_id'] = (int) $blog_id;
+				$newblog_details['activation_key'] = $key;
 				ProSites_Helper_Session::session( 'new_blog_details', $newblog_details );
 				
 			} else {

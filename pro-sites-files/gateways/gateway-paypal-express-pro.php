@@ -1994,20 +1994,21 @@ class ProSites_Gateway_PayPalExpressPro {
 
 		//1st lets check if the key is from a newly activated blog.
 		// New blogs get activated in ProSites_Helper_Registration::activate_blog
-		$new_blog_details = ProSites_Helper_Session::session( 'new_blog_details' );		
+		$new_blog_details = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if( ! empty( $new_blog_details ) && 
-			isset( $new_blog_details[ 'activation_key' ] ) &&
-			$new_blog_details[ 'activation_key' ] == $activation_key ){
+		if ( ! empty( $new_blog_details ) && isset( $new_blog_details[ 'activation_key' ] ) && $new_blog_details[ 'activation_key' ] == $activation_key ) {
 
-			$blog_id = isset( $new_blog_details[ 'blog_id' ] ) ? $new_blog_details[ 'blog_id' ] : null;
+			// Get blog id.
+			$blog_id = isset( $new_blog_details['blog_id'] ) ? $new_blog_details['blog_id'] : null;
 
-			if( is_numeric( $blog_id ) ){
+			// Make sure it is numeric.
+			if ( is_numeric( $blog_id ) ) {
 				return $blog_id;
 			}
 		}
 
-		$force = apply_filters( 'psts/pypl/blog_id_from_activation_key/force', $force );
+		// Filter to alter force param.
+		$force = apply_filters( 'psts_pypl_blog_id_from_activation_key_force', $force );
 
 
 		$query   = "SELECT blog_id from {$wpdb->base_prefix}pro_sites WHERE identifier='%s'";
