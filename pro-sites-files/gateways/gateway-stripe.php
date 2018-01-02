@@ -2813,7 +2813,7 @@ class ProSites_Gateway_Stripe {
 				// We don't need to log in error log if the subscription was cancelled normally.
 				if ( empty( $subscription->canceled_at ) ) {
 					error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
-                }
+				}
 			}
 
 			// All good, keep populating the array.
