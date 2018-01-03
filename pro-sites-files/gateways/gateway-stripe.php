@@ -2810,7 +2810,10 @@ class ProSites_Gateway_Stripe {
 													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
 													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				}
-				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				// We don't need to log in error log if the subscription was cancelled normally.
+				if ( empty( $subscription->canceled_at ) ) {
+					error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				}
 			}
 
 			// All good, keep populating the array.
