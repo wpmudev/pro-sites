@@ -86,7 +86,9 @@ class ProSites {
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
 		// TAX integration
-		ProSites_Helper_Tax::init_tax();
+		if ( $this->get_setting( 'taxamo_status', false ) ) {
+			ProSites_Helper_Tax::init_tax();
+		}
 
 		// Other integrations
 		ProSites_Helper_Integration::init();
