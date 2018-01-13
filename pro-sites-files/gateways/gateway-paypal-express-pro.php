@@ -495,14 +495,15 @@ class ProSites_Gateway_PayPalExpressPro {
 		//Set Level and period in upgraded blog details, if blog id is set, for upgrades
 		if ( ! empty( $blog_id ) ) {
 			$new_blog = false;
-			if ( ! empty( $level ) && ! empty( $period ) ) {
-				$process_data['upgraded_blog_details']['level']  = $level;
-				$process_data['upgraded_blog_details']['period'] = $period;
-			}
 			$current = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
 		}
 
 		$signup_type = $new_blog ? 'new_blog_details' : 'upgraded_blog_details';
+
+		if ( ! empty( $level ) && ! empty( $period ) ) {
+			$process_data[ $signup_type ]['level']  = $level;
+			$process_data[ $signup_type ]['period'] = $period;
+		}
 
 		// Update the session data with the changed process data.
 		ProSites_Helper_Session::session( 'new_blog_details', $process_data['new_blog_details'] );
