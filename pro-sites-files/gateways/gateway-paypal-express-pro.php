@@ -629,11 +629,37 @@ class ProSites_Gateway_PayPalExpressPro {
 
 				//Check if it's a recurring subscription
 				if ( $recurring ) {
-					$descAmount = $is_trial ? $initAmountDesc : $initAmountDesc + $paymentAmountInitial;
-					if ( $_POST['period'] == 1 ) {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s each month, plus a one time %2$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $psts->format_currency( $currency, $descAmount ) );
-					} else {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s every %2$s months, plus a one time %3$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $_POST['period'], $psts->format_currency( $currency, $descAmount ) );
+					$descAmount = $is_trial ? $initAmountDesc : $paymentAmountInitial;
+					
+					$months_expresion = __( 'each month', 'psts' );
+					$first_period_expresion = __( 'for first month', 'psts' );
+
+					if ( $_POST['period'] > 1 ) {
+						$months_expresion = sprintf( __( 'every %1$s months', 'psts' ), $_POST['period'] );
+						$first_period_expresion = sprintf( __( 'for first %1$s months', 'psts' ), $_POST['period'] );
+					}
+
+					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ';
+
+					if( $has_coupon && $lifetime == 'once' ){
+	
+						$desc .=  sprintf( __( '%1$s %2$s, then %3$s %4$s. ', 'psts' ),
+							$psts->format_currency( $currency, $descAmount ), 
+							$first_period_expresion,
+							$psts->format_currency( $currency, $paymentAmountDesc ),
+							$months_expresion
+						);
+						
+					}
+					else{
+						$desc .=  sprintf( '%1$s %2$s. ',
+							$psts->format_currency( $currency, $paymentAmountDesc ), 
+							$months_expresion
+						);
+					}
+
+					if( $has_setup_fee ){
+						$desc .= sprintf( __( 'Plus a one time %1$s setup fee', 'psts' ), $psts->format_currency( $currency, $setup_fee ) );
 					}
 				} else {
 					$descAmount = $paymentAmountDesc + $initAmountDesc;
