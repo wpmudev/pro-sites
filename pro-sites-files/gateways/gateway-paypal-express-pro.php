@@ -530,6 +530,10 @@ class ProSites_Gateway_PayPalExpressPro {
 				return false;
 			}
 
+			// Set period and level to session, just incase it is missing.
+			ProSites_Helper_Session::session( array( $signup_type, 'level' ), $_POST['level'] );
+			ProSites_Helper_Session::session( array( $signup_type, 'period' ), $_POST['period'] );
+
 			//prepare vars
 			$currency = self::currency();
 
