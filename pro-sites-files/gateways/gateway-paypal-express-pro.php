@@ -645,7 +645,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ';
 
-					if( $has_coupon && $lifetime == 'once' ){
+					if ( $has_coupon && $lifetime == 'once' ) {
 	
 						$desc .=  sprintf( __( '%1$s %2$s, then %3$s %4$s. ', 'psts' ),
 							$psts->format_currency( $currency, $descAmount ), 
@@ -655,14 +655,14 @@ class ProSites_Gateway_PayPalExpressPro {
 						);
 						
 					}
-					else{
+					else {
 						$desc .=  sprintf( '%1$s %2$s. ',
 							$psts->format_currency( $currency, $paymentAmountDesc ), 
 							$months_expresion
 						);
 					}
 
-					if( $has_setup_fee ){
+					if ( $has_setup_fee ) {
 						$desc .= sprintf( __( 'Plus a one time %1$s setup fee', 'psts' ), $psts->format_currency( $currency, $setup_fee ) );
 					}
 				} else {
