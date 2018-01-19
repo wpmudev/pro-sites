@@ -646,12 +646,11 @@ class ProSites {
 		$current_user_id = get_current_user_id();
 		$permission      = $this->check_user_role( $current_user_id, $checkout_roles );
 
-		if ( ! is_main_site() && $permission && $this->get_setting( 'trial_days' ) ) {
+		if ( ! is_main_site() && $permission && $this->get_setting( 'trial_days' ) && $this->is_trial( $blog_id ) ) {
 			$expire = $wpdb->get_var( $wpdb->prepare( "
 				SELECT expire
 				FROM {$wpdb->base_prefix}pro_sites
 				WHERE blog_ID = %d
-					AND ( gateway = 'Trial' OR gateway = 'trial' )
 					AND expire >= %s
 				LIMIT 1", $blog_id, time()
 			) );
