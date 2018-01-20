@@ -2022,8 +2022,8 @@ class ProSites_Gateway_PayPalExpressPro {
 	public static function blog_id_from_activation_key( $activation_key, $force = true ) {
 		global $wpdb;
 
-		//1st lets check if the key is from a newly activated blog.
-		// New blogs get activated in ProSites_Helper_Registration::activate_blog
+		// 1st lets check if the key is from a newly activated blog.
+		// New blogs get activated in ProSites_Helper_Registration::activate_blog.
 		$new_blog_details = ProSites_Helper_Session::session( 'new_blog_details' );
 
 		if ( ! empty( $new_blog_details ) && isset( $new_blog_details[ 'activation_key' ] ) && $new_blog_details[ 'activation_key' ] == $activation_key ) {
@@ -2044,8 +2044,8 @@ class ProSites_Gateway_PayPalExpressPro {
 		$query   = "SELECT blog_id from {$wpdb->base_prefix}pro_sites WHERE identifier='%s'";
 		$blog_id = $wpdb->get_var( $wpdb->prepare( $query, $activation_key ) );
 
-		//Try to get it from signup table
-		//if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
+		// Try to get it from signup table.
+		// if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
 		if ( $force && empty( $blog_id ) && ! is_wp_error( $blog_id ) ) {
 			$blog_id = ProSites_Helper_ProSite::get_blog_id( $activation_key );
 		}
