@@ -105,7 +105,6 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Do not display message for add action
 				if ( $display_message ) {
 					self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
-
 				}
 			}
 		}
@@ -2019,13 +2018,34 @@ class ProSites_Gateway_PayPalExpressPro {
 	 *
 	 * @param $activation_key
 	 */
-	public static function blog_id_from_activation_key( $activation_key ) {
+	public static function blog_id_from_activation_key( $activation_key, $force = true ) {
 		global $wpdb;
+
+		// 1st lets check if the key is from a newly activated blog.
+		// New blogs get activated in ProSites_Helper_Registration::activate_blog.
+		$new_blog_details = ProSites_Helper_Session::session( 'new_blog_details' );
+
+		if ( isset( $new_blog_details[ 'activation_key' ] ) && $new_blog_details[ 'activation_key' ] == $activation_key ) {
+
+			// Get blog id.
+			$blog_id = isset( $new_blog_details['blog_id'] ) ? $new_blog_details['blog_id'] : null;
+
+			// Make sure it is numeric.
+			if ( is_numeric( $blog_id ) ) {
+				return $blog_id;
+			}
+		}
+
+		// Filter to alter force param.
+		$force = apply_filters( 'psts_pypl_blog_id_from_activation_key_force', $force );
+
+
 		$query   = "SELECT blog_id from {$wpdb->base_prefix}pro_sites WHERE identifier='%s'";
 		$blog_id = $wpdb->get_var( $wpdb->prepare( $query, $activation_key ) );
 
-		//Try to get it from signup table
-		if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
+		// Try to get it from signup table.
+		// if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
+		if ( $force && empty( $blog_id ) && ! is_wp_error( $blog_id ) ) {
 			$blog_id = ProSites_Helper_ProSite::get_blog_id( $activation_key );
 		}
 
@@ -2892,7 +2912,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 			if ( empty( $blog_id ) || $blog_id == 0 ) {
 				//Get it from Pro sites table, if not there, try to get it from signup table
-				$blog_id = self::blog_id_from_activation_key( $activation_key );
+				$blog_id = self::blog_id_from_activation_key( $activation_key, false );
 			}
 
 			// process PayPal response
