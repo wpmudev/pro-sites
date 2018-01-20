@@ -105,7 +105,6 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Do not display message for add action
 				if ( $display_message ) {
 					self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
-
 				}
 			}
 		}
@@ -2026,7 +2025,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		// New blogs get activated in ProSites_Helper_Registration::activate_blog.
 		$new_blog_details = ProSites_Helper_Session::session( 'new_blog_details' );
 
-		if ( ! empty( $new_blog_details ) && isset( $new_blog_details[ 'activation_key' ] ) && $new_blog_details[ 'activation_key' ] == $activation_key ) {
+		if ( isset( $new_blog_details[ 'activation_key' ] ) && $new_blog_details[ 'activation_key' ] == $activation_key ) {
 
 			// Get blog id.
 			$blog_id = isset( $new_blog_details['blog_id'] ) ? $new_blog_details['blog_id'] : null;
