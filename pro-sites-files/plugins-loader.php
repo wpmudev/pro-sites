@@ -37,7 +37,13 @@ class ProSites_PluginLoader {
 	}
 
 	public static function require_module( $module ) {
-		//get modules dir
+
+		// Do not load if module does not exist in modules array.
+		if ( ! isset( self::$modules[ $module ] ) ) {
+			return;
+		}
+
+		// Get modules dir.
 		$dir = plugin_dir_path( ProSites::$plugin_file ) . 'pro-sites-files/modules/';
 
 		require_once( $dir . self::$modules[$module] . '.php' );

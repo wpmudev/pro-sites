@@ -59,12 +59,7 @@ class ProSites_Module_PayToBlog {
 		}
 
 		//Whether to disable Site or not
-		$disable_site = ! $psts->is_pro_site( $blog_id );
-
-		//Do not disable if free sites are enabled
-		if ( $disable_site && $psts->get_setting( 'free_signup' ) ) {
-			$disable_site = false;
-		}
+		$disable_site = ! $psts->is_pro_site( $blog_id ) && $psts->get_expire( $blog_id );
 
 		//Check if free site is enabled and
 		if ( $psts->get_setting( 'ptb_front_disable' ) && $disable_site ) {

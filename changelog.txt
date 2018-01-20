@@ -5,6 +5,28 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.8 - 10/01/2018
+
+*Added:
+    - Option to set quota for free level in Post/Page quotas module.
+*Updated:
+    - Do not let users upgrade a site without logging in.
+*Fixed:
+    - Conflict with WP User Avatar.
+    - Errors in main blog admin pages.
+    - Email was empty on the confirmation page.
+    - Payment button appears after logging out.
+    - Updating card info was not working.
+    - Non-numeric value error in PHP 7.1.
+    - Using coupon sets the price to 0 in some cases.
+    - Sign up link was showing twice on Pro Sites page.
+    - Pay to Blog module was not working when free signup is enabled.
+    - SQL error on Pro Sites page if blog id is invalid.
+    - Errors when Pro Sites checks the status of deactivated sites.
+    - Stripe errors when deleted plans exist on the cache.
+    - Error while checking already canceled sites later.
+    - Duplicate id/class name on the checkout page.
+
 3.5.7 - 04/10/2017
 
 *Updated:

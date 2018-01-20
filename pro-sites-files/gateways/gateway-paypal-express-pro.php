@@ -105,7 +105,6 @@ class ProSites_Gateway_PayPalExpressPro {
 				//Do not display message for add action
 				if ( $display_message ) {
 					self::$cancel_message = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $site_name . ' ' . $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
-
 				}
 			}
 		}
@@ -530,6 +529,10 @@ class ProSites_Gateway_PayPalExpressPro {
 				return false;
 			}
 
+			// Set period and level to session, just incase it is missing.
+			ProSites_Helper_Session::session( array( $signup_type, 'level' ), $_POST['level'] );
+			ProSites_Helper_Session::session( array( $signup_type, 'period' ), $_POST['period'] );
+
 			//prepare vars
 			$currency = self::currency();
 
@@ -629,11 +632,37 @@ class ProSites_Gateway_PayPalExpressPro {
 
 				//Check if it's a recurring subscription
 				if ( $recurring ) {
-					$descAmount = $is_trial ? $initAmountDesc : $initAmountDesc + $paymentAmountInitial;
-					if ( $_POST['period'] == 1 ) {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s each month, plus a one time %2$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $psts->format_currency( $currency, $descAmount ) );
-					} else {
-						$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ' . sprintf( __( '%1$s every %2$s months, plus a one time %3$s setup fee', 'psts' ), $psts->format_currency( $currency, $paymentAmountDesc ), $_POST['period'], $psts->format_currency( $currency, $descAmount ) );
+					$descAmount = $is_trial ? $initAmountDesc : $paymentAmountInitial;
+					
+					$months_expresion = __( 'each month', 'psts' );
+					$first_period_expresion = __( 'for first month', 'psts' );
+
+					if ( $_POST['period'] > 1 ) {
+						$months_expresion = sprintf( __( 'every %1$s months', 'psts' ), $_POST['period'] );
+						$first_period_expresion = sprintf( __( 'for first %1$s months', 'psts' ), $_POST['period'] );
+					}
+
+					$desc = $site_name . ' ' . $psts->get_level_setting( $_POST['level'], 'name' ) . ': ';
+
+					if ( $has_coupon && $lifetime == 'once' ) {
+	
+						$desc .=  sprintf( __( '%1$s %2$s, then %3$s %4$s. ', 'psts' ),
+							$psts->format_currency( $currency, $descAmount ), 
+							$first_period_expresion,
+							$psts->format_currency( $currency, $paymentAmountDesc ),
+							$months_expresion
+						);
+						
+					}
+					else {
+						$desc .=  sprintf( '%1$s %2$s. ',
+							$psts->format_currency( $currency, $paymentAmountDesc ), 
+							$months_expresion
+						);
+					}
+
+					if ( $has_setup_fee ) {
+						$desc .= sprintf( __( 'Plus a one time %1$s setup fee', 'psts' ), $psts->format_currency( $currency, $setup_fee ) );
 					}
 				} else {
 					$descAmount = $paymentAmountDesc + $initAmountDesc;
@@ -1989,13 +2018,34 @@ class ProSites_Gateway_PayPalExpressPro {
 	 *
 	 * @param $activation_key
 	 */
-	public static function blog_id_from_activation_key( $activation_key ) {
+	public static function blog_id_from_activation_key( $activation_key, $force = true ) {
 		global $wpdb;
+
+		// 1st lets check if the key is from a newly activated blog.
+		// New blogs get activated in ProSites_Helper_Registration::activate_blog.
+		$new_blog_details = ProSites_Helper_Session::session( 'new_blog_details' );
+
+		if ( isset( $new_blog_details[ 'activation_key' ] ) && $new_blog_details[ 'activation_key' ] == $activation_key ) {
+
+			// Get blog id.
+			$blog_id = isset( $new_blog_details['blog_id'] ) ? $new_blog_details['blog_id'] : null;
+
+			// Make sure it is numeric.
+			if ( is_numeric( $blog_id ) ) {
+				return $blog_id;
+			}
+		}
+
+		// Filter to alter force param.
+		$force = apply_filters( 'psts_pypl_blog_id_from_activation_key_force', $force );
+
+
 		$query   = "SELECT blog_id from {$wpdb->base_prefix}pro_sites WHERE identifier='%s'";
 		$blog_id = $wpdb->get_var( $wpdb->prepare( $query, $activation_key ) );
 
-		//Try to get it from signup table
-		if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
+		// Try to get it from signup table.
+		// if ( empty( $blog_id ) || ! is_wp_error( $blog_id ) ) {
+		if ( $force && empty( $blog_id ) && ! is_wp_error( $blog_id ) ) {
 			$blog_id = ProSites_Helper_ProSite::get_blog_id( $activation_key );
 		}
 
@@ -2862,7 +2912,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 			if ( empty( $blog_id ) || $blog_id == 0 ) {
 				//Get it from Pro sites table, if not there, try to get it from signup table
-				$blog_id = self::blog_id_from_activation_key( $activation_key );
+				$blog_id = self::blog_id_from_activation_key( $activation_key, false );
 			}
 
 			// process PayPal response

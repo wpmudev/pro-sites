@@ -112,6 +112,13 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				}
 				$result['user_id'] = $user_id;
 				$result['blog_id'] = (int) $blog_id;
+
+				$newblog_details = ProSites_Helper_Session::session( 'new_blog_details' );
+				$newblog_details['site_activated'] = true;
+				$newblog_details['blog_id'] = (int) $blog_id;
+				$newblog_details['activation_key'] = $key;
+				ProSites_Helper_Session::session( 'new_blog_details', $newblog_details );
+				
 			} else {
 
 				if( isset( $result['password'] ) ) {

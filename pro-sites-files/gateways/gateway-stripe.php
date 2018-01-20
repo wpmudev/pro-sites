@@ -191,7 +191,7 @@ class ProSites_Gateway_Stripe {
 				if ( self::plan_exists( $stripe_plan_id ) ) {
 					$plan_existing = self::get_plan_details( $stripe_plan_id );
 
-					$plan_price = self::$is_zdc ? $plan['price'] : $plan['price'] * 100;
+					$plan_price = self::$is_zdc ? $plan['price'] : floatval( $plan['price'] ) * 100;
 
 					// Nothing needs to happen
 					if ( $plan_existing->amount == $plan_price && $plan_existing->name == $plan_name && strtolower( $plan_existing->currency ) == strtolower( $currency ) ) {
@@ -262,6 +262,9 @@ class ProSites_Gateway_Stripe {
 			$plan = self::retrieve_plan( $stripe_plan_id );
 			if ( ! empty( $plan ) ) {
 				$plan->delete();
+
+				// Delete cached plans.
+				wp_cache_delete( 'stripe_plans_cached', 'psts' );
 			}
 		} catch ( Exception $e ) {
 			//oh well
@@ -1361,7 +1364,7 @@ class ProSites_Gateway_Stripe {
 
 		// We might have a legacy account on hand
 		$x = '';
-		if ( empty( $subscription->blog_id ) ) {
+		if ( empty( $subscription->blog_id ) && isset( $subscription->customer_id ) ) {
 			try {
 				$customer = Stripe_Customer::retrieve( $subscription->customer_id );
 				preg_match( '/\d*$/', $customer->description, $blog_id );
@@ -1854,9 +1857,11 @@ class ProSites_Gateway_Stripe {
 				<h2>' . esc_html__( 'Checkout With a Credit Card:', 'psts' ) . '</h2>';
 		//Stripe Related Errors
 		$errmsg = ! empty( $psts->errors ) ? $psts->errors->get_error_message( 'stripe' ) : false;
+		$content .= '<div id="psts-processcard-error">';
 		if ( $errmsg ) {
-			$content .= '<div id="psts-processcard-error" class="psts-error">' . $errmsg . '</div>';
+			$content .= '<div class="psts-error">' . $errmsg . '</div>';
 		}
+		$content .= '</div>';
 
 		$content .='<table id="psts-cc-table">
 					<tbody>
@@ -2494,7 +2499,7 @@ class ProSites_Gateway_Stripe {
 
 					if ( ! empty( $expire ) ) {
 						//Extend the Blog Subscription
-						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, true, $recurring );
+						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $expire, true, $recurring );
 					}
 					//$psts->email_notification( $blog_id, 'receipt' );
 
@@ -2805,7 +2810,10 @@ class ProSites_Gateway_Stripe {
 													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
 													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				}
-				error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				// We don't need to log in error log if the subscription was cancelled normally.
+				if ( empty( $subscription->canceled_at ) ) {
+					error_log( "Error in " . __FILE__ . " at line " . __LINE__ . $e->getMessage() );
+				}
 			}
 
 			// All good, keep populating the array.
@@ -3317,6 +3325,11 @@ class ProSites_Gateway_Stripe {
 
 		//Return If we don't have customer id
 		if ( empty( $customer_id ) || empty( $sub_id ) ) {
+			return '';
+		}
+
+		// Return if pro site status alread expired and or stripe plan canceled.
+		if ( 1 == get_blog_option( $blog_id, 'psts_stripe_canceled' ) || 1 == get_blog_option( $blog_id, 'psts_withdrawn' ) ) {
 			return '';
 		}
 

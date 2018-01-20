@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.7
+Version: 3.5.8
 Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.7';
+	var $version = '3.5.8';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -86,7 +86,9 @@ class ProSites {
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
 		// TAX integration
-		ProSites_Helper_Tax::init_tax();
+		if ( $this->get_setting( 'taxamo_status', false ) ) {
+			ProSites_Helper_Tax::init_tax();
+		}
 
 		// Other integrations
 		ProSites_Helper_Integration::init();
@@ -643,13 +645,14 @@ class ProSites {
 		//check If user is allowed
 		$current_user_id = get_current_user_id();
 		$permission      = $this->check_user_role( $current_user_id, $checkout_roles );
+		// Check if it is trialing.
+		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 
-		if ( ! is_main_site() && $permission && $this->get_setting( 'trial_days' ) ) {
+		if ( ! is_main_site() && $permission && $this->get_setting( 'trial_days' ) && $trialing ) {
 			$expire = $wpdb->get_var( $wpdb->prepare( "
 				SELECT expire
 				FROM {$wpdb->base_prefix}pro_sites
 				WHERE blog_ID = %d
-					AND ( gateway = 'Trial' OR gateway = 'trial' )
 					AND expire >= %s
 				LIMIT 1", $blog_id, time()
 			) );
@@ -1834,7 +1837,7 @@ class ProSites {
 	function is_pro_site( $blog_id = false, $level = false ) {
 		global $wpdb, $current_site;
 
-		if ( empty( $blog_id ) && is_user_logged_in() ) {
+		if ( empty( $blog_id ) && function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 			$blog_id = $wpdb->blogid;
 		}
 
@@ -2483,9 +2486,19 @@ class ProSites {
 			return $title;
 		}
 
+		// Do not continue if site doesn't exist.
+		$is_site = ProSites_Helper_ProSite::get_site( $blog_id );
+		if ( empty( $is_site ) ) {
+			return $title;
+		}
+
 		$url = str_replace( 'http://', '', get_home_url( $blog_id, '', 'http' ) );
 
-		return sprintf( __( '%1$s: %2$s (%3$s)', 'psts' ), $title, get_blog_option( $blog_id, 'blogname' ), $url );
+		if ( ! is_user_logged_in() && isset( $_GET['bid'] ) ) {
+			return sprintf( __( '%1$s: %2$s', 'psts' ), $title, __( 'Please login', 'psts' ) );
+		} else {
+			return sprintf( __( '%1$s: %2$s (%3$s)', 'psts' ), $title, get_blog_option( $blog_id, 'blogname' ), $url );
+		}
 	}
 
 	function signup_redirect() {

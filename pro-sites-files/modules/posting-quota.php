@@ -29,7 +29,7 @@ class ProSites_Module_PostingQuota {
 		$blog_id = get_current_blog_id();
 
 		if ( $this->is_per_level ) { //add limits to all pro-sites levels
-			if ( ! is_main_site( $blog_id ) && is_pro_site( $blog_id, $psts->get_level() ) ) {
+			if ( ! is_main_site( $blog_id ) ) {
 				$this->actions_and_filters();
 			}
 		}else {
@@ -137,6 +137,7 @@ class ProSites_Module_PostingQuota {
 					</th>
 					<td>
 						<select name="psts[pq_level]" id="pq_level" class="chosen">
+							<option value="0" <?php selected( $selected_level, 0 ); ?>><?php _e( 'Default - Free level', 'psts' ); ?></option>
 							<?php
 							$levels = (array) get_site_option( 'psts_levels' );
 							foreach ( $levels as $level => $value ) {
