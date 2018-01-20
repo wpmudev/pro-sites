@@ -2499,7 +2499,7 @@ class ProSites_Gateway_Stripe {
 
 					if ( ! empty( $expire ) ) {
 						//Extend the Blog Subscription
-						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, false, true, $recurring );
+						self::maybe_extend( $blog_id, $_POST['period'], self::get_slug(), $_POST['level'], $initAmount, $expire, true, $recurring );
 					}
 					//$psts->email_notification( $blog_id, 'receipt' );
 
