@@ -255,14 +255,14 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 							       style="width: 95%"/>
 						</td>
 					</tr>
-					<tr valign="top">
+					<!--<tr valign="top">
 						<th scope="row"
-						    class="psts-cancellation psts-help-div"><?php echo __( 'Cancellation Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'This message is displayed on the checkout screen notifying FREE TRIAL and NEW customers of your cancellation policy. "DAYS" will be replaced with the number of "Cancellation Days" set above.', 'psts' ) ); ?></th>
+						    class="psts-cancellation psts-help-div"><?php // echo __( 'Cancellation Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'This message is displayed on the checkout screen notifying FREE TRIAL and NEW customers of your cancellation policy. "DAYS" will be replaced with the number of "Cancellation Days" set above.', 'psts' ) ); ?></th>
 						<td>
 							<textarea style="width:95%" wrap="soft" rows="3"
-							          name="psts[cancel_message]"><?php echo $psts->get_setting( 'cancel_message', __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ) ); ?></textarea><br/>
+							          name="psts[cancel_message]"><?php // echo $psts->get_setting( 'cancel_message', __( 'Your DAYS day trial begins once you click "Subscribe" below. We perform a $1 pre-authorization to ensure your credit card is valid, but we won\'t actually charge your card until the end of your trial. If you don\'t cancel by day DAYS, your card will be charged for the subscription amount shown above. You can cancel your subscription at any time.', 'psts' ) ); ?></textarea><br/>
 						</td>
-					</tr>
+					</tr>-->
 					<tr valign="top">
 						<th scope="row"
 						    class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Free sites are not charged a setup fee until upgraded to a paid level. If you want upgrades from any level to be charged a setup fee then check "Apply setup fee to upgrades".', 'psts' ) ); ?></th>
