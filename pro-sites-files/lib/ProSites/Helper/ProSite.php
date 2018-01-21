@@ -390,5 +390,151 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			return $scheme;
 		}
+
+
+		/**
+		 * Display signups from wp_signups table
+		 *
+		 * @param int or WP_User or null $user
+		 * @param bool signups_status
+		 *
+		 * @return html
+		 */
+		public static function render_user_inactive_signups( $user = null, $signups_status = false ){
+
+			global $psts;
+			$user_signups 	= self::get_user_signups( $user, $signups_status );			
+			$date_format 	= get_option( 'date_format' );
+			$time_format 	= get_option( 'time_format' );
+			$out 			= '';
+
+			if( ! empty( $user_signups ) ){
+				
+				$out = '<header class="psts-inactive-sites-header">';
+					$out .= '<h2>' . __( 'Inactive sites', 'psts' ) . '</h2>';
+					$out .= '<div class="psts-inactive-sites-description">' . __( 'It seems you have some inactive sites. These will be reserved for 48hours from the reservation date. You can activate by clicking the "Activate" link so you can chose one of our available plans.', 'psts' ) . '</div>';
+				$out .= '</header>';
+
+				$out .= '<ul class="psts-user-inactive-signups">';
+
+				foreach( $user_signups as $user_signup ){
+
+					$activation_url = add_query_arg( array(
+								    'activate-signup' => $user_signup->signup_id
+								), $psts->checkout_url() );	
+
+					$expiration_date = apply_filters( 'psts-inactive-signup-expire', date( $date_format .' ' . $time_format, strtotime( $user_signup->registered . '+48 hours' ) ), $user_signup->registered );
+
+					ob_start();
+					?>
+					<li class="psts-user-inactive-signup psts-user-signup-%1$d">
+						<strong class="signup-title">%2$s</strong>
+						<span class="signup-date">%3$s %4$s</span>
+						<span class="signup-activation"><a href="%6$s" class="button">%5$s</a></span>
+					</li>
+					<?php
+					$out .= sprintf( 
+								ob_get_clean(),
+								$user_signup->signup_id,
+								$user_signup->title,
+								__( 'Expires on', 'psts' ),
+								$expiration_date,
+								__( 'Activate', 'psts' ),
+								$activation_url
+							);
+				}
+
+				$out .= '</ul>';
+
+			}
+
+			return $out;
+			
+		}
+
+		/**
+		 * Get signups from wp_signups table
+		 *
+		 * @param int or WP_User or null $user
+		 * @param bool signups_status
+		 *
+		 * @return WPDB results
+		 */
+		public static function get_user_signups( $user = null, $signups_status = false ){
+
+			global $wpdb;
+
+			$user = self::get_user( $user );
+
+			$user_login = $user->user_login;
+
+			$signups_status_q = "AND NOT active";
+
+			if( $signups_status ){
+				$signups_status_q = "AND active=1";
+			}
+
+			return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->signups} WHERE user_login = %s {$signups_status_q}", $user_login ) );			
+
+		}
+
+
+		public static function get_user( $user = null ){
+
+			if( ! is_null( $user ) ){
+
+				if( ! $user instanceof WP_User ){
+					$user = get_user_by( 'ID', intval( $user ) );
+				}
+
+			}
+			else{
+				if( ! is_user_logged_in() ){
+					return false;
+				}
+
+				$user = get_user_by( 'ID', intval( get_current_user_id() ) );
+			}
+			return $user;
+		}
+
+
+		public static function set_user_signups_session( $signup_id = null, $user = null ){
+
+			global $wpdb;
+
+			$user = self::get_user( $user );
+			$signup_id = ( is_null( $signup_id ) && isset( $_GET['activate-signup'] ) ) ? intval( $_GET['activate-signup'] ) : false;
+
+			if( ! $signup_id || ! self::allow_new_blog() ){
+				return;
+			}
+
+			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->signups} WHERE signup_id = %d AND user_login='%s'", $signup_id, $user->user_login ) );
+
+			ProSites_Helper_Session::session( 'domain', $signup->domain );
+			ProSites_Helper_Session::session( 'meta', $signup->meta );
+			
+			ProSites_Helper_Session::session( array( 'new_blog_details', 'user_login' ), $user->user_login );
+			ProSites_Helper_Session::session( array( 'new_blog_details', 'user_email' ), $user->user_email );
+			ProSites_Helper_Session::session( array( 'new_blog_details', 'title' ), $signup->title );
+			ProSites_Helper_Session::session( array( 'new_blog_details', 'domain' ), $signup->domain );
+			ProSites_Helper_Session::session( array( 'new_blog_details', 'path' ), $signup->path );
+			ProSites_Helper_Session::session( array( 'new_blog_details', 'activation_key' ), $signup->activation_key );
+
+			ProSites_Helper_Session::session( 'activation_key', $signup->activation_key );			
+
+		}
+
+
+		public static function clear_user_sessions(){
+
+			ProSites_Helper_Session::unset_session( 'domain' );
+			ProSites_Helper_Session::unset_session( 'meta' );
+			ProSites_Helper_Session::unset_session( 'new_blog_details' );
+			ProSites_Helper_Session::unset_session( 'activation_key' );
+
+		}
+		
 	}
 }

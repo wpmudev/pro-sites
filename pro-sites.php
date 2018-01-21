@@ -144,6 +144,7 @@ class ProSites {
 
 		// Change signup...
 		add_filter( 'register', array( &$this, 'prosites_signup_url' ) );
+		add_action( 'wp_logout', array( 'ProSites_Helper_ProSite', 'clear_user_sessions' ), 10 );
 
 		add_filter( 'psts_primary_checkout_table', array( 'ProSites_View_Front_Checkout', 'render_checkout_page' ), 10, 3 );
 		// Add Registration AJAX handler
@@ -4530,10 +4531,32 @@ function admin_modules() {
 			return $content;
 		}
 
+		if( isset( $_GET[ 'activate-signup' ] ) ){
+
+			$signup_id = intval( $_GET[ 'activate-signup' ] );
+			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE signup_id = %d", $signup_id ) );
+
+			if( ! empty( $signup ) ){
+
+				ProSites_Helper_ProSite::set_user_signups_session();
+				remove_filter( 'prosites_render_checkout_page', array( 'ProSites_View_Front_Gateway', 'prepend_plan_details', 10 ) );
+
+				$signup_title = $signup->title;
+				$signup_head = sprintf( __( 'Choose plan and activate %s', 'psts' ), $signup_title );
+				$content .= '<h2>' . $signup_head . '</h2>';
+
+			}
+			
+		}
+
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 		// Get the registration settings of network.
 		$registration = get_site_option('registration');
+
+		if( isset( $session_data['reserved_message'] ) ){
+			$content .= $session_data['reserved_message'];
+		}
 
 		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data['username'] ) )  {
 
@@ -4721,22 +4744,15 @@ function admin_modules() {
 			$current_user = !empty( $current_user->data ) ? $current_user->data : '';
 			$user_login = !empty( $current_user->user_login ) ? $current_user->user_login : '';
 
-			if( !empty( $user_login ) ) {
-				//Query Signup table for domain name
-				$query = $wpdb->prepare("SELECT `domain`, `active` from {$wpdb->signups} WHERE `user_login` = %s", $user_login );
-				$site = $wpdb->get_row( $query );
-				$user_domain = !empty( $site->domain ) ? $site->domain : false;
-			}
+			//Do not display inactive signups list or option to signup for new site, when we there is a signup selected to be activated
+			if( ! isset( $_GET[ 'activate-signup' ] ) ){
 
-			if( !empty( $user_domain ) && $allow_multi ) {
-				//Already have a site, allow to signup for another
-				$inactive_site = !empty( $site->active ) && 1 == $site->active ? '': sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/>';
-				$content .= '<div class="psts-signup-another">' . $inactive_site . '<a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
-			}elseif( empty( $user_domain ) ) {
-				//Don't have a site, let user create one
-				$content .= '<div class="psts-signup"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for a site.', 'psts' ) . '</a>' . '</div>';
-			}elseif ( ! $has_blog && ! isset( $session_domain ) ) {
-				$content .= '<strong>' . __( 'Sorry, but it appears you are not an administrator for any sites.', 'psts' ) . '</strong>';
+				$content .= ProSites_Helper_ProSite::render_user_inactive_signups();
+
+				if( $allow_multi ) {
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				}
+
 			}
 		}
 
