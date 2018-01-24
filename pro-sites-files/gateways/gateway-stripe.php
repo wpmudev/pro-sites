@@ -1128,8 +1128,7 @@ class ProSites_Gateway_Stripe {
 						$plan          = ! empty( $subscription->plan ) ? $subscription->plan->id : '';
 						$is_trial      = ! empty( $subscription ) ? $subscription->is_trial : '';
 						$plan_end      = ! empty( $subscription ) ? $subscription->period_end : '';
-						$plan_amount   = ! empty( $subscription ) ? $subscription->plan_amount : '';
-						$amount        = ! empty( $subscription ) ? $subscription->subscription_amount : '';
+						$plan_amount = $amount = ! empty( $subscription ) ? $subscription->invoice_total : '';
 						$invoice_items = ! empty( $subscription ) ? $subscription->invoice_items : '';
 						break;
 
@@ -1137,6 +1136,10 @@ class ProSites_Gateway_Stripe {
 					case 'customer.subscription.updated' :
 						$plan     = $subscription->plan->id;
 						$amount   = $plan_amount = ( $subscription->plan->amount / 100 );
+						// If incase discount applied.
+						if ( isset( $subscription->discount ) && isset( $subscription->discount->coupon ) ) {
+							$amount = $plan_amount = $plan_amount - ( $subscription->discount->coupon->amount_off / 100 );
+						}
 						$is_trial = $subscription->is_trial;
 						$plan_end = ( $is_trial ) ? $subscription->trial_end : $subscription->period_end;
 						break;
