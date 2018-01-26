@@ -3024,7 +3024,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 							$GLOBALS['wp_object_cache']->delete( 'psts_waiting_step', 'options' );
 							//in case of new member send notification
-							if ( get_blog_option( $blog_id, 'psts_waiting_step' ) && ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) ) {
+							if ( $_POST['txn_type'] == 'express_checkout' || $_POST['txn_type'] == 'web_accept' ) {
 
 								$psts->extend( $blog_id, $period, self::get_slug(), $level, $payment );
 
