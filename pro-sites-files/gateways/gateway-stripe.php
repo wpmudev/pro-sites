@@ -1186,6 +1186,9 @@ class ProSites_Gateway_Stripe {
 						$psts->record_stat( $blog_id, 'signup' );
 						$psts->log_action( $blog_id, sprintf( __( 'Stripe webhook "%1$s" received: Customer successfully subscribed to %2$s %3$s: %4$s every %5$s %6$s.', 'psts' ), $event_type, $site_name, $psts->get_level_setting( $level, 'name' ), $psts->format_currency( false, $plan_amount ), number_format_i18n( $period ), $period_string ), $domain );
 						self::maybe_extend( $blog_id, $period, $gateway, $level, $plan_amount, $plan_end );
+
+						//Notify blog user
+						$psts->email_notification( $blog_id, 'success' );
 						break;
 
 					case 'customer.subscription.updated' :
