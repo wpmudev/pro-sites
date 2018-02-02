@@ -5,6 +5,22 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.9 - 02/02/2018
+
+*Updated:
+    - Improved subscriber information for Stripe.
+*Fixed:
+    - Unable to remove Pro Sites status manually.
+    - Coupon discount was not showing in account history log.
+    - Stripe errors after cancellation.
+    - Pro Sites no longer upgrading after receiving  payment.
+    - Tax.js was loading by default even if it was disabled.
+    - Level and period values were not set on PayPal checkout form.
+    - Expire date was wrong if the cancellation is within the trial period.
+    - Pro Site level not assigned when using PayPal sandbox.
+    - PayPal recurring payment is not working when payment type is eCheck.
+    - Multiple registrations were not working properly.
+
 3.5.8 - 10/01/2018
 
 *Added:
