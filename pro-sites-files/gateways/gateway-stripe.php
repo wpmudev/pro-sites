@@ -741,12 +741,13 @@ class ProSites_Gateway_Stripe {
 		}
 
 		$customer_id = self::get_customer_data( $blog_id )->customer_id;
+		$home_url = get_home_url( $blog_id );
 
 		if ( $customer_id ) {
 			try {
 				$custom_information = Stripe_Customer::retrieve( $customer_id );
 
-				echo '<p><strong>' . stripslashes( $custom_information->description ) . '</strong><br />';
+				echo '<p><a href="' . $home_url . '"><strong>' . stripslashes( $custom_information->description ) . '</strong></a><br />';
 
 				if ( isset( $custom_information->default_source ) ) { //credit card
 					$sources = $custom_information->sources->data;
@@ -2133,7 +2134,12 @@ class ProSites_Gateway_Stripe {
 				if ( $user ) {
 					$blog_string       = '';
 					$c->metadata->user = $user->user_login;
-					$c->description    = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
+					$full_name = trim( $user->first_name . ' ' . $user->last_name );
+					if ( ! empty( $full_name ) ) {
+						$c->description = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $full_name );
+					} else {
+						$c->description = $site_name;
+					}
 					$user_blogs        = get_blogs_of_user( $user->ID );
 					foreach ( $user_blogs as $user_blog ) {
 						$blog_string .= $user_blog->blogname . ', ';
@@ -3088,13 +3094,6 @@ class ProSites_Gateway_Stripe {
 			return;
 		}
 
-		$site_name = '';
-		if ( ! is_subdomain_install() ) {
-			$site_name = $current_site->domain . $current_site->path . $current_blog->blogname;
-		} else {
-			$site_name = $current_blog->blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
-		}
-
 		$customer_id     = $customer->customer_id;
 		$subscription_id = $customer->subscription_id;
 
@@ -3112,7 +3111,12 @@ class ProSites_Gateway_Stripe {
 		if ( $user ) {
 			$blog_string       = '';
 			$c->metadata->user = $user->user_login;
-			$c->description    = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
+			$full_name = trim( $user->first_name . ' ' . $user->last_name );
+			if ( $full_name ) {
+				$c->description = sprintf( __( '%s user - %s ', 'psts' ), $current_blog->blogname, $user->first_name . ' ' . $user->last_name );
+			} else {
+				$c->description = $current_blog->blogname;
+			}
 			$user_blogs        = get_blogs_of_user( $user->ID );
 			foreach ( $user_blogs as $user_blog ) {
 				$blog_string .= $user_blog->blogname . ', ';
@@ -3383,7 +3387,12 @@ class ProSites_Gateway_Stripe {
 		if ( $user ) {
 			$blog_string                       = '';
 			$customer_args['metadata']['user'] = $user->user_login;
-			$customer_args['description']      = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
+			$full_name = trim( $user->first_name . ' ' . $user->last_name );
+			if ( ! empty( $full_name ) ) {
+				$customer_args['description'] = sprintf( __( '%s user - %s ', 'psts' ), $site_name, $user->first_name . ' ' . $user->last_name );
+			} else {
+				$customer_args['description'] = $site_name;
+			}
 			$user_blogs                        = get_blogs_of_user( $user->ID );
 			foreach ( $user_blogs as $user_blog ) {
 				$blog_string .= $user_blog->blogname . ', ';
