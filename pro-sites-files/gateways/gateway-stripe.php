@@ -558,6 +558,9 @@ class ProSites_Gateway_Stripe {
 				if ( $user ) {
 					$blogs_of_user = get_blogs_of_user( $user->ID );
 					foreach ( $blogs_of_user as $blog_of_user ) {
+						if ( is_main_site( $blog_of_user->userblog_id ) ) {
+							continue;
+						}
 						$data = self::get_customer_data( $blog_of_user->userblog_id );
 						if ( ! empty( $data ) ) {
 							break;
