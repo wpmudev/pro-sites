@@ -172,7 +172,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TRIALAMT=" . round( $setup_fee, 2 );
 			}
 			if ( $has_trial ) {
-				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days', $has_trial ) );
+				$nvpstr .= "&PROFILESTARTDATE=" . gmdate( 'Y-m-d\TH:i:s.00\Z', strtotime('now') );
 			} else {
 				$profile_start_date = ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency, 'month', $has_trial ) );
 
@@ -226,7 +226,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 				$nvpstr .= "&TRIALAMT=" . round( $setup_fee, 2 );
 			}
 			if ( $has_trial ) {
-				$nvpstr .= "&PROFILESTARTDATE=" . ( is_pro_trial( $blog_id ) ? urlencode( gmdate( 'Y-m-d\TH:i:s.00\Z', $psts->get_expire( $blog_id ) ) ) : self::startDate( $trial_days, 'days', $has_trial ) );
+				$nvpstr .= "&PROFILESTARTDATE=" . gmdate( 'Y-m-d\TH:i:s.00\Z', strtotime('now') );
 			} else {
 				$nvpstr .= "&PROFILESTARTDATE=" . ( ( $modify ) ? self::modStartDate( $modify ) : self::startDate( $frequency, 'month', $has_trial ) );
 			}
