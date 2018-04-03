@@ -577,8 +577,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 				<!--</table>-->
 				<!--<hr />-->
 				<h3 class="psts-settings-title"><br/>EU VAT - Taxamo Integration</h3>
-				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT
-					requirements. Taxamo pricing starts at €0.20c per transaction when switching to LIVE mode.
+				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT requirements.
 				</div>
 				<table class="form-table">
 					<tr valign="top">
