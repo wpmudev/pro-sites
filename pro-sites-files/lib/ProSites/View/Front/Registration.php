@@ -103,7 +103,11 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 				// BLOG SECTION
 				ob_start();
+				// Do not run hidden fields action again.
+				remove_action( 'signup_hidden_fields', 'signup_nonce_fields' );
 				do_action( 'signup_hidden_fields', 'validate-site' );
+				// Register removed action again.
+				add_action( 'signup_hidden_fields', 'signup_nonce_fields' );
 				// do_action( 'signup_hidden_fields', 'create-another-site' );
 				$content .= ob_get_clean();
 				$content .= self::render_blog_section( $render_data, $errors );
