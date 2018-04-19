@@ -40,7 +40,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		public static function get_blog_id( $activation_key ) {
 			global $wpdb;
 			$blog_id = 0;
-			$row     = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %d", $activation_key ) );
+			$row     = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $activation_key ) );
 			if ( $row ) {
 				$blog_id = domain_exists( $row->domain, $row->path, $wpdb->siteid );
 				// As a fallback, try the site domain
