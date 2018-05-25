@@ -85,6 +85,9 @@ class ProSites {
 		//load plugins
 		require_once( $this->plugin_dir . 'plugins-loader.php' );
 
+		// Setup GDPR compliance.
+		require_once $this->plugin_dir . 'lib/psts-gdpr.php';
+
 		// TAX integration
 		if ( $this->get_setting( 'taxamo_status', false ) ) {
 			ProSites_Helper_Tax::init_tax();
@@ -5398,7 +5401,6 @@ function admin_modules() {
 
 		return false;
     }
-
 }
 
 //End of class
