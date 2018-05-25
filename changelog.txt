@@ -5,6 +5,16 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.5.9.1 - 25/06/2018
+
+*Added:
+    - Improved subscriber information for Stripe.
+*Fixed:
+    - Blog ID value was passed as a string instead of int.
+    - DOM error on pricing table page.
+*Updated:
+    - Taxamo Information updated.
+
 3.5.9 - 02/02/2018
 
 *Updated:
