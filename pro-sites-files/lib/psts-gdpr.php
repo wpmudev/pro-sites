@@ -2,7 +2,7 @@
 /**
  * @package Pro Sites
  * @subpackage GDPR
- * @version 3.6.0
+ * @version 3.5.9.1
  *
  * @author Joel James <joel@incsub.com>
  *
@@ -54,7 +54,7 @@ class ProSites_GDPR {
 	 *
 	 * Uses wp_add_privacy_policy_content
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return void
 	 */
@@ -83,7 +83,7 @@ class ProSites_GDPR {
 	 *
 	 * @param object $errors WP_Error class.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return void
 	 */
@@ -137,7 +137,7 @@ class ProSites_GDPR {
 	 *
 	 * @param array $result Validation data array.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return WP_Error $errors
 	 */
@@ -171,7 +171,7 @@ class ProSites_GDPR {
 	 *
 	 * @param array $exporters Current registered exporters.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return array $exporters
 	 */
@@ -190,7 +190,7 @@ class ProSites_GDPR {
 	 *
 	 * @param array $erasers Current registered erasers.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return array $erasers
 	 */
@@ -209,7 +209,7 @@ class ProSites_GDPR {
 	 *
 	 * @param string $email_address User email address.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return array
 	 */
@@ -231,7 +231,7 @@ class ProSites_GDPR {
 	 *
 	 * @param string $email_address User email address.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return array
 	 */
@@ -249,18 +249,12 @@ class ProSites_GDPR {
 				// Get the gateway key.
 				$gateway = ProSites_Helper_ProSite::get_site_gateway( $blog_id );
 
-				/**
-				 * Filter to enable/disable dropping tables.
-				 *
-				 * @param bool $should_drop
-				 */
-				$should_drop = apply_filters( 'psts_should_drop_on_removal', true );
-
-				// We are deleting the site permanently.
-				wpmu_delete_blog( $blog_id, $should_drop );
+				// Attempt to delete blog if required.
+				$this->maybe_delete_and_remove( $blog_id, $user->ID );
 
 				// Make sure blog is deleted before deleting Stripe data.
 				$blog_data = get_blog_details( $blog_id );
+
 				// If blog is deleted, delete stripe data too.
 				if ( 'stripe' === $gateway && ( empty( $blog_data ) || ! empty( $blog_data->deleted ) ) ) {
 					$this->delete_stripe_data( $blog_id );
@@ -273,7 +267,7 @@ class ProSites_GDPR {
 		return array(
 			'items_removed'  => $items_removed,
 			'items_retained' => false,
-			'messages'       => array( __( 'All sites of this user has been deleted', 'psts' ) ),
+			'messages'       => array( __( 'User has been removed from all the sites.', 'psts' ) ),
 			'done'           => true,
 		);
 	}
@@ -286,7 +280,7 @@ class ProSites_GDPR {
 	 *
 	 * @param int $user_id User id.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return array
 	 */
@@ -304,6 +298,16 @@ class ProSites_GDPR {
 
 		// Loop through all blogs and add data.
 		foreach ( $user_blogs as $blog_id => $blog ) {
+
+			// Switch to blog.
+			switch_to_blog( $blog_id );
+
+			// Continue only if user is the admin.
+			if ( ! current_user_can( 'edit_pages' ) ) {
+				continue;
+			}
+
+			restore_current_blog();
 
 			// Basic details about the blog.
 			$blog_data = array(
@@ -323,7 +327,7 @@ class ProSites_GDPR {
 			if ( $i === 0 ) {
 				$data[] = array(
 					'group_id'    => 'user_sites_detail',
-					'group_label' => __( 'Registered Sites', 'psts' ),
+					'group_label' => __( 'Sites', 'psts' ),
 					'item_id'     => "blogs->{$blog_id}",
 					'data'        => $blog_data
 				);
@@ -339,12 +343,57 @@ class ProSites_GDPR {
 	}
 
 	/**
+	 * Maybe delete blog or remove from blog.
+	 *
+	 * If user is an admin and no other admins users exist,
+	 * delete user from the site. Else, remove him from the site.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @param int $user_id User ID.
+	 *
+	 * @return void
+	 */
+	private function maybe_delete_and_remove( $blog_id, $user_id ) {
+
+		// Switch to blog.
+		switch_to_blog( $blog_id );
+
+		$users_query = new WP_User_Query( array(
+			'role' => 'administrator',
+			'exclude' => array( $user_id )
+		) );
+
+		$other_admins = $users_query->get_results();
+
+		// Continue only if user is the only admin.
+		if ( empty( $other_admins ) ) {
+
+			/**
+			 * Filter to enable/disable dropping tables.
+			 *
+			 * @param bool $should_drop
+			 */
+			$should_drop = apply_filters( 'psts_should_drop_on_removal', true );
+
+			// We are deleting the site permanently.
+			wpmu_delete_blog( $blog_id, $should_drop );
+		} else {
+
+			// Else remove user from that site.
+			remove_user_from_blog( $user_id, $blog_id );
+		}
+
+		// Restore to current site.
+		restore_current_blog();
+	}
+
+	/**
 	 * Set payment details of the blog.
 	 *
 	 * @param int $blog_id Blog ID.
 	 * @param array $blog_data Blog data.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return void
 	 */
@@ -394,7 +443,7 @@ class ProSites_GDPR {
 	 * @param int $blog_id Blog ID.
 	 * @param array $blog_data Blog data.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return void
 	 */
@@ -429,7 +478,7 @@ class ProSites_GDPR {
 	 *
 	 * @param int $blog_id Blog ID.
 	 *
-	 * @since 3.6.0
+	 * @since 3.5.9.1
 	 *
 	 * @return void
 	 */
