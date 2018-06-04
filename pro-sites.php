@@ -15,7 +15,7 @@ WDP ID: 49
 /*
 Copyright 2007-2017 Incsub (http://incsub.com)
 Author - Aaron Edwards
-Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar
+Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar, Joel James
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
