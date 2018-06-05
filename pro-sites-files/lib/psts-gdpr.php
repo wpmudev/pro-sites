@@ -492,4 +492,5 @@ class ProSites_GDPR {
 }
 
 // Run.
-( new ProSites_GDPR() )->init();
+$gdpr = new ProSites_GDPR();
+$gdpr->init();
