@@ -143,6 +143,14 @@ class ProSites_GDPR {
 	 */
 	public function check_privacy_policy_confirmation( $result = array() ) {
 
+		// Get privacy policy page id.
+		$privacy_link = get_option( 'wp_page_for_privacy_policy', 0 );
+
+		// If privacy page is not setup, do not validate.
+		if ( empty( $privacy_link ) || 'publish' !== get_post_status( $privacy_link ) ) {
+			return $result;
+		}
+
 		// If privacy policy is checked, we are good to go.
 		if ( ! empty( $_POST['psts_privacy_check'] ) ) {
 			return $result;
