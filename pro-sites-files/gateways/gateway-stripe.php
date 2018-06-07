@@ -22,8 +22,9 @@ class ProSites_Gateway_Stripe {
 		}
 		$stripe_secret_key = $psts->get_setting( 'stripe_secret_key' );
 		Stripe::setApiKey( $stripe_secret_key );
-		// Stripe::setApiVersion( '2013-08-13' );
-//		Stripe::setApiVersion( '2015-02-16' ); //make sure everyone is using the same API version. we can update this if/when necessary.
+		// Make sure everyone is using the same API version. we can update this if/when necessary.
+		// If we don't set this, Stripe will use latest version, which may break our implementation.
+		Stripe::setApiVersion( '2017-06-05' );
 
 		if ( ! is_admin() ) {
 			add_action( 'wp_enqueue_scripts', array( 'ProSites_Gateway_Stripe', 'do_scripts' ) );
