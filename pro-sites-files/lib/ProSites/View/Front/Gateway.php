@@ -135,19 +135,19 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				if ( ! empty( $primary_gateway ) ) {
 					//If there are errors associated with the gateway, Mark the gateway tab as active
 					$error = $psts->errors->get_error_message( $primary_gateway );
-					$class = !empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
+					$class = ! empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
 					$content .= '<li class="' . $class . '"><a href="#gateways-1">' . esc_html( $psts->get_setting( 'checkout_gateway_primary_label', __( 'Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				if ( ! empty( $secondary_gateway ) ) {
 					//If there are errors associated with the gateway, Mark the gateway tab as active
 					$error = $psts->errors->get_error_message( $secondary_gateway );
-					$class = !empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
+					$class = ! empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
 					$content .= '<li class="' . $class . '"><a href="#gateways-2">' . esc_html( $psts->get_setting( 'checkout_gateway_secondary_label', __( 'Alternate Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				if ( ! empty( $manual_gateway ) ) {
 					//If there are errors associated with the gateway, Mark the gateway tab as active
 					$error = $psts->errors->get_error_message( $manual_gateway );
-					$class = !empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
+					$class = ! empty( $error ) ? 'ui-tabs-active ui-state-active' : '';
 					$content .= '<li class="' . $class . '"><a href="#gateways-3">' . esc_html( $psts->get_setting( 'checkout_gateway_manual_label', __( 'Offline Payment', 'psts' ) ) ) . '</a></li>';
 				}
 				$content .= '</ul>';
@@ -193,7 +193,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				if ( $allow_cancel_gateway && ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
 //				if( ! empty ( $site_details['last_payment_gateway'] ) && $site_details['last_payment_gateway'] !== $secondary_gateway ) {
 					$name = "";
-					if( isset( $gateways[ $site_details['last_payment_gateway'] ] ) && method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
+					if ( isset( $gateways[ $site_details['last_payment_gateway'] ] ) && method_exists( $gateways[ $site_details['last_payment_gateway'] ]['class'], 'get_name' ) ) {
 						$name = call_user_func( $gateways[ $site_details['last_payment_gateway'] ]['class'] . '::get_name' );
 						$name = $name[ $site_details['last_payment_gateway'] ];
 					}
@@ -219,8 +219,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 			$content .= '</div>';
 
-			return $content;
-
+			/**
+			 * Filter to modify gateway page content.
+			 *
+			 * @param string $content
+			 */
+			return apply_filters( 'psts_render_checkout_gateway', $content );
 		}
 
 		public static function render_current_plan_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
@@ -465,7 +469,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			// PayPal Fix, As the user is redirected to Paypal and then sent back over to the site
 			if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
-				return self::render_payment_submitted('', '', $blog_id );
+				return self::render_payment_submitted( '', '', $blog_id );
 			}
 
 			if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
@@ -476,7 +480,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			// Check manual payments
 			if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['manual_submitted'] ) && true === $session_data['new_blog_details']['manual_submitted'] ) ) {
-				$pre_content .= self::render_manual_submitted('', '', $blog_id );
+				$pre_content .= self::render_manual_submitted( '', '', $blog_id );
 			}
 
 			if ( ! empty( $pre_content ) ) {
@@ -557,27 +561,27 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content = '<div id="psts-payment-info-received">';
 
-			$username   = $render_data['new_blog_details']['username'];
-			$email      = $render_data['new_blog_details']['email'];
-			$blog_id    = $render_data['new_blog_details']['blog_id'];
+			$username = $render_data['new_blog_details']['username'];
+			$email    = $render_data['new_blog_details']['email'];
+			$blog_id  = $render_data['new_blog_details']['blog_id'];
 
 			//Get blog ID
 			if ( empty( $blog_id ) ) {
-				if( !empty( $render_data['new_blog_details'] ) ){
+				if ( ! empty( $render_data['new_blog_details'] ) ) {
 					$blog_details = $render_data['new_blog_details'];
-				}else{
+				} else {
 					$blog_details = $render_data['upgraded_blog_details'];
 				}
-				$domain = !empty( $blog_details['domain'] ) ? $blog_details['domain'] : '';
-				$path = !empty( $render_data['path'] ) ? $blog_details['path'] : '';
+				$domain = ! empty( $blog_details['domain'] ) ? $blog_details['domain'] : '';
+				$path   = ! empty( $render_data['path'] ) ? $blog_details['path'] : '';
 
 				//Get blog Id if we have domain name
-				$blog_id = get_blog_id_from_url($domain, $path );
+				$blog_id = get_blog_id_from_url( $domain, $path );
 			}
 
 			//Get admin URL for the blog
 			if ( ! empty( $blog_id ) ) {
-				$scheme = ProSites_Helper_ProSite::ssl_scheme();
+				$scheme         = ProSites_Helper_ProSite::ssl_scheme();
 				$blog_admin_url = get_admin_url( $blog_id, '', $scheme );
 			}
 
@@ -655,30 +659,30 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			//Get blog admin URL
 			if ( empty( $blog_id ) ) {
-				if( !empty( $render_data['new_blog_details'] ) ){
+				if ( ! empty( $render_data['new_blog_details'] ) ) {
 					$blog_details = $render_data['new_blog_details'];
-				}else{
+				} else {
 					$blog_details = $render_data['upgraded_blog_details'];
 				}
 
-				$domain = !empty( $blog_details['domain'] ) ? $blog_details['domain'] : '';
-				$path = !empty( $render_data['path'] ) ? $blog_details['path'] : '';
+				$domain = ! empty( $blog_details['domain'] ) ? $blog_details['domain'] : '';
+				$path   = ! empty( $render_data['path'] ) ? $blog_details['path'] : '';
 
 				//Get blog Id if we have domain name
-				$blog_id = get_blog_id_from_url($domain, $path );
+				$blog_id = get_blog_id_from_url( $domain, $path );
 			}
 
 			//If we have the blog id, get the admin url
-			if( !empty( $blog_id ) ) {
-				$scheme = ProSites_Helper_ProSite::ssl_scheme();
+			if ( ! empty( $blog_id ) ) {
+				$scheme         = ProSites_Helper_ProSite::ssl_scheme();
 				$blog_admin_url = get_admin_url( $blog_id, '', $scheme );
 			}
 
-			$blog_admin_url = empty( $blog_admin_url ) ? admin_url() :  $blog_admin_url;
+			$blog_admin_url = empty( $blog_admin_url ) ? admin_url() : $blog_admin_url;
 
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
-			$last_gateway     = ProSites_Helper_ProSite::last_gateway( $blog_id );
+			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
 
 			// Fix for Paypal and Stripe when trial is enabled and gateway name is trial.
 			if ( empty( $last_gateway ) || 'trial' == strtolower( $last_gateway ) ) {
