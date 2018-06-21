@@ -7,6 +7,8 @@ Change Log:
 
 3.5.9.3 - 19/06/2018
 
+*Added:
+    - Added Indian Rupee support to PayPal.
 *Fixed:
     - Stripe API error.
     - Trial period continues to be doubled.
