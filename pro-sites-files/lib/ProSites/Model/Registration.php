@@ -17,6 +17,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			add_action( 'wp_ajax_nopriv_update_nbt_templates', array( 'ProSites_Model_Registration', 'update_nbt_templates' ) );
 			add_action( 'wp_ajax_update_nbt_levels', array( 'ProSites_Model_Registration', 'update_levels_by_template' ) );
 			add_action( 'wp_ajax_nopriv_update_nbt_levels', array( 'ProSites_Model_Registration', 'update_levels_by_template' ) );
+
+			// Add extra content to checkout.
+			add_filter( 'prosites_render_checkout_page', array( 'ProSites_Model_Registration', 'prosites_hidden_fields' ) );
 		}
 
 		public static function ajax_check_prosite_blog() {
@@ -42,7 +45,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$level  = 'free' == $_POST['level'] ? $_POST['level'] : (int) $_POST['level'];
 
 			// Keep the period and level data in $_POST.
-			$params['level'] = $level;
+			$params['level']  = $level;
 			$params['period'] = $period;
 
 			// Santitize each values in $_POST
@@ -280,7 +283,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		}
 
 		public static function prosite_blog_check_only( $errors = false, $user, $email ) {
-			if( empty( $errors ) ) {
+			if ( empty( $errors ) ) {
 				$errors = new WP_Error();
 			}
 
@@ -301,14 +304,14 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 */
 		public static function update_nbt_templates() {
 
-			global  $psts;
+			global $psts;
 
 			$templates = array();
 
 			// Do not continue if NBT and Premium plugin/theme manager modules
 			// are not enbled, or the level value is not available from the request.
 			if ( $psts->nbt_update_required() && ! empty( $_POST['level'] ) ) {
-				$level = intval( $_POST['level'] );
+				$level     = intval( $_POST['level'] );
 				$templates = self::get_filtered_nbt_templates( $level );
 			}
 
@@ -334,14 +337,14 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 */
 		public static function update_levels_by_template() {
 
-			global  $psts;
+			global $psts;
 
 			$unavailable_levels = array();
 
 			// Do not continue if NBT and Premium plugin/theme manager modules
 			// are not enbled, or the template value is not available from the request.
 			if ( $psts->nbt_update_required() && ! empty( $_POST['template'] ) ) {
-				$template = intval( $_POST['template'] );
+				$template           = intval( $_POST['template'] );
 				$unavailable_levels = self::get_filtered_levels_by_template( $template );
 			}
 
@@ -390,17 +393,17 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 */
 		public static function get_filtered_nbt_templates( $level ) {
 
-			global  $psts;
+			global $psts;
 
 			// Get the enabled modules in Pro Sites.
-			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
-			$premium_themes_enabled = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
+			$modules_enabled         = (array) $psts->get_setting( 'modules_enabled' );
+			$premium_themes_enabled  = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
 			$premium_plugins_enabled = in_array( 'ProSites_Module_Plugins', $modules_enabled );
-			$plugin_manager_enabled = in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled );
+			$plugin_manager_enabled  = in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled );
 
 			// Do not continue if no templates are available if NBT.
 			$nbt_model = nbt_get_model();
-			
+
 			// All available NBT templates.
 			$templates = $nbt_model->get_templates();
 			if ( empty( $templates ) ) {
@@ -448,7 +451,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				if ( $plugin_manager_enabled ) {
 					// Get all active plugins of the blog.
 					$get_active_plugins = (array) get_option( 'active_plugins' );
-					$extra_plugins = array_diff( $get_active_plugins, $premium_manager_plugins );
+					$extra_plugins      = array_diff( $get_active_plugins, $premium_manager_plugins );
 					// If any of the active plugin is not available for the plan, remove the template.
 					if ( ! empty( $extra_plugins ) ) {
 						unset( $templates[ $key ] );
@@ -475,13 +478,13 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 */
 		public static function get_filtered_levels_by_template( $template_id ) {
 
-			global  $psts;
+			global $psts;
 
 			$unavailable_levels = array();
 
 			// Do not continue if no templates are available from NBT.
 			$nbt_model = nbt_get_model();
-			$template = $nbt_model->get_template( $template_id );
+			$template  = $nbt_model->get_template( $template_id );
 			if ( empty( $template ) ) {
 				return $unavailable_levels;
 			}
@@ -498,10 +501,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			}
 
 			// Get the enabled modules in Pro Sites.
-			$modules_enabled = (array) $psts->get_setting( 'modules_enabled' );
-			$premium_themes_enabled = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
+			$modules_enabled         = (array) $psts->get_setting( 'modules_enabled' );
+			$premium_themes_enabled  = in_array( 'ProSites_Module_PremiumThemes', $modules_enabled );
 			$premium_plugins_enabled = in_array( 'ProSites_Module_Plugins', $modules_enabled );
-			$plugin_manager_enabled = in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled );
+			$plugin_manager_enabled  = in_array( 'ProSites_Module_Plugins_Manager', $modules_enabled );
 			// Get premium plugins.
 			$premium_plugins = $psts->get_setting( 'pp_plugins', array() );
 			// Premium enabled themes.
@@ -541,7 +544,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					$premium_manager_plugins = (array) $psts->get_setting( 'psts_ppm_' . $level, array() );
 					// Get all active plugins of the blog.
 					$get_active_plugins = (array) get_option( 'active_plugins' );
-					$extra_plugins = array_diff( $get_active_plugins, $premium_manager_plugins );
+					$extra_plugins      = array_diff( $get_active_plugins, $premium_manager_plugins );
 					// If any of the active plugin is not avaible for the plan, remove the template.
 					if ( ! empty( $extra_plugins ) ) {
 						$unavailable_levels[] = $level;
@@ -563,6 +566,20 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		public static function array_walk_sanitize( &$item ) {
 
 			$item = sanitize_text_field( $item );
+		}
+
+		/**
+		 * Add extra html to gateway page in checkout.
+		 *
+		 * @param string $content Page content.
+		 *
+		 * @return string $content Page content.
+		 */
+		public static function prosites_hidden_fields( $content ) {
+
+			$content .= '<input type="hidden" name="prosite_signup" value="1">';
+
+			return $content;
 		}
 
 		/**
