@@ -4,7 +4,7 @@ Plugin Name: Pro Sites
 Plugin URI: https://premium.wpmudev.org/project/pro-sites/
 Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
 Author: WPMU DEV
-Version: 3.5.9.2
+Version: 3.5.9.3
 Author URI: https://premium.wpmudev.org/
 Text Domain: psts
 Domain Path: /pro-sites-files/languages/
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class ProSites {
 
-	var $version = '3.5.9.2';
+	var $version = '3.5.9.3';
 	var $location;
 	var $language;
 	var $plugin_dir = '';
@@ -4665,7 +4665,16 @@ function admin_modules() {
 			if ( $this->get_expire( $blog_id ) > 2147483647 ) {
 				$level   = $this->get_level_setting( $this->get_level( $blog_id ), 'name' );
 				$content = '<p>' . sprintf( __( 'This site has been permanently given %s status.', 'psts' ), $level ) . '</p>';
-				$content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
+
+				// Get blogs of the user.
+				$blogs = isset( $blogs ) ? $blogs : ProSites_Helper_ProSite::get_blogs_of_user( false, false, 2 );
+				// If blogs count is more than one, show selection link.
+				if ( count( $blogs ) > 1 ) {
+					$content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
+				} elseif ( $allow_multi ) {
+					// If not show add new blog link.
+					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				}
 
 				return $content;
 			}

@@ -329,6 +329,58 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		}
 
 		/**
+		 * Get blogs of a user where he is an admin.
+		 *
+		 * @param int|bool $user_id User id or current user.
+		 * @param bool $all Should return all including deleted and archived.
+		 * @param bool $total Maximum number of items.
+		 *
+		 * @return array
+		 */
+		public static function get_blogs_of_user( $user_id, $all = false, $total = false ) {
+
+			// Make sure user id is ready.
+			$user_id = empty( $user_id ) ? get_current_user_id() : $user_id;
+
+			// Get the blogs of user.
+			$blogs_of_user = get_blogs_of_user( $user_id, $all );
+
+			$blogs = array();
+
+			// If blogs are empty, return.
+			if ( empty( $blogs_of_user ) ) {
+				return $blogs;
+			}
+
+			// Loop through each blogs.
+			foreach ( $blogs_of_user as $id => $blog ) {
+				// If a maximum count is set and reached that count,
+				// return now.
+				if ( $total && count( $blogs ) >= $total ) {
+					break;
+				}
+
+				switch_to_blog( $id );
+
+				// Count blog only if he is an admin.
+				if ( current_user_can( 'edit_pages' ) ) {
+					$blogs[ $id ] = $blog;
+				}
+
+				restore_current_blog();
+			}
+
+			/**
+			 * Filter for blogs of a user.
+			 *
+			 * @param array $blogs Blogs of user.
+			 */
+			$blogs = apply_filters( 'psts_get_blogs_of_user', $blogs );
+
+			return $blogs;
+		}
+
+		/**
 		 * Fetch the Gateway Name for the given blog id
 		 *
 		 * @param $blog_id
