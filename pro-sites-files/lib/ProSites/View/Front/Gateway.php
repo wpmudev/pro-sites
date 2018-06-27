@@ -654,7 +654,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			if ( empty( $blog_id ) ) {
 
-				$blog_id = ! empty( $upgrade_blog_id ) ? $upgrade_blog_id : ! empty( $new_blog_id ) ? $new_blog_id : ! empty( $new_blog_name ) ? get_id_from_blogname( $new_blog_name ) : 0;
+				$blog_id = ! empty( $upgrade_blog_id ) ? $upgrade_blog_id : ( ! empty( $new_blog_id ) ? $new_blog_id : ( ! empty( $new_blog_name ) ? get_id_from_blogname( $new_blog_name ) : 0 ) );
 			}
 
 			//Get blog admin URL
