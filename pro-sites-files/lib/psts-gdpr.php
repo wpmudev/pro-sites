@@ -89,16 +89,22 @@ class ProSites_GDPR {
 	 */
 	public function add_privacy_policy_confirmation( $errors ) {
 
+		// Make sure we are getting privacy page from main site.
+		switch_to_blog( 1 );
+
 		// Get privacy policy page id.
-		$privacy_link = get_option( 'wp_page_for_privacy_policy', 0 );
+		$privacy_page = get_option( 'wp_page_for_privacy_policy', 0 );
 
 		// If privacy page is not setup, do not add.
-		if ( empty( $privacy_link ) || 'publish' !== get_post_status( $privacy_link ) ) {
+		if ( empty( $privacy_page ) || 'publish' !== get_post_status( $privacy_page ) ) {
 			return;
 		}
 
 		// Make sure link is safe.
-		$privacy_link = esc_url( get_permalink( $privacy_link ) );
+		$privacy_link = esc_url( get_permalink( $privacy_page ) );
+
+		// Restore to previous blog.
+		restore_current_blog();
 
 		// Make sure errors parameter is WP_Error object.
 		if ( empty( $errors ) ) {
@@ -143,6 +149,9 @@ class ProSites_GDPR {
 	 */
 	public function check_privacy_policy_confirmation( $result = array() ) {
 
+		// Make sure we are getting privacy page from main site.
+		switch_to_blog( 1 );
+
 		// Get privacy policy page id.
 		$privacy_link = get_option( 'wp_page_for_privacy_policy', 0 );
 
@@ -150,6 +159,9 @@ class ProSites_GDPR {
 		if ( empty( $privacy_link ) || 'publish' !== get_post_status( $privacy_link ) ) {
 			return $result;
 		}
+
+		// Restore to previous blog.
+		restore_current_blog();
 
 		// If privacy policy is checked, we are good to go.
 		if ( ! empty( $_POST['psts_privacy_check'] ) ) {
