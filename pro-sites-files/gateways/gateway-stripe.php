@@ -105,7 +105,7 @@ class ProSites_Gateway_Stripe {
 			dbDelta( $table1 );
 
 			// Modify stripe customers table, if we have latest version.
-			if ( version_compare( $psts->version,'3.5.9.2', '>=' ) ) {
+			if ( version_compare( $psts->version,'3.5.9.3', '>=' ) ) {
 				// Handle failed upgrades.
 				$this->upgrade_table_indexes();
 			}
