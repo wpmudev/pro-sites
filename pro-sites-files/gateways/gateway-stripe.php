@@ -92,6 +92,15 @@ class ProSites_Gateway_Stripe {
 		global $wpdb, $psts;
 
 		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
+		// Get current stripe version stored in DB.
+		$stripe_version = $psts->get_setting( 'stripe_version' );
+
+		// For some older versions, we do not have
+		if ( version_compare( $stripe_version,'3.5.9.3', '>=' ) ) {
+			// Upgrade existing tables and set subscription ids
+			$wpdb->query( "ALTER TABLE $table_name CHANGE subscription_id subscription_id char(22) NULL" );
+		}
+
 		$table1     = "CREATE TABLE $table_name (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
