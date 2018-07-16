@@ -2472,15 +2472,15 @@ class ProSites {
 		return ( $new_amt < 0 ) ? 0 : $new_amt;
 	}
 
-	//filters the titles for our custom pages
+	// Filters the titles for our custom pages.
 	function page_title_output( $title, $id = null ) {
 
-		//filter out nav titles
+		// Filter out nav titles.
 		if ( ! in_the_loop() || get_queried_object_id() != $id ) {
 			return $title;
 		}
 
-		//set blog_id
+		// Set blog_id.
 		if ( isset( $_POST['bid'] ) ) {
 			$blog_id = intval( $_POST['bid'] );
 		} else if ( isset( $_GET['bid'] ) ) {
@@ -2489,7 +2489,15 @@ class ProSites {
 			return $title;
 		}
 
-		$url = str_replace( 'http://', '', get_home_url( $blog_id, '', 'http' ) );
+		// Get home url of the site.
+		$url = get_home_url( $blog_id, '', 'http' );
+
+		// Do not continue if invalid blog id.
+		if ( empty( $url ) ) {
+			return $title;
+		}
+
+		$url = str_replace( 'http://', '', $url );
 
 		if ( ! is_user_logged_in() && isset( $_GET['bid'] ) ) {
 			return sprintf( __( '%1$s: %2$s', 'psts' ), $title, __( 'Please login', 'psts' ) );
