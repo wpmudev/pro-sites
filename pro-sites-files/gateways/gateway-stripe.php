@@ -95,7 +95,7 @@ class ProSites_Gateway_Stripe {
 		$table1     = "CREATE TABLE $table_name (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
-			subscription_id char(22) NOT NULL,
+			subscription_id char(22) NULL,
 			PRIMARY KEY  (blog_id),
 			UNIQUE KEY ix_subscription_id (subscription_id)
 		) DEFAULT CHARSET=utf8;";
