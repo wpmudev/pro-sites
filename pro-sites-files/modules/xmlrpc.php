@@ -11,12 +11,12 @@ class ProSites_Module_XMLRPC {
 
 	// Module name for registering
 	public static function get_name() {
-		return __('Restrict XML-RPC', 'psts');
+		return __( 'Restrict XML-RPC', 'psts' );
 	}
 
 	// Module description for registering
 	public static function get_description() {
-		return __('Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts');
+		return __( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' );
 	}
 
 
@@ -78,36 +78,40 @@ class ProSites_Module_XMLRPC {
 		global $psts;
 		$levels = (array) get_site_option( 'psts_levels' );
 		?>
-<!--		<div class="postbox">-->
-<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Restrict XML-RPC', 'psts' ) ?><!--</span> --->
-<!--				<span class="description">--><?php //_e( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' ) ?><!--</span>-->
-<!--			</h3>-->
+		<!--		<div class="postbox">-->
+		<!--			<h3 class="hndle" style="cursor:auto;"><span>--><?php //_e( 'Restrict XML-RPC', 'psts' ) ?><!--</span> --->
+		<!--				<span class="description">--><?php //_e( 'Allows you to only enable XML-RPC for selected Pro Site levels.', 'psts' ) ?><!--</span>-->
+		<!--			</h3>-->
 
-			<div class="inside">
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-xml-prolevel"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to enable remote publishing.', 'psts' ) ); ?></th>
-						<td>
-							<select name="psts[xmlrpc_level]" class="chosen">
-								<?php
-								foreach ( $levels as $level => $value ) {
-									?>
-									<option value="<?php echo $level; ?>"<?php selected( $psts->get_setting( 'xmlrpc_level', 1 ), $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
-								}
+		<div class="inside">
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-xml-prolevel"><?php echo __( 'Pro Site Level', 'psts' ) . $psts->help_text( __( 'Select the minimum level required to enable remote publishing.', 'psts' ) ); ?></th>
+					<td>
+						<select name="psts[xmlrpc_level]" class="chosen">
+							<?php
+							foreach ( $levels as $level => $value ) {
 								?>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" class="psts-help-div psts-xml-restricted"><?php echo __( 'Restricted Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the writing settings screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
-						<td>
-							<input type="text" name="psts[xmlrpc_message]" id="xmlrpc_message" value="<?php echo esc_attr( $psts->get_setting( 'xmlrpc_message' ) ); ?>" style="width: 95%"/>
-						</td>
-					</tr>
-				</table>
-			</div>
-<!--		</div>-->
-	<?php
+								<option value="<?php echo $level; ?>"<?php selected( $psts->get_setting( 'xmlrpc_level', 1 ), $level ) ?>><?php echo $level . ': ' . esc_attr( $value['name'] ); ?></option><?php
+							}
+							?>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"
+					    class="psts-help-div psts-xml-restricted"><?php echo __( 'Restricted Message', 'psts' ) . $psts->help_text( __( 'Required - This message is displayed on the writing settings screen for sites that don\'t have permissions. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
+					<td>
+						<input type="text" name="psts[xmlrpc_message]" id="xmlrpc_message"
+						       value="<?php echo esc_attr( $psts->get_setting( 'xmlrpc_message' ) ); ?>"
+						       style="width: 95%"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<!--		</div>-->
+		<?php
 	}
 
 	public static function is_included( $level_id ) {
@@ -132,7 +136,7 @@ class ProSites_Module_XMLRPC {
 
 		$min_level = $psts->get_setting( 'xmlrpc_level', 1 );
 
-		if( $level_id >= $min_level ) {
+		if ( $level_id >= $min_level ) {
 			return 'tick';
 		} else {
 			return 'cross';
