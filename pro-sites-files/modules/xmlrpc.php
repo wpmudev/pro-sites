@@ -41,12 +41,22 @@ class ProSites_Module_XMLRPC {
 		}
 	}
 
+	/**
+	 * Enable or Disable XML-RPC based on the setting.
+	 *
+	 * @return void
+	 */
 	function xmlrpc_check() {
 		global $psts;
 
-		if ( ! is_pro_site( false, $psts->get_setting( 'xmlrpc_level', 1 ) ) && ! $this->ads_xmlrpc() ) {
+		// We need to continue only for logged in.
+		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in()
+		     // Check if current site is a Pro Site of xml-rpc limited level or above.
+		     && ! is_pro_site( false, $psts->get_setting( 'xmlrpc_level', 1 ) )
+		     && ! $this->ads_xmlrpc()
+		) {
 			add_filter( 'xmlrpc_enabled', '__return_false' );
-		} else if ( defined( 'PSTS_FORCE_XMLRPC_ON' ) ) {
+		} elseif ( defined( 'PSTS_FORCE_XMLRPC_ON' ) ) {
 			add_filter( 'xmlrpc_enabled', '__return_true' );
 		}
 	}
