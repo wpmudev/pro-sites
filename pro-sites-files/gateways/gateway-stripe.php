@@ -73,7 +73,7 @@ class ProSites_Gateway_Stripe {
 		), 10, 3 );
 
 		$stripe_version = $psts->get_setting( 'stripe_version' );
-		//update install script if necessary
+		// Update install script if necessary.
 		if ( empty( $stripe_version ) || $stripe_version != $psts->version ) {
 			$this->install();
 		}
@@ -88,14 +88,14 @@ class ProSites_Gateway_Stripe {
 
 	}
 
-	private static function install() {
+	private function install() {
 		global $wpdb, $psts;
 
 		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
 		$table1     = "CREATE TABLE $table_name (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
-			subscription_id char(22) NOT NULL,
+			subscription_id char(22) NULL,
 			PRIMARY KEY  (blog_id),
 			UNIQUE KEY ix_subscription_id (subscription_id)
 		) DEFAULT CHARSET=utf8;";
@@ -103,6 +103,12 @@ class ProSites_Gateway_Stripe {
 		if ( ! defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) || ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) && ! DO_NOT_UPGRADE_GLOBAL_TABLES ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $table1 );
+
+			// Modify stripe customers table, if we have latest version.
+			if ( version_compare( $psts->version,'3.5.9.3', '>=' ) ) {
+				// Handle failed upgrades.
+				$this->upgrade_table_indexes();
+			}
 		}
 
 		if ( $psts->get_setting( 'stripe_secret_key' ) ) {
@@ -113,6 +119,48 @@ class ProSites_Gateway_Stripe {
 			} else {
 				self::update_plan_ids_v2();
 			}
+		}
+	}
+
+	/**
+	 * Upgrade stripe customers table structure.
+	 *
+	 * We are using dbDelta in install() method to create and
+	 * upgrade stripe customers database table. But if the PS
+	 * plugin was installed before version 3.5, there is a chance
+	 * that the upgrade will fail to set unique id for subscription id.
+	 * And the old customer id will still be a unique id.
+	 * We need to drop the old unique id and then add new unique id.
+	 * Also we need to make unique id nullable, because we may get error
+	 * for old entries without subscription id.
+	 *
+	 * @since 3.5.9.3
+	 *
+	 * @return void
+	 */
+	private function upgrade_table_indexes() {
+
+		global $wpdb;
+
+		// Our stripe table.
+		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
+
+		// Drop unique id from customer id column.
+		$index_exists = $wpdb->query( "SHOW INDEX FROM $table_name WHERE KEY_NAME = 'ix_customer_id'" );
+		if ( ! empty( $index_exists ) ) {
+			$wpdb->query( "ALTER TABLE $table_name DROP INDEX ix_customer_id" );
+		}
+
+		// Sometimes old installation may have empty subscription ids, so we need to make sure nullable.
+		$wpdb->query( "ALTER TABLE $table_name CHANGE subscription_id subscription_id char(22) NULL" );
+		// Make sure all empty subscription IDs are NULL. dbDelta will not hable this.
+		$wpdb->query( "UPDATE $table_name SET subscription_id = NULL WHERE subscription_id = ''" );
+
+		// If unique key is not set for subscription id, set.
+		$index_exists = $wpdb->query( "SHOW INDEX FROM $table_name WHERE KEY_NAME = 'ix_subscription_id'" );
+		if ( empty( $index_exists ) ) {
+			// Set unique key to subscription id.
+			$wpdb->query( "ALTER TABLE $table_name ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
 		}
 	}
 
