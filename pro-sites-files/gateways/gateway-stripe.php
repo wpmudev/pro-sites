@@ -145,10 +145,15 @@ class ProSites_Gateway_Stripe {
 		// Our stripe table.
 		$table_name = $wpdb->base_prefix . 'pro_sites_stripe_customers';
 
-		// Drop unique id from customer id column.
-		$index_exists = $wpdb->query( "SHOW INDEX FROM $table_name WHERE KEY_NAME = 'ix_customer_id'" );
-		if ( ! empty( $index_exists ) ) {
-			$wpdb->query( "ALTER TABLE $table_name DROP INDEX ix_customer_id" );
+		// Get all indexes on customer id and subscription id.
+		$indexes = $wpdb->get_results( "SHOW INDEX FROM $table_name WHERE column_name = 'customer_id'" );
+		if ( ! empty( $indexes ) ) {
+			foreach ( $indexes as $index ) {
+				// If it is a unique key, drop it.
+				if ( empty( $index->Non_unique ) ) {
+					$wpdb->query( "ALTER TABLE $table_name DROP INDEX $index->Key_name" );
+				}
+			}
 		}
 
 		// Sometimes old installation may have empty subscription ids, so we need to make sure nullable.
