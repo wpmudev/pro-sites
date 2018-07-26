@@ -1115,6 +1115,9 @@ class ProSites_Gateway_Stripe {
 
 			$subscription = self::get_subscription( $event_json );
 
+			// The subscription_id from stripe.
+			$subscription_id = isset( $subscription->id ) ? $subscription->id : '';
+
 			//If we have subscription object and Payment succeeded, Add it to DB
 			if ( $subscription && 'invoice.payment_succeeded' == $event_type ) {
 				self::record_transaction( $event_json );
@@ -1132,7 +1135,7 @@ class ProSites_Gateway_Stripe {
 
 				// Convert 3.4 -> 3.5+
 				if ( ! empty( $subscription ) && ! isset( $subscription->metadata->blog_id ) && ! isset( $subscription->blog_id ) ) {
-					$blog_id = ProSites_Gateway_Stripe::get_blog_id( $customer_id );
+					$blog_id = ProSites_Gateway_Stripe::get_blog_id( $customer_id, $subscription_id );
 					self::set_subscription_blog_id( $subscription, $customer_id, $blog_id, $blog_id );
 					$subscription->blog_id = $blog_id;
 					self::set_subscription_meta( $subscription, $customer_id );
@@ -1497,14 +1500,33 @@ class ProSites_Gateway_Stripe {
 
 	}
 
-	public static function get_blog_id( $customer_id ) {
+	/**
+	 * Get blog id from stripe table.
+	 *
+	 * @param string $customer_id Stripe customer id.
+	 * @param string $subscription_id Stripe subscription id.
+	 *
+	 * @return int|null|string
+	 */
+	public static function get_blog_id( $customer_id, $subscription_id = '' ) {
 		global $wpdb;
 
-		$blog_id = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers WHERE customer_id = %s", $customer_id ) );
+		// Where condition for customer id.
+		$where = "WHERE customer_id = %s";
+		$where_args = array( $customer_id );
 
-		// ProSites 3.4 fallback
+		// If subscription id is found, add that too.
+		if ( ! empty( $subscription_id ) ) {
+			$where .= " AND subscription_id = %s";
+			$where_args[] = $subscription_id;
+		}
+
+		// Query.
+		$blog_id = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->base_prefix}pro_sites_stripe_customers {$where}", $where_args ) );
+
+		// ProSites 3.4 fallback.
 		if ( empty( $blog_id ) ) {
-			// Attempt to get it from customer description
+			// Attempt to get it from customer description.
 			$customer = Stripe_Customer::retrieve( $customer_id );
 			$parts    = explode( ' ', $customer->description );
 			$id       = array_pop( $parts );
