@@ -83,10 +83,17 @@ class ProSites_Module_PayToBlog {
 		}
 	}
 
+	/**
+	 * Should force redirect on expire?
+	 *
+	 * @param bool $value Should redirect?
+	 *
+	 * @return int
+	 */
 	function force_redirect( $value ) {
-		global $psts;
 
-		if ( is_pro_site( false, 1 ) ) {
+		// If it is a free site or an active Pro Site.
+		if ( ProSites_Helper_ProSite::is_free_site() || is_pro_site( false, 1 ) ) {
 			return 0;
 		} else {
 			return 1;

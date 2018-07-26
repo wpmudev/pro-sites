@@ -442,5 +442,40 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			return $scheme;
 		}
+
+		/**
+		 * Check if a site is free.
+		 *
+		 * This helper function will check if a site
+		 * was created using free plan and never been a Pro Site.
+		 *
+		 * @param int|bool $blog_id Blog ID.
+		 *
+		 * @since 3.5.9.3
+		 *
+		 * @return bool
+		 */
+		public static function is_free_site( $blog_id = false ) {
+
+			global $wpdb;
+
+			// Try to get current blog id is user is logged in.
+			if ( empty( $blog_id ) && function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
+				$blog_id = $wpdb->blogid;
+			}
+
+			// Make sure it is int.
+			$blog_id = (int) $blog_id;
+
+			// If still blog id is empty return false.
+			if ( empty( $blog_id ) ) {
+				return false;
+			}
+
+			// Check if an entry exist in Pro Sites table for current blog id.
+			$is_pro_site = $wpdb->get_var( $wpdb->prepare( "SELECT blog_ID FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+
+			return empty( $is_pro_site );
+		}
 	}
 }
