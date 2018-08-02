@@ -2433,8 +2433,10 @@ class ProSites_Gateway_Stripe {
 				// Create/update subscription
 				try {
 
-					$result = false;
-					$sub    = false;
+					$result        = false;
+					$sub           = false;
+					// Flag to check if subscription was cancelled.
+					$was_cancelled = false;
 
 					// Brand new blog...
 					if ( empty( $blog_id ) ) {
@@ -2444,9 +2446,8 @@ class ProSites_Gateway_Stripe {
 						$customer_data = self::get_customer_data( $blog_id );
 
 						try {
-							// Flag to check if subscription was cancelled.
-							$was_cancelled = false;
-							$sub           = $c->subscriptions->retrieve( $customer_data->subscription_id );
+							// Retrieve existing subscription.
+							$sub = $c->subscriptions->retrieve( $customer_data->subscription_id );
 							// If subscription doesn't exist or cancelled.
 							if ( empty( $sub ) || ! empty( $sub->canceled_at ) || ! empty( $sub->ended_at ) ) {
 								// Set flag to true.
@@ -2454,7 +2455,15 @@ class ProSites_Gateway_Stripe {
 								// Create new subscription.
 								$sub = $c->subscriptions->create( $args );
 							}
+						} catch ( Exception $e ) {
+							// On failure, create new subscription.
+							$was_cancelled = true;
+							$psts->log_action( $blog_id, __( 'Previous subscription was cancelled or deleted. So new subscription has been created.', 'psts' ) );
+							// Create new subscription.
+							$sub = $c->subscriptions->create( $args );
+						}
 
+						try {
 							$sub_id       = $sub->id;
 							$prev_plan    = $sub->plan->id;
 							$sub->plan    = isset( $args['plan'] ) ? $args['plan'] : $sub->plan;
@@ -2520,15 +2529,16 @@ class ProSites_Gateway_Stripe {
 									'prev_level'  => $prev_level,
 									'prev_period' => $prev_period,
 								);
-								ProSites_Helper_Session::session( 'plan_updated', $updated );
 
-								// If we have created new subscription.
-								if ( $was_cancelled ) {
-									// Set expiry date.
-									$expire = $sub->current_period_end;
-									// Update customer data in db.
-									self::set_customer_data( $blog_id, $customer_id, $sub_id );
-								}
+								ProSites_Helper_Session::session( 'plan_updated', $updated );
+							}
+
+							// If we have created new subscription.
+							if ( $was_cancelled ) {
+								// Set expiry date.
+								$expire = $sub->current_period_end;
+								// Update customer data in db.
+								self::set_customer_data( $blog_id, $customer_id, $sub_id );
 							}
 
 						} catch ( Exception $e ) {
