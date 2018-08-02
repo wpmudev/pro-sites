@@ -2444,7 +2444,17 @@ class ProSites_Gateway_Stripe {
 						$customer_data = self::get_customer_data( $blog_id );
 
 						try {
-							$sub          = $c->subscriptions->retrieve( $customer_data->subscription_id );
+							// Flag to check if subscription was cancelled.
+							$was_cancelled = false;
+							$sub           = $c->subscriptions->retrieve( $customer_data->subscription_id );
+							// If subscription doesn't exist or cancelled.
+							if ( empty( $sub ) || ! empty( $sub->canceled_at ) || ! empty( $sub->ended_at ) ) {
+								// Set flag to true.
+								$was_cancelled = true;
+								// Create new subscription.
+								$sub = $c->subscriptions->create( $args );
+							}
+
 							$sub_id       = $sub->id;
 							$prev_plan    = $sub->plan->id;
 							$sub->plan    = isset( $args['plan'] ) ? $args['plan'] : $sub->plan;
@@ -2512,6 +2522,13 @@ class ProSites_Gateway_Stripe {
 								);
 								ProSites_Helper_Session::session( 'plan_updated', $updated );
 
+								// If we have created new subscription.
+								if ( $was_cancelled ) {
+									// Set expiry date.
+									$expire = $sub->current_period_end;
+									// Update customer data in db.
+									self::set_customer_data( $blog_id, $customer_id, $sub_id );
+								}
 							}
 
 						} catch ( Exception $e ) {
