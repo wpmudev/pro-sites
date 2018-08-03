@@ -75,10 +75,9 @@ that accumulates all the code for the next version.
 It's a good idea to create the Pull Request as soon as possible so everybody knows what's going on with the project
 from the PRs screen in Bitbucket.
 
-## How to release PRO and wp.org versions
+## How to release?
 
-Prior to release, code needs to be checked and tested by QA team. Merge all active Pull Requests into `development` branch and
-sync to `qa` branch. Build the release with `npm run build` script and send the zip files to QA.
+Prior to release, code needs to be checked and tested by QA team. Merge all active Pull Requests into `development` branch. Build the release with `npm run build` script and send the zip files to QA.
 
 Follow these steps to make the release:
 
