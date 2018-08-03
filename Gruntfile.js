@@ -13,6 +13,7 @@ module.exports = function(grunt) {
 				'!**/releases/**',
 				'!**/Gruntfile.js',
 				'!**/package.json',
+				'!**/package-lock.json',
 				'!**/build/**',
                 '!**/bin/**',
                 '!**/src/**',
@@ -26,7 +27,7 @@ module.exports = function(grunt) {
 				'!.git/**',
 				'!.git',
 				'!**/.svn/**',
-				'!.log'
+				'!.log',
 			]
 		},
         
