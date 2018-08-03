@@ -7,7 +7,7 @@ Author: WPMU DEV
 Version: 3.6.0
 Author URI: https://premium.wpmudev.org/
 Text Domain: psts
-Domain Path: /pro-sites-files/languages/
+Domain Path: /includes/languages/
 Network: true
 WDP ID: 49
 */
@@ -77,7 +77,7 @@ class ProSites {
 				'pro-sites_page_psts-pricing-settings-network',
 			)
 		);
-		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
+		include_once 'extras/dash-notice/wpmudev-dash-notification.php';
 
 		// Force sessions to activate
 		add_action( 'init', array( 'ProSites_Helper_Session', 'attempt_force_sessions' ) );
@@ -253,9 +253,9 @@ class ProSites {
 		if ( preg_match( $pattern, $class ) ) {
 
 			if( ! in_array( $class, $override_keys ) ) {
-				$filename = $basedir . '/pro-sites-files/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
+				$filename = $basedir . '/includes/lib/' . str_replace( '_', DIRECTORY_SEPARATOR, $class ) . '.php';
 			} else {
-				$filename = $basedir . '/pro-sites-files/' . $class_overrides[ $class ];
+				$filename = $basedir . '/includes/' . $class_overrides[ $class ];
 			}
 
 			$filename = apply_filters( 'prosites_class_file_override', $filename );
@@ -274,9 +274,9 @@ class ProSites {
 		// Load up the localization file if we're using WordPress in a different language
 		// Place it in this plugin's "languages" folder and name it "psts-[value in wp-config].mo"
 		if ( $this->location == 'plugins' ) {
-			load_plugin_textdomain( 'psts', false, plugin_dir_path( __FILE__ ) . 'pro-sites-files/languages/' );
+			load_plugin_textdomain( 'psts', false, plugin_dir_path( __FILE__ ) . 'languages/' );
 		} else if ( $this->location == 'mu-plugins' ) {
-			load_muplugin_textdomain( 'psts', '/pro-sites-files/languages/' );
+			load_muplugin_textdomain( 'psts', '/includes/languages/' );
 		}
 
 		//setup language code for jquery datepicker translation
@@ -288,12 +288,12 @@ class ProSites {
 		//setup proper directories
 		if ( defined( 'WP_PLUGIN_URL' ) && defined( 'WP_PLUGIN_DIR' ) && file_exists( plugin_dir_path( __FILE__ ) . basename( __FILE__ ) ) ) {
 			$this->location   = 'plugins';
-			$this->plugin_dir = plugin_dir_path( __FILE__ ) . 'pro-sites-files/';
-			$this->plugin_url = plugins_url( '/pro-sites-files/', __FILE__ );
+			$this->plugin_dir = plugin_dir_path( __FILE__ ) . 'includes/';
+			$this->plugin_url = plugins_url( '/includes/', __FILE__ );
 		} else if ( defined( 'WPMU_PLUGIN_URL' ) && defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
 			$this->location   = 'mu-plugins';
-			$this->plugin_dir = WPMU_PLUGIN_DIR . '/pro-sites-files/';
-			$this->plugin_url = WPMU_PLUGIN_URL . '/pro-sites-files/';
+			$this->plugin_dir = WPMU_PLUGIN_DIR . '/includes/';
+			$this->plugin_url = WPMU_PLUGIN_URL . '/includes/';
 		} else {
 			wp_die( __( 'There was an issue determining where Pro Sites is installed. Please reinstall.', 'psts' ) );
 		}

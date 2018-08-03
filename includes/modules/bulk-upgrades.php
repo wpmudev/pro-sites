@@ -295,7 +295,7 @@ class ProSites_Module_BulkUpgrades {
 
 		<div class="inside">
 			<?php if ( get_site_option( "supporter_bulk_upgrades_paypal_payment_type" ) == 'recurring' ) { ?>
-				<p><?php _e( 'Important - If you were previously using Bulk Upgrades and subscriptions with Supporter 2.x, you must copy and overwrite the <em>/pro-sites/pro-sites-files/gateways/backwards-compatibility/<strong>supporter-bulk-upgrades-paypal.php</strong></em> file to the webroot of this site to prevent problems with payments from existing subscriptions being applied.', 'psts' ) ?></p>
+				<p><?php _e( 'Important - If you were previously using Bulk Upgrades and subscriptions with Supporter 2.x, you must copy and overwrite the <em>/pro-sites/includes/gateways/backwards-compatibility/<strong>supporter-bulk-upgrades-paypal.php</strong></em> file to the webroot of this site to prevent problems with payments from existing subscriptions being applied.', 'psts' ) ?></p>
 			<?php } ?>
 			<table class="form-table">
 				<tr>

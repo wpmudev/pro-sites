@@ -44,7 +44,7 @@ class ProSites_PluginLoader {
 		}
 
 		// Get modules dir.
-		$dir = plugin_dir_path( ProSites::$plugin_file ) . 'pro-sites-files/modules/';
+		$dir = plugin_dir_path( ProSites::$plugin_file ) . 'includes/modules/';
 
 		require_once( $dir . self::$modules[$module] . '.php' );
 	}
