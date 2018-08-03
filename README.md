@@ -87,7 +87,3 @@ Follow these steps to make the release:
 format X.X.X. You'll need to update in `pro-sites.php` (header and $version variable) and also `package.json`
 * Execute `npm run build`. zips and files will be generated in `releases` folder.
 * Do not forget to sync `master` on `development` by checking out `development` branch and then `git merge master`
-
-## Documentation ##
-Documentation is available here:
-https://docs.google.com/document/d/1IdYywXU3rFAVjugl-Y4jL2t9EFIuQK5cZXA0s1rR89Q/edit?usp=sharing
