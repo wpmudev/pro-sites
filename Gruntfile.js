@@ -5,29 +5,9 @@ module.exports = function(grunt) {
 	var conf = {
 		plugin_branches: {
 			include_files: [
-				'**',
-				'!**/node_modules/**',
-				'!**/tests/**',
-				'!**/releases/*.zip',
-				'!releases/*.zip',
-				'!**/releases/**',
-				'!**/Gruntfile.js',
-				'!**/package.json',
-				'!**/package-lock.json',
-				'!**/build/**',
-                '!**/bin/**',
-                '!**/src/**',
-				'!node_modules/**',
-				'!.sass-cache/**',
-				'!releases/**',
-				'!Gruntfile.js',
-				'!package.json',
-				'!build/**',
-				'!tests/**',
-				'!.git/**',
-				'!.git',
-				'!**/.svn/**',
-				'!.log',
+				'pro-sites-files/**',
+				'pro-sites.php',
+				'changelog.txt',
 			]
 		},
         
@@ -41,17 +21,20 @@ module.exports = function(grunt) {
 		makepot: {
 		    target: {
 		        options: {
-					domainPath: '/pro-sites-files/languages',
-					mainFile: 'pro-sites.php',
-					potFilename: 'psts-default.pot',
-					potHeaders: {
-						'poedit': true,
-						'language-team': 'WPMU Dev <support@wpmudev.org>',
-						'report-msgid-bugs-to': 'https://premium.wpmudev.org/project/pro-sites/',
-						'last-translator': 'WPMU Dev <support@wpmudev.org>',
-						'x-generator': 'grunt-wp-i18n'
-					},
-		            type: 'wp-plugin'
+			        domainPath: '/pro-sites-files/languages',
+			        exclude: [
+				        'dash-notice/.*'
+			        ],
+			        mainFile: 'pro-sites.php',
+			        potFilename: 'psts-default.pot',
+			        potHeaders: {
+				        'poedit': true,
+				        'language-team': 'WPMU DEV <support@wpmudev.org>',
+				        'report-msgid-bugs-to': 'https://premium.wpmudev.org/project/pro-sites/',
+				        'last-translator': 'WPMU DEV <support@wpmudev.org>',
+				        'x-generator': 'grunt-wp-i18n'
+			        },
+			        type: 'wp-plugin',
 		        }
 		    }
 		},
