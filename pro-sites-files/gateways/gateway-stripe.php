@@ -105,7 +105,7 @@ class ProSites_Gateway_Stripe {
 			dbDelta( $table1 );
 
 			// Modify stripe customers table, if we have latest version.
-			if ( version_compare( $psts->version,'3.5.9.3', '>=' ) ) {
+			if ( version_compare( $psts->version,'3.6.0', '>=' ) ) {
 				// Handle failed upgrades.
 				$this->upgrade_table_indexes();
 			}
@@ -134,7 +134,7 @@ class ProSites_Gateway_Stripe {
 	 * Also we need to make unique id nullable, because we may get error
 	 * for old entries without subscription id.
 	 *
-	 * @since 3.5.9.3
+	 * @since 3.6.0
 	 *
 	 * @return void
 	 */
