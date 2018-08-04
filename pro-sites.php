@@ -2987,7 +2987,7 @@ try{
 			echo '</h3>';
 
 			if( !empty( $blog ) && !empty( $blog->siteurl ) ) {
-			    echo esc_html__("Blog URL: ") . make_clickable( $blog->siteurl );
+			    echo esc_html__("Blog URL: ", 'psts') . make_clickable( $blog->siteurl );
 			}
 
 			$levels        = (array) get_site_option( 'psts_levels' );

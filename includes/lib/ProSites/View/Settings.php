@@ -251,7 +251,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
                             class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[trial_message]" id="trial_message"
-							       value="<?php esc_attr_e( $psts->get_setting( 'trial_message' ) ); ?>"
+							       value="<?php esc_attr_e( $psts->get_setting( 'trial_message' ), 'psts' ); ?>"
 							       style="width: 95%"/>
 						</td>
 					</tr>

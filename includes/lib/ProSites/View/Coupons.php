@@ -288,7 +288,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 													foreach ( $coupon['valid_for_period'] as $i => $period ) {
 														if ( ! empty( $period ) ) {
 															$zero = false;
-															echo $period . __( 'm' );
+															echo $period . __( 'm', 'psts' );
 															if ( $i !== count( $coupon['valid_for_period'] ) - 1 ) {
 																echo ',';
 															}
@@ -433,9 +433,9 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 										<td>
 											<select name="lifetime" class="chosen">
 												<option
-													value="first"<?php selected( $coupon_life, 'first' ) ?>><?php esc_html_e( 'First payment' ); ?></option>
+													value="first"<?php selected( $coupon_life, 'first' ) ?>><?php esc_html_e( 'First payment', 'psts' ); ?></option>
 												<option
-													value="indefinite"<?php selected( $coupon_life, 'indefinite' ) ?>><?php esc_html_e( 'Indefinite' ); ?></option>
+													value="indefinite"<?php selected( $coupon_life, 'indefinite' ) ?>><?php esc_html_e( 'Indefinite', 'psts' ); ?></option>
 											</select>
 										</td>
 										<td>

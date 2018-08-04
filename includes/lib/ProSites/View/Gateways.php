@@ -250,7 +250,7 @@ if ( ! class_exists( 'ProSites_View_Gateways' ) ) {
 
 			// And if its empty...
 			if( empty( $names ) || ( $allow_none && 1 == count( $names ) ) ) {
-				$names = array( 'not_enabled' => __( 'No gateways enabled' ) );
+				$names = array( 'not_enabled' => __( 'No gateways enabled', 'psts' ) );
 				$default_value = 'not_enabled';
 			}
 

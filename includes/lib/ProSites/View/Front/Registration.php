@@ -138,7 +138,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 			if( ! is_user_logged_in() ) {
 
-				$content .= '<div class="username"><label for="user_name">' . __( 'Username:' ) . '</label>';
+				$content .= '<div class="username"><label for="user_name">' . __( 'Username:', 'psts' ) . '</label>';
 				if ( $errmsg = $errors->get_error_message('user_name') ) {
 					$content .= '<p class="error">' .$errmsg. '</p>';
 				}
@@ -153,7 +153,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				}
 
 				$content .= '<input name="user_email" type="email" id="user_email" value="' . esc_attr($user_email) . '" maxlength="200" /><br />';
-				$content .= __('We send your registration email to this address. (Double-check your email address before continuing.)');
+				$content .= __( 'We send your registration email to this address. (Double-check your email address before continuing.)', 'psts' );
 				$content .= '</div>';
 
 				if ( $errmsg = $errors->get_error_message('generic') ) {

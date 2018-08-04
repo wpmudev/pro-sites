@@ -143,25 +143,25 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 							<p>
 								<label><?php _e( 'Account Number', 'psts' ) ?></label><br/>
 								<input type="text" name="psts[2co_acc_number]"
-								       value="<?php esc_attr_e( $psts->get_setting( "2co_acc_number" ) ); ?>">
+								       value="<?php esc_attr_e( $psts->get_setting( "2co_acc_number" ), 'psts' ); ?>">
 							</p>
 
 							<p>
 								<label><?php _e( 'Username', 'psts' ) ?></label><br/>
 								<input type="text" name="psts[2co_api_username]"
-								       value="<?php esc_attr_e( $psts->get_setting( "2co_api_username" ) ); ?>">
+								       value="<?php esc_attr_e( $psts->get_setting( "2co_api_username" ), 'psts' ); ?>">
 							</p>
 
 							<p>
 								<label><?php _e( 'Password', 'psts' ) ?></label><br/>
 								<input type="password" name="psts[2co_api_password]"
-								       value="<?php esc_attr_e( $psts->get_setting( "2co_api_password" ) ); ?>">
+								       value="<?php esc_attr_e( $psts->get_setting( "2co_api_password" ), 'psts' ); ?>">
 							</p>
 
 							<p>
 								<label><?php _e( 'Secret Word', 'psts' ) ?></label><br/>
 								<input type="text" name="psts[2co_secret_word]"
-								       value="<?php esc_attr_e( $psts->get_setting( "2co_secret_word" ) ); ?>">
+								       value="<?php esc_attr_e( $psts->get_setting( "2co_secret_word" ), 'psts' ); ?>">
 							</p>
 						<td/>
 					</tr>
@@ -300,7 +300,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 							if ( $old->term == $_POST['period'] ) {
 								$addition_params = array_merge( $addition_params, array_merge( array(
 									'li_2_type'  => 'coupon',
-									'li_2_name'  => __( 'First month is free due to new level apply to next month', 'ptst' ),
+									'li_2_name'  => __( 'First month is free due to new level apply to next month', 'psts' ),
 									'li_2_price' => $init_amount - 0.01
 								) ) );
 							} elseif ( $old->term < $_POST['period'] || $old->term > $_POST['period'] ) {
@@ -327,7 +327,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 							$balance_left    = $this->cal_unused_balance( $blog_id );
 							$addition_params = array_merge( $addition_params, array_merge( array(
 								'li_2_type'  => 'coupon',
-								'li_2_name'  => __( 'Balance left of last subscription', 'ptst' ),
+								'li_2_name'  => __( 'Balance left of last subscription', 'psts' ),
 								'li_2_price' => $balance_left
 							) ) );
 						}
@@ -1502,7 +1502,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			$response = wp_remote_post( $url, $args );
 
 			if ( is_wp_error( $response ) || ( wp_remote_retrieve_response_code( $response ) != 200 && wp_remote_retrieve_response_code( $response ) != 400 ) ) {
-				print '<div class="alert alert-error">' . __( 'There was a problem connecting to 2CO. Please try again.', 'prosites' ) . '</div>';
+				print '<div class="alert alert-error">' . __( 'There was a problem connecting to 2CO. Please try again.', 'psts' ) . '</div>';
 			} else {
 				return json_decode( $response['body'], true );
 			}

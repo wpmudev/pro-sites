@@ -3347,13 +3347,13 @@ class ProSites_Gateway_Stripe {
 					<th scope="row"><?php _e( 'Stripe API Credentials', 'psts' ) ?></th>
 					<td>
 						<p><label><?php _e( 'Secret key', 'psts' ) ?><br/>
-								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_secret_key" ) ); ?>"
+								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_secret_key" ), 'psts' ); ?>"
 								       style="width: 100%; max-width: 500px;" name="psts[stripe_secret_key]"
 								       type="text"/>
 							</label></p>
 
 						<p><label><?php _e( 'Publishable key', 'psts' ) ?><br/>
-								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ) ); ?>"
+								<input value="<?php esc_attr_e( $psts->get_setting( "stripe_publishable_key" ), 'psts' ); ?>"
 								       style="width: 100%; max-width: 500px;" name="psts[stripe_publishable_key]"
 								       type="text"/>
 							</label></p><br/>

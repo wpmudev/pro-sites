@@ -136,13 +136,13 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 
 	function get_columns() {
 		return $columns = array(
-			'psts_co_visible'     => __( 'Visible' ),
-			'psts_co_name'        => __( 'Name' ),
-			'psts_co_description' => __( 'Description' ),
-			'psts_co_included'    => __( 'Included in Plan' ),
-			'psts_co_class_name'  => __( 'Class Name' ),
-			'psts_co_order_id'    => __( 'Order' ),
-			'psts_co_level_id'    => __( 'Level' )
+			'psts_co_visible'     => __( 'Visible', 'psts' ),
+			'psts_co_name'        => __( 'Name', 'psts' ),
+			'psts_co_description' => __( 'Description', 'psts' ),
+			'psts_co_included'    => __( 'Included in Plan', 'psts' ),
+			'psts_co_class_name'  => __( 'Class Name', 'psts' ),
+			'psts_co_order_id'    => __( 'Order', 'psts' ),
+			'psts_co_level_id'    => __( 'Level', 'psts' )
 		);
 	}
 

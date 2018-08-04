@@ -1737,7 +1737,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 
 		if ( $trialing ) {
-			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', PSTS_TEXT_DOMAIN ) . '</div>';
+			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
 		}
 
 		//Check if payment is not yet confirmed
@@ -1745,9 +1745,9 @@ class ProSites_Gateway_PayPalExpressPro {
 			//Fetch, if payment status is pending and reason is stored
 			$psts_payment_details = get_user_meta( get_current_user_id(), 'psts_payment_details', true );
 			if ( ! empty( $psts_payment_details['pending_reason'] ) ) {
-				$args['pending'] = '<div id="psts-general-error" class="psts-warning message">' . $psts_payment_details['pending_reason'] . __( '<br/>If you have enabled payment review for PayPal, make sure you accept the payment to avail the premium services.', PSTS_TEXT_DOMAIN ) . '</div>';
+				$args['pending'] = '<div id="psts-general-error" class="psts-warning message">' . $psts_payment_details['pending_reason'] . __( '<br/>If you have enabled payment review for PayPal, make sure you accept the payment to avail the premium services.', 'psts' ) . '</div>';
 			} else {
-				$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', PSTS_TEXT_DOMAIN ) . '</div>';
+				$args['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
 			}
 		}
 
@@ -2114,17 +2114,17 @@ class ProSites_Gateway_PayPalExpressPro {
 							class="description"><?php _e( 'You must login to PayPal and create an API signature to get your credentials. <a target="_blank" href="https://developer.paypal.com/docs/classic/api/apiCredentials/">Instructions &raquo;</a>', 'psts' ) ?></span>
 
 						<p><label><?php _e( 'API Username', 'psts' ) ?><br/>
-								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_user" ) ); ?>"
+								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_user" ), 'psts' ); ?>"
 								       style="width: 100%; max-width: 500px;" name="psts[pypl_api_user]" type="text"/>
 							</label></p>
 
 						<p><label><?php _e( 'API Password', 'psts' ) ?><br/>
-								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_pass" ) ); ?>"
+								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_pass" ), 'psts' ); ?>"
 								       style="width: 100%; max-width: 500px;" name="psts[pypl_api_pass]" type="text"/>
 							</label></p>
 
 						<p><label><?php _e( 'Signature', 'psts' ) ?><br/>
-								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_sig" ) ); ?>"
+								<input value="<?php esc_attr_e( $psts->get_setting( "pypl_api_sig" ), 'psts' ); ?>"
 								       style="width: 100%; max-width: 500px;" name="psts[pypl_api_sig]" type="text"/>
 							</label></p>
 					</td>
@@ -2157,7 +2157,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					    class="psts-help-div psts-paypal-header"><?php echo __( 'PayPal Header Image (optional)', 'psts' ) . $psts->help_text( __( 'https url of an 750 x 90 image displayed at the top left of the payment page. If a image is not specified, the business name is displayed.', 'psts' ) ); ?></th>
 					<td>
 						<p>
-							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_img" ) ); ?>" size="40"
+							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_img" ), 'psts' ); ?>" size="40"
 							       name="psts[pypl_header_img]" type="text"/>
 						</p>
 					</td>
@@ -2177,7 +2177,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					    class="psts-help-div psts-paypal-header-border"><?php echo __( 'PayPal Header Border Color (optional)', 'psts' ) . $psts->help_text( __( '6 character hex color for border around the header of the payment page.', 'psts' ) ); ?></th>
 					<td>
 						<p>
-							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_border" ) ); ?>" size="6"
+							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_border" ), 'psts' ); ?>" size="6"
 							       maxlength="6" name="psts[pypl_header_border]" type="text"/>
 						</p>
 					</td>
@@ -2187,7 +2187,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					    class="psts-help-div psts-paypal-header-background"><?php echo __( 'PayPal Header Background Color (optional)', 'psts' ) . $psts->help_text( __( '6 character hex color for header background of the payment page.', 'psts' ) ); ?></th>
 					<td>
 						<p>
-							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_back" ) ); ?>" size="6"
+							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_header_back" ), 'psts' ); ?>" size="6"
 							       maxlength="6" name="psts[pypl_header_back]" type="text"/>
 						</p>
 					</td>
@@ -2197,7 +2197,7 @@ class ProSites_Gateway_PayPalExpressPro {
 					    class="psts-help-div psts-paypal-background"><?php echo __( 'PayPal Page Background Color (optional)', 'psts' ) . $psts->help_text( __( '6 character hex color for payment page background. Darker colors may not be allowed by PayPal.', 'psts' ) ) ?></th>
 					<td>
 						<p>
-							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_page_back" ) ); ?>" size="6"
+							<input value="<?php esc_attr_e( $psts->get_setting( "pypl_page_back" ), 'psts' ); ?>" size="6"
 							       maxlength="6" name="psts[pypl_page_back]" type="text"/>
 						</p>
 					</td>

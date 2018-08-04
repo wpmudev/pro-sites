@@ -398,13 +398,13 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 							),
 							'name'        => array(
 								'title' => __( 'Name', 'psts' ),
-								'small' => __( '(double-click to change)' ),
+								'small' => __( '(double-click to change)', 'psts' ),
 								'width' => '150px',
 								'class' => '',
 							),
 							'description' => array(
 								'title' => __( 'Description', 'psts' ),
-								'small' => __( '(double-click to change)' ),
+								'small' => __( '(double-click to change)', 'psts' ),
 								'width' => '',
 								'class' => '',
 							),

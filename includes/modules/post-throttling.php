@@ -461,8 +461,8 @@ class ProSites_Module_PostThrottling {
 			}
 			if ( $exceeded ) {
 				$period_human_form = 'throttling_hour' == $key ? __( 'hourly', 'psts' ) : __( 'daily', 'psts' );
-				$upgrade_message   = is_super_admin( $blog_id ) ? 'you can <a href="' . $psts->checkout_url( $blog_id ) . '">' . __( 'upgrade', 'psts' ) . '</a> to continue posting. Contact site admin for more details' : __( 'Contact site admin for more details' );
-				$notice            = sprintf( __( 'You have reached the %s publishing limit, you can publish again after %s, or %s.' ), $period_human_form, $post_back_time, $upgrade_message );
+				$upgrade_message   = is_super_admin( $blog_id ) ? 'you can <a href="' . $psts->checkout_url( $blog_id ) . '">' . __( 'upgrade', 'psts' ) . '</a> to continue posting. Contact site admin for more details' : __( 'Contact site admin for more details', 'psts' );
+				$notice            = sprintf( __( 'You have reached the %s publishing limit, you can publish again after %s, or %s.', 'psts' ), $period_human_form, $post_back_time, $upgrade_message );
 				/**
 				 * Filter the Post Throttling limit message, display on admin screen if site posting limit is exceeded
 				 *
