@@ -23,23 +23,28 @@ module.exports = function ( grunt ) {
 
 		// Make .pot file for translation.
 		makepot: {
-			target: {
+			options: {
+				domainPath: 'languages',
+				exclude: [
+					'dash-notice/.*'
+				],
+				mainFile: 'pro-sites.php',
+				potFilename: 'psts-default.pot',
+				potHeaders: {
+					'poedit': true,
+					'language-team': 'WPMU DEV <support@wpmudev.org>',
+					'report-msgid-bugs-to': 'https://premium.wpmudev.org/project/pro-sites/',
+					'last-translator': 'WPMU DEV <support@wpmudev.org>',
+					'x-generator': 'grunt-wp-i18n'
+				},
+				type: 'wp-plugin',
+				updateTimestamp: false, // Update POT-Creation-Date header if no other changes are detected.
+				cwd: ''
+			},
+			// Make .pot file for the plugin.
+			main: {
 				options: {
-					domainPath: 'languages',
-					exclude: [
-						'dash-notice/.*'
-					],
-					mainFile: 'pro-sites.php',
-					potFilename: 'psts-default.pot',
-					potHeaders: {
-						'poedit': true,
-						'language-team': 'WPMU DEV <support@wpmudev.org>',
-						'report-msgid-bugs-to': 'https://premium.wpmudev.org/project/pro-sites/',
-						'last-translator': 'WPMU DEV <support@wpmudev.org>',
-						'x-generator': 'grunt-wp-i18n'
-					},
-					type: 'wp-plugin',
-					updateTimestamp: false, // Update POT-Creation-Date header if no other changes are detected.
+					cwd: ''
 				}
 			},
 			// Make .pot file for the release.
@@ -52,9 +57,15 @@ module.exports = function ( grunt ) {
 
 		// Make .mo file from .pot file for translation.
 		po2mo: {
-			files: {
+			// Make .mo file for the plugin.
+			main: {
 				src: 'languages/psts-default.pot',
 				dest: 'languages/psts-default.mo'
+			},
+			// Make .mo file for the release.
+			release: {
+				src: 'releases/pro-sites/languages/psts-default.pot',
+				dest: 'releases/pro-sites/languages/psts-default.mo'
 			}
 		},
 
@@ -128,14 +139,14 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( 'prepare', ['checktextdomain'] );
 
 	// Make pot file from files.
-	grunt.registerTask( 'translate', ['makepot:target', 'po2mo'] );
+	grunt.registerTask( 'translate', ['makepot:main', 'po2mo:main'] );
 
 	// Run build task to create release copy.
 	grunt.registerTask( 'build', 'Run all tasks.', function () {
 		grunt.task.run( 'clean' );
 		grunt.task.run( 'copy' );
 		grunt.task.run( 'makepot:release' );
-		grunt.task.run( 'po2mo' );
+		grunt.task.run( 'po2mo:release' );
 		grunt.task.run( 'compress' );
 	} );
 };
