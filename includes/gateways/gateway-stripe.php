@@ -521,7 +521,7 @@ class ProSites_Gateway_Stripe {
 
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array( 'jquery' ) );
-		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'includes/gateways/gateway-stripe-files/stripe_token.js', array(
+		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'assets/js/stripe_token.js', array(
 			'js-stripe',
 			'jquery'
 		) );
