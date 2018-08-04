@@ -314,7 +314,7 @@ class ProSites_Pricing_Table_Admin extends WP_List_Table {
 		<div class="wrap">
 
 			<div class="icon32">
-				<img src="<?php echo $psts->plugin_url; ?>images/settings.png"/>
+				<img src="<?php echo $psts->plugin_url; ?>assets/images/settings.png"/>
 			</div>
 
 			<h1><?php echo apply_filters( 'psts_checkout_page_settings_title', __( 'Pro Sites Pricing Table Settings', 'psts' ) ); ?></h1>

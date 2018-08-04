@@ -5,8 +5,8 @@
  */
 define( 'K_TCPDF_EXTERNAL_CONFIG', true ); //Use the config here.
 
-define( 'K_PATH_MAIN', $this->plugin_dir . 'tcpdf/' );
-define( 'K_PATH_URL', $this->plugin_url . 'tcpdf/' );
+define( 'K_PATH_MAIN', $this->plugin_dir . 'vendor/tcpdf/' );
+define( 'K_PATH_URL', $this->plugin_url . 'vendor/tcpdf/' );
 define( 'K_PATH_FONTS', K_PATH_MAIN . 'fonts/' );
 define( 'K_PATH_CACHE', K_PATH_MAIN . 'cache/' );
 define( 'K_PATH_URL_CACHE', K_PATH_URL . 'cache/' );

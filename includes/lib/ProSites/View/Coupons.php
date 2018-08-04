@@ -58,7 +58,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 				});
 			</script>
 			<div class="wrap">
-				<div class="icon32"><img src="<?php echo $psts->plugin_url . 'images/coupon.png'; ?>"/></div>
+				<div class="icon32"><img src="<?php echo $psts->plugin_url . 'assets/images/coupon.png'; ?>"/></div>
 				<h1><?php _e( 'Pro Sites Coupons', 'psts' ); ?></h1>
 
 				<p><?php _e( 'You can create, delete, or update coupon codes for your network here.', 'psts' ) ?></p>

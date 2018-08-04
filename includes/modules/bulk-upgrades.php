@@ -782,7 +782,7 @@ class ProSites_Module_BulkUpgrades {
 		$message         = $psts->get_setting( 'bu_checkout_msg' );
 		?>
 		<div class="wrap">
-		<div class="icon32"><img src="<?php echo $psts->plugin_url . 'images/import.png'; ?>"/></div>
+		<div class="icon32"><img src="<?php echo $psts->plugin_url . 'assets/images/import.png'; ?>"/></div>
 		<h1><?php _e( 'Bulk Upgrades', 'psts' ) ?></h1>
 
 

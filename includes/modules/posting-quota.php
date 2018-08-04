@@ -178,7 +178,7 @@ class ProSites_Module_PostingQuota {
 							</td>
 						</tr>
 						<tr>
-							<td class="upgrade-message"><?php echo __( 'Upgrade message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed on the respective add post, page or media screen for sites that have used up their quota. "LEVEL" will be replaced with the needed level name', 'psts' ) . '</div></div>'; ?></td>
+							<td class="upgrade-message"><?php echo __( 'Upgrade message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'assets/images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed on the respective add post, page or media screen for sites that have used up their quota. "LEVEL" will be replaced with the needed level name', 'psts' ) . '</div></div>'; ?></td>
 							<td>
 								<input type="text" name="psts[pq_quotas][<?php echo $post_type->name; ?>][message]" value="<?php echo esc_attr( $quota_msg ); ?>" style="width: 90%"/>
 							</td>
@@ -192,7 +192,7 @@ class ProSites_Module_PostingQuota {
                 </tr>
                 <tr>
                     <td class="upgrade-message">
-						<?php echo __( 'Message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed when you have set limits for the higest level and those limits have been reached. All site owners in the highest level who have reached their limits will see this message.', 'psts' ) . '</div></div>'; ?></td>
+						<?php echo __( 'Message', 'psts' ) . '<img width="16" height="16" src="' . $psts->plugin_url . 'assets/images/help.png" class="help_tip"><div class="psts-help-text-wrapper period-desc"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . __( 'Displayed when you have set limits for the higest level and those limits have been reached. All site owners in the highest level who have reached their limits will see this message.', 'psts' ) . '</div></div>'; ?></td>
                         <td>
                         	<?php
 								$message = isset( $quota_settings['highest_level_message'] )? $quota_settings['highest_level_message'] : __('You have reached your publishing limits, no upgrades for this levell. Contact Administrator. &raquo;','psts');

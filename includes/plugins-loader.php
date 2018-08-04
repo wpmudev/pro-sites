@@ -53,7 +53,7 @@ class ProSites_PluginLoader {
 		global $psts;
 
 		//get modules dir
-		$dir = $psts->plugin_dir . 'modules/';
+		$dir = $psts->plugin_dir . 'includes/modules/';
 
 		// Avoiding file scan
 		$modules = apply_filters( 'prosites_modules', self::$modules );
@@ -109,7 +109,7 @@ class ProSites_PluginLoader {
 		global $psts;
 
 		//get gateways dir
-		$dir = $psts->plugin_dir . 'gateways/';
+		$dir = $psts->plugin_dir . 'includes/gateways/';
 
 		//search the dir for files
 		$gateways = array();

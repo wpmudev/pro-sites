@@ -16,7 +16,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 		public static function render_signup_form( $render_data = array(), $errors = false ) {
 			global $psts;
 			$current_site = get_current_site();
-			$img_base  = $psts->plugin_url . 'images/';
+			$img_base  = $psts->plugin_url . 'assets/images/';
 
 			if( ! $errors ) {
 				$errors = new WP_Error();

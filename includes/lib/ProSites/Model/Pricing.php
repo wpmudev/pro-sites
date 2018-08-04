@@ -82,7 +82,7 @@ if ( ! class_exists( 'ProSites_Model_Pricing' ) ) {
 
 						if ( isset( $_POST['psts']['pricing_table_custom_css'] ) ) {
 							if ( ! class_exists( 'CSSTidy_Sanitize_WP' ) ) {
-								require $psts->plugin_dir . 'lib/external/csstidy/class.csstidy_sanitize_wp.php';
+								require $psts->plugin_dir . 'vendor/csstidy/class.csstidy_sanitize_wp.php';
 							}
 							$_POST['psts']['pricing_table_custom_css'] = CSSTidy_Sanitize_WP::sanitize_css( $_POST['psts']['pricing_table_custom_css'] );
 						}

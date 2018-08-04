@@ -10,7 +10,7 @@ if ( ! class_exists( 'ProSites_Helper_UI' ) ) {
 			if( empty( $message ) ){
 				return false;
 			}
-			return '<img width="16" height="16" src="' . $psts->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class .'"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+			return '<img width="16" height="16" src="' . $psts->plugin_url . 'assets/images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class .'"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
 		}
 
 		/**

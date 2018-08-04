@@ -18,7 +18,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 		//setup the Stripe API
 		if ( ! class_exists( 'Stripe' ) ) {
-			require_once( $psts->plugin_dir . "gateways/gateway-stripe-files/lib/Stripe.php" );
+			require_once( $psts->plugin_dir . "includes/gateways/gateway-stripe-files/lib/Stripe.php" );
 		}
 		$stripe_secret_key = $psts->get_setting( 'stripe_secret_key' );
 		Stripe::setApiKey( $stripe_secret_key );
@@ -521,7 +521,7 @@ class ProSites_Gateway_Stripe {
 
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'js-stripe', 'https://js.stripe.com/v2/', array( 'jquery' ) );
-		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'gateways/gateway-stripe-files/stripe_token.js', array(
+		wp_enqueue_script( 'stripe-token', $psts->plugin_url . 'includes/gateways/gateway-stripe-files/stripe_token.js', array(
 			'js-stripe',
 			'jquery'
 		) );
@@ -1851,7 +1851,7 @@ class ProSites_Gateway_Stripe {
 		$content = '';
 
 		$site_name = $current_site->site_name;
-		$img_base  = $psts->plugin_url . 'images/';
+		$img_base  = $psts->plugin_url . 'assets/images/';
 
 		// Try stateless, or get from session
 		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'activation_key' );
@@ -2098,7 +2098,7 @@ class ProSites_Gateway_Stripe {
 		global $psts, $current_user, $current_site, $wpdb;
 
 		$site_name = $current_site->site_name;
-		$img_base  = $psts->plugin_url . 'images/';
+		$img_base  = $psts->plugin_url . 'assets/images/';
 
 		$session_keys = array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' );
 		foreach ( $session_keys as $key ) {
@@ -2815,7 +2815,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 		$args     = array();
 		$card     = '';
-		$img_base = $psts->plugin_url . 'images/';
+		$img_base = $psts->plugin_url . 'assets/images/';
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 		if ( $trialing ) {

@@ -83,10 +83,10 @@ class ProSites {
 		add_action( 'init', array( 'ProSites_Helper_Session', 'attempt_force_sessions' ) );
 
 		//load plugins
-		require_once( $this->plugin_dir . 'plugins-loader.php' );
+		require_once( $this->plugin_dir . 'includes/plugins-loader.php' );
 
 		// Setup GDPR compliance.
-		require_once $this->plugin_dir . 'lib/psts-gdpr.php';
+		require_once $this->plugin_dir . 'includes/lib/psts-gdpr.php';
 
 		// TAX integration
 		if ( $this->get_setting( 'taxamo_status', false ) ) {
@@ -288,12 +288,12 @@ class ProSites {
 		//setup proper directories
 		if ( defined( 'WP_PLUGIN_URL' ) && defined( 'WP_PLUGIN_DIR' ) && file_exists( plugin_dir_path( __FILE__ ) . basename( __FILE__ ) ) ) {
 			$this->location   = 'plugins';
-			$this->plugin_dir = plugin_dir_path( __FILE__ ) . 'includes/';
-			$this->plugin_url = plugins_url( '/includes/', __FILE__ );
+			$this->plugin_dir = plugin_dir_path( __FILE__ );
+			$this->plugin_url = plugins_url( '/', __FILE__ );
 		} else if ( defined( 'WPMU_PLUGIN_URL' ) && defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
 			$this->location   = 'mu-plugins';
-			$this->plugin_dir = WPMU_PLUGIN_DIR . '/includes/';
-			$this->plugin_url = WPMU_PLUGIN_URL . '/includes/';
+			$this->plugin_dir = WPMU_PLUGIN_DIR . '/';
+			$this->plugin_url = WPMU_PLUGIN_URL . '/';
 		} else {
 			wp_die( __( 'There was an issue determining where Pro Sites is installed. Please reinstall.', 'psts' ) );
 		}
@@ -302,7 +302,7 @@ class ProSites {
 		define('PSTS_PREFIX', 'psts');
 
 		//load data structures
-		require_once( $this->plugin_dir . 'data.php' );
+		require_once( $this->plugin_dir . 'includes/data.php' );
 	}
 
 	private function setup_ajax_hooks() {
@@ -749,7 +749,7 @@ class ProSites {
 	function weekly_summary() {
 		global $wpdb;
 
-		$img_base = $this->plugin_url . 'images/';
+		$img_base = $this->plugin_url . 'assets/images/';
 
 		//count total
 		$current_total = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->base_prefix}pro_sites WHERE expire > '" . time() . "'" );
@@ -1187,7 +1187,7 @@ class ProSites {
 		 */
 		do_action( 'psts_checkout_page_load'); //for gateway plugins to hook into
 
-		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'assets/js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
@@ -1202,12 +1202,12 @@ class ProSites {
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
-			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
+			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'assets/css/checkout.css', false, $this->version );
 			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
 
 			/* Checkout layout */
 			$layout_option = $this->get_setting( 'pricing_table_layout', 'option1' );
-			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'css/pricing-tables/' . $layout_option . '.css' );
+			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'assets/css/pricing-tables/' . $layout_option . '.css' );
 			wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $this->version );
 
 			/* Apply styles from options */
@@ -1218,7 +1218,7 @@ class ProSites {
 
 		}
 		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
-			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
+			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'assets/css/plans-pricing.css', false, $this->version );
 		}
 
 		//setup error var
@@ -2532,31 +2532,31 @@ class ProSites {
 	}
 
 	function scripts_checkout() {
-		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'assets/js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 	}
 
 	function scripts_stats() {
-		wp_enqueue_script( 'flot', $this->plugin_url . 'js/jquery.flot.min.js', array( 'jquery' ), $this->version );
-		wp_enqueue_script( 'flot_pie', $this->plugin_url . 'js/jquery.flot.pie.min.js', array(
+		wp_enqueue_script( 'flot', $this->plugin_url . 'assets/js/jquery.flot.min.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'flot_pie', $this->plugin_url . 'assets/js/jquery.flot.pie.min.js', array(
 			'jquery',
 			'flot'
 		), $this->version );
-		wp_enqueue_script( 'flot_xcanvas', $this->plugin_url . 'js/excanvas.pack.js', array(
+		wp_enqueue_script( 'flot_xcanvas', $this->plugin_url . 'assets/js/excanvas.pack.js', array(
 			'jquery',
 			'flot'
 		), $this->version );
 	}
 
 	function scripts_coupons() {
-		wp_enqueue_script( 'jquery-datepicker', $this->plugin_url . 'datepicker/js/datepicker.min.js', array(
+		wp_enqueue_script( 'jquery-datepicker', $this->plugin_url . 'assets/libraries/datepicker/js/datepicker.min.js', array(
 			'jquery',
 			'jquery-ui-core'
 		), $this->version );
 
 		//only load languages for datepicker if not english (or it will show Chinese!)
 		if ( $this->language != 'en' ) {
-			wp_enqueue_script( 'jquery-datepicker-i18n', $this->plugin_url . 'datepicker/js/datepicker-i18n.min.js', array(
+			wp_enqueue_script( 'jquery-datepicker-i18n', $this->plugin_url . 'assets/libraries/datepicker/js/datepicker-i18n.min.js', array(
 				'jquery',
 				'jquery-ui-core',
 				'jquery-datepickexr'
@@ -2571,7 +2571,7 @@ class ProSites {
 	function css_coupons() {
 		$this->load_psts_style();
 		$this->load_chosen();
-		wp_enqueue_style( 'jquery-datepicker-css', $this->plugin_url . 'datepicker/css/ui-lightness/datepicker.css', false, $this->version );
+		wp_enqueue_style( 'jquery-datepicker-css', $this->plugin_url . 'assets/libraries/datepicker/css/ui-lightness/datepicker.css', false, $this->version );
 	}
 
 	/**
@@ -2586,14 +2586,14 @@ class ProSites {
 			return;
 		}
 
-		wp_register_style( 'psts-style', $this->plugin_url . 'css/psts-admin.css' );
+		wp_register_style( 'psts-style', $this->plugin_url . 'assets/css/psts-admin.css' );
 
 		//Check if chosen css is already registered
 		if ( ! wp_style_is( 'chosen', 'registered' ) ) {
-			wp_register_style( 'chosen', $this->plugin_url . 'css/chosen/chosen.min.css' );
+			wp_register_style( 'chosen', $this->plugin_url . 'assets/libraries/chosen/css/chosen.min.css' );
 		}
 
-		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
+		wp_register_script( 'psts-js', $this->plugin_url . 'assets/js/psts-admin.js', array(
 			'wp-color-picker',
 			'jquery'
 		), $this->version );
@@ -2603,7 +2603,7 @@ class ProSites {
 			'disable_premium_plugin_manager' => __( 'Enabling this module will disable Premium Plugin Manager module.', 'psts' ),
 		));
 
-		wp_register_script( 'psts-js-levels', $this->plugin_url . 'js/psts-admin-levels.js', array(
+		wp_register_script( 'psts-js-levels', $this->plugin_url . 'assets/js/psts-admin-levels.js', array(
 			'jquery',
 			'jquery-ui-sortable',
 		), $this->version );
@@ -2615,7 +2615,7 @@ class ProSites {
 
 		//Check if chosen js is already registered
 		if ( ! wp_script_is( 'chosen', 'registered' ) ) {
-			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js' );
+			wp_register_script( 'chosen', $this->plugin_url . 'assets/libraries/chosen/js/chosen.jquery.min.js' );
 		}
 
 	}
@@ -2967,7 +2967,7 @@ try{
 				});
 			});
 		</script>
-		<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/modify.png'; ?>"/></div>
+		<div class="icon32"><img src="<?php echo $this->plugin_url . 'assets/images/modify.png'; ?>"/></div>
 		<h1><?php _e( 'Pro Sites Management', 'psts' ); ?></h1>
 
 		<?php
@@ -3673,7 +3673,7 @@ if ( $active_pro_sites ) {
 		});
 	</script>
 <div class="wrap">
-	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/stats.png'; ?>"/></div>
+	<div class="icon32"><img src="<?php echo $this->plugin_url . 'assets/images/stats.png'; ?>"/></div>
 	<h1><?php _e( 'Pro Sites Statistics', 'psts' ); ?></h1>
 
 <?php echo $this->weekly_summary(); ?>
@@ -3753,7 +3753,7 @@ function admin_levels() {
 	}
 	?>
 	<div class="wrap">
-	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/levels.png'; ?>"/></div>
+	<div class="icon32"><img src="<?php echo $this->plugin_url . 'assets/images/levels.png'; ?>"/></div>
 	<h1><?php _e( 'Pro Sites Levels', 'psts' ); ?></h1>
 	<?php
 
@@ -4152,7 +4152,7 @@ function admin_modules() {
 		$use_plans_table    = $this->get_setting( 'plans_table_enabled', 'enabled' );
 		$show_pricing_table = $this->get_setting( 'comparison_table_enabled' ) ? $this->get_setting( 'comparison_table_enabled' ) : $this->get_setting( 'co_pricing' );
 		$content            = "";
-		include_once $this->plugin_dir . 'lib/psts_pricing_table.php';
+		include_once $this->plugin_dir . 'includes/lib/psts_pricing_table.php';
 		$pricing_table = ProSites_Pricing_Table::getInstance( array(
 			'blog_id' => $blog_id
 		) );
@@ -4766,9 +4766,9 @@ function admin_modules() {
 
 	function pdf_receipt( $payment_info = '' ) {
 
-		require_once( $this->plugin_dir . 'tcpdf-config.php' );
-		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php' );
-		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php' );
+		require_once $this->plugin_dir . 'includes/tcpdf-config.php';
+		require_once 'vendor/tcpdf/config/lang/eng.php';
+		require_once 'vendor/tcpdf/tcpdf.php';
 
 		//Make directory for receipt cache
 		if ( ! is_dir( K_PATH_CACHE ) ) {
@@ -4894,7 +4894,7 @@ function admin_modules() {
 			update_site_option( 'psts_settings', $settings );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Settings Saved!', 'psts' ) . '</p></div>';
 		}
-		include_once $this->plugin_dir . 'lib/psts_pricing_table_admin.php';
+		include_once $this->plugin_dir . 'includes/lib/psts_pricing_table_admin.php';
 		echo apply_filters( 'psts_checkout_page_settings_output', new ProSites_Pricing_Table_Admin() );
 	}
 
@@ -5193,7 +5193,7 @@ function admin_modules() {
 		if( empty( $message ) ){
 			return false;
 		}
-		return '<img width="16" height="16" src="' . $this->plugin_url . 'images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class . '"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
+		return '<img width="16" height="16" src="' . $this->plugin_url . 'assets/images/help.png" class="help_tip"><div class="psts-help-text-wrapper ' . $class . '"><div class="psts-help-arrow-wrapper"><div class="psts-help-arrow"></div></div><div class="psts-help-text">' . $message . '</div></div>';
 	}
 
 	/**
@@ -5273,7 +5273,7 @@ function admin_modules() {
 			}
 
 			// Now we can hack the display specifically for ProSites.
-			wp_enqueue_style( 'psts-registration', $this->plugin_url . 'css/registration.css', false, $this->version );
+			wp_enqueue_style( 'psts-registration', $this->plugin_url . 'assets/css/registration.css', false, $this->version );
 		}
 	}
 
