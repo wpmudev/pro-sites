@@ -1,0 +1,16 @@
+#prosites-media-quota-display {
+    border: 1px solid #e5e5e5;
+    display: block;
+    padding: 10px;
+    text-align: left;
+}
+
+#prosites-media-quota-display .media-upload {
+    float: right;
+}
+
+.attachments-browser #prosites-media-quota-display {
+    position: relative;
+    top: -16px;
+    font-size: 13px;
+}
