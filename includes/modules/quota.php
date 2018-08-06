@@ -325,8 +325,8 @@ class ProSites_Module_Quota {
 		</div><?php
 
 		global $psts;
-		wp_enqueue_style( 'psts-quota-style', $psts->plugin_url . 'assets/css/quota.css', $psts->version );
-		wp_enqueue_script( 'psts-quota', $psts->plugin_url . 'assets/js/quota.js', array( 'jquery' ), $psts->version );
+		wp_enqueue_style( 'psts-quota-style', $psts->plugin_url . 'assets/css/quota.min.css', $psts->version );
+		wp_enqueue_script( 'psts-quota', $psts->plugin_url . 'assets/js/quota.min.js', array( 'jquery' ), $psts->version );
 	}
 
 	// Static Hooks

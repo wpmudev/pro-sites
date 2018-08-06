@@ -74,7 +74,7 @@ if ( ! class_exists( 'ProSites_Helper_Tax' ) ) {
 		public static function enqueue_tax_scripts() {
 			global $psts;
 
-			wp_enqueue_script( 'psts-tax', $psts->plugin_url . 'assets/js/tax.js', array( 'jquery' ), $psts->version );
+			wp_enqueue_script( 'psts-tax', $psts->plugin_url . 'assets/js/tax.min.js', array( 'jquery' ), $psts->version );
 
 			$translation_array = apply_filters( 'prosites_tax_script_translations', array(
 				'taxamo_missmatch' => __( 'EU VAT: Your location evidence is not matching. Additional evidence required. If you are travelling in another country or using a VPN, please provide as much information as possible and ensure that it is accurate.', 'psts' ),

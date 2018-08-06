@@ -1187,7 +1187,7 @@ class ProSites {
 		 */
 		do_action( 'psts_checkout_page_load'); //for gateway plugins to hook into
 
-		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'assets/js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'assets/js/checkout.min.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 
 		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
@@ -1202,12 +1202,12 @@ class ProSites {
 		) );
 
 		if ( ! current_theme_supports( 'psts_style' ) ) {
-			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'assets/css/checkout.css', false, $this->version );
+			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'assets/css/checkout.min.css', false, $this->version );
 			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
 
 			/* Checkout layout */
 			$layout_option = $this->get_setting( 'pricing_table_layout', 'option1' );
-			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'assets/css/pricing-tables/' . $layout_option . '.css' );
+			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'assets/css/' . $layout_option . '.min.css' );
 			wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $this->version );
 
 			/* Apply styles from options */
@@ -1218,7 +1218,7 @@ class ProSites {
 
 		}
 		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
-			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'assets/css/plans-pricing.css', false, $this->version );
+			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'assets/css/plans-pricing.min.css', false, $this->version );
 		}
 
 		//setup error var
@@ -2532,17 +2532,13 @@ class ProSites {
 	}
 
 	function scripts_checkout() {
-		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'assets/js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'assets/js/checkout.min.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 	}
 
 	function scripts_stats() {
-		wp_enqueue_script( 'flot', $this->plugin_url . 'assets/js/jquery.flot.min.js', array( 'jquery' ), $this->version );
-		wp_enqueue_script( 'flot_pie', $this->plugin_url . 'assets/js/jquery.flot.pie.min.js', array(
-			'jquery',
-			'flot'
-		), $this->version );
-		wp_enqueue_script( 'flot_xcanvas', $this->plugin_url . 'assets/js/excanvas.pack.js', array(
+		wp_enqueue_script( 'flot', $this->plugin_url . 'assets/js/external/jquery.flot.min.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'flot_xcanvas', $this->plugin_url . 'assets/js/external/excanvas.min.js', array(
 			'jquery',
 			'flot'
 		), $this->version );
@@ -2586,14 +2582,14 @@ class ProSites {
 			return;
 		}
 
-		wp_register_style( 'psts-style', $this->plugin_url . 'assets/css/psts-admin.css' );
+		wp_register_style( 'psts-style', $this->plugin_url . 'assets/css/admin.min.css' );
 
 		//Check if chosen css is already registered
 		if ( ! wp_style_is( 'chosen', 'registered' ) ) {
 			wp_register_style( 'chosen', $this->plugin_url . 'assets/libraries/chosen/css/chosen.min.css' );
 		}
 
-		wp_register_script( 'psts-js', $this->plugin_url . 'assets/js/psts-admin.js', array(
+		wp_register_script( 'psts-js', $this->plugin_url . 'assets/js/admin.min.js', array(
 			'wp-color-picker',
 			'jquery'
 		), $this->version );
@@ -2603,7 +2599,7 @@ class ProSites {
 			'disable_premium_plugin_manager' => __( 'Enabling this module will disable Premium Plugin Manager module.', 'psts' ),
 		));
 
-		wp_register_script( 'psts-js-levels', $this->plugin_url . 'assets/js/psts-admin-levels.js', array(
+		wp_register_script( 'psts-js-levels', $this->plugin_url . 'assets/js/levels.min.js', array(
 			'jquery',
 			'jquery-ui-sortable',
 		), $this->version );
@@ -3684,7 +3680,7 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Monthly Activity Summary', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="monthly_signup_stats" style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="monthly_signup_stats" style="margin:20px;height:300px"></div>
 			</div>
 		</div>
 
@@ -3692,7 +3688,7 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Weekly Activity Summary', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="weekly_signup_stats" style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="weekly_signup_stats" style="margin:20px;height:300px"></div>
 			</div>
 		</div>
 
@@ -3704,13 +3700,13 @@ if ( $active_pro_sites ) {
 				<div style="width:40%;height:300px;float:left;margin-bottom:25px;">
 					<h4 style="margin-left:20%;"><?php printf( __( 'Current Pro Site Levels (%s Total)', 'psts' ), number_format_i18n( $active_pro_sites ) ); ?></h4>
 
-					<div id="pie-ratio" style="width:100%;height:100%;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+					<div id="pie-ratio" style="width:100%;height:100%;"></div>
 				</div>
 
 				<div style="width:40%;height:300px;float:left;margin-left:10%;margin-bottom:25px;">
 					<h4 style="margin-left:20%;"><?php _e( 'Current Gateway Use', 'psts' ) ?></h4>
 
-					<div id="pie-gateway" style="width:100%;height:100%;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+					<div id="pie-gateway" style="width:100%;height:100%;"></div>
 				</div>
 				<div class="clear" style="margin-bottom:50px;"></div>
 
@@ -3721,7 +3717,7 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Pro Sites History', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="daily_stats" style="margin:20px;height:300px"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="daily_stats" style="margin:20px;height:300px"></div>
 			</div>
 		</div>
 
@@ -3729,10 +3725,10 @@ if ( $active_pro_sites ) {
 			<h3 class="hndle" style="cursor:auto;"><span><?php _e( 'Pro Sites Term History', 'psts' ) ?></span></h3>
 
 			<div class="inside">
-				<div id="daily_term_stats" style="margin:20px;height:300px;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="daily_term_stats" style="margin:20px;height:300px;"></div>
 				<h4 style="margin-left:10%;"><?php _e( 'Current Terms', 'psts' ) ?></h4>
 
-				<div id="pie-terms" style="width:40%;height:300px;margin-bottom:25px;"><?php _e( 'No data available yet', 'psts' ) ?></div>
+				<div id="pie-terms" style="width:40%;height:300px;margin-bottom:25px;"></div>
 			</div>
 		</div>
 
@@ -5273,7 +5269,7 @@ function admin_modules() {
 			}
 
 			// Now we can hack the display specifically for ProSites.
-			wp_enqueue_style( 'psts-registration', $this->plugin_url . 'assets/css/registration.css', false, $this->version );
+			wp_enqueue_style( 'psts-registration', $this->plugin_url . 'assets/css/registration.min.css', false, $this->version );
 		}
 	}
 
