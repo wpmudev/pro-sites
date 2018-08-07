@@ -6,6 +6,9 @@ module.exports = function ( grunt ) {
 		plugin_branches: {
 			include_files: [
 				'includes/**',
+				'assets/**',
+				'_src/**',
+				'vendor/**',
 				'extras/**',
 				'pro-sites.php',
 				'changelog.txt'

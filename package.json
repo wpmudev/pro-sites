@@ -15,7 +15,7 @@
   "scripts": {
     "compile": "clear && grunt clean && webpack -p --progress",
     "translate": "clear && grunt translate",
-    "build": "clear && grunt prepare && grunt build"
+    "build": "npm run compile && grunt prepare && grunt build"
   },
   "devDependencies": {
     "grunt": "^1.0.3",

@@ -66,3 +66,8 @@ nb-configuration.xml
 
 # Releases folder
 releases/
+
+# Exclude auto generated assets
+assets/css
+assets/js
+assets/fonts
