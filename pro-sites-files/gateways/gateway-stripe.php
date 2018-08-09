@@ -2445,6 +2445,9 @@ class ProSites_Gateway_Stripe {
 
 						$customer_data = self::get_customer_data( $blog_id );
 
+						// Set blog_id to meta data.
+						$args['metadata']['blog_id'] = $blog_id;
+
 						try {
 							// Retrieve existing subscription.
 							$sub = $c->subscriptions->retrieve( $customer_data->subscription_id );
