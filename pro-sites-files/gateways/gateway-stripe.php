@@ -1597,7 +1597,7 @@ class ProSites_Gateway_Stripe {
 
 		$extended = false;
 		// If new subscription.
-		if ( $current_plan != $new_plan ) {
+		if ( $current_plan != $new_plan || $is_payment ) {
 			$psts->extend( $blog_id, $period, $gateway, $level, $amount, $expire, $is_recurring );
 			$extended = true;
 		} elseif ( ! $is_payment ) {
