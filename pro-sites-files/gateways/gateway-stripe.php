@@ -2457,13 +2457,16 @@ class ProSites_Gateway_Stripe {
 								$was_cancelled = true;
 								// Create new subscription.
 								$sub = $c->subscriptions->create( $args );
+								// Add to log.
+								$psts->log_action( $blog_id, sprintf( __( 'Previous subscription (%s) was cancelled or deleted. So new subscription has been created.', 'psts' ), $customer_data->subscription_id ) );
 							}
 						} catch ( Exception $e ) {
 							// On failure, create new subscription.
 							$was_cancelled = true;
-							$psts->log_action( $blog_id, __( 'Previous subscription was cancelled or deleted. So new subscription has been created.', 'psts' ) );
 							// Create new subscription.
 							$sub = $c->subscriptions->create( $args );
+							// Add to log.
+							$psts->log_action( $blog_id, sprintf( __( 'Previous subscription (%s) was cancelled or deleted. So new subscription has been created.', 'psts' ), $customer_data->subscription_id ) );
 						}
 
 						try {
