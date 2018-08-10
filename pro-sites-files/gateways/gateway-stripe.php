@@ -1350,7 +1350,6 @@ class ProSites_Gateway_Stripe {
 				$last_line_item = $line_item;
 				// Get subscription
 				if ( 'subscription' == $line_item->type ) {
-					$subscription = $line_item;
 					continue;
 				}
 				// Get setup fee
@@ -1372,7 +1371,7 @@ class ProSites_Gateway_Stripe {
 				return false;
 			}
 			if ( ! $subscription ) {
-				if ( 'invoiceitem' == $line_item->type && isset( $line_item->subscription ) && isset( $line_item->period ) && isset( $line_item->plan ) ) {
+				if ( in_array( $line_item->type, array( 'invoiceitem', 'subscription' ) ) && isset( $line_item->subscription ) && isset( $line_item->period ) && isset( $line_item->plan ) ) {
 					try {
 						$customer     = Stripe_Customer::retrieve( $object->customer );
 						if( !empty( $customer->subscriptions ) ) {
@@ -2470,73 +2469,78 @@ class ProSites_Gateway_Stripe {
 						}
 
 						try {
-							$sub_id       = $sub->id;
-							$prev_plan    = $sub->plan->id;
-							$sub->plan    = isset( $args['plan'] ) ? $args['plan'] : $sub->plan;
-							$changed_plan = $sub->plan;
-							$sub->prorate = isset( $args['prorate'] ) ? $args['prorate'] : $sub->prorate;
-							if ( isset( $args['coupon'] ) ) {
-								$sub->coupon = $args['coupon'];
-							}
-							if ( isset( $args['trial_end'] ) ) {
-								$sub->trial_end = $args['trial_end'];
-							}
-
-							$sub->metadata->period = $args['metadata']['period'];
-							$sub->metadata->level  = $args['metadata']['level'];
-							if ( isset( $args['metadata']['activation'] ) ) {
-								$sub->metadata->activation = $args['metadata']['activation'];
-							} else {
-								$activation_key = ProSites_Helper_ProSite::get_activation_key( $blog_id );
-								if ( ! empty( $activation_key ) ) {
-									$sub->metadata->activation = $activation_key;
+							// Subscription id.
+							$sub_id = $sub->id;
+							// We don't have to update subscription if we have created new subscription.
+							if ( ! $was_cancelled ) {
+								$prev_plan    = $sub->plan->id;
+								$sub->plan    = isset( $args['plan'] ) ? $args['plan'] : $sub->plan;
+								$changed_plan = $sub->plan;
+								$sub->prorate = isset( $args['prorate'] ) ? $args['prorate'] : $sub->prorate;
+								if ( isset( $args['coupon'] ) ) {
+									$sub->coupon = $args['coupon'];
 								}
-							}
-							$sub->metadata->blog_id = $blog_id;
-							if ( isset( $args['metadata']['domain'] ) ) {
-								$sub->metadata->domain = $args['metadata']['domain'];
-							}
+								if ( isset( $args['trial_end'] ) ) {
+									$sub->trial_end = $args['trial_end'];
+								}
 
-							// Apply tax?
-							if ( $tax_object->apply_tax ) {
-								$sub->tax_percent            = self::$is_zdc ? $tax_object->tax_rate : ( $tax_object->tax_rate * 100 );
-								$sub->metadata->tax_evidence = $evidence_string;
-							}
+								$sub->metadata->period = $args['metadata']['period'];
+								$sub->metadata->level  = $args['metadata']['level'];
+								if ( isset( $args['metadata']['activation'] ) ) {
+									$sub->metadata->activation = $args['metadata']['activation'];
+								} else {
+									$activation_key = ProSites_Helper_ProSite::get_activation_key( $blog_id );
+									if ( ! empty( $activation_key ) ) {
+										$sub->metadata->activation = $activation_key;
+									}
+								}
+								$sub->metadata->blog_id = $blog_id;
+								if ( isset( $args['metadata']['domain'] ) ) {
+									$sub->metadata->domain = $args['metadata']['domain'];
+								}
 
-							$sub->save();
+								// Apply tax?
+								if ( $tax_object->apply_tax ) {
+									$sub->tax_percent            = self::$is_zdc ? $tax_object->tax_rate : ( $tax_object->tax_rate * 100 );
+									$sub->metadata->tax_evidence = $evidence_string;
+								}
 
-							// As per Stripe API, to charge immediately, apply an invoice now
-							if ( $prev_plan != $changed_plan ) {
-								$customer_args = array(
-									'customer'     => $customer_id,
-									'subscription' => $sub_id,
-									'metadata'     => array(
-										'plan_change' => 'yes',
-										'period'      => $args['metadata']['period'],
-										'level'       => $args['metadata']['level'],
-										'blog_id'     => $blog_id
-									),
-								);
-								$invoice       = Stripe_Invoice::create( $customer_args );
-								$invoice       = $invoice->pay();
+								$sub->save();
 
-								$plan_parts  = explode( '_', $changed_plan );
-								$new_period  = array_pop( $plan_parts );
-								$new_level   = array_pop( $plan_parts );
-								$plan_parts  = explode( '_', $prev_plan );
-								$prev_period = array_pop( $plan_parts );
-								$prev_level  = array_pop( $plan_parts );
+								// As per Stripe API, to charge immediately, apply an invoice now
+								if ( $prev_plan != $changed_plan ) {
+									$customer_args = array(
+										'customer'     => $customer_id,
+										'subscription' => $sub_id,
+										'metadata'     => array(
+											'plan_change' => 'yes',
+											'period'      => $args['metadata']['period'],
+											'level'       => $args['metadata']['level'],
+											'blog_id'     => $blog_id
+										),
+									);
+									$invoice       = Stripe_Invoice::create( $customer_args );
+									$invoice       = $invoice->pay();
 
-								$updated = array(
-									'render'      => true,
-									'blog_id'     => $blog_id,
-									'level'       => $new_level,
-									'period'      => $new_period,
-									'prev_level'  => $prev_level,
-									'prev_period' => $prev_period,
-								);
+									$plan_parts  = explode( '_', $changed_plan );
+									$new_period  = array_pop( $plan_parts );
+									$new_level   = array_pop( $plan_parts );
+									$plan_parts  = explode( '_', $prev_plan );
+									$prev_period = array_pop( $plan_parts );
+									$prev_level  = array_pop( $plan_parts );
 
-								ProSites_Helper_Session::session( 'plan_updated', $updated );
+									$updated = array(
+										'render'      => true,
+										'blog_id'     => $blog_id,
+										'level'       => $new_level,
+										'period'      => $new_period,
+										'prev_level'  => $prev_level,
+										'prev_period' => $prev_period,
+									);
+
+									ProSites_Helper_Session::session( 'plan_updated', $updated );
+								}
+
 							}
 
 							// If we have created new subscription.
@@ -2634,7 +2638,7 @@ class ProSites_Gateway_Stripe {
 
 
 					// Update the sub with the new blog id (old subscriptions will update later).
-					if ( ! empty( $blog_id ) ) {
+					if ( ! empty( $blog_id ) && ! $was_cancelled ) {
 						$sub                    = $c->subscriptions->retrieve( $sub_id );
 						$sub->metadata->blog_id = $blog_id;
 						$sub->save();
