@@ -2451,7 +2451,7 @@ class ProSites_Gateway_Stripe {
 							// Retrieve existing subscription.
 							$sub = $c->subscriptions->retrieve( $customer_data->subscription_id );
 							// If subscription doesn't exist or cancelled.
-							if ( empty( $sub ) || ! empty( $sub->canceled_at ) || ! empty( $sub->ended_at ) ) {
+							if ( empty( $sub ) || ! empty( $sub->canceled_at ) || 'canceled' === $sub->status ) {
 								// Set flag to true.
 								$was_cancelled = true;
 								// Create new subscription.
