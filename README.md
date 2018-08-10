@@ -31,6 +31,11 @@ Install the necessary npm modules and packages
 # npm install
 ``` 
 
+After that for the first time, run below command to create assets.
+```
+# npm run compile
+``` 
+
 Set up username and email for Git commits
 ```
 # git config user.email "<your email>"
