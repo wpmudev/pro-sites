@@ -2022,7 +2022,7 @@ class ProSites {
 			return $level;
 		}
 
-		if ( ! is_pro_site( $blog_id ) ) {
+		if ( ProSites_Helper_ProSite::is_free_site( $blog_id ) ) {
 			return 0;
 		}
 
