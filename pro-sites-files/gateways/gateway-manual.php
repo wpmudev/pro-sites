@@ -443,7 +443,8 @@ class ProSites_Gateway_Manual {
 				'period'    => (int) $_POST['period'],
 				'gateway'   => self::get_slug(),
 				'amount'    => $current_payment,
-				'recurring' => $recurring
+				'recurring' => $recurring,
+				'trialing'  => $psts->is_trial_allowed( $blog_id ),
 			);
 			//Get signup meta
 			$signup_meta                           = $psts->get_signup_meta( $activation_key );
@@ -468,7 +469,7 @@ class ProSites_Gateway_Manual {
 
 		$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 		if ( $trialing ) {
-			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' ) . '</div>';
+			$args['trial'] = '<div id="psts-general-error" class="psts-warning">' . __( 'You are still within your trial period.', 'psts' ) . '</div>';
 		}
 
 		// Pending information

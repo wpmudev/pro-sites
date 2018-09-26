@@ -2070,8 +2070,9 @@ class ProSites {
 	* @param bool|true $is_recurring
 	* @param bool|false $manual_notify
 	* @param string $extend_type
+    * @param bool $set_trial
     */
-	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = '' ) {
+	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = '', $set_trial = false ) {
 		global $wpdb, $current_site;
 		
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
@@ -2213,7 +2214,7 @@ class ProSites {
 		if( $trialing && 'trial' != $gateway ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 0 );
 		}
-		if( 'trial' == $gateway ) {
+		if( 'trial' == $gateway || $set_trial ) {
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 		}
 
@@ -5317,8 +5318,18 @@ function admin_modules() {
 		if( empty( $level ) || empty( $period ) ) {
 			return;
 		}
+
+		$expires = $set_trial = false;
+		// If trial is set, add trial period.
+		if ( ! empty( $manual_signup['trialing'] ) ) {
+			$trial_days = $this->get_setting( 'trial_days', 0 );
+			if ( $trial_days > 0 ) {
+				$expires = strtotime( '+ ' . $trial_days . ' days' );
+				$set_trial = true;
+			}
+		}
 		//Check meta
-		$this->extend( $blog_id, $period, $gateway, $level, $amount, false, $recurring );
+		$this->extend( $blog_id, $period, $gateway, $level, $amount, $expires, $recurring, false, '', $set_trial );
 		$this->record_transaction( $blog_id, 'manual', $amount );
 
 		//Update password, because a new one is generated during wpmu_activate_signup().
