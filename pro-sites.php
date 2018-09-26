@@ -2070,7 +2070,7 @@ class ProSites {
 	* @param bool|true $is_recurring
 	* @param bool|false $manual_notify
 	* @param string $extend_type
-    * @param bool $set_trial
+	* @param bool $set_trial
     */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = '', $set_trial = false ) {
 		global $wpdb, $current_site;
