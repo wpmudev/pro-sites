@@ -1598,11 +1598,7 @@ class ProSites_Gateway_Stripe {
 
 		$last_extended = (int) get_blog_option( $blog_id, 'psts_stripe_last_email_receipt' );
 		// Last extended + 5 minutes.
-		if ( empty( $last_extended ) ) {
-			$last_extended = time();
-		} else {
-			$last_extended = $last_extended + 300;
-		}
+		$last_extended = empty( $last_extended ) ? time() : $last_extended + 300;
 
 		$extended = false;
 		// If new subscription.
