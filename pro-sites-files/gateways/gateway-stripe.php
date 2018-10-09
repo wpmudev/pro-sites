@@ -1596,8 +1596,13 @@ class ProSites_Gateway_Stripe {
 		$current_plan = self::get_current_plan( $blog_id );
 		$new_plan     = ( $level . '_' . $period );
 
+		$last_extended = (int) get_blog_option( $blog_id, 'psts_stripe_last_email_receipt' );
 		// Last extended + 5 minutes.
-		$receipt_window = (int) get_blog_option( $blog_id, 'psts_stripe_last_email_receipt' ) + 300;
+		if ( empty( $last_extended ) ) {
+			$last_extended = time();
+		} else {
+			$last_extended = $last_extended + 300;
+		}
 
 		$extended = false;
 		// If new subscription.
@@ -1610,7 +1615,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// We need to send receipt, if not sent already.
-		if ( $is_payment && time() < $receipt_window ) {
+		if ( $is_payment && time() > $last_extended ) {
 			$psts->email_notification( $blog_id, 'receipt', false, $args );
 			// Track email receipt sent.
 			update_blog_option( $blog_id, 'psts_stripe_last_email_receipt', time() );
