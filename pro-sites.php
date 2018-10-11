@@ -5332,6 +5332,9 @@ function admin_modules() {
 		$this->extend( $blog_id, $period, $gateway, $level, $amount, $expires, $recurring, false, '', $set_trial );
 		$this->record_transaction( $blog_id, 'manual', $amount );
 
+		// Added for affiliate system link
+		do_action( 'supporter_payment_processed', $blog_id, $amount, $period, $level );
+
 		//Update password, because a new one is generated during wpmu_activate_signup().
 		wp_set_password( $password, $user_id );
 	}
