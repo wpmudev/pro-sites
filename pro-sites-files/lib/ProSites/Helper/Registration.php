@@ -85,13 +85,20 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$session_data[ 'new_blog_details' ] = ProSites_Helper_Session::session( 'new_blog_details' );
 			$user_pass = empty( $user_pass ) && isset( $session_data['new_blog_details']['user_pass'] ) ? $session_data['new_blog_details']['user_pass'] : $user_pass;
 
+			// Activate the user signup
+			$result = wpmu_activate_signup( $key );
+
 			if( ! empty( $user_pass ) ) {
 				self::$temp_pass = $user_pass;
 				add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'update_welcome_email' ), 10, 6 );
 			}
 
-			// Activate the user signup
-			$result = wpmu_activate_signup( $key );
+			// Make sure the user password is the one we send in email.
+			if ( ! empty( $result['user_id'] ) && ! empty( $result['password'] ) ) {
+				$user_pass = empty( $user_pass ) ? $result['password'] : $user_pass;
+				// Update the password to make sure.
+				wp_set_password( $user_pass, $result['user_id'] );
+			}
 
 			$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
 
@@ -118,7 +125,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 				$newblog_details['blog_id'] = (int) $blog_id;
 				$newblog_details['activation_key'] = $key;
 				ProSites_Helper_Session::session( 'new_blog_details', $newblog_details );
-				
+
 			} else {
 
 				if( isset( $result['password'] ) ) {
