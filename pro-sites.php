@@ -1,39 +1,37 @@
 <?php
-/*
-Plugin Name: Pro Sites
-Plugin URI: https://premium.wpmudev.org/project/pro-sites/
-Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
-Author: WPMU DEV
-Version: 3.5.9.3
-Author URI: https://premium.wpmudev.org/
-Text Domain: psts
-Domain Path: /pro-sites-files/languages/
-Network: true
-WDP ID: 49
-*/
-
-/*
-Copyright 2007-2017 Incsub (http://incsub.com)
-Author - Aaron Edwards
-Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar, Joel James
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
-the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/**
+ * Plugin Name: Pro Sites
+ * Plugin URI:  https://premium.wpmudev.org/project/pro-sites/
+ * Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
+ * Author:      WPMU DEV
+ * Version:     3.6.0
+ * Author URI:  https://premium.wpmudev.org/
+ * Text Domain: psts
+ * Domain Path: /pro-sites-files/languages/
+ * Network:     true
+ * WDP ID:      49
+ *
+ *
+ * Copyright 2007-2017 Incsub (http://incsub.com)
+ * Author - Aaron Edwards
+ * Contributors - Rheinard Korf, Jonathan Cowher, Carlos Vences, Andrew Billits, Umesh Kumar, Joel James
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 class ProSites {
 
-	var $version = '3.5.9.3';
+	var $version = '3.6.0';
 	var $location;
 	var $language;
 	var $plugin_dir = '';

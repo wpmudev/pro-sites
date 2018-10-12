@@ -453,7 +453,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 *
 		 * @param int|bool $blog_id Blog ID.
 		 *
-		 * @since 3.5.9.3
+		 * @since 3.6.0
 		 *
 		 * @return bool
 		 */

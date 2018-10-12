@@ -134,7 +134,7 @@ class ProSites_Gateway_Stripe {
 	 * Also we need to make unique id nullable, because we may get error
 	 * for old entries without subscription id.
 	 *
-	 * @since 3.5.9.3
+	 * @since 3.6.0
 	 *
 	 * @return void
 	 */
