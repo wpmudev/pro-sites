@@ -5,6 +5,22 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.6.0 - 12/10/2018
+
+*Added:
+    - DB upgrade for older installations.
+    - Show site title and url on free sites.
+*Fixed:
+    - Conflict with NBT template selection.
+    - Payment receipt email not being sent.
+    - Wrong password in email when a site is manually activated.
+    - Wrong trial period length when using Manual payments.
+    - Wrong admin URL for the additional registrations.
+    - GDPR check box disappears in signup form.
+    - XML-RPC not working on sub sites.
+    - Pay To Blog module blocks Free level.
+    - Missing translation strings.
+
 3.5.9.3 - 26/06/2018
 
 *Added:
