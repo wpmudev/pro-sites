@@ -77,7 +77,7 @@ class ProSites {
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
 
-		//set global cache group
+		// Set global cache group.
 		wp_cache_add_global_groups( array( 'psts', 'blog-details' ) );
 
 		// Force sessions to activate
