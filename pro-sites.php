@@ -1050,13 +1050,12 @@ class ProSites {
 	}
 
 	function checkout_url( $blog_id = false, $domain = false ) {
-		global $psts;
-
-		$url = $this->get_setting( 'checkout_url' );
 
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
 		if ( ! $page || $page->post_status == 'trashed' ) {
 			$url = $this->create_checkout_page();
+		} else {
+			$url = get_permalink( $page );
 		}
 		/*
           //just in case the checkout page was not created do it now
@@ -1104,7 +1103,7 @@ class ProSites {
 		switch_to_blog( $checkout_site );
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
 
-		if ( ! $page || $page->post_status == 'trashed' || $page->post_title != $rebranded_title ) {
+		if ( ! $page || $page->post_status == 'trashed' ) {
 			$id = wp_insert_post( array(
 				'post_title'     => $rebranded_title,
 				'post_status'    => 'publish',
@@ -1115,14 +1114,23 @@ class ProSites {
 			) );
 			$this->update_setting( 'checkout_page', $id );
 			$url = get_permalink( $id );
+			// Deprecated.
 			$this->update_setting( 'checkout_url', $url );
 
-			//Delete the existing page
+			// Delete the existing page.
 			if( !empty( $page ) ) {
 			    wp_delete_post( $page->ID, true );
 			}
-		} else {
+		} elseif ( $page->post_title != $rebranded_title ) {
+			// Just update the title.
+			wp_update_post( array(
+				'ID' => $page->ID,
+				'post_title' => $rebranded_title,
+			) );
+			$url = get_permalink( $page );
+		 } else {
 			$url = get_permalink( $this->get_setting( 'checkout_page' ) );
+			// Deprecated.
 			$this->update_setting( 'checkout_url', $url );
 		}
 		restore_current_blog();
