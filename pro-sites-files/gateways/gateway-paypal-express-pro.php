@@ -1833,7 +1833,8 @@ class ProSites_Gateway_PayPalExpressPro {
 					$args['cancel']               = true;
 					$args['cancellation_message'] = '<div class="psts-cancel-notification">
 													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
-													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>
+													</div>';
 				}
 
 			} else if ( $resArray['ACK'] == 'Success' || $resArray['ACK'] == 'SuccessWithWarning' ) {
