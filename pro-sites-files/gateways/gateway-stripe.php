@@ -18,7 +18,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 		//setup the Stripe API
 		if ( ! class_exists( 'Stripe' ) ) {
-			require_once( $psts->plugin_dir . "gateways/gateway-stripe-files/lib/Stripe.php" );
+			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/lib/init.php';
 		}
 		$stripe_secret_key = $psts->get_setting( 'stripe_secret_key' );
 		Stripe::setApiKey( $stripe_secret_key );
