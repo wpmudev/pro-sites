@@ -20,7 +20,7 @@ namespace Stripe;
  * @property string $failure_code
  * @property string $failure_message
  * @property bool $livemode
- * @property StripeObject $metadata
+ * @property AttachedObject $metadata
  * @property string $method
  * @property string $recipient
  * @property mixed $reversals
@@ -35,5 +35,4 @@ namespace Stripe;
 class RecipientTransfer extends ApiResource
 {
 
-    const OBJECT_NAME = "recipient_transfer";
 }

@@ -13,15 +13,15 @@ namespace Stripe;
  * @property int $created
  * @property string[] $deactivate_on
  * @property string $description
- * @property string[] $images
+ * @property array $images
  * @property bool $livemode
- * @property StripeObject $metadata
+ * @property AttachedObject $metadata
  * @property string $name
  * @property mixed $package_dimensions
  * @property bool $shippable
+ * @property Collection $skus
  * @property string $statement_descriptor
  * @property string $type
- * @property string $unit_label
  * @property int $updated
  * @property string $url
  *
@@ -29,12 +29,70 @@ namespace Stripe;
  */
 class Product extends ApiResource
 {
+    /**
+     * @param array|string $id The ID of the product to retrieve, or an options
+     *     array contianing an `id` key.
+     * @param array|string|null $opts
+     *
+     * @return Product
+     */
+    public static function retrieve($id, $opts = null)
+    {
+        return self::_retrieve($id, $opts);
+    }
 
-    const OBJECT_NAME = "product";
+    /**
+     * @param array|null $params
+     * @param array|string|null $opts
+     *
+     * @return Product The created Product.
+     */
+    public static function create($params = null, $opts = null)
+    {
+        return self::_create($params, $opts);
+    }
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Delete;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+    /**
+     * @param string $id The ID of the product to update.
+     * @param array|null $params
+     * @param array|string|null $options
+     *
+     * @return Product The updated product.
+     */
+    public static function update($id, $params = null, $options = null)
+    {
+        return self::_update($id, $params, $options);
+    }
+
+    /**
+     * @param array|string|null $opts
+     *
+     * @return Product The saved Product.
+     */
+    public function save($opts = null)
+    {
+        return $this->_save($opts);
+    }
+
+    /**
+     * @param array|null $params
+     * @param array|string|null $opts
+     *
+     * @return Collection of Products
+     */
+    public static function all($params = null, $opts = null)
+    {
+        return self::_all($params, $opts);
+    }
+
+    /**
+     * @param array|null $params
+     * @param array|string|null $opts
+     *
+     * @return Product The deleted product.
+     */
+    public function delete($params = null, $opts = null)
+    {
+        return $this->_delete($params, $opts);
+    }
 }

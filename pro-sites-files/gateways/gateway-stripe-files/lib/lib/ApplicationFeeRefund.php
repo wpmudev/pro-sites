@@ -12,19 +12,12 @@ namespace Stripe;
  * @property int $created
  * @property string $currency
  * @property string $fee
- * @property StripeObject $metadata
+ * @property AttachedObject $metadata
  *
  * @package Stripe
  */
 class ApplicationFeeRefund extends ApiResource
 {
-
-    const OBJECT_NAME = "fee_refund";
-
-    use ApiOperations\Update {
-        save as protected _save;
-    }
-
     /**
      * @return string The API URL for this Stripe refund.
      */

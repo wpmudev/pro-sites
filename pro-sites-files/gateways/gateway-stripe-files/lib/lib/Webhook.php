@@ -20,7 +20,7 @@ abstract class Webhook
      *  timestamp and the current time
      * @return \Stripe\Event the Event instance
      * @throws \UnexpectedValueException if the payload is not valid JSON,
-     * @throws \Stripe\Error\SignatureVerification if the verification fails.
+     *  \Stripe\SignatureVerification if the verification fails.
      */
     public static function constructEvent($payload, $sigHeader, $secret, $tolerance = self::DEFAULT_TOLERANCE)
     {
@@ -31,7 +31,7 @@ abstract class Webhook
               . "(json_last_error() was $jsonError)";
             throw new \UnexpectedValueException($msg);
         }
-        $event = Event::constructFrom($data);
+        $event = Event::constructFrom($data, null);
 
         WebhookSignature::verifyHeader($payload, $sigHeader, $secret, $tolerance);
 

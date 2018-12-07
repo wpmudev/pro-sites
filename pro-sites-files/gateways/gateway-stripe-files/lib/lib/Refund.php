@@ -13,11 +13,10 @@ namespace Stripe;
  * @property int $created
  * @property string $currency
  * @property string $failure_balance_transaction
- * @property string $failure_reason
- * @property StripeObject $metadata
- * @property string $reason
- * @property string $receipt_number
- * @property string $source_transfer_reversal
+ * @property string failure_reason
+ * @property AttachedObject $metadata
+ * @property mixed $reason
+ * @property mixed $receipt_number
  * @property string $status
  *
  * @package Stripe
@@ -25,10 +24,59 @@ namespace Stripe;
 class Refund extends ApiResource
 {
 
-    const OBJECT_NAME = "refund";
+    /**
+     * @param array|string $id The ID of the refund to retrieve, or an options
+     *     array containing an `id` key.
+     * @param array|string|null $options
+     *
+     * @return Refund
+     */
+    public static function retrieve($id, $options = null)
+    {
+        return self::_retrieve($id, $options);
+    }
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+    /**
+     * @param string $id The ID of the refund to update.
+     * @param array|null $params
+     * @param array|string|null $options
+     *
+     * @return Refund The updated refund.
+     */
+    public static function update($id, $params = null, $options = null)
+    {
+        return self::_update($id, $params, $options);
+    }
+
+    /**
+     * @param array|null $params
+     * @param array|string|null $options
+     *
+     * @return Collection of Refunds
+     */
+    public static function all($params = null, $options = null)
+    {
+        return self::_all($params, $options);
+    }
+
+    /**
+     * @param array|null $params
+     * @param array|string|null $options
+     *
+     * @return Refund The created refund.
+     */
+    public static function create($params = null, $options = null)
+    {
+        return self::_create($params, $options);
+    }
+
+    /**
+     * @param array|string|null $opts
+     *
+     * @return Refund The saved refund.
+     */
+    public function save($opts = null)
+    {
+        return $this->_save($opts);
+    }
 }

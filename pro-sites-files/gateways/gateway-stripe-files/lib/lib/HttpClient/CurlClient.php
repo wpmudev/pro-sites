@@ -22,10 +22,6 @@ if (!defined('CURL_SSLVERSION_TLSv1_2')) {
 }
 // @codingStandardsIgnoreEnd
 
-if (!defined('CURL_HTTP_VERSION_2TLS')) {
-    define('CURL_HTTP_VERSION_2TLS', 4);
-}
-
 class CurlClient implements ClientInterface
 {
     private static $instance;
@@ -55,20 +51,19 @@ class CurlClient implements ClientInterface
      *
      * @param array|callable|null $defaultOptions
      */
-    public function __construct($defaultOptions = null, $randomGenerator = null)
+    public function __construct($defaultOptions = null)
     {
         $this->defaultOptions = $defaultOptions;
-        $this->randomGenerator = $randomGenerator ?: new Util\RandomGenerator();
         $this->initUserAgentInfo();
     }
 
     public function initUserAgentInfo()
     {
         $curlVersion = curl_version();
-        $this->userAgentInfo = [
+        $this->userAgentInfo = array(
             'httplib' =>  'curl ' . $curlVersion['version'],
             'ssllib' => $curlVersion['ssl_version'],
-        ];
+        );
     }
 
     public function getDefaultOptions()
@@ -115,9 +110,10 @@ class CurlClient implements ClientInterface
 
     public function request($method, $absUrl, $headers, $params, $hasFile)
     {
+        $curl = curl_init();
         $method = strtolower($method);
 
-        $opts = [];
+        $opts = array();
         if (is_callable($this->defaultOptions)) { // call defaultOptions callback, set options to return value
             $opts = call_user_func_array($this->defaultOptions, func_get_args());
             if (!is_array($opts)) {
@@ -127,8 +123,6 @@ class CurlClient implements ClientInterface
             $opts = $this->defaultOptions;
         }
 
-        $params = Util\Util::objectsToIds($params);
-
         if ($method == 'get') {
             if ($hasFile) {
                 throw new Error\Api(
@@ -137,32 +131,24 @@ class CurlClient implements ClientInterface
             }
             $opts[CURLOPT_HTTPGET] = 1;
             if (count($params) > 0) {
-                $encoded = Util\Util::encodeParameters($params);
+                $encoded = Util\Util::urlEncode($params);
                 $absUrl = "$absUrl?$encoded";
             }
         } elseif ($method == 'post') {
             $opts[CURLOPT_POST] = 1;
-            $opts[CURLOPT_POSTFIELDS] = $hasFile ? $params : Util\Util::encodeParameters($params);
+            $opts[CURLOPT_POSTFIELDS] = $hasFile ? $params : Util\Util::urlEncode($params);
         } elseif ($method == 'delete') {
             $opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
             if (count($params) > 0) {
-                $encoded = Util\Util::encodeParameters($params);
+                $encoded = Util\Util::urlEncode($params);
                 $absUrl = "$absUrl?$encoded";
             }
         } else {
             throw new Error\Api("Unrecognized method $method");
         }
 
-        // It is only safe to retry network failures on POST requests if we
-        // add an Idempotency-Key header
-        if (($method == 'post') && (Stripe::$maxNetworkRetries > 0)) {
-            if (!isset($headers['Idempotency-Key'])) {
-                array_push($headers, 'Idempotency-Key: ' . $this->randomGenerator->uuid());
-            }
-        }
-
         // Create a callback to capture HTTP headers for the response
-        $rheaders = new Util\CaseInsensitiveArray();
+        $rheaders = array();
         $headerCallback = function ($curl, $header_line) use (&$rheaders) {
             // Ignore the HTTP request line (HTTP/1.1 200 OK)
             if (strpos($header_line, ":") === false) {
@@ -194,66 +180,50 @@ class CurlClient implements ClientInterface
         $opts[CURLOPT_TIMEOUT] = $this->timeout;
         $opts[CURLOPT_HEADERFUNCTION] = $headerCallback;
         $opts[CURLOPT_HTTPHEADER] = $headers;
-        $opts[CURLOPT_CAINFO] = Stripe::getCABundlePath();
-        if (!Stripe::getVerifySslCerts()) {
+        if (!Stripe::$verifySslCerts) {
             $opts[CURLOPT_SSL_VERIFYPEER] = false;
         }
 
-        // For HTTPS requests, enable HTTP/2, if supported
-        $opts[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_2TLS;
+        curl_setopt_array($curl, $opts);
+        $rbody = curl_exec($curl);
 
-        list($rbody, $rcode) = $this->executeRequestWithRetries($opts, $absUrl);
+        if (!defined('CURLE_SSL_CACERT_BADFILE')) {
+            define('CURLE_SSL_CACERT_BADFILE', 77);  // constant not defined in PHP
+        }
 
-        return [$rbody, $rcode, $rheaders];
-    }
-
-    /**
-     * @param array $opts cURL options
-     */
-    private function executeRequestWithRetries($opts, $absUrl)
-    {
-        $numRetries = 0;
-
-        while (true) {
-            $rcode = 0;
-            $errno = 0;
-
-            $curl = curl_init();
-            curl_setopt_array($curl, $opts);
+        $errno = curl_errno($curl);
+        if ($errno == CURLE_SSL_CACERT ||
+            $errno == CURLE_SSL_PEER_CERTIFICATE ||
+            $errno == CURLE_SSL_CACERT_BADFILE
+        ) {
+            array_push(
+                $headers,
+                'X-Stripe-Client-Info: {"ca":"using Stripe-supplied CA bundle"}'
+            );
+            $cert = self::caBundle();
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($curl, CURLOPT_CAINFO, $cert);
             $rbody = curl_exec($curl);
-
-            if ($rbody === false) {
-                $errno = curl_errno($curl);
-                $message = curl_error($curl);
-            } else {
-                $rcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            }
-            curl_close($curl);
-
-            if ($this->shouldRetry($errno, $rcode, $numRetries)) {
-                $numRetries += 1;
-                $sleepSeconds = $this->sleepTime($numRetries);
-                usleep(intval($sleepSeconds * 1000000));
-            } else {
-                break;
-            }
         }
 
         if ($rbody === false) {
-            $this->handleCurlError($absUrl, $errno, $message, $numRetries);
+            $errno = curl_errno($curl);
+            $message = curl_error($curl);
+            curl_close($curl);
+            $this->handleCurlError($absUrl, $errno, $message);
         }
 
-        return [$rbody, $rcode];
+        $rcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        return array($rbody, $rcode, $rheaders);
     }
 
     /**
-     * @param string $url
-     * @param int $errno
+     * @param number $errno
      * @param string $message
-     * @param int $numRetries
      * @throws Error\ApiConnection
      */
-    private function handleCurlError($url, $errno, $message, $numRetries)
+    private function handleCurlError($url, $errno, $message)
     {
         switch ($errno) {
             case CURLE_COULDNT_CONNECT:
@@ -278,66 +248,11 @@ class CurlClient implements ClientInterface
         $msg .= " let us know at support@stripe.com.";
 
         $msg .= "\n\n(Network error [errno $errno]: $message)";
-
-        if ($numRetries > 0) {
-            $msg .= "\n\nRequest was retried $numRetries times.";
-        }
-
         throw new Error\ApiConnection($msg);
     }
 
-    /**
-     * Checks if an error is a problem that we should retry on. This includes both
-     * socket errors that may represent an intermittent problem and some special
-     * HTTP statuses.
-     * @param int $errno
-     * @param int $rcode
-     * @param int $numRetries
-     * @return bool
-     */
-    private function shouldRetry($errno, $rcode, $numRetries)
+    private static function caBundle()
     {
-        if ($numRetries >= Stripe::getMaxNetworkRetries()) {
-            return false;
-        }
-
-        // Retry on timeout-related problems (either on open or read).
-        if ($errno === CURLE_OPERATION_TIMEOUTED) {
-            return true;
-        }
-
-        // Destination refused the connection, the connection was reset, or a
-        // variety of other connection failures. This could occur from a single
-        // saturated server, so retry in case it's intermittent.
-        if ($errno === CURLE_COULDNT_CONNECT) {
-            return true;
-        }
-
-        // 409 conflict
-        if ($rcode === 409) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function sleepTime($numRetries)
-    {
-        // Apply exponential backoff with $initialNetworkRetryDelay on the
-        // number of $numRetries so far as inputs. Do not allow the number to exceed
-        // $maxNetworkRetryDelay.
-        $sleepSeconds = min(
-            Stripe::getInitialNetworkRetryDelay() * 1.0 * pow(2, $numRetries - 1),
-            Stripe::getMaxNetworkRetryDelay()
-        );
-
-        // Apply some jitter by randomizing the value in the range of
-        // ($sleepSeconds / 2) to ($sleepSeconds).
-        $sleepSeconds *= 0.5 * (1 + $this->randomGenerator->randFloat());
-
-        // But never sleep less than the base sleep seconds.
-        $sleepSeconds = max(Stripe::getInitialNetworkRetryDelay(), $sleepSeconds);
-
-        return $sleepSeconds;
+        return dirname(__FILE__) . '/../../data/ca-certificates.crt';
     }
 }
