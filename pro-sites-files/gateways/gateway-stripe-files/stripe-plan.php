@@ -93,13 +93,13 @@ class ProSites_Stripe_Plan {
 	/**
 	 * Add a new plan to Stripe via API.
 	 *
-	 * @param int $level Level.
-	 * @param int $period Period.
-	 * @param string $name Plan name.
-	 * @param $price Plan price.
-	 * 
+	 * @param int    $level  Level.
+	 * @param int    $period Period.
+	 * @param string $name   Plan name.
+	 * @param        $price  Plan price.
+	 *
 	 * @since 3.6.1
-	 * 
+	 *
 	 * @return \Stripe\Plan|false Created plan object or false.
 	 */
 	public static function create_plan( $level, $period, $name, $price ) {
@@ -112,13 +112,13 @@ class ProSites_Stripe_Plan {
 
 		// Setup the plan data.
 		$plan = array(
-			'id' => $plan_id,
-			'amount' => $price,
-			'currency' => $currency,
-			'interval' => 'month',
+			'id'             => $plan_id,
+			'amount'         => $price,
+			'currency'       => $currency,
+			'interval'       => 'month',
 			'interval_count' => $period,
-			'nickname' => '',
-			'product' => array(
+			'nickname'       => '',
+			'product'        => array(
 				'name' => '',
 			),
 		);
@@ -140,8 +140,8 @@ class ProSites_Stripe_Plan {
 	 * We can update only plan name. If anything else needs to be changed,
 	 * delete the plan and create new one.
 	 *
-	 * @param string $plan_id Plan ID.
-	 * @param string $plan_name Plan name.
+	 * @param string $id   Plan ID.
+	 * @param string $name Plan name.
 	 */
 	public static function update_name( $id, $name ) {
 		// Try to get the plan.
@@ -234,15 +234,15 @@ class ProSites_Stripe_Plan {
 
 		return $plans;
 	}
-	
+
 	/**
 	 * Retrieve a plan product from Stripe API.
 	 *
 	 * We will try to get it from cache if already retrieved.
 	 * Making API calls everytime is not a good idea.
 	 *
-	 * @param string $product_id    Stripe product ID.
-	 * @param bool   $force Should get from API forcefully.
+	 * @param string $product_id Stripe product ID.
+	 * @param bool   $force      Should get from API forcefully.
 	 *
 	 * @since 3.6.1
 	 *
