@@ -52,6 +52,33 @@ class ProSites_Gateway_Stripe {
 	private $secret_key;
 
 	/**
+	 * Stripe plans custom class.
+	 *
+	 * @var \ProSites_Stripe_Plan
+	 *
+	 * @since 3.6.1
+	 */
+	private $stripe_plan;
+
+	/**
+	 * Stripe customer custom class.
+	 *
+	 * @var \ProSites_Stripe_Customer
+	 *
+	 * @since 3.6.1
+	 */
+	private $stripe_customer;
+
+	/**
+	 * Stripe subscription custom class.
+	 *
+	 * @var \ProSites_Stripe_Subscription
+	 *
+	 * @since 3.6.1
+	 */
+	private $stripe_subscription;
+
+	/**
 	 * ProSites_Gateway_Stripe constructor.
 	 */
 	public function __construct() {
@@ -75,6 +102,9 @@ class ProSites_Gateway_Stripe {
 
 		// Handle webhook notifications.
 		add_action( 'wp_ajax_nopriv_psts_stripe_webhook', array( $this, 'webhook_handler' ) );
+
+		// Update plans in Stripe if necessary.
+		add_action( 'update_site_option_psts_levels', array( $this, 'update_plans' ), 10, 2 );
 
 		// Cancel subscriptions on blog deletion.
 		add_action( 'delete_blog', array( $this, 'cancel_subscription' ) );
@@ -101,6 +131,11 @@ class ProSites_Gateway_Stripe {
 			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/stripe-customer.php';
 			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/stripe-subscription.php';
 		}
+
+		// Set the sub class objects.
+		$this->stripe_plan         = new ProSites_Stripe_Plan();
+		$this->stripe_customer     = new ProSites_Stripe_Customer();
+		$this->stripe_subscription = new ProSites_Stripe_Subscription();
 
 		// We can not continue without API key.
 		if ( ! empty( $this->secret_key ) ) {
@@ -240,12 +275,27 @@ class ProSites_Gateway_Stripe {
 	 * also. All the existing subscriptions will remain same unless
 	 * it is updated.
 	 *
+	 * @param array $levels     New levels.
+	 * @param array $old_levels Old levels.
+	 *
 	 * @since  3.6.1
 	 * @access private
 	 *
 	 * @return void
 	 */
-	private function update_plans() {
+	public function update_plans( $levels = array(), $old_levels = array() ) {
+		// If levels are not given, get from db.
+		if ( empty( $levels ) ) {
+			$levels = get_site_option( 'psts_levels', array() );
+		}
+
+		// No plans. Oh boy.
+		if ( empty( $levels ) && empty( $old_levels ) ) {
+			return;
+		}
+
+		// Sync levels.
+		$this->stripe_plan->sync_levels( $levels, $old_levels );
 	}
 
 	/**
@@ -329,6 +379,42 @@ class ProSites_Gateway_Stripe {
 			// Set unique key to subscription id.
 			$wpdb->query( "ALTER TABLE $this->table ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
 		}
+	}
+
+	/**
+	 * Get formatted currency.
+	 *
+	 * We need to make sure currency is supported by
+	 * the gateway.
+	 *
+	 * @param int $amount Amount as int.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return float|int
+	 */
+	public static function format_price( $amount ) {
+		// Zero decimal currencies.
+		$zero_decimal_currencies = array( 'JPY' );
+
+		// If not a zero decimal currency, get float value.
+		$amount = in_array( self::get_currency(), $zero_decimal_currencies ) ? $amount : floatval( $amount ) * 100;
+
+		return $amount;
+	}
+
+	/**
+	 * Get current active global currency.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return string
+	 */
+	public static function get_currency() {
+		global $psts;
+
+		// Get current currency.
+		return $psts->get_setting( 'currency', 'USD' );
 	}
 }
 

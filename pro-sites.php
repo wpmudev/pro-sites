@@ -3868,7 +3868,7 @@ function admin_levels() {
 			$levels[ $level ]['is_visible'] = isset( $_POST['is_visible'][ $level ] ) ? intval( $_POST['is_visible'][ $level ] ) : 0;
 		}
 
-		do_action( 'update_site_option_psts_levels', '', $levels, $old_levels );
+		do_action( 'update_site_option_psts_levels', $levels, $old_levels );
 		update_site_option( 'psts_levels', $levels );
 		echo '<div class="updated fade"><p>' . __( 'Levels saved.', 'psts' ) . '</p></div>';
 	}
