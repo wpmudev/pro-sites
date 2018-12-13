@@ -66,6 +66,10 @@ class ProSites_Stripe_Plan {
 			// Make sure we don't break.
 			try {
 				$plan = Stripe\Plan::retrieve( $id );
+				// If a plan found, return.
+				if ( ! empty( $plan ) ) {
+					return $plan;
+				}
 			} catch ( \Exception $e ) {
 				// Oh well.
 				return false;
@@ -129,8 +133,6 @@ class ProSites_Stripe_Plan {
 			$plan['product']['name'] = $product_name;
 		}
 
-		error_log( print_r( $plan, true ) );
-
 		// Make sure we don't break anything.
 		try {
 			// Call the API and create the plan.
@@ -163,7 +165,7 @@ class ProSites_Stripe_Plan {
 
 				// Delete cached plans.
 				wp_cache_delete( 'stripe_plans_cached', 'psts' );
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				// Oh well.
 			}
 		}
@@ -172,15 +174,15 @@ class ProSites_Stripe_Plan {
 	/**
 	 * Delete a plan from Stripe using API.
 	 *
-	 * @param string $id Stripe plan ID.
-	 * @param bool $delete_product Should delete the parent product?.
+	 * @param string $id             Stripe plan ID.
+	 * @param bool   $delete_product Should delete the parent product?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
 	public function delete_plan( $id, $delete_product = false ) {
-
+		$deleted = false;
 		// Make sure we don't break.
 		try {
 			// First get the plan.
@@ -197,7 +199,7 @@ class ProSites_Stripe_Plan {
 		}
 
 		// Delete the plan product also.
-		if ( $deleted && ! empty( $plan->product ) && $delete_product ) {
+		if ( $deleted && ! empty( $plan ) && ! empty( $plan->product ) && $delete_product ) {
 			$this->delete_product( $plan->product );
 		}
 
@@ -226,7 +228,7 @@ class ProSites_Stripe_Plan {
 		if ( empty( $plans ) ) {
 			// Make sure we don't break.
 			try {
-				// Get 
+				// Get all plans.
 				$plans = Stripe\Plan::all();
 				if ( ! empty( $plans->data ) ) {
 					$plans = $plans->data;
@@ -426,16 +428,18 @@ class ProSites_Stripe_Plan {
 			// If Stripe plan not found.
 			if ( ! empty( $stripe_plan ) ) {
 				// Nothing needs to happen.
-				if ( $stripe_plan->amount == $plan_price
-				     && $stripe_plan->nickname == $plan['desc']
-				     && strtolower( $stripe_plan->currency ) == strtolower( $currency )
+				if ( $stripe_plan->amount === $plan_price
+				     && $stripe_plan->nickname === $plan['desc']
+				     && strtolower( $stripe_plan->currency ) === strtolower( $currency )
 				) {
 					// If price, currency and name are same no need to update.
 					continue;
 				}
 
 				// Only the name needs changing, easy.
-				if ( $stripe_plan->amount === $plan_price && strtolower( $stripe_plan->currency ) == strtolower( $currency ) ) {
+				if ( $stripe_plan->amount === $plan_price
+				     && strtolower( $stripe_plan->currency ) === strtolower( $currency )
+				) {
 					$this->update_name( $plan_id, $plan['desc'] );
 					continue;
 				}
@@ -457,5 +461,74 @@ class ProSites_Stripe_Plan {
 				$product_id = $created_plan->product;
 			}
 		}
+	}
+
+	/**
+	 * Create a new coupon in Stripe.
+	 *
+	 * @param array       $args Coupon arguments.
+	 * @param string|bool $id   Coupon ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|\Stripe\Coupon
+	 */
+	public function create_coupon( $args, $id = false ) {
+		// Make sure we don't break.
+		try {
+			// Set coupon id.
+			if ( ! empty( $id ) ) {
+				$args['id'] = $id;
+			}
+			// Let's create a coupon now.
+			$coupon = Stripe\Coupon::create( $args );
+			// Set to cache so we can reuse it.
+			if ( ! empty( $coupon ) ) {
+				wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
+			}
+		} catch ( \Exception $e ) {
+			// Oh well.
+			$coupon = false;
+		}
+
+		return $coupon;
+	}
+
+	/**
+	 * Retrieve a coupon from Stripe.
+	 *
+	 * @param string $id    Coupon ID.
+	 * @param bool   $force Should force from API?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return \Stripe\Coupon|bool|mixed
+	 */
+	public function get_coupon( $id, $force = false ) {
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$coupon = wp_cache_get( 'pro_sites_stripe_coupon_' . $id, 'psts' );
+			if ( ! empty( $coupon ) ) {
+				return $coupon;
+			}
+		} else {
+			// Make sure we don't break.
+			try {
+				$coupon = Stripe\Coupon::retrieve( $id );
+				// If a coupon found, return.
+				if ( ! empty( $coupon ) ) {
+					// Set to cache so we can reuse it.
+					wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
+				}
+
+				return $coupon;
+			} catch ( \Exception $e ) {
+				// Oh well.
+				return false;
+			}
+		}
+
+		return false;
 	}
 }
