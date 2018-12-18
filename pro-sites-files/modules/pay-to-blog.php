@@ -25,7 +25,7 @@ class ProSites_Module_PayToBlog {
 		}
 		add_filter( 'psts_settings_filter', array( &$this, 'settings_process' ), 10, 2 );
 		add_action( 'template_redirect', array( &$this, 'disable_front' ) );
-		add_filter( 'psts_prevent_dismiss', create_function( null, 'return true;' ) );
+		add_filter( 'psts_prevent_dismiss', '__return_true' );
 		add_filter( 'psts_force_redirect', array( &$this, 'force_redirect' ) );
 		add_filter( 'pre_option_psts_signed_up', array( &$this, 'force_redirect' ) );
 
