@@ -213,6 +213,9 @@ class ProSites {
 		// Delete blog
 		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
 
+		// Update password in email.
+		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'update_welcome_email' ), 10, 4 );
+
 		$this->setup_ajax_hooks();
 
 		$this->errors = new WP_Error();
