@@ -2071,7 +2071,7 @@ class ProSites {
 
 	/**
 	* @param $blog_id
-	* @param $extend Period of Subscription
+	* @param int $extend Period of Subscription
 	* @param bool|string $gateway (Manual, Trial, Stripe, Paypal)
 	* @param int $level
 	* @param bool|false $amount
@@ -2227,11 +2227,8 @@ class ProSites {
 			ProSites_Helper_Registration::set_trial( $blog_id, 1 );
 		}
 
-		if( ! empty( $gateway ) && class_exists( 'ProSites_Gateway_Stripe' ) ) {
-			do_action( 'psts_' . $gateway . '_extension', $blog_id );
-			// Stripe Fix
-			ProSites_Gateway_Stripe::attempt_manual_reactivation( $blog_id );
-		}
+		// Action hook to execute on extension.
+		do_action( 'psts_' . $gateway . '_extension', $blog_id );
 
 		//flip flag after action fired
 		update_blog_option( $blog_id, 'psts_withdrawn', 0 );

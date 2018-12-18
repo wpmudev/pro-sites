@@ -6,9 +6,21 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		public static $last_site = false;
 
-		public static function get_site( $blog_id ) {
+		/**
+		 * Get details of a site from db.
+		 *
+		 * @param int  $blog_id Blog ID.
+		 * @param bool $force   Should skip cache?.
+		 *
+		 * @return array|bool|null|object|void
+		 */
+		public static function get_site( $blog_id, $force = false ) {
 			global $wpdb;
-			self::$last_site = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+
+			// Get from DB only if forced.
+			if ( $force || empty( self::$last_site ) ) {
+				self::$last_site = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+			}
 
 			return self::$last_site;
 		}
@@ -96,15 +108,15 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 			$cancel_info_message = $cancel_info_link = '';
 
-			if ( $is_recurring && ! $psts->is_blog_canceled( $blog_id )  ) {
+			if ( $is_recurring && ! $psts->is_blog_canceled( $blog_id ) ) {
 				$cancel_info_message = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
 				$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
 				// CSS class of <a> is important to handle confirmations
 				$cancel_info_link = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
 			}
 
-			// Get other information from database
-			$result       = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+			// Get other information from database.
+			$result       = self::get_site( $blog_id );
 			$period       = false;
 			$last_amount  = false;
 			$last_gateway = false;
@@ -159,7 +171,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 * Sets meta for a ProSite
 		 *
 		 * @param array $meta
-		 * @param int $blog_id
+		 * @param int   $blog_id
 		 *
 		 * @return bool
 		 */
@@ -176,7 +188,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 					'meta' => maybe_serialize( $meta ),
 				),
 				array(
-					'blog_ID' => $blog_id
+					'blog_ID' => $blog_id,
 				)
 			);
 
@@ -293,7 +305,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 *
 		 * @see http://wordpress.stackexchange.com/questions/72116/how-can-i-display-all-multisite-blogs-where-this-user-is-administrator
 		 *
-		 * @param int $user_id
+		 * @param int    $user_id
 		 * @param string $role
 		 *
 		 * @return array
@@ -334,8 +346,8 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 * Get blogs of a user where he is an admin.
 		 *
 		 * @param int|bool $user_id User id or current user.
-		 * @param bool $all Should return all including deleted and archived.
-		 * @param bool $total Maximum number of items.
+		 * @param bool     $all     Should return all including deleted and archived.
+		 * @param bool     $total   Maximum number of items.
 		 *
 		 * @return array
 		 */

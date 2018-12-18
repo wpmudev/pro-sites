@@ -26,6 +26,8 @@ class ProSites_Stripe_Customer {
 	 * @return \Stripe\Customer|false
 	 */
 	public function get_customer( $id, $force = false ) {
+		$customer = false;
+
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
@@ -161,6 +163,8 @@ class ProSites_Stripe_Customer {
 		if ( ! empty( $user ) ) {
 			// translators: %1$s Site name, %2$s User's display name.
 			$args['description'] = sprintf( __( '%1$s user - %2$s ', 'psts' ), $site_name, $user->display_name );
+			// Set username to meta.
+			$args['metadata']['user'] = $user->user_login;
 		}
 
 		// Make sure we don't break.
@@ -256,6 +260,141 @@ class ProSites_Stripe_Customer {
 	}
 
 	/**
+	 * Get default card of a Stripe customer.
+	 *
+	 * @param int  $customer_id Stripe customer ID.
+	 * @param bool $force       Should force from cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|\Stripe\StripeObject
+	 */
+	public function default_card( $customer_id, $force = false ) {
+		$card = false;
+
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$card = wp_cache_get( 'pro_sites_stripe_default_card_' . $customer_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $card ) ) {
+				return $card;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $card ) ) {
+			try {
+				// Get Stripe customer.
+				$customer = $this->get_customer( $customer_id );
+
+				if ( ! empty( $customer->default_source ) ) {
+					// Default card.
+					$card = $customer->sources->retrieve( $customer->default_source );
+
+					// Set to cache.
+					wp_cache_set( 'pro_sites_stripe_default_card_' . $customer_id, $card, 'psts' );
+				}
+			} catch ( \Exception $e ) {
+				// Well. Failed.
+				$card = false;
+			}
+		}
+
+		return $card;
+	}
+
+	/**
+	 * Get last paid invoice of the customer.
+	 *
+	 * @param string $customer_id Customer ID.
+	 * @param bool   $force       Skip from cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|mixed|\Stripe\Invoice
+	 */
+	public function last_invoice( $customer_id, $force = false ) {
+		$invoice = false;
+
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$invoice = wp_cache_get( 'pro_sites_stripe_last_invoice_' . $customer_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $invoice ) ) {
+				return $invoice;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $invoice ) ) {
+			try {
+				// Get the invoice of customer.
+				$invoices = Stripe\Invoice::all( array(
+					'customer' => $customer_id,
+					'limit'    => 1,
+				) );
+
+				if ( ! empty( $invoices->data ) ) {
+					$invoice = reset( $invoices->data );
+					// Set to cache.
+					wp_cache_set( 'pro_sites_stripe_last_invoice_' . $customer_id, $invoice, 'psts' );
+				}
+			} catch ( \Exception $e ) {
+				// Well. Failed.
+				$invoice = false;
+			}
+		}
+
+		return $invoice;
+	}
+
+	/**
+	 * Get upcoming invoice of the customer.
+	 *
+	 * @param string $customer_id Customer ID.
+	 * @param bool   $force       Skip from cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|mixed|\Stripe\Invoice
+	 */
+	public function upcoming_invoice( $customer_id, $force = false ) {
+		$invoice = false;
+
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$invoice = wp_cache_get( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $invoice ) ) {
+				return $invoice;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $invoice ) ) {
+			try {
+				// Get the invoice of customer.
+				$invoice = Stripe\Invoice::upcoming( array(
+					'customer' => $customer_id,
+				) );
+
+				if ( ! empty( $invoice ) ) {
+					// Set to cache.
+					wp_cache_set( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, $invoice, 'psts' );
+				}
+			} catch ( \Exception $e ) {
+				// Well. Failed.
+				$invoice = false;
+			}
+		}
+
+		return $invoice;
+	}
+
+	/**
 	 * Create a customer in Stripe for the blog.
 	 *
 	 * @param string $email   Email address.
@@ -297,16 +436,19 @@ class ProSites_Stripe_Customer {
 	 * Using email will make it heavy because we need to
 	 * query through all blogs of the user.
 	 *
-	 * @param int  $blog_id Blog ID.
-	 * @param bool $email   Email of user.
-	 * @param bool $force   Should we skip cache?.
+	 * @param int|flag $blog_id Blog ID.
+	 * @param bool     $email   Email of user.
+	 * @param bool     $force   Should we skip cache?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return object|array
 	 */
-	public function get_db_customer( $blog_id, $email = false, $force = false ) {
+	public function get_db_customer( $blog_id = false, $email = false, $force = false ) {
 		global $wpdb;
+
+		// Get default blog id.
+		$blog_id = $blog_id ? $blog_id : get_current_blog_id();
 
 		// If we can get from cache if not forced.
 		if ( ! $force ) {
@@ -317,29 +459,36 @@ class ProSites_Stripe_Customer {
 			}
 		}
 
-		// Initialize the row as an empty object.
-		$data = new stdClass();
-
-		// We need blog id or email.
-		if ( empty( $blog_id ) && empty( $email ) ) {
-			return array();
-		}
+		// Initialize with default values.
+		$data = false;
 
 		// If we have blog id, try to get.
-		if ( ! empty ( $blog_id ) ) {
+		if ( ! empty( $blog_id ) ) {
+			// Table name.
+			$table = ProSites_Gateway_Stripe::$table;
+
+			// SQL query.
 			$sql = $wpdb->prepare(
-				"SELECT * FROM {ProSites_Gateway_Stripe::$table} WHERE blog_id = %d",
+				"SELECT * FROM $table WHERE blog_id = %d",
 				$blog_id
 			);
 
 			// Get the row.
 			$data = $wpdb->get_row( $sql );
-
-			// Set to cache.
-			wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $blog_id, 'psts' );
 		} elseif ( ! empty( $email ) ) {
 			// Get customer data from email.
 			$data = $this->get_db_customer_by_email( $email );
+		}
+
+		// Just to make sure we don't break.
+		if ( empty( $data ) ) {
+			$data                  = new stdClass();
+			$data->blog_id         = $blog_id;
+			$data->customer_id     = false;
+			$data->subscription_id = false;
+		} else {
+			// Set to cache.
+			wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $blog_id, $data, 'psts' );
 		}
 
 		return $data;
@@ -386,6 +535,32 @@ class ProSites_Stripe_Customer {
 	}
 
 	/**
+	 * Get Stripe customer using blog id.
+	 *
+	 * If customer id is set in db, we will get
+	 * the customer object from API.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return Stripe\Customer|bool
+	 */
+	public function get_customer_by_blog( $blog_id ) {
+		$customer = false;
+
+		// Get customer id of the blog.
+		$customer_data = $this->get_db_customer( $blog_id );
+
+		// Now try to get the Stripe customer.
+		if ( ! empty( $customer_data->customer_id ) ) {
+			$customer = $this->get_customer( $customer_data->customer_id );
+		}
+
+		return $customer;
+	}
+
+	/**
 	 * Set Stripe customer id and subscription id.
 	 *
 	 * Note: We may use this function to update the customer
@@ -406,9 +581,12 @@ class ProSites_Stripe_Customer {
 
 		// If we have blog id update stripe customer id and subscription id.
 		if ( ! empty( $blog_id ) ) {
+			// Table name.
+			$table = ProSites_Gateway_Stripe::$table;
+
 			// On duplicate we will overwrite.
 			$sql = $wpdb->prepare(
-				"INSERT INTO {ProSites_Gateway_Stripe::$table} (blog_id, customer_id, subscription_id) VALUES (%d, %s, %s) ON DUPLICATE KEY UPDATE customer_id = VALUES(customer_id), subscription_id = VALUES(subscription_id)",
+				"INSERT INTO $table (blog_id, customer_id, subscription_id) VALUES (%d, %s, %s) ON DUPLICATE KEY UPDATE customer_id = VALUES(customer_id), subscription_id = VALUES(subscription_id)",
 				$blog_id,
 				$customer_id,
 				$subscription_id

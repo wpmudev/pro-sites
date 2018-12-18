@@ -21,7 +21,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @since 3.6.1
 	 */
-	private $id = 'stripe';
+	private static $id = 'stripe';
 
 	/**
 	 * Stripe table name.
@@ -175,6 +175,29 @@ class ProSites_Gateway_Stripe {
 
 		// Should we force SSL?.
 		add_filter( 'psts_force_ssl', array( $this, 'force_ssl' ) );
+
+		// Manual extension.
+		add_action( 'psts_stripe_extension', array( $this, 'manual_reactivation' ) );
+
+		// Create transaction object.
+		add_filter( 'prosites_transaction_object_create', array( $this, 'create_transaction_object' ), 10, 3 );
+
+		// Site details page.
+		add_action( 'psts_subscription_info', array( $this, 'subscription_info' ) );
+		add_action( 'psts_subscriber_info', array( $this, 'subscriber_info' ) );
+
+		// Subscription modification form.
+		add_action( 'psts_modify_form', array( $this, 'modification_form' ) );
+		add_action( 'psts_modify_process', array( $this, 'process_modification' ) );
+
+		// Next payment date.
+		add_filter( 'psts_next_payment', array( $this, '$upcoming_invoice' ) );
+
+		// Show admin notices if required.
+		add_action( 'admin_notices', array( &$this, 'admin_notices' ), 99 );
+
+		// Set a flag if last payment is failed.
+		add_filter( 'psts_blog_info_payment_failed', array( $this, 'payment_failed' ), 10, 2 );
 	}
 
 	/**
@@ -226,8 +249,8 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return string
 	 */
-	public function get_slug() {
-		return $this->id;
+	public static function get_slug() {
+		return self::$id;
 	}
 
 	/**
@@ -262,7 +285,7 @@ class ProSites_Gateway_Stripe {
 		$stripe_version = $psts->get_setting( 'stripe_version' );
 
 		// Update install script if necessary.
-		if ( empty( $stripe_version ) || $stripe_version != $psts->version ) {
+		if ( empty( $stripe_version ) || $stripe_version !== $psts->version ) {
 			$this->create_tables();
 		}
 	}
@@ -284,6 +307,22 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
+	 * Create transaction object for Stripe.
+	 *
+	 * @param object $object  Transaction object.
+	 * @param array  $data    Transaction data.
+	 * @param string $gateway Current gateway.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return mixed
+	 */
+	public function create_transaction_object( $object, $data, $gateway ) {
+
+		return $object;
+	}
+
+	/**
 	 * The heart of the Stripe API integration.
 	 *
 	 * Handle the communication from Stripe. Stripe sends
@@ -297,6 +336,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public static function webhook_handler() {
 		// Handle webhook.
+		return false;
 	}
 
 	/**
@@ -307,21 +347,15 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function cancel_subscription( $blog_id, $show_message = false ) {
-		// Get the customer data.
-		$customer = $this->get_customer( $blog_id );
-
-		// Can't really do anything.
-		if ( empty( $customer ) ) {
-			return;
-		}
-
-		// Should we show cancellation message?
-		if ( $show_message ) {
-			// Show cancellation message.
-		}
+		// Cancel the blog subscription.
+		return self::$stripe_subscription->cancel_blog_subscription(
+			$blog_id,
+			false,
+			$show_message
+		);
 	}
 
 	/**
@@ -452,33 +486,6 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * Get formatted currency.
-	 *
-	 * We need to make sure currency is supported by
-	 * the gateway.
-	 *
-	 * @param int $amount Amount as int.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return float|int
-	 */
-	public static function format_price( $amount ) {
-		/**
-		 * Zero decimal currencies.
-		 *
-		 * @param array List Currencies that has zero decimal.
-		 */
-		$zero_decimal_currencies = apply_filters( 'pro_sites_zero_decimal_currencies', array( 'JPY' ) );
-
-		// If not a zero decimal currency, get float value.
-		$amount = in_array( self::get_currency(), $zero_decimal_currencies, true )
-			? $amount : floatval( $amount ) * 100;
-
-		return $amount;
-	}
-
-	/**
 	 * Get current active global currency.
 	 *
 	 * @since 3.6.1
@@ -528,6 +535,278 @@ class ProSites_Gateway_Stripe {
 
 		// Should force?.
 		return (bool) $psts->get_setting( 'stripe_ssl', false );
+	}
+
+	/**
+	 * Get the information for the Subscription metabox when managing Pro Site.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @return void
+	 */
+	public function subscription_info( $blog_id ) {
+		// We don't have to continue if the site is using another gateway.
+		if ( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return;
+		}
+
+		global $psts;
+
+		// Get the Stripe customer.
+		$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $blog_id );
+		// Continue only if customer found.
+		if ( empty( $customer ) ) {
+			// Show message.
+			esc_html_e( 'This site is using different gateway so their information is not accessible.', 'psts' );
+
+			return;
+		}
+
+		// Cancellation flag.
+		$is_cancelled = get_blog_option( $blog_id, 'psts_stripe_canceled' );
+
+		// Default card.
+		$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+
+		// Last invoice.
+		$last_invoice = self::$stripe_customer->last_invoice( $customer->id );
+
+		// Expiry date.
+		$expire = $psts->get_expire( $blog_id );
+
+		// File that contains subscription info.
+		include_once 'gateway-stripe-files/views/admin/subscription-info.php';
+	}
+
+	/**
+	 * Get the information for the subscriber metabox when managing Pro Site.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @return void
+	 */
+	public function subscriber_info( $blog_id ) {
+		// We don't have to continue if the site is using another gateway.
+		if ( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return;
+		}
+
+		// Get the Stripe customer.
+		$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $blog_id );
+
+		// Continue only if customer found.
+		if ( empty( $customer ) ) {
+			// Show message.
+			esc_html_e( 'This site is using different gateway so their information is not accessible.', 'psts' );
+
+			return;
+		}
+
+		// Default card.
+		$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+
+		// File that contains subscription info.
+		include_once 'gateway-stripe-files/views/admin/subscriber-info.php';
+	}
+
+	/**
+	 * Show admin notices for Pro Sites.
+	 *
+	 * If payment notifications are pending from Stripe, or if current
+	 * site is on trial, show admin notice.
+	 *
+	 * @since 3.0
+	 *
+	 * @return void
+	 */
+	public function admin_notices() {
+		global $psts;
+
+		// Get current blog id.
+		$blog_id = get_current_blog_id();
+
+		// Show alert message if we are waiting for webhook.
+		if ( (bool) get_blog_option( $blog_id, 'psts_stripe_waiting' ) && ! is_main_site() ) {
+			echo '<div class="updated">';
+			echo '<p><strong>';
+			if ( ProSites_Helper_Registration::is_trial( $blog_id ) ) {
+				printf(
+				// translators: %1$s Plan name, %2$s Expiry date.
+					esc_html__( 'You are currently signed up for your chosen plan, %1$s. The first payment is due on %2$s. Enjoy your free trial.', 'psts' ),
+					$psts->get_level_setting( $psts->get_level( $blog_id ), 'name' ),
+					self::format_date( $psts->get_expire( $blog_id ) )
+				);
+			} else {
+				esc_html_e( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' );
+			}
+			echo '</strong></p>';
+			echo '</div>';
+		}
+	}
+
+	/**
+	 * Modify the payment failed flag.
+	 *
+	 * If we receive payment failed webhook from Stripe,
+	 * set the flag to true.
+	 *
+	 * @param bool $failed  Is failed?.
+	 * @param int  $blog_id Blog ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @return bool
+	 */
+	public function payment_failed( $failed, $blog_id ) {
+		// Check for the failed flag.
+		if ( (bool) get_blog_option( $blog_id, 'psts_stripe_payment_failed' ) ) {
+			$failed = true;
+		}
+
+		return $failed;
+	}
+
+	/**
+	 * Timestamp of next payment if subscription active, else return false.
+	 *
+	 * Catch, Stripe only does the next customer invoice and may not include
+	 * the subscription of this site. So in that case we will not get the
+	 * subscription.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|null
+	 */
+	public function next_payment_date( $blog_id ) {
+		$next_billing = false;
+
+		// Get customer and subcription ids from DB.
+		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
+
+		// Continue only if not cancelled and customer data is found.
+		if ( $customer_data && (bool) get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
+			// Get upcoming invoice.
+			$upcoming_invoice = self::$stripe_customer->upcoming_invoice( $customer_data->customer_id );
+			if ( isset( $upcoming_invoice->lines->data ) ) {
+				// Loop through all line items to get subscription.
+				foreach ( $upcoming_invoice->lines->data as $line_item ) {
+					// If a subscription item is found break.
+					if ( 'subscription' === $line_item->type ) {
+						// Make sure the subscription is matching.
+						if ( $customer_data->subscription_id === $line_item->subscription ) {
+							$next_billing = $upcoming_invoice->next_payment_attempt;
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		return $next_billing;
+	}
+
+	/**
+	 * Renders the modify Pro Site status content for Stripe.
+	 *
+	 * @param int $blog_id Current blog id.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public function modification_form( $blog_id ) {
+		// We don't have to continue if the site is using another gateway.
+		if ( ! ProSites_Helper_Gateway::is_last_gateway_used( $blog_id, self::get_slug() ) ) {
+			return;
+		}
+
+		global $psts;
+
+		// Expiry date of blog.
+		$expiry_date = self::format_date( $psts->get_expire( $blog_id ) );
+		// Is blog cancelled?.
+		$cancelled = (bool) get_blog_option( $blog_id, 'psts_stripe_canceled' );
+		// Get customer data.
+		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
+
+		// Continue only if customer id found.
+		if ( ! empty( $customer_data->customer_id ) ) {
+			// Last invoice.
+			$last_invoice = self::$stripe_customer->last_invoice( $customer_data->customer_id );
+			// Last payment amount.
+			$last_payment = empty( $last_invoice->total ) ? false : $last_invoice->total / 100;
+
+			// File that contains modify form.
+			include_once 'gateway-stripe-files/views/admin/modify-form.php';
+		}
+	}
+
+	/**
+	 * Process the subscription modification request.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public function process_modification( $blog_id ) {
+		global $psts, $current_user;
+
+		// Current action.
+		$action = self::from_request( 'stripe_mod_action' );
+
+		// Get customer and subcription ids from DB.
+		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
+
+		if ( empty( $action ) || empty( $customer_data->customer_id ) ) {
+			return;
+		}
+
+		// Last invoice.
+		$last_invoice = self::$stripe_customer->last_invoice( $customer_data->customer_id );
+		// Last Stripe charge of the invoice.
+		$last_charge = empty( $last_invoice->charge ) ? false : $last_invoice->charge;
+
+		switch ( $action ) {
+			case 'cancel':
+				// Cancel the blog subscription.
+				self::$stripe_subscription->cancel_blog_subscription( $blog_id );
+				break;
+
+			case 'cancel_refund':
+				// First cancel the subscription.
+				if ( self::$stripe_subscription->cancel_blog_subscription( $blog_id ) && $last_charge ) {
+					// Now process the refund.
+					self::$stripe_subscription->refund_charge( $last_charge );
+				}
+				break;
+
+			case 'refund':
+				// Process the refund.
+				if ( self::$stripe_subscription->refund_charge( $last_charge ) ) {
+					// translators: %1$s Amount, %2$s User.
+					$psts->log_action( $blog_id, sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s, and the subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name ) );
+				} else {
+					// translators: %1$s Amount, %2$s User.
+					$psts->log_action( $blog_id, sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name ) );
+				}
+				break;
+
+			case 'partial_refund':
+				// Refund amount.
+				$refund_amount = self::from_request( 'refund_amount' );
+				// Process the partial refund.
+				self::$stripe_subscription->refund_charge( $last_charge, $refund_amount );
+				break;
+		}
 	}
 
 	/**
@@ -728,7 +1007,7 @@ class ProSites_Gateway_Stripe {
 			$desc = self::get_description( $amount, $total, $recurring );
 
 			// Process recurring payment.
-			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon );
+			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $total );
 		} else {
 			// We are upgrading a blog, so calculate the upgrade cost.
 			if ( ! empty( self::$blog_id ) ) {
@@ -760,12 +1039,13 @@ class ProSites_Gateway_Stripe {
 	 * @param \Stripe\Customer $customer   Stripe customer.
 	 * @param object           $tax_object Tax object.
 	 * @param \Stripe\Coupon   $coupon     Stripe coupon object.
+	 * @param float            $total      Total amount.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool True if payment was success.
 	 */
-	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon ) {
+	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $total ) {
 		global $psts;
 
 		// Activation key.
@@ -789,7 +1069,7 @@ class ProSites_Gateway_Stripe {
 
 			// Apply trial if applicable.
 			if ( $psts->is_trial_allowed( self::$blog_id ) ) {
-				$sub_args = self::set_trial( self::$blog_id, $sub_args, $data );
+				$sub_args = self::set_trial( $sub_args, $data );
 			}
 
 			// Meta data for blog details.
@@ -802,11 +1082,17 @@ class ProSites_Gateway_Stripe {
 			);
 
 			// Now create the subscription.
-			$subscription = self::$stripe_subscription->set_blog_subscription( self::$blog_id, self::$email, $customer->id, $plan_id, $sub_args );
+			$subscription = self::$stripe_subscription->set_blog_subscription(
+				self::$blog_id,
+				self::$email,
+				$customer->id,
+				$plan_id,
+				$sub_args
+			);
 
 			// Now activate the blog.
 			if ( ! empty( $subscription ) ) {
-				self::activate_blog( $activation_key, $subscription, $data );
+				self::activate_blog( $activation_key, $subscription, $data, $total, true );
 			}
 		}
 
@@ -841,12 +1127,14 @@ class ProSites_Gateway_Stripe {
 	 * @param string              $activation_key Activation key.
 	 * @param Stripe\Subscription $subscription   Stripe subscription.
 	 * @param array               $data           Process data.
+	 * @param int                 $total          Total amount.
+	 * @param bool                $recurring      Is this a recurring payment.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	private static function activate_blog( $activation_key, $subscription, $data ) {
+	private static function activate_blog( $activation_key, $subscription, $data, $total = 0, $recurring = false ) {
 		$activated = false;
 
 		// Try to get the activation key using blog id.
@@ -880,7 +1168,146 @@ class ProSites_Gateway_Stripe {
 		// Set values to session.
 		self::set_session_data( $data );
 
+		// Extend the site expiry date.
+		self::maybe_extend( $total, $expire, true, $recurring );
+
 		return $activated;
+	}
+
+	/**
+	 * Manually attempt to reactivate a cancelled subscription.
+	 *
+	 * If a subscription was cancelled and not reached the end date
+	 * yet, we will re-activate the subscription. If not, we will
+	 * create new subscription.
+	 *
+	 * @param int  $blog_id Blog ID.
+	 * @param bool $force   Forcing reactivation manually.
+	 *                      Set this to true if this function is not
+	 *                      being called from reactivation form.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void|bool
+	 */
+	public function manual_reactivation( $blog_id, $force = false ) {
+		global $psts;
+
+		// Do this only if forced or from reactivation form.
+		if ( ! self::from_request( 'attempt_stripe_reactivation' ) && ! $force ) {
+			return false;
+		}
+
+		// Get customer data.
+		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
+
+		// Initialize the subscription.
+		$subscription = false;
+
+		// Continue if subscription id found.
+		if ( $customer_data->subscription_id ) {
+			// Try to get the existing subscription.
+			$subscription = self::$stripe_subscription->get_subscription( $customer_data->subscription_id );
+
+			/**
+			 * We can reactivate only if subscription is immediately cancelled.
+			 * See https://stripe.com/docs/billing/subscriptions/canceling-pausing#reactivating-canceled-subscriptions
+			 */
+			if ( ! empty( $subscription->status ) && 'canceled' !== $subscription->status ) {
+				// Do not cancel on end date.
+				$subscription->cancel_at_period_end = false;
+				// Save to reactivate.
+				$subscription = $subscription->save();
+			} else {
+				$subscription = false;
+			}
+		}
+
+		// Try to create new subscription.
+		if ( empty( $subscription ) ) {
+			$subscription = self::$stripe_subscription->set_blog_subscription(
+				$blog_id,
+				false,
+				$customer_data->customer_id
+			);
+		}
+
+		// Ok, success.
+		if ( ! empty( $subscription ) ) {
+			// Remove the flag.
+			delete_blog_option( $blog_id, 'psts_stripe_canceled' );
+			// Log the reactivation.
+			$psts->log_action( $blog_id, __( 'Stripe subscription reactivated manually.', 'psts' ) );
+		} else {
+			$psts->log_action( $blog_id, __( 'Stripe cannot re-activate this subscription.', 'psts' ) );
+		}
+	}
+
+
+	/**
+	 * Extend a blog's expiry date if required.
+	 *
+	 * If the new plan is different than exsting one,
+	 * we need to extend the site. Or if this is called
+	 * for a payment, extend it.
+	 *
+	 * @param float $amount    Total amount.
+	 * @param int   $expire    Expiry date.
+	 * @param bool  $payment   Is this a payment?.
+	 * @param bool  $recurring Is recurring?.
+	 * @param array $args      Additional arguments for email.
+	 *
+	 * @since 3.0
+	 *
+	 * @return bool
+	 */
+	private static function maybe_extend( $amount, $expire, $payment = true, $recurring = false, $args = array() ) {
+		global $psts;
+
+		// Initialize flag as false.
+		$extended = false;
+
+		// Set old and new Stripe plans.
+		$new_plan = $old_plan = self::$stripe_plan->get_id( self::$level, self::$period );
+
+		// Get existing site's data.
+		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
+		// If data found, get the existing plan id.
+		if ( isset( $site_data->level, $site_data->period ) ) {
+			$old_plan = self::$stripe_plan->get_id( $site_data->level, $site_data->period );
+		}
+
+		// Last email sent.
+		$last_extended = (int) get_blog_option( self::$blog_id, 'psts_stripe_last_email_receipt' );
+
+		// Last extended + 5 minutes.
+		$last_extended = empty( $last_extended ) ? time() : $last_extended + 300;
+
+		// If new subscription, extend it.
+		if ( $old_plan !== $new_plan || $payment ) {
+			// Extend the site.
+			$psts->extend(
+				self::$blog_id,
+				self::$period,
+				self::get_slug(),
+				self::$level,
+				$amount,
+				$expire,
+				$recurring
+			);
+
+			// Flag extension.
+			$extended = true;
+		}
+
+		// We need to send receipt, if not sent already.
+		if ( $payment && time() > $last_extended ) {
+			$psts->email_notification( self::$blog_id, 'receipt', false, $args );
+			// Track email receipt sent.
+			update_blog_option( self::$blog_id, 'psts_stripe_last_email_receipt', time() );
+		}
+
+		return $extended;
 	}
 
 	/**
@@ -1006,25 +1433,32 @@ class ProSites_Gateway_Stripe {
 	 * If trial is enabled add trial end date to the
 	 * Stripe subscription.
 	 *
-	 * @param array $args Subscription arguments.
-	 * @param array $data Form data.
+	 * @param array    $args    Subscription arguments.
+	 * @param array    $data    Form data.
+	 * @param int|bool $blog_id Blog ID.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return array
 	 */
-	private static function set_trial( $args = array(), $data = array() ) {
+	public static function set_trial( $args = array(), $data = array(), $blog_id = false ) {
 		global $psts;
 
-		// No. of trial days.
-		$trial_days = $psts->get_setting( 'trial_days', 0 );
+		// Get blog id.
+		$blog_id = $blog_id ? $blog_id : self::$blog_id;
 
-		// Customer is new so add trial days.
-		if ( isset( $data['new_blog_details'] ) || ! $psts->is_existing( self::$blog_id ) ) {
-			$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
-		} elseif ( is_pro_trial( self::$blog_id ) && $psts->get_expire( self::$blog_id ) > time() ) {
-			// Customer's trial is still valid so carry over existing expiration date.
-			$args['trial_end'] = $psts->get_expire( self::$blog_id );
+		// No. of trial days.
+		$trial_days = (int) $psts->get_setting( 'trial_days', 0 );
+
+		// Only if trial enabled.
+		if ( $trial_days > 0 ) {
+			// Customer is new so add trial days.
+			if ( isset( $data['new_blog_details'] ) || ! $psts->is_existing( $blog_id ) ) {
+				$args['trial_end'] = strtotime( '+ ' . $trial_days . ' days' );
+			} elseif ( is_pro_trial( $blog_id ) && $psts->get_expire( $blog_id ) > time() ) {
+				// Customer's trial is still valid so carry over existing expiration date.
+				$args['trial_end'] = $psts->get_expire( $blog_id );
+			}
 		}
 
 		return $args;
@@ -1222,6 +1656,52 @@ class ProSites_Gateway_Stripe {
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Get formatted currency.
+	 *
+	 * We need to make sure currency is supported by
+	 * the gateway.
+	 *
+	 * @param int $amount Amount as int.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return float|int
+	 */
+	public static function format_price( $amount ) {
+		/**
+		 * Zero decimal currencies.
+		 *
+		 * @param array List Currencies that has zero decimal.
+		 */
+		$zero_decimal_currencies = apply_filters( 'pro_sites_zero_decimal_currencies', array( 'JPY' ) );
+
+		// If not a zero decimal currency, get float value.
+		$amount = in_array( self::get_currency(), $zero_decimal_currencies, true )
+			? $amount : floatval( $amount ) * 100;
+
+		return $amount;
+	}
+
+	/**
+	 * Get formatted date.
+	 *
+	 * Format the given date to a format.
+	 *
+	 * @param string      $date   Date.
+	 * @param string|bool $format Date format.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return string
+	 */
+	public static function format_date( $date, $format = false ) {
+		// If format is not given, get default.
+		$format = empty( $format ) ? get_option( 'date_format' ) : $format;
+
+		return date_i18n( $format, $date );
 	}
 }
 

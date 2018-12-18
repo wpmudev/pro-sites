@@ -86,6 +86,12 @@ class ProSites_Stripe_Subscription {
 						),
 					),
 				);
+
+				// Do not make plan conflicts.
+				if ( isset( $args['plan'] ) ) {
+					unset( $args['plan'] );
+				}
+
 				// Assign each args to subscription fields array.
 				if ( ! empty( $args ) ) {
 					foreach ( $args as $key => $value ) {
@@ -203,6 +209,48 @@ class ProSites_Stripe_Subscription {
 	}
 
 	/**
+	 * Get a charge object from Stripe.
+	 *
+	 * @param string $charge_id Charge ID.
+	 * @param bool   $force     Skip cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|mixed|\Stripe\Charge
+	 */
+	public function get_charge( $charge_id, $force = false ) {
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$charge = wp_cache_get( 'pro_sites_stripe_charge_' . $charge_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $charge ) ) {
+				return $charge;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $charge ) ) {
+			// Make sure we don't break.
+			try {
+				$charge = Stripe\Charge::retrieve( $charge_id );
+				// If a plan found, return.
+				if ( ! empty( $charge ) ) {
+					// Set to cache so we can reuse it.
+					wp_cache_set( 'pro_sites_stripe_charge_' . $charge_id, $charge, 'psts' );
+
+					return $charge;
+				}
+			} catch ( \Exception $e ) {
+				// Oh well.
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get subscription id from Pro Sites db.
 	 *
 	 * @param int  $blog_id Blog ID.
@@ -232,17 +280,17 @@ class ProSites_Stripe_Subscription {
 	/**
 	 * Create new subscription for the blog.
 	 *
-	 * @param int    $blog_id     Blog ID.
-	 * @param string $email       Email address.
-	 * @param string $customer_id Customer ID.
-	 * @param string $plan_id     Plan ID.
-	 * @param array  $args        Arguments for subscription.
+	 * @param int         $blog_id     Blog ID.
+	 * @param string      $email       Email address.
+	 * @param string      $customer_id Customer ID.
+	 * @param string|bool $plan_id     Plan ID or false if plan id is in arguments.
+	 * @param array       $args        Arguments for subscription.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|Stripe\Subscription
 	 */
-	public function set_blog_subscription( $blog_id, $email, $customer_id, $plan_id, $args = array() ) {
+	public function set_blog_subscription( $blog_id, $email, $customer_id, $plan_id = false, $args = array() ) {
 		global $psts;
 
 		// Get the subscription id for the email/blog id.
@@ -250,6 +298,14 @@ class ProSites_Stripe_Subscription {
 
 		// Check if that subscription is valid now.
 		$subscription = $this->get_subscription( $subscription_id );
+
+		// If an existing site, try to generate arguments if missing.
+		if ( empty( $args ) ) {
+			$args = $this->get_existing_args( $blog_id );
+		}
+
+		// Make sure plan id is set.
+		$plan_id = $this->set_plan_id( $plan_id, $args );
 
 		// Subscription does not exist or cancelled, so create new.
 		if ( empty( $subscription ) || 'canceled' === $subscription->status ) {
@@ -283,6 +339,15 @@ class ProSites_Stripe_Subscription {
 			}
 		}
 
+		// Let us add/update db details also.
+		if ( ! empty( $subscription->id ) ) {
+			ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
+				$blog_id,
+				$customer_id,
+				$subscription->id
+			);
+		}
+
 		return $subscription;
 	}
 
@@ -303,7 +368,7 @@ class ProSites_Stripe_Subscription {
 	 *
 	 * @return bool
 	 */
-	public function cancel_blog_subscription( $blog_id, $immediate = true, $message = false ) {
+	public function cancel_blog_subscription( $blog_id, $immediate = false, $message = false ) {
 		global $psts, $current_user;
 
 		$cancelled = false;
@@ -334,12 +399,17 @@ class ProSites_Stripe_Subscription {
 
 			$psts->log_action(
 				$blog_id,
-				sprintf(
 				// translators: %1$s: Cancelled by user, %2$d: Subscription end date.
+				sprintf(
 					__( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ),
 					$current_user->display_name,
 					empty( $end_date ) ? '' : date_i18n( get_option( 'date_format' ), $end_date )
 				)
+			);
+		} else {
+			$psts->log_action(
+				$blog_id,
+				sprintf( __( 'Attempt to cancel subscription for blog %d failed', 'psts' ), $blog_id )
 			);
 		}
 
@@ -349,6 +419,38 @@ class ProSites_Stripe_Subscription {
 		}
 
 		return $cancelled;
+	}
+
+	/**
+	 * Refund a charge's amount.
+	 *
+	 * You can make partial refund or full refund.
+	 *
+	 * @param string   $charge_id Stripe charge id.
+	 * @param bool|int $amount    Amount to refund. Ignore to refund full.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	public function refund_charge( $charge_id, $amount = false ) {
+		// Get the charge object.
+		$charge = $this->get_charge( $charge_id );
+
+		// If charge object found continue.
+		if ( ! empty( $charge ) ) {
+			try {
+				// Set the amount.
+				$args = $amount ? array( 'amount' => $amount ) : null;
+
+				// Process the refund.
+				$charge->refund( $args );
+			} catch ( \Exception $e ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -425,5 +527,67 @@ class ProSites_Stripe_Subscription {
 		}
 
 		return $invoice;
+	}
+
+	/**
+	 * Get default arguments.
+	 *
+	 * For existing sites, we will set the level and
+	 * period meta values also.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return array
+	 */
+	private function get_existing_args( $blog_id ) {
+		// Get existing site's data.
+		$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
+
+		// Arguments for the subscription.
+		$args = array(
+			'prorate' => true,
+		);
+
+		// If data found, get the existing plan id.
+		if ( isset( $site_data->level, $site_data->period ) ) {
+			// Arguments for the subscription.
+			$args['metadata'] = array(
+				'period'  => $site_data->term,
+				'level'   => $site_data->level,
+				'blog_id' => $blog_id,
+			);
+
+			// Set trial if enabled.
+			$args = ProSites_Gateway_Stripe::set_trial( $args );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Get plan id from arguments.
+	 *
+	 * If plan id is not given directly, get from
+	 * the arguments.
+	 *
+	 * @param bool  $plan_id Plan ID or false.
+	 * @param array $args    Arguments.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|string
+	 */
+	private function set_plan_id( $plan_id = false, $args = array() ) {
+		// If plan id is not set, try to generate using arguments.
+		if ( empty( $plan_id ) && ! empty( $args['level'] ) && ! empty( $args['period'] ) ) {
+			$plan_id = ProSites_Gateway_Stripe::$stripe_plan->get_id(
+				$args['level'],
+				$args['period']
+			);
+		}
+
+		return $plan_id;
 	}
 }
