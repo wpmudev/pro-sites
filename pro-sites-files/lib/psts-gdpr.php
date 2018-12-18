@@ -127,7 +127,7 @@ class ProSites_GDPR {
 		 *
 		 * @param string $content Privacy checkbox text.
 		 */
-		$content .= apply_filters( 'psts_privacy_check_text', sprintf( __( 'I have read and accept the %sPrivacy and Policy%s', 'psts' ), '<a href="' . $privacy_link . '" target="_blank">', '</a>' ) );
+		$content .= apply_filters( 'psts_privacy_check_text', sprintf( __( 'I have read and accept the %sPrivacy Policy%s', 'psts' ), '<a href="' . $privacy_link . '" target="_blank">', '</a>' ) );
 
 		$content .= '</p>';
 
