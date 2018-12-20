@@ -356,8 +356,7 @@ class ProSites_Gateway_Stripe {
 	 * @return array|void
 	 */
 	public static function get_stripe_plans( $count = 100, $offset = false, $listed = 0, $last_object = '' ) {
-
-		if ( wp_cache_get( 'stripe_plans_cached', 'psts' ) ) {
+		if ( wp_cache_get( 'stripe_plans_cached', 'psts' ) && ! empty( self::$stripe_plans ) ) {
 			return self::$stripe_plans;
 		}
 
