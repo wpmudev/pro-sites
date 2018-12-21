@@ -49,15 +49,14 @@ class ProSites_Module_XMLRPC {
 	function xmlrpc_check() {
 		global $psts;
 
-		// We need to continue only for logged in.
-		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in()
-		     // Check if current site is a Pro Site of xml-rpc limited level or above.
-		     && ! is_pro_site( false, $psts->get_setting( 'xmlrpc_level', 1 ) )
-		     && ! $this->ads_xmlrpc()
-		) {
-			add_filter( 'xmlrpc_enabled', '__return_false' );
-		} elseif ( defined( 'PSTS_FORCE_XMLRPC_ON' ) ) {
+		// Make sure to enable if defined.
+		if ( defined( 'PSTS_FORCE_XMLRPC_ON' ) ) {
 			add_filter( 'xmlrpc_enabled', '__return_true' );
+		} elseif ( ! is_pro_site( get_current_blog_id(), $psts->get_setting( 'xmlrpc_level', 1 ) )
+		           && ! $this->ads_xmlrpc()
+		) {
+			// Remove all XML RPC modules for restricted levels.
+			add_filter( 'xmlrpc_methods', '__return_empty_array' );
 		}
 	}
 

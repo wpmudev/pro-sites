@@ -2,14 +2,10 @@
 /**
  * Plugin Name: Pro Sites
  * Plugin URI:  https://premium.wpmudev.org/project/pro-sites/
- * Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more!
- * Author:      WPMU DEV
- * Version:     3.6.0
- * Author URI:  https://premium.wpmudev.org/
- * Text Domain: psts
- * Domain Path: /pro-sites-files/languages/
- * Network:     true
- * WDP ID:      49
+ * Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription
+ * levels selling access to storage space, premium themes, premium plugins and much more! Author:      WPMU DEV
+ * Version:     3.6.0 Author URI:  https://premium.wpmudev.org/ Text Domain: psts Domain Path:
+ * /pro-sites-files/languages/ Network:     true WDP ID:      49
  *
  *
  * Copyright 2007-2017 Incsub (http://incsub.com)
@@ -73,7 +69,7 @@ class ProSites {
 				'pro-sites_page_psts-settings-network',
 				'pro-sites_page_psts-gateways-network',
 				'pro-sites_page_psts-pricing-settings-network',
-			)
+			),
 		);
 		include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
 
@@ -137,7 +133,7 @@ class ProSites {
 		add_action( 'load-toplevel_page_psts-checkout', array( &$this, 'redirect_checkout' ) );
 		add_action( 'admin_init', array(
 			&$this,
-			'signup_redirect'
+			'signup_redirect',
 		), 100 ); //delay to make sure it is last hook to admin_init
 
 		//trials
@@ -174,7 +170,7 @@ class ProSites {
 		add_action( 'psts_process_stats', array( &$this, 'process_stats' ) ); //cronjob hook
 		add_filter( 'blog_template_exclude_settings', array(
 			&$this,
-			'blog_template_settings'
+			'blog_template_settings',
 		) ); // exclude pro site setting from blog template copies
 
 		//Disable Blog Activation Email, as of Pay before blog creation
@@ -212,6 +208,9 @@ class ProSites {
 
 		// Delete blog
 		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+
+		// Update password in email.
+		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'update_welcome_email' ), 10, 4 );
 
 		$this->setup_ajax_hooks();
 
@@ -409,7 +408,7 @@ class ProSites {
 			'pq_level'                 => 1,
 			'pq_quotas'                => array(
 				'post' => array( 'quota' => 'unlimited' ),
-				'page' => array( 'quota' => 'unlimited' )
+				'page' => array( 'quota' => 'unlimited' ),
 			),
 			'uh_level'                 => 1,
 			'uh_message'               => __( 'To enable the embedding html, please upgrade to LEVEL &raquo;', 'psts' ),
@@ -530,8 +529,8 @@ class ProSites {
 				'name'     => __( 'Pro', 'psts' ),
 				'price_1'  => get_site_option( "supporter_1_whole_cost" ) . '.' . get_site_option( "supporter_1_partial_cost" ),
 				'price_3'  => get_site_option( "supporter_3_whole_cost" ) . '.' . get_site_option( "supporter_3_partial_cost" ),
-				'price_12' => get_site_option( "supporter_12_whole_cost" ) . '.' . get_site_option( "supporter_12_partial_cost" )
-			)
+				'price_12' => get_site_option( "supporter_12_whole_cost" ) . '.' . get_site_option( "supporter_12_partial_cost" ),
+			),
 		);
 		if ( ! get_site_option( 'psts_levels' ) ) {
 			add_site_option( 'psts_levels', $default_levels );
@@ -741,7 +740,7 @@ class ProSites {
 			$wpdb->insert( "{$wpdb->base_prefix}pro_sites_signup_stats", array(
 				'blog_ID'    => $blog_id,
 				'action'     => $action,
-				'time_stamp' => date( 'Y-m-d' )
+				'time_stamp' => date( 'Y-m-d' ),
 			), array( '%d', '%s', '%s' ) );
 		}
 	}
@@ -826,11 +825,11 @@ class ProSites {
 		//main page
 		$psts_main_page         = add_menu_page( __( 'Pro Sites', 'psts' ), __( 'Pro Sites', 'psts' ), 'manage_network_options', 'psts', array(
 			&$this,
-			'admin_modify'
+			'admin_modify',
 		), 'dashicons-plus' );
 		$psts_manage_sites_page = add_submenu_page( 'psts', __( 'Manage Sites', 'psts' ), __( 'Manage Sites', 'psts' ), 'manage_network_options', 'psts', array(
 			&$this,
-			'admin_modify'
+			'admin_modify',
 		) );
 
 		do_action( 'psts_page_after_main' );
@@ -838,7 +837,7 @@ class ProSites {
 		//stats page
 		$psts_stats_page = add_submenu_page( 'psts', __( 'Pro Sites Statistics', 'psts' ), __( 'Statistics', 'psts' ), 'manage_network_options', 'psts-stats', array(
 			&$this,
-			'admin_stats'
+			'admin_stats',
 		) );
 
 
@@ -853,14 +852,14 @@ class ProSites {
 		//ProSites_View_Coupons
 		$psts_coupons_page = add_submenu_page( 'psts', ProSites_View_Coupons::get_page_name(), ProSites_View_Coupons::get_menu_name(), 'manage_network_options', ProSites_View_Coupons::get_page_slug(), array(
 			'ProSites_View_Coupons',
-			'render_page'
+			'render_page',
 		) );
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
 		$psts_levels_page = add_submenu_page( 'psts', __( 'Pro Sites Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array(
 			&$this,
-			'admin_levels'
+			'admin_levels',
 		) );
 
 		do_action( 'psts_page_after_levels' );
@@ -868,28 +867,28 @@ class ProSites {
 		//modules page
 		$psts_modules_page = add_submenu_page( 'psts', __( 'Pro Sites Modules', 'psts' ), __( 'Modules', 'psts' ), 'manage_network_options', 'psts-modules', array(
 			&$this,
-			'admin_modules'
+			'admin_modules',
 		) );
 
 		do_action( 'psts_page_after_modules' );
 
 		$psts_gateways_page = add_submenu_page( 'psts', __( 'Pro Sites Gateways', 'psts' ), __( 'Payment Gateways', 'psts' ), 'manage_network_options', 'psts-gateways', array(
 			'ProSites_View_Gateways',
-			'render_page'
+			'render_page',
 		) );
 		do_action( 'psts_page_after_gateways' );
 
 		//ProSites_View_Settings
 		$psts_settings_page = add_submenu_page( 'psts', __( 'Pro Sites Settings', 'psts' ), __( 'Settings', 'psts' ), 'manage_network_options', 'psts-settings', array(
 			'ProSites_View_Settings',
-			'render_page'
+			'render_page',
 		) );
 		do_action( 'psts_page_after_settings' );
 
 		//ProSites_View_Settings
 		$psts_pricing_page = add_submenu_page( 'psts', ProSites_View_Pricing::get_page_name(), ProSites_View_Pricing::get_menu_name(), 'manage_network_options', ProSites_View_Pricing::get_page_slug(), array(
 			'ProSites_View_Pricing',
-			'render_page'
+			'render_page',
 		) );
 		do_action( 'psts_page_after_pricing_settings' );
 
@@ -942,7 +941,7 @@ class ProSites {
 			$label = is_pro_site( get_current_blog_id() ) ? $this->get_setting( 'lbl_curr' ) : $this->get_setting( 'lbl_signup' );
 			add_menu_page( $label, $label, 'edit_pages', 'psts-checkout', array(
 				&$this,
-				'checkout_redirect_page'
+				'checkout_redirect_page',
 			), 'dashicons-plus', 3.12 );
 		}
 	}
@@ -1021,7 +1020,7 @@ class ProSites {
 				'id'     => 'pro-site',
 				'parent' => ( version_compare( $wp_version, '3.3', '>=' ) ? 'top-secondary' : false ),
 				'title'  => $label,
-				'href'   => $checkout
+				'href'   => $checkout,
 			) );
 		}
 
@@ -1044,7 +1043,7 @@ class ProSites {
 				'title'  => $sup_title,
 				'href'   => network_admin_url( 'admin.php?page=psts&bid=' . $blog_id ),
 				'parent' => false,
-				'id'     => 'psts-status'
+				'id'     => 'psts-status',
 			) );
 		}
 	}
@@ -1110,7 +1109,7 @@ class ProSites {
 				'post_type'      => 'page',
 				'comment_status' => 'closed',
 				'ping_status'    => 'closed',
-				'post_content'   => stripslashes( get_site_option( 'supporter_message' ) )
+				'post_content'   => stripslashes( get_site_option( 'supporter_message' ) ),
 			) );
 			$this->update_setting( 'checkout_page', $id );
 			$url = get_permalink( $id );
@@ -1398,7 +1397,7 @@ class ProSites {
 			'LEVEL'       => $this->get_level_setting( $this->get_level( $blog_id ), 'name' ),
 			'SITEURL'     => get_home_url( $blog_id ),
 			'SITENAME'    => get_blog_option( $blog_id, 'blogname' ),
-			'CHECKOUTURL' => $this->checkout_url( $blog_id )
+			'CHECKOUTURL' => $this->checkout_url( $blog_id ),
 		);
 		// send emails as html (fixes some formatting issues with currencies)
 		$mail_headers = array( 'Content-Type: text/html' );
@@ -1409,7 +1408,7 @@ class ProSites {
 			case 'success':
 				$e = apply_filters( 'psts_email_success_fields', array(
 					'msg'     => $this->get_setting( 'success_msg' ),
-					'subject' => $this->get_setting( 'success_subject' )
+					'subject' => $this->get_setting( 'success_subject' ),
 				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
@@ -1514,7 +1513,7 @@ class ProSites {
 
 				$e = apply_filters( 'psts_email_receipt_fields', array(
 					'msg'     => $this->get_setting( 'receipt_msg' ),
-					'subject' => $this->get_setting( 'receipt_subject' )
+					'subject' => $this->get_setting( 'receipt_subject' ),
 				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
@@ -1532,7 +1531,7 @@ class ProSites {
 				$search_replace['ENDDATE'] = $end_date;
 				$e                         = apply_filters( 'psts_email_cancelled_fields', array(
 					'msg'     => $this->get_setting( 'canceled_msg' ),
-					'subject' => $this->get_setting( 'canceled_subject' )
+					'subject' => $this->get_setting( 'canceled_subject' ),
 				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
@@ -1544,7 +1543,7 @@ class ProSites {
 			case 'expired':
 				$e = apply_filters( 'psts_email_expired_fields', array(
 					'msg'     => $this->get_setting( 'expired_msg' ),
-					'subject' => $this->get_setting( 'expired_subject' )
+					'subject' => $this->get_setting( 'expired_subject' ),
 				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
@@ -1556,7 +1555,7 @@ class ProSites {
 			case 'failed':
 				$e = apply_filters( 'psts_email_payment_failed_fields',array(
 					'msg'     => $this->get_setting( 'failed_msg' ),
-					'subject' => $this->get_setting( 'failed_subject' )
+					'subject' => $this->get_setting( 'failed_subject' ),
 				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
@@ -1575,7 +1574,7 @@ class ProSites {
 				$search_replace['ENDDATE'] = $end_date;
 				$e                         = apply_filters( 'psts_email_extension_fields', array(
 					'msg'     => $this->get_setting( 'extension_msg' ),
-					'subject' => $this->get_setting( 'extension_subject' )
+					'subject' => $this->get_setting( 'extension_subject' ),
 				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
@@ -1591,7 +1590,7 @@ class ProSites {
 				$defaults = ProSites::get_default_settings_array();
 				$e                         = apply_filters( 'psts_email_revoked_fields', array(
 					'msg'     => $this->get_setting( 'revoked_msg', $defaults['revoked_msg'] ),
-					'subject' => $this->get_setting( 'revoked_subject', $defaults['revoked_subject'] )
+					'subject' => $this->get_setting( 'revoked_subject', $defaults['revoked_subject'] ),
 				) );
 
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
@@ -1624,7 +1623,7 @@ class ProSites {
 			'LEVEL'       => $psts->get_level_setting( $psts->get_level( $transaction->blog_id ), 'name' ),
 			'SITEURL'     => get_home_url( $transaction->blog_id ),
 			'SITENAME'    => get_blog_option( $transaction->blog_id, 'blogname' ),
-			'CHECKOUTURL' => $psts->checkout_url( $transaction->blog_id )
+			'CHECKOUTURL' => $psts->checkout_url( $transaction->blog_id ),
 		);
 		// send emails as html (fixes some formatting issues with currencies)
 		$mail_headers = array( 'Content-Type: text/html' );
@@ -1710,7 +1709,7 @@ class ProSites {
 
 		$e = array(
 			'msg'     => $psts->get_setting( 'receipt_msg' ),
-			'subject' => $psts->get_setting( 'receipt_subject' )
+			'subject' => $psts->get_setting( 'receipt_subject' ),
 		);
 		$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 		$pdf_receipt = '';
@@ -2200,7 +2199,7 @@ class ProSites {
 		}
 
 		$extra = array(
-			'permanent_revoked' => $permanent_revoked
+			'permanent_revoked' => $permanent_revoked,
 		);
 		do_action( 'psts_extend', $blog_id, $new_expire, $level, $manual_notify, $gateway, $last_gateway, $extra );
 
@@ -2547,18 +2546,18 @@ class ProSites {
 		wp_enqueue_script( 'flot', $this->plugin_url . 'js/jquery.flot.min.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'flot_pie', $this->plugin_url . 'js/jquery.flot.pie.min.js', array(
 			'jquery',
-			'flot'
+			'flot',
 		), $this->version );
 		wp_enqueue_script( 'flot_xcanvas', $this->plugin_url . 'js/excanvas.pack.js', array(
 			'jquery',
-			'flot'
+			'flot',
 		), $this->version );
 	}
 
 	function scripts_coupons() {
 		wp_enqueue_script( 'jquery-datepicker', $this->plugin_url . 'datepicker/js/datepicker.min.js', array(
 			'jquery',
-			'jquery-ui-core'
+			'jquery-ui-core',
 		), $this->version );
 
 		//only load languages for datepicker if not english (or it will show Chinese!)
@@ -2566,7 +2565,7 @@ class ProSites {
 			wp_enqueue_script( 'jquery-datepicker-i18n', $this->plugin_url . 'datepicker/js/datepicker-i18n.min.js', array(
 				'jquery',
 				'jquery-ui-core',
-				'jquery-datepickexr'
+				'jquery-datepickexr',
 			), $this->version );
 		}
 	}
@@ -2602,7 +2601,7 @@ class ProSites {
 
 		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
 			'wp-color-picker',
-			'jquery'
+			'jquery',
 		), $this->version );
 		wp_localize_script( 'psts-js', 'prosites_admin', array(
 			'currency_select_placeholder' => __( 'Enable gateways', 'psts' ),
@@ -2863,8 +2862,15 @@ try{
 
 		//add to footer
 		if ( ! empty( $js ) ) {
-			$function = "echo '$js';";
-			add_action( 'wp_footer', create_function( '', $function ), 99999 );
+			// @todo remove this soon when we stop supporting PHP 5.2
+			if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
+				$function = "echo '$js';";
+				add_action( 'wp_footer', create_function( '', $function ), 99999 );
+			} else {
+				add_action( 'wp_footer', function() use ( $js ) {
+					echo $js;
+				}, 99999 );
+			}
 		}
 	}
 
@@ -3817,7 +3823,7 @@ function admin_levels() {
 				'price_3'    => round( @$_POST['add_price_3'], 2 ),
 				'price_12'   => round( @$_POST['add_price_12'], 2 ),
 				'is_visible' => intval( @$_POST['add_is_visible'] ),
-				'setup_fee'  => round( @$_POST['add_setup_fee'], 2 )
+				'setup_fee'  => round( @$_POST['add_setup_fee'], 2 ),
 			);
 
 			// Just in case something went wrong, make sure we start at 1.
@@ -3887,7 +3893,7 @@ function admin_levels() {
 			'price_1'    => __( '1 Month Price', 'psts' ),
 			'price_3'    => __( '3 Month Price', 'psts' ),
 			'price_12'   => __( '12 Month Price', 'psts' ),
-			'edit'       => ''
+			'edit'       => '',
 		);
 		?>
 		<h3><?php _e( 'Edit Pro Site Levels', 'psts' ) ?></h3>
@@ -4087,7 +4093,18 @@ function admin_modules() {
 					<tbody id="plugins"><?php
 					$css  = '';
 					$css2 = '';
-					uasort( $psts_modules, create_function( '$a,$b', 'if ($a[0] == $b[0]) return 0;return ($a[0] < $b[0])? -1 : 1;' ) ); //sort modules by name
+					// @todo Remove this when we stop supporting PHP 5.2.
+					if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
+						uasort( $psts_modules, create_function( '$a,$b', 'if ($a[0] == $b[0]) return 0;return ($a[0] < $b[0])? -1 : 1;' ) );
+					} else {
+						uasort( $psts_modules, function( $a, $b ) {
+							if ( $a[0] == $b[0] ) {
+								return 0;
+							}
+
+							return ( $a[0] < $b[0] ) ? -1 : 1;
+						} );
+					}
 
 					$modules_enabled = (array) $this->get_setting( 'modules_enabled' );
 
@@ -4161,7 +4178,7 @@ function admin_modules() {
 		$content            = "";
 		include_once $this->plugin_dir . 'lib/psts_pricing_table.php';
 		$pricing_table = ProSites_Pricing_Table::getInstance( array(
-			'blog_id' => $blog_id
+			'blog_id' => $blog_id,
 		) );
 
 		if ( $show_pricing_table === "enabled" ) {
@@ -4774,7 +4791,6 @@ function admin_modules() {
 	function pdf_receipt( $payment_info = '' ) {
 
 		require_once( $this->plugin_dir . 'tcpdf-config.php' );
-		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php' );
 		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php' );
 
 		//Make directory for receipt cache
@@ -5056,7 +5072,7 @@ function admin_modules() {
 			//get blog id
 			$fields = array(
 				'domain' => $domain,
-				'path'   => '/'
+				'path'   => '/',
 			);
 			$blog   = get_blog_details( $fields );
 
@@ -5077,7 +5093,7 @@ function admin_modules() {
 		//Login user to follow up the rest of Pro Site process
 		$creds = array(
 			'user_login'    => $user->user_login,
-			'user_password' => $result['password']
+			'user_password' => $result['password'],
 		);
 		$user  = wp_signon( $creds, true );
 		wp_set_current_user( $user->ID );
@@ -5142,7 +5158,7 @@ function admin_modules() {
 				'meta' => serialize( $signup_meta ), // string
 			),
 			array(
-				'activation_key' => $key
+				'activation_key' => $key,
 			)
 		);
 
@@ -5356,7 +5372,7 @@ function admin_modules() {
 		global $current_screen, $psts;
 		//List of screens, where we don't interfere
 		$return_original = array(
-			'settings-network'
+			'settings-network',
 		);
 		if( !empty( $current_screen ) && in_array( $current_screen->base, $return_original ) ) {
 			return $value;

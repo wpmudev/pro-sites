@@ -50,15 +50,16 @@ module.exports = function(grunt) {
 						'last-translator': 'WPMU Dev <support@wpmudev.org>',
 						'x-generator': 'grunt-wp-i18n'
 					},
-		            type: 'wp-plugin'
+		            type: 'wp-plugin',
+			        updateTimestamp: false
 		        }
 		    }
 		},
 		wpmu_pot2mo: {
 		    files: {
 		        src: 'pro-sites-files/languages/*.pot',
-		        expand: true,
-		    },
+		        expand: true
+		    }
 		},
 		
 		clean: {

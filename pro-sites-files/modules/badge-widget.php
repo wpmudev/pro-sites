@@ -26,8 +26,17 @@ class ProSites_Module_ProWidget {
 		self::$user_description = __( 'Brag about your Pro Level with a widget', 'psts' );
 
 		if ( is_pro_site( get_current_blog_id() ) ) {
-			add_action( 'widgets_init', create_function( '', 'return register_widget("ProSites_Pro_Widget");' ) );
+			add_action( 'widgets_init', array( $this, 'register_widget' ) );
 		}
+	}
+
+	/**
+	 * Register widget.
+	 *
+	 * @since 3.6.0
+	 */
+	public function register_widget() {
+		register_widget( 'ProSites_Pro_Widget' );
 	}
 
 	function settings() {
