@@ -4780,7 +4780,6 @@ function admin_modules() {
 	function pdf_receipt( $payment_info = '' ) {
 
 		require_once( $this->plugin_dir . 'tcpdf-config.php' );
-		require_once( $this->plugin_dir . 'tcpdf/config/lang/eng.php' );
 		require_once( $this->plugin_dir . 'tcpdf/tcpdf.php' );
 
 		//Make directory for receipt cache
