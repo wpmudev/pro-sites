@@ -89,7 +89,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$result = wpmu_activate_signup( $key );
 
 			// Make sure the user password is the one we send in email.
-			if ( ! empty( $result['user_id'] ) && ! empty( $result['password'] ) && ! is_user_logged_in() ) {
+			if ( ! is_wp_error( $result ) && ! empty( $result['user_id'] ) && ! empty( $result['password'] ) && ! is_user_logged_in() ) {
 				$user_pass = empty( $user_pass ) ? $result['password'] : $user_pass;
 				// Update the password to make sure.
 				wp_set_password( $user_pass, $result['user_id'] );
