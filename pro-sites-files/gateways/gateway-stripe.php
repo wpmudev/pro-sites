@@ -634,9 +634,8 @@ class ProSites_Gateway_Stripe {
 			echo '<div class="updated">';
 			echo '<p><strong>';
 			if ( ProSites_Helper_Registration::is_trial( $blog_id ) ) {
-				printf(
 				// translators: %1$s Plan name, %2$s Expiry date.
-					esc_html__( 'You are currently signed up for your chosen plan, %1$s. The first payment is due on %2$s. Enjoy your free trial.', 'psts' ),
+				printf( esc_html__( 'You are currently signed up for your chosen plan, %1$s. The first payment is due on %2$s. Enjoy your free trial.', 'psts' ),
 					$psts->get_level_setting( $psts->get_level( $blog_id ), 'name' ),
 					self::format_date( $psts->get_expire( $blog_id ) )
 				);
@@ -1188,7 +1187,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return void|bool
+	 * @return void
 	 */
 	public function manual_reactivation( $blog_id, $force = false ) {
 		global $psts;

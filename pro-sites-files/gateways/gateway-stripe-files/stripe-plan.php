@@ -103,12 +103,13 @@ class ProSites_Stripe_Plan {
 	 * @param int    $price        Plan price.
 	 * @param string $product_name Product name.
 	 * @param string $product_id   Product ID.
+	 * @param string $interval     Interval type (day, month, year).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return \Stripe\Plan|false Created plan object or false.
 	 */
-	public function create_plan( $level, $period, $name, $price, $product_name, $product_id = '' ) {
+	public function create_plan( $level, $period, $name, $price, $product_name, $product_id = '', $interval = 'month' ) {
 		global $psts;
 
 		// Get our custom plan id.
@@ -121,7 +122,7 @@ class ProSites_Stripe_Plan {
 			'id'             => $plan_id,
 			'amount'         => ProSites_Gateway_Stripe::format_price( $price ),
 			'currency'       => $currency,
-			'interval'       => 'month',
+			'interval'       => $interval,
 			'interval_count' => $period,
 			'nickname'       => $name,
 		);
@@ -152,6 +153,8 @@ class ProSites_Stripe_Plan {
 	 *
 	 * @param string $id   Plan ID.
 	 * @param string $name Plan name.
+	 *
+	 * @return bool|\Stripe\Plan
 	 */
 	public function update_name( $id, $name ) {
 		// Try to get the plan.
@@ -161,14 +164,17 @@ class ProSites_Stripe_Plan {
 		if ( $plan && ! empty( $name ) ) {
 			try {
 				$plan->nickname = $name;
-				$plan->save();
+				$plan           = $plan->save();
 
 				// Delete cached plans.
 				wp_cache_delete( 'stripe_plans_cached', 'psts' );
 			} catch ( \Exception $e ) {
 				// Oh well.
+				$plan = false;
 			}
 		}
+
+		return $plan;
 	}
 
 	/**
@@ -286,6 +292,37 @@ class ProSites_Stripe_Plan {
 	}
 
 	/**
+	 * Update plan product name using Stripe API.
+	 *
+	 * @param string $product_id Stripe product ID.
+	 * @param string $name       Product name.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|\Stripe\Product
+	 */
+	public function update_product_name( $product_id, $name = '' ) {
+		// Try to get the product.
+		$product = $this->get_product( $product_id );
+
+		// If product found and name is given.
+		if ( $product && ! empty( $name ) ) {
+			try {
+				$product->name = $name;
+				$product       = $product->save();
+
+				// Update the cached product.
+				wp_cache_set( 'stripe_product_cached_' . $product_id, $product, 'psts' );
+			} catch ( \Exception $e ) {
+				// Oh well.
+				$product = false;
+			}
+		}
+
+		return $product;
+	}
+
+	/**
 	 * Delete a plan product from Stripe API.
 	 *
 	 * We need to delete the plan product when we delete
@@ -334,20 +371,21 @@ class ProSites_Stripe_Plan {
 	 */
 	public function sync_levels( $levels = array(), $old_levels = array() ) {
 		// We need some plans, you know?.
-		if ( empty( $levels ) ) {
+		if ( empty( $levels ) || ! is_array( $levels ) ) {
 			return;
 		}
+
 		// Go through each levels.
 		foreach ( $levels as $level_id => $level ) {
 			// Get plans prepared from levels.
-			$plans = $this->prepare_plans( $level );
+			$plans = $this->prepare_plan_data( $level );
 
 			// Update all plans where ever required.
 			$this->update_plans( $plans, $level_id, $level );
-
-			// We need to clear the cache.
-			wp_cache_delete( 'stripe_plans_cached', 'psts' );
 		}
+
+		// We need to clear the cache.
+		wp_cache_delete( 'stripe_plans_cached', 'psts' );
 	}
 
 	/**
@@ -359,25 +397,19 @@ class ProSites_Stripe_Plan {
 	 *
 	 * @return array
 	 */
-	private function prepare_plans( $level ) {
+	private function prepare_plan_data( $level ) {
 		$plans = array(
 			1  => array(
-				'int'       => 'month',
-				'int_count' => 1,
-				'desc'      => 'Monthly',
-				'price'     => isset( $level['price_1'] ) ? $level['price_1'] : 0,
+				'desc'  => 'Monthly',
+				'price' => isset( $level['price_1'] ) ? $level['price_1'] : 0,
 			),
 			3  => array(
-				'int'       => 'month',
-				'int_count' => 3,
-				'desc'      => 'Quarterly',
-				'price'     => isset( $level['price_3'] ) ? $level['price_3'] : 0,
+				'desc'  => 'Quarterly',
+				'price' => isset( $level['price_3'] ) ? $level['price_3'] : 0,
 			),
 			12 => array(
-				'int'       => 'year',
-				'int_count' => 1,
-				'desc'      => 'Yearly',
-				'price'     => isset( $level['price_12'] ) ? $level['price_12'] : 0,
+				'desc'  => 'Yearly',
+				'price' => isset( $level['price_12'] ) ? $level['price_12'] : 0,
 			),
 		);
 
@@ -390,6 +422,7 @@ class ProSites_Stripe_Plan {
 	 * If price changed, we need to delete the old plan
 	 * and then create new one in Stripe. Existing subscriptions
 	 * will still work.
+	 * Level names are products and periods are plans.
 	 *
 	 * @param array  $plans    Plan data.
 	 * @param int    $level_id Level number.
@@ -408,7 +441,7 @@ class ProSites_Stripe_Plan {
 		// Get the currency.
 		$currency = ProSites_Gateway_Stripe::get_currency();
 
-		// Get the plan name.
+		// Plan product id.
 		$product_id = '';
 
 		// Loop through each plans.
@@ -422,31 +455,34 @@ class ProSites_Stripe_Plan {
 			// Try to get the Stripe plan.
 			$stripe_plan = $this->get_plan( $plan_id );
 
+			// If we have product already.
+			if ( ! empty( $stripe_plan->product ) ) {
+				$product_id = $stripe_plan->product;
+			}
+
 			// Plan price.
 			$plan_price = ProSites_Gateway_Stripe::format_price( $plan['price'] );
 
 			// If Stripe plan not found.
 			if ( ! empty( $stripe_plan ) ) {
+				$product = $this->get_product( $product_id );
 				// Nothing needs to happen.
-				if ( $stripe_plan->amount === $plan_price
-				     && $stripe_plan->nickname === $plan['desc']
+				if ( (int) $stripe_plan->amount === (int) $plan_price
+				     // Currencies are same.
 				     && strtolower( $stripe_plan->currency ) === strtolower( $currency )
+				     && ( empty( $product->name ) || ( $product->name === $product_name ) )
 				) {
 					// If price, currency and name are same no need to update.
 					continue;
 				}
 
 				// Only the name needs changing, easy.
-				if ( $stripe_plan->amount === $plan_price
+				if ( (int) $stripe_plan->amount === (int) $plan_price
 				     && strtolower( $stripe_plan->currency ) === strtolower( $currency )
+				     && ! empty( $product_id )
 				) {
-					$this->update_name( $plan_id, $plan['desc'] );
+					$this->update_product_name( $product_id, $product_name );
 					continue;
-				}
-
-				// If we have product.
-				if ( ! empty( $stripe_plan->product ) ) {
-					$product_id = $stripe_plan->product;
 				}
 
 				// Price or currency has changed, we need a new plan.
