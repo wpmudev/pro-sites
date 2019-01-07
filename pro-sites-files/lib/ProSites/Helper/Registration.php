@@ -85,7 +85,13 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$session_data[ 'new_blog_details' ] = ProSites_Helper_Session::session( 'new_blog_details' );
 			$user_pass = empty( $user_pass ) && isset( $session_data['new_blog_details']['user_pass'] ) ? $session_data['new_blog_details']['user_pass'] : $user_pass;
 
-			// Activate the user signup
+			// Set password to session.
+			if ( ! empty( $user_pass ) ) {
+				$session_data[ 'new_blog_details' ]['user_pass'] = $user_pass;
+				ProSites_Helper_Session::session( 'new_blog_details', $session_data[ 'new_blog_details' ] );
+			}
+
+			// Activate the user signup.
 			$result = wpmu_activate_signup( $key );
 
 			// Make sure the user password is the one we send in email.
