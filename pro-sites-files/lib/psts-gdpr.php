@@ -1,10 +1,10 @@
 <?php
 /**
- * @package Pro Sites
- * @subpackage GDPR
- * @version 3.5.9.1
+ * @package       Pro Sites
+ * @subpackage    GDPR
+ * @version       3.5.9.1
  *
- * @author Joel James <joel@incsub.com>
+ * @author        Joel James <joel@incsub.com>
  *
  * @copyright (c) 2018, Incsub (http://incsub.com)
  */
@@ -333,11 +333,11 @@ class ProSites_GDPR {
 			$blog_data = array(
 				array(
 					'name'  => __( 'Site Title', 'psts' ),
-					'value' => $blog->blogname
+					'value' => $blog->blogname,
 				),
 				array(
 					'name'  => __( 'Site URL', 'psts' ),
-					'value' => $blog->siteurl
+					'value' => $blog->siteurl,
 				),
 			);
 			// Add payment details also.
@@ -349,12 +349,12 @@ class ProSites_GDPR {
 					'group_id'    => 'user_sites_detail',
 					'group_label' => __( 'Sites', 'psts' ),
 					'item_id'     => "blogs->{$blog_id}",
-					'data'        => $blog_data
+					'data'        => $blog_data,
 				);
 			} else {
 				$data[] = array(
 					'item_id' => "blogs->{$blog_id}",
-					'data'    => $blog_data
+					'data'    => $blog_data,
 				);
 			}
 		}
@@ -379,8 +379,8 @@ class ProSites_GDPR {
 		switch_to_blog( $blog_id );
 
 		$users_query = new WP_User_Query( array(
-			'role' => 'administrator',
-			'exclude' => array( $user_id )
+			'role'    => 'administrator',
+			'exclude' => array( $user_id ),
 		) );
 
 		$other_admins = $users_query->get_results();
@@ -410,7 +410,7 @@ class ProSites_GDPR {
 	/**
 	 * Set payment details of the blog.
 	 *
-	 * @param int $blog_id Blog ID.
+	 * @param int   $blog_id   Blog ID.
 	 * @param array $blog_data Blog data.
 	 *
 	 * @since 3.5.9.1
@@ -443,7 +443,7 @@ class ProSites_GDPR {
 			if ( ! empty( $nice_name ) ) {
 				$blog_data[] = array(
 					'name'  => __( 'Gateway', 'psts' ),
-					'value' => $nice_name
+					'value' => $nice_name,
 				);
 			}
 
@@ -460,7 +460,7 @@ class ProSites_GDPR {
 	 * We have separate table that stores customer id and
 	 * subscription id of the payment. Add them.
 	 *
-	 * @param int $blog_id Blog ID.
+	 * @param int   $blog_id   Blog ID.
 	 * @param array $blog_data Blog data.
 	 *
 	 * @since 3.5.9.1
@@ -480,12 +480,12 @@ class ProSites_GDPR {
 			// Customer data.
 			$blog_data[] = array(
 				'name'  => __( 'Customer ID', 'psts' ),
-				'value' => $result->customer_id
+				'value' => $result->customer_id,
 			);
 			// Subscription data.
 			$blog_data[] = array(
 				'name'  => __( 'Subscription ID', 'psts' ),
-				'value' => $result->subscription_id
+				'value' => $result->subscription_id,
 			);
 		}
 	}

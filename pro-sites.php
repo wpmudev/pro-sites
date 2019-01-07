@@ -2,10 +2,14 @@
 /**
  * Plugin Name: Pro Sites
  * Plugin URI:  https://premium.wpmudev.org/project/pro-sites/
- * Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription
- * levels selling access to storage space, premium themes, premium plugins and much more! Author:      WPMU DEV
- * Version:     3.6.0 Author URI:  https://premium.wpmudev.org/ Text Domain: psts Domain Path:
- * /pro-sites-files/languages/ Network:     true WDP ID:      49
+ * Description: The ultimate multisite site upgrade plugin, turn regular sites into multiple pro site subscription levels selling access to storage space, premium themes, premium plugins and much more! Author:      WPMU DEV
+ * Version:     3.6.0
+ * Author:      WPMUDEV
+ * Author URI:  https://premium.wpmudev.org/
+ * Text Domain: psts
+ * Domain Path: /pro-sites-files/languages/
+ * Network:     true
+ * WDP ID:      49
  *
  *
  * Copyright 2007-2017 Incsub (http://incsub.com)
