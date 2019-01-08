@@ -555,7 +555,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		// Get the Stripe customer.
-		$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $blog_id );
+		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
 		// Continue only if customer found.
 		if ( empty( $customer ) ) {
 			// Show message.
@@ -568,7 +568,7 @@ class ProSites_Gateway_Stripe {
 		$is_cancelled = get_blog_option( $blog_id, 'psts_stripe_canceled' );
 
 		// Default card.
-		$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+		$card = self::$stripe_customer->default_card( $customer->id );
 
 		// Last invoice.
 		$last_invoice = self::$stripe_customer->last_invoice( $customer->id );
@@ -596,7 +596,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Get the Stripe customer.
-		$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $blog_id );
+		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
 
 		// Continue only if customer found.
 		if ( empty( $customer ) ) {
@@ -607,7 +607,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Default card.
-		$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+		$card = self::$stripe_customer->default_card( $customer->id );
 
 		// File that contains subscription info.
 		include_once 'gateway-stripe-files/views/admin/subscriber-info.php';
