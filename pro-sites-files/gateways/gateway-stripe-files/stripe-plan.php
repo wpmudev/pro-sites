@@ -518,10 +518,15 @@ class ProSites_Stripe_Plan {
 				 */
 				if ( ! empty( $stripe_plan->product ) && $product_id !== $stripe_plan->product ) {
 					$this->update_plan( $plan_id, array(
-						'product'  => $product_id,
-						'nickname' => $plan['desc'],
+						'product' => $product_id,
 					) );
-				} elseif ( $plan['desc'] !== $stripe_plan->nickname ) {
+				}
+
+				/**
+				 * You can not update name when switching the product of a plan.
+				 * So we need to update the name of the plan separately.
+				 */
+				if ( $plan['desc'] !== $stripe_plan->nickname ) {
 					// Update the plan name.
 					$this->update_plan( $plan_id, array(
 						'nickname' => $plan['desc'],
