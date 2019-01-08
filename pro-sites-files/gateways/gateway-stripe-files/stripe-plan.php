@@ -233,15 +233,25 @@ class ProSites_Stripe_Plan {
 	/**
 	 * Retrieve a plan from Stripe API.
 	 *
+	 * @param int  $limit No. of items to get.
 	 * @param bool $force Should get from API forcefully.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return array Array of Stripe plan objects.
 	 */
-	public function get_plans( $force = false ) {
+	public function get_plans( $limit = 100, $force = false ) {
 		// Plans array.
 		$plans = array();
+
+		/**
+		 * Filter to change plans count.
+		 *
+		 * @param int $limit No. of items.
+		 *
+		 * @since 3.6.1
+		 */
+		$limit = (int) apply_filters( 'pro_sites_stripe_get_plans_limit', $limit );
 
 		// If not forced, try to get from cache.
 		if ( ! $force ) {
@@ -253,7 +263,9 @@ class ProSites_Stripe_Plan {
 			// Make sure we don't break.
 			try {
 				// Get all plans.
-				$plans = Stripe\Plan::all();
+				$plans = Stripe\Plan::all( array(
+					'limit' => $limit,
+				) );
 				if ( ! empty( $plans->data ) ) {
 					$plans = $plans->data;
 				}
@@ -493,7 +505,8 @@ class ProSites_Stripe_Plan {
 				// Ok, now everything seems ok. Nothing changed.
 				if ( (int) $stripe_plan->amount === (int) $plan_price &&
 				     strtolower( $stripe_plan->currency ) === strtolower( $currency ) &&
-				     ( empty( $stripe_plan->product ) || ( $stripe_plan->product === $product_id ) )
+				     ( empty( $stripe_plan->product ) || ( $stripe_plan->product === $product_id ) ) &&
+				     $stripe_plan->nickname === $plan['desc']
 				) {
 					continue;
 				}
@@ -505,7 +518,13 @@ class ProSites_Stripe_Plan {
 				 */
 				if ( ! empty( $stripe_plan->product ) && $product_id !== $stripe_plan->product ) {
 					$this->update_plan( $plan_id, array(
-						'product' => $product_id,
+						'product'  => $product_id,
+						'nickname' => $plan['desc'],
+					) );
+				} elseif ( $plan['desc'] !== $stripe_plan->nickname ) {
+					// Update the plan name.
+					$this->update_plan( $plan_id, array(
+						'nickname' => $plan['desc'],
 					) );
 				}
 
