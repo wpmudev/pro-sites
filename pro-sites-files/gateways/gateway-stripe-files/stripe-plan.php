@@ -517,13 +517,9 @@ class ProSites_Stripe_Plan {
 				 * we will use same product for all plans in a level.
 				 */
 				if ( ! empty( $stripe_plan->product ) && $product_id !== $stripe_plan->product ) {
-					if ( $this->update_plan( $plan_id, array(
+					$this->update_plan( $plan_id, array(
 						'product' => $product_id,
-					) )
-					) {
-						// Delete old products.
-						$this->delete_product( $stripe_plan->product );
-					}
+					) );
 				}
 
 				/**
