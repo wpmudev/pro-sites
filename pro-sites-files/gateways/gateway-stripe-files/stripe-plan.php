@@ -522,18 +522,6 @@ class ProSites_Stripe_Plan {
 					) );
 				}
 
-				/**
-				 * You can not update name when switching the product of a plan.
-				 * So we need to update the name of the plan separately.
-				 */
-				if ( $plan['desc'] !== $stripe_plan->nickname ) {
-					// Update the plan name.
-					$this->update_plan( $plan_id, array(
-						'nickname' => $plan['desc'],
-					) );
-				}
-
-
 				// Price change or currency change happened
 				// We need to delete old plan and create new one.
 				if ( (int) $stripe_plan->amount !== (int) $plan_price ||
@@ -543,6 +531,17 @@ class ProSites_Stripe_Plan {
 					// Delete the plan.
 					$this->delete_plan( $plan_id );
 					$create_new = true;
+				}
+
+				/**
+				 * You can not update name when switching the product of a plan.
+				 * So we need to update the name of the plan separately.
+				 */
+				if ( $plan['desc'] !== $stripe_plan->nickname && ! $create_new ) {
+					// Update the plan name.
+					$this->update_plan( $plan_id, array(
+						'nickname' => $plan['desc'],
+					) );
 				}
 			} else {
 				$create_new = true;
