@@ -169,6 +169,10 @@ class ProSites_Gateway_Stripe {
 
 		// Update plans in Stripe if necessary.
 		add_action( 'update_site_option_psts_levels', array( $this, 'update_plans' ), 10, 2 );
+		// One level deleted, sync with Stripe.
+		add_action( 'psts_delete_level', array( $this, 'update_plans' ), 10, 2 );
+		// New level added, sync with Stripe.
+		add_action( 'psts_add_level', array( $this, 'update_plans' ), 10, 2 );
 
 		// Cancel subscriptions on blog deletion.
 		add_action( 'delete_blog', array( $this, 'cancel_subscription' ) );
@@ -397,8 +401,13 @@ class ProSites_Gateway_Stripe {
 			$levels = get_site_option( 'psts_levels', array() );
 		}
 
+		// If old levels are not given, get from db.
+		if ( empty( $old_levels ) ) {
+			$old_levels = get_site_option( 'psts_levels', array() );
+		}
+
 		// No plans. Oh boy.
-		if ( empty( $levels ) && empty( $old_levels ) ) {
+		if ( empty( $levels ) ) {
 			return;
 		}
 

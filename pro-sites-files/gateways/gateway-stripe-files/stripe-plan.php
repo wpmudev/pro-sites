@@ -211,6 +211,10 @@ class ProSites_Stripe_Plan {
 		try {
 			// First get the plan.
 			$plan = $this->get_plan( $id );
+
+			// Get the product id.
+			$product = empty( $plan->product ) ? false : $plan->product;
+
 			// If plan is found, attempt to delete.
 			if ( ! empty( $plan ) ) {
 				$deleted = $plan->delete();
@@ -222,9 +226,9 @@ class ProSites_Stripe_Plan {
 			$deleted = false;
 		}
 
-		// Delete the plan product also.
-		if ( $deleted && ! empty( $plan ) && ! empty( $plan->product ) && $delete_product ) {
-			$this->delete_product( $plan->product );
+		// Attempt to delete the plan product also.
+		if ( $deleted && ! empty( $product ) && $delete_product ) {
+			$this->delete_product( $product );
 		}
 
 		return $deleted;
@@ -366,7 +370,7 @@ class ProSites_Stripe_Plan {
 	 */
 	public function delete_product( $product_id ) {
 		// Try to get the product.
-		$product = $this->get_product( $product_id );
+		$product = $this->get_product( $product_id, true );
 
 		// Delete if Product found.
 		if ( ! empty( $product ) ) {
@@ -405,6 +409,9 @@ class ProSites_Stripe_Plan {
 			return;
 		}
 
+		// Make sure old levels are array.
+		$old_levels = (array) $old_levels;
+
 		// Go through each levels.
 		foreach ( $levels as $level_id => $level ) {
 			// Get plans prepared from levels.
@@ -412,6 +419,52 @@ class ProSites_Stripe_Plan {
 
 			// Update all plans where ever required.
 			$this->update_plans( $plans, $level_id, $level );
+
+			// Remove the level from old levels list.
+			if ( isset( $old_levels[ $level_id ] ) ) {
+				unset( $old_levels[ $level_id ] );
+			}
+		}
+
+		// If we have deleted plans, delete them on Stripe.
+		if ( ! empty( $old_levels ) ) {
+			// Delete them. All of them.
+			foreach ( $old_levels as $_level => $_data ) {
+				$this->delete_level( $_level );
+			}
+		}
+
+		// We need to clear the cache.
+		wp_cache_delete( 'stripe_plans_cached', 'psts' );
+	}
+
+	/**
+	 * Delete a level related plan in Stripe.
+	 *
+	 * We will delete all the plans on the level
+	 * and the plan product also.
+	 * All the existing subscriptions will remain same unless
+	 * it is updated.
+	 *
+	 * @param int $level Deleted level.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public function delete_level( $level ) {
+		// We need a plan.
+		if ( empty( $level ) ) {
+			return;
+		}
+
+		// Go through each period.
+		foreach ( array( 1, 3, 12 ) as $period ) {
+			// Get Stripe plan id.
+			$plan_id = $this->get_id( $level, $period );
+
+			// Delete the plan and product.
+			$this->delete_plan( $plan_id, 12 === $period );
 		}
 
 		// We need to clear the cache.
@@ -547,7 +600,6 @@ class ProSites_Stripe_Plan {
 
 			// We need to create new plan.
 			if ( $create_new ) {
-				wpmudev_debug( $level_id, $period );
 				// Create new plan.
 				$created_plan = $this->create_plan( $level_id, $period, $plan['desc'], $plan['price'], $product_name, $product_id );
 

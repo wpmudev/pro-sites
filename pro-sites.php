@@ -3795,6 +3795,8 @@ function admin_levels() {
 			$levels = array_merge( array('x'), array_values( $levels ) );
 			unset( $levels[0]);
 
+			do_action( 'psts_delete_level', $levels );
+
 			update_site_option( 'psts_levels', $levels );
 			//Update Pricing level order
 			ProSites_Helper_ProSite::update_level_order( $levels );
@@ -3836,6 +3838,8 @@ function admin_levels() {
 			} else {
 				$levels[] = $level_data;
 			}
+
+			do_action( 'psts_add_level', $levels );
 
 			update_site_option( 'psts_levels', $levels );
 			echo '<div class="updated fade"><p>' . __( 'Level added.', 'psts' ) . '</p></div>';
