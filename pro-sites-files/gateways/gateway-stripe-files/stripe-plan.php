@@ -531,14 +531,12 @@ class ProSites_Stripe_Plan {
 					// Delete the plan.
 					$this->delete_plan( $plan_id );
 					$create_new = true;
-				}
-
-				/**
-				 * You can not update name when switching the product of a plan.
-				 * So we need to update the name of the plan separately.
-				 */
-				if ( $plan['desc'] !== $stripe_plan->nickname && ! $create_new ) {
-					// Update the plan name.
+				} elseif ( $plan['desc'] !== $stripe_plan->nickname ) {
+					/**
+					 * Update the plan name.
+					 * You can not update name when switching the product of a plan.
+					 * So we need to update the name of the plan separately.
+					 */
 					$this->update_plan( $plan_id, array(
 						'nickname' => $plan['desc'],
 					) );
@@ -549,6 +547,7 @@ class ProSites_Stripe_Plan {
 
 			// We need to create new plan.
 			if ( $create_new ) {
+				wpmudev_debug( $level_id, $period );
 				// Create new plan.
 				$created_plan = $this->create_plan( $level_id, $period, $plan['desc'], $plan['price'], $product_name, $product_id );
 
