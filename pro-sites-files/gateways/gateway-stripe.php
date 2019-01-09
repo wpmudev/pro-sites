@@ -286,7 +286,11 @@ class ProSites_Gateway_Stripe {
 
 		// Update install script if necessary.
 		if ( empty( $stripe_version ) || $stripe_version !== $psts->version ) {
+			// Create or upgrade tables.
 			$this->create_tables();
+
+			// Upgrade and Sync plans to Stripe.
+			$this->update_plans();
 		}
 	}
 

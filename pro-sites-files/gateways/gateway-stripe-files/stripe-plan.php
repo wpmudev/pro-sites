@@ -368,7 +368,7 @@ class ProSites_Stripe_Plan {
 		// Try to get the product.
 		$product = $this->get_product( $product_id );
 
-		// If not forced, or nothing in cache, get from Stripe API.
+		// Delete if Product found.
 		if ( ! empty( $product ) ) {
 			// Make sure we don't break.
 			try {
