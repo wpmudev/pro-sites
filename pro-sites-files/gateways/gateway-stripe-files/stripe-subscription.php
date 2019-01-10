@@ -113,6 +113,43 @@ class ProSites_Stripe_Subscription {
 	}
 
 	/**
+	 * Cancel a subscription in Stripe using API.
+	 *
+	 * @param string $id        Stripe subscription ID.
+	 * @param bool   $immediate Cancel subscription immediately.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return \Stripe\Subscription|bool
+	 */
+	public function cancel_subscription( $id, $immediate = true ) {
+		$cancelled = false;
+		// Make sure we don't break.
+		try {
+			// First get the subscription.
+			$subscription = $this->get_subscription( $id );
+			// Cancel the subscription immediately.
+			if ( ! empty( $subscription ) && $immediate ) {
+				$cancelled = $subscription->cancel();
+			} elseif ( ! empty( $subscription ) && ! $immediate ) {
+				// Oh we need to wait. Let's cancel on expiry.
+				$subscription->cancel_at_period_end = true;
+				$subscription->save();
+			}
+		} catch ( \Exception $e ) {
+			// Oh well. Failure.
+			$cancelled = false;
+		}
+
+		// Delete cached subscription.
+		if ( $cancelled ) {
+			wp_cache_delete( 'pro_sites_stripe_subscription_' . $id, 'psts' );
+		}
+
+		return $cancelled;
+	}
+
+	/**
 	 * Update a subscription in Stripe.
 	 *
 	 * Please note that you can update only the available fields
@@ -148,43 +185,6 @@ class ProSites_Stripe_Subscription {
 		}
 
 		return $subscription;
-	}
-
-	/**
-	 * Cancel a subscription in Stripe using API.
-	 *
-	 * @param string $id        Stripe subscription ID.
-	 * @param bool   $immediate Cancel subscription immediately.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return \Stripe\Subscription|bool
-	 */
-	public function cancel_subscription( $id, $immediate = true ) {
-		$cancelled = false;
-		// Make sure we don't break.
-		try {
-			// First get the subscription.
-			$subscription = $this->get_subscription( $id );
-			// Cancel the subscription immediately.
-			if ( ! empty( $subscription ) && $immediate ) {
-				$cancelled = $subscription->cancel();
-			} elseif ( ! empty( $subscription ) && ! $immediate ) {
-				// Oh we need to wait. Let's cancel on expiry.
-				$subscription->cancel_at_period_end = true;
-				$subscription->save();
-			}
-		} catch ( \Exception $e ) {
-			// Oh well. Failure.
-			$cancelled = false;
-		}
-
-		// Delete cached subscription.
-		if ( $cancelled ) {
-			wp_cache_delete( 'pro_sites_stripe_subscription_' . $id, 'psts' );
-		}
-
-		return $cancelled;
 	}
 
 	/**
@@ -340,7 +340,7 @@ class ProSites_Stripe_Subscription {
 		}
 
 		// Let us add/update db details also.
-		if ( ! empty( $subscription->id ) ) {
+		if ( ! empty( $subscription->id ) && ! empty( $blog_id ) ) {
 			ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
 				$blog_id,
 				$customer_id,

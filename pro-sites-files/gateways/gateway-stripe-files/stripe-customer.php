@@ -408,7 +408,7 @@ class ProSites_Stripe_Customer {
 	public function set_blog_customer( $email, $blog_id, $token = '' ) {
 		// If wed don't have a blog id, get the Stripe customer id.
 		if ( empty( $blog_id ) ) {
-			// Get Stripe data from db using email..
+			// Get Stripe data from db using email.
 			$db_customer = $this->get_db_customer( false, $email );
 		} else {
 			// Get the Stripe details using blog id.

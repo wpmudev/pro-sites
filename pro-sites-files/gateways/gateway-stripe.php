@@ -950,6 +950,8 @@ class ProSites_Gateway_Stripe {
 		if ( ! self::$stripe_plan->get_plan( $plan_id ) ) {
 			// translators: %1$s Stripe plan ID.
 			$psts->errors->add( 'general', sprintf( __( 'Stripe plan %1$s does not exist.', 'psts' ), $plan_id ) );
+
+			return;
 		}
 
 		// Create or update Stripe customer.
@@ -1093,6 +1095,9 @@ class ProSites_Gateway_Stripe {
 				'activation' => $activation_key,
 			);
 
+			// Should we update the db later?.
+			$update_db = empty( self::$blog_id );
+
 			// Now create the subscription.
 			$subscription = self::$stripe_subscription->set_blog_subscription(
 				self::$blog_id,
@@ -1105,6 +1110,29 @@ class ProSites_Gateway_Stripe {
 			// Now activate the blog.
 			if ( ! empty( $subscription ) ) {
 				self::activate_blog( $activation_key, $subscription, $data, $total, true );
+			}
+
+			if ( ! empty( self::$blog_id ) ) {
+				// Make sure we set subscription data in DB.
+				if ( $update_db && ! empty( $subscription->id ) && ! empty( $customer->id ) ) {
+					ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
+						self::$blog_id,
+						$customer->id,
+						$subscription->id
+					);
+				}
+
+				// If blog id is not set, set now.
+				if ( empty( $subscription->metadata['blog_id'] ) && ! empty( $subscription->id ) ) {
+					// Get existing meta data.
+					$meta = $subscription->metadata;
+					// Add blog id to it.
+					$meta['blog_id'] = self::$blog_id;
+					// Now update the subscription in Stripe.
+					self::$stripe_subscription->update_subscription( $subscription->id, array(
+						'metadata' => $meta,
+					) );
+				}
 			}
 		}
 
@@ -1131,6 +1159,75 @@ class ProSites_Gateway_Stripe {
 	private static function process_single( $data, $customer, $tax_object, $coupon ) {
 
 		return false;
+	}
+
+	/**
+	 * Manually attempt to reactivate a cancelled subscription.
+	 *
+	 * If a subscription was cancelled and not reached the end date
+	 * yet, we will re-activate the subscription. If not, we will
+	 * create new subscription.
+	 *
+	 * @param int  $blog_id Blog ID.
+	 * @param bool $force   Forcing reactivation manually.
+	 *                      Set this to true if this function is not
+	 *                      being called from reactivation form.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void|bool
+	 */
+	public function manual_reactivation( $blog_id, $force = false ) {
+		global $psts;
+
+		// Do this only if forced or from reactivation form.
+		if ( ! self::from_request( 'attempt_stripe_reactivation' ) && ! $force ) {
+			return false;
+		}
+
+		// Get customer data.
+		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
+
+		// Initialize the subscription.
+		$subscription = false;
+
+		// Continue if subscription id found.
+		if ( $customer_data->subscription_id ) {
+			// Try to get the existing subscription.
+			$subscription = self::$stripe_subscription->get_subscription( $customer_data->subscription_id );
+
+			/**
+			 * We can reactivate only if subscription is immediately cancelled.
+			 * See https://stripe.com/docs/billing/subscriptions/canceling-pausing#reactivating-canceled-subscriptions
+			 */
+			if ( ! empty( $subscription->status ) && 'canceled' !== $subscription->status ) {
+				// Do not cancel on end date.
+				$subscription->cancel_at_period_end = false;
+				// Save to reactivate.
+				$subscription = $subscription->save();
+			} else {
+				$subscription = false;
+			}
+		}
+
+		// Try to create new subscription.
+		if ( empty( $subscription ) ) {
+			$subscription = self::$stripe_subscription->set_blog_subscription(
+				$blog_id,
+				false,
+				$customer_data->customer_id
+			);
+		}
+
+		// Ok, success.
+		if ( ! empty( $subscription ) ) {
+			// Remove the flag.
+			delete_blog_option( $blog_id, 'psts_stripe_canceled' );
+			// Log the reactivation.
+			$psts->log_action( $blog_id, __( 'Stripe subscription reactivated manually.', 'psts' ) );
+		} else {
+			$psts->log_action( $blog_id, __( 'Stripe cannot re-activate this subscription.', 'psts' ) );
+		}
 	}
 
 	/**
@@ -1184,75 +1281,6 @@ class ProSites_Gateway_Stripe {
 		self::maybe_extend( $total, $expire, true, $recurring );
 
 		return $activated;
-	}
-
-	/**
-	 * Manually attempt to reactivate a cancelled subscription.
-	 *
-	 * If a subscription was cancelled and not reached the end date
-	 * yet, we will re-activate the subscription. If not, we will
-	 * create new subscription.
-	 *
-	 * @param int  $blog_id Blog ID.
-	 * @param bool $force   Forcing reactivation manually.
-	 *                      Set this to true if this function is not
-	 *                      being called from reactivation form.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return void
-	 */
-	public function manual_reactivation( $blog_id, $force = false ) {
-		global $psts;
-
-		// Do this only if forced or from reactivation form.
-		if ( ! self::from_request( 'attempt_stripe_reactivation' ) && ! $force ) {
-			return false;
-		}
-
-		// Get customer data.
-		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
-
-		// Initialize the subscription.
-		$subscription = false;
-
-		// Continue if subscription id found.
-		if ( $customer_data->subscription_id ) {
-			// Try to get the existing subscription.
-			$subscription = self::$stripe_subscription->get_subscription( $customer_data->subscription_id );
-
-			/**
-			 * We can reactivate only if subscription is immediately cancelled.
-			 * See https://stripe.com/docs/billing/subscriptions/canceling-pausing#reactivating-canceled-subscriptions
-			 */
-			if ( ! empty( $subscription->status ) && 'canceled' !== $subscription->status ) {
-				// Do not cancel on end date.
-				$subscription->cancel_at_period_end = false;
-				// Save to reactivate.
-				$subscription = $subscription->save();
-			} else {
-				$subscription = false;
-			}
-		}
-
-		// Try to create new subscription.
-		if ( empty( $subscription ) ) {
-			$subscription = self::$stripe_subscription->set_blog_subscription(
-				$blog_id,
-				false,
-				$customer_data->customer_id
-			);
-		}
-
-		// Ok, success.
-		if ( ! empty( $subscription ) ) {
-			// Remove the flag.
-			delete_blog_option( $blog_id, 'psts_stripe_canceled' );
-			// Log the reactivation.
-			$psts->log_action( $blog_id, __( 'Stripe subscription reactivated manually.', 'psts' ) );
-		} else {
-			$psts->log_action( $blog_id, __( 'Stripe cannot re-activate this subscription.', 'psts' ) );
-		}
 	}
 
 
