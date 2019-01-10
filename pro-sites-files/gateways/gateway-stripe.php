@@ -142,6 +142,15 @@ class ProSites_Gateway_Stripe {
 	private static $domain;
 
 	/**
+	 * Flag to check if the blog is existing.
+	 *
+	 * @var bool
+	 *
+	 * @since 3.6.1
+	 */
+	private static $existing = false;
+
+	/**
 	 * ProSites_Gateway_Stripe constructor.
 	 */
 	public function __construct() {
@@ -926,6 +935,9 @@ class ProSites_Gateway_Stripe {
 
 		// New blog id.
 		self::$blog_id = empty( $blog_id ) ? self::from_request( 'bid', 0, false ) : $blog_id;
+
+		// Are we processing an existing site.
+		self::$existing = ! empty( self::$blog_id );
 
 		// Domain name.
 		self::$domain = $domain;
