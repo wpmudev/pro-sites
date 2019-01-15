@@ -1,14 +1,14 @@
-# Copyright (C) 2018 WPMU DEV
+# Copyright (C) 2019 WPMU DEV
 # This file is distributed under the same license as the Pro Sites package.
 msgid ""
 msgstr ""
 "Project-Id-Version: Pro Sites 3.6.0\n"
 "Report-Msgid-Bugs-To: https://premium.wpmudev.org/project/pro-sites/\n"
-"POT-Creation-Date: 2018-12-20 14:52:50+00:00\n"
+"POT-Creation-Date: 2019-01-15 09:34:00+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
 "Last-Translator: WPMU Dev <support@wpmudev.org>\n"
 "Language-Team: WPMU Dev <support@wpmudev.org>\n"
 "Language: en\n"
@@ -72,12 +72,12 @@ msgstr ""
 #: pro-sites-files/dash-notice/wpmudev-dash-notification.php:248
 #: pro-sites-files/dash-notice/wpmudev-dash-notification.php:289
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:771
-#: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:4411
+#: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:4429
 #: releases/pro-sites-3.6.0/pro-sites-files/dash-notice/wpmudev-dash-notification.php:248
 #: releases/pro-sites-3.6.0/pro-sites-files/dash-notice/wpmudev-dash-notification.php:289
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:771
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:245
-#: releases/pro-sites-3.6.0/pro-sites.php:4411
+#: releases/pro-sites-3.6.0/pro-sites.php:4429
 msgid "Dismiss"
 msgstr ""
 
@@ -3550,8 +3550,8 @@ msgstr ""
 msgid "Trial"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/Helper/Registration.php:227
-#: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/Helper/Registration.php:227
+#: pro-sites-files/lib/ProSites/Helper/Registration.php:233
+#: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/Helper/Registration.php:233
 msgid "(your current password)"
 msgstr ""
 
@@ -3559,13 +3559,13 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/Helper/Tabs.php:95
 #: pro-sites-files/modules/premium-plugins-manager.php:150
 #: pro-sites-files/modules/premium-plugins.php:514
-#: pro-sites-files/modules/premium-themes.php:369 pro-sites.php:4135
+#: pro-sites-files/modules/premium-themes.php:369 pro-sites.php:4153
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/Helper/Settings.php:40
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/Helper/Tabs.php:95
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins-manager.php:150
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins.php:514
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-themes.php:369
-#: releases/pro-sites-3.6.0/pro-sites.php:4135
+#: releases/pro-sites-3.6.0/pro-sites.php:4153
 msgid "Save Changes"
 msgstr ""
 
@@ -4008,11 +4008,11 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/Model/Settings.php:80
 #: pro-sites-files/modules/premium-plugins.php:452
-#: pro-sites-files/modules/premium-themes.php:306 pro-sites.php:4908
+#: pro-sites-files/modules/premium-themes.php:306 pro-sites.php:4925
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/Model/Settings.php:80
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins.php:452
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-themes.php:306
-#: releases/pro-sites-3.6.0/pro-sites.php:4908
+#: releases/pro-sites-3.6.0/pro-sites.php:4925
 msgid "Settings Saved!"
 msgstr ""
 
@@ -4052,8 +4052,8 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Settings.php:9
 #: pro-sites-files/modules/ads.php:420
 #: pro-sites-files/modules/bulk-upgrades.php:744
-#: pro-sites-files/modules/premium-plugins.php:409 pro-sites.php:2885
-#: pro-sites.php:3329 pro-sites.php:3764 pro-sites.php:4068 pro-sites.php:4896
+#: pro-sites-files/modules/premium-plugins.php:409 pro-sites.php:2892
+#: pro-sites.php:3336 pro-sites.php:3771 pro-sites.php:4075 pro-sites.php:4913
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Coupons.php:24
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Coupons.php:42
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Gateways.php:9
@@ -4062,11 +4062,11 @@ msgstr ""
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/ads.php:420
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:744
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins.php:409
-#: releases/pro-sites-3.6.0/pro-sites.php:2885
-#: releases/pro-sites-3.6.0/pro-sites.php:3329
-#: releases/pro-sites-3.6.0/pro-sites.php:3764
-#: releases/pro-sites-3.6.0/pro-sites.php:4068
-#: releases/pro-sites-3.6.0/pro-sites.php:4896
+#: releases/pro-sites-3.6.0/pro-sites.php:2892
+#: releases/pro-sites-3.6.0/pro-sites.php:3336
+#: releases/pro-sites-3.6.0/pro-sites.php:3771
+#: releases/pro-sites-3.6.0/pro-sites.php:4075
+#: releases/pro-sites-3.6.0/pro-sites.php:4913
 msgid "Nice Try..."
 msgstr ""
 
@@ -4163,9 +4163,9 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:831
 #: pro-sites-files/lib/ProSites/View/Pricing.php:216
 #: pro-sites-files/lib/psts_pricing_table_admin.php:145
-#: pro-sites-files/modules/post-throttling.php:384 pro-sites.php:3168
-#: pro-sites.php:3890 pro-sites.php:3904 pro-sites.php:4019 pro-sites.php:4261
-#: pro-sites.php:4274
+#: pro-sites-files/modules/post-throttling.php:384 pro-sites.php:3175
+#: pro-sites.php:3897 pro-sites.php:3911 pro-sites.php:4026 pro-sites.php:4279
+#: pro-sites.php:4292
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Coupons.php:191
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Coupons.php:417
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:818
@@ -4173,20 +4173,20 @@ msgstr ""
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:216
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table_admin.php:145
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/post-throttling.php:384
-#: releases/pro-sites-3.6.0/pro-sites.php:3168
-#: releases/pro-sites-3.6.0/pro-sites.php:3890
-#: releases/pro-sites-3.6.0/pro-sites.php:3904
-#: releases/pro-sites-3.6.0/pro-sites.php:4019
-#: releases/pro-sites-3.6.0/pro-sites.php:4261
-#: releases/pro-sites-3.6.0/pro-sites.php:4274
+#: releases/pro-sites-3.6.0/pro-sites.php:3175
+#: releases/pro-sites-3.6.0/pro-sites.php:3897
+#: releases/pro-sites-3.6.0/pro-sites.php:3911
+#: releases/pro-sites-3.6.0/pro-sites.php:4026
+#: releases/pro-sites-3.6.0/pro-sites.php:4279
+#: releases/pro-sites-3.6.0/pro-sites.php:4292
 msgid "Level"
 msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Coupons.php:192
-#: pro-sites-files/lib/ProSites/View/Coupons.php:420 pro-sites.php:3146
+#: pro-sites-files/lib/ProSites/View/Coupons.php:420 pro-sites.php:3153
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Coupons.php:192
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Coupons.php:420
-#: releases/pro-sites-3.6.0/pro-sites.php:3146
+#: releases/pro-sites-3.6.0/pro-sites.php:3153
 msgid "Period"
 msgstr ""
 
@@ -4461,11 +4461,11 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:456
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:820
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:937 pro-sites.php:4263
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:937 pro-sites.php:4281
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:456
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:820
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:937
-#: releases/pro-sites-3.6.0/pro-sites.php:4263
+#: releases/pro-sites-3.6.0/pro-sites.php:4281
 msgid "Monthly"
 msgstr ""
 
@@ -4537,12 +4537,12 @@ msgstr ""
 
 #: pro-sites-files/lib/ProSites/View/Front/Checkout.php:771
 #: pro-sites-files/lib/psts_pricing_table.php:245 pro-sites.php:343
-#: pro-sites.php:4411 pro-sites.php:4419
+#: pro-sites.php:4429 pro-sites.php:4437
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:771
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:245
 #: releases/pro-sites-3.6.0/pro-sites.php:343
-#: releases/pro-sites-3.6.0/pro-sites.php:4411
-#: releases/pro-sites-3.6.0/pro-sites.php:4419
+#: releases/pro-sites-3.6.0/pro-sites.php:4429
+#: releases/pro-sites-3.6.0/pro-sites.php:4437
 msgid "No thank you, I will continue with a basic site for now"
 msgstr ""
 
@@ -4553,36 +4553,36 @@ msgid ""
 "selecting a plan above."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:823 pro-sites.php:4266
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:823 pro-sites.php:4284
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:823
-#: releases/pro-sites-3.6.0/pro-sites.php:4266
+#: releases/pro-sites-3.6.0/pro-sites.php:4284
 msgid "Every 3 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:826 pro-sites.php:4269
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:826 pro-sites.php:4287
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:826
-#: releases/pro-sites-3.6.0/pro-sites.php:4269
+#: releases/pro-sites-3.6.0/pro-sites.php:4287
 msgid "Every 12 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:833 pro-sites.php:3510
-#: pro-sites.php:3544 pro-sites.php:4276
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:833 pro-sites.php:3517
+#: pro-sites.php:3551 pro-sites.php:4294
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:833
-#: releases/pro-sites-3.6.0/pro-sites.php:3510
-#: releases/pro-sites-3.6.0/pro-sites.php:3544
-#: releases/pro-sites-3.6.0/pro-sites.php:4276
+#: releases/pro-sites-3.6.0/pro-sites.php:3517
+#: releases/pro-sites-3.6.0/pro-sites.php:3551
+#: releases/pro-sites-3.6.0/pro-sites.php:4294
 msgid "1 Month"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:836 pro-sites.php:4279
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:836 pro-sites.php:4297
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:836
-#: releases/pro-sites-3.6.0/pro-sites.php:4279
+#: releases/pro-sites-3.6.0/pro-sites.php:4297
 msgid "3 Months"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:839 pro-sites.php:4282
+#: pro-sites-files/lib/ProSites/View/Front/Checkout.php:839 pro-sites.php:4300
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Front/Checkout.php:839
-#: releases/pro-sites-3.6.0/pro-sites.php:4282
+#: releases/pro-sites-3.6.0/pro-sites.php:4300
 msgid "12 Months"
 msgstr ""
 
@@ -5329,8 +5329,8 @@ msgstr ""
 #: pro-sites-files/lib/psts_pricing_table_admin.php:140
 #: pro-sites-files/modules/bulk-upgrades.php:527
 #: pro-sites-files/modules/premium-plugins-manager.php:218
-#: pro-sites-files/modules/premium-plugins.php:305 pro-sites.php:3891
-#: pro-sites.php:3905 pro-sites.php:4020
+#: pro-sites-files/modules/premium-plugins.php:305 pro-sites.php:3898
+#: pro-sites.php:3912 pro-sites.php:4027
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:220
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:400
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:761
@@ -5339,9 +5339,9 @@ msgstr ""
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:527
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins-manager.php:218
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins.php:305
-#: releases/pro-sites-3.6.0/pro-sites.php:3891
-#: releases/pro-sites-3.6.0/pro-sites.php:3905
-#: releases/pro-sites-3.6.0/pro-sites.php:4020
+#: releases/pro-sites-3.6.0/pro-sites.php:3898
+#: releases/pro-sites-3.6.0/pro-sites.php:3912
+#: releases/pro-sites-3.6.0/pro-sites.php:4027
 msgid "Name"
 msgstr ""
 
@@ -5350,9 +5350,9 @@ msgstr ""
 msgid "Pricing"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:315 pro-sites.php:4001
+#: pro-sites-files/lib/ProSites/View/Pricing.php:315 pro-sites.php:4008
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:315
-#: releases/pro-sites-3.6.0/pro-sites.php:4001
+#: releases/pro-sites-3.6.0/pro-sites.php:4008
 msgid "No levels yet."
 msgstr ""
 
@@ -5390,14 +5390,14 @@ msgstr ""
 #: pro-sites-files/lib/psts_pricing_table_admin.php:141
 #: pro-sites-files/modules/premium-plugins-manager.php:121
 #: pro-sites-files/modules/premium-plugins.php:477
-#: pro-sites-files/modules/premium-themes.php:333 pro-sites.php:4090
+#: pro-sites-files/modules/premium-themes.php:333 pro-sites.php:4097
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:406
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:762
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table_admin.php:141
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins-manager.php:121
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins.php:477
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-themes.php:333
-#: releases/pro-sites-3.6.0/pro-sites.php:4090
+#: releases/pro-sites-3.6.0/pro-sites.php:4097
 msgid "Description"
 msgstr ""
 
@@ -5435,9 +5435,9 @@ msgstr ""
 msgid "edit"
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Pricing.php:437 pro-sites.php:4524
+#: pro-sites-files/lib/ProSites/View/Pricing.php:437 pro-sites.php:4542
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Pricing.php:437
-#: releases/pro-sites-3.6.0/pro-sites.php:4524
+#: releases/pro-sites-3.6.0/pro-sites.php:4542
 msgid "change"
 msgstr ""
 
@@ -5731,12 +5731,12 @@ msgstr ""
 #: pro-sites-files/lib/ProSites/View/Settings.php:290
 #: pro-sites-files/lib/ProSites/View/Settings.php:320
 #: pro-sites-files/modules/premium-plugins-manager.php:235
-#: pro-sites-files/modules/premium-plugins.php:322 pro-sites.php:4088
+#: pro-sites-files/modules/premium-plugins.php:322 pro-sites.php:4095
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Settings.php:290
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Settings.php:320
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins-manager.php:235
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-plugins.php:322
-#: releases/pro-sites-3.6.0/pro-sites.php:4088
+#: releases/pro-sites-3.6.0/pro-sites.php:4095
 msgid "Enable"
 msgstr ""
 
@@ -5844,9 +5844,9 @@ msgid ""
 "with the date when their Pro Site access ends."
 msgstr ""
 
-#: pro-sites-files/lib/ProSites/View/Settings.php:380 pro-sites.php:4811
+#: pro-sites-files/lib/ProSites/View/Settings.php:380 pro-sites.php:4828
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/ProSites/View/Settings.php:380
-#: releases/pro-sites-3.6.0/pro-sites.php:4811
+#: releases/pro-sites-3.6.0/pro-sites.php:4828
 msgid "Payment Receipt"
 msgstr ""
 
@@ -6046,23 +6046,23 @@ msgstr ""
 msgid "Subscription ID"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:89 pro-sites.php:4250
+#: pro-sites-files/lib/psts_pricing_table.php:89 pro-sites.php:4268
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:89
-#: releases/pro-sites-3.6.0/pro-sites.php:4250
+#: releases/pro-sites-3.6.0/pro-sites.php:4268
 msgid ""
 "Your coupon code <strong>%1$s</strong> has been applied for a discount of "
 "%2$s off the first payment. <a href=\"%3$s\">Remove it &raquo;</a>"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:123 pro-sites.php:4317
+#: pro-sites-files/lib/psts_pricing_table.php:123 pro-sites.php:4335
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:123
-#: releases/pro-sites-3.6.0/pro-sites.php:4317
+#: releases/pro-sites-3.6.0/pro-sites.php:4335
 msgid "Try it out!"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:125 pro-sites.php:4318
+#: pro-sites-files/lib/psts_pricing_table.php:125 pro-sites.php:4336
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:125
-#: releases/pro-sites-3.6.0/pro-sites.php:4318
+#: releases/pro-sites-3.6.0/pro-sites.php:4336
 msgid "You can easily switch to a better value plan at any time."
 msgstr ""
 
@@ -6071,9 +6071,9 @@ msgstr ""
 msgid "Equivalent to only <br />  %s monthly"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:132 pro-sites.php:4350
+#: pro-sites-files/lib/psts_pricing_table.php:132 pro-sites.php:4368
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:132
-#: releases/pro-sites-3.6.0/pro-sites.php:4350
+#: releases/pro-sites-3.6.0/pro-sites.php:4368
 msgid "Save %s by paying for 3 months in advance!"
 msgstr ""
 
@@ -6082,36 +6082,36 @@ msgstr ""
 msgid "Equivalent to only <br />%s monthly"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:139 pro-sites.php:4383
+#: pro-sites-files/lib/psts_pricing_table.php:139 pro-sites.php:4401
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:139
-#: releases/pro-sites-3.6.0/pro-sites.php:4383
+#: releases/pro-sites-3.6.0/pro-sites.php:4401
 msgid "Save %s by paying for a year in advance!"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:157 pro-sites.php:4441
+#: pro-sites-files/lib/psts_pricing_table.php:157 pro-sites.php:4459
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:157
-#: releases/pro-sites-3.6.0/pro-sites.php:4441
+#: releases/pro-sites-3.6.0/pro-sites.php:4459
 msgid "Have a coupon code?"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:159 pro-sites.php:4443
+#: pro-sites-files/lib/psts_pricing_table.php:159 pro-sites.php:4461
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:159
-#: releases/pro-sites-3.6.0/pro-sites.php:4443
+#: releases/pro-sites-3.6.0/pro-sites.php:4461
 msgid "Enter your code:"
 msgstr ""
 
-#: pro-sites-files/lib/psts_pricing_table.php:161 pro-sites.php:4445
+#: pro-sites-files/lib/psts_pricing_table.php:161 pro-sites.php:4463
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:161
-#: releases/pro-sites-3.6.0/pro-sites.php:4445
+#: releases/pro-sites-3.6.0/pro-sites.php:4463
 msgid "Apply &raquo;"
 msgstr ""
 
 #: pro-sites-files/lib/psts_pricing_table.php:243 pro-sites.php:342
-#: pro-sites.php:1037 pro-sites.php:4406
+#: pro-sites.php:1037 pro-sites.php:4424
 #: releases/pro-sites-3.6.0/pro-sites-files/lib/psts_pricing_table.php:243
 #: releases/pro-sites-3.6.0/pro-sites.php:342
 #: releases/pro-sites-3.6.0/pro-sites.php:1037
-#: releases/pro-sites-3.6.0/pro-sites.php:4406
+#: releases/pro-sites-3.6.0/pro-sites.php:4424
 msgid "Free"
 msgstr ""
 
@@ -6499,43 +6499,43 @@ msgstr ""
 msgid "Brag about your Pro Level with a widget"
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:44
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:44
+#: pro-sites-files/modules/badge-widget.php:53
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:53
 msgid ""
 "Enter a url to the badge image file for each corresponding level. It is "
 "recommended to use an image with a maximum width of 160px to be compatible "
 "with most theme sidebars."
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:50
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:50
+#: pro-sites-files/modules/badge-widget.php:59
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:59
 msgid "%s Image URL:"
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:59
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:59
+#: pro-sites-files/modules/badge-widget.php:68
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:68
 msgid "Link URL (optional)"
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:59
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:59
+#: pro-sites-files/modules/badge-widget.php:68
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:68
 msgid ""
 "If you would like the badge to link somewhere (like a page describing Pro "
 "Sites) enter the url here."
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:99
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:99
+#: pro-sites-files/modules/badge-widget.php:108
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:108
 msgid "Proudly display your %s status in you sidebar!"
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:101
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:101
+#: pro-sites-files/modules/badge-widget.php:110
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:110
 msgid "%s Widget"
 msgstr ""
 
-#: pro-sites-files/modules/badge-widget.php:118
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:118
+#: pro-sites-files/modules/badge-widget.php:127
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/badge-widget.php:127
 msgid "A proud %s site."
 msgstr ""
 
@@ -6568,10 +6568,10 @@ msgstr ""
 
 #: pro-sites-files/modules/buddypress.php:166
 #: pro-sites-files/modules/premium-support.php:84
-#: pro-sites-files/modules/xmlrpc.php:104
+#: pro-sites-files/modules/xmlrpc.php:103
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/buddypress.php:166
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-support.php:84
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:104
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:103
 msgid "Restricted Message"
 msgstr ""
 
@@ -6886,11 +6886,11 @@ msgstr ""
 
 #: pro-sites-files/modules/bulk-upgrades.php:909
 #: pro-sites-files/modules/bulk-upgrades.php:987
-#: pro-sites-files/modules/bulk-upgrades.php:1054 pro-sites.php:4116
+#: pro-sites-files/modules/bulk-upgrades.php:1054 pro-sites.php:4134
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:909
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:987
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:1054
-#: releases/pro-sites-3.6.0/pro-sites.php:4116
+#: releases/pro-sites-3.6.0/pro-sites.php:4134
 msgid "Upgrade"
 msgstr ""
 
@@ -6906,13 +6906,13 @@ msgstr ""
 #: pro-sites-files/modules/bulk-upgrades.php:920
 #: pro-sites-files/modules/bulk-upgrades.php:999
 #: pro-sites-files/modules/bulk-upgrades.php:1071 pro-sites.php:1041
-#: pro-sites.php:2134 pro-sites.php:3162
+#: pro-sites.php:2134 pro-sites.php:3169
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:920
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:999
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/bulk-upgrades.php:1071
 #: releases/pro-sites-3.6.0/pro-sites.php:1041
 #: releases/pro-sites-3.6.0/pro-sites.php:2134
-#: releases/pro-sites-3.6.0/pro-sites.php:3162
+#: releases/pro-sites-3.6.0/pro-sites.php:3169
 msgid "Permanent"
 msgstr ""
 
@@ -7161,12 +7161,12 @@ msgstr ""
 #: pro-sites-files/modules/posting-quota.php:135
 #: pro-sites-files/modules/premium-support.php:53
 #: pro-sites-files/modules/unfiltered-html.php:88
-#: pro-sites-files/modules/write.php:72 pro-sites-files/modules/xmlrpc.php:90
+#: pro-sites-files/modules/write.php:72 pro-sites-files/modules/xmlrpc.php:89
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/posting-quota.php:135
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/premium-support.php:53
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/unfiltered-html.php:88
 #: releases/pro-sites-3.6.0/pro-sites-files/modules/write.php:72
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:90
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:89
 msgid "Pro Site Level"
 msgstr ""
 
@@ -7794,13 +7794,13 @@ msgstr ""
 msgid "Can use XML RPC calls"
 msgstr ""
 
-#: pro-sites-files/modules/xmlrpc.php:90
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:90
+#: pro-sites-files/modules/xmlrpc.php:89
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:89
 msgid "Select the minimum level required to enable remote publishing."
 msgstr ""
 
-#: pro-sites-files/modules/xmlrpc.php:104
-#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:104
+#: pro-sites-files/modules/xmlrpc.php:103
+#: releases/pro-sites-3.6.0/pro-sites-files/modules/xmlrpc.php:103
 msgid ""
 "Required - This message is displayed on the writing settings screen for "
 "sites that don't have permissions. \"LEVEL\" will be replaced with the "
@@ -8106,9 +8106,9 @@ msgstr ""
 msgid "Manage Sites"
 msgstr ""
 
-#: pro-sites.php:842 pro-sites.php:3690
+#: pro-sites.php:842 pro-sites.php:3697
 #: releases/pro-sites-3.6.0/pro-sites.php:842
-#: releases/pro-sites-3.6.0/pro-sites.php:3690
+#: releases/pro-sites-3.6.0/pro-sites.php:3697
 msgid "Pro Sites Statistics"
 msgstr ""
 
@@ -8116,9 +8116,9 @@ msgstr ""
 msgid "Statistics"
 msgstr ""
 
-#: pro-sites.php:864 pro-sites.php:3770
+#: pro-sites.php:864 pro-sites.php:3777
 #: releases/pro-sites-3.6.0/pro-sites.php:864
-#: releases/pro-sites-3.6.0/pro-sites.php:3770
+#: releases/pro-sites-3.6.0/pro-sites.php:3777
 msgid "Pro Sites Levels"
 msgstr ""
 
@@ -8126,9 +8126,9 @@ msgstr ""
 msgid "Levels"
 msgstr ""
 
-#: pro-sites.php:872 pro-sites.php:4078
+#: pro-sites.php:872 pro-sites.php:4085
 #: releases/pro-sites-3.6.0/pro-sites.php:872
-#: releases/pro-sites-3.6.0/pro-sites.php:4078
+#: releases/pro-sites-3.6.0/pro-sites.php:4085
 msgid "Pro Sites Modules"
 msgstr ""
 
@@ -8368,410 +8368,410 @@ msgstr ""
 msgid "Manage &raquo;"
 msgstr ""
 
-#: pro-sites.php:2892 releases/pro-sites-3.6.0/pro-sites.php:2892
+#: pro-sites.php:2899 releases/pro-sites-3.6.0/pro-sites.php:2899
 msgid "Log entry added."
 msgstr ""
 
-#: pro-sites.php:2909 releases/pro-sites-3.6.0/pro-sites.php:2909
+#: pro-sites.php:2916 releases/pro-sites-3.6.0/pro-sites.php:2916
 msgid "Site Extended."
 msgstr ""
 
-#: pro-sites.php:2916 releases/pro-sites-3.6.0/pro-sites.php:2916
+#: pro-sites.php:2923 releases/pro-sites-3.6.0/pro-sites.php:2923
 msgid "Please enter the Blog ID of a site to transfer to."
 msgstr ""
 
-#: pro-sites.php:2918 releases/pro-sites-3.6.0/pro-sites.php:2918
+#: pro-sites.php:2925 releases/pro-sites-3.6.0/pro-sites.php:2925
 msgid ""
 "Could not transfer Pro Status: The chosen site already is a Pro Site. You "
 "must remove Pro status and cancel any existing subscriptions tied to that "
 "site."
 msgstr ""
 
-#: pro-sites.php:2925 releases/pro-sites-3.6.0/pro-sites.php:2925
+#: pro-sites.php:2932 releases/pro-sites-3.6.0/pro-sites.php:2932
 msgid "Pro Status transferred by %s to BlogID: %d"
 msgstr ""
 
-#: pro-sites.php:2926 releases/pro-sites-3.6.0/pro-sites.php:2926
+#: pro-sites.php:2933 releases/pro-sites-3.6.0/pro-sites.php:2933
 msgid "Pro Status transferred by %s from BlogID: %d"
 msgstr ""
 
-#: pro-sites.php:2928 releases/pro-sites-3.6.0/pro-sites.php:2928
+#: pro-sites.php:2935 releases/pro-sites-3.6.0/pro-sites.php:2935
 msgid "Pro Status transferred to BlogID: %d"
 msgstr ""
 
-#: pro-sites.php:2940 releases/pro-sites-3.6.0/pro-sites.php:2940
+#: pro-sites.php:2947 releases/pro-sites-3.6.0/pro-sites.php:2947
 msgid "Pro Site Status Removed."
 msgstr ""
 
-#: pro-sites.php:2945 releases/pro-sites-3.6.0/pro-sites.php:2945
+#: pro-sites.php:2952 releases/pro-sites-3.6.0/pro-sites.php:2952
 msgid "Email receipt sent."
 msgstr ""
 
-#: pro-sites.php:2954 releases/pro-sites-3.6.0/pro-sites.php:2954
+#: pro-sites.php:2961 releases/pro-sites-3.6.0/pro-sites.php:2961
 msgid "Invalid blog ID. Please try again."
 msgstr ""
 
-#: pro-sites.php:2973 releases/pro-sites-3.6.0/pro-sites.php:2973
+#: pro-sites.php:2980 releases/pro-sites-3.6.0/pro-sites.php:2980
 msgid "Are you sure you really want to do this?"
 msgstr ""
 
-#: pro-sites.php:2984 releases/pro-sites-3.6.0/pro-sites.php:2984
+#: pro-sites.php:2991 releases/pro-sites-3.6.0/pro-sites.php:2991
 msgid "Pro Sites Management"
 msgstr ""
 
-#: pro-sites.php:2995 releases/pro-sites-3.6.0/pro-sites.php:2995
+#: pro-sites.php:3002 releases/pro-sites-3.6.0/pro-sites.php:3002
 msgid "Manage Site"
 msgstr ""
 
-#: pro-sites.php:3003 releases/pro-sites-3.6.0/pro-sites.php:3003
+#: pro-sites.php:3010 releases/pro-sites-3.6.0/pro-sites.php:3010
 msgid "Blog URL: "
 msgstr ""
 
-#: pro-sites.php:3012 releases/pro-sites-3.6.0/pro-sites.php:3012
+#: pro-sites.php:3019 releases/pro-sites-3.6.0/pro-sites.php:3019
 msgid "%s Month"
 msgid_plural "%s Months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: pro-sites.php:3021 releases/pro-sites-3.6.0/pro-sites.php:3021
+#: pro-sites.php:3028 releases/pro-sites-3.6.0/pro-sites.php:3028
 msgid "Current Pro Site"
 msgstr ""
 
-#: pro-sites.php:3025 releases/pro-sites-3.6.0/pro-sites.php:3025
+#: pro-sites.php:3032 releases/pro-sites-3.6.0/pro-sites.php:3032
 msgid "Pro Site privileges will expire: <strong>Never</strong>"
 msgstr ""
 
-#: pro-sites.php:3028 releases/pro-sites-3.6.0/pro-sites.php:3028
+#: pro-sites.php:3035 releases/pro-sites-3.6.0/pro-sites.php:3035
 msgid "(Active trial)"
 msgstr ""
 
-#: pro-sites.php:3030 releases/pro-sites-3.6.0/pro-sites.php:3030
+#: pro-sites.php:3037 releases/pro-sites-3.6.0/pro-sites.php:3037
 msgid "Pro Site privileges will expire on: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3033 releases/pro-sites-3.6.0/pro-sites.php:3033
+#: pro-sites.php:3040 releases/pro-sites-3.6.0/pro-sites.php:3040
 msgid "Level: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3036 releases/pro-sites-3.6.0/pro-sites.php:3036
+#: pro-sites.php:3043 releases/pro-sites-3.6.0/pro-sites.php:3043
 msgid "Payment Gateway: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3039 releases/pro-sites-3.6.0/pro-sites.php:3039
+#: pro-sites.php:3046 releases/pro-sites-3.6.0/pro-sites.php:3046
 msgid "Payment Term: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3044 releases/pro-sites-3.6.0/pro-sites.php:3044
+#: pro-sites.php:3051 releases/pro-sites-3.6.0/pro-sites.php:3051
 msgid "Expired Pro Site"
 msgstr ""
 
-#: pro-sites.php:3047 releases/pro-sites-3.6.0/pro-sites.php:3047
+#: pro-sites.php:3054 releases/pro-sites-3.6.0/pro-sites.php:3054
 msgid "Pro Site privileges expired on: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3049 releases/pro-sites-3.6.0/pro-sites.php:3049
+#: pro-sites.php:3056 releases/pro-sites-3.6.0/pro-sites.php:3056
 msgid "Previous Level: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3052 releases/pro-sites-3.6.0/pro-sites.php:3052
+#: pro-sites.php:3059 releases/pro-sites-3.6.0/pro-sites.php:3059
 msgid "Previous Payment Gateway: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3055 releases/pro-sites-3.6.0/pro-sites.php:3055
+#: pro-sites.php:3062 releases/pro-sites-3.6.0/pro-sites.php:3062
 msgid "Previous Payment Term: <strong>%s</strong>"
 msgstr ""
 
-#: pro-sites.php:3060 releases/pro-sites-3.6.0/pro-sites.php:3060
+#: pro-sites.php:3067 releases/pro-sites-3.6.0/pro-sites.php:3067
 msgid "has never been a Pro Site."
 msgstr ""
 
-#: pro-sites.php:3071 releases/pro-sites-3.6.0/pro-sites.php:3071
+#: pro-sites.php:3078 releases/pro-sites-3.6.0/pro-sites.php:3078
 msgid "Subscription Information"
 msgstr ""
 
-#: pro-sites.php:3084 releases/pro-sites-3.6.0/pro-sites.php:3084
+#: pro-sites.php:3091 releases/pro-sites-3.6.0/pro-sites.php:3091
 msgid "Subscriber Information"
 msgstr ""
 
-#: pro-sites.php:3099 releases/pro-sites-3.6.0/pro-sites.php:3099
+#: pro-sites.php:3106 releases/pro-sites-3.6.0/pro-sites.php:3106
 msgid "Account History"
 msgstr ""
 
-#: pro-sites.php:3102 releases/pro-sites-3.6.0/pro-sites.php:3102
+#: pro-sites.php:3109 releases/pro-sites-3.6.0/pro-sites.php:3109
 msgid ""
 "This logs basically every action done in the system regarding the site for "
 "an audit trail."
 msgstr ""
 
-#: pro-sites.php:3114 releases/pro-sites-3.6.0/pro-sites.php:3114
+#: pro-sites.php:3121 releases/pro-sites-3.6.0/pro-sites.php:3121
 msgid "Y-m-d g:i:s a"
 msgstr ""
 
-#: pro-sites.php:3117 releases/pro-sites-3.6.0/pro-sites.php:3117
+#: pro-sites.php:3124 releases/pro-sites-3.6.0/pro-sites.php:3124
 msgid "No history recorded for this site yet."
 msgstr ""
 
-#: pro-sites.php:3123 releases/pro-sites-3.6.0/pro-sites.php:3123
+#: pro-sites.php:3130 releases/pro-sites-3.6.0/pro-sites.php:3130
 msgid "Add a custom log entry..."
 msgstr ""
 
-#: pro-sites.php:3124 pro-sites.php:4049
-#: releases/pro-sites-3.6.0/pro-sites.php:3124
-#: releases/pro-sites-3.6.0/pro-sites.php:4049
+#: pro-sites.php:3131 pro-sites.php:4056
+#: releases/pro-sites-3.6.0/pro-sites.php:3131
+#: releases/pro-sites-3.6.0/pro-sites.php:4056
 msgid "Add &raquo;"
 msgstr ""
 
-#: pro-sites.php:3136 releases/pro-sites-3.6.0/pro-sites.php:3136
+#: pro-sites.php:3143 releases/pro-sites-3.6.0/pro-sites.php:3143
 msgid "Manually Extend Pro Site Status"
 msgstr ""
 
-#: pro-sites.php:3139 releases/pro-sites-3.6.0/pro-sites.php:3139
+#: pro-sites.php:3146 releases/pro-sites-3.6.0/pro-sites.php:3146
 msgid ""
 "Please note that these changes will not adjust the payment dates or level "
 "for any existing subscription."
 msgstr ""
 
-#: pro-sites.php:3153 releases/pro-sites-3.6.0/pro-sites.php:3153
+#: pro-sites.php:3160 releases/pro-sites-3.6.0/pro-sites.php:3160
 msgid "Months"
 msgstr ""
 
-#: pro-sites.php:3160 releases/pro-sites-3.6.0/pro-sites.php:3160
+#: pro-sites.php:3167 releases/pro-sites-3.6.0/pro-sites.php:3167
 msgid "Days"
 msgstr ""
 
-#: pro-sites.php:3161 releases/pro-sites-3.6.0/pro-sites.php:3161
+#: pro-sites.php:3168 releases/pro-sites-3.6.0/pro-sites.php:3168
 msgid "or"
 msgstr ""
 
-#: pro-sites.php:3164 releases/pro-sites-3.6.0/pro-sites.php:3164
+#: pro-sites.php:3171 releases/pro-sites-3.6.0/pro-sites.php:3171
 msgid "Period you wish to extend the site. Leave at zero to only change the level."
 msgstr ""
 
-#: pro-sites.php:3177 releases/pro-sites-3.6.0/pro-sites.php:3177
+#: pro-sites.php:3184 releases/pro-sites-3.6.0/pro-sites.php:3184
 msgid "Choose what level the site should have access to."
 msgstr ""
 
-#: pro-sites.php:3181 releases/pro-sites-3.6.0/pro-sites.php:3181
+#: pro-sites.php:3188 releases/pro-sites-3.6.0/pro-sites.php:3188
 msgid "Extend as"
 msgstr ""
 
-#: pro-sites.php:3193 pro-sites.php:3514 pro-sites.php:3556
-#: releases/pro-sites-3.6.0/pro-sites.php:3193
-#: releases/pro-sites-3.6.0/pro-sites.php:3514
-#: releases/pro-sites-3.6.0/pro-sites.php:3556
+#: pro-sites.php:3200 pro-sites.php:3521 pro-sites.php:3563
+#: releases/pro-sites-3.6.0/pro-sites.php:3200
+#: releases/pro-sites-3.6.0/pro-sites.php:3521
+#: releases/pro-sites-3.6.0/pro-sites.php:3563
 msgid "Manual"
 msgstr ""
 
-#: pro-sites.php:3195 releases/pro-sites-3.6.0/pro-sites.php:3195
+#: pro-sites.php:3202 releases/pro-sites-3.6.0/pro-sites.php:3202
 msgid "Choose whether to keep the user on trial or upgrade as paid member."
 msgstr ""
 
-#: pro-sites.php:3206 releases/pro-sites-3.6.0/pro-sites.php:3206
+#: pro-sites.php:3213 releases/pro-sites-3.6.0/pro-sites.php:3213
 msgid "Stripe Reactivate"
 msgstr ""
 
-#: pro-sites.php:3210 releases/pro-sites-3.6.0/pro-sites.php:3210
+#: pro-sites.php:3217 releases/pro-sites-3.6.0/pro-sites.php:3217
 msgid "Attempt to reactivate former Stripe subscription."
 msgstr ""
 
-#: pro-sites.php:3210 releases/pro-sites-3.6.0/pro-sites.php:3210
+#: pro-sites.php:3217 releases/pro-sites-3.6.0/pro-sites.php:3217
 msgid ""
 "Note: Only do this if the subscription was accidentally cancelled or you "
 "have explicit permission from the customer."
 msgstr ""
 
-#: pro-sites.php:3218 releases/pro-sites-3.6.0/pro-sites.php:3218
+#: pro-sites.php:3225 releases/pro-sites-3.6.0/pro-sites.php:3225
 msgid "Extend &raquo;"
 msgstr ""
 
-#: pro-sites.php:3228 releases/pro-sites-3.6.0/pro-sites.php:3228
+#: pro-sites.php:3235 releases/pro-sites-3.6.0/pro-sites.php:3235
 msgid "Transfer &raquo;"
 msgstr ""
 
-#: pro-sites.php:3241 releases/pro-sites-3.6.0/pro-sites.php:3241
+#: pro-sites.php:3248 releases/pro-sites-3.6.0/pro-sites.php:3248
 msgid "Modify Pro Site Status"
 msgstr ""
 
-#: pro-sites.php:3252 releases/pro-sites-3.6.0/pro-sites.php:3252
+#: pro-sites.php:3259 releases/pro-sites-3.6.0/pro-sites.php:3259
 msgid "Remove Pro status from this site."
 msgstr ""
 
-#: pro-sites.php:3258 releases/pro-sites-3.6.0/pro-sites.php:3258
+#: pro-sites.php:3265 releases/pro-sites-3.6.0/pro-sites.php:3265
 msgid "Email a receipt copy for last payment to:"
 msgstr ""
 
-#: pro-sites.php:3264 releases/pro-sites-3.6.0/pro-sites.php:3264
+#: pro-sites.php:3271 releases/pro-sites-3.6.0/pro-sites.php:3271
 msgid "Modify &raquo;"
 msgstr ""
 
-#: pro-sites.php:3279 releases/pro-sites-3.6.0/pro-sites.php:3279
+#: pro-sites.php:3286 releases/pro-sites-3.6.0/pro-sites.php:3286
 msgid "Manage a Site"
 msgstr ""
 
-#: pro-sites.php:3286 releases/pro-sites-3.6.0/pro-sites.php:3286
+#: pro-sites.php:3293 releases/pro-sites-3.6.0/pro-sites.php:3293
 msgid "Blog ID:"
 msgstr ""
 
-#: pro-sites.php:3288 releases/pro-sites-3.6.0/pro-sites.php:3288
+#: pro-sites.php:3295 releases/pro-sites-3.6.0/pro-sites.php:3295
 msgid "Continue &raquo;"
 msgstr ""
 
-#: pro-sites.php:3298 releases/pro-sites-3.6.0/pro-sites.php:3298
+#: pro-sites.php:3305 releases/pro-sites-3.6.0/pro-sites.php:3305
 msgid "Activation Key:"
 msgstr ""
 
-#: pro-sites.php:3300 releases/pro-sites-3.6.0/pro-sites.php:3300
+#: pro-sites.php:3307 releases/pro-sites-3.6.0/pro-sites.php:3307
 msgid "Activate Blog &raquo;"
 msgstr ""
 
-#: pro-sites.php:3309 releases/pro-sites-3.6.0/pro-sites.php:3309
+#: pro-sites.php:3316 releases/pro-sites-3.6.0/pro-sites.php:3316
 msgid ""
 "Or search for a site:<br /><small>By Blog ID, IP address or "
 "Path/Domain</small>"
 msgstr ""
 
-#: pro-sites.php:3311 releases/pro-sites-3.6.0/pro-sites.php:3311
+#: pro-sites.php:3318 releases/pro-sites-3.6.0/pro-sites.php:3318
 msgid "Search Sites &raquo;"
 msgstr ""
 
-#: pro-sites.php:3495 releases/pro-sites-3.6.0/pro-sites.php:3495
+#: pro-sites.php:3502 releases/pro-sites-3.6.0/pro-sites.php:3502
 msgid "Total Pro Sites"
 msgstr ""
 
-#: pro-sites.php:3511 pro-sites.php:3548
-#: releases/pro-sites-3.6.0/pro-sites.php:3511
-#: releases/pro-sites-3.6.0/pro-sites.php:3548
+#: pro-sites.php:3518 pro-sites.php:3555
+#: releases/pro-sites-3.6.0/pro-sites.php:3518
+#: releases/pro-sites-3.6.0/pro-sites.php:3555
 msgid "3 Month"
 msgstr ""
 
-#: pro-sites.php:3512 pro-sites.php:3552
-#: releases/pro-sites-3.6.0/pro-sites.php:3512
-#: releases/pro-sites-3.6.0/pro-sites.php:3552
-msgid "12 Month"
-msgstr ""
-
-#: pro-sites.php:3518 pro-sites.php:3527
-#: releases/pro-sites-3.6.0/pro-sites.php:3518
-#: releases/pro-sites-3.6.0/pro-sites.php:3527
-msgid "Signups"
-msgstr ""
-
-#: pro-sites.php:3519 pro-sites.php:3528
+#: pro-sites.php:3519 pro-sites.php:3559
 #: releases/pro-sites-3.6.0/pro-sites.php:3519
-#: releases/pro-sites-3.6.0/pro-sites.php:3528
-msgid "Upgrades"
-msgstr ""
-
-#: pro-sites.php:3521 pro-sites.php:3530
-#: releases/pro-sites-3.6.0/pro-sites.php:3521
-#: releases/pro-sites-3.6.0/pro-sites.php:3530
-msgid "Modifications"
+#: releases/pro-sites-3.6.0/pro-sites.php:3559
+msgid "12 Month"
 msgstr ""
 
 #: pro-sites.php:3525 pro-sites.php:3534
 #: releases/pro-sites-3.6.0/pro-sites.php:3525
 #: releases/pro-sites-3.6.0/pro-sites.php:3534
+msgid "Signups"
+msgstr ""
+
+#: pro-sites.php:3526 pro-sites.php:3535
+#: releases/pro-sites-3.6.0/pro-sites.php:3526
+#: releases/pro-sites-3.6.0/pro-sites.php:3535
+msgid "Upgrades"
+msgstr ""
+
+#: pro-sites.php:3528 pro-sites.php:3537
+#: releases/pro-sites-3.6.0/pro-sites.php:3528
+#: releases/pro-sites-3.6.0/pro-sites.php:3537
+msgid "Modifications"
+msgstr ""
+
+#: pro-sites.php:3532 pro-sites.php:3541
+#: releases/pro-sites-3.6.0/pro-sites.php:3532
+#: releases/pro-sites-3.6.0/pro-sites.php:3541
 msgid "Cancelations"
 msgstr ""
 
-#: pro-sites.php:3697 releases/pro-sites-3.6.0/pro-sites.php:3697
+#: pro-sites.php:3704 releases/pro-sites-3.6.0/pro-sites.php:3704
 msgid "Monthly Activity Summary"
 msgstr ""
 
-#: pro-sites.php:3700 pro-sites.php:3708 pro-sites.php:3720 pro-sites.php:3726
-#: pro-sites.php:3737 pro-sites.php:3745 pro-sites.php:3748 pro-sites.php:3755
-#: releases/pro-sites-3.6.0/pro-sites.php:3700
-#: releases/pro-sites-3.6.0/pro-sites.php:3708
-#: releases/pro-sites-3.6.0/pro-sites.php:3720
-#: releases/pro-sites-3.6.0/pro-sites.php:3726
-#: releases/pro-sites-3.6.0/pro-sites.php:3737
-#: releases/pro-sites-3.6.0/pro-sites.php:3745
-#: releases/pro-sites-3.6.0/pro-sites.php:3748
+#: pro-sites.php:3707 pro-sites.php:3715 pro-sites.php:3727 pro-sites.php:3733
+#: pro-sites.php:3744 pro-sites.php:3752 pro-sites.php:3755 pro-sites.php:3762
+#: releases/pro-sites-3.6.0/pro-sites.php:3707
+#: releases/pro-sites-3.6.0/pro-sites.php:3715
+#: releases/pro-sites-3.6.0/pro-sites.php:3727
+#: releases/pro-sites-3.6.0/pro-sites.php:3733
+#: releases/pro-sites-3.6.0/pro-sites.php:3744
+#: releases/pro-sites-3.6.0/pro-sites.php:3752
 #: releases/pro-sites-3.6.0/pro-sites.php:3755
+#: releases/pro-sites-3.6.0/pro-sites.php:3762
 msgid "No data available yet"
 msgstr ""
 
-#: pro-sites.php:3705 releases/pro-sites-3.6.0/pro-sites.php:3705
+#: pro-sites.php:3712 releases/pro-sites-3.6.0/pro-sites.php:3712
 msgid "Weekly Activity Summary"
 msgstr ""
 
-#: pro-sites.php:3713 releases/pro-sites-3.6.0/pro-sites.php:3713
+#: pro-sites.php:3720 releases/pro-sites-3.6.0/pro-sites.php:3720
 msgid "Ratios"
 msgstr ""
 
-#: pro-sites.php:3718 releases/pro-sites-3.6.0/pro-sites.php:3718
+#: pro-sites.php:3725 releases/pro-sites-3.6.0/pro-sites.php:3725
 msgid "Current Pro Site Levels (%s Total)"
 msgstr ""
 
-#: pro-sites.php:3724 releases/pro-sites-3.6.0/pro-sites.php:3724
+#: pro-sites.php:3731 releases/pro-sites-3.6.0/pro-sites.php:3731
 msgid "Current Gateway Use"
 msgstr ""
 
-#: pro-sites.php:3734 releases/pro-sites-3.6.0/pro-sites.php:3734
+#: pro-sites.php:3741 releases/pro-sites-3.6.0/pro-sites.php:3741
 msgid "Pro Sites History"
 msgstr ""
 
-#: pro-sites.php:3742 releases/pro-sites-3.6.0/pro-sites.php:3742
+#: pro-sites.php:3749 releases/pro-sites-3.6.0/pro-sites.php:3749
 msgid "Pro Sites Term History"
 msgstr ""
 
-#: pro-sites.php:3746 releases/pro-sites-3.6.0/pro-sites.php:3746
+#: pro-sites.php:3753 releases/pro-sites-3.6.0/pro-sites.php:3753
 msgid "Current Terms"
 msgstr ""
 
-#: pro-sites.php:3799 releases/pro-sites-3.6.0/pro-sites.php:3799
+#: pro-sites.php:3806 releases/pro-sites-3.6.0/pro-sites.php:3806
 msgid "Level %s successfully deleted."
 msgstr ""
 
-#: pro-sites.php:3812 releases/pro-sites-3.6.0/pro-sites.php:3812
+#: pro-sites.php:3819 releases/pro-sites-3.6.0/pro-sites.php:3819
 msgid "Please enter a valid level name."
 msgstr ""
 
-#: pro-sites.php:3816 releases/pro-sites-3.6.0/pro-sites.php:3816
+#: pro-sites.php:3823 releases/pro-sites-3.6.0/pro-sites.php:3823
 msgid "You must enter a price for at least one payment period."
 msgstr ""
 
-#: pro-sites.php:3837 releases/pro-sites-3.6.0/pro-sites.php:3837
+#: pro-sites.php:3844 releases/pro-sites-3.6.0/pro-sites.php:3844
 msgid "Level added."
 msgstr ""
 
-#: pro-sites.php:3876 releases/pro-sites-3.6.0/pro-sites.php:3876
+#: pro-sites.php:3883 releases/pro-sites-3.6.0/pro-sites.php:3883
 msgid "Levels saved."
 msgstr ""
 
-#: pro-sites.php:3892 pro-sites.php:3906 pro-sites.php:4021
-#: releases/pro-sites-3.6.0/pro-sites.php:3892
-#: releases/pro-sites-3.6.0/pro-sites.php:3906
-#: releases/pro-sites-3.6.0/pro-sites.php:4021
+#: pro-sites.php:3899 pro-sites.php:3913 pro-sites.php:4028
+#: releases/pro-sites-3.6.0/pro-sites.php:3899
+#: releases/pro-sites-3.6.0/pro-sites.php:3913
+#: releases/pro-sites-3.6.0/pro-sites.php:4028
 msgid "Is Visible"
 msgstr ""
 
-#: pro-sites.php:3893 pro-sites.php:3908 pro-sites.php:4022
-#: releases/pro-sites-3.6.0/pro-sites.php:3893
-#: releases/pro-sites-3.6.0/pro-sites.php:3908
-#: releases/pro-sites-3.6.0/pro-sites.php:4022
+#: pro-sites.php:3900 pro-sites.php:3915 pro-sites.php:4029
+#: releases/pro-sites-3.6.0/pro-sites.php:3900
+#: releases/pro-sites-3.6.0/pro-sites.php:3915
+#: releases/pro-sites-3.6.0/pro-sites.php:4029
 msgid "1 Month Price"
 msgstr ""
 
-#: pro-sites.php:3894 pro-sites.php:3911 pro-sites.php:4023
-#: releases/pro-sites-3.6.0/pro-sites.php:3894
-#: releases/pro-sites-3.6.0/pro-sites.php:3911
-#: releases/pro-sites-3.6.0/pro-sites.php:4023
+#: pro-sites.php:3901 pro-sites.php:3918 pro-sites.php:4030
+#: releases/pro-sites-3.6.0/pro-sites.php:3901
+#: releases/pro-sites-3.6.0/pro-sites.php:3918
+#: releases/pro-sites-3.6.0/pro-sites.php:4030
 msgid "3 Month Price"
 msgstr ""
 
-#: pro-sites.php:3895 pro-sites.php:3914 pro-sites.php:4024
-#: releases/pro-sites-3.6.0/pro-sites.php:3895
-#: releases/pro-sites-3.6.0/pro-sites.php:3914
-#: releases/pro-sites-3.6.0/pro-sites.php:4024
+#: pro-sites.php:3902 pro-sites.php:3921 pro-sites.php:4031
+#: releases/pro-sites-3.6.0/pro-sites.php:3902
+#: releases/pro-sites-3.6.0/pro-sites.php:3921
+#: releases/pro-sites-3.6.0/pro-sites.php:4031
 msgid "12 Month Price"
 msgstr ""
 
-#: pro-sites.php:3899 releases/pro-sites-3.6.0/pro-sites.php:3899
+#: pro-sites.php:3906 releases/pro-sites-3.6.0/pro-sites.php:3906
 msgid "Edit Pro Site Levels"
 msgstr ""
 
-#: pro-sites.php:3900 releases/pro-sites-3.6.0/pro-sites.php:3900
+#: pro-sites.php:3907 releases/pro-sites-3.6.0/pro-sites.php:3907
 msgid ""
 "Pro Sites will have the features assigned to all level numbers at or less "
 "than their own. You can disable a subscription period by unchecking it. "
@@ -8781,148 +8781,148 @@ msgid ""
 "their current level number."
 msgstr ""
 
-#: pro-sites.php:3908 releases/pro-sites-3.6.0/pro-sites.php:3908
+#: pro-sites.php:3915 releases/pro-sites-3.6.0/pro-sites.php:3915
 msgid "Enable 1 Month Checkout"
 msgstr ""
 
-#: pro-sites.php:3911 releases/pro-sites-3.6.0/pro-sites.php:3911
+#: pro-sites.php:3918 releases/pro-sites-3.6.0/pro-sites.php:3918
 msgid "Enable 3 Month Checkout"
 msgstr ""
 
-#: pro-sites.php:3914 releases/pro-sites-3.6.0/pro-sites.php:3914
+#: pro-sites.php:3921 releases/pro-sites-3.6.0/pro-sites.php:3921
 msgid "Enable 12 Month Checkout"
 msgstr ""
 
-#: pro-sites.php:3985 releases/pro-sites-3.6.0/pro-sites.php:3985
+#: pro-sites.php:3992 releases/pro-sites-3.6.0/pro-sites.php:3992
 msgid "Delete &raquo;"
 msgstr ""
 
-#: pro-sites.php:4010 releases/pro-sites-3.6.0/pro-sites.php:4010
+#: pro-sites.php:4017 releases/pro-sites-3.6.0/pro-sites.php:4017
 msgid "Save Levels"
 msgstr ""
 
-#: pro-sites.php:4011 releases/pro-sites-3.6.0/pro-sites.php:4011
+#: pro-sites.php:4018 releases/pro-sites-3.6.0/pro-sites.php:4018
 msgid "Changes not saved."
 msgstr ""
 
-#: pro-sites.php:4014 releases/pro-sites-3.6.0/pro-sites.php:4014
+#: pro-sites.php:4021 releases/pro-sites-3.6.0/pro-sites.php:4021
 msgid "Add New Level"
 msgstr ""
 
-#: pro-sites.php:4015 releases/pro-sites-3.6.0/pro-sites.php:4015
+#: pro-sites.php:4022 releases/pro-sites-3.6.0/pro-sites.php:4022
 msgid "You can add a new Pro Site level here."
 msgstr ""
 
-#: pro-sites.php:4073 releases/pro-sites-3.6.0/pro-sites.php:4073
+#: pro-sites.php:4080 releases/pro-sites-3.6.0/pro-sites.php:4080
 msgid ""
 "Modules Saved. Please visit <a "
 "href=\"admin.php?page=psts-settings\">Settings</a> to configure them."
 msgstr ""
 
-#: pro-sites.php:4083 releases/pro-sites-3.6.0/pro-sites.php:4083
+#: pro-sites.php:4090 releases/pro-sites-3.6.0/pro-sites.php:4090
 msgid "Enable Modules"
 msgstr ""
 
-#: pro-sites.php:4084 releases/pro-sites-3.6.0/pro-sites.php:4084
+#: pro-sites.php:4091 releases/pro-sites-3.6.0/pro-sites.php:4091
 msgid ""
 "Select the modules you would like to use below. You can then configure "
 "their options on the settings page."
 msgstr ""
 
-#: pro-sites.php:4089 releases/pro-sites-3.6.0/pro-sites.php:4089
+#: pro-sites.php:4096 releases/pro-sites-3.6.0/pro-sites.php:4096
 msgid "Module Name"
 msgstr ""
 
-#: pro-sites.php:4116 releases/pro-sites-3.6.0/pro-sites.php:4116
+#: pro-sites.php:4134 releases/pro-sites-3.6.0/pro-sites.php:4134
 msgid "Premium Only &raquo;"
 msgstr ""
 
-#: pro-sites.php:4348 pro-sites.php:4381
-#: releases/pro-sites-3.6.0/pro-sites.php:4348
-#: releases/pro-sites-3.6.0/pro-sites.php:4381
+#: pro-sites.php:4366 pro-sites.php:4399
+#: releases/pro-sites-3.6.0/pro-sites.php:4366
+#: releases/pro-sites-3.6.0/pro-sites.php:4399
 msgid "Equivalent to only %s monthly"
 msgstr ""
 
-#: pro-sites.php:4520 releases/pro-sites-3.6.0/pro-sites.php:4520
+#: pro-sites.php:4538 releases/pro-sites-3.6.0/pro-sites.php:4538
 msgid "Email receipt sent to %s."
 msgstr ""
 
-#: pro-sites.php:4524 releases/pro-sites-3.6.0/pro-sites.php:4524
+#: pro-sites.php:4542 releases/pro-sites-3.6.0/pro-sites.php:4542
 msgid "Email a receipt copy for your last payment to:"
 msgstr ""
 
-#: pro-sites.php:4526 releases/pro-sites-3.6.0/pro-sites.php:4526
+#: pro-sites.php:4544 releases/pro-sites-3.6.0/pro-sites.php:4544
 msgid "Send &raquo;"
 msgstr ""
 
-#: pro-sites.php:4538 releases/pro-sites-3.6.0/pro-sites.php:4538
+#: pro-sites.php:4556 releases/pro-sites-3.6.0/pro-sites.php:4556
 msgid ""
 "Your <strong>%d day trial</strong> begins once you click the \"Subscribe\" "
 "button below."
 msgstr ""
 
-#: pro-sites.php:4562 releases/pro-sites-3.6.0/pro-sites.php:4562
+#: pro-sites.php:4580 releases/pro-sites-3.6.0/pro-sites.php:4580
 msgid "You must first login before you can choose a site to upgrade:"
 msgstr ""
 
-#: pro-sites.php:4604 pro-sites.php:4721
-#: releases/pro-sites-3.6.0/pro-sites.php:4604
-#: releases/pro-sites-3.6.0/pro-sites.php:4721
+#: pro-sites.php:4622 pro-sites.php:4739
+#: releases/pro-sites-3.6.0/pro-sites.php:4622
+#: releases/pro-sites-3.6.0/pro-sites.php:4739
 msgid "Not %s"
 msgstr ""
 
-#: pro-sites.php:4605 pro-sites.php:4722
-#: releases/pro-sites-3.6.0/pro-sites.php:4605
-#: releases/pro-sites-3.6.0/pro-sites.php:4722
+#: pro-sites.php:4623 pro-sites.php:4740
+#: releases/pro-sites-3.6.0/pro-sites.php:4623
+#: releases/pro-sites-3.6.0/pro-sites.php:4740
 msgid "Modify \"%s\""
 msgstr ""
 
-#: pro-sites.php:4605 pro-sites.php:4722
-#: releases/pro-sites-3.6.0/pro-sites.php:4605
-#: releases/pro-sites-3.6.0/pro-sites.php:4722
+#: pro-sites.php:4623 pro-sites.php:4740
+#: releases/pro-sites-3.6.0/pro-sites.php:4623
+#: releases/pro-sites-3.6.0/pro-sites.php:4740
 msgid "Upgrade \"%s\""
 msgstr ""
 
-#: pro-sites.php:4674 releases/pro-sites-3.6.0/pro-sites.php:4674
+#: pro-sites.php:4692 releases/pro-sites-3.6.0/pro-sites.php:4692
 msgid ""
 "Sorry, but you do not have permission to upgrade this site. Only the site "
 "administrator can upgrade their site."
 msgstr ""
 
-#: pro-sites.php:4675 pro-sites.php:4688
-#: releases/pro-sites-3.6.0/pro-sites.php:4675
-#: releases/pro-sites-3.6.0/pro-sites.php:4688
+#: pro-sites.php:4693 pro-sites.php:4706
+#: releases/pro-sites-3.6.0/pro-sites.php:4693
+#: releases/pro-sites-3.6.0/pro-sites.php:4706
 msgid "Choose a different site"
 msgstr ""
 
-#: pro-sites.php:4682 releases/pro-sites-3.6.0/pro-sites.php:4682
+#: pro-sites.php:4700 releases/pro-sites-3.6.0/pro-sites.php:4700
 msgid "This site has been permanently given %s status."
 msgstr ""
 
-#: pro-sites.php:4691 pro-sites.php:4698 pro-sites.php:4761
-#: releases/pro-sites-3.6.0/pro-sites.php:4691
-#: releases/pro-sites-3.6.0/pro-sites.php:4698
-#: releases/pro-sites-3.6.0/pro-sites.php:4761
+#: pro-sites.php:4709 pro-sites.php:4716 pro-sites.php:4779
+#: releases/pro-sites-3.6.0/pro-sites.php:4709
+#: releases/pro-sites-3.6.0/pro-sites.php:4716
+#: releases/pro-sites-3.6.0/pro-sites.php:4779
 msgid "Sign up for another site."
 msgstr ""
 
-#: pro-sites.php:4710 releases/pro-sites-3.6.0/pro-sites.php:4710
+#: pro-sites.php:4728 releases/pro-sites-3.6.0/pro-sites.php:4728
 msgid "Please choose a site to Upgrade or Modify:"
 msgstr ""
 
-#: pro-sites.php:4760 releases/pro-sites-3.6.0/pro-sites.php:4760
+#: pro-sites.php:4778 releases/pro-sites-3.6.0/pro-sites.php:4778
 msgid "Your site <strong>%s</strong> has not been activated yet."
 msgstr ""
 
-#: pro-sites.php:4764 releases/pro-sites-3.6.0/pro-sites.php:4764
+#: pro-sites.php:4782 releases/pro-sites-3.6.0/pro-sites.php:4782
 msgid "Sign up for a site."
 msgstr ""
 
-#: pro-sites.php:4766 releases/pro-sites-3.6.0/pro-sites.php:4766
+#: pro-sites.php:4784 releases/pro-sites-3.6.0/pro-sites.php:4784
 msgid "Sorry, but it appears you are not an administrator for any sites."
 msgstr ""
 
-#: pro-sites.php:5192 releases/pro-sites-3.6.0/pro-sites.php:5192
+#: pro-sites.php:5209 releases/pro-sites-3.6.0/pro-sites.php:5209
 msgid "The original Level doesn't exist, it might have been removed."
 msgstr ""
 
@@ -8934,7 +8934,7 @@ msgstr ""
 msgid ""
 "The ultimate multisite site upgrade plugin, turn regular sites into "
 "multiple pro site subscription levels selling access to storage space, "
-"premium themes, premium plugins and much more!"
+"premium themes, premium plugins and much more! Author:      WPMU DEV"
 msgstr ""
 
 #. Author of the plugin/theme
