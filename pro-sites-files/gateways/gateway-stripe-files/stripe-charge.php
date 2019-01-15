@@ -101,6 +101,36 @@ class ProSites_Stripe_Charge {
 	}
 
 	/**
+	 * Charge setup fee for a subscription.
+	 *
+	 * If a setup fee is set, we need to charge it
+	 * separately as an invoice item.
+	 * See https://stripe.com/docs/api/invoiceitems/create?lang=php
+	 * This will be charged in next payment.
+	 *
+	 * @param string $customer Stripe customer id.
+	 * @param mixed  $fee      Item fee.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public function charge_setup_fee( $customer, $fee ) {
+		// Make sure we don't break.
+		try {
+			// Create invoice item.
+			$this->create_item(
+				$customer,
+				$fee,
+				'invoiceitem',
+				__( 'One-time setup fee', 'psts' )
+			);
+		} catch ( \Exception $e ) {
+			// Oh well.
+		}
+	}
+
+	/**
 	 * Refund a charge's amount.
 	 *
 	 * You can make partial refund or full refund.
@@ -130,36 +160,6 @@ class ProSites_Stripe_Charge {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Charge setup fee for a subscription.
-	 *
-	 * If a setup fee is set, we need to charge it
-	 * separately as an invoice item.
-	 * See https://stripe.com/docs/api/invoiceitems/create?lang=php
-	 * This will be charged in next payment.
-	 *
-	 * @param string $customer Stripe customer id.
-	 * @param mixed  $fee      Item fee.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return void
-	 */
-	public function charge_setup_fee( $customer, $fee ) {
-		// Make sure we don't break.
-		try {
-			// Create invoice item.
-			$this->create_item(
-				$customer,
-				$fee,
-				'invoiceitem',
-				__( 'One-time setup fee', 'psts' )
-			);
-		} catch ( \Exception $e ) {
-			// Oh well.
-		}
 	}
 
 	/**

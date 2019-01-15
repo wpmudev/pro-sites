@@ -1028,7 +1028,7 @@ class ProSites_Gateway_Stripe {
 		// If a setup fee is set, charge it.
 		if ( $psts->has_setup_fee( self::$blog_id, self::$level ) ) {
 			// Charge the setup fee.
-			$total = self::charge_setup_fee( $amount, $customer );
+			$total = self::charge_setup_fee( $amount, $customer, $recurring );
 		}
 
 		// If a coupon is applied, adjust the amount.
@@ -1185,7 +1185,7 @@ class ProSites_Gateway_Stripe {
 	private static function process_single( $data, $customer, $tax_object, $coupon, $total ) {
 		global $psts;
 
-		$amount = 0;
+		$amount = $total;
 
 		// If customer created, now let's create a subscription.
 		if ( ! empty( $customer->id ) ) {
@@ -1597,14 +1597,15 @@ class ProSites_Gateway_Stripe {
 	 * Setup fee is charged separately as a Stripe invpice
 	 * item and the payment will be process with next payment.
 	 *
-	 * @param float           $amount   Amount.
-	 * @param Stripe\Customer $customer Stripe customer.
+	 * @param float           $amount    Amount.
+	 * @param Stripe\Customer $customer  Stripe customer.
+	 * @param bool            $recurring Is recurring payment?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return float $total Total amount including setup fee.
 	 */
-	private static function charge_setup_fee( $amount, $customer ) {
+	private static function charge_setup_fee( $amount, $customer, $recurring = true ) {
 		global $psts;
 
 		// Get the setup fee.
@@ -1612,11 +1613,13 @@ class ProSites_Gateway_Stripe {
 		// Include setup fee to total.
 		$total = $setup_fee + $amount;
 
-		// Now charge setup fee in Stripe.
-		self::$stripe_charge->charge_setup_fee(
-			$customer->id,
-			$setup_fee
-		);
+		// If recurring payment charge setup fee in Stripe.
+		if ( $recurring ) {
+			self::$stripe_charge->charge_setup_fee(
+				$customer->id,
+				$setup_fee
+			);
+		}
 
 		return $total;
 	}
