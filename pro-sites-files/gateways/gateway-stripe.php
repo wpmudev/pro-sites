@@ -929,9 +929,9 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		// Set new/upgrading blog data to render data array.
-		foreach ( array( 'new_blog_details', 'upgraded_blog_details', 'activation_key' ) as $key ) {
+		foreach ( array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' ) as $key ) {
 			// If missing, try to get from session.
-			$render_data[ $key ] = isset( $render_data[ $key ] ) ? $render_data[ $key ] : ProSites_Helper_Session::session( $key );
+			$data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : ProSites_Helper_Session::session( $key );
 		}
 
 		// Set the level.
