@@ -574,7 +574,7 @@ class ProSites_Stripe_Customer {
 	 *
 	 * @return bool
 	 */
-	public function set_db_customer( $blog_id, $customer_id, $subscription_id = '' ) {
+	public function set_db_customer( $blog_id, $customer_id, $subscription_id = null ) {
 		global $wpdb;
 
 		$done = false;
@@ -584,18 +584,52 @@ class ProSites_Stripe_Customer {
 			// Table name.
 			$table = ProSites_Gateway_Stripe::$table;
 
-			// On duplicate we will overwrite.
-			$sql = $wpdb->prepare(
-				"INSERT INTO $table (blog_id, customer_id, subscription_id) VALUES (%d, %s, %s) ON DUPLICATE KEY UPDATE customer_id = VALUES(customer_id), subscription_id = VALUES(subscription_id)",
-				$blog_id,
-				$customer_id,
-				$subscription_id
-			);
+			// If not recurring payment.
+			if ( empty( $subscription_id ) ) {
+				// On duplicate we will overwrite.
+				$sql = $wpdb->prepare(
+					"INSERT INTO $table (blog_id, customer_id) VALUES (%d, %s) ON DUPLICATE KEY UPDATE customer_id = VALUES(customer_id), subscription_id = NULL",
+					$blog_id,
+					$customer_id
+				);
+			} else {
+				// On duplicate we will overwrite.
+				$sql = $wpdb->prepare(
+					"INSERT INTO $table (blog_id, customer_id, subscription_id) VALUES (%d, %s, %s) ON DUPLICATE KEY UPDATE customer_id = VALUES(customer_id), subscription_id = VALUES(subscription_id)",
+					$blog_id,
+					$customer_id,
+					$subscription_id
+				);
+			}
 
 			// Run the sql query.
 			$done = $wpdb->query( $sql );
 		}
 
 		return ( ! empty( $done ) );
+	}
+
+	/**
+	 * Delete Stripe customer id and subscription id from DB.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	public function delete_db_customer( $blog_id ) {
+		global $wpdb;
+
+		// If we have blog id delete the item from DB.
+		if ( ! empty( $blog_id ) ) {
+			// Table name.
+			$table = ProSites_Gateway_Stripe::$table;
+
+			// Run delete query.
+			return $wpdb->delete( $table, array( 'blog_id' => $blog_id ), array( '%d' ) );
+		}
+
+		return false;
 	}
 }

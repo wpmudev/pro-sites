@@ -193,7 +193,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_add_level', array( $this, 'update_plans' ), 10, 2 );
 
 		// Cancel subscriptions on blog deletion.
-		add_action( 'delete_blog', array( $this, 'cancel_subscription' ) );
+		add_action( 'delete_blog', array( $this, 'delete_blog' ) );
 
 		// Should we force SSL?.
 		add_filter( 'psts_force_ssl', array( $this, 'force_ssl' ) );
@@ -368,21 +368,41 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * Cancel a particular blog's subscription.
+	 * Delete a particular blog and it's subscription.
 	 *
-	 * @param int  $blog_id      Blog ID.
-	 * @param bool $show_message Display cancellation message.
+	 * @param int $blog_id Blog ID.
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return bool
+	 * @return void
 	 */
-	public function cancel_subscription( $blog_id, $show_message = false ) {
+	public function delete_blog( $blog_id ) {
 		// Cancel the blog subscription.
-		return self::$stripe_subscription->cancel_blog_subscription(
+		self::$stripe_subscription->cancel_blog_subscription(
+			$blog_id,
+			false
+		);
+
+		// Delete the blog data from DB.
+		self::$stripe_customer->delete_db_customer( $blog_id );
+	}
+
+	/**
+	 * Cancel a particular blog's subscription.
+	 *
+	 * @param int  $blog_id         Blog ID.
+	 * @param bool $display_message Display cancellation message.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public static function cancel_subscription( $blog_id, $display_message = false ) {
+		// Cancel the blog subscription.
+		self::$stripe_subscription->cancel_blog_subscription(
 			$blog_id,
 			false,
-			$show_message
+			$display_message
 		);
 	}
 
@@ -1253,9 +1273,20 @@ class ProSites_Gateway_Stripe {
 			if ( ! empty( self::$blog_id ) && ! empty( $result->id ) && ! empty( $customer->id ) ) {
 				ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
 					self::$blog_id,
-					$customer->id,
-					null
+					$customer->id
 				);
+
+				// If blog id is not set, set now.
+				if ( empty( $result->metadata['blog_id'] ) ) {
+					// Get existing meta data.
+					$meta = $result->metadata;
+					// Add blog id to it.
+					$meta['blog_id'] = self::$blog_id;
+					// Now update the subscription in Stripe.
+					self::$stripe_charge->update_charge( $result->id, array(
+						'metadata' => $meta,
+					) );
+				}
 			}
 
 			// We don't need the coupon anymore.

@@ -168,7 +168,7 @@ class ProSites_Stripe_Subscription {
 			// First get the subscription.
 			$subscription = $this->get_subscription( $id );
 			// Update only if args set.
-			if ( ! empty( $args ) ) {
+			if ( ! empty( $subscription ) && ! empty( $args ) ) {
 				// Assign each values to subscription array.
 				foreach ( (array) $args as $key => $value ) {
 					$subscription->{$key} = $value;

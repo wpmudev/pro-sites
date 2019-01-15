@@ -101,6 +101,46 @@ class ProSites_Stripe_Charge {
 	}
 
 	/**
+	 * Update a charge in Stripe.
+	 *
+	 * Please note that you can update only the available fields
+	 * of a charge. Refer https://stripe.com/docs/api/charges/update?lang=php
+	 * to get the list of fields.
+	 * Pass the fields as an array in second argument in key -> value combination.
+	 *
+	 * @param string $id   Charge ID.
+	 * @param array  $args Array of fields to update.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|\Stripe\Charge
+	 */
+	public function update_charge( $id, $args = array() ) {
+		// Make sure we don't break.
+		try {
+			// First get the charge.
+			$charge = $this->get_charge( $id );
+			// Update only if args set.
+			if ( ! empty( $charge ) && ! empty( $args ) ) {
+				// Assign each values to charge array.
+				foreach ( (array) $args as $key => $value ) {
+					$charge->{$key} = $value;
+				}
+				// Now let's save 'em.
+				$charge = $charge->save();
+
+				// Update cached subscription.
+				wp_cache_set( 'pro_sites_stripe_charge_' . $id, $charge, 'psts' );
+			}
+		} catch ( \Exception $e ) {
+			// Oh well. Failure.
+			$charge = false;
+		}
+
+		return $charge;
+	}
+
+	/**
 	 * Charge setup fee for a subscription.
 	 *
 	 * If a setup fee is set, we need to charge it
