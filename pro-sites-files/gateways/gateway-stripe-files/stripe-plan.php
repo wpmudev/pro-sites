@@ -612,6 +612,44 @@ class ProSites_Stripe_Plan {
 	}
 
 	/**
+	 * Retrieve a coupon from Stripe.
+	 *
+	 * @param string $id    Coupon ID.
+	 * @param bool   $force Should force from API?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return \Stripe\Coupon|bool|mixed
+	 */
+	public function get_coupon( $id, $force = false ) {
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$coupon = wp_cache_get( 'pro_sites_stripe_coupon_' . $id, 'psts' );
+			if ( ! empty( $coupon ) ) {
+				return $coupon;
+			}
+		} else {
+			// Make sure we don't break.
+			try {
+				$coupon = Stripe\Coupon::retrieve( $id );
+				// If a coupon found, return.
+				if ( ! empty( $coupon ) ) {
+					// Set to cache so we can reuse it.
+					wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
+				}
+
+				return $coupon;
+			} catch ( \Exception $e ) {
+				// Oh well.
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Create a new coupon in Stripe.
 	 *
 	 * @param array       $args Coupon arguments.
@@ -643,34 +681,30 @@ class ProSites_Stripe_Plan {
 	}
 
 	/**
-	 * Retrieve a coupon from Stripe.
+	 * Delete a coupon in Stripe.
 	 *
-	 * @param string $id    Coupon ID.
-	 * @param bool   $force Should force from API?.
+	 * @param string|bool $id Coupon ID.
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return \Stripe\Coupon|bool|mixed
+	 * @return bool
 	 */
-	public function get_coupon( $id, $force = false ) {
-		// If not forced, try cache.
-		if ( ! $force ) {
-			// Try to get from cache.
-			$coupon = wp_cache_get( 'pro_sites_stripe_coupon_' . $id, 'psts' );
-			if ( ! empty( $coupon ) ) {
-				return $coupon;
-			}
-		} else {
+	public function delete_coupon( $id ) {
+		// Get the coupon object.
+		$coupon = $this->get_coupon( $id, true );
+
+		// Continue only if it is valid.
+		if ( $coupon ) {
 			// Make sure we don't break.
 			try {
-				$coupon = Stripe\Coupon::retrieve( $id );
-				// If a coupon found, return.
-				if ( ! empty( $coupon ) ) {
-					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
-				}
+				// Let's delete the coupon now.
+				$deleted = $coupon->delete();
+				// Clear the cache and we are good.
+				if ( ! empty( $deleted ) ) {
+					wp_cache_delete( 'pro_sites_stripe_coupon_' . $id, 'psts' );
 
-				return $coupon;
+					return true;
+				}
 			} catch ( \Exception $e ) {
 				// Oh well.
 				return false;

@@ -42,13 +42,6 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 		}
 
-		public static function get_activation_key( $blog_id ) {
-			global $wpdb;
-			$bloginfo = get_blog_details( $blog_id );
-
-			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE domain = %s AND path = %s", $bloginfo->domain, $bloginfo->path ) );
-		}
-
 		public static function get_blog_id( $activation_key ) {
 			global $wpdb;
 			$blog_id = 0;
@@ -63,6 +56,13 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 
 			return $blog_id;
+		}
+
+		public static function get_activation_key( $blog_id ) {
+			global $wpdb;
+			$bloginfo = get_blog_details( $blog_id );
+
+			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE domain = %s AND path = %s", $bloginfo->domain, $bloginfo->path ) );
 		}
 
 		public static function redirect_signup_page() {

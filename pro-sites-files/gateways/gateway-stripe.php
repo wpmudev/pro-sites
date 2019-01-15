@@ -91,6 +91,15 @@ class ProSites_Gateway_Stripe {
 	public static $stripe_subscription;
 
 	/**
+	 * Stripe charge custom class.
+	 *
+	 * @var \ProSites_Stripe_Charge
+	 *
+	 * @since 3.6.1
+	 */
+	public static $stripe_charge;
+
+	/**
 	 * Current level of the site.
 	 *
 	 * This will be 0 if no site is set yet.
@@ -99,7 +108,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @since 3.6.1
 	 */
-	private static $level = 0;
+	public static $level = 0;
 
 	/**
 	 * Current period of the site.
@@ -110,7 +119,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @since 3.6.1
 	 */
-	private static $period = 0;
+	public static $period = 0;
 
 	/**
 	 * Current blog id.
@@ -148,7 +157,7 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @since 3.6.1
 	 */
-	private static $existing = false;
+	public static $existing = false;
 
 	/**
 	 * ProSites_Gateway_Stripe constructor.
@@ -237,10 +246,12 @@ class ProSites_Gateway_Stripe {
 			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/stripe-plan.php';
 			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/stripe-customer.php';
 			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/stripe-subscription.php';
+			require_once $psts->plugin_dir . 'gateways/gateway-stripe-files/stripe-charge.php';
 		}
 
 		// Set the sub class objects.
 		self::$stripe_plan         = new ProSites_Stripe_Plan();
+		self::$stripe_charge       = new ProSites_Stripe_Charge();
 		self::$stripe_customer     = new ProSites_Stripe_Customer();
 		self::$stripe_subscription = new ProSites_Stripe_Subscription();
 
@@ -806,13 +817,13 @@ class ProSites_Gateway_Stripe {
 				// First cancel the subscription.
 				if ( self::$stripe_subscription->cancel_blog_subscription( $blog_id ) && $last_charge ) {
 					// Now process the refund.
-					self::$stripe_subscription->refund_charge( $last_charge );
+					self::$stripe_charge->refund_charge( $last_charge );
 				}
 				break;
 
 			case 'refund':
 				// Process the refund.
-				if ( self::$stripe_subscription->refund_charge( $last_charge ) ) {
+				if ( self::$stripe_charge->refund_charge( $last_charge ) ) {
 					// translators: %1$s Amount, %2$s User.
 					$psts->log_action( $blog_id, sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s, and the subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name ) );
 				} else {
@@ -825,7 +836,7 @@ class ProSites_Gateway_Stripe {
 				// Refund amount.
 				$refund_amount = self::from_request( 'refund_amount' );
 				// Process the partial refund.
-				self::$stripe_subscription->refund_charge( $last_charge, $refund_amount );
+				self::$stripe_charge->refund_charge( $last_charge, $refund_amount );
 				break;
 		}
 	}
@@ -862,8 +873,6 @@ class ProSites_Gateway_Stripe {
 		// New blog data.
 		$blog_data = empty( $render_data['new_blog_details'] ) ? array() : $render_data['new_blog_details'];
 
-		// Amount to pay.
-		$amount = 500;
 		// Set period and levels.
 		$period = empty( $blog_data['period'] ) ? ProSites_Helper_ProSite::default_period() : (int) $blog_data['period'];
 		$level  = empty( $blog_data['level'] ) ? 0 : (int) $blog_data['level'];
@@ -948,11 +957,15 @@ class ProSites_Gateway_Stripe {
 		// Do not continue if level and period is not set.
 		if ( empty( self::$level ) || empty( self::$period ) ) {
 			$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+
+			return false;
 		}
 
 		// We need Stripe token.
 		if ( empty( $stripe_token ) ) {
 			$psts->errors->add( 'stripe', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
+
+			return false;
 		}
 
 		// We have level and period, so get the Stripe plan id.
@@ -963,7 +976,7 @@ class ProSites_Gateway_Stripe {
 			// translators: %1$s Stripe plan ID.
 			$psts->errors->add( 'general', sprintf( __( 'Stripe plan %1$s does not exist.', 'psts' ), $plan_id ) );
 
-			return;
+			return false;
 		}
 
 		// Create or update Stripe customer.
@@ -1008,8 +1021,6 @@ class ProSites_Gateway_Stripe {
 
 		// Get the tax object.
 		$tax_object = self::tax_object();
-		// Get the tax evidence.
-		$evidence_string = ProSites_Helper_Tax::get_evidence_string( $tax_object );
 
 		// Fix for email body issue.
 		add_action( 'phpmailer_init', 'psts_text_body' );
@@ -1040,11 +1051,8 @@ class ProSites_Gateway_Stripe {
 				$total = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $total );
 			}
 
-			// Stripe description.
-			$desc = self::get_description( $amount, $total, $recurring );
-
 			// Process one time payment.
-			$processed = self::process_single( $process_data, $customer, $tax_object, $coupon );
+			$processed = self::process_single( $process_data, $customer, $tax_object, $coupon, $total );
 		}
 
 		// Remove email body issue action.
@@ -1074,11 +1082,11 @@ class ProSites_Gateway_Stripe {
 	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $total ) {
 		global $psts;
 
-		// Activation key.
-		$activation_key = self::from_request( 'activation', '' );
-
 		// If customer created, now let's create a subscription.
 		if ( ! empty( $customer->id ) ) {
+			// Activation key.
+			$activation_key = self::get_activation_key( self::$blog_id );
+
 			$sub_args = array(
 				'prorate' => true,
 			);
@@ -1121,7 +1129,7 @@ class ProSites_Gateway_Stripe {
 
 			// Now activate the blog.
 			if ( ! empty( $subscription ) ) {
-				self::activate_blog( $activation_key, $subscription, $data, $total, true );
+				self::extend_recurring_blog( $activation_key, $subscription, $data, $total, true );
 			}
 
 			if ( ! empty( self::$blog_id ) ) {
@@ -1146,6 +1154,11 @@ class ProSites_Gateway_Stripe {
 					) );
 				}
 			}
+
+			// We don't need the coupon anymore.
+			if ( isset( $coupon->id ) ) {
+				self::$stripe_plan->delete_coupon( $coupon->id );
+			}
 		}
 
 		return false;
@@ -1163,12 +1176,93 @@ class ProSites_Gateway_Stripe {
 	 * @param \Stripe\Customer $customer   Stripe customer.
 	 * @param object           $tax_object Tax object.
 	 * @param \Stripe\Coupon   $coupon     Stripe coupon object.
+	 * @param float            $total      Total amount.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	private static function process_single( $data, $customer, $tax_object, $coupon ) {
+	private static function process_single( $data, $customer, $tax_object, $coupon, $total ) {
+		global $psts;
+
+		$amount = 0;
+
+		// If customer created, now let's create a subscription.
+		if ( ! empty( $customer->id ) ) {
+			// Calculate the total amount if we are upgrading.
+			$total = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $total );
+
+			// Activation key.
+			$activation_key = self::get_activation_key( self::$blog_id );
+
+			// Apply tax if required.
+			if ( $tax_object->apply_tax ) {
+				$amount   = $total + ( $total * $tax_object->tax_rate );
+				$tax_rate = self::format_price( $tax_object->tax_rate );
+			}
+
+			// Stripe description.
+			$desc = self::get_description( $amount, $total, false );
+
+			// Charge arguments.
+			$charge_args = array(
+				'metadata' => array(
+					'blog_id' => self::$blog_id,
+					'domain'  => self::$domain,
+					'period'  => self::$period,
+					'level'   => self::$level,
+				),
+			);
+
+			// Set the activation key.
+			if ( ! empty( $activation_key ) ) {
+				$charge_args['metadata']['activation'] = $activation_key;
+			}
+
+			// Set the tax evidence.
+			if ( $tax_object->apply_tax ) {
+				$charge_args['metadata']['tax_evidence'] = ProSites_Helper_Tax::get_evidence_string( $tax_object );
+			}
+
+			// If trial is not applicable charge directly.
+			if ( ! $psts->is_trial_allowed( self::$blog_id ) && $amount > 0 ) {
+				$result = self::$stripe_charge->create_item(
+					$customer->id,
+					$amount,
+					'charge',
+					$desc,
+					$charge_args
+				);
+			} else {
+				// If trial is enabled, create invoice item.
+				$result = self::$stripe_charge->create_item(
+					$customer->id,
+					$amount,
+					'invoiceitem',
+					$desc,
+					$charge_args
+				);
+			}
+
+			if ( ! empty( $result ) ) {
+				// Activate the blog and extend.
+				self::extend_single_blog( $activation_key, $data, $amount );
+			}
+
+			// Make sure we set customer data in DB.
+			if ( ! empty( self::$blog_id ) && ! empty( $result->id ) && ! empty( $customer->id ) ) {
+				ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
+					self::$blog_id,
+					$customer->id,
+					null
+				);
+			}
+
+			// We don't need the coupon anymore.
+			if ( isset( $coupon->id ) ) {
+				self::$stripe_plan->delete_coupon( $coupon->id );
+			}
+		}
 
 		return false;
 	}
@@ -1243,7 +1337,9 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * Activate a blog once the payment is successful.
+	 * Extend a blog once the payment is successful.
+	 *
+	 * If new subscription we will activate the blog first.
 	 *
 	 * @param string              $activation_key Activation key.
 	 * @param Stripe\Subscription $subscription   Stripe subscription.
@@ -1255,13 +1351,8 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return bool
 	 */
-	private static function activate_blog( $activation_key, $subscription, $data, $total = 0, $recurring = false ) {
-		$activated = false;
-
-		// Try to get the activation key using blog id.
-		if ( empty( $activation_key ) && ! empty( self::$blog_id ) ) {
-			$activation_key = ProSites_Helper_ProSite::get_activation_key( self::$blog_id );
-		}
+	private static function extend_recurring_blog( $activation_key, $subscription, $data, $total = 0, $recurring = false ) {
+		$activated = self::$existing;
 
 		// Is current subscription on trial.
 		$is_trial = isset( $subscription->status ) && 'trialing' === $subscription->status;
@@ -1269,21 +1360,29 @@ class ProSites_Gateway_Stripe {
 		// Get the expiry date.
 		$expire = $is_trial ? $subscription->trial_end : $subscription->current_period_end;
 
-		// Activate the blog now.
-		$result = ProSites_Helper_Registration::activate_blog(
-			$activation_key,
-			$is_trial,
-			self::$period,
-			self::$level,
-			$expire
-		);
+		// Activate the blog if new registration.
+		if ( ! $activated ) {
+			// Try to get the activation key using blog id.
+			if ( empty( $activation_key ) && ! empty( self::$blog_id ) ) {
+				$activation_key = ProSites_Helper_ProSite::get_activation_key( self::$blog_id );
+			}
 
-		if ( ! empty( $result['blog_id'] ) ) {
-			// If blog id is not found, try to get it after activation.
-			self::$blog_id = empty( self::$blog_id ) ? $result['blog_id'] : self::$blog_id;
+			// Activate the blog now.
+			$result = ProSites_Helper_Registration::activate_blog(
+				$activation_key,
+				$is_trial,
+				self::$period,
+				self::$level,
+				$expire
+			);
 
-			// Set the flag.
-			$activated = true;
+			if ( ! empty( $result['blog_id'] ) ) {
+				// If blog id is not found, try to get it after activation.
+				self::$blog_id = empty( self::$blog_id ) ? $result['blog_id'] : self::$blog_id;
+
+				// Set the flag.
+				$activated = true;
+			}
 		}
 
 		// Set values to session.
@@ -1291,6 +1390,49 @@ class ProSites_Gateway_Stripe {
 
 		// Extend the site expiry date.
 		self::maybe_extend( $total, $expire, true, $recurring );
+
+		return $activated;
+	}
+
+	/**
+	 * Extend a single payment a blog once the payment is successful.
+	 *
+	 * If new subscription we will activate the blog first.
+	 *
+	 * @param string $activation_key Activation key.
+	 * @param array  $data           Process data.
+	 * @param int    $total          Total amount.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	private static function extend_single_blog( $activation_key, $data, $total = 0 ) {
+		$activated = self::$existing;
+
+		if ( ! $activated ) {
+			// Try to get the activation key using blog id.
+			if ( empty( $activation_key ) && ! empty( self::$blog_id ) ) {
+				$activation_key = ProSites_Helper_ProSite::get_activation_key( self::$blog_id );
+			}
+
+			// Activate the blog now.
+			$result = ProSites_Helper_Registration::activate_blog( $activation_key, false, self::$period, self::$level );
+
+			if ( ! empty( $result['blog_id'] ) ) {
+				// If blog id is not found, try to get it after activation.
+				self::$blog_id = empty( self::$blog_id ) ? $result['blog_id'] : self::$blog_id;
+
+				// Set the flag.
+				$activated = true;
+			}
+		}
+
+		// Set values to session.
+		self::set_session_data( $data );
+
+		// Extend the site expiry date.
+		self::maybe_extend( $total, false, true, false );
 
 		return $activated;
 	}
@@ -1437,10 +1579,10 @@ class ProSites_Gateway_Stripe {
 		$total = 0 > $total ? 0 : $total;
 
 		$args = array(
-			'amount_off' => self::format_price( $amount_off ),
-			'duration'   => $lifetime,
-			'currency'   => self::get_currency(),
-			//'max_redemptions' => 1,
+			'amount_off'      => self::format_price( $amount_off ),
+			'duration'        => $lifetime,
+			'currency'        => self::get_currency(),
+			'max_redemptions' => 1,
 		);
 
 		// Create or get stripe coupon.
@@ -1471,12 +1613,37 @@ class ProSites_Gateway_Stripe {
 		$total = $setup_fee + $amount;
 
 		// Now charge setup fee in Stripe.
-		self::$stripe_subscription->charge_setup_fee(
+		self::$stripe_charge->charge_setup_fee(
 			$customer->id,
 			$setup_fee
 		);
 
 		return $total;
+	}
+
+	/**
+	 * Get the payment description for Stripe.
+	 *
+	 * We need to generate different payment descriptions based
+	 * on the coupon, setup fee and recurring payments.
+	 *
+	 * @param float $amount    Amount.
+	 * @param float $total     Total amount.
+	 * @param bool  $recurring Is recurring?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return mixed|void
+	 */
+	private static function get_description( $amount, $total, $recurring ) {
+		$desc = '';
+
+		/**
+		 * Filter to override the Stripe description.
+		 *
+		 * @since 3.0
+		 */
+		return apply_filters( 'psts_stripe_checkout_desc', $desc, self::$period, self::$level, $amount, $total, self::$blog_id, self::$domain, $recurring );
 	}
 
 	/**
@@ -1517,28 +1684,21 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * Get the payment description for Stripe.
+	 * Get activation key of currently processing blog.
 	 *
-	 * We need to generate different payment descriptions based
-	 * on the coupon, setup fee and recurring payments.
-	 *
-	 * @param float $amount    Amount.
-	 * @param float $total     Total amount.
-	 * @param bool  $recurring Is recurring?.
+	 * @param int $blog_id Blog ID.
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return mixed|void
+	 * @return mixed|null|string
 	 */
-	private static function get_description( $amount, $total, $recurring ) {
-		$desc = '';
+	private static function get_activation_key( $blog_id = 0 ) {
+		// Try to get from $_POST data.
+		$activation_key = self::from_request( 'activation', '' );
+		// If not, get using blog id.
+		$activation_key = empty( $activation_key ) ? ProSites_Helper_ProSite::get_activation_key( $blog_id ) : $activation_key;
 
-		/**
-		 * Filter to override the Stripe description.
-		 *
-		 * @since 3.0
-		 */
-		return apply_filters( 'psts_stripe_checkout_desc', $desc, self::$period, self::$level, $amount, $total, self::$blog_id, self::$domain, $recurring );
+		return $activation_key;
 	}
 
 	/**
