@@ -206,7 +206,7 @@ class ProSites_Gateway_Stripe {
 		// Cancel subscription when gateway is changed from Stripe to something else.
 		add_action( 'psts_gateway_change_from_stripe', array( $this, 'change_gateway' ) );
 		// Cancelling subscription.
-		add_action( 'psts_cancel_subscription_stripe', array( $this, 'cancel_subscription' ), 10, 2 );
+		add_action( 'psts_cancel_subscription_stripe', array( $this, 'cancel_blog' ), 10, 2 );
 
 		// Should we force SSL?.
 		add_filter( 'psts_force_ssl', array( $this, 'force_ssl' ) );
@@ -396,7 +396,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public function delete_blog( $blog_id ) {
 		// Cancel the blog subscription.
-		self::$stripe_subscription->cancel_blog_subscription( $blog_id, false );
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, false, true );
 
 		// Delete the blog data from DB.
 		self::$stripe_customer->delete_db_customer( $blog_id );
@@ -412,9 +412,9 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return void
 	 */
-	public function cancel_subscription( $blog_id, $display_message = false ) {
+	public function cancel_blog( $blog_id, $display_message = false ) {
 		// Cancel the blog subscription.
-		self::$stripe_subscription->cancel_blog_subscription( $blog_id, false, $display_message );
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, false, $display_message );
 	}
 
 	/**
@@ -428,7 +428,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public function change_gateway( $blog_id ) {
 		// Cancel the blog subscription in Stripe.
-		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, false, true );
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id );
 	}
 
 	/**
@@ -722,7 +722,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Show cancellation message if required.
-		if ( $messages['cancel'] ) {
+		if ( ! empty( $messages['cancel'] ) ) {
 			$messages['cancellation_message'] = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
 		}
 
@@ -742,6 +742,7 @@ class ProSites_Gateway_Stripe {
 	 * @return array $info
 	 */
 	public function current_plan_info( $info, $blog_id, $domain, $gateway ) {
+		// Continue only if Stripe is the gateway.
 		if ( self::get_slug() !== $gateway ) {
 			return $info;
 		}
@@ -770,6 +771,8 @@ class ProSites_Gateway_Stripe {
 			$card = self::$stripe_customer->default_card( $customer->id );
 			// Get Stripe subscription.
 			$subscription = self::$stripe_subscription->get_subscription_by_blog( $blog_id );
+			// Stripe subscription status.
+			$stripe_status = empty( $subscription->status ) ? 'canceled' : $subscription->status;
 
 			// Include customer's card information.
 			if ( $card ) {
@@ -780,26 +783,28 @@ class ProSites_Gateway_Stripe {
 				$info['card_digit_location'] = 'end';
 			}
 
+			// Show a message that they can update card using checkout.
+			if ( $info['recurring'] ) {
+				$info['modify_card'] = ' <p><small>' . esc_html__( 'Update your credit card by selecting your current plan below and proceed with checkout.', 'psts' ) . '</small></p>';
+			}
+
 			// If current subscription is not exist in Stripe, show cancelled message.
-			if ( $info['recurring'] && empty( $subscription ) ) {
+			if ( $info['recurring'] && 'canceled' === $stripe_status ) {
 				$info['cancel']               = true;
 				$info['cancellation_message'] = '<div class="psts-cancel-notification">
-													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
+													<p class="label"><strong>' . __( 'Your Stripe subscription has been canceled', 'psts' ) . '</strong></p>
 													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $info['level'], $info['expires'] ) . '</p>
 												</div>';
 			}
 
 			// If an active subscription found.
-			if ( empty( $info['cancel'] ) ) {
-				if ( $info['recurring'] && ! $is_canceled ) {
-					$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
-					$info['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $info['level'], $info['expires'] ) . '</p>';
-					$info['cancel_link'] = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
-				}
-
+			if ( empty( $info['cancel'] ) && ! $is_canceled ) {
 				// Payment receipt form button.
 				$info['receipt_form'] = $psts->receipt_form( $blog_id );
 			}
+
+			// Show all is true.
+			$info['all_fields'] = true;
 		}
 
 		return $info;

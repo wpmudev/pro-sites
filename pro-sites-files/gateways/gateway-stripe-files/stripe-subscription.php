@@ -128,8 +128,11 @@ class ProSites_Stripe_Subscription {
 		try {
 			// First get the subscription.
 			$subscription = $this->get_subscription( $id );
-			// Cancel the subscription immediately.
-			if ( ! empty( $subscription ) && $immediate ) {
+			// It is already canceled.
+			if ( ! empty( $subscription->status ) && 'canceled' === $subscription->status ) {
+				$cancelled = true;
+			} elseif ( ! empty( $subscription ) && $immediate ) {
+				// Cancel the subscription immediately.
 				$cancelled = $subscription->cancel();
 			} elseif ( ! empty( $subscription ) && ! $immediate ) {
 				// Oh we need to wait. Let's cancel on expiry.
@@ -342,67 +345,79 @@ class ProSites_Stripe_Subscription {
 	 * Note: We have removed legacy table support here because
 	 * old table structure is no longer valid.
 	 *
-	 * @param int  $blog_id     Blog ID.
-	 * @param bool $immediate   Cancel subscription immediately.
-	 * @param bool $message     Show message?.
-	 * @param bool $stripe_only Should cancel only Stripe subscription?.
+	 * @param int  $blog_id   Blog ID.
+	 * @param bool $stripe    Should cancel Stripe subscription?.
+	 * @param bool $immediate Cancel Stripe subscription immediately.
+	 * @param bool $message   Show message?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	public function cancel_blog_subscription( $blog_id, $immediate = false, $message = false, $stripe_only = false ) {
+	public function cancel_blog_subscription( $blog_id, $stripe = true, $immediate = false, $message = false ) {
 		global $psts, $current_user;
 
-		$cancelled = false;
+		$stripe_cancelled = false;
 
-		// Get the subscription data using blog id.
-		$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( $blog_id );
+		// Check if we have already canceled the blog.
+		$canceled = $psts->is_blog_canceled( $blog_id );
 
-		// We need both subscription id and customer id.
-		if ( ! empty( $customer_data->subscription_id ) ) {
-			// Now cancel the subscription.
-			$cancelled = $this->cancel_subscription( $customer_data->subscription_id, $immediate );
-		}
+		// Continue only if not canceled.
+		if ( ! $canceled || $stripe ) {
+			// Get the subscription data using blog id.
+			$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( $blog_id );
+			// We need both subscription id and customer id.
+			if ( ! empty( $customer_data->subscription_id ) ) {
+				// Now cancel the subscription.
+				$stripe_cancelled = $this->cancel_subscription( $customer_data->subscription_id, $immediate );
+			} elseif ( empty( $customer_data->subscription_id ) ) {
+				// No data?. Ok Stripe canceled.
+				$stripe_cancelled = true;
+			}
 
-		// Ok so we have cancelled. Run the post-cancellation actions.
-		if ( ! empty( $cancelled ) && ! $stripe_only ) {
-			// Record cancel status.
-			$psts->record_stat( $blog_id, 'cancel' );
+			// Now set the flags.
+			if ( ! $canceled && $stripe_cancelled ) {
+				// Record cancel status.
+				//$psts->record_stat( $blog_id, 'cancel' );
 
-			// Send cancellation email notification.
-			$psts->email_notification( $blog_id, 'canceled' );
+				// Send cancellation email notification.
+				$psts->email_notification( $blog_id, 'canceled' );
 
-			// Update the cancellation flag.
-			update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
-			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
+				// Update the cancellation flag.
+				update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
+				update_blog_option( $blog_id, 'psts_is_canceled', 0 );
 
-			// Get the expire date of the blog.
-			$end_date = $psts->get_expire( $blog_id );
+				// Get the expire date of the blog.
+				$end_date = $psts->get_expire( $blog_id );
 
-			$psts->log_action(
-				$blog_id,
-				// translators: %1$s: Cancelled by user, %2$d: Subscription end date.
-				sprintf(
-					__( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ),
-					$current_user->display_name,
-					empty( $end_date ) ? '' : date_i18n( get_option( 'date_format' ), $end_date )
-				)
-			);
-		} elseif ( ! $stripe_only ) {
-			$psts->log_action(
-				$blog_id,
-				sprintf( __( 'Attempt to cancel Stripe subscription for blog %d failed', 'psts' ), $blog_id )
-			);
+				$psts->log_action(
+					$blog_id,
+					// translators: %1$s: Cancelled by user, %2$d: Subscription end date.
+					sprintf(
+						__( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ),
+						$current_user->display_name,
+						empty( $end_date ) ? '' : date_i18n( get_option( 'date_format' ), $end_date )
+					)
+				);
+			} elseif ( ! $stripe_cancelled ) {
+				$psts->log_action(
+					$blog_id,
+					sprintf( __( 'Attempt to cancel Stripe subscription for blog %d failed', 'psts' ), $blog_id )
+				);
+			}
 		}
 
 		// Show message if requested explicitly.
-		if ( $cancelled && $message ) {
+		if ( $canceled && $message ) {
 			// Show cancellation.
 			add_filter( 'psts_blog_info_cancelled', '__return_true' );
+			add_filter('psts_render_notification_information', function ( $info, $blog_id ) {
+				$info['cancel'] = true;
+				return $info;
+			}, 10, 2 );
 		}
 
-		return $cancelled;
+		return $canceled;
 	}
 
 	/**

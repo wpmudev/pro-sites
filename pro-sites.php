@@ -1371,7 +1371,7 @@ class ProSites {
 		}
 
 		//Check the option table for cancellation
-		if ( get_blog_option( $blog_id, 'psts_is_canceled' ) || get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
+		if ( (bool) get_blog_option( $blog_id, 'psts_is_canceled' ) || (bool) get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
 			return true;
 		}
 
