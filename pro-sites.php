@@ -2291,6 +2291,8 @@ class ProSites {
 			if( ! empty( $gateways ) && isset( $gateways[ $last_gateway ] ) && method_exists( $gateways[ $last_gateway ]['class'], 'cancel_subscription' ) ) {
 				call_user_func( $gateways[ $last_gateway ]['class'] . '::cancel_subscription', $blog_id );
 			}
+
+			do_action( 'psts_gateway_change_from_' . $last_gateway, $blog_id );
 		}
 
 	}

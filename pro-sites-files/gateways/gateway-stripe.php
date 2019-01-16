@@ -160,6 +160,15 @@ class ProSites_Gateway_Stripe {
 	public static $existing = false;
 
 	/**
+	 * Flag to show/hide payment message.
+	 *
+	 * @var bool
+	 *
+	 * @since 3.6.1
+	 */
+	private static $show_completed = false;
+
+	/**
 	 * ProSites_Gateway_Stripe constructor.
 	 */
 	public function __construct() {
@@ -194,6 +203,10 @@ class ProSites_Gateway_Stripe {
 
 		// Cancel subscriptions on blog deletion.
 		add_action( 'delete_blog', array( $this, 'delete_blog' ) );
+		// Cancel subscription when gateway is changed from Stripe to something else.
+		add_action( 'psts_gateway_change_from_stripe', array( $this, 'change_gateway' ) );
+		// Cancelling subscription.
+		add_action( 'psts_cancel_subscription_stripe', array( $this, 'cancel_subscription' ), 10, 2 );
 
 		// Should we force SSL?.
 		add_filter( 'psts_force_ssl', array( $this, 'force_ssl' ) );
@@ -207,19 +220,24 @@ class ProSites_Gateway_Stripe {
 		// Site details page.
 		add_action( 'psts_subscription_info', array( $this, 'subscription_info' ) );
 		add_action( 'psts_subscriber_info', array( $this, 'subscriber_info' ) );
+		add_filter( 'psts_current_plan_info_retrieved', array( $this, 'current_plan_info' ), 1, 4 );
 
 		// Subscription modification form.
 		add_action( 'psts_modify_form', array( $this, 'modification_form' ) );
 		add_action( 'psts_modify_process', array( $this, 'process_modification' ) );
 
 		// Next payment date.
-		add_filter( 'psts_next_payment', array( $this, '$upcoming_invoice' ) );
+		add_filter( 'psts_next_payment', array( $this, 'next_payment_date' ) );
 
 		// Show admin notices if required.
 		add_action( 'admin_notices', array( &$this, 'admin_notices' ), 99 );
 
 		// Set a flag if last payment is failed.
 		add_filter( 'psts_blog_info_payment_failed', array( $this, 'payment_failed' ), 10, 2 );
+
+		// Front end messages.
+		add_filter( 'psts_blog_info_args', array( $this, 'messages' ), 10, 2 );
+		add_filter( 'psts_render_notification_information', array( $this, 'messages' ), 10, 2 );
 	}
 
 	/**
@@ -378,10 +396,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public function delete_blog( $blog_id ) {
 		// Cancel the blog subscription.
-		self::$stripe_subscription->cancel_blog_subscription(
-			$blog_id,
-			false
-		);
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, false );
 
 		// Delete the blog data from DB.
 		self::$stripe_customer->delete_db_customer( $blog_id );
@@ -397,13 +412,23 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return void
 	 */
-	public static function cancel_subscription( $blog_id, $display_message = false ) {
+	public function cancel_subscription( $blog_id, $display_message = false ) {
 		// Cancel the blog subscription.
-		self::$stripe_subscription->cancel_blog_subscription(
-			$blog_id,
-			false,
-			$display_message
-		);
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, false, $display_message );
+	}
+
+	/**
+	 * Cancel Stripe subscription when gateway is changed.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public function change_gateway( $blog_id ) {
+		// Cancel the blog subscription in Stripe.
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, false, true );
 	}
 
 	/**
@@ -664,6 +689,120 @@ class ProSites_Gateway_Stripe {
 
 		// File that contains subscription info.
 		include_once 'gateway-stripe-files/views/admin/subscriber-info.php';
+	}
+
+	/**
+	 * Show payment completed message on front end.
+	 *
+	 * @param array $messages Current messages.
+	 * @param int   $blog_id  Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return string
+	 */
+	public function messages( $messages, $blog_id ) {
+		global $psts;
+
+		// Site status flags.
+		$pending   = (bool) get_blog_option( $blog_id, 'psts_stripe_waiting' );
+		$cancelled = (bool) get_blog_option( $blog_id, 'psts_stripe_canceled' );
+		$end_date  = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+
+		// Show pending message if we need data from Stripe.
+		if ( $pending && ! $cancelled ) {
+			$messages['pending'] = '<div id="psts-general-error" class="psts-warning">' . __( 'There are pending changes to your account. This message will disappear once these pending changes are completed.', 'psts' ) . '</div>';
+		}
+
+		// Show payment completed message after registration.
+		if ( self::$show_completed ) {
+			$messages['complete_message']   = '<div id="psts-complete-msg">' . __( 'Your payment was successfully recorded! You should be receiving an email receipt shortly.', 'psts' ) . '</div>';
+			$messages['thanks_message']     = '<p>' . $psts->get_setting( 'stripe_thankyou' ) . '</p>';
+			$messages['visit_site_message'] = '<p><a href="' . get_admin_url( $blog_id, '', 'http' ) . '">' . __( 'Go to your site &raquo;', 'psts' ) . '</a></p>';
+		}
+
+		// Show cancellation message if required.
+		if ( $messages['cancel'] ) {
+			$messages['cancellation_message'] = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
+		}
+
+		return $messages;
+	}
+
+	/**
+	 * Show subscription details on front end.
+	 *
+	 * @param array  $info    Current info data.
+	 * @param int    $blog_id Current blog id.
+	 * @param string $domain  Current domain.
+	 * @param string $gateway Current gateway.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return array $info
+	 */
+	public function current_plan_info( $info, $blog_id, $domain, $gateway ) {
+		if ( self::get_slug() !== $gateway ) {
+			return $info;
+		}
+
+		// Get customer data from DB.
+		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
+
+		// Continue only if customer data is found.
+		if ( $customer ) {
+			global $psts;
+
+			// Get site data.
+			$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
+
+			// Is this a recurring blog.
+			$info['recurring'] = (bool) $site_data->is_recurring;
+			// End date of current site.
+			$info['expires'] = date_i18n( get_option( 'date_format' ), $site_data->expire );
+			// Current site's level.
+			$info['level'] = $psts->get_level_setting( (int) $site_data->level, 'name' );
+			// Current site's period.
+			$info['period'] = (int) $site_data->term;
+			// Is the blog cancelled.
+			$is_canceled = $psts->is_blog_canceled( $blog_id );
+			// Default card.
+			$card = self::$stripe_customer->default_card( $customer->id );
+			// Get Stripe subscription.
+			$subscription = self::$stripe_subscription->get_subscription_by_blog( $blog_id );
+
+			// Include customer's card information.
+			if ( $card ) {
+				$info['card_type']           = empty( $card->brand ) ? '' : $card->brand;
+				$info['card_reminder']       = empty( $card->last4 ) ? '' : $card->last4;
+				$info['card_expire_year']    = empty( $card->exp_year ) ? '' : $card->exp_year;
+				$info['card_expire_month']   = empty( $card->exp_month ) ? '' : $card->exp_month;
+				$info['card_digit_location'] = 'end';
+			}
+
+			// If current subscription is not exist in Stripe, show cancelled message.
+			if ( $info['recurring'] && empty( $subscription ) ) {
+				$info['cancel']               = true;
+				$info['cancellation_message'] = '<div class="psts-cancel-notification">
+													<p class="label"><strong>' . __( 'Your subscription has been canceled', 'psts' ) . '</strong></p>
+													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $info['level'], $info['expires'] ) . '</p>
+												</div>';
+			}
+
+			// If an active subscription found.
+			if ( empty( $info['cancel'] ) ) {
+				if ( $info['recurring'] && ! $is_canceled ) {
+					$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
+					$info['cancel_info'] = '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $info['level'], $info['expires'] ) . '</p>';
+					$info['cancel_link'] = '<p class="prosites-cancel-link"><a class="cancel-prosites-plan button" href="' . wp_nonce_url( $psts->checkout_url( $blog_id ) . '&action=cancel', 'psts-cancel' ) . '" title="' . esc_attr( $cancel_label ) . '">' . esc_html( $cancel_label ) . '</a></p>';
+				}
+
+				// Payment receipt form button.
+				$info['receipt_form'] = $psts->receipt_form( $blog_id );
+			}
+		}
+
+		return $info;
 	}
 
 	/**
@@ -1010,7 +1149,9 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Now process the payments.
-		$processed = self::process_payment( $data, $customer, $plan_id );
+		if ( self::process_payment( $data, $customer, $plan_id ) ) {
+			self::$show_completed = true;
+		}
 	}
 
 	/**
@@ -1074,6 +1215,9 @@ class ProSites_Gateway_Stripe {
 			// Process one time payment.
 			$processed = self::process_single( $process_data, $customer, $tax_object, $coupon, $total );
 		}
+
+		// Display GA ecommerce in footer.
+		$psts->create_ga_ecommerce( self::$blog_id, self::$period, $total, self::$level, '', self::$domain );
 
 		// Remove email body issue action.
 		remove_action( 'phpmailer_init', 'psts_text_body' );

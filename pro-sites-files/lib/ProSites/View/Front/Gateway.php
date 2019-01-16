@@ -55,6 +55,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
 							call_user_func( $gateways[ $gateway ]['class'] . '::cancel_subscription', $blog_id, true );
 						}
+
+						do_action( 'psts_cancel_subscription_' . $gateway, $blog_id, true );
 					}
 
 					$site_details = $result;
@@ -260,6 +262,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						if ( ! empty( $key ) && $result->gateway == $key && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 							$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
 						}
+
+						// Filter to update payment data.
+						$info_retrieved = apply_filters( 'psts_current_plan_info_retrieved', $info_retrieved, $blog_id, $domain, $key );
 					}
 				}
 			}
@@ -431,7 +436,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		public static function render_notification_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
 			$content        = '';
-			$info_retrieved = '';
+			$info_retrieved = array();
 
 			foreach ( $gateway_order as $key ) {
 				//If the key is empty or The gateway is not enabled
@@ -442,6 +447,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				if ( empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 					$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain, false );
 				}
+
+				// Filter to update payment data.
+				$info_retrieved = apply_filters( 'psts_render_notification_information', $info_retrieved, $blog_id );
 			}
 
 			// Notifications
