@@ -713,4 +713,78 @@ class ProSites_Stripe_Plan {
 
 		return false;
 	}
+
+	/**
+	 * Show subscription details on front end.
+	 *
+	 * @param int   $blog_id Current blog id.
+	 * @param array $info    Current info data.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return array $info
+	 */
+	public function plan_info( $blog_id, $info ) {
+		// Get customer data from DB.
+		$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $blog_id );
+
+		// Continue only if customer data is found.
+		if ( $customer ) {
+			global $psts;
+
+			// Get site data.
+			$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
+
+			// Is this a recurring blog.
+			$info['recurring'] = (bool) $site_data->is_recurring;
+			// End date of current site.
+			$info['expires'] = date_i18n( get_option( 'date_format' ), $site_data->expire );
+			// Current site's level.
+			$info['level'] = $psts->get_level_setting( (int) $site_data->level, 'name' );
+			// Current site's period.
+			$info['period'] = (int) $site_data->term;
+			// Is the blog cancelled.
+			$is_canceled = $psts->is_blog_canceled( $blog_id );
+			// Default card.
+			$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+			// Get Stripe subscription.
+			$subscription = ProSites_Gateway_Stripe::$stripe_subscription->get_subscription_by_blog( $blog_id );
+			// Stripe subscription status.
+			$stripe_status = empty( $subscription->status ) ? 'canceled' : $subscription->status;
+
+			// Include customer's card information.
+			if ( $card ) {
+				$info['card_type']           = empty( $card->brand ) ? '' : $card->brand;
+				$info['card_reminder']       = empty( $card->last4 ) ? '' : $card->last4;
+				$info['card_expire_year']    = empty( $card->exp_year ) ? '' : $card->exp_year;
+				$info['card_expire_month']   = empty( $card->exp_month ) ? '' : $card->exp_month;
+				$info['card_digit_location'] = 'end';
+			}
+
+			// Show a message that they can update card using checkout.
+			if ( $info['recurring'] ) {
+				$info['modify_card'] = ' <p><small>' . esc_html__( 'Update your credit card by selecting your current plan below and proceed with checkout.', 'psts' ) . '</small></p>';
+			}
+
+			// If current subscription is not exist in Stripe, show cancelled message.
+			if ( $info['recurring'] && 'canceled' === $stripe_status ) {
+				$info['cancel']               = true;
+				$info['cancellation_message'] = '<div class="psts-cancel-notification">
+													<p class="label"><strong>' . __( 'Your Stripe subscription has been canceled', 'psts' ) . '</strong></p>
+													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $info['level'], $info['expires'] ) . '</p>
+												</div>';
+			}
+
+			// If an active subscription found.
+			if ( empty( $info['cancel'] ) && ! $is_canceled ) {
+				// Payment receipt form button.
+				$info['receipt_form'] = $psts->receipt_form( $blog_id );
+			}
+
+			// Show all is true.
+			$info['all_fields'] = true;
+		}
+
+		return $info;
+	}
 }

@@ -160,6 +160,15 @@ class ProSites_Gateway_Stripe {
 	public static $existing = false;
 
 	/**
+	 * Flag to check if the blog is being upgraded.
+	 *
+	 * @var bool
+	 *
+	 * @since 3.6.1
+	 */
+	public static $upgrading = false;
+
+	/**
 	 * Flag to show/hide payment message.
 	 *
 	 * @var bool
@@ -747,65 +756,8 @@ class ProSites_Gateway_Stripe {
 			return $info;
 		}
 
-		// Get customer data from DB.
-		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
-
-		// Continue only if customer data is found.
-		if ( $customer ) {
-			global $psts;
-
-			// Get site data.
-			$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
-
-			// Is this a recurring blog.
-			$info['recurring'] = (bool) $site_data->is_recurring;
-			// End date of current site.
-			$info['expires'] = date_i18n( get_option( 'date_format' ), $site_data->expire );
-			// Current site's level.
-			$info['level'] = $psts->get_level_setting( (int) $site_data->level, 'name' );
-			// Current site's period.
-			$info['period'] = (int) $site_data->term;
-			// Is the blog cancelled.
-			$is_canceled = $psts->is_blog_canceled( $blog_id );
-			// Default card.
-			$card = self::$stripe_customer->default_card( $customer->id );
-			// Get Stripe subscription.
-			$subscription = self::$stripe_subscription->get_subscription_by_blog( $blog_id );
-			// Stripe subscription status.
-			$stripe_status = empty( $subscription->status ) ? 'canceled' : $subscription->status;
-
-			// Include customer's card information.
-			if ( $card ) {
-				$info['card_type']           = empty( $card->brand ) ? '' : $card->brand;
-				$info['card_reminder']       = empty( $card->last4 ) ? '' : $card->last4;
-				$info['card_expire_year']    = empty( $card->exp_year ) ? '' : $card->exp_year;
-				$info['card_expire_month']   = empty( $card->exp_month ) ? '' : $card->exp_month;
-				$info['card_digit_location'] = 'end';
-			}
-
-			// Show a message that they can update card using checkout.
-			if ( $info['recurring'] ) {
-				$info['modify_card'] = ' <p><small>' . esc_html__( 'Update your credit card by selecting your current plan below and proceed with checkout.', 'psts' ) . '</small></p>';
-			}
-
-			// If current subscription is not exist in Stripe, show cancelled message.
-			if ( $info['recurring'] && 'canceled' === $stripe_status ) {
-				$info['cancel']               = true;
-				$info['cancellation_message'] = '<div class="psts-cancel-notification">
-													<p class="label"><strong>' . __( 'Your Stripe subscription has been canceled', 'psts' ) . '</strong></p>
-													<p>' . sprintf( __( 'This site should continue to have %1$s features until %2$s.', 'psts' ), $info['level'], $info['expires'] ) . '</p>
-												</div>';
-			}
-
-			// If an active subscription found.
-			if ( empty( $info['cancel'] ) && ! $is_canceled ) {
-				// Payment receipt form button.
-				$info['receipt_form'] = $psts->receipt_form( $blog_id );
-			}
-
-			// Show all is true.
-			$info['all_fields'] = true;
-		}
+		// Get the available data.
+		$info = self::$stripe_plan->plan_info( $blog_id, $info );
 
 		return $info;
 	}
@@ -1099,9 +1051,9 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Set the level.
-		self::$level = self::from_request( 'level' );
+		self::$level = (int) self::from_request( 'level' );
 		// Set the period.
-		self::$period = self::from_request( 'period' );
+		self::$period = (int) self::from_request( 'period' );
 
 		// Get the Stripe data.
 		$stripe_token = self::from_request( 'stripeToken' );
@@ -1134,6 +1086,18 @@ class ProSites_Gateway_Stripe {
 
 		// We have level and period, so get the Stripe plan id.
 		$plan_id = self::$stripe_plan->get_id( self::$level, self::$period );
+
+		// Set a flag if we are upgrading a blog.
+		if ( self::$existing ) {
+			// Get the existing site data.
+			$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
+			// If plans have changed, set the upgrade flag to true.
+			if ( isset( $site_data->level, $site_data->term ) &&
+			     self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id
+			) {
+				self::$upgrading = true;
+			}
+		}
 
 		// Do not continue if plan does not exist.
 		if ( ! self::$stripe_plan->get_plan( $plan_id ) ) {
@@ -1177,8 +1141,6 @@ class ProSites_Gateway_Stripe {
 	private static function process_payment( $process_data, $customer, $plan_id ) {
 		global $psts;
 
-		$processed = false;
-
 		// Get the level + period amount.
 		$amount = $total = $psts->get_level_setting( self::$level, 'price_' . self::$period );
 
@@ -1194,31 +1156,69 @@ class ProSites_Gateway_Stripe {
 		// If a setup fee is set, charge it.
 		if ( $psts->has_setup_fee( self::$blog_id, self::$level ) ) {
 			// Charge the setup fee.
-			$total = self::charge_setup_fee( $amount, $customer, $recurring );
+			$total = self::charge_setup_fee( $total, $customer, $recurring );
 		}
 
 		// If a coupon is applied, adjust the amount.
-		if ( isset( $process_data['COUPON_CODE'] ) ) {
-			// Adjust the coupon amount.
-			$coupon = self::apply_coupon( $process_data['COUPON_CODE'], $amount, $total );
-		} else {
-			$coupon = false;
-		}
+		$coupon = self::maybe_apply_coupon( $process_data, $amount, $total );
+
+		// Stripe description.
+		$desc = self::get_description( $amount, $total, $recurring, $process_data, $coupon );
 
 		if ( $recurring ) {
-			// Stripe description.
-			$desc = self::get_description( $amount, $total, $recurring );
-
 			// Process recurring payment.
-			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $total );
+			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $amount );
 		} else {
-			// We are upgrading a blog, so calculate the upgrade cost.
-			if ( ! empty( self::$blog_id ) ) {
-				$total = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $total );
+			// Process one time payment.
+			$processed = self::process_single( $process_data, $customer, $tax_object, $amount, $total, $desc );
+		}
+
+		// Set the stat flags.
+		if ( self::$upgrading ) {
+			$psts->record_stat( self::$blog_id, 'upgrade' );
+		} elseif ( self::$existing ) {
+			$psts->record_stat( self::$blog_id, 'modify' );
+		} else {
+			$psts->record_stat( self::$blog_id, 'signup' );
+		}
+
+		// We don't need the coupon anymore.
+		if ( isset( $coupon->id ) ) {
+			if ( ! self::$stripe_plan->delete_coupon( $coupon->id ) ) {
+				wp_mail(
+					get_blog_option( self::$blog_id, 'admin_email' ),
+					__( 'Error deleting temporary Stripe coupon code. Attention required!.', 'psts' ),
+					sprintf( __( 'An error occurred when attempting to delete temporary Stripe coupon code %1$s. You will need to manually delete this coupon via your Stripe account.', 'psts' ), $process_data['COUPON_CODE'] ),
+					array( 'content-type' => 'text/html' )
+				);
+			}
+		}
+
+		// Log user subscription details.
+		if ( ( ! self::$existing || $psts->is_blog_canceled( self::$blog_id ) ) && ! empty( $customer->id ) ) {
+			// Added for affiliate system link.
+			if ( $recurring ) {
+				$psts->log_action(
+					self::$blog_id,
+					sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id ),
+					self::$domain
+				);
+			} else {
+				$psts->log_action(
+					self::$blog_id,
+					sprintf( __( 'User completed new payment via CC: Site created/extended (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id ),
+					self::$domain
+				);
 			}
 
-			// Process one time payment.
-			$processed = self::process_single( $process_data, $customer, $tax_object, $coupon, $total );
+			// Action hook for other plugins.
+			do_action( 'supporter_payment_processed', self::$blog_id, $total, self::$period, self::$level );
+		} else {
+			$psts->log_action(
+				self::$blog_id,
+				sprintf( __( 'User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts' ), $desc, $customer->id ),
+				self::$domain
+			);
 		}
 
 		// Display GA ecommerce in footer.
@@ -1242,13 +1242,13 @@ class ProSites_Gateway_Stripe {
 	 * @param \Stripe\Customer $customer   Stripe customer.
 	 * @param object           $tax_object Tax object.
 	 * @param \Stripe\Coupon   $coupon     Stripe coupon object.
-	 * @param float            $total      Total amount.
+	 * @param float            $amount     Plan amount.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool True if payment was success.
 	 */
-	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $total ) {
+	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $amount ) {
 		global $psts;
 
 		// If customer created, now let's create a subscription.
@@ -1298,7 +1298,7 @@ class ProSites_Gateway_Stripe {
 
 			// Now activate the blog.
 			if ( ! empty( $subscription ) ) {
-				self::extend_recurring_blog( $activation_key, $subscription, $data, $total, true );
+				self::extend_recurring_blog( $activation_key, $subscription, $data, $amount, true );
 			}
 
 			if ( ! empty( self::$blog_id ) ) {
@@ -1323,11 +1323,6 @@ class ProSites_Gateway_Stripe {
 					) );
 				}
 			}
-
-			// We don't need the coupon anymore.
-			if ( isset( $coupon->id ) ) {
-				self::$stripe_plan->delete_coupon( $coupon->id );
-			}
 		}
 
 		return false;
@@ -1344,34 +1339,35 @@ class ProSites_Gateway_Stripe {
 	 * @param array            $data       Form data.
 	 * @param \Stripe\Customer $customer   Stripe customer.
 	 * @param object           $tax_object Tax object.
-	 * @param \Stripe\Coupon   $coupon     Stripe coupon object.
+	 * @param float            $amount     Amount of plan.
 	 * @param float            $total      Total amount.
+	 * @param string           $desc       Description for log.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	private static function process_single( $data, $customer, $tax_object, $coupon, $total ) {
+	private static function process_single( $data, $customer, $tax_object, &$amount, $total, &$desc ) {
 		global $psts;
-
-		$amount = $total;
 
 		// If customer created, now let's create a subscription.
 		if ( ! empty( $customer->id ) ) {
 			// Calculate the total amount if we are upgrading.
-			$total = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $total );
+			$amount = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $amount );
 
 			// Activation key.
 			$activation_key = self::get_activation_key( self::$blog_id );
+
+			// Stripe description.
+			$desc = self::get_description( $amount, $total, false, $data );
 
 			// Apply tax if required.
 			if ( $tax_object->apply_tax ) {
 				$amount   = $total + ( $total * $tax_object->tax_rate );
 				$tax_rate = self::format_price( $tax_object->tax_rate );
+				// Update the description.
+				$desc .= sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), $tax_rate, $tax_object->country );
 			}
-
-			// Stripe description.
-			$desc = self::get_description( $amount, $total, false );
 
 			// Charge arguments.
 			$charge_args = array(
@@ -1436,11 +1432,6 @@ class ProSites_Gateway_Stripe {
 						'metadata' => $meta,
 					) );
 				}
-			}
-
-			// We don't need the coupon anymore.
-			if ( isset( $coupon->id ) ) {
-				self::$stripe_plan->delete_coupon( $coupon->id );
 			}
 		}
 
@@ -1524,14 +1515,14 @@ class ProSites_Gateway_Stripe {
 	 * @param string              $activation_key Activation key.
 	 * @param Stripe\Subscription $subscription   Stripe subscription.
 	 * @param array               $data           Process data.
-	 * @param int                 $total          Total amount.
+	 * @param int                 $amount         Total amount.
 	 * @param bool                $recurring      Is this a recurring payment.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	private static function extend_recurring_blog( $activation_key, $subscription, $data, $total = 0, $recurring = false ) {
+	private static function extend_recurring_blog( $activation_key, $subscription, $data, $amount = 0, $recurring = false ) {
 		$activated = self::$existing;
 
 		// Is current subscription on trial.
@@ -1569,7 +1560,7 @@ class ProSites_Gateway_Stripe {
 		self::set_session_data( $data );
 
 		// Extend the site expiry date.
-		self::maybe_extend( $total, $expire, true, $recurring );
+		self::maybe_extend( $amount, $expire, true, $recurring );
 
 		return $activated;
 	}
@@ -1719,12 +1710,12 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * Adjust the amount applying the coupon.
+	 * Adjust the coupon amount if applied.
 	 *
 	 * If a coupon is applied by the user on registration,
 	 * apply that and adjust the payment amount.
 	 *
-	 * @param bool  $coupon Coupon code.
+	 * @param array $data   Process data.
 	 * @param float $amount Amount.
 	 * @param float $total  Total amount.
 	 *
@@ -1732,23 +1723,16 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return bool|\Stripe\Coupon
 	 */
-	private static function apply_coupon( $coupon, $amount, &$total ) {
+	private static function maybe_apply_coupon( $data, $amount, &$total ) {
+		// Get the coupon data.
+		$coupon_data = self::get_coupon_data( $data );
 		// Do not continue if coupon is not valid.
-		if ( ! ProSites_Helper_Coupons::check_coupon( $coupon, self::$blog_id, self::$level, self::$period, self::$domain ) ) {
+		if ( empty( $coupon_data ) ) {
 			return false;
 		}
 
-		// Get adjusted amounts.
-		$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $coupon );
-		// Get coupon properties.
-		$coupon_obj = ProSites_Helper_Coupons::get_coupon( $coupon );
-		// Get the lifetime of coupon.
-		$lifetime = isset( $coupon_obj['lifetime'] ) && 'indefinite' === $coupon_obj['lifetime'] ? 'forever' : 'once';
-		// Get the adjusted amount for the level and period.
-		$coupon_value = $adjusted_values[ self::$level ][ 'price_' . self::$period ];
-
 		// Now get the off amount.
-		$amount_off = $amount - $coupon_value;
+		$amount_off = $amount - $coupon_data['value'];
 		// Round the value to two digits.
 		$amount_off = number_format( $amount_off, 2, '.', '' );
 
@@ -1760,15 +1744,56 @@ class ProSites_Gateway_Stripe {
 
 		$args = array(
 			'amount_off'      => self::format_price( $amount_off ),
-			'duration'        => $lifetime,
+			'duration'        => $coupon_data['lifetime'],
 			'currency'        => self::get_currency(),
 			'max_redemptions' => 1,
 		);
 
 		// Create or get stripe coupon.
-		$stripe_coupon = self::$stripe_plan->create_coupon( $args, $coupon );
+		$stripe_coupon = self::$stripe_plan->create_coupon( $args, $data['COUPON_CODE'] );
 
 		return $stripe_coupon;
+	}
+
+	/**
+	 * Get Pro Sites coupon data if a coupon is applied.
+	 *
+	 * We need to validate the coupon code and then get the
+	 * coupon object.
+	 *
+	 * @param array $data Process data.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return array|bool
+	 */
+	private static function get_coupon_data( $data ) {
+		// Do not continue if coupon is not valid.
+		if ( ! isset( $data['COUPON_CODE'] ) || ! ProSites_Helper_Coupons::check_coupon(
+				$data['COUPON_CODE'],
+				self::$blog_id,
+				self::$level,
+				self::$period,
+				self::$domain
+			)
+		) {
+			return false;
+		}
+
+		// Get adjusted amounts.
+		$adjusted_values = ProSites_Helper_Coupons::get_adjusted_level_amounts( $data['COUPON_CODE'] );
+		// Get coupon properties.
+		$coupon_obj = ProSites_Helper_Coupons::get_coupon( $data['COUPON_CODE'] );
+		// Get the lifetime of coupon.
+		$lifetime = isset( $coupon_obj['lifetime'] ) && 'indefinite' === $coupon_obj['lifetime'] ? 'forever' : 'once';
+		// Get the adjusted amount for the level and period.
+		$coupon_value = $adjusted_values[ self::$level ][ 'price_' . self::$period ];
+
+		return array(
+			'coupon'   => $coupon_obj,
+			'lifetime' => $lifetime,
+			'value'    => $coupon_value,
+		);
 	}
 
 	/**
@@ -1813,16 +1838,77 @@ class ProSites_Gateway_Stripe {
 	 * @param float $amount    Amount.
 	 * @param float $total     Total amount.
 	 * @param bool  $recurring Is recurring?.
+	 * @param array $data      Process data.
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return mixed|void
+	 * @return string
 	 */
-	private static function get_description( $amount, $total, $recurring ) {
-		$desc = '';
+	private static function get_description( $amount, $total, $recurring, $data ) {
+		global $psts, $current_site;
+
+		// Get currency.
+		$currency = self::get_currency();
+		// Site name.
+		$site_name = $current_site->site_name;
+		// Is setup fee is enabled and can be applied to this site?.
+		$has_setup_fee = $psts->has_setup_fee( self::$blog_id, self::$level );
+		// Did the user apply a valid coupon?.
+		$coupon = self::get_coupon_data( $data );
+
+		// If we are upgrading, calculate the total.
+		if ( self::$upgrading ) {
+			$total = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $total );
+		}
+
+		// Get the total amount after applying coupon.
+		if ( isset( $coupon['lifetime'] ) && 'forever' === $coupon['lifetime'] ) {
+			$total = $coupon['value'];
+		}
+
+		// Format the with currency.
+		$amount = $psts->format_currency( $currency, $amount );
+		$total  = $psts->format_currency( $currency, $total );
+
+		// For recurring subscriptions.
+		if ( $recurring ) {
+			// If we have a setup fee or coupon applied.
+			if ( $has_setup_fee || $coupon ) {
+				if ( 1 === self::$period ) {
+					$desc = sprintf( __( '%1$s for the first month, then %2$s each month', 'psts' ), $total, $amount );
+				} else {
+					$desc = sprintf( __( '%1$s for the first %2$s month period, then %3$s every %4$s months', 'psts' ), $total, self::$period, $amount, self::$period );
+				}
+			} else {
+				if ( 1 === self::$period ) {
+					$desc = sprintf( __( '%s each month', 'psts' ), $amount );
+				} else {
+					$desc = sprintf( __( '%1$s every %3$s months', 'psts' ), $amount, self::$period );
+				}
+			}
+		} else {
+			// If we have a setup fee or coupon applied.
+			if ( 1 === self::$period ) {
+				$desc = sprintf( __( '%s for 1 month', 'psts' ), $total );
+			} else {
+				$desc = sprintf( __( '%1$s for %2$s months', 'psts' ), $total, self::$period );
+			}
+		}
+
+		// Append the site name and level name.
+		$desc = $site_name . ' ' . $psts->get_level_setting( self::$level, 'name' ) . ': ' . $desc;
 
 		/**
 		 * Filter to override the Stripe description.
+		 *
+		 * @param string $desc      Description.
+		 * @param int    $period    Period.
+		 * @param  int   $level     Level.
+		 * @param float  $amount    Initial amount.
+		 * @param float  $total     Total amount.
+		 * @param  int   $blog_id   Current blog id.
+		 * @param string $domain    Domain name.
+		 * @param bool   $recurring Is recurring?.
 		 *
 		 * @since 3.0
 		 */
