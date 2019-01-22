@@ -498,10 +498,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			//For gateways after redirection, upon page refresh
 			$page_reload = ! empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );
 
+			$cancel = ! empty( $_GET['action'] ) && $_GET['action'] == 'cancel';
+
 			//If action is new_blog, but new blog is not allowed
 			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
 
-			if ( $is_pro_site && ( ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
+			if ( $is_pro_site && ( $cancel || ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
 				// EXISTING DETAILS
 				if ( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();

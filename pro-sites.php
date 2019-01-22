@@ -1375,6 +1375,11 @@ class ProSites {
 			return true;
 		}
 
+		// Do not query if blog does not exist.
+		if ( ! get_blog_details( (int) $blog_id ) ) {
+			return;
+		}
+
 		//check if blog has been canceled in the stat log (other gateways, manual cancel, etc)
 		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(action_ID) FROM {$wpdb->prefix}pro_sites_signup_stats WHERE blog_ID = %d AND action = 'cancel'", $blog_id ) );
 

@@ -215,18 +215,17 @@ class ProSites_Stripe_Subscription {
 	 * Get subscription id from Pro Sites db.
 	 *
 	 * @param int  $blog_id Blog ID.
-	 * @param bool $email   Email address.
 	 * @param bool $force   Force from Stripe.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|string
 	 */
-	public function get_subscription_id( $blog_id, $email = false, $force = false ) {
+	public function get_subscription_id( $blog_id, $force = false ) {
 		// Try to get data from customers table.
 		$db_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer(
 			$blog_id,
-			$email,
+			false, // Do not use email here, it will replace existing subscriptions.
 			$force
 		);
 
@@ -268,20 +267,20 @@ class ProSites_Stripe_Subscription {
 	 * Create new subscription for the blog.
 	 *
 	 * @param int         $blog_id     Blog ID.
-	 * @param string      $email       Email address.
 	 * @param string      $customer_id Customer ID.
 	 * @param string|bool $plan_id     Plan ID or false if plan id is in arguments.
 	 * @param array       $args        Arguments for subscription.
+	 * @param sting|bool  $card        Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|Stripe\Subscription
 	 */
-	public function set_blog_subscription( $blog_id, $email, $customer_id, $plan_id = false, $args = array() ) {
+	public function set_blog_subscription( $blog_id, $customer_id, $plan_id = false, $args = array(), $card = false ) {
 		global $psts;
 
 		// Get the subscription id for the email/blog id.
-		$subscription_id = $this->get_subscription_id( $blog_id, $email );
+		$subscription_id = $this->get_subscription_id( $blog_id );
 
 		// Check if that subscription is valid now.
 		$subscription = $this->get_subscription( $subscription_id );
@@ -291,6 +290,11 @@ class ProSites_Stripe_Subscription {
 
 		// Try to generate arguments if missing.
 		$args = $this->subscription_args( $blog_id, $args );
+
+		// Set default payment source.
+		if ( ! empty( $card ) ) {
+			$args['default_source'] = $card;
+		}
 
 		// Subscription does not exist or cancelled, so create new.
 		if ( empty( $subscription ) || 'canceled' === $subscription->status ) {
@@ -369,7 +373,7 @@ class ProSites_Stripe_Subscription {
 			// We need both subscription id and customer id.
 			if ( ! empty( $customer_data->subscription_id ) ) {
 				// Now cancel the subscription.
-				$stripe_cancelled = $this->cancel_subscription( $customer_data->subscription_id, $immediate );
+				//$stripe_cancelled = $this->cancel_subscription( $customer_data->subscription_id, $immediate );
 			} elseif ( empty( $customer_data->subscription_id ) ) {
 				// No data?. Ok Stripe canceled.
 				$stripe_cancelled = true;
@@ -384,8 +388,8 @@ class ProSites_Stripe_Subscription {
 				$psts->email_notification( $blog_id, 'canceled' );
 
 				// Update the cancellation flag.
-				update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
-				update_blog_option( $blog_id, 'psts_is_canceled', 0 );
+				//update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
+				//update_blog_option( $blog_id, 'psts_is_canceled', 0 );
 
 				// Get the expire date of the blog.
 				$end_date = $psts->get_expire( $blog_id );
@@ -408,13 +412,15 @@ class ProSites_Stripe_Subscription {
 		}
 
 		// Show message if requested explicitly.
-		if ( $canceled && $message ) {
+		//if ( $canceled && $message ) {
+		if ( true ) {
 			// Show cancellation.
 			add_filter( 'psts_blog_info_cancelled', '__return_true' );
-			add_filter('psts_render_notification_information', function ( $info, $blog_id ) {
+			add_filter( 'psts_render_notification_information', function ( $info ) {
 				$info['cancel'] = true;
+
 				return $info;
-			}, 10, 2 );
+			}, 10 );
 		}
 
 		return $canceled;

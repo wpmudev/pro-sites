@@ -395,17 +395,94 @@ class ProSites_Stripe_Customer {
 	}
 
 	/**
+	 * Get Stripe customer details using blog id or email.
+	 *
+	 * Note: Always try to use blog id instead of email.
+	 * Using email will make it heavy because we need to
+	 * query through all blogs of the user.
+	 *
+	 * @param int  $blog_id Blog ID.
+	 * @param bool $email   Email of user.
+	 * @param bool $force   Should we skip cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return object|array
+	 */
+	public function get_db_customer( $blog_id = false, $email = false, $force = false ) {
+		global $wpdb;
+
+		// Get default blog id.
+		$blog_id = $blog_id ? $blog_id : get_current_blog_id();
+
+		// Initialize with default values.
+		$data                  = new stdClass();
+		$data->blog_id         = $blog_id;
+		$data->customer_id     = false;
+		$data->subscription_id = false;
+
+		// Make sure we have a blog id or email.
+		if ( ( empty( $blog_id ) || is_main_site( $blog_id ) ) && empty( $email ) ) {
+			return $data;
+		}
+
+		// Get cache suffix key.
+		$cache_key = empty( $blog_id ) ? $email : $blog_id;
+
+		// If we can get from cache if not forced.
+		if ( ! $force ) {
+			// If something is there in cache return that.
+			$data = wp_cache_get( 'pro_sites_stripe_db_customer_ ' . $cache_key, 'psts' );
+			if ( ! empty( $data ) ) {
+				return $data;
+			}
+		}
+
+		// If we have blog id, try to get.
+		if ( ! empty( $blog_id ) && ! is_main_site( $blog_id ) ) {
+			// Table name.
+			$table = ProSites_Gateway_Stripe::$table;
+
+			// SQL query.
+			$sql = $wpdb->prepare(
+				"SELECT * FROM $table WHERE blog_id = %d",
+				$blog_id
+			);
+
+			// Get the row.
+			$customer_data = $wpdb->get_row( $sql );
+		} elseif ( ! empty( $email ) ) {
+			// Get customer data from email.
+			$customer_data = $this->get_db_customer_by_email( $email );
+		}
+
+		// Just to make sure we don't break.
+		if ( ! empty( $customer_data ) ) {
+			// Set to cache.
+			wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $cache_key, $customer_data, 'psts' );
+
+			$data = $customer_data;
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Create a customer in Stripe for the blog.
 	 *
-	 * @param string $email   Email address.
-	 * @param string $blog_id Blog ID.
-	 * @param string $token   Stripe token.
+	 * @param string      $email        Email address.
+	 * @param string      $blog_id      Blog ID.
+	 * @param string|bool $token        Stripe token.
+	 * @param bool        $default_card Make it default card?.
+	 * @param bool        $card         Card id.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return \Stripe\Customer|false
 	 */
-	public function set_blog_customer( $email, $blog_id, $token = '' ) {
+	public function set_blog_customer( $email, $blog_id, $token = false, $default_card = true, &$card = false ) {
+		global $psts;
+
 		// If wed don't have a blog id, get the Stripe customer id.
 		if ( empty( $blog_id ) ) {
 			// Get Stripe data from db using email.
@@ -419,79 +496,34 @@ class ProSites_Stripe_Customer {
 		if ( ! empty( $db_customer->customer_id ) ) {
 			// Try to get the Stripe customer.
 			$customer = $this->get_customer( $db_customer->customer_id );
+
+			// If an existing customer add new card.
+			if ( $customer && ! empty( $token ) ) {
+				// Attache new card to customer.
+				$card = ProSites_Gateway_Stripe::$stripe_charge->create_card( $token, $customer );
+				// Make this card as customer's default source.
+				if ( ! empty( $card->id ) && $default_card ) {
+					$customer = $this->update_customer( $customer->id, array(
+						'default_source' => $card->id,
+					) );
+
+					// We need only card id.
+					$card = $card->id;
+				}
+			}
 		} elseif ( ! empty( $token ) ) {
 			// Try to create a Stripe customer.
-			$customer = $this->create_customer( $email, $token, true );
+			$customer = $this->create_customer( $email, $token );
 		} else {
 			$customer = false;
 		}
 
+		// If we could not create/update a customer, add to errors.
+		if ( empty( $customer ) ) {
+			$psts->errors->add( 'general', __( 'Unable to Create/Retrieve Stripe Customer.', 'psts' ) );
+		}
+
 		return $customer;
-	}
-
-	/**
-	 * Get Stripe customer details using blog id or email.
-	 *
-	 * Note: Always try to use blog id instead of email.
-	 * Using email will make it heavy because we need to
-	 * query through all blogs of the user.
-	 *
-	 * @param int|flag $blog_id Blog ID.
-	 * @param bool     $email   Email of user.
-	 * @param bool     $force   Should we skip cache?.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return object|array
-	 */
-	public function get_db_customer( $blog_id = false, $email = false, $force = false ) {
-		global $wpdb;
-
-		// Get default blog id.
-		$blog_id = $blog_id ? $blog_id : get_current_blog_id();
-
-		// If we can get from cache if not forced.
-		if ( ! $force ) {
-			// If something is there in cache return that.
-			$data = wp_cache_get( 'pro_sites_stripe_db_customer_ ' . $blog_id, 'psts' );
-			if ( ! empty( $data ) ) {
-				return $data;
-			}
-		}
-
-		// Initialize with default values.
-		$data = false;
-
-		// If we have blog id, try to get.
-		if ( ! empty( $blog_id ) ) {
-			// Table name.
-			$table = ProSites_Gateway_Stripe::$table;
-
-			// SQL query.
-			$sql = $wpdb->prepare(
-				"SELECT * FROM $table WHERE blog_id = %d",
-				$blog_id
-			);
-
-			// Get the row.
-			$data = $wpdb->get_row( $sql );
-		} elseif ( ! empty( $email ) ) {
-			// Get customer data from email.
-			$data = $this->get_db_customer_by_email( $email );
-		}
-
-		// Just to make sure we don't break.
-		if ( empty( $data ) ) {
-			$data                  = new stdClass();
-			$data->blog_id         = $blog_id;
-			$data->customer_id     = false;
-			$data->subscription_id = false;
-		} else {
-			// Set to cache.
-			wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $blog_id, $data, 'psts' );
-		}
-
-		return $data;
 	}
 
 	/**
@@ -524,7 +556,7 @@ class ProSites_Stripe_Customer {
 				// Return early if data found.
 				if ( ! empty( $data ) ) {
 					// Set to cache.
-					wp_cache_set( 'pro_sites_db_customer_ ' . $blog->userblog_id, 'psts' );
+					wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $email, 'psts' );
 
 					return $data;
 				}
@@ -550,7 +582,7 @@ class ProSites_Stripe_Customer {
 		$customer = false;
 
 		// Get customer id of the blog.
-		$customer_data = $this->get_db_customer( $blog_id );
+		$customer_data = $this->get_db_customer( (int) $blog_id );
 
 		// Now try to get the Stripe customer.
 		if ( ! empty( $customer_data->customer_id ) ) {

@@ -758,6 +758,11 @@ jQuery( document ).ready( function ( $ ) {
             // if ( !is_free ) {
                 $( '.gateways.checkout-gateways' ).removeClass( 'hidden' );
             // }
+
+            // Rebind Stripe -- find a generic way to make it easier for custom gateways
+            if ( typeof pstsStripe !== 'undefined' ) {
+                pstsStripe();
+            }
         }
 
 	    var new_blog = false;

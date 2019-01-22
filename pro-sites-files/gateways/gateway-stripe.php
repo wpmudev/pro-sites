@@ -247,6 +247,34 @@ class ProSites_Gateway_Stripe {
 		// Front end messages.
 		add_filter( 'psts_blog_info_args', array( $this, 'messages' ), 10, 2 );
 		add_filter( 'psts_render_notification_information', array( $this, 'messages' ), 10, 2 );
+
+		// Register front end scripts and styles.
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
+	}
+
+	/**
+	 * Register scripts and styles for checkout form.
+	 *
+	 * We don't enqueue the scripts and styles now. Let's do that
+	 * when we render checkout form.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	public function register_scripts() {
+		global $psts;
+
+		// Register Stripe JS library.
+		wp_register_script( 'psts-stripe-checkout-lib', 'https://checkout.stripe.com/checkout.js' );
+
+		// Register custom checkout form script.
+		wp_register_script( 'psts-stripe-checkout-js', $psts->plugin_url . 'gateways/gateway-stripe-files/assets/js/checkout.js' );
+
+		// Set Stripe API key so that we can use it in Stripe.
+		wp_localize_script( 'psts-stripe-checkout-js', 'stripe', array(
+			'publisher_key' => self::$public_key,
+		) );
 	}
 
 	/**
@@ -732,7 +760,7 @@ class ProSites_Gateway_Stripe {
 
 		// Show cancellation message if required.
 		if ( ! empty( $messages['cancel'] ) ) {
-			$messages['cancellation_message'] = '<div id="message" class="updated fade"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
+			$messages['cancellation_message'] = '<div id="message" class="psts-warning"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
 		}
 
 		return $messages;
@@ -972,8 +1000,13 @@ class ProSites_Gateway_Stripe {
 	 * @return string
 	 */
 	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain ) {
+		global $psts, $current_user;
+
 		// If there were any errors in checkout.
 		self::set_errors();
+
+		// Get the error messages.
+		$error_messages = empty( $psts->errors ) ? false : $psts->errors->get_error_message( 'stripe' );
 
 		// Set new/upgrading blog data to render data array.
 		foreach ( array( 'new_blog_details', 'upgraded_blog_details', 'activation_key' ) as $key ) {
@@ -984,7 +1017,7 @@ class ProSites_Gateway_Stripe {
 		$public_key = self::$public_key;
 
 		// Set the default values.
-		$activation_key = $user_name = $new_blog = false;
+		$activation_key = $user_name = $new_blog = $customer = $card = false;
 
 		// New blog data.
 		$blog_data = empty( $render_data['new_blog_details'] ) ? array() : $render_data['new_blog_details'];
@@ -993,14 +1026,37 @@ class ProSites_Gateway_Stripe {
 		$period = empty( $blog_data['period'] ) ? ProSites_Helper_ProSite::default_period() : (int) $blog_data['period'];
 		$level  = empty( $blog_data['level'] ) ? 0 : (int) $blog_data['level'];
 		$level  = empty( $render_data['upgraded_blog_details']['level'] ) ? $level : (int) $render_data['upgraded_blog_details']['level'];
+		// We need to get the email.
+		$email = self::get_email( $render_data );
+
+		// Current action.
+		$action = self::from_request( 'action', false, 'get' );
 
 		// Set a flag that it is new blog.
-		if ( ProSites_Helper_ProSite::allow_new_blog() && ( isset( $_POST['new_blog'] ) || ( isset( $_GET['action'] ) && 'new_blog' === $_GET['action'] ) ) ) {
+		if ( ProSites_Helper_ProSite::allow_new_blog() && ( self::from_request( 'new_blog' ) || 'new_blog' === $action ) ) {
 			$new_blog = true;
 		}
 
 		// If blog id is found in url.
-		$bid = isset( $_GET['bid'] ) ? (int) $_GET['bid'] : false;
+		$bid = self::from_request( 'bid', $blog_id, 'get' );
+
+		if ( ! empty( $bid ) ) {
+			// Get customer data from DB.
+			$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $bid );
+		} elseif ( ! empty( $email ) ) {
+			// Get customer data from DB.
+			$customer = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( false, $email );
+			// Get Stripe customer object.
+			if ( ! empty( $customer->customer_id ) ) {
+				$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer( $customer->customer_id );
+			}
+		}
+
+		// Default card.
+		if ( isset( $customer->id ) ) {
+			$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+		}
+
 		// This is a new blog.
 		if ( isset( $render_data['activation_key'] ) ) {
 			// Get the activation key.
@@ -1018,8 +1074,13 @@ class ProSites_Gateway_Stripe {
 		// Turn on output buffering.
 		ob_start();
 
+		//wp_enqueue_style( 'psts-stripe-checkout-css' );
+
 		// File that contains checkout form.
 		include_once 'gateway-stripe-files/views/frontend/checkout.php';
+
+		wp_enqueue_script( 'psts-stripe-checkout-lib' );
+		wp_enqueue_script( 'psts-stripe-checkout-js' );
 
 		// Get the content as a string.
 		$content = ob_get_clean();
@@ -1042,12 +1103,17 @@ class ProSites_Gateway_Stripe {
 	 * @return void|bool
 	 */
 	public static function process_checkout_form( $data = array(), $blog_id, $domain ) {
-		global $psts;
+		global $psts, $current_user;
 
 		// Set new/upgrading blog data to render data array.
 		foreach ( array( 'new_blog_details', 'upgraded_blog_details', 'COUPON_CODE', 'activation_key' ) as $key ) {
 			// If missing, try to get from session.
 			$data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : ProSites_Helper_Session::session( $key );
+		}
+
+		// Continue only if payment form is submitted.
+		if ( 1 !== (int) self::from_request( 'psts_stripe_checkout', 0 ) ) {
+			return false;
 		}
 
 		// Set the level.
@@ -1072,13 +1138,24 @@ class ProSites_Gateway_Stripe {
 
 		// Do not continue if level and period is not set.
 		if ( empty( self::$level ) || empty( self::$period ) ) {
-			$psts->errors->add( 'general', __( 'Please choose your desired level and payment plan.', 'psts' ) );
+			$psts->errors->add( 'stripe', __( 'Please choose your desired level and payment plan.', 'psts' ) );
 
 			return false;
 		}
 
+		// Get existing user's password.
+		$user_password = self::from_request( 'wp_password' );
+		// If they password is entered, verify that.
+		if ( ! empty( $user_password ) && is_user_logged_in() ) {
+			if ( ! wp_check_password( $user_password, $current_user->data->user_pass, $current_user->ID ) ) {
+				$psts->errors->add( 'stripe', __( 'The password you entered is incorrect.', 'psts' ) );
+
+				return false;
+			}
+		}
+
 		// We need Stripe token.
-		if ( empty( $stripe_token ) ) {
+		if ( empty( $stripe_token ) && empty( $user_password ) ) {
 			$psts->errors->add( 'stripe', __( 'There was an error processing your Credit Card with Stripe. Please try again.', 'psts' ) );
 
 			return false;
@@ -1092,9 +1169,7 @@ class ProSites_Gateway_Stripe {
 			// Get the existing site data.
 			$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
 			// If plans have changed, set the upgrade flag to true.
-			if ( isset( $site_data->level, $site_data->term ) &&
-			     self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id
-			) {
+			if ( isset( $site_data->level, $site_data->term ) && self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id ) {
 				self::$upgrading = true;
 			}
 		}
@@ -1102,13 +1177,27 @@ class ProSites_Gateway_Stripe {
 		// Do not continue if plan does not exist.
 		if ( ! self::$stripe_plan->get_plan( $plan_id ) ) {
 			// translators: %1$s Stripe plan ID.
-			$psts->errors->add( 'general', sprintf( __( 'Stripe plan %1$s does not exist.', 'psts' ), $plan_id ) );
+			$psts->errors->add( 'stripe', sprintf( __( 'Stripe plan %1$s does not exist.', 'psts' ), $plan_id ) );
 
 			return false;
 		}
 
+		// Should we set this as default card.
+		$make_default_card = (bool) self::from_request( 'default_card' );
+
 		// Create or update Stripe customer.
-		$customer = self::$stripe_customer->set_blog_customer( self::$email, self::$blog_id, $stripe_token );
+		$customer = self::$stripe_customer->set_blog_customer(
+			self::$email,
+			self::$blog_id,
+			$stripe_token,
+			$make_default_card,
+			$card // Pass by reference.
+		);
+
+		// If new customer, get the default source id.
+		if ( empty( $card ) && ! empty( $customer->default_source ) ) {
+			$card = $customer->default_source;
+		}
 
 		$error_code = empty( $psts->errors ) ? '' : $psts->errors->get_error_codes();
 
@@ -1118,8 +1207,10 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Now process the payments.
-		if ( self::process_payment( $data, $customer, $plan_id ) ) {
+		if ( self::process_payment( $data, $customer, $plan_id, $card ) ) {
 			self::$show_completed = true;
+		} else {
+			$psts->errors->add( 'stripe', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
 		}
 	}
 
@@ -1133,12 +1224,13 @@ class ProSites_Gateway_Stripe {
 	 * @param array           $process_data Processed data.
 	 * @param Stripe\Customer $customer     Stripe customer.
 	 * @param string          $plan_id      Stripe plan id.
+	 * @param string|bool     $card         Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool True if payment was success.
 	 */
-	private static function process_payment( $process_data, $customer, $plan_id ) {
+	private static function process_payment( $process_data, $customer, $plan_id, $card = false ) {
 		global $psts;
 
 		// Get the level + period amount.
@@ -1163,14 +1255,14 @@ class ProSites_Gateway_Stripe {
 		$coupon = self::maybe_apply_coupon( $process_data, $amount, $total );
 
 		// Stripe description.
-		$desc = self::get_description( $amount, $total, $recurring, $process_data, $coupon );
+		$desc = self::get_description( $amount, $total, $recurring, $process_data );
 
 		if ( $recurring ) {
 			// Process recurring payment.
-			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $amount );
+			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $amount, $card );
 		} else {
 			// Process one time payment.
-			$processed = self::process_single( $process_data, $customer, $tax_object, $amount, $total, $desc );
+			$processed = self::process_single( $process_data, $customer, $tax_object, $amount, $total, $desc, $card );
 		}
 
 		// Set the stat flags.
@@ -1243,12 +1335,13 @@ class ProSites_Gateway_Stripe {
 	 * @param object           $tax_object Tax object.
 	 * @param \Stripe\Coupon   $coupon     Stripe coupon object.
 	 * @param float            $amount     Plan amount.
+	 * @param string|bool      $card       Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool True if payment was success.
 	 */
-	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $amount ) {
+	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $amount, $card = false ) {
 		global $psts;
 
 		// If customer created, now let's create a subscription.
@@ -1290,10 +1383,10 @@ class ProSites_Gateway_Stripe {
 			// Now create the subscription.
 			$subscription = self::$stripe_subscription->set_blog_subscription(
 				self::$blog_id,
-				self::$email,
 				$customer->id,
 				$plan_id,
-				$sub_args
+				$sub_args,
+				$card
 			);
 
 			// Now activate the blog.
@@ -1342,12 +1435,13 @@ class ProSites_Gateway_Stripe {
 	 * @param float            $amount     Amount of plan.
 	 * @param float            $total      Total amount.
 	 * @param string           $desc       Description for log.
+	 * @param string|bool      $card       Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	private static function process_single( $data, $customer, $tax_object, &$amount, $total, &$desc ) {
+	private static function process_single( $data, $customer, $tax_object, &$amount, $total, &$desc, $card = false ) {
 		global $psts;
 
 		// If customer created, now let's create a subscription.
@@ -1391,6 +1485,10 @@ class ProSites_Gateway_Stripe {
 
 			// If trial is not applicable charge directly.
 			if ( ! $psts->is_trial_allowed( self::$blog_id ) && $amount > 0 ) {
+				// Set the charging card.
+				if ( ! empty( $card ) ) {
+					$charge_args['source'] = $card;
+				}
 				$result = self::$stripe_charge->create_item(
 					$customer->id,
 					$amount,
@@ -2009,7 +2107,7 @@ class ProSites_Gateway_Stripe {
 		global $current_user;
 
 		// First try to get the email.
-		$email = empty( $current_user->user_email ) ? get_blog_option( self::$blog_id, 'admin_email' ) : $current_user->user_email;
+		$email = empty( $current_user->user_email ) ? false : $current_user->user_email;
 
 		// Email is empty so try to get user email.
 		if ( empty( $email ) ) {
@@ -2074,6 +2172,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	private static function set_errors() {
 		global $psts;
+
 		// If there were any errors in checkout.
 		if ( ! empty( $_POST['errors'] ) ) {
 			if ( is_wp_error( $_POST['errors'] ) ) {

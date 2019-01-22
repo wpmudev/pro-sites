@@ -246,4 +246,36 @@ class ProSites_Stripe_Charge {
 
 		return $invoice;
 	}
+
+	/**
+	 * Create a new card source for the customer.
+	 *
+	 * We will create a new card from the given source and
+	 * attach to the customer.
+	 *
+	 * @param string          $token    Token for source.
+	 * @param Stripe\Customer $customer Customer object.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|Stripe\Card
+	 */
+	public function create_card( $token, $customer ) {
+		// Do not continue if we don't have a valid customer or token.
+		if ( ! isset( $customer->sources ) || empty( $token ) ) {
+			return false;
+		}
+
+		// Make sure we don't break.
+		try {
+			// Create new card.
+			$card = $customer->sources->create( array(
+				'source' => $token,
+			) );
+		} catch ( \Exception $e ) {
+			$card = false;
+		}
+
+		return $card;
+	}
 }
