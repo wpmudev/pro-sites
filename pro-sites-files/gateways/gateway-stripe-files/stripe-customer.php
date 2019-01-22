@@ -581,8 +581,15 @@ class ProSites_Stripe_Customer {
 	public function get_customer_by_blog( $blog_id ) {
 		$customer = false;
 
+		$blog_id = (int) $blog_id;
+
+		// Do not continue if we don't have a valid blog id.
+		if ( empty( $blog_id ) ) {
+			return $customer;
+		}
+
 		// Get customer id of the blog.
-		$customer_data = $this->get_db_customer( (int) $blog_id );
+		$customer_data = $this->get_db_customer( $blog_id );
 
 		// Now try to get the Stripe customer.
 		if ( ! empty( $customer_data->customer_id ) ) {

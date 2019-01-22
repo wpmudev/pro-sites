@@ -669,8 +669,12 @@ class ProSites_Gateway_Stripe {
 
 		global $psts;
 
+		// Get Stripe customer and subscription data.
+		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
+
 		// Get the Stripe customer.
-		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
+		$customer = self::$stripe_customer->get_customer( $customer_data->customer_id );
+
 		// Continue only if customer found.
 		if ( empty( $customer ) ) {
 			// Show message.
