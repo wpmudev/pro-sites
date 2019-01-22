@@ -764,7 +764,7 @@ class ProSites_Gateway_Stripe {
 
 		// Show cancellation message if required.
 		if ( ! empty( $messages['cancel'] ) ) {
-			$messages['cancellation_message'] = '<div id="message" class="psts-warning"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
+			$messages['cancellation_message'] = '<div class="psts-warning"><p>' . sprintf( __( 'Your %1$s subscription has been canceled. You should continue to have access until %2$s.', 'psts' ), $psts->get_setting( 'rebrand' ), $end_date ) . '</p></div>';
 		}
 
 		return $messages;
@@ -810,10 +810,19 @@ class ProSites_Gateway_Stripe {
 		// Get current blog id.
 		$blog_id = get_current_blog_id();
 
+		// We don't have to show this on main site.
+		if ( is_main_site( $blog_id ) ) {
+			return;
+		}
+
+		// Site status flag.
+		$pending = (bool) get_blog_option( $blog_id, 'psts_stripe_waiting' );
+
 		// Show alert message if we are waiting for webhook.
-		if ( (bool) get_blog_option( $blog_id, 'psts_stripe_waiting' ) && ! is_main_site() ) {
+		if ( $pending ) {
 			echo '<div class="updated">';
 			echo '<p><strong>';
+			// Show trial message.
 			if ( ProSites_Helper_Registration::is_trial( $blog_id ) ) {
 				// translators: %1$s Plan name, %2$s Expiry date.
 				printf( esc_html__( 'You are currently signed up for your chosen plan, %1$s. The first payment is due on %2$s. Enjoy your free trial.', 'psts' ),
@@ -954,6 +963,10 @@ class ProSites_Gateway_Stripe {
 		$last_invoice = self::$stripe_customer->last_invoice( $customer_data->customer_id );
 		// Last Stripe charge of the invoice.
 		$last_charge = empty( $last_invoice->charge ) ? false : $last_invoice->charge;
+		// Last charge amount.
+		$last_charge_amount = empty( $last_charge->amount ) ? 0 : ( $last_charge->amount / 100 );
+
+		$success_message = $error_message = '';
 
 		switch ( $action ) {
 			case 'cancel':
@@ -965,27 +978,58 @@ class ProSites_Gateway_Stripe {
 				// First cancel the subscription.
 				if ( self::$stripe_subscription->cancel_blog_subscription( $blog_id ) && $last_charge ) {
 					// Now process the refund.
-					self::$stripe_charge->refund_charge( $last_charge );
+					if ( self::$stripe_charge->refund_charge( $last_charge ) ) {
+						// Log the success message.
+						$success_message = sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+					} else {
+						// Log the failed message.
+						$error_message = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s is failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+					}
 				}
 				break;
 
 			case 'refund':
 				// Process the refund.
 				if ( self::$stripe_charge->refund_charge( $last_charge ) ) {
-					// translators: %1$s Amount, %2$s User.
-					$psts->log_action( $blog_id, sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s, and the subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name ) );
+					// Log the transaction.
+					$psts->record_refund_transaction( $blog_id, $last_charge->id, $last_charge_amount );
+					// Log the success message.
+					$success_message = sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s, and the subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
 				} else {
-					// translators: %1$s Amount, %2$s User.
-					$psts->log_action( $blog_id, sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name ) );
+					// Log the failed message.
+					$error_message = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s is failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
 				}
 				break;
 
 			case 'partial_refund':
 				// Refund amount.
 				$refund_amount = self::from_request( 'refund_amount' );
+				// Format the price.
+				$refund_amount = self::format_price( $refund_amount );
 				// Process the partial refund.
-				self::$stripe_charge->refund_charge( $last_charge, $refund_amount );
+				if ( $refund_amount ) {
+					// Process the refund.
+					if ( self::$stripe_charge->refund_charge( $last_charge, $refund_amount ) ) {
+						// Log the transaction.
+						$psts->record_refund_transaction( $blog_id, $last_charge->id, $refund_amount );
+						// Log the success message.
+						$success_message = sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+					} else {
+						// Log the failed message.
+						$error_message = sprintf( __( 'Attempt to issue a partial (%1$s) refund of last payment by %2$s is failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+					}
+				}
 				break;
+		}
+
+		if ( ! empty( $success_message ) ) {
+			// Log success message.
+			$psts->log_action( $blog_id, $success_message );
+			echo '<div class="updated fade"><p>' . $success_message . '</p></div>';
+		} elseif ( ! empty( $error_message ) ) {
+			// Log error message.
+			$psts->log_action( $blog_id, $error_message );
+			echo '<div class="error fade"><p>' . $error_message . '</p></div>';
 		}
 	}
 
@@ -2262,9 +2306,13 @@ class ProSites_Gateway_Stripe {
 		 */
 		$zero_decimal_currencies = apply_filters( 'pro_sites_zero_decimal_currencies', array( 'JPY' ) );
 
+		// Is a zero decimal currency.
+		$zero_decimal = in_array( self::get_currency(), $zero_decimal_currencies, true );
+
 		// If not a zero decimal currency, get float value.
-		$amount = in_array( self::get_currency(), $zero_decimal_currencies, true )
-			? $amount : floatval( $amount ) * 100;
+		if ( ! $zero_decimal ) {
+			$amount = floatval( $amount ) * 100;
+		}
 
 		return $amount;
 	}

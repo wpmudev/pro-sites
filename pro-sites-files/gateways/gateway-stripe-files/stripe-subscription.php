@@ -138,6 +138,7 @@ class ProSites_Stripe_Subscription {
 				// Oh we need to wait. Let's cancel on expiry.
 				$subscription->cancel_at_period_end = true;
 				$subscription->save();
+				$cancelled = true;
 			}
 		} catch ( \Exception $e ) {
 			// Oh well. Failure.
@@ -388,8 +389,8 @@ class ProSites_Stripe_Subscription {
 				$psts->email_notification( $blog_id, 'canceled' );
 
 				// Update the cancellation flag.
-				update_blog_option( $blog_id, 'psts_stripe_canceled', 0 );
-				update_blog_option( $blog_id, 'psts_is_canceled', 0 );
+				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
+				update_blog_option( $blog_id, 'psts_is_canceled', 1 );
 
 				// Get the expire date of the blog.
 				$end_date = $psts->get_expire( $blog_id );
