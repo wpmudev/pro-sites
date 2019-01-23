@@ -253,6 +253,9 @@ class ProSites_Gateway_Stripe {
 
 		// Register front end scripts and styles.
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
+
+		// Get the expiry date.
+		add_filter( 'psts_get_blog_subscription_expiry', array( $this, 'subscription_expiry' ), 10, 3 );
 	}
 
 	/**
@@ -733,6 +736,33 @@ class ProSites_Gateway_Stripe {
 
 		// File that contains subscription info.
 		include_once 'gateway-stripe-files/views/admin/subscriber-info.php';
+	}
+
+	/**
+	 * Fetch the next billing date for the subscription.
+	 *
+	 * @param int    $expiry  Expiry date.
+	 * @param int    $blog_id Blog ID.
+	 * @param string $gateway Current gateway.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return int
+	 */
+	public function subscription_expiry( $expiry, $blog_id, $gateway ) {
+		// Continue only if Stripe and a valid blog id is found.
+		if ( self::get_slug() !== $gateway || empty( $blog_id ) ) {
+			return $expiry;
+		}
+
+		// Try to get the Stripe subscription.
+		$subscription = self::$stripe_subscription->get_subscription_by_blog( $blog_id );
+		// If we have a subscription.
+		if ( ! empty( $subscription->current_period_end ) ) {
+			return $subscription->current_period_end;
+		}
+
+		return $expiry;
 	}
 
 	/**

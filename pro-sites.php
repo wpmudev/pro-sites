@@ -5426,11 +5426,17 @@ function admin_modules() {
 			return $expiry;
 		}
 		$gateway = ProSites_Helper_ProSite::get_site_gateway( $blog_id );
-		if( 'stripe' == $gateway ) {
-			$expiry = ProSites_Gateway_Stripe::get_blog_subscription_expiry( $blog_id );
-		}elseif( 'paypal' == $gateway ) {
+		// Keeping this for backward compatibility. Use the below hook.
+		if( 'paypal' == $gateway ) {
 			$expiry = ProSites_Gateway_PayPalExpressPro::get_blog_subscription_expiry( $blog_id );
 		}
+
+		/**
+		 * Filter hook to get subscription expiry.
+		 *
+		 * @since 3.6.1
+		 */
+		$expiry = apply_filters( 'psts_get_blog_subscription_expiry', $expiry, $blog_id, $gateway );
 
 		return $expiry;
 	}
