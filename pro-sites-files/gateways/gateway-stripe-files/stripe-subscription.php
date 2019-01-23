@@ -430,6 +430,52 @@ class ProSites_Stripe_Subscription {
 	}
 
 	/**
+	 * Transfer blog subscription to another one.
+	 *
+	 * We need to update the Stripe subscription meta data
+	 * with the new blog id.
+	 *
+	 * @param string $subscription_id Stripe subscription id.
+	 * @param int    $new_blog_id     Blog id.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	public function transfer_blog_subscription( $subscription_id, $new_blog_id ) {
+		// Get Stripe subscription.
+		$subscription = $this->get_subscription( $subscription_id );
+		// We need a valid subscription.
+		if ( ! isset( $subscription->metadata ) ) {
+			return false;
+		}
+
+		// Get the meta data.
+		$metadata = $subscription->metadata;
+
+		// We don't have to continue if we already have same blog id.
+		if ( empty( $metadata['blog_id'] ) || $new_blog_id !== $metadata['blog_id'] ) {
+			// Update to new blog id.
+			$metadata['blog_id'] = $new_blog_id;
+			// Update the subscription.
+			$subscription = $this->update_subscription(
+				$subscription_id,
+				array(
+					'metadata' => $metadata,
+				)
+			);
+			// Make return success status.
+			if ( empty( $subscription ) ) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get default arguments.
 	 *
 	 * For existing sites, we will set the level and

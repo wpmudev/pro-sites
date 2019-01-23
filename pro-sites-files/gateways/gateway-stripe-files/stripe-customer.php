@@ -649,6 +649,36 @@ class ProSites_Stripe_Customer {
 	}
 
 	/**
+	 * Transfer customer data in DB to new blog.
+	 *
+	 * Note: This will work only if the new blog id
+	 * is not already exist in DB.
+	 *
+	 * @param int $new_blog_id New blog ID.
+	 * @param int $old_blog_id Old blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	public function transfer_db_customer( $new_blog_id, $old_blog_id ) {
+		global $wpdb;
+
+		// Continue only if blog id's are different.
+		if ( $new_blog_id !== $old_blog_id ) {
+			return (bool) $wpdb->update(
+				ProSites_Gateway_Stripe::$table,
+				array( 'blog_id' => $new_blog_id ),
+				array( 'blog_id' => $old_blog_id ),
+				'%d',
+				'%d'
+			);
+		}
+
+		return false;
+	}
+
+	/**
 	 * Delete Stripe customer id and subscription id from DB.
 	 *
 	 * @param int $blog_id Blog ID.

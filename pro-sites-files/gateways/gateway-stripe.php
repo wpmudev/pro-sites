@@ -235,6 +235,9 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_modify_form', array( $this, 'modification_form' ) );
 		add_action( 'psts_modify_process', array( $this, 'process_modification' ) );
 
+		// Process transfer.
+		add_action( 'psts_transfer_pro', array( $this, 'process_transfer' ), 10, 2 );
+
 		// Next payment date.
 		add_filter( 'psts_next_payment', array( $this, 'next_payment_date' ) );
 
@@ -955,6 +958,7 @@ class ProSites_Gateway_Stripe {
 		// Get customer and subcription ids from DB.
 		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
 
+		// We need an action man!.
 		if ( empty( $action ) || empty( $customer_data->customer_id ) ) {
 			return;
 		}
@@ -1049,6 +1053,41 @@ class ProSites_Gateway_Stripe {
 			}
 			echo '<div class="error fade"><p>' . $error_message . '</p></div>';
 		}
+	}
+
+	/**
+	 * Handle transferring pro status from one blog to another.
+	 *
+	 * Also updates the subscription metadata in Stripe.
+	 *
+	 * @param int $from_id From blog id.
+	 * @param int $to_id   To blog id.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function process_transfer( $from_id, $to_id ) {
+		// Seriously? Why? How?.
+		if ( $from_id === $to_id ) {
+			return false;
+		}
+
+		// Get the customer data.
+		$customer_data = self::$stripe_customer->get_db_customer( $from_id );
+
+		// If we have a subscription id.
+		if ( ! empty( $customer_data->subscription_id ) ) {
+			// Update the subscription meta in Stripe.
+			self::$stripe_subscription->transfer_blog_subscription( $customer_data->subscription_id, $to_id );
+		}
+
+		// Ok, transfer db data.
+		if ( ! empty( $customer_data->blog_id ) && $customer_data->blog_id === $from_id ) {
+			self::$stripe_customer->transfer_db_customer( $to_id, $from_id );
+		}
+
+		return true;
 	}
 
 	/**

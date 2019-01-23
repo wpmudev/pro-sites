@@ -2925,7 +2925,7 @@ try{
 			$current_bid = (int) $_GET['bid'];
 			if ( ! $new_bid ) {
 				echo '<div id="message" class="error"><p>' . __( 'Please enter the Blog ID of a site to transfer to.', 'psts' ) . '</p></div>';
-			} else if ( is_pro_site( $new_bid ) ) {
+			} else if ( ! ProSites_Helper_ProSite::is_free_site( $new_bid ) ) {
 				echo '<div id="message" class="error"><p>' . __( 'Could not transfer Pro Status: The chosen site already is a Pro Site. You must remove Pro status and cancel any existing subscriptions tied to that site.', 'psts' ) . '</p></div>';
 			} else {
 				$current_level = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$current_bid'" );
