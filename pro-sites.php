@@ -2914,9 +2914,14 @@ try{
 				$days   = (int) $_POST['extend_days'];
 				$extend = strtotime( "+$months Months $days Days" ) - time();
 			}
+
+			$current_level = isset( $_GET['bid'] ) ? $this->get_level( $_GET['bid'] ) : 0;
+
+			$send_email = ( ! empty( $extend ) || $current_level != $_POST['extend_level'] );
+
 			// Get the extension type from post.
 			$extend_type = empty( $_POST['extend_type'] ) ? 'manual' : esc_attr( $_POST['extend_type'] );
-			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, true, $extend_type );
+			$this->extend( (int) $_POST['bid'], $extend, 'manual', $_POST['extend_level'], false, false, true, $send_email, $extend_type );
 			echo '<div id="message" class="updated fade"><p>' . __( 'Site Extended.', 'psts' ) . '</p></div>';
 		}
 
@@ -2969,6 +2974,11 @@ try{
 			}
 		} else {
 			$blog_id = false;
+		}
+
+		// Action hook to perform reactivation.
+		if ( isset( $_POST['attempt_stripe_reactivation'] ) && ! empty( $blog_id ) ) {
+			do_action( 'psts_attempt_stripe_reactivation', $blog_id );
 		}
 
 		$activation_key = false;
@@ -3218,7 +3228,7 @@ try{
 										</th>
 										<td>
 											<input type="checkbox" name="attempt_stripe_reactivation" value="1"/>
-											<br/><?php esc_html_e( 'Attempt to reactivate former Stripe subscription.', 'psts' ); ?><br/><small><?php esc_html_e( 'Note: Only do this if the subscription was accidentally cancelled or you have explicit permission from the customer.', 'psts' ); ?></small>
+											<?php esc_html_e( 'Attempt to reactivate former Stripe subscription.', 'psts' ); ?><br/><small><?php esc_html_e( 'Note: We can not reactivate the subscription if the end period is already reached. Only do this if the subscription was accidentally cancelled or you have explicit permission from the customer.', 'psts' ); ?></small>
 										</td>
 									</tr>
 										<?php
