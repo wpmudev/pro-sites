@@ -115,14 +115,15 @@ class ProSites_Stripe_Subscription {
 	/**
 	 * Cancel a subscription in Stripe using API.
 	 *
-	 * @param string $id        Stripe subscription ID.
-	 * @param bool   $immediate Cancel subscription immediately.
+	 * @param string      $id        Stripe subscription ID.
+	 * @param bool        $immediate Cancel subscription immediately.
+	 * @param bool|string $error     Error message.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return \Stripe\Subscription|bool
 	 */
-	public function cancel_subscription( $id, $immediate = true ) {
+	public function cancel_subscription( $id, $immediate = true, &$error = false ) {
 		$cancelled = false;
 		// Make sure we don't break.
 		try {
@@ -141,6 +142,8 @@ class ProSites_Stripe_Subscription {
 				$cancelled = true;
 			}
 		} catch ( \Exception $e ) {
+			// Get the error message.
+			$error = $e->getMessage();
 			// Oh well. Failure.
 			$cancelled = false;
 		}

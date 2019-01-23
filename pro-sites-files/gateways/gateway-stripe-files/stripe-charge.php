@@ -175,14 +175,15 @@ class ProSites_Stripe_Charge {
 	 *
 	 * You can make partial refund or full refund.
 	 *
-	 * @param string   $charge_id Stripe charge id.
-	 * @param bool|int $amount    Amount to refund. Ignore to refund full.
+	 * @param string      $charge_id Stripe charge id.
+	 * @param bool|int    $amount    Amount to refund. Ignore to refund full.
+	 * @param bool|string $error     Error message.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool
 	 */
-	public function refund_charge( $charge_id, $amount = false ) {
+	public function refund_charge( $charge_id, $amount = false, &$error = false ) {
 		// Get the charge object.
 		$charge = $this->get_charge( $charge_id );
 
@@ -195,6 +196,9 @@ class ProSites_Stripe_Charge {
 				// Process the refund.
 				$charge->refund( $args );
 			} catch ( \Exception $e ) {
+				// Get the error message in case required.
+				$error = $e->getMessage();
+
 				return false;
 			}
 		}

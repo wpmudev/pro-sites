@@ -965,39 +965,52 @@ class ProSites_Gateway_Stripe {
 		$last_charge = empty( $last_invoice->charge ) ? false : $last_invoice->charge;
 		// Last charge amount.
 		$last_charge_amount = empty( $last_charge->amount ) ? 0 : ( $last_charge->amount / 100 );
-
-		$success_message = $error_message = '';
+		// Current user's name.
+		$display_name = $current_user->display_name;
+		// Default messages.
+		$success_message = $error_message = $skip_log = false;
 
 		switch ( $action ) {
 			case 'cancel':
 				// Cancel the blog subscription.
-				self::$stripe_subscription->cancel_blog_subscription( $blog_id );
+				if ( self::$stripe_subscription->cancel_blog_subscription( $blog_id ) ) {
+					// End date of site.
+					$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+					// Log the success message.
+					$success_message = sprintf( __( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ), $display_name, $end_date );
+				} else {
+					// Log the failed message.
+					$error_message = sprintf( __( 'Attempt to Cancel Subscription by %1$s failed', 'psts' ), $display_name );
+				}
+				$skip_log = true;
 				break;
 
 			case 'cancel_refund':
 				// First cancel the subscription.
 				if ( self::$stripe_subscription->cancel_blog_subscription( $blog_id ) && $last_charge ) {
+					$refund_amount = $psts->format_currency( false, $last_invoice->total );
 					// Now process the refund.
-					if ( self::$stripe_charge->refund_charge( $last_charge ) ) {
+					if ( self::$stripe_charge->refund_charge( $last_charge, false, $error ) ) {
 						// Log the success message.
-						$success_message = sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+						$success_message = sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s.', 'psts' ), $refund_amount, $display_name );
 					} else {
 						// Log the failed message.
-						$error_message = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s is failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+						$error_message = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s is failed with an error: %3$s', 'psts' ), $refund_amount, $display_name, $error );
 					}
 				}
 				break;
 
 			case 'refund':
+				$refund_amount = $psts->format_currency( false, $last_invoice->total );
 				// Process the refund.
-				if ( self::$stripe_charge->refund_charge( $last_charge ) ) {
+				if ( self::$stripe_charge->refund_charge( $last_charge, false, $error ) ) {
 					// Log the transaction.
 					$psts->record_refund_transaction( $blog_id, $last_charge->id, $last_charge_amount );
 					// Log the success message.
-					$success_message = sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s, and the subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+					$success_message = sprintf( __( 'A full (%1$s) refund of last payment completed by %2$s, and the subscription was not cancelled.', 'psts' ), $refund_amount, $display_name );
 				} else {
 					// Log the failed message.
-					$error_message = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s is failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+					$error_message = sprintf( __( 'Attempt to issue a full (%1$s) refund of last payment by %2$s is failed with an error: %3$s', 'psts' ), $refund_amount, $display_name, $error );
 				}
 				break;
 
@@ -1008,15 +1021,16 @@ class ProSites_Gateway_Stripe {
 				$refund_amount = self::format_price( $refund_amount );
 				// Process the partial refund.
 				if ( $refund_amount ) {
+					$refund_amount_formatted = $psts->format_currency( false, $refund_amount );
 					// Process the refund.
-					if ( self::$stripe_charge->refund_charge( $last_charge, $refund_amount ) ) {
+					if ( self::$stripe_charge->refund_charge( $last_charge, $refund_amount, $error ) ) {
 						// Log the transaction.
 						$psts->record_refund_transaction( $blog_id, $last_charge->id, $refund_amount );
 						// Log the success message.
-						$success_message = sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+						$success_message = sprintf( __( 'A partial (%1$s) refund of last payment completed by %2$s The subscription was not cancelled.', 'psts' ), $refund_amount_formatted, $display_name );
 					} else {
 						// Log the failed message.
-						$error_message = sprintf( __( 'Attempt to issue a partial (%1$s) refund of last payment by %2$s is failed.', 'psts' ), $psts->format_currency( false, $last_invoice->total ), $current_user->display_name );
+						$error_message = sprintf( __( 'Attempt to issue a partial (%1$s) refund of last payment by %2$s is failed with an error: %3$s', 'psts' ), $refund_amount_formatted, $display_name, $error );
 					}
 				}
 				break;
@@ -1024,11 +1038,15 @@ class ProSites_Gateway_Stripe {
 
 		if ( ! empty( $success_message ) ) {
 			// Log success message.
-			$psts->log_action( $blog_id, $success_message );
+			if ( ! $skip_log ) {
+				$psts->log_action( $blog_id, $success_message );
+			}
 			echo '<div class="updated fade"><p>' . $success_message . '</p></div>';
 		} elseif ( ! empty( $error_message ) ) {
 			// Log error message.
-			$psts->log_action( $blog_id, $error_message );
+			if ( ! $skip_log ) {
+				$psts->log_action( $blog_id, $error_message );
+			}
 			echo '<div class="error fade"><p>' . $error_message . '</p></div>';
 		}
 	}
