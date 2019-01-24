@@ -5,6 +5,14 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.6.1 - 30/01/2019
+
+*Added:
+    - Card update form for Stripe customers.
+*Updated:
+    - Updated Stripe library.
+    - Updated checkout screen for Stripe.
+
 3.6.0 - 15/01/2019
 
 *Added:

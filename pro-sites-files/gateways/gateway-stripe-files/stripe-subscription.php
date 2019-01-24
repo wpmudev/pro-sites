@@ -599,21 +599,13 @@ class ProSites_Stripe_Subscription {
 	 * We need to get the possible subscription id
 	 * from event json and get the subscription data.
 	 *
-	 * @param object $event_json Stripe webhook data.
+	 * @param object $object Stripe webhook data.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|Stripe\Subscription
 	 */
-	public function get_webhook_subscription( $event_json ) {
-		// Data can not be empty.
-		if ( empty( $event_json->data->object ) ) {
-			return false;
-		}
-
-		// Data object.
-		$object = $event_json->data->object;
-
+	public function get_webhook_subscription( $object ) {
 		// Do not continue if required data is empty.
 		if ( empty( $object->object ) ) {
 			return false;

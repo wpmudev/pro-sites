@@ -328,22 +328,19 @@ class ProSites_Stripe_Charge {
 	/**
 	 * Get the invoice items from Stripe webhook data.
 	 *
-	 * @param object $event_json Stripe webhook data.
+	 * @param object $object Stripe webhook data.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|array
 	 */
-	public function get_webhook_invoice_items( $event_json ) {
+	public function get_webhook_invoice_items( $object ) {
 		$invoice_items = false;
 
-		// Data can not be empty.
-		if ( empty( $event_json->data->object ) ) {
-			return $invoice_items;
+		// Do not continue if required data is empty.
+		if ( empty( $object->object ) ) {
+			return false;
 		}
-
-		// Data object.
-		$object = $event_json->data->object;
 
 		$plan_change = false;
 
@@ -393,5 +390,44 @@ class ProSites_Stripe_Charge {
 		}
 
 		return $invoice_items;
+	}
+
+	/**
+	 * Get total amount from Stripe webhook data.
+	 *
+	 * @param object $object Stripe webhook data.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return int
+	 */
+	public function get_webhook_total_amount( $object ) {
+		$total = 0;
+
+		// Do not continue if required data is empty.
+		if ( empty( $object->object ) ) {
+			return $total;
+		}
+
+		// Get the total amount id in different events.
+		switch ( $object->object ) {
+			// On an invoice payment event.
+			case 'invoice':
+				// Get the invoice total.
+				$total = $object->total;
+				break;
+			// On a subscription create/update/delete event.
+			case 'subscription':
+				// Get the plan amount.
+				$total = isset( $object->plan->amount ) ? $object->plan->amount : 0;
+				break;
+			// On a charge dispute event.
+			case 'dispute':
+				// Dispute amount.
+				$total = $object->amount;
+				break;
+		}
+
+		return $total;
 	}
 }

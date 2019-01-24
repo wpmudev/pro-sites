@@ -504,8 +504,10 @@ class ProSites_Gateway_Stripe {
 	private function create_tables() {
 		global $psts;
 
+		$table = self::$table;
+
 		// Stripe table schema.
-		$table = "CREATE TABLE $this->table (
+		$table = "CREATE TABLE $table (
 		  blog_id bigint(20) NOT NULL,
 			customer_id char(20) NOT NULL,
 			subscription_id char(22) NULL,
@@ -549,27 +551,29 @@ class ProSites_Gateway_Stripe {
 	private function upgrade_table_indexes() {
 		global $wpdb;
 
+		$table = self::$table;
+
 		// Get all indexes on customer id and subscription id.
-		$indexes = $wpdb->get_results( "SHOW INDEX FROM $this->table WHERE column_name = 'customer_id'" );
+		$indexes = $wpdb->get_results( "SHOW INDEX FROM $table WHERE column_name = 'customer_id'" );
 		if ( ! empty( $indexes ) ) {
 			foreach ( $indexes as $index ) {
 				// If it is a unique key, drop it.
 				if ( empty( $index->Non_unique ) ) {
-					$wpdb->query( "ALTER TABLE $this->table DROP INDEX $index->Key_name" );
+					$wpdb->query( "ALTER TABLE $table DROP INDEX $index->Key_name" );
 				}
 			}
 		}
 
 		// Sometimes old installation may have empty subscription ids, so we need to make sure nullable.
-		$wpdb->query( "ALTER TABLE $this->table CHANGE subscription_id subscription_id char(22) NULL" );
+		$wpdb->query( "ALTER TABLE $table CHANGE subscription_id subscription_id char(22) NULL" );
 		// Make sure all empty subscription IDs are NULL. dbDelta will not hable this.
-		$wpdb->query( "UPDATE $this->table SET subscription_id = NULL WHERE subscription_id = ''" );
+		$wpdb->query( "UPDATE $table SET subscription_id = NULL WHERE subscription_id = ''" );
 
 		// If unique key is not set for subscription id, set.
-		$index_exists = $wpdb->query( "SHOW INDEX FROM $this->table WHERE KEY_NAME = 'ix_subscription_id'" );
+		$index_exists = $wpdb->query( "SHOW INDEX FROM $table WHERE KEY_NAME = 'ix_subscription_id'" );
 		if ( empty( $index_exists ) ) {
 			// Set unique key to subscription id.
-			$wpdb->query( "ALTER TABLE $this->table ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
+			$wpdb->query( "ALTER TABLE $table ADD UNIQUE KEY ix_subscription_id (subscription_id)" );
 		}
 	}
 
@@ -1702,21 +1706,21 @@ class ProSites_Gateway_Stripe {
 	/**
 	 * Record the transaction data to db.
 	 *
-	 * @param object $data Event data from Stripe.
+	 * @param object $object Event data from Stripe.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
-	public function record_transaction( $data ) {
+	public function record_transaction( $object ) {
 		// We need data from Stripe.
-		if ( isset( $data->data->object ) ) {
+		if ( empty( $object ) ) {
 			return;
 		}
 
 		// Get the object prepared.
 		$object = ProSites_Helper_Transaction::object_from_data(
-			$data->data->object,
+			$object,
 			get_class()
 		);
 
@@ -1806,14 +1810,16 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Get Stripe subscription object.
-		$customer_data = self::$stripe_subscription->get_db_customer_by_subscription( $subscription );
+		$blog_id = self::$stripe_subscription->get_blog_id_by_subscription( $subscription );
 		// Set blog id.
-		if ( $customer_data->blog_id ) {
-			$object->blog_id = $customer_data->blog_id;
+		if ( $blog_id ) {
+			$object->blog_id = $blog_id;
 		}
 
 		// We need tax evidence field.
 		$object->evidence = empty( $object->evidence ) ? null : $object->evidence;
+
+		$object->gateway = get_class();
 
 		// Set line objects.
 		$object->transaction_lines = $line_objects;
@@ -1841,14 +1847,17 @@ class ProSites_Gateway_Stripe {
 		$event_id   = $event_json->id;
 
 		// Continue only if a valid event.
-		if ( ! $this->valid_event( $event_type ) ) {
+		if ( ! $this->valid_event( $event_type ) || ! isset( $event_json->data->object ) ) {
 			return false;
 		}
+
+		// Get event data.
+		$event_data = $event_json->data->object;
 
 		global $psts;
 
 		// Get Stripe subscription for the event.
-		$subscription = self::$stripe_subscription->get_webhook_subscription( $event_json );
+		$subscription = self::$stripe_subscription->get_webhook_subscription( $event_data );
 
 		// If we have a subscription, now try to get the blog id.
 		self::$blog_id = isset( $subscription->id ) ?
@@ -1861,16 +1870,22 @@ class ProSites_Gateway_Stripe {
 
 		// Site details.
 		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
+		if ( empty( $site_data ) ) {
+			return false;
+		}
+
 		// Get level name.
 		$level_name = $psts->get_level_setting( $site_data->level, 'name' );
 		// Get total amount.
-		$total = self::format_price( $event_json->total, false );
+		$total = self::$stripe_charge->get_webhook_total_amount( $event_data );
+		// Format the amount.
+		$total = self::format_price( $total, false );
 		// Get amount in text.
 		$amount = $psts->format_currency( false, $total );
 		// Get the period.
 		$period = number_format_i18n( $site_data->term );
 		// Get the charge id.
-		$charge_id = isset( $event_json->data->object->charge ) ? $event_json->data->object->charge : $event_json->data->object->id;
+		$charge_id = isset( $event_data->charge ) ? $event_data->charge : $event_data->id;
 		// Mail arguments.
 		$args = array();
 
@@ -1882,7 +1897,16 @@ class ProSites_Gateway_Stripe {
 				break;
 
 			case 'customer.subscription.updated':
-				$message = sprintf( __( 'Stripe webhook "%s (%2$s)" received. The customer\'s subscription was successfully updated to %3$s: %4$s every %5$s month(s).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period );
+				// Subscription cancelled in Stripe.
+				if ( ! empty( $subscription->cancel_at_period_end ) ) {
+					// Cancelled in Stripe.
+					update_blog_option( self::$blog_id, 'psts_stripe_canceled', 1 );
+					// Get the end date.
+					$date    = date_i18n( get_option( 'date_format' ), $subscription->current_period_end );
+					$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received. The customer\'s subscription has been set to cancel at the end of the billing period: %3$s.', 'psts' ), $event_type, $event_id, $date );
+				} else {
+					$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received. The customer\'s subscription was successfully updated (%3$s: %4$s every %5$s month(s)).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period );
+				}
 				break;
 
 			case 'customer.subscription.deleted':
@@ -1893,10 +1917,10 @@ class ProSites_Gateway_Stripe {
 			case 'invoice.payment_succeeded':
 				delete_blog_option( self::$blog_id, 'psts_stripe_payment_failed' );
 				// Log successful payment transaction.
-				self::record_transaction( $event_json );
+				self::record_transaction( $event_data );
 				$date = date_i18n( get_option( 'date_format' ), $event_json->created );
 				// Invoice items from event data.
-				$invoice_items = self::$stripe_charge->get_webhook_invoice_items( $event_json );
+				$invoice_items = self::$stripe_charge->get_webhook_invoice_items( $event_data );
 				if ( $invoice_items ) {
 					$args['items'] = $invoice_items;
 				}
@@ -2308,7 +2332,7 @@ class ProSites_Gateway_Stripe {
 				if ( 1 === self::$period ) {
 					$desc = sprintf( __( '%s each month', 'psts' ), $amount );
 				} else {
-					$desc = sprintf( __( '%1$s every %3$s months', 'psts' ), $amount, self::$period );
+					$desc = sprintf( __( '%1$s every %2$s months', 'psts' ), $amount, self::$period );
 				}
 			}
 		} else {
