@@ -136,9 +136,12 @@ class ProSites_Stripe_Subscription {
 				// Cancel the subscription immediately.
 				$cancelled = $subscription->cancel();
 			} elseif ( ! empty( $subscription ) && ! $immediate ) {
-				// Oh we need to wait. Let's cancel on expiry.
-				$subscription->cancel_at_period_end = true;
-				$subscription->save();
+				if ( empty( $subscription->cancel_at_period_end ) ) {
+					// Oh we need to wait. Let's cancel on expiry.
+					$subscription->cancel_at_period_end = true;
+					$subscription                       = $subscription->save();
+					wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
+				}
 				$cancelled = true;
 			}
 		} catch ( \Exception $e ) {
@@ -149,7 +152,7 @@ class ProSites_Stripe_Subscription {
 		}
 
 		// Delete cached subscription.
-		if ( $cancelled ) {
+		if ( $cancelled && $immediate ) {
 			wp_cache_delete( 'pro_sites_stripe_subscription_' . $id, 'psts' );
 		}
 

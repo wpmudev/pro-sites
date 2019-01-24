@@ -1396,28 +1396,19 @@ class ProSites_Gateway_Stripe {
 		if ( ( ! self::$existing || $psts->is_blog_canceled( self::$blog_id ) ) && ! empty( $customer->id ) ) {
 			// Added for affiliate system link.
 			if ( $recurring ) {
-				$psts->log_action(
-					self::$blog_id,
-					sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id ),
-					self::$domain
-				);
+				$message = sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id );
 			} else {
-				$psts->log_action(
-					self::$blog_id,
-					sprintf( __( 'User completed new payment via CC: Site created/extended (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id ),
-					self::$domain
-				);
+				$message = sprintf( __( 'User completed new payment via CC: Site created/extended (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id );
 			}
 
 			// Action hook for other plugins.
 			do_action( 'supporter_payment_processed', self::$blog_id, $total, self::$period, self::$level );
 		} else {
-			$psts->log_action(
-				self::$blog_id,
-				sprintf( __( 'User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts' ), $desc, $customer->id ),
-				self::$domain
-			);
+			$message = sprintf( __( 'User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts' ), $desc, $customer->id );
 		}
+
+		// Log message.
+		$psts->log_action( self::$blog_id, $message, self::$domain );
 
 		// Display GA ecommerce in footer.
 		$psts->create_ga_ecommerce( self::$blog_id, self::$period, $total, self::$level, '', self::$domain );
