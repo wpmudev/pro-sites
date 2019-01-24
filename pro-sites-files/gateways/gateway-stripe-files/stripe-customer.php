@@ -597,7 +597,7 @@ class ProSites_Stripe_Customer {
 
 			// SQL query.
 			$sql = $wpdb->prepare(
-				"SELECT * FROM $table WHERE subscription_id = %d",
+				"SELECT * FROM $table WHERE subscription_id = %s",
 				$sub_id
 			);
 
@@ -607,7 +607,7 @@ class ProSites_Stripe_Customer {
 			// Return early if data found.
 			if ( ! empty( $data ) ) {
 				// Set to cache.
-				wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $sub_id, 'psts' );
+				wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $sub_id, $data, 'psts' );
 
 				return $data;
 			}

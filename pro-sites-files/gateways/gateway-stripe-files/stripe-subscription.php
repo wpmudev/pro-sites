@@ -638,6 +638,7 @@ class ProSites_Stripe_Subscription {
 				break;
 		}
 
+
 		// Continue only if we have a valid subscription id.
 		if ( empty( $subscription_id ) ) {
 			return false;
@@ -691,7 +692,7 @@ class ProSites_Stripe_Subscription {
 			}
 
 			// Set to cache.
-			wp_cache_set( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, 'psts' );
+			wp_cache_set( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, $blog_id, 'psts' );
 		}
 
 		return $blog_id;
