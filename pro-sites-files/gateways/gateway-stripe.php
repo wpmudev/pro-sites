@@ -2070,17 +2070,25 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		// Initialize flag as false.
-		$extended = false;
-
-		// Set old and new Stripe plans.
-		$new_plan = $old_plan = self::$stripe_plan->get_id( self::$level, self::$period );
+		$extended = $old_plan = false;
 
 		// Get existing site's data.
 		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
 		// If data found, get the existing plan id.
-		if ( isset( $site_data->level, $site_data->period ) ) {
-			$old_plan = self::$stripe_plan->get_id( $site_data->level, $site_data->period );
+		if ( isset( $site_data->level, $site_data->term ) ) {
+			// Get the old plan.
+			$old_plan = self::$stripe_plan->get_id( $site_data->level, $site_data->term );
+
+			// In case if we don't have level and period yet.
+			self::$level  = empty( self::$level ) ? $site_data->level : self::$level;
+			self::$period = empty( self::$period ) ? $site_data->term : self::$period;
 		}
+
+		// Set old and new Stripe plans.
+		$new_plan = self::$stripe_plan->get_id( self::$level, self::$period );
+
+		// Consider old plan as same as new, if empty.
+		$old_plan = empty( $old_plan ) ? $new_plan : $old_plan;
 
 		// Last email sent.
 		$last_extended = (int) get_blog_option( self::$blog_id, 'psts_stripe_last_email_receipt' );
