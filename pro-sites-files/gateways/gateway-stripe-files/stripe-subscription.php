@@ -274,7 +274,7 @@ class ProSites_Stripe_Subscription {
 	 * @param string      $customer_id Customer ID.
 	 * @param string|bool $plan_id     Plan ID or false if plan id is in arguments.
 	 * @param array       $args        Arguments for subscription.
-	 * @param sting|bool  $card        Card id for the payment (if empty default card will be used).
+	 * @param string|bool $card        Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
@@ -314,16 +314,32 @@ class ProSites_Stripe_Subscription {
 			// Now let's create new subscription.
 			$subscription = $this->create_subscription( $customer_id, $plan_id, $args );
 		} else {
+			$plan_changed = false;
+
 			// We have an active subscription, so update to new plan.
 			$args['plan'] = $plan_id;
 
 			// Get the existing plan id.
 			$existing_plan = $subscription->plan->id;
 
+			// If we are changing plans.
+			if ( $plan_id !== $existing_plan ) {
+				$plan_changed = true;
+				// Update meta for plan change.
+				if ( isset( $args['metadata'] ) ) {
+					$args['metadata']['plan_change'] = 'yes';
+				} else {
+					// In case if no meta.
+					$args['metadata'] = array(
+						'plan_change' => 'yes',
+					);
+				}
+			}
+
 			// Update the subscription.
 			$subscription = $this->update_subscription( $subscription_id, $args );
 
-			if ( $plan_id !== $existing_plan ) {
+			if ( $plan_changed ) {
 				// Copy meta values from subscription.
 				$inv_args = empty( $subscription->metadata ) ? array() : $subscription->metadata;
 
@@ -575,5 +591,117 @@ class ProSites_Stripe_Subscription {
 		}
 
 		return $plan_id;
+	}
+
+	/**
+	 * Get Stripe subscription from webhook data.
+	 *
+	 * We need to get the possible subscription id
+	 * from event json and get the subscription data.
+	 *
+	 * @param object $event_json Stripe webhook data.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|Stripe\Subscription
+	 */
+	public function get_webhook_subscription( $event_json ) {
+		// Data can not be empty.
+		if ( empty( $event_json->data->object ) ) {
+			return false;
+		}
+
+		// Data object.
+		$object = $event_json->data->object;
+
+		// Do not continue if required data is empty.
+		if ( empty( $object->object ) ) {
+			return false;
+		}
+
+		// Subscription id.
+		$subscription_id = false;
+
+		// Get the subscription id in different events.
+		switch ( $object->object ) {
+			// On an invoice payment event.
+			case 'invoice':
+				$subscription_id = $object->subscription;
+				break;
+			// On a subscription create/update/delete event.
+			case 'subscription':
+				$subscription_id = $object->id;
+				break;
+			// On a charge dispute event.
+			case 'dispute':
+				// We need to get the charge object from Stripe.
+				$charge = ProSites_Gateway_Stripe::$stripe_charge->get_charge( $object->charge );
+				// If we have a valid charge object, get it's invoice.
+				if ( ! empty( $charge->invoice ) ) {
+					// Get the invoice object.
+					$invoice = ProSites_Gateway_Stripe::$stripe_charge->get_invoice( $charge->invoice );
+					// Get the subscription id from invoice object.
+					$subscription_id = empty( $invoice->subscription ) ? false : $invoice->subscription;
+				}
+				break;
+		}
+
+		// Continue only if we have a valid subscription id.
+		if ( empty( $subscription_id ) ) {
+			return false;
+		}
+
+		// Get the subscription id.
+		return $this->get_subscription( $subscription_id );
+	}
+
+	/**
+	 * Get blog id using Stripe subscription id.
+	 *
+	 * @param string $sub_id Subscription ID.
+	 * @param bool   $force  Should forcefully get from db?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return int|false
+	 */
+	public function get_blog_id_by_subscription( $sub_id, $force = false ) {
+		$blog_id = false;
+
+		// We need subscription id.
+		if ( empty( $sub_id ) ) {
+			return $blog_id;
+		}
+
+		// If we can get from cache if not forced.
+		if ( ! $force ) {
+			// If something is there in cache return that.
+			$blog_id = wp_cache_get( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, 'psts' );
+			if ( ! empty( $blog_id ) ) {
+				return $blog_id;
+			}
+		}
+
+		// Return early if data found.
+		if ( empty( $blog_id ) ) {
+			// First try to get from local db.
+			$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer_by_subscription( $sub_id );
+			// If found, use that.
+			if ( ! empty( $customer_data->blog_id ) ) {
+				$blog_id = $customer_data->blog_id;
+			} else {
+				// If not found locally, try to get the Stripe subscription.
+				$subscription = $this->get_subscription( $sub_id );
+				// If we have a blog id in subscription meta, get that.
+				if ( ! empty( $subscription->metadata ) && isset( $subscription->metadata['blog_id'] ) ) {
+					$blog_id = $subscription->metadata['blog_id'];
+				}
+			}
+
+			// Set to cache.
+			wp_cache_set( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, 'psts' );
+		}
+
+		return $blog_id;
 	}
 }

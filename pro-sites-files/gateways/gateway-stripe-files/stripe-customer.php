@@ -567,6 +567,56 @@ class ProSites_Stripe_Customer {
 	}
 
 	/**
+	 * Get Stripe customer db data using subscription id.
+	 *
+	 * @param string $sub_id Subscription ID.
+	 * @param bool   $force  Should forcefully get from db?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return array|object|stdClass
+	 */
+	public function get_db_customer_by_subscription( $sub_id, $force = false ) {
+		global $wpdb;
+
+		$data = false;
+
+		// Continue only if subscription id found.
+		if ( ! empty( $sub_id ) ) {
+			// If we can get from cache if not forced.
+			if ( ! $force ) {
+				// If something is there in cache return that.
+				$data = wp_cache_get( 'pro_sites_stripe_db_customer_ ' . $sub_id, 'psts' );
+				if ( ! empty( $data ) ) {
+					return $data;
+				}
+			}
+
+			// Table name.
+			$table = ProSites_Gateway_Stripe::$table;
+
+			// SQL query.
+			$sql = $wpdb->prepare(
+				"SELECT * FROM $table WHERE subscription_id = %d",
+				$sub_id
+			);
+
+			// Get the row.
+			$data = $wpdb->get_row( $sql );
+
+			// Return early if data found.
+			if ( ! empty( $data ) ) {
+				// Set to cache.
+				wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $sub_id, 'psts' );
+
+				return $data;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Get Stripe customer using blog id.
 	 *
 	 * If customer id is set in db, we will get

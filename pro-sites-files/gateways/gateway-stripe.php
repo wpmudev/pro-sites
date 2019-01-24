@@ -396,39 +396,6 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
-	 * Create transaction object for Stripe.
-	 *
-	 * @param object $object  Transaction object.
-	 * @param array  $data    Transaction data.
-	 * @param string $gateway Current gateway.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return mixed
-	 */
-	public function create_transaction_object( $object, $data, $gateway ) {
-
-		return $object;
-	}
-
-	/**
-	 * The heart of the Stripe API integration.
-	 *
-	 * Handle the communication from Stripe. Stripe sends
-	 * various notifications about the payments. Based on the
-	 * event type, process the payments for the sites.
-	 * See https://stripe.com/docs/api/events/types
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return bool
-	 */
-	public static function webhook_handler() {
-		// Handle webhook.
-		return false;
-	}
-
-	/**
 	 * Delete a particular blog and it's subscription.
 	 *
 	 * @param int $blog_id Blog ID.
@@ -963,7 +930,7 @@ class ProSites_Gateway_Stripe {
 			// Last invoice.
 			$last_invoice = self::$stripe_customer->last_invoice( $customer_data->customer_id );
 			// Last payment amount.
-			$last_payment = empty( $last_invoice->total ) ? false : $last_invoice->total / 100;
+			$last_payment = empty( $last_invoice->total ) ? false : self::format_price( $last_invoice->total, false );
 
 			// File that contains modify form.
 			include_once 'gateway-stripe-files/views/admin/modify-form.php';
@@ -998,7 +965,7 @@ class ProSites_Gateway_Stripe {
 		// Last Stripe charge of the invoice.
 		$last_charge = empty( $last_invoice->charge ) ? false : $last_invoice->charge;
 		// Last charge amount.
-		$last_charge_amount = empty( $last_charge->amount ) ? 0 : ( $last_charge->amount / 100 );
+		$last_charge_amount = empty( $last_charge->amount ) ? 0 : self::format_price( $last_charge->amount );
 		// Current user's name.
 		$display_name = $current_user->display_name;
 		// Default messages.
@@ -1733,6 +1700,239 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
+	 * Record the transaction data to db.
+	 *
+	 * @param object $data Event data from Stripe.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function record_transaction( $data ) {
+		// We need data from Stripe.
+		if ( isset( $data->data->object ) ) {
+			return;
+		}
+
+		// Get the object prepared.
+		$object = ProSites_Helper_Transaction::object_from_data(
+			$data->data->object,
+			get_class()
+		);
+
+		// Record the object.
+		ProSites_Helper_Transaction::record( $object );
+
+	}
+
+	/**
+	 * Create transaction object for Stripe.
+	 *
+	 * Create transaction object from the Stripe event
+	 * data received via webhook.
+	 *
+	 * @param object $object  Transaction object.
+	 * @param array  $data    Transaction data.
+	 * @param string $gateway Current gateway.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return mixed
+	 */
+	public function create_transaction_object( $object, $data, $gateway ) {
+		// Continue only for Stripe.
+		if ( get_class() !== $gateway || empty( $data ) ) {
+			return $object;
+		}
+
+		// Get the subscription id.
+		$subscription = empty( $data->subscription ) ? false : $data->subscription;
+		// Line objects array.
+		$line_objects = array();
+
+		// Basic invoice data.
+		$object->invoice_number = $data->id;
+		$object->invoice_date   = date( 'Y-m-d', $data->date );
+		$object->currency_code  = strtoupper( $data->currency );
+		// General (used for transaction recording).
+		$object->total       = self::format_price( $data->total );
+		$object->tax_percent = self::format_price( $data->tax_percent );
+		$object->subtotal    = self::format_price( $data->subtotal );
+		$object->tax         = self::format_price( $data->tax );
+
+		// Get the line items.
+		if ( ! empty( $data->lines->data ) ) {
+			// Loop through each items.
+			foreach ( $data->lines->data as $line ) {
+				// Set basic line data.
+				$line_object              = new stdClass();
+				$line_object->id          = $line->id;
+				$line_object->amount      = self::format_price( $line->amount );
+				$line_object->quantity    = $line->quantity;
+				$line_object->custom_id   = $line->id;
+				$line_object->description = '';
+
+				// Get a description.
+				if ( isset( $line->description ) ) {
+					$line_object->description = $line->description;
+				} elseif ( isset( $line->plan->name ) ) {
+					$line_object->description = $line->plan->name;
+				}
+
+				// Get some subscription data.
+				if ( isset( $line->type ) && 'subscription' === $line->type ) {
+					// Get the subscription id.
+					$subscription = empty( $sub_id ) ? $line->subscription : $subscription;
+					// Level and period data.
+					$object->level  = isset( $line->metadata->level ) ? $line->metadata->level : '';
+					$object->period = isset( $line->metadata->period ) ? $line->metadata->period : '';
+				}
+
+				// Ok, check if we have tax applied.
+				if ( isset( $line->metadata->tax_evidence ) && empty( $object->evidence ) ) {
+					try {
+						// Get tax evidence.
+						$tax_evidence                 = $line->metadata->tax_evidence;
+						$object->evidence             = ProSites_Helper_Transaction::evidence_from_json( $tax_evidence );
+						$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $tax_evidence, $object );
+					} catch ( \Exception $e ) {
+						// Ah well.
+					}
+				}
+
+				// Add to line objects.
+				$line_objects[] = $line_object;
+			}
+		}
+
+		// Get Stripe subscription object.
+		$customer_data = self::$stripe_subscription->get_db_customer_by_subscription( $subscription );
+		// Set blog id.
+		if ( $customer_data->blog_id ) {
+			$object->blog_id = $customer_data->blog_id;
+		}
+
+		// We need tax evidence field.
+		$object->evidence = empty( $object->evidence ) ? null : $object->evidence;
+
+		// Set line objects.
+		$object->transaction_lines = $line_objects;
+
+		return $object;
+	}
+
+	/**
+	 * The heart of the Stripe API integration.
+	 *
+	 * Handle the communication from Stripe. Stripe sends
+	 * various notifications about the payments. Based on the
+	 * event type, process the payments for the sites.
+	 * See https://stripe.com/docs/api/events/types
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	public function webhook_handler() {
+		// Retrieve the request's body and parse it as JSON.
+		$input      = @file_get_contents( 'php://input' );
+		$event_json = json_decode( $input );
+		$event_type = $event_json->type;
+		$event_id   = $event_json->id;
+
+		// Continue only if a valid event.
+		if ( ! $this->valid_event( $event_type ) ) {
+			return false;
+		}
+
+		global $psts;
+
+		// Get Stripe subscription for the event.
+		$subscription = self::$stripe_subscription->get_webhook_subscription( $event_json );
+
+		// If we have a subscription, now try to get the blog id.
+		self::$blog_id = isset( $subscription->id ) ?
+			self::$stripe_subscription->get_blog_id_by_subscription( $subscription->id ) : 0;
+
+		// We can continue only if we were able to find the blog id.
+		if ( empty( self::$blog_id ) ) {
+			return false;
+		}
+
+		// Site details.
+		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
+		// Get level name.
+		$level_name = $psts->get_level_setting( $site_data->level, 'name' );
+		// Get total amount.
+		$total = self::format_price( $event_json->total, false );
+		// Get amount in text.
+		$amount = $psts->format_currency( false, $total );
+		// Get the period.
+		$period = number_format_i18n( $site_data->term );
+		// Get the charge id.
+		$charge_id = isset( $event_json->data->object->charge ) ? $event_json->data->object->charge : $event_json->data->object->id;
+		// Mail arguments.
+		$args = array();
+
+		// Process the events.
+		switch ( $event_type ) {
+			case 'customer.subscription.created':
+				$psts->email_notification( self::$blog_id, 'success' );
+				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: Customer successfully subscribed to %3$s: %4$s every %5$s month(s).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period );
+				break;
+
+			case 'customer.subscription.updated':
+				$message = sprintf( __( 'Stripe webhook "%s (%2$s)" received. The customer\'s subscription was successfully updated to %3$s: %4$s every %5$s month(s).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period );
+				break;
+
+			case 'customer.subscription.deleted':
+				update_blog_option( self::$blog_id, 'psts_stripe_canceled', 1 );
+				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The subscription has been canceled', 'psts' ), $event_type, $event_id );
+				break;
+
+			case 'invoice.payment_succeeded':
+				delete_blog_option( self::$blog_id, 'psts_stripe_payment_failed' );
+				// Log successful payment transaction.
+				self::record_transaction( $event_json );
+				$date = date_i18n( get_option( 'date_format' ), $event_json->created );
+				// Invoice items from event data.
+				$invoice_items = self::$stripe_charge->get_webhook_invoice_items( $event_json );
+				if ( $invoice_items ) {
+					$args['items'] = $invoice_items;
+				}
+				// Extend the blog if required.
+				self::maybe_extend(
+					$total, // Totoal amount paid.
+					$subscription->current_period_end, // Subscription end date.
+					true, // Is a payment?.
+					true, // Is recurring?.
+					$args // Arguments for email.
+				);
+				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment was successfully received. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id );
+				break;
+
+			case 'invoice.payment_failed':
+				$psts->email_notification( self::$blog_id, 'failed' );
+				$date = date_i18n( get_option( 'date_format' ), $event_json->created );
+				update_blog_option( self::$blog_id, 'psts_stripe_payment_failed', 1 );
+				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment has failed. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id );
+				break;
+
+			case 'charge.dispute.created':
+				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The customer disputed a charge with their bank (chargeback), Charge ID "%3$s"', 'psts' ), $event_type, $event_id, $charge_id );
+				$psts->withdraw( self::$blog_id );
+				break;
+
+		}
+
+		if ( ! empty( $message ) ) {
+			$psts->log_action( self::$blog_id, $message );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Extend a blog once the payment is successful.
 	 *
 	 * If new subscription we will activate the blog first.
@@ -2371,13 +2571,14 @@ class ProSites_Gateway_Stripe {
 	 * We need to make sure currency is supported by
 	 * the gateway.
 	 *
-	 * @param int $amount Amount as int.
+	 * @param int  $amount   Amount as int.
+	 * @param bool $multiply true for multiply, false for division.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return float|int
 	 */
-	public static function format_price( $amount ) {
+	public static function format_price( $amount, $multiply = true ) {
 		/**
 		 * Zero decimal currencies.
 		 *
@@ -2390,7 +2591,7 @@ class ProSites_Gateway_Stripe {
 
 		// If not a zero decimal currency, get float value.
 		if ( ! $zero_decimal ) {
-			$amount = floatval( $amount ) * 100;
+			$amount = $multiply ? floatval( $amount ) * 100 : $amount / 100;
 		}
 
 		return $amount;
@@ -2413,6 +2614,32 @@ class ProSites_Gateway_Stripe {
 		$format = empty( $format ) ? get_option( 'date_format' ) : $format;
 
 		return date_i18n( $format, $date );
+	}
+
+	/**
+	 * Verify that the current event is valid.
+	 *
+	 * @param string $event The event type.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool
+	 */
+	private function valid_event( $event ) {
+		// List of valid events.
+		$valid_events = array(
+			'charge.dispute.created',
+			'invoice.payment_succeeded',
+			'customer.subscription.created',
+			'customer.subscription.updated',
+			'customer.subscription.deleted',
+			'invoice.payment_failed',
+		);
+
+		// Filter hook to modify list of valid hooks.
+		$valid_events = apply_filters( 'psts_valid_stripe_events', $valid_events );
+
+		return in_array( $event, $valid_events, true );
 	}
 }
 

@@ -39,12 +39,54 @@ class ProSites_Stripe_Charge {
 			// Make sure we don't break.
 			try {
 				$charge = \Stripe\Charge::retrieve( $charge_id );
-				// If a plan found, return.
+				// If a charge found, return.
 				if ( ! empty( $charge ) ) {
 					// Set to cache so we can reuse it.
 					wp_cache_set( 'pro_sites_stripe_charge_' . $charge_id, $charge, 'psts' );
 
 					return $charge;
+				}
+			} catch ( \Exception $e ) {
+				// Oh well.
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get an invoice object from Stripe.
+	 *
+	 * @param string $invoice_id Invoice ID.
+	 * @param bool   $force      Skip cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|mixed|\Stripe\Invoice
+	 */
+	public function get_invoice( $invoice_id, $force = false ) {
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$invoice = wp_cache_get( 'pro_sites_stripe_invoice_' . $invoice_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $invoice ) ) {
+				return $invoice;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $invoice ) ) {
+			// Make sure we don't break.
+			try {
+				$invoice = \Stripe\Invoice::retrieve( $invoice_id );
+				// If an invoice found, return.
+				if ( ! empty( $invoice ) ) {
+					// Set to cache so we can reuse it.
+					wp_cache_set( 'pro_sites_stripe_invoice_' . $invoice_id, $invoice, 'psts' );
+
+					return $invoice;
 				}
 			} catch ( \Exception $e ) {
 				// Oh well.
@@ -281,5 +323,75 @@ class ProSites_Stripe_Charge {
 		}
 
 		return $card;
+	}
+
+	/**
+	 * Get the invoice items from Stripe webhook data.
+	 *
+	 * @param object $event_json Stripe webhook data.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|array
+	 */
+	public function get_webhook_invoice_items( $event_json ) {
+		$invoice_items = false;
+
+		// Data can not be empty.
+		if ( empty( $event_json->data->object ) ) {
+			return $invoice_items;
+		}
+
+		// Data object.
+		$object = $event_json->data->object;
+
+		$plan_change = false;
+
+		if ( 'invoice' === $object->object ) {
+			// Initialize invoice item model.
+			$invoice_items = new ProSites_Model_Receipt();
+
+			// We have a changed plan.
+			if ( isset( $object->metadata->plan_change ) && 'yes' === $object->metadata->plan_change ) {
+				$plan_change = true;
+			}
+
+			// Loop through each line items.
+			foreach ( $object->lines->data as $line_item ) {
+				// Don't process subscription now.
+				if ( 'subscription' === $line_item->type ) {
+					continue;
+				}
+
+				// Get upgrades/downgrades.
+				if ( $plan_change && $line_item->proration ) {
+					// Get plan name.
+					$plan_name = empty( $line_item->plan ) ? '' : $line_item->plan->nickname;
+					// Get total amount.
+					$amount = ProSites_Gateway_Stripe::format_price( $line_item->amount );
+					// Add new invoice item.
+					$invoice_items->add_item(
+						$amount,
+						sprintf( __( 'Plan Adjustments: %s', 'psts' ), $plan_name )
+					);
+				}
+			}
+
+			// If discount applied, get details.
+			if ( isset( $object->discount->coupon ) && ! empty( $invoice_items ) ) {
+				$discount = ProSites_Gateway_Stripe::format_price( $object->discount->coupon->amount_off );
+				$invoice_items->add_item( $discount, __( 'Coupon Applied', 'psts' ) );
+			}
+
+			// Get invoice items.
+			if ( ! empty( $invoice_items ) ) {
+				$invoice_items = $invoice_items->get_items();
+			}
+
+			// We don't need to set invoice item if no items found.
+			$invoice_items = count( $invoice_items ) > 0 ? $invoice_items : false;
+		}
+
+		return $invoice_items;
 	}
 }
