@@ -1365,6 +1365,7 @@ class ProSites_Gateway_Stripe {
 		// Now process the payments.
 		if ( self::process_payment( $data, $customer, $plan_id, $card ) ) {
 			self::$show_completed = true;
+			self::unset_session();
 		} else {
 			$psts->errors->add( 'stripe', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
 		}
@@ -2767,6 +2768,23 @@ class ProSites_Gateway_Stripe {
 		$valid_events = apply_filters( 'psts_valid_stripe_events', $valid_events );
 
 		return in_array( $event, $valid_events, true );
+	}
+
+	/**
+	 * After successful payment clear sessions.
+	 *
+	 * Clear session, or they may mess up everything.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	private static function unset_session() {
+		// Unset all used sessions. Good bye.
+		ProSites_Helper_Session::unset_session( 'new_blog_details' );
+		ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
+		ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
+		ProSites_Helper_Session::unset_session( 'activation_key' );
 	}
 }
 

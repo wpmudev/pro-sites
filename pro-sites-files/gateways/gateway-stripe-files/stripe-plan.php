@@ -753,8 +753,11 @@ class ProSites_Stripe_Plan {
 			} else {
 				$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
 			}
+
 			// Stripe subscription status.
 			$stripe_status = empty( $subscription->status ) ? 'canceled' : $subscription->status;
+			// In case cancelled at the end date.
+			$stripe_status = empty( $subscription->cancel_at_period_end ) ? $stripe_status : 'canceled';
 
 			// Include customer's card information.
 			if ( $card ) {

@@ -317,6 +317,16 @@ class ProSites_Stripe_Subscription {
 			// Now let's create new subscription.
 			$subscription = $this->create_subscription( $customer_id, $plan_id, $args );
 		} else {
+			// Reactivate if a subscription was set to cancel at the end.
+			if ( ! empty( $subscription->cancel_at_period_end ) ) {
+				$args['cancel_at_period_end'] = false;
+				$psts->log_action(
+					$blog_id,
+					// translators: %s Subscription id.
+					sprintf( __( 'Previous cancelled subscription (%s) was successfully reactivated.', 'psts' ), $subscription_id )
+				);
+			}
+
 			$plan_changed = false;
 
 			// We have an active subscription, so update to new plan.
@@ -515,6 +525,11 @@ class ProSites_Stripe_Subscription {
 			);
 		}
 
+		// Initialize meta data.
+		if ( ! isset( $args['metadata'] ) ) {
+			$args['metadata'] = array();
+		}
+
 		// If it is a new blog, try if we can set missing values.
 		if ( ! ProSites_Gateway_Stripe::$existing ) {
 			$args['metadata'] = array(
@@ -539,20 +554,14 @@ class ProSites_Stripe_Subscription {
 		// If required data is found.
 		if ( isset( $site_data->level, $site_data->term ) ) {
 			// In case level and period is not set.
-			if ( ! isset( $args['level'], $args['period'] ) ) {
-				$args['metadata'] = array(
-					'period'  => $site_data->term,
-					'level'   => $site_data->level,
-					'blog_id' => $blog_id,
-				);
+			if ( ! isset( $args['metadata']['level'], $args['metadata']['period'] ) ) {
+				$args['metadata']['level']   = $site_data->level;
+				$args['metadata']['period']  = $site_data->term;
+				$args['metadata']['blog_id'] = $blog_id;
 			}
 
 			// If we are upgrading to new level.
-			if ( isset( $args['metadata']['level'], $args['metadata']['period'] ) && (
-					$args['metadata']['level'] !== $site_data->level ||
-					$args['metadata']['period'] !== $site_data->term
-				)
-			) {
+			if ( $args['metadata']['level'] !== $site_data->level || $args['metadata']['period'] !== $site_data->term ) {
 				$updated = array(
 					'render'      => true,
 					'blog_id'     => $blog_id,
