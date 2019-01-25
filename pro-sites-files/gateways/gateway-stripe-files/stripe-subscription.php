@@ -565,8 +565,8 @@ class ProSites_Stripe_Subscription {
 				$updated = array(
 					'render'      => true,
 					'blog_id'     => $blog_id,
-					'level'       => $args['level'],
-					'period'      => $args['period'],
+					'level'       => $args['metadata']['level'],
+					'period'      => $args['metadata']['period'],
 					'prev_level'  => $site_data->level,
 					'prev_period' => $site_data->term,
 				);
