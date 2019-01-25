@@ -1994,8 +1994,11 @@ class ProSites_Gateway_Stripe {
 				break;
 
 			case 'customer.subscription.deleted':
+				// Cancellation flag.
 				update_blog_option( self::$blog_id, 'psts_stripe_canceled', 1 );
 				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The subscription has been canceled', 'psts' ), $event_type, $event_id ) );
+				// Cancel the blog subscription.
+				self::$stripe_subscription->cancel_blog_subscription( self::$blog_id, false, false, false );
 				break;
 
 			case 'invoice.payment_succeeded':

@@ -113,6 +113,44 @@ class ProSites_Stripe_Subscription {
 	}
 
 	/**
+	 * Update a subscription in Stripe.
+	 *
+	 * Please note that you can update only the available fields
+	 * of a subscription. Refer https://stripe.com/docs/api/subscriptions/update?lang=php
+	 * to get the list of fields.
+	 * Pass the fields as an array in second argument in key -> value combination.
+	 *
+	 * @param string $id   Subscription ID.
+	 * @param array  $args Array of fields to update.
+	 *
+	 * @return \Stripe\Subscription|false
+	 */
+	public function update_subscription( $id, $args = array() ) {
+		// Make sure we don't break.
+		try {
+			// First get the subscription.
+			$subscription = $this->get_subscription( $id );
+			// Update only if args set.
+			if ( ! empty( $subscription ) && ! empty( $args ) ) {
+				// Assign each values to subscription array.
+				foreach ( (array) $args as $key => $value ) {
+					$subscription->{$key} = $value;
+				}
+				// Now let's save 'em.
+				$subscription = $subscription->save();
+
+				// Update cached subscription.
+				wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
+			}
+		} catch ( \Exception $e ) {
+			// Oh well. Failure.
+			$subscription = false;
+		}
+
+		return $subscription;
+	}
+
+	/**
 	 * Cancel a subscription in Stripe using API.
 	 *
 	 * @param string      $id        Stripe subscription ID.
@@ -157,44 +195,6 @@ class ProSites_Stripe_Subscription {
 		}
 
 		return $cancelled;
-	}
-
-	/**
-	 * Update a subscription in Stripe.
-	 *
-	 * Please note that you can update only the available fields
-	 * of a subscription. Refer https://stripe.com/docs/api/subscriptions/update?lang=php
-	 * to get the list of fields.
-	 * Pass the fields as an array in second argument in key -> value combination.
-	 *
-	 * @param string $id   Subscription ID.
-	 * @param array  $args Array of fields to update.
-	 *
-	 * @return \Stripe\Subscription|false
-	 */
-	public function update_subscription( $id, $args = array() ) {
-		// Make sure we don't break.
-		try {
-			// First get the subscription.
-			$subscription = $this->get_subscription( $id );
-			// Update only if args set.
-			if ( ! empty( $subscription ) && ! empty( $args ) ) {
-				// Assign each values to subscription array.
-				foreach ( (array) $args as $key => $value ) {
-					$subscription->{$key} = $value;
-				}
-				// Now let's save 'em.
-				$subscription = $subscription->save();
-
-				// Update cached subscription.
-				wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
-			}
-		} catch ( \Exception $e ) {
-			// Oh well. Failure.
-			$subscription = false;
-		}
-
-		return $subscription;
 	}
 
 	/**
@@ -384,58 +384,56 @@ class ProSites_Stripe_Subscription {
 	public function cancel_blog_subscription( $blog_id, $stripe = true, $immediate = false, $message = false ) {
 		global $psts, $current_user;
 
-		$stripe_cancelled = false;
+		// Blog cancellation status.
+		$blog_canceled = (bool) get_blog_option( $blog_id, 'psts_is_canceled' );
 
-		// Check if we have already canceled the blog.
-		$canceled = $psts->is_blog_canceled( $blog_id );
-
-		// Continue only if not canceled.
-		if ( ! $canceled || $stripe ) {
+		// Asked to cancel Stripe subscription.
+		if ( $stripe ) {
 			// Get the subscription data using blog id.
 			$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( $blog_id );
 			// We need both subscription id and customer id.
 			if ( ! empty( $customer_data->subscription_id ) ) {
 				// Now cancel the subscription.
-				$stripe_cancelled = $this->cancel_subscription( $customer_data->subscription_id, $immediate );
-			} elseif ( empty( $customer_data->subscription_id ) ) {
-				// No data?. Ok Stripe canceled.
-				$stripe_cancelled = true;
-			}
+				if ( ! $this->cancel_subscription( $customer_data->subscription_id, $immediate ) ) {
+					// Log about failure.
+					$psts->log_action(
+						$blog_id,
+						sprintf( __( 'Attempt to cancel Stripe subscription for blog %d failed', 'psts' ), $blog_id )
+					);
 
-			// Now set the flags.
-			if ( ! $canceled && $stripe_cancelled ) {
-				// Record cancel status.
-				$psts->record_stat( $blog_id, 'cancel' );
-
-				// Send cancellation email notification.
-				$psts->email_notification( $blog_id, 'canceled' );
-
-				// Update the cancellation flag.
-				update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
-				update_blog_option( $blog_id, 'psts_is_canceled', 1 );
-
-				// Get the expire date of the blog.
-				$end_date = $psts->get_expire( $blog_id );
-
-				$psts->log_action(
-					$blog_id,
-					// translators: %1$s: Cancelled by user, %2$d: Subscription end date.
-					sprintf(
-						__( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ),
-						$current_user->display_name,
-						empty( $end_date ) ? '' : date_i18n( get_option( 'date_format' ), $end_date )
-					)
-				);
-			} elseif ( ! $stripe_cancelled ) {
-				$psts->log_action(
-					$blog_id,
-					sprintf( __( 'Attempt to cancel Stripe subscription for blog %d failed', 'psts' ), $blog_id )
-				);
+					return false;
+				} else {
+					// Stripe cancellation flag.
+					update_blog_option( $blog_id, 'psts_stripe_canceled', 1 );
+				}
 			}
 		}
 
+		// No need to process the cancellation again, if already cancelled.
+		if ( ! $blog_canceled ) {
+			// Record cancel status.
+			$psts->record_stat( $blog_id, 'cancel' );
+			// Cancellation flag.
+			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
+			// Get the expire date of the blog.
+			$end_date = $psts->get_expire( $blog_id );
+			// Log about cancellation.
+			$psts->log_action(
+				$blog_id,
+				// translators: %1$s: Cancelled by user, %2$d: Subscription end date.
+				sprintf(
+					__( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ),
+					$current_user->display_name,
+					empty( $end_date ) ? '' : date_i18n( get_option( 'date_format' ), $end_date )
+				)
+			);
+
+			// Send cancellation email notification.
+			$psts->email_notification( $blog_id, 'canceled' );
+		}
+
 		// Show message if requested explicitly.
-		if ( $canceled && $message ) {
+		if ( $message ) {
 			// Show cancellation.
 			add_filter( 'psts_blog_info_cancelled', '__return_true' );
 			add_filter( 'psts_render_notification_information', function ( $info ) {
@@ -445,7 +443,7 @@ class ProSites_Stripe_Subscription {
 			}, 10 );
 		}
 
-		return $canceled;
+		return true;
 	}
 
 	/**
