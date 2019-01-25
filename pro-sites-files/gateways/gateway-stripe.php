@@ -1976,7 +1976,7 @@ class ProSites_Gateway_Stripe {
 		switch ( $event_type ) {
 			case 'customer.subscription.created':
 				$psts->email_notification( self::$blog_id, 'success' );
-				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: Customer successfully subscribed to %3$s: %4$s every %5$s month(s).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period );
+				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: Customer successfully subscribed to %3$s: %4$s every %5$s month(s).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period ) );
 				break;
 
 			case 'customer.subscription.updated':
@@ -1985,16 +1985,16 @@ class ProSites_Gateway_Stripe {
 					// Cancelled in Stripe.
 					update_blog_option( self::$blog_id, 'psts_stripe_canceled', 1 );
 					// Get the end date.
-					$date    = date_i18n( get_option( 'date_format' ), $subscription->current_period_end );
-					$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received. The customer\'s subscription has been set to cancel at the end of the billing period: %3$s.', 'psts' ), $event_type, $event_id, $date );
+					$date = date_i18n( get_option( 'date_format' ), $subscription->current_period_end );
+					$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received. The customer\'s subscription has been set to cancel at the end of the billing period: %3$s.', 'psts' ), $event_type, $event_id, $date ) );
 				} else {
-					$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received. The customer\'s subscription was successfully updated (%3$s: %4$s every %5$s month(s)).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period );
+					$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received. The customer\'s subscription was successfully updated (%3$s: %4$s every %5$s month(s)).', 'psts' ), $event_type, $event_id, $level_name, $amount, $period ) );
 				}
 				break;
 
 			case 'customer.subscription.deleted':
 				update_blog_option( self::$blog_id, 'psts_stripe_canceled', 1 );
-				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The subscription has been canceled', 'psts' ), $event_type, $event_id );
+				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The subscription has been canceled', 'psts' ), $event_type, $event_id ) );
 				break;
 
 			case 'invoice.payment_succeeded':
@@ -2007,6 +2007,7 @@ class ProSites_Gateway_Stripe {
 				if ( $invoice_items ) {
 					$args['items'] = $invoice_items;
 				}
+				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment was successfully received. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id ) );
 				// Extend the blog if required.
 				self::maybe_extend(
 					$total, // Totoal amount paid.
@@ -2015,25 +2016,20 @@ class ProSites_Gateway_Stripe {
 					true, // Is recurring?.
 					$args // Arguments for email.
 				);
-				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment was successfully received. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id );
 				break;
 
 			case 'invoice.payment_failed':
-				$psts->email_notification( self::$blog_id, 'failed' );
 				$date = date_i18n( get_option( 'date_format' ), $event_json->created );
 				update_blog_option( self::$blog_id, 'psts_stripe_payment_failed', 1 );
-				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment has failed. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id );
+				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment has failed. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id ) );
+				$psts->email_notification( self::$blog_id, 'failed' );
 				break;
 
 			case 'charge.dispute.created':
-				$message = sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The customer disputed a charge with their bank (chargeback), Charge ID "%3$s"', 'psts' ), $event_type, $event_id, $charge_id );
+				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The customer disputed a charge with their bank (chargeback), Charge ID "%3$s"', 'psts' ), $event_type, $event_id, $charge_id ) );
 				$psts->withdraw( self::$blog_id );
 				break;
 
-		}
-
-		if ( ! empty( $message ) ) {
-			$psts->log_action( self::$blog_id, $message );
 		}
 
 		return true;
