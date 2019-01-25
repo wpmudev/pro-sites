@@ -404,7 +404,7 @@ class ProSites_Gateway_Stripe {
 	 */
 	public function delete_blog( $blog_id ) {
 		// Cancel the blog subscription.
-		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, false, true );
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, true, true );
 
 		// Delete the blog data from DB.
 		self::$stripe_customer->delete_db_customer( $blog_id );
