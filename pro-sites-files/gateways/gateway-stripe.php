@@ -2741,10 +2741,10 @@ class ProSites_Gateway_Stripe {
 		// List of valid events.
 		$valid_events = array(
 			'charge.dispute.created',
-			'invoice.payment_succeeded',
 			'customer.subscription.created',
 			'customer.subscription.updated',
 			'customer.subscription.deleted',
+			'invoice.payment_succeeded',
 			'invoice.payment_failed',
 		);
 
