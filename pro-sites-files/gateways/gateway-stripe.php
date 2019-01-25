@@ -1167,7 +1167,7 @@ class ProSites_Gateway_Stripe {
 		$public_key = self::$public_key;
 
 		// Set the default values.
-		$activation_key = $user_name = $new_blog = $customer = $card = false;
+		$activation_key = $user_name = $new_blog = $customer = $card = $sub_id = false;
 
 		// New blog data.
 		$blog_data = empty( $render_data['new_blog_details'] ) ? array() : $render_data['new_blog_details'];
@@ -1192,19 +1192,21 @@ class ProSites_Gateway_Stripe {
 
 		if ( ! empty( $bid ) ) {
 			// Get customer data from DB.
-			$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer_by_blog( $bid );
-		} elseif ( ! empty( $email ) ) {
-			// Get customer data from DB.
-			$customer = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( false, $email );
+			$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( $bid );
 			// Get Stripe customer object.
-			if ( ! empty( $customer->customer_id ) ) {
+			if ( ! empty( $customer_data->customer_id ) ) {
 				$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer( $customer->customer_id );
 			}
-		}
 
-		// Default card.
-		if ( isset( $customer->id ) ) {
-			$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+			// Get subscription's default card.
+			if ( isset( $customer->subscription_id ) ) {
+				$card = ProSites_Gateway_Stripe::$stripe_subscription->default_card( $customer->subscription_id );
+			}
+
+			// If default card is not found, get customer's default card.
+			if ( isset( $customer->id ) && empty( $card ) ) {
+				$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+			}
 		}
 
 		// This is a new blog.
@@ -1223,8 +1225,6 @@ class ProSites_Gateway_Stripe {
 
 		// Turn on output buffering.
 		ob_start();
-
-		//wp_enqueue_style( 'psts-stripe-checkout-css' );
 
 		// File that contains checkout form.
 		include_once 'gateway-stripe-files/views/frontend/checkout.php';

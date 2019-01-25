@@ -262,12 +262,12 @@ class ProSites_Stripe_Customer {
 	/**
 	 * Get default card of a Stripe customer.
 	 *
-	 * @param int  $customer_id Stripe customer ID.
-	 * @param bool $force       Should force from cache?.
+	 * @param string $customer_id Stripe customer ID.
+	 * @param bool   $force       Should force from cache?.
 	 *
 	 * @since 3.6.1
 	 *
-	 * @return bool|\Stripe\StripeObject
+	 * @return bool|\Stripe\Card
 	 */
 	public function default_card( $customer_id, $force = false ) {
 		$card = false;
@@ -294,6 +294,53 @@ class ProSites_Stripe_Customer {
 
 					// Set to cache.
 					wp_cache_set( 'pro_sites_stripe_default_card_' . $customer_id, $card, 'psts' );
+				}
+			} catch ( \Exception $e ) {
+				// Well. Failed.
+				$card = false;
+			}
+		}
+
+		return $card;
+	}
+
+	/**
+	 * Get a card from Stripe API.
+	 *
+	 * Cards are attached to customers, so we need
+	 * customer id to get the card details.
+	 *
+	 * @param string $card_id     Stripe card ID.
+	 * @param string $customer_id Stripe customer ID.
+	 * @param bool   $force       Should force from cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|\Stripe\Card
+	 */
+	public function get_card( $card_id, $customer_id, $force = false ) {
+		$card = false;
+
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$card = wp_cache_get( 'pro_sites_stripe_get_card_' . $card_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $card ) ) {
+				return $card;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $card ) ) {
+			try {
+				// Get Stripe customer.
+				$customer = $this->get_customer( $customer_id );
+				// Default card.
+				$card = $customer->sources->retrieve( $card_id );
+				if ( ! empty( $card ) ) {
+					// Set to cache.
+					wp_cache_set( 'pro_sites_stripe_get_card_' . $card_id, $card, 'psts' );
 				}
 			} catch ( \Exception $e ) {
 				// Well. Failed.

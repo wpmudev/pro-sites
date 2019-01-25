@@ -700,4 +700,57 @@ class ProSites_Stripe_Subscription {
 
 		return $blog_id;
 	}
+
+	/**
+	 * Get default card of a Stripe subscription.
+	 *
+	 * If not default source is set, will return false.
+	 *
+	 * @param string $sub_id Stripe subscription ID.
+	 * @param bool   $force  Should force from cache?.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool|\Stripe\Card
+	 */
+	public function default_card( $sub_id, $force = false ) {
+		$card = false;
+
+		// If not forced, try cache.
+		if ( ! $force ) {
+			// Try to get from cache.
+			$card = wp_cache_get( 'pro_sites_stripe_sub_default_card_' . $sub_id, 'psts' );
+			// If found in cache, return it.
+			if ( ! empty( $card ) ) {
+				return $card;
+			}
+		}
+
+		// Get from Stripe API.
+		if ( empty( $card ) ) {
+			try {
+				// Get Stripe customer.
+				$subscription = $this->get_subscription( $sub_id );
+
+				// If a default source is set, get the card data.
+				if ( ! empty( $subscription->default_source ) && isset( $subscription->customer ) ) {
+					// Get the card details.
+					$card = ProSites_Gateway_Stripe::$stripe_customer->get_card(
+						$subscription->default_source,
+						$subscription->customer
+					);
+
+					// Set to cache.
+					if ( ! empty( $card ) ) {
+						wp_cache_set( 'pro_sites_stripe_sub_default_card_' . $sub_id, $card, 'psts' );
+					}
+				}
+			} catch ( \Exception $e ) {
+				// Well. Failed.
+				$card = false;
+			}
+		}
+
+		return $card;
+	}
 }
