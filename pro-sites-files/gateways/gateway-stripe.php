@@ -1106,7 +1106,7 @@ class ProSites_Gateway_Stripe {
 		global $current_site, $psts;
 
 		// Oh hey, we need blog id.
-		if ( empty( $blog_id ) ) {
+		if ( empty( $blog_id ) || (bool) get_blog_option( $blog_id, 'psts_stripe_canceled' ) ) {
 			return $content;
 		}
 
@@ -1509,6 +1509,13 @@ class ProSites_Gateway_Stripe {
 		// Remove email body issue action.
 		remove_action( 'phpmailer_init', 'psts_text_body' );
 
+		// Delete cancellation flags.
+		if ( $processed && ! empty( self::$blog_id ) ) {
+			// Delete cancellation falgs.
+			delete_blog_option( self::$blog_id, 'psts_stripe_canceled' );
+			delete_blog_option( self::$blog_id, 'psts_is_canceled' );
+		}
+
 		return $processed;
 	}
 
@@ -1605,6 +1612,8 @@ class ProSites_Gateway_Stripe {
 						'metadata' => $meta,
 					) );
 				}
+
+				return true;
 			}
 		}
 
@@ -1720,6 +1729,8 @@ class ProSites_Gateway_Stripe {
 						'metadata' => $meta,
 					) );
 				}
+
+				return true;
 			}
 		}
 

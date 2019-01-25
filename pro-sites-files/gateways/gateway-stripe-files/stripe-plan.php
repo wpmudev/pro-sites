@@ -767,7 +767,7 @@ class ProSites_Stripe_Plan {
 
 			// Show a message that they can update card using checkout.
 			if ( $info['recurring'] ) {
-				$info['modify_card'] = ' <p><small>' . esc_html__( 'Update your credit card by selecting your current plan below and proceed with checkout.', 'psts' ) . '</small></p>';
+				$info['modify_card'] = ' <p><small>' . esc_html__( 'Update your credit card below by entering your new card details.', 'psts' ) . '</small></p>';
 			}
 
 			// If current subscription is not exist in Stripe, show cancelled message.
