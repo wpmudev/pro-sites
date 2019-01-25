@@ -365,7 +365,7 @@ class ProSites_Stripe_Charge {
 					// Get plan name.
 					$plan_name = empty( $line_item->plan ) ? '' : $line_item->plan->nickname;
 					// Get total amount.
-					$amount = ProSites_Gateway_Stripe::format_price( $line_item->amount );
+					$amount = ProSites_Gateway_Stripe::format_price( $line_item->amount, false );
 					// Add new invoice item.
 					$invoice_items->add_item(
 						$amount,

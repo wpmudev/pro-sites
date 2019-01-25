@@ -1267,7 +1267,7 @@ class ProSites_Gateway_Stripe {
 
 		// If this is a card update form.
 		if ( 1 === (int) self::from_request( 'update_stripe_card', 0 ) ) {
-			return self::process_card_update( $data );
+			return self::process_card_update();
 		}
 
 		// Continue only if payment form is submitted.
@@ -2073,7 +2073,8 @@ class ProSites_Gateway_Stripe {
 				$is_trial,
 				self::$period,
 				self::$level,
-				$expire
+				$expire,
+				false
 			);
 
 			if ( ! empty( $result['blog_id'] ) ) {
