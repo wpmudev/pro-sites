@@ -745,10 +745,14 @@ class ProSites_Stripe_Plan {
 			$info['period'] = (int) $site_data->term;
 			// Is the blog cancelled.
 			$is_canceled = $psts->is_blog_canceled( $blog_id );
-			// Default card.
-			$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
 			// Get Stripe subscription.
 			$subscription = ProSites_Gateway_Stripe::$stripe_subscription->get_subscription_by_blog( $blog_id );
+			// Default card.
+			if ( ! empty( $subscription ) ) {
+				$card = ProSites_Gateway_Stripe::$stripe_subscription->default_card( $subscription->id );
+			} else {
+				$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+			}
 			// Stripe subscription status.
 			$stripe_status = empty( $subscription->status ) ? 'canceled' : $subscription->status;
 

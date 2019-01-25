@@ -1,10 +1,15 @@
-// On button click, submit the form.
-document.getElementById( 'psts-existing-submit' ).onclick = function () {
-	document.getElementById( 'psts-stripe-checkout' ).submit();
-};
-
 // Get card update button.
 var updateCardButton = document.getElementById( 'psts-stripe-card-update' );
+// Get existing card button.
+var existingCardButton = document.getElementById( 'psts-existing-submit' );
+
+// Process payment with existing card.
+if ( existingCardButton ) {
+// On button click, submit the form.
+	existingCardButton.onclick = function () {
+		document.getElementById( 'psts-stripe-checkout' ).submit();
+	};
+}
 
 // We have update form and required vars.
 if ( updateCardButton && typeof window.psts_stripe != 'undefined' ) {

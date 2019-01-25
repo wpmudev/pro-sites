@@ -1195,18 +1195,19 @@ class ProSites_Gateway_Stripe {
 			$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( $bid );
 			// Get Stripe customer object.
 			if ( ! empty( $customer_data->customer_id ) ) {
-				$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer( $customer->customer_id );
+				$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer( $customer_data->customer_id );
 			}
 
 			// Get subscription's default card.
-			if ( isset( $customer->subscription_id ) ) {
-				$card = ProSites_Gateway_Stripe::$stripe_subscription->default_card( $customer->subscription_id );
+			if ( isset( $customer_data->subscription_id ) ) {
+				$card = ProSites_Gateway_Stripe::$stripe_subscription->default_card( $customer_data->subscription_id );
 			}
 
 			// If default card is not found, get customer's default card.
-			if ( isset( $customer->id ) && empty( $card ) ) {
+			if ( ! empty( $customer ) && empty( $card ) ) {
 				$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
 			}
+
 		}
 
 		// This is a new blog.
