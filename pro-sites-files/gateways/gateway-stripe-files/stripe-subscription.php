@@ -423,7 +423,7 @@ class ProSites_Stripe_Subscription {
 				// translators: %1$s: Cancelled by user, %2$d: Subscription end date.
 				sprintf(
 					__( 'Subscription successfully cancelled by %1$s. They should continue to have access until %2$s', 'psts' ),
-					$current_user->display_name,
+					empty( $current_user->display_name ) ? __( 'Stripe', 'psts' ) : $current_user->display_name,
 					empty( $end_date ) ? '' : date_i18n( get_option( 'date_format' ), $end_date )
 				)
 			);
