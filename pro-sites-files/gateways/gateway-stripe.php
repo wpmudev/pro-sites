@@ -231,6 +231,9 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_subscriber_info', array( $this, 'subscriber_info' ) );
 		add_filter( 'psts_current_plan_info_retrieved', array( $this, 'current_plan_info' ), 1, 4 );
 
+		// Customer card update form.
+		add_filter( 'prosites_myaccount_details', array( $this, 'render_update_form' ), 10, 2 );
+
 		// Subscription modification form.
 		add_action( 'psts_modify_form', array( $this, 'modification_form' ) );
 		add_action( 'psts_modify_process', array( $this, 'process_modification' ) );
@@ -276,11 +279,6 @@ class ProSites_Gateway_Stripe {
 
 		// Register custom checkout form script.
 		wp_register_script( 'psts-stripe-checkout-js', $psts->plugin_url . 'gateways/gateway-stripe-files/assets/js/checkout.js' );
-
-		// Set Stripe API key so that we can use it in Stripe.
-		wp_localize_script( 'psts-stripe-checkout-js', 'stripe', array(
-			'publisher_key' => self::$public_key,
-		) );
 	}
 
 	/**
@@ -1092,6 +1090,52 @@ class ProSites_Gateway_Stripe {
 	}
 
 	/**
+	 * Render Stripe card update form.
+	 *
+	 * For existing customers, render a separate form to update
+	 * their card for the subscription.
+	 *
+	 * @param string $content Additional content.
+	 * @param int    $blog_id Blog ID.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return string
+	 */
+	public function render_update_form( $content, $blog_id ) {
+		global $current_site, $psts;
+
+		// Oh hey, we need blog id.
+		if ( empty( $blog_id ) ) {
+			return $content;
+		}
+
+		// Turn on output buffering.
+		ob_start();
+
+		// Set Stripe API keys and other config options.
+		wp_localize_script( 'psts-stripe-checkout-js', 'psts_stripe', array(
+			'publisher_key' => self::$public_key,
+			'locale'        => get_locale(),
+			'email'         => self::get_email(),
+			'image'         => get_site_icon_url( 512, '', 1 ),
+			'name'          => $current_site->site_name,
+			'description'   => __( 'Update your card details', 'psts' ),
+		) );
+
+		// Form action url.
+		$url = add_query_arg( array( 'update_stripe_card' => 1 ), $psts->checkout_url( $blog_id ) );
+
+		// File that contains checkout form.
+		include_once 'gateway-stripe-files/views/frontend/card-update.php';
+
+		// Get the content as a string.
+		$content = ob_get_clean();
+
+		return $content;
+	}
+
+	/**
 	 * Render the gateway form in front end.
 	 *
 	 * Render the content of Stripe gateway tab in front end.
@@ -1217,6 +1261,14 @@ class ProSites_Gateway_Stripe {
 			$data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : ProSites_Helper_Session::session( $key );
 		}
 
+		// New blog id.
+		self::$blog_id = empty( $blog_id ) ? self::from_request( 'bid', 0, false ) : $blog_id;
+
+		// If this is a card update form.
+		if ( 1 === (int) self::from_request( 'update_stripe_card', 0 ) ) {
+			return self::process_card_update( $data );
+		}
+
 		// Continue only if payment form is submitted.
 		if ( 1 !== (int) self::from_request( 'psts_stripe_checkout', 0 ) ) {
 			return false;
@@ -1229,9 +1281,6 @@ class ProSites_Gateway_Stripe {
 
 		// Get the Stripe data.
 		$stripe_token = self::from_request( 'stripeToken' );
-
-		// New blog id.
-		self::$blog_id = empty( $blog_id ) ? self::from_request( 'bid', 0, false ) : $blog_id;
 
 		// Are we processing an existing site.
 		self::$existing = ! empty( self::$blog_id );
@@ -1318,6 +1367,49 @@ class ProSites_Gateway_Stripe {
 		} else {
 			$psts->errors->add( 'stripe', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
 		}
+	}
+
+	/**
+	 * Process card update form to Stripe.
+	 *
+	 * We need to attach the new source to customer
+	 * and then update the subscription to use the
+	 * new card for the future payments.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void|bool
+	 */
+	private static function process_card_update() {
+		// Get token id from form data.
+		$token = self::from_request( 'stripe_token' );
+
+		// We need blog id.
+		if ( empty( self::$blog_id ) || empty( $token ) ) {
+			return false;
+		}
+
+		// Get Stripe customer using blog id.
+		$customer = self::$stripe_customer->get_customer_by_blog( self::$blog_id );
+		if ( $customer ) {
+			// Add the card to customer.
+			$card = self::$stripe_charge->create_card( $token, $customer );
+			if ( isset( $card->id ) ) {
+				// Get the subscription.
+				$subscription = self::$stripe_subscription->get_subscription_by_blog( self::$blog_id );
+				if ( isset( $subscription->id ) ) {
+					// Use the new source for future payments.
+					self::$stripe_subscription->update_subscription(
+						$subscription->id,
+						array(
+							'default_source' => $card->id,
+						)
+					);
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
