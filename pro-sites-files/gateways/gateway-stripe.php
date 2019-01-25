@@ -374,6 +374,9 @@ class ProSites_Gateway_Stripe {
 
 			// Upgrade and Sync plans to Stripe.
 			$this->update_plans();
+
+			// Update the version.
+			$psts->update_setting( 'stripe_version', $psts->version );
 		}
 	}
 
