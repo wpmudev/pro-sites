@@ -2243,7 +2243,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Expiry dates are same. Then why would we waste time? Bail.
-		if ( isset( $site_data->expire ) && $expire === $site_data->expire ) {
+		if ( isset( $site_data->expire ) && (int) $expire === (int) $site_data->expire ) {
 			return false;
 		}
 
