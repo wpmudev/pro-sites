@@ -1372,6 +1372,8 @@ class ProSites_Gateway_Stripe {
 		} else {
 			$psts->errors->add( 'stripe', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
 		}
+
+		return true;
 	}
 
 	/**
@@ -1497,9 +1499,6 @@ class ProSites_Gateway_Stripe {
 			} else {
 				$message = sprintf( __( 'User completed new payment via CC: Site created/extended (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id );
 			}
-
-			// Action hook for other plugins.
-			do_action( 'supporter_payment_processed', self::$blog_id, $total, self::$period, self::$level );
 		} else {
 			$message = sprintf( __( 'User modifying subscription via CC: Plan changed to (%1$s) - %2$s', 'psts' ), $desc, $customer->id );
 		}
@@ -1519,6 +1518,20 @@ class ProSites_Gateway_Stripe {
 			delete_blog_option( self::$blog_id, 'psts_stripe_canceled' );
 			delete_blog_option( self::$blog_id, 'psts_is_canceled' );
 		}
+
+		/**
+		 * Action hook to process something when recurring payment processed.
+		 *
+		 * @param bool             $processed Was the payment success.
+		 * @param \Stripe\Customer $customer  Stripe customer.
+		 * @param int              $blog_id   Blog ID.
+		 * @param float            $amount    Total amount.
+		 * @param int              $period    Period.
+		 * @param int              $level     Level.
+		 *
+		 * @since 3.6.1
+		 */
+		do_action( 'pro_sites_payment_processed', $processed, $customer, self::$blog_id, $amount, self::$period, self::$level );
 
 		return $processed;
 	}
@@ -1619,6 +1632,25 @@ class ProSites_Gateway_Stripe {
 
 				return true;
 			}
+
+			/**
+			 * Action hook to process something when recurring payment processed.
+			 *
+			 * @param \Stripe\Subscription $subscription Stripe subscription.
+			 * @param \Stripe\Customer     $customer     Stripe customer.
+			 * @param int                  $blog_id      Blog ID.
+			 * @param float                $amount       Total amount.
+			 * @param int                  $period       Period.
+			 * @param int                  $level        Level.
+			 *
+			 * @since 3.6.1
+			 */
+			do_action( 'pro_sites_stripe_recurring_processed', $subscription, $customer, self::$blog_id, $amount, self::$period, self::$level );
+
+			/**
+			 * Keeping it for backward compatibility.
+			 */
+			do_action( 'supporter_payment_processed', self::$blog_id, $amount, self::$period, self::$level );
 		}
 
 		return false;
@@ -1736,6 +1768,24 @@ class ProSites_Gateway_Stripe {
 
 				return true;
 			}
+
+			/**
+			 * Action hook to process something when single payment processed.
+			 *
+			 * @param \Stripe\Customer $customer Stripe customer.
+			 * @param int              $blog_id  Blog ID.
+			 * @param float            $amount   Total amount.
+			 * @param int              $period   Period.
+			 * @param int              $level    Level.
+			 *
+			 * @since 3.6.1
+			 */
+			do_action( 'pro_sites_stripe_single_processed', $customer, self::$blog_id, $amount, self::$period, self::$level );
+
+			/**
+			 * Keeping it for backward compatibility.
+			 */
+			do_action( 'supporter_payment_processed', self::$blog_id, $amount, self::$period, self::$level );
 		}
 
 		return false;
