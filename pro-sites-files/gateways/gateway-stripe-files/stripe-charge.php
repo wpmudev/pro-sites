@@ -376,7 +376,7 @@ class ProSites_Stripe_Charge {
 
 			// If discount applied, get details.
 			if ( isset( $object->discount->coupon ) && ! empty( $invoice_items ) ) {
-				$discount = ProSites_Gateway_Stripe::format_price( $object->discount->coupon->amount_off );
+				$discount = ProSites_Gateway_Stripe::format_price( $object->discount->coupon->amount_off, false );
 				$invoice_items->add_item( $discount, __( 'Coupon Applied', 'psts' ) );
 			}
 
@@ -386,7 +386,7 @@ class ProSites_Stripe_Charge {
 			}
 
 			// We don't need to set invoice item if no items found.
-			$invoice_items = count( $invoice_items ) > 0 ? $invoice_items : false;
+			$invoice_items = ( ! empty( $invoice_items ) && count( $invoice_items ) > 0 ) ? $invoice_items : false;
 		}
 
 		return $invoice_items;

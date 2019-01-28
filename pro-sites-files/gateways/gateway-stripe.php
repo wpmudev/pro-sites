@@ -2242,6 +2242,11 @@ class ProSites_Gateway_Stripe {
 			self::$period = empty( self::$period ) ? $site_data->term : self::$period;
 		}
 
+		// Expiry dates are same. Then why would we waste time? Bail.
+		if ( isset( $site_data->expire ) && $expire === $site_data->expire ) {
+			return false;
+		}
+
 		// Set old and new Stripe plans.
 		$new_plan = self::$stripe_plan->get_id( self::$level, self::$period );
 
