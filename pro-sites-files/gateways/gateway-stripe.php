@@ -2253,12 +2253,6 @@ class ProSites_Gateway_Stripe {
 		// Consider old plan as same as new, if empty.
 		$old_plan = empty( $old_plan ) ? $new_plan : $old_plan;
 
-		// Last email sent.
-		$last_extended = (int) get_blog_option( self::$blog_id, 'psts_stripe_last_email_receipt' );
-
-		// Last extended + 5 minutes.
-		$last_extended = empty( $last_extended ) ? time() : $last_extended + 300;
-
 		// If new subscription, extend it.
 		if ( $old_plan !== $new_plan || $payment ) {
 			// Extend the site.
@@ -2274,13 +2268,6 @@ class ProSites_Gateway_Stripe {
 
 			// Flag extension.
 			$extended = true;
-		}
-
-		// We need to send receipt, if not sent already.
-		if ( $payment && time() > $last_extended ) {
-			$psts->email_notification( self::$blog_id, 'receipt', false, $args );
-			// Track email receipt sent.
-			update_blog_option( self::$blog_id, 'psts_stripe_last_email_receipt', time() );
 		}
 
 		return $extended;
