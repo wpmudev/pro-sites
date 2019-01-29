@@ -1963,13 +1963,11 @@ class ProSites {
 	}
 
 	function is_blog_recurring( $blog_id ) {
-		global $wpdb;
+		$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
 
-		return $wpdb->get_var( $wpdb->prepare( "
-			SELECT is_recurring
-			FROM {$wpdb->base_prefix}pro_sites
-			WHERE blog_ID = %d", $blog_id
-		) );
+		$is_recurring = isset( $site_data->is_recurring ) ? (bool) $site_data->is_recurring : false;
+
+		return $is_recurring;
 	}
 
 	/*
@@ -2037,25 +2035,19 @@ class ProSites {
 		//check cache
 		if ( isset( $this->level ) && isset( $this->level[ $blog_id ] ) ) {
 			return $this->level[ $blog_id ];
-		} else if ( false !== ( $level = ProSites_Helper_Cache::get_cache( 'level_' . $blog_id, 'psts' ) ) ) //try local cache (could be 0)
-		{
-			return $level;
 		}
 
 		if ( ProSites_Helper_ProSite::is_free_site( $blog_id ) ) {
 			return 0;
 		}
 
-		$sql = $wpdb->prepare( "SELECT level FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id );
+		$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
 
-		$level = $wpdb->get_var( $sql );
-		if ( $level ) {
-			$this->level[ $blog_id ] = $level; //update local cache
-			ProSites_Helper_Cache::set_cache( 'level_' . $blog_id, $level, 'psts' ); //update object cache
-			return $level;
+		if ( isset( $site_data->level ) ) {
+			$this->level[ $blog_id ] = $site_data->level; //update local cache
+			return $site_data->level;
 		} else {
 			unset( $this->level[ $blog_id ] ); //clear local cache
-			wp_cache_delete( 'level_' . $blog_id, 'psts' ); //clear object cache
 			return 0;
 		}
 	}
@@ -2067,9 +2059,10 @@ class ProSites {
 			$blog_id = $wpdb->blogid;
 		}
 
-		$expire = $wpdb->get_var( $wpdb->prepare( "SELECT expire FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
-		if ( $expire ) {
-			return $expire;
+		$site_data = ProSites_Helper_ProSite::get_site( $blog_id );
+
+		if ( isset( $site_data->expire ) ) {
+			return $site_data->expire;
 		} else {
 			return false;
 		}

@@ -4,7 +4,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 
 	class ProSites_Helper_ProSite {
 
-		public static $last_site = false;
+		public static $sites = array();
 
 		/**
 		 * Get details of a site from db.
@@ -17,31 +17,50 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		public static function get_site( $blog_id, $force = false ) {
 			global $wpdb;
 
-			// Get from DB only if forced.
-			if ( $force || empty( self::$last_site ) ) {
-				self::$last_site = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+			// If not forced, try to get from local cache.
+			if ( ! $force && isset( self::$sites[ $blog_id ] ) ) {
+				return self::$sites[ $blog_id ];
 			}
 
-			return self::$last_site;
+			// Get from DB.
+			$site = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+
+			// If a result found.
+			if ( ! empty( $site ) ) {
+				// Set to local cache.
+				self::$sites[ $blog_id ] = $site;
+
+				return $site;
+			}
+
+			return false;
 		}
 
+		/**
+		 * Get gateway of a site.
+		 *
+		 * @param int $blog_id Blog ID.
+		 *
+		 * @return bool|mixed|string
+		 */
 		public static function last_gateway( $blog_id ) {
+			// Get site.
+			$site = self::get_site( $blog_id );
 
-			// Try to avoid another load
-			if ( ! empty( self::$last_site ) && self::$last_site->blog_ID = $blog_id ) {
-				$site = self::$last_site;
-			} else {
-				$site = self::get_site( $blog_id );
-			}
-
-			if ( ! empty( $site ) ) {
+			if ( ! empty( $site->gateway ) ) {
 				return ProSites_Helper_Gateway::convert_legacy( $site->gateway );
 			} else {
 				return false;
 			}
-
 		}
 
+		/**
+		 * Get blog id using activation key.
+		 *
+		 * @param string $activation_key Activation key.
+		 *
+		 * @return int|null
+		 */
 		public static function get_blog_id( $activation_key ) {
 			global $wpdb;
 			$blog_id = 0;
@@ -58,6 +77,13 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			return $blog_id;
 		}
 
+		/**
+		 * Get activation key using blog id.
+		 *
+		 * @param int $blog_id Blog ID.
+		 *
+		 * @return null|string
+		 */
 		public static function get_activation_key( $blog_id ) {
 			global $wpdb;
 			$bloginfo = get_blog_details( $blog_id );
@@ -65,6 +91,9 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			return $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM $wpdb->signups WHERE domain = %s AND path = %s", $bloginfo->domain, $bloginfo->path ) );
 		}
 
+		/**
+		 * Redirect signup page to PS page.
+		 */
 		public static function redirect_signup_page() {
 			global $pagenow, $psts;
 			$show_signup = $psts->get_setting( 'show_signup' );
@@ -90,6 +119,13 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 		}
 
+		/**
+		 * Get all details of a blog.
+		 *
+		 * @param int $blog_id Blog ID.
+		 *
+		 * @return mixed|void
+		 */
 		public static function get_blog_info( $blog_id ) {
 			global $wpdb, $psts;
 
@@ -170,8 +206,8 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		/**
 		 * Sets meta for a ProSite
 		 *
-		 * @param array $meta
-		 * @param int   $blog_id
+		 * @param int   $blog_id Blog ID.
+		 * @param array $meta    Meta array.
 		 *
 		 * @return bool
 		 */
@@ -198,27 +234,25 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		/**
 		 * Fetches meta for a ProSite
 		 *
-		 * @param int $blog_id
+		 * @param int $blog_id Blog ID.
 		 *
 		 * @return bool|mixed|string
 		 */
 		public static function get_prosite_meta( $blog_id = 0 ) {
-			if ( empty( $blog_id ) ) {
-				return false;
+			$site = self::get_site( $blog_id );
+
+			if ( ! empty( $site->meta ) ) {
+				return maybe_unserialize( $site->meta );
 			}
 
-			global $wpdb;
-			$meta   = false;
-			$result = $wpdb->get_row( $wpdb->prepare( "SELECT meta FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id ) );
-			if ( ! empty( $result ) ) {
-				$meta = maybe_unserialize( $result->meta );
-			}
-
-			return $meta;
+			return false;
 		}
 
+		/**
+		 * Start session using session_start.
+		 */
 		public static function start_session() {
-			//Start Session if not there already, required for sign up.
+			// Start Session if not there already, required for sign up.
 			if ( ! session_id() ) {
 				session_start();
 			}
@@ -230,7 +264,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 *  Fixes potential issue with Domain Mapping plugin.
 		 */
 		public static function admin_ajax_url() {
-			$path   = "admin-ajax.php";
+			$path   = 'admin-ajax.php';
 			$scheme = ( is_ssl() || force_ssl_admin() ? 'https' : 'http' );
 
 			if ( class_exists( 'domain_map' ) ) {
@@ -240,14 +274,12 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			} else {
 				return admin_url( $path, $scheme );
 			}
-
 		}
 
 		/**
 		 * Update pricing level order, Updates Pro site settings
 		 *
-		 * @param $levels
-		 *
+		 * @param array $levels Updating level order.
 		 */
 		public static function update_level_order( $levels ) {
 			$data         = array();
@@ -259,8 +291,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 				$pricing_levels_order[] = $level_code;
 			}
 
-			//Get and update psts settings
-			// get settings
+			// Get and update psts settings.
 			$old_settings                         = get_site_option( 'psts_settings' );
 			$data['psts']['pricing_levels_order'] = implode( ',', $pricing_levels_order );
 			$settings                             = array_merge( $old_settings, apply_filters( 'psts_settings_filter', $data['psts'], 'pricing_table' ) );
@@ -268,32 +299,35 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		}
 
 		/**
-		 * Check if blog creation is allowed
+		 * Check if blog creation is allowed.
+		 *
 		 * @return bool
 		 */
 		public static function allow_new_blog() {
 			global $psts;
+
 			$allow_multiple_blog = $psts->get_setting( 'multiple_signup', false );
-			//If Multiple blogs are allowed, let them create
+
+			// If Multiple blogs are allowed, let them create.
 			if ( $allow_multiple_blog ) {
 				return true;
 			}
 
-			//If not loggedin, ofcourse you can create a new blog
+			// If not loggedin, ofcourse you can create a new blog.
 			if ( ! is_user_logged_in() ) {
 				return true;
 			}
+
 			$user_id = get_current_user_id();
 
 			/**
-			 * Role to check for while fetching a ist of blogs for the user
+			 * Role to check for while fetching a ist of blogs for the user.
 			 *
-			 * @param string $role Role of the user
-			 *
+			 * @param string $role Role of the user.
 			 */
 			$role  = apply_filters( 'psts_user_role', 'administrator' );
 			$blogs = self::get_user_blogs_by_role( $user_id, $role );
-			if ( count( $blogs ) == 0 ) {
+			if ( count( $blogs ) === 0 ) {
 				return true;
 			}
 
@@ -301,25 +335,24 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		}
 
 		/**
-		 * Get blogs for the user, with administrative role
+		 * Get blogs for the user, with administrative role.
 		 *
 		 * @see http://wordpress.stackexchange.com/questions/72116/how-can-i-display-all-multisite-blogs-where-this-user-is-administrator
 		 *
-		 * @param int    $user_id
-		 * @param string $role
+		 * @param int    $user_id User ID.
+		 * @param string $role    User role.
 		 *
 		 * @return array
 		 */
 		public static function get_user_blogs_by_role( $user_id, $role ) {
-
-			//If $role is not set to administrator, return the default blog count
-			if ( empty( $role ) || is_array( $role ) || 'administrator' != $role ) {
+			// If $role is not set to administrator, return the default blog count.
+			if ( empty( $role ) || is_array( $role ) || 'administrator' !== $role ) {
 				$count = get_blogs_of_user( $user_id, false );
 
 				return $count;
 			}
 
-			//Get the list of blog for which given user is administrator
+			// Get the list of blog for which given user is administrator.
 			$out   = array();
 			$regex = '~' . $GLOBALS['wpdb']->base_prefix . '(\d+)_capabilities~';
 			$meta  = get_user_meta( $user_id );
@@ -332,8 +365,8 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 				if ( preg_match( $regex, $key, $matches ) ) {
 					$roles = maybe_unserialize( $meta[ $key ][0] );
 
-					// the number is a string
-					if ( isset ( $roles[ $role ] ) and 1 === (int) $roles[ $role ] ) {
+					// The number is a string.
+					if ( isset( $roles[ $role ] ) && 1 === (int) $roles[ $role ] ) {
 						$out[] = $matches[1];
 					}
 				}
@@ -395,26 +428,27 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		}
 
 		/**
-		 * Fetch the Gateway Name for the given blog id
+		 * Fetch the Gateway Name for the given blog id.
 		 *
-		 * @param $blog_id
+		 * @param int $blog_id Blog ID.
 		 *
 		 * @return string
 		 */
 		public static function get_site_gateway( $blog_id ) {
-			global $wpdb;
-			$sql     = $wpdb->prepare( "SELECT `gateway` FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %s", $blog_id );
-			$result  = $wpdb->get_row( $sql );
-			$gateway = ! empty( $result->gateway ) ? strtolower( $result->gateway ) : '';
+			// Get site.
+			$site = self::get_site( $blog_id );
 
-			return $gateway;
+			if ( ! empty( $site->gateway ) ) {
+				return strtolower( $site->gateway );
+			} else {
+				return '';
+			}
 		}
 
 		/**
-		 * Returns the default period
+		 * Returns the default period.
 		 *
-		 * @return int Default active period
-		 *
+		 * @return int Default active period.
 		 */
 		public static function default_period() {
 			global $psts;
@@ -470,7 +504,6 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 		 * @return bool
 		 */
 		public static function is_free_site( $blog_id = false ) {
-
 			global $wpdb;
 
 			// Try to get current blog id is user is logged in.
@@ -487,9 +520,9 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			}
 
 			// Check if an entry exist in Pro Sites table for current blog id.
-			$is_pro_site = $wpdb->get_var( $wpdb->prepare( "SELECT blog_ID FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = %d", $blog_id ) );
+			$site = self::get_site( $blog_id );
 
-			return empty( $is_pro_site );
+			return empty( $site );
 		}
 	}
 }
