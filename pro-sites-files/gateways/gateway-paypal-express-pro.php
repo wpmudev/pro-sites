@@ -1602,12 +1602,12 @@ class ProSites_Gateway_PayPalExpressPro {
 			$level  = $data['level'];
 			$period = $data['period'];
 
-			ProSites_Helper_Session::session( 'upgrade_blog_details', array() );
-			ProSites_Helper_Session::session( array( 'upgrade_blog_details', 'blog_id' ), $blog_id );
-			ProSites_Helper_Session::session( array( 'upgrade_blog_details', 'level' ), $level );
-			ProSites_Helper_Session::session( array( 'upgrade_blog_details', 'period' ), $period );
+			ProSites_Helper_Session::session( 'upgraded_blog_details', array() );
+			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'blog_id' ), $blog_id );
+			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'level' ), $level );
+			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'period' ), $period );
 			ProSites_Helper_Session::session( array(
-				'upgrade_blog_details',
+				'upgraded_blog_details',
 				'payment_success'
 			), true );
 		}
