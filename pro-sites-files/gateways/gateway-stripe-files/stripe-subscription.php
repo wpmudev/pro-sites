@@ -277,13 +277,14 @@ class ProSites_Stripe_Subscription {
 	 * @param string      $customer_id Customer ID.
 	 * @param string|bool $plan_id     Plan ID or false if plan id is in arguments.
 	 * @param array       $args        Arguments for subscription.
+	 * @param string      $desc        Description for log.
 	 * @param string|bool $card        Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|Stripe\Subscription
 	 */
-	public function set_blog_subscription( $blog_id, $customer_id, $plan_id = false, $args = array(), $card = false ) {
+	public function set_blog_subscription( $blog_id, $customer_id, $plan_id = false, $args = array(), $desc = '', $card = false ) {
 		global $psts;
 
 		// Get the subscription id for the email/blog id.
@@ -316,6 +317,14 @@ class ProSites_Stripe_Subscription {
 
 			// Now let's create new subscription.
 			$subscription = $this->create_subscription( $customer_id, $plan_id, $args );
+
+			// New subscription created.
+			if ( ! empty( $subscription->id ) ) {
+				$psts->log_action(
+					$blog_id,
+					sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer_id )
+				);
+			}
 		} else {
 			// Reactivate if a subscription was set to cancel at the end.
 			if ( ! empty( $subscription->cancel_at_period_end ) ) {

@@ -1437,6 +1437,8 @@ class ProSites_Gateway_Stripe {
 	private static function process_payment( $process_data, $customer, $plan_id, $card = false ) {
 		global $psts;
 
+		$message = '';
+
 		// Get the level + period amount.
 		$amount = $total = $psts->get_level_setting( self::$level, 'price_' . self::$period );
 
@@ -1463,7 +1465,7 @@ class ProSites_Gateway_Stripe {
 
 		if ( $recurring ) {
 			// Process recurring payment.
-			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $amount, $card );
+			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $amount, $desc, $card );
 		} else {
 			// Process one time payment.
 			$processed = self::process_single( $process_data, $customer, $tax_object, $amount, $total, $desc, $card );
@@ -1493,9 +1495,7 @@ class ProSites_Gateway_Stripe {
 		// Log user subscription details.
 		if ( ( ! self::$existing || $psts->is_blog_canceled( self::$blog_id ) ) && ! empty( $customer->id ) ) {
 			// Added for affiliate system link.
-			if ( $recurring ) {
-				$message = sprintf( __( 'User creating new subscription via CC: Subscription created (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id );
-			} else {
+			if ( ! $recurring ) {
 				$message = sprintf( __( 'User completed new payment via CC: Site created/extended (%1$s) - Customer ID: %2$s', 'psts' ), $desc, $customer->id );
 			}
 		} else {
@@ -1503,7 +1503,9 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Log message.
-		$psts->log_action( self::$blog_id, $message, self::$domain );
+		if ( ! empty( $message ) ) {
+			$psts->log_action( self::$blog_id, $message, self::$domain );
+		}
 
 		// Display GA ecommerce in footer.
 		$psts->create_ga_ecommerce( self::$blog_id, self::$period, $total, self::$level, '', self::$domain );
@@ -1548,13 +1550,14 @@ class ProSites_Gateway_Stripe {
 	 * @param object           $tax_object Tax object.
 	 * @param \Stripe\Coupon   $coupon     Stripe coupon object.
 	 * @param float            $amount     Plan amount.
+	 * @param string           $desc       Description for log.
 	 * @param string|bool      $card       Card id for the payment (if empty default card will be used).
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool True if payment was success.
 	 */
-	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $amount, $card = false ) {
+	private static function process_recurring( $data, $plan_id, $customer, $tax_object, $coupon, $amount, $desc, $card = false ) {
 		global $psts;
 
 		// If customer created, now let's create a subscription.
@@ -1599,7 +1602,8 @@ class ProSites_Gateway_Stripe {
 				$customer->id,
 				$plan_id,
 				$sub_args,
-				$card
+				$card,
+				$desc
 			);
 
 			// Now activate the blog.

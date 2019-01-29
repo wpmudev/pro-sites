@@ -270,9 +270,9 @@ class ProSites_Stripe_Plan {
 				$plans = Stripe\Plan::all( array(
 					'limit' => $limit,
 				) );
-				if ( ! empty( $plans->data ) ) {
-					$plans = $plans->data;
-				}
+
+				// Plans data.
+				$plans = isset( $plans->data ) ? $plans->data : array();
 			} catch ( \Exception $e ) {
 				// Oh well.
 			}
