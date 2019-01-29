@@ -1378,17 +1378,18 @@ class ProSites {
 		// Do not query if blog does not exist.
 		$blog_data = get_blog_details( (int) $blog_id );
 		if ( empty( $blog_data ) ) {
-			return;
-		}
-
-		//check if blog has been canceled in the stat log (other gateways, manual cancel, etc)
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(action_ID) FROM {$wpdb->prefix}pro_sites_signup_stats WHERE blog_ID = %d AND action = 'cancel'", $blog_id ) );
-
-		if ( $count > 0 ) {
-			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
-
 			return true;
 		}
+
+		// Do not check for signup stats, as we can reactivate the blog later.
+		//check if blog has been canceled in the stat log (other gateways, manual cancel, etc)
+		//$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(action_ID) FROM {$wpdb->prefix}pro_sites_signup_stats WHERE blog_ID = %d AND action = 'cancel'", $blog_id ) );
+
+		//if ( $count > 0 ) {
+		//	update_blog_option( $blog_id, 'psts_is_canceled', 1 );
+
+		//	return true;
+		//}
 
 		return false;
 	}
