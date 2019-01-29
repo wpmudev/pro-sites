@@ -191,7 +191,7 @@ class ProSites_Stripe_Plan {
 				$plan = $plan->save();
 
 				// Delete cached plans.
-				wp_cache_delete( 'stripe_plans_cached', 'psts' );
+				wp_cache_delete( 'psts_stripe_plans', 'psts' );
 			} catch ( \Exception $e ) {
 				// Log error message.
 				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
@@ -228,7 +228,7 @@ class ProSites_Stripe_Plan {
 			if ( ! empty( $plan ) ) {
 				$deleted = $plan->delete();
 				// Delete cached plans.
-				wp_cache_delete( 'stripe_plans_cached', 'psts' );
+				wp_cache_delete( 'psts_stripe_plans', 'psts' );
 			}
 		} catch ( \Exception $e ) {
 			// Log error message.
@@ -271,7 +271,7 @@ class ProSites_Stripe_Plan {
 
 		// If not forced, try to get from cache.
 		if ( ! $force ) {
-			$plans = wp_cache_get( 'stripe_plans_cached', 'psts' );
+			$plans = wp_cache_get( 'psts_stripe_plans', 'psts' );
 		}
 
 		// If nothing in cache, get from Stripe.
@@ -294,7 +294,7 @@ class ProSites_Stripe_Plan {
 
 			// Add to cache.
 			if ( ! empty( $plans ) ) {
-				wp_cache_set( 'stripe_plans_cached', $plans, 'psts' );
+				wp_cache_set( 'psts_stripe_plans', $plans, 'psts' );
 			}
 		}
 
@@ -318,7 +318,7 @@ class ProSites_Stripe_Plan {
 		$product = false;
 		// If not forced, try to get from cache.
 		if ( ! $force ) {
-			$product = wp_cache_get( 'stripe_product_cached_' . $product_id, 'psts' );
+			$product = wp_cache_get( 'stripe_product_' . $product_id, 'psts' );
 		}
 
 		// If not forced, or nothing in cache, get from Stripe API.
@@ -336,7 +336,7 @@ class ProSites_Stripe_Plan {
 
 			// Set to cache.
 			if ( ! empty( $product ) ) {
-				wp_cache_set( 'stripe_product_cached_' . $product_id, $product, 'psts' );
+				wp_cache_set( 'stripe_product_' . $product_id, $product, 'psts' );
 			}
 		}
 
@@ -364,7 +364,7 @@ class ProSites_Stripe_Plan {
 				$product       = $product->save();
 
 				// Update the cached product.
-				wp_cache_set( 'stripe_product_cached_' . $product_id, $product, 'psts' );
+				wp_cache_set( 'stripe_product_' . $product_id, $product, 'psts' );
 			} catch ( \Exception $e ) {
 				// Log error message.
 				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
@@ -405,7 +405,7 @@ class ProSites_Stripe_Plan {
 			}
 
 			// Clear the cache.
-			wp_cache_delete( 'stripe_product_cached_' . $product_id, 'psts' );
+			wp_cache_delete( 'stripe_product_' . $product_id, 'psts' );
 		}
 	}
 
@@ -458,7 +458,7 @@ class ProSites_Stripe_Plan {
 		}
 
 		// We need to clear the cache.
-		wp_cache_delete( 'stripe_plans_cached', 'psts' );
+		wp_cache_delete( 'psts_stripe_plans', 'psts' );
 	}
 
 	/**
@@ -491,7 +491,7 @@ class ProSites_Stripe_Plan {
 		}
 
 		// We need to clear the cache.
-		wp_cache_delete( 'stripe_plans_cached', 'psts' );
+		wp_cache_delete( 'psts_stripe_plans', 'psts' );
 	}
 
 	/**
