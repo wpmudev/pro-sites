@@ -71,6 +71,9 @@ class ProSites_Stripe_Plan {
 					return $plan;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}
@@ -139,6 +142,9 @@ class ProSites_Stripe_Plan {
 			// Call the API and create the plan.
 			$plan = Stripe\Plan::create( $plan );
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			$plan = false;
 		}
 
@@ -187,6 +193,9 @@ class ProSites_Stripe_Plan {
 				// Delete cached plans.
 				wp_cache_delete( 'stripe_plans_cached', 'psts' );
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				$plan = false;
 			}
@@ -222,6 +231,9 @@ class ProSites_Stripe_Plan {
 				wp_cache_delete( 'stripe_plans_cached', 'psts' );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			// Oh well.
 			$deleted = false;
 		}
@@ -274,6 +286,9 @@ class ProSites_Stripe_Plan {
 				// Plans data.
 				$plans = isset( $plans->data ) ? $plans->data : array();
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 			}
 
@@ -312,6 +327,9 @@ class ProSites_Stripe_Plan {
 			try {
 				$product = Stripe\Product::retrieve( $product_id );
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				$product = false;
 			}
@@ -348,6 +366,9 @@ class ProSites_Stripe_Plan {
 				// Update the cached product.
 				wp_cache_set( 'stripe_product_cached_' . $product_id, $product, 'psts' );
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				$product = false;
 			}
@@ -379,6 +400,8 @@ class ProSites_Stripe_Plan {
 				$product->delete();
 			} catch ( \Exception $e ) {
 				// Oh well.
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
 			}
 
 			// Clear the cache.
@@ -641,6 +664,9 @@ class ProSites_Stripe_Plan {
 
 				return $coupon;
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}
@@ -673,6 +699,9 @@ class ProSites_Stripe_Plan {
 				wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			// Oh well.
 			$coupon = false;
 		}
@@ -706,6 +735,9 @@ class ProSites_Stripe_Plan {
 					return true;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}

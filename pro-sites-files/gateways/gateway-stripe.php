@@ -1195,20 +1195,20 @@ class ProSites_Gateway_Stripe {
 
 		if ( ! empty( $bid ) ) {
 			// Get customer data from DB.
-			$customer_data = ProSites_Gateway_Stripe::$stripe_customer->get_db_customer( $bid );
+			$customer_data = self::$stripe_customer->get_db_customer( $bid );
 			// Get Stripe customer object.
 			if ( ! empty( $customer_data->customer_id ) ) {
-				$customer = ProSites_Gateway_Stripe::$stripe_customer->get_customer( $customer_data->customer_id );
+				$customer = self::$stripe_customer->get_customer( $customer_data->customer_id );
 			}
 
 			// Get subscription's default card.
 			if ( isset( $customer_data->subscription_id ) ) {
-				$card = ProSites_Gateway_Stripe::$stripe_subscription->default_card( $customer_data->subscription_id );
+				$card = self::$stripe_subscription->default_card( $customer_data->subscription_id );
 			}
 
 			// If default card is not found, get customer's default card.
 			if ( ! empty( $customer ) && empty( $card ) ) {
-				$card = ProSites_Gateway_Stripe::$stripe_customer->default_card( $customer->id );
+				$card = self::$stripe_customer->default_card( $customer->id );
 			}
 
 		}
@@ -1614,7 +1614,7 @@ class ProSites_Gateway_Stripe {
 			if ( ! empty( self::$blog_id ) ) {
 				// Make sure we set subscription data in DB.
 				if ( $update_db && ! empty( $subscription->id ) && ! empty( $customer->id ) ) {
-					ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
+					self::$stripe_customer->set_db_customer(
 						self::$blog_id,
 						$customer->id,
 						$subscription->id
@@ -1752,7 +1752,7 @@ class ProSites_Gateway_Stripe {
 
 			// Make sure we set customer data in DB.
 			if ( ! empty( self::$blog_id ) && ! empty( $result->id ) && ! empty( $customer->id ) ) {
-				ProSites_Gateway_Stripe::$stripe_customer->set_db_customer(
+				self::$stripe_customer->set_db_customer(
 					self::$blog_id,
 					$customer->id
 				);
@@ -1953,6 +1953,7 @@ class ProSites_Gateway_Stripe {
 						$object->billing_country_code = ProSites_Helper_Transaction::country_code_from_data( $tax_evidence, $object );
 					} catch ( \Exception $e ) {
 						// Ah well.
+						self::error_log( $e->getMessage() );
 					}
 				}
 
@@ -2809,6 +2810,25 @@ class ProSites_Gateway_Stripe {
 		$valid_events = apply_filters( 'psts_valid_stripe_events', $valid_events );
 
 		return in_array( $event, $valid_events, true );
+	}
+
+	/**
+	 * Log Stripe errors to error log.
+	 *
+	 * @param string $message Error text.
+	 *
+	 * @since 3.6.1
+	 * @uses  error_log()
+	 *
+	 * @return void
+	 */
+	public static function error_log( $message ) {
+		global $psts;
+
+		// Log only if enabled.
+		if ( $psts->get_setting( 'stripe_debug' ) && ! empty( $message ) ) {
+			error_log( $message );
+		}
 	}
 }
 

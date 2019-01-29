@@ -51,6 +51,9 @@ class ProSites_Stripe_Customer {
 					return $customer;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}
@@ -102,6 +105,9 @@ class ProSites_Stripe_Customer {
 					$customers = $customers_list->data;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				$customers = array();
 			}
@@ -218,6 +224,9 @@ class ProSites_Stripe_Customer {
 				wp_cache_set( 'pro_sites_stripe_customer_' . $id, $customer, 'psts' );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			// Oh well. Failure.
 			$customer = false;
 		}
@@ -252,6 +261,9 @@ class ProSites_Stripe_Customer {
 				wp_cache_delete( 'pro_sites_stripe_customer_' . $id, 'psts' );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			// Oh well. Failure.
 			$customer = false;
 		}
@@ -296,6 +308,9 @@ class ProSites_Stripe_Customer {
 					wp_cache_set( 'pro_sites_stripe_default_card_' . $customer_id, $card, 'psts' );
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Well. Failed.
 				$card = false;
 			}
@@ -343,6 +358,9 @@ class ProSites_Stripe_Customer {
 					wp_cache_set( 'pro_sites_stripe_get_card_' . $card_id, $card, 'psts' );
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Well. Failed.
 				$card = false;
 			}
@@ -389,6 +407,9 @@ class ProSites_Stripe_Customer {
 					wp_cache_set( 'pro_sites_stripe_last_invoice_' . $customer_id, $invoice, 'psts' );
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Well. Failed.
 				$invoice = false;
 			}
@@ -433,6 +454,9 @@ class ProSites_Stripe_Customer {
 					wp_cache_set( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, $invoice, 'psts' );
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Well. Failed.
 				$invoice = false;
 			}

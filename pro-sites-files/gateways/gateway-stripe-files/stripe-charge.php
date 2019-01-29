@@ -47,6 +47,9 @@ class ProSites_Stripe_Charge {
 					return $charge;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}
@@ -89,6 +92,9 @@ class ProSites_Stripe_Charge {
 					return $invoice;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}
@@ -136,6 +142,9 @@ class ProSites_Stripe_Charge {
 				$charge = \Stripe\InvoiceItem::create( $args );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			$charge = false;
 		}
 
@@ -175,6 +184,9 @@ class ProSites_Stripe_Charge {
 				wp_cache_set( 'pro_sites_stripe_charge_' . $id, $charge, 'psts' );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			// Oh well. Failure.
 			$charge = false;
 		}
@@ -209,6 +221,8 @@ class ProSites_Stripe_Charge {
 			);
 		} catch ( \Exception $e ) {
 			// Oh well.
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
 		}
 	}
 
@@ -289,6 +303,9 @@ class ProSites_Stripe_Charge {
 				$invoice->pay();
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			$invoice = false;
 		}
 
@@ -321,6 +338,9 @@ class ProSites_Stripe_Charge {
 				'source' => $token,
 			) );
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			$card = false;
 		}
 

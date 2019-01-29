@@ -49,6 +49,9 @@ class ProSites_Stripe_Subscription {
 					return $subscription;
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Oh well.
 				return false;
 			}
@@ -106,6 +109,9 @@ class ProSites_Stripe_Subscription {
 				$subscription = false;
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			$subscription = false;
 		}
 
@@ -143,6 +149,9 @@ class ProSites_Stripe_Subscription {
 				wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
 			}
 		} catch ( \Exception $e ) {
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 			// Oh well. Failure.
 			$subscription = false;
 		}
@@ -185,6 +194,10 @@ class ProSites_Stripe_Subscription {
 		} catch ( \Exception $e ) {
 			// Get the error message.
 			$error = $e->getMessage();
+
+			// Log error message.
+			ProSites_Gateway_Stripe::error_log( $error );
+
 			// Oh well. Failure.
 			$cancelled = false;
 		}
@@ -762,6 +775,9 @@ class ProSites_Stripe_Subscription {
 					}
 				}
 			} catch ( \Exception $e ) {
+				// Log error message.
+				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
 				// Well. Failed.
 				$card = false;
 			}
