@@ -29,7 +29,7 @@ class ProSites_Stripe_Subscription {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$subscription = wp_cache_get( 'pro_sites_stripe_subscription_' . $id, 'psts' );
+			$subscription = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_subscription_' . $id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $subscription ) ) {
 				return $subscription;
@@ -44,7 +44,7 @@ class ProSites_Stripe_Subscription {
 				// If a plan found, return.
 				if ( ! empty( $subscription ) ) {
 					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
 
 					return $subscription;
 				}
@@ -104,7 +104,7 @@ class ProSites_Stripe_Subscription {
 				// Let's create a subscription now.
 				$subscription = \Stripe\Subscription::create( $sub_args );
 				// Set to cache so we can reuse it.
-				wp_cache_set( 'pro_sites_stripe_subscription_' . $subscription->id, $subscription, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_subscription_' . $subscription->id, $subscription, 'psts' );
 			} else {
 				$subscription = false;
 			}
@@ -146,7 +146,7 @@ class ProSites_Stripe_Subscription {
 				$subscription = $subscription->save();
 
 				// Update cached subscription.
-				wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
 			}
 		} catch ( \Exception $e ) {
 			// Log error message.
@@ -187,7 +187,7 @@ class ProSites_Stripe_Subscription {
 					// Oh we need to wait. Let's cancel on expiry.
 					$subscription->cancel_at_period_end = true;
 					$subscription                       = $subscription->save();
-					wp_cache_set( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_subscription_' . $id, $subscription, 'psts' );
 				}
 				$cancelled = true;
 			}
@@ -701,7 +701,7 @@ class ProSites_Stripe_Subscription {
 		// If we can get from cache if not forced.
 		if ( ! $force ) {
 			// If something is there in cache return that.
-			$blog_id = wp_cache_get( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, 'psts' );
+			$blog_id = ProSites_Helper_Cache::get_cache( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, 'psts' );
 			if ( ! empty( $blog_id ) ) {
 				return $blog_id;
 			}
@@ -724,7 +724,7 @@ class ProSites_Stripe_Subscription {
 			}
 
 			// Set to cache.
-			wp_cache_set( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, $blog_id, 'psts' );
+			ProSites_Helper_Cache::set_cache( 'pro_sites_blog_id_by_subscription_ ' . $sub_id, $blog_id, 'psts' );
 		}
 
 		return $blog_id;
@@ -748,7 +748,7 @@ class ProSites_Stripe_Subscription {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$card = wp_cache_get( 'pro_sites_stripe_sub_default_card_' . $sub_id, 'psts' );
+			$card = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_sub_default_card_' . $sub_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $card ) ) {
 				return $card;
@@ -771,7 +771,7 @@ class ProSites_Stripe_Subscription {
 
 					// Set to cache.
 					if ( ! empty( $card ) ) {
-						wp_cache_set( 'pro_sites_stripe_sub_default_card_' . $sub_id, $card, 'psts' );
+						ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_sub_default_card_' . $sub_id, $card, 'psts' );
 					}
 				}
 			} catch ( \Exception $e ) {

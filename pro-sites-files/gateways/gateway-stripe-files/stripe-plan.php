@@ -271,7 +271,7 @@ class ProSites_Stripe_Plan {
 
 		// If not forced, try to get from cache.
 		if ( ! $force ) {
-			$plans = wp_cache_get( 'psts_stripe_plans', 'psts' );
+			$plans = ProSites_Helper_Cache::get_cache( 'psts_stripe_plans', 'psts' );
 		}
 
 		// If nothing in cache, get from Stripe.
@@ -294,7 +294,7 @@ class ProSites_Stripe_Plan {
 
 			// Add to cache.
 			if ( ! empty( $plans ) ) {
-				wp_cache_set( 'psts_stripe_plans', $plans, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'psts_stripe_plans', $plans, 'psts' );
 			}
 		}
 
@@ -318,7 +318,7 @@ class ProSites_Stripe_Plan {
 		$product = false;
 		// If not forced, try to get from cache.
 		if ( ! $force ) {
-			$product = wp_cache_get( 'stripe_product_' . $product_id, 'psts' );
+			$product = ProSites_Helper_Cache::get_cache( 'stripe_product_' . $product_id, 'psts' );
 		}
 
 		// If not forced, or nothing in cache, get from Stripe API.
@@ -336,7 +336,7 @@ class ProSites_Stripe_Plan {
 
 			// Set to cache.
 			if ( ! empty( $product ) ) {
-				wp_cache_set( 'stripe_product_' . $product_id, $product, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'stripe_product_' . $product_id, $product, 'psts' );
 			}
 		}
 
@@ -364,7 +364,7 @@ class ProSites_Stripe_Plan {
 				$product       = $product->save();
 
 				// Update the cached product.
-				wp_cache_set( 'stripe_product_' . $product_id, $product, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'stripe_product_' . $product_id, $product, 'psts' );
 			} catch ( \Exception $e ) {
 				// Log error message.
 				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
@@ -648,7 +648,7 @@ class ProSites_Stripe_Plan {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$coupon = wp_cache_get( 'pro_sites_stripe_coupon_' . $id, 'psts' );
+			$coupon = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_coupon_' . $id, 'psts' );
 			if ( ! empty( $coupon ) ) {
 				return $coupon;
 			}
@@ -659,7 +659,7 @@ class ProSites_Stripe_Plan {
 				// If a coupon found, return.
 				if ( ! empty( $coupon ) ) {
 					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
 				}
 
 				return $coupon;
@@ -696,7 +696,7 @@ class ProSites_Stripe_Plan {
 			$coupon = Stripe\Coupon::create( $args );
 			// Set to cache so we can reuse it.
 			if ( ! empty( $coupon ) ) {
-				wp_cache_set( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_coupon_' . $id, $coupon, 'psts' );
 			}
 		} catch ( \Exception $e ) {
 			// Log error message.

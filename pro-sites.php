@@ -1881,7 +1881,7 @@ class ProSites {
 				return true;
 			} else if ( isset( $this->pro_sites[ $blog_id ][ $level ] ) && is_bool( $this->pro_sites[ $blog_id ][ $level ] ) ) { //check local cache
 				return $this->pro_sites[ $blog_id ][ $level ];
-			} else if ( $pro_site = wp_cache_get( 'is_pro_site_' . $blog_id, 'psts' ) ) { //check object cache
+			} else if ( $pro_site = ProSites_Helper_Cache::get_cache( 'is_pro_site_' . $blog_id, 'psts' ) ) { //check object cache
 				if ( isset( $pro_site[ $level ] ) && is_bool( $pro_site[ $level ] ) ) {
 					return $pro_site[ $level ];
 				}
@@ -1893,7 +1893,7 @@ class ProSites {
 						return true;
 					}
 				}
-			} else if ( $pro_site = wp_cache_get( 'is_pro_site_' . $blog_id, 'psts' ) ) { //check object cache
+			} else if ( $pro_site = ProSites_Helper_Cache::get_cache( 'is_pro_site_' . $blog_id, 'psts' ) ) { //check object cache
 				if ( is_array( $pro_site ) ) {
 					foreach ( $pro_site as $key => $value ) {
 						if ( $value ) {
@@ -1917,7 +1917,7 @@ class ProSites {
 							$this->pro_sites[ $blog_id ][ $i ] = true;
 						} //update local cache
 
-						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
+						ProSites_Helper_Cache::set_cache( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return true;
 					} else {
 						$levels = ( array ) get_site_option( 'psts_levels' );
@@ -1925,7 +1925,7 @@ class ProSites {
 							$this->pro_sites[ $blog_id ][ $i ] = false;
 						} //update local cache
 
-						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
+						ProSites_Helper_Cache::set_cache( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return false;
 					}
 				} else { //any level will do
@@ -1934,14 +1934,14 @@ class ProSites {
 							$this->pro_sites[ $blog_id ][ $i ] = true;
 						} //update local cache
 
-						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
+						ProSites_Helper_Cache::set_cache( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return true;
 					} else {
 						for ( $i = 1; $i <= $data->level; $i ++ ) {
 							$this->pro_sites[ $blog_id ][ $i ] = false;
 						} //update local cache
 
-						wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
+						ProSites_Helper_Cache::set_cache( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 						return false;
 					}
 				}
@@ -1954,7 +1954,7 @@ class ProSites {
 						$this->pro_sites[ $blog_id ][ $i ] = false;
 					} //update local cache
 
-					wp_cache_set( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
+					ProSites_Helper_Cache::set_cache( 'is_pro_site_' . $blog_id, $this->pro_sites[ $blog_id ], 'psts' ); //set object cache
 				}
 
 				return false;
@@ -2037,7 +2037,7 @@ class ProSites {
 		//check cache
 		if ( isset( $this->level ) && isset( $this->level[ $blog_id ] ) ) {
 			return $this->level[ $blog_id ];
-		} else if ( false !== ( $level = wp_cache_get( 'level_' . $blog_id, 'psts' ) ) ) //try local cache (could be 0)
+		} else if ( false !== ( $level = ProSites_Helper_Cache::get_cache( 'level_' . $blog_id, 'psts' ) ) ) //try local cache (could be 0)
 		{
 			return $level;
 		}
@@ -2051,7 +2051,7 @@ class ProSites {
 		$level = $wpdb->get_var( $sql );
 		if ( $level ) {
 			$this->level[ $blog_id ] = $level; //update local cache
-			wp_cache_set( 'level_' . $blog_id, $level, 'psts' ); //update object cache
+			ProSites_Helper_Cache::set_cache( 'level_' . $blog_id, $level, 'psts' ); //update object cache
 			return $level;
 		} else {
 			unset( $this->level[ $blog_id ] ); //clear local cache

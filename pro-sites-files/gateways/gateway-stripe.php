@@ -411,6 +411,9 @@ class ProSites_Gateway_Stripe {
 
 		// Delete the blog data from DB.
 		self::$stripe_customer->delete_db_customer( $blog_id );
+
+		// Clear all Pro Sites cache.
+		ProSites_Helper_Cache::refresh_cache();
 	}
 
 	/**
@@ -426,6 +429,9 @@ class ProSites_Gateway_Stripe {
 	public function cancel_blog( $blog_id, $display_message = false ) {
 		// Cancel the blog subscription.
 		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, false, $display_message );
+
+		// Clear all Pro Sites cache.
+		ProSites_Helper_Cache::refresh_cache();
 	}
 
 	/**
@@ -440,6 +446,9 @@ class ProSites_Gateway_Stripe {
 	public function change_gateway( $blog_id ) {
 		// Cancel the blog subscription in Stripe.
 		self::$stripe_subscription->cancel_blog_subscription( $blog_id );
+
+		// Clear all Pro Sites cache.
+		ProSites_Helper_Cache::refresh_cache();
 	}
 
 	/**
@@ -1155,6 +1164,9 @@ class ProSites_Gateway_Stripe {
 	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain ) {
 		global $psts, $current_user;
 
+		// First we need to clear caches.
+		ProSites_Helper_Cache::refresh_cache();
+
 		// If there were any errors in checkout.
 		self::set_errors();
 
@@ -1257,6 +1269,9 @@ class ProSites_Gateway_Stripe {
 	 * @return void|bool
 	 */
 	public static function process_checkout_form( $data = array(), $blog_id, $domain ) {
+		// First we need to clear caches.
+		ProSites_Helper_Cache::refresh_cache();
+
 		global $psts, $current_user;
 
 		// Set new/upgrading blog data to render data array.
@@ -1767,6 +1782,11 @@ class ProSites_Gateway_Stripe {
 					self::$stripe_charge->update_charge( $result->id, array(
 						'metadata' => $meta,
 					) );
+				}
+
+				// If a valid email is found, send receipt.
+				if ( ! empty( self::$email ) ) {
+					$psts->email_notification( self::$blog_id, 'receipt', self::$email );
 				}
 
 				return true;

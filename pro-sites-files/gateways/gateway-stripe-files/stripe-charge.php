@@ -27,7 +27,7 @@ class ProSites_Stripe_Charge {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$charge = wp_cache_get( 'pro_sites_stripe_charge_' . $charge_id, 'psts' );
+			$charge = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_charge_' . $charge_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $charge ) ) {
 				return $charge;
@@ -42,7 +42,7 @@ class ProSites_Stripe_Charge {
 				// If a charge found, return.
 				if ( ! empty( $charge ) ) {
 					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_charge_' . $charge_id, $charge, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_charge_' . $charge_id, $charge, 'psts' );
 
 					return $charge;
 				}
@@ -72,7 +72,7 @@ class ProSites_Stripe_Charge {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$invoice = wp_cache_get( 'pro_sites_stripe_invoice_' . $invoice_id, 'psts' );
+			$invoice = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_invoice_' . $invoice_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $invoice ) ) {
 				return $invoice;
@@ -87,7 +87,7 @@ class ProSites_Stripe_Charge {
 				// If an invoice found, return.
 				if ( ! empty( $invoice ) ) {
 					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_invoice_' . $invoice_id, $invoice, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_invoice_' . $invoice_id, $invoice, 'psts' );
 
 					return $invoice;
 				}
@@ -181,7 +181,7 @@ class ProSites_Stripe_Charge {
 				$charge = $charge->save();
 
 				// Update cached subscription.
-				wp_cache_set( 'pro_sites_stripe_charge_' . $id, $charge, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_charge_' . $id, $charge, 'psts' );
 			}
 		} catch ( \Exception $e ) {
 			// Log error message.

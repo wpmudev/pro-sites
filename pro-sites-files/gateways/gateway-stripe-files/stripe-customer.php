@@ -31,7 +31,7 @@ class ProSites_Stripe_Customer {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$customer = wp_cache_get( 'pro_sites_stripe_customer_' . $id, 'psts' );
+			$customer = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_customer_' . $id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $customer ) ) {
 				return $customer;
@@ -46,7 +46,7 @@ class ProSites_Stripe_Customer {
 				// If a plan found, return.
 				if ( ! empty( $customer ) ) {
 					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_customer_' . $id, $customer, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_customer_' . $id, $customer, 'psts' );
 
 					return $customer;
 				}
@@ -84,7 +84,7 @@ class ProSites_Stripe_Customer {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$customers = wp_cache_get( 'pro_sites_stripe_list_customers_' . $email, 'psts' );
+			$customers = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_list_customers_' . $email, 'psts' );
 		}
 
 		// Get from Stripe API.
@@ -100,7 +100,7 @@ class ProSites_Stripe_Customer {
 				// If customers found, return.
 				if ( ! empty( $customers_list->data ) ) {
 					// Set to cache so we can reuse it.
-					wp_cache_set( 'pro_sites_stripe_list_customers_' . $email, $customers_list->data, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_list_customers_' . $email, $customers_list->data, 'psts' );
 
 					$customers = $customers_list->data;
 				}
@@ -119,7 +119,7 @@ class ProSites_Stripe_Customer {
 			$customers = reset( $customers );
 
 			// Set to cache so we can reuse it.
-			wp_cache_set( 'pro_sites_stripe_customer_' . $customers->id, $customers, 'psts' );
+			ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_customer_' . $customers->id, $customers, 'psts' );
 		}
 
 		return $customers;
@@ -178,7 +178,7 @@ class ProSites_Stripe_Customer {
 			// Let's create a customer now.
 			$customer = Stripe\Customer::create( $args );
 			// Set to cache so we can reuse it.
-			wp_cache_set( 'pro_sites_stripe_customer_' . $customer->id, $customer, 'psts' );
+			ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_customer_' . $customer->id, $customer, 'psts' );
 		} catch ( \Exception $e ) {
 			$customer = false;
 			// Oh well.
@@ -221,7 +221,7 @@ class ProSites_Stripe_Customer {
 				$customer = $customer->save();
 
 				// Update cached customer.
-				wp_cache_set( 'pro_sites_stripe_customer_' . $id, $customer, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_customer_' . $id, $customer, 'psts' );
 			}
 		} catch ( \Exception $e ) {
 			// Log error message.
@@ -287,7 +287,7 @@ class ProSites_Stripe_Customer {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$card = wp_cache_get( 'pro_sites_stripe_default_card_' . $customer_id, 'psts' );
+			$card = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_default_card_' . $customer_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $card ) ) {
 				return $card;
@@ -305,7 +305,7 @@ class ProSites_Stripe_Customer {
 					$card = $customer->sources->retrieve( $customer->default_source );
 
 					// Set to cache.
-					wp_cache_set( 'pro_sites_stripe_default_card_' . $customer_id, $card, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_default_card_' . $customer_id, $card, 'psts' );
 				}
 			} catch ( \Exception $e ) {
 				// Log error message.
@@ -339,7 +339,7 @@ class ProSites_Stripe_Customer {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$card = wp_cache_get( 'pro_sites_stripe_get_card_' . $card_id, 'psts' );
+			$card = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_get_card_' . $card_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $card ) ) {
 				return $card;
@@ -355,7 +355,7 @@ class ProSites_Stripe_Customer {
 				$card = $customer->sources->retrieve( $card_id );
 				if ( ! empty( $card ) ) {
 					// Set to cache.
-					wp_cache_set( 'pro_sites_stripe_get_card_' . $card_id, $card, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_get_card_' . $card_id, $card, 'psts' );
 				}
 			} catch ( \Exception $e ) {
 				// Log error message.
@@ -385,7 +385,7 @@ class ProSites_Stripe_Customer {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$invoice = wp_cache_get( 'pro_sites_stripe_last_invoice_' . $customer_id, 'psts' );
+			$invoice = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_last_invoice_' . $customer_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $invoice ) ) {
 				return $invoice;
@@ -404,7 +404,7 @@ class ProSites_Stripe_Customer {
 				if ( ! empty( $invoices->data ) ) {
 					$invoice = reset( $invoices->data );
 					// Set to cache.
-					wp_cache_set( 'pro_sites_stripe_last_invoice_' . $customer_id, $invoice, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_last_invoice_' . $customer_id, $invoice, 'psts' );
 				}
 			} catch ( \Exception $e ) {
 				// Log error message.
@@ -434,7 +434,7 @@ class ProSites_Stripe_Customer {
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
-			$invoice = wp_cache_get( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, 'psts' );
+			$invoice = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, 'psts' );
 			// If found in cache, return it.
 			if ( ! empty( $invoice ) ) {
 				return $invoice;
@@ -451,7 +451,7 @@ class ProSites_Stripe_Customer {
 
 				if ( ! empty( $invoice ) ) {
 					// Set to cache.
-					wp_cache_set( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, $invoice, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_upcoming_invoice_' . $customer_id, $invoice, 'psts' );
 				}
 			} catch ( \Exception $e ) {
 				// Log error message.
@@ -503,7 +503,7 @@ class ProSites_Stripe_Customer {
 		// If we can get from cache if not forced.
 		if ( ! $force ) {
 			// If something is there in cache return that.
-			$data = wp_cache_get( 'pro_sites_stripe_db_customer_ ' . $cache_key, 'psts' );
+			$data = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_db_customer_ ' . $cache_key, 'psts' );
 			if ( ! empty( $data ) ) {
 				return $data;
 			}
@@ -530,7 +530,7 @@ class ProSites_Stripe_Customer {
 		// Just to make sure we don't break.
 		if ( ! empty( $customer_data ) ) {
 			// Set to cache.
-			wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $cache_key, $customer_data, 'psts' );
+			ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_db_customer_ ' . $cache_key, $customer_data, 'psts' );
 
 			$data = $customer_data;
 		}
@@ -627,7 +627,7 @@ class ProSites_Stripe_Customer {
 				// Return early if data found.
 				if ( ! empty( $data ) ) {
 					// Set to cache.
-					wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $email, 'psts' );
+					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_db_customer_ ' . $email, 'psts' );
 
 					return $data;
 				}
@@ -657,7 +657,7 @@ class ProSites_Stripe_Customer {
 			// If we can get from cache if not forced.
 			if ( ! $force ) {
 				// If something is there in cache return that.
-				$data = wp_cache_get( 'pro_sites_stripe_db_customer_ ' . $sub_id, 'psts' );
+				$data = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_db_customer_ ' . $sub_id, 'psts' );
 				if ( ! empty( $data ) ) {
 					return $data;
 				}
@@ -678,7 +678,7 @@ class ProSites_Stripe_Customer {
 			// Return early if data found.
 			if ( ! empty( $data ) ) {
 				// Set to cache.
-				wp_cache_set( 'pro_sites_stripe_db_customer_ ' . $sub_id, $data, 'psts' );
+				ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_db_customer_ ' . $sub_id, $data, 'psts' );
 
 				return $data;
 			}
