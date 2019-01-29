@@ -2278,10 +2278,10 @@ class ProSites_Gateway_Stripe {
 	 */
 	private static function set_session_data( $data ) {
 		// Current session key base.
-		$base_key = isset( $data['new_blog_details'] ) ? 'new_blog_details' : 'upgrade_blog_details';
+		$base_key = isset( $data['new_blog_details'] ) ? 'new_blog_details' : 'upgraded_blog_details';
 
 		// Get existing data.
-		$existing = ProSites_Helper_Session::session( $base_key );
+		$existing = (array) ProSites_Helper_Session::session( $base_key );
 
 		// Session values.
 		$session_data = array(
@@ -2805,23 +2805,6 @@ class ProSites_Gateway_Stripe {
 		$valid_events = apply_filters( 'psts_valid_stripe_events', $valid_events );
 
 		return in_array( $event, $valid_events, true );
-	}
-
-	/**
-	 * After successful payment clear sessions.
-	 *
-	 * Clear session, or they may mess up everything.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return void
-	 */
-	private static function unset_session() {
-		// Unset all used sessions. Good bye.
-		ProSites_Helper_Session::unset_session( 'new_blog_details' );
-		ProSites_Helper_Session::unset_session( 'upgraded_blog_details' );
-		ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
-		ProSites_Helper_Session::unset_session( 'activation_key' );
 	}
 }
 
