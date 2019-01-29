@@ -1368,7 +1368,6 @@ class ProSites_Gateway_Stripe {
 		// Now process the payments.
 		if ( self::process_payment( $data, $customer, $plan_id, $card ) ) {
 			self::$show_completed = true;
-			self::unset_session();
 		} else {
 			$psts->errors->add( 'stripe', __( 'An unknown error occurred while processing your payment. Please try again.', 'psts' ) );
 		}
@@ -2035,8 +2034,6 @@ class ProSites_Gateway_Stripe {
 		$period = number_format_i18n( $site_data->term );
 		// Get the charge id.
 		$charge_id = isset( $event_data->charge ) ? $event_data->charge : $event_data->id;
-		// Mail arguments.
-		$args = array();
 
 		// Process the events.
 		switch ( $event_type ) {
@@ -2068,23 +2065,17 @@ class ProSites_Gateway_Stripe {
 
 			case 'invoice.payment_succeeded':
 				delete_blog_option( self::$blog_id, 'psts_stripe_payment_failed' );
-				// Log successful payment transaction.
-				self::record_transaction( $event_data );
 				$date = date_i18n( get_option( 'date_format' ), $event_json->created );
-				// Invoice items from event data.
-				$invoice_items = self::$stripe_charge->get_webhook_invoice_items( $event_data );
-				if ( $invoice_items ) {
-					$args['items'] = $invoice_items;
-				}
 				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment was successfully received. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id ) );
 				// Extend the blog if required.
 				self::maybe_extend(
 					$total, // Totoal amount paid.
 					$subscription->current_period_end, // Subscription end date.
 					true, // Is a payment?.
-					true, // Is recurring?.
-					$args // Arguments for email.
+					true // Is recurring?.
 				);
+				// Log successful payment transaction.
+				self::record_transaction( $event_data );
 				break;
 
 			case 'invoice.payment_failed':
@@ -2218,13 +2209,12 @@ class ProSites_Gateway_Stripe {
 	 * @param int   $expire    Expiry date.
 	 * @param bool  $payment   Is this a payment?.
 	 * @param bool  $recurring Is recurring?.
-	 * @param array $args      Additional arguments for email.
 	 *
 	 * @since 3.0
 	 *
 	 * @return bool
 	 */
-	private static function maybe_extend( $amount, $expire, $payment = true, $recurring = false, $args = array() ) {
+	private static function maybe_extend( $amount, $expire, $payment = true, $recurring = false ) {
 		global $psts;
 
 		// Initialize flag as false.
@@ -2290,21 +2280,23 @@ class ProSites_Gateway_Stripe {
 		// Current session key base.
 		$base_key = isset( $data['new_blog_details'] ) ? 'new_blog_details' : 'upgrade_blog_details';
 
+		// Get existing data.
+		$existing = ProSites_Helper_Session::session( $base_key );
+
 		// Session values.
 		$session_data = array(
 			'level'           => self::$level,
 			'period'          => self::$period,
 			'blog_id'         => self::$blog_id,
 			'payment_success' => true,
+			'site_activated'  => true,
 		);
 
-		// Loop through each items and set.
-		foreach ( $session_data as $key => $value ) {
-			ProSites_Helper_Session::session( array(
-				$base_key,
-				$key,
-			), $value );
-		}
+		// New session data.
+		$session_data = array_merge( $session_data, $existing );
+
+		// Set session now.
+		ProSites_Helper_Session::session( $base_key, $session_data );
 	}
 
 	/**

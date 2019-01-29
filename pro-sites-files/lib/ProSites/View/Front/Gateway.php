@@ -117,11 +117,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$tabbed       = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
+
 			/**
 			 * @todo Deal with upgraded_blog_details session
 			 */
-			$hidden_class = ( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
-			$hidden_class = isset( $render_data['new_blog_details']['site_activated'] ) && $render_data['new_blog_details']['site_activated'] ? 'hidden' : $hidden_class;
+			$hidden_class = ( isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
+			$hidden_class = ( ! empty( $render_data['new_blog_details']['site_activated'] ) || ! empty( $render_data['upgraded_blog_details']['site_activated'] ) ) ? 'hidden' : $hidden_class;
 
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
@@ -480,8 +481,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				return self::render_payment_submitted( '', '', $blog_id );
 			}
 
-			if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
-			     ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
+			if ( ( isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
+			     ( isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
 			) {
 				$pre_content .= self::render_payment_submitted();
 			}

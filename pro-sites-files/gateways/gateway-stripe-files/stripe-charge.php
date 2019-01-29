@@ -225,7 +225,7 @@ class ProSites_Stripe_Charge {
 	 *
 	 * @return bool
 	 */
-	public function refund_charge( $charge_id, $amount = false, &$error = false ) {
+	public function refund_charge( $charge_id, $amount = false, &$error = 'Unknown' ) {
 		// Get the charge object.
 		$charge = $this->get_charge( $charge_id );
 
@@ -236,7 +236,9 @@ class ProSites_Stripe_Charge {
 				$args = $amount ? array( 'amount' => $amount ) : null;
 
 				// Process the refund.
-				$charge->refund( $args );
+				if ( $charge->refund( $args ) ) {
+					return true;
+				}
 			} catch ( \Exception $e ) {
 				// Get the error message in case required.
 				$error = $e->getMessage();
@@ -245,7 +247,7 @@ class ProSites_Stripe_Charge {
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
