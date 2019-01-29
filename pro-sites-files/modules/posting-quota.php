@@ -95,6 +95,10 @@ class ProSites_Module_PostingQuota {
 		$defaults = array();
 		if ( is_array( $post_types ) ) {
 			foreach ( $post_types as $post_type ) {
+				// Exclude blocks.
+				if ( 'wp_block' === $post_type->name ) {
+					continue;
+				}
 				if ( ! current_user_can( $post_type->cap->publish_posts ) ) continue;
 				$defaults[$post_type->name] = array(
 					'quota' => 'unlimited',
@@ -156,6 +160,9 @@ class ProSites_Module_PostingQuota {
 					foreach ( $post_types as $post_type ) {
 						//Check publish permissions for user
 						if ( ! current_user_can( $post_type->cap->publish_posts ) ) {
+							continue;
+						}
+						if ( 'wp_block' === $post_type->name ) {
 							continue;
 						}
 						$quota     = isset( $quota_settings[ $post_type->name ]['quota'] ) ? $quota_settings[ $post_type->name ]['quota'] : 'unlimited';
