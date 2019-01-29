@@ -368,7 +368,7 @@ class ProSites {
 			'pypl_status'              => 'test',
 			'pypl_enable_pro'          => 0,
 			'stripe_ssl'               => 0,
-			'stripe_debug'             => 1,
+			'stripe_debug'             => 0,
 			'mp_name'                  => __( 'Manual Payment', 'psts' ),
 			'mp_show_form'             => 0,
 			'mp_email'                 => get_site_option( "admin_email" ),

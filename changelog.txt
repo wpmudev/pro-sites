@@ -9,9 +9,16 @@ Change Log:
 
 *Added:
     - Card update form for Stripe customers.
+    - New setting to log the Stripe errors to error log.
 *Updated:
     - Updated Stripe library.
     - Updated checkout screen for Stripe.
+    - Log webhook event id for easier debugging.
+    - Do not log unwanted webhook events to site meta.
+    - Do not cancel subscriptions immediately unless the site is deleted.
+    - Remove deprecated functions.
+    - Minimum PHP version is updated to 5.4.
+
 
 3.6.0 - 15/01/2019
 
