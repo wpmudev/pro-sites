@@ -135,7 +135,7 @@ if ( ! class_exists( 'ProSites_Helper_ProSite' ) ) {
 			$trial_message = '';
 			if ( $trialing ) {
 				// assuming its recurring
-				$trial_message = 'manual' === $gateway ? __( 'You are still within your trial period.', 'psts' ) : __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' );
+				$trial_message = ( 'manual' === $gateway || ! $is_recurring ) ? __( 'You are still within your trial period.', 'psts' ) : __( 'You are still within your trial period. Once your trial finishes your account will be automatically charged.', 'psts' );
 				$trial_message = '<div id="psts-general-error" class="psts-warning">' . $trial_message . '</div>';
 			}
 			$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );

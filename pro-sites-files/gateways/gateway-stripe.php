@@ -409,8 +409,12 @@ class ProSites_Gateway_Stripe {
 	 * @return void
 	 */
 	public function delete_blog( $blog_id ) {
+		global $psts;
+
 		// Cancel the blog subscription.
-		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, true, true );
+		if ( $psts->is_blog_recurring( $blog_id ) ) {
+			self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, true, true );
+		}
 
 		// Delete the blog data from DB.
 		self::$stripe_customer->delete_db_customer( $blog_id );
@@ -2227,6 +2231,42 @@ class ProSites_Gateway_Stripe {
 
 
 	/**
+	 * Set values to session object.
+	 *
+	 * If a new blog is being created or a blog
+	 * is being upgraded, set the session values
+	 * so we can re-use it later.
+	 *
+	 * @param array $data Process data.
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return void
+	 */
+	private static function set_session_data( $data ) {
+		// Current session key base.
+		$base_key = isset( $data['new_blog_details'] ) ? 'new_blog_details' : 'upgraded_blog_details';
+
+		// Get existing data.
+		$existing = (array) ProSites_Helper_Session::session( $base_key );
+
+		// Session values.
+		$session_data = array(
+			'level'           => self::$level,
+			'period'          => self::$period,
+			'blog_id'         => self::$blog_id,
+			'payment_success' => true,
+			'site_activated'  => true,
+		);
+
+		// New session data.
+		$session_data = array_merge( $session_data, $existing );
+
+		// Set session now.
+		ProSites_Helper_Session::session( $base_key, $session_data );
+	}
+
+	/**
 	 * Extend a blog's expiry date if required.
 	 *
 	 * If the new plan is different than exsting one,
@@ -2296,42 +2336,6 @@ class ProSites_Gateway_Stripe {
 		}
 
 		return $extended;
-	}
-
-	/**
-	 * Set values to session object.
-	 *
-	 * If a new blog is being created or a blog
-	 * is being upgraded, set the session values
-	 * so we can re-use it later.
-	 *
-	 * @param array $data Process data.
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return void
-	 */
-	private static function set_session_data( $data ) {
-		// Current session key base.
-		$base_key = isset( $data['new_blog_details'] ) ? 'new_blog_details' : 'upgraded_blog_details';
-
-		// Get existing data.
-		$existing = (array) ProSites_Helper_Session::session( $base_key );
-
-		// Session values.
-		$session_data = array(
-			'level'           => self::$level,
-			'period'          => self::$period,
-			'blog_id'         => self::$blog_id,
-			'payment_success' => true,
-			'site_activated'  => true,
-		);
-
-		// New session data.
-		$session_data = array_merge( $session_data, $existing );
-
-		// Set session now.
-		ProSites_Helper_Session::session( $base_key, $session_data );
 	}
 
 	/**

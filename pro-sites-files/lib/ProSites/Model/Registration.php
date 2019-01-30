@@ -159,7 +159,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment information has been verified your trial period will begin. When your trial ends you will be automatically upgraded to your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>', 'psts' ) . '</div>', $site_name );
 							} else {
 								// Non-recurring sites really should not do anything at checkout other than activate.
-								$result  = ProSites_Helper_Registration::activate_blog( $blog_data, true, $period, $level );
+								$result  = ProSites_Helper_Registration::activate_blog( $blog_data, true, $period, $level, false, true, false );
 								$blog_id = $result['blog_id'];
 								if ( isset( $result['password'] ) ) {
 									$blog_data['new_blog_details']['user_pass'] = $result['password'];
