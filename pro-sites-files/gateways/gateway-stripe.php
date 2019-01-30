@@ -1129,6 +1129,13 @@ class ProSites_Gateway_Stripe {
 			return $content;
 		}
 
+		// Get Stripe customer object.
+		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
+		// Continue only if customer is not found.
+		if ( empty( $customer ) ) {
+			return $content;
+		}
+
 		// Turn on output buffering.
 		ob_start();
 
