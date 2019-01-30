@@ -1617,8 +1617,8 @@ class ProSites_Gateway_Stripe {
 				$customer->id,
 				$plan_id,
 				$sub_args,
-				$card,
-				$desc
+				$desc,
+				$card
 			);
 
 			// Now activate the blog.
@@ -2426,8 +2426,6 @@ class ProSites_Gateway_Stripe {
 	 * @return float $total Total amount including setup fee.
 	 */
 	private static function charge_setup_fee( $amount, $customer, $recurring = true ) {
-		global $psts;
-
 		// Get the setup fee.
 		$setup_fee = ProSites_Helper_Settings::setup_fee();
 		// Include setup fee to total.
