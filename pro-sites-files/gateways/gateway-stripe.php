@@ -1222,7 +1222,6 @@ class ProSites_Gateway_Stripe {
 			if ( ! empty( $customer ) && empty( $card ) ) {
 				$card = self::$stripe_customer->default_card( $customer->id );
 			}
-
 		}
 
 		// This is a new blog.
