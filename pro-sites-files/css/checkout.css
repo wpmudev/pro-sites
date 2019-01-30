@@ -1050,13 +1050,14 @@ ul.pricing-column ul.feature-section li {
     font-family: dashicons;
     content: "\f147";
 }
-#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after {
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after,
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-invalid span:after {
     left: 14.5em;
     position: absolute;
     top: 1.6em;
 }
 
-.pricing-column .coupon-box.coupon-invalid:after {
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-invalid span:after {
     font-family: dashicons;
     content: "\f158";
     /* IE 9 */
