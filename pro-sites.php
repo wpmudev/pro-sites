@@ -2193,7 +2193,6 @@ class ProSites {
 		unset( $this->pro_sites[ $blog_id ] ); //clear local cache
 		wp_cache_delete( 'is_pro_site_' . $blog_id, 'psts' ); //clear object cache
 		unset( $this->level[ $blog_id ] ); //clear cache
-		wp_cache_delete( 'level_' . $blog_id, 'psts' ); //clear object cache
 
 		if ( $exists != $new_expire ) { //only log if blog expiration date is not changing
 			if ( $new_expire >= 9999999999 ) {

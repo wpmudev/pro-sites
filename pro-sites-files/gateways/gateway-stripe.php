@@ -2092,6 +2092,8 @@ class ProSites_Gateway_Stripe {
 			case 'invoice.payment_succeeded':
 				delete_blog_option( self::$blog_id, 'psts_stripe_payment_failed' );
 				$date = date_i18n( get_option( 'date_format' ), $event_json->created );
+				// Is trial active?.
+				$is_trial = isset( $subscription->status ) && 'trialing' === $subscription->status;
 				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment was successfully received. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id ) );
 				// Extend the blog if required.
 				self::maybe_extend(
@@ -2175,7 +2177,7 @@ class ProSites_Gateway_Stripe {
 		self::set_session_data( $data );
 
 		// Extend the site expiry date.
-		self::maybe_extend( $amount, $expire, true, $recurring );
+		self::maybe_extend( $amount, $expire, true, $recurring, $is_trial );
 
 		return $activated;
 	}
@@ -2235,12 +2237,13 @@ class ProSites_Gateway_Stripe {
 	 * @param int   $expire    Expiry date.
 	 * @param bool  $payment   Is this a payment?.
 	 * @param bool  $recurring Is recurring?.
+	 * @param bool  $is_trial  Is trialing?.
 	 *
 	 * @since 3.0
 	 *
 	 * @return bool
 	 */
-	private static function maybe_extend( $amount, $expire, $payment = true, $recurring = false ) {
+	private static function maybe_extend( $amount, $expire, $payment = true, $recurring = false, $is_trial = false ) {
 		global $psts;
 
 		// Initialize flag as false.
@@ -2279,11 +2282,17 @@ class ProSites_Gateway_Stripe {
 				self::$level,
 				$amount,
 				$expire,
-				$recurring
+				$recurring,
+				false,
+				false,
+				$is_trial
 			);
 
 			// Flag extension.
 			$extended = true;
+		} elseif ( $is_trial ) {
+			// Set trial.
+			ProSites_Helper_Registration::set_trial( self::$blog_id, 1 );
 		}
 
 		return $extended;
