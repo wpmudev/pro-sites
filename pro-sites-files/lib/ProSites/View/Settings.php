@@ -269,7 +269,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 						<td>
 							<label><?php echo $psts->format_currency(); ?></label><input type="text"
 							                                                             name="psts[setup_fee]" size="4"
-							                                                             value="<?php echo ( $setup_fee = $psts->get_setting( 'setup_fee', false ) ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
+							                                                             value="<?php echo ( $setup_fee = ProSites_Helper_Settings::setup_fee() ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
 							&nbsp;<br/><br/>
 							<label for="psts-apply-setup-fee-upgrade">
 								<input type="checkbox" name="psts[apply_setup_fee_upgrade]"

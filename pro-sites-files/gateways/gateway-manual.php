@@ -522,7 +522,7 @@ class ProSites_Gateway_Manual {
 	 */
 	public static function calculate_cost( $blog_id, $level, $period, $coupon_code ) {
 		global $psts;
-		$setup_fee     = (float) $psts->get_setting( 'setup_fee', 0 );
+		$setup_fee     = (float) ProSites_Helper_Settings::setup_fee();
 		$recurring     = $psts->get_setting( 'recurring_subscriptions', true );
 		$paymentAmount = $psts->get_level_setting( $level, 'price_' . $period );
 		$has_setup_fee = $psts->has_setup_fee( $blog_id, $level );

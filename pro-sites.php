@@ -581,7 +581,7 @@ class ProSites {
 
 	//determine if a given level has a setup fee for a given blog id
 	function has_setup_fee( $blog_id, $level ) {
-		$setup_fee_amt = ( float ) $this->get_setting( 'setup_fee', 0 );
+		$setup_fee_amt = ProSites_Helper_Settings::setup_fee();
 
 		if( empty( $blog_id ) && 0 < $setup_fee_amt ) {
 			return true;
@@ -4318,7 +4318,7 @@ function admin_modules() {
 
 		$equiv         = '';
 		$coupon_price  = '';
-		$setup_fee_amt = $this->get_setting( 'setup_fee', 0 );
+		$setup_fee_amt = ProSites_Helper_Settings::setup_fee();
 
 		foreach ( $levels as $level => $data ) {
 			$content .= '<tr class="psts_level level-' . $level . '">

@@ -2429,7 +2429,7 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		// Get the setup fee.
-		$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
+		$setup_fee = ProSites_Helper_Settings::setup_fee();
 		// Include setup fee to total.
 		$total = $setup_fee + $amount;
 
