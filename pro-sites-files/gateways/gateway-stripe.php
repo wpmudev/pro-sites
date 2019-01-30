@@ -274,11 +274,14 @@ class ProSites_Gateway_Stripe {
 	public function register_scripts() {
 		global $psts;
 
-		// Register Stripe JS library.
-		wp_register_script( 'psts-stripe-checkout-lib', 'https://checkout.stripe.com/checkout.js' );
-
 		// Register custom checkout form script.
-		wp_register_script( 'psts-stripe-checkout-js', $psts->plugin_url . 'gateways/gateway-stripe-files/assets/js/checkout.js' );
+		wp_register_script(
+			'psts-stripe-checkout-js',
+			$psts->plugin_url . 'gateways/gateway-stripe-files/assets/js/checkout.js',
+			array(),
+			$psts->version,
+			true
+		);
 	}
 
 	/**
@@ -1244,7 +1247,6 @@ class ProSites_Gateway_Stripe {
 		// File that contains checkout form.
 		include_once 'gateway-stripe-files/views/frontend/checkout.php';
 
-		wp_enqueue_script( 'psts-stripe-checkout-lib' );
 		wp_enqueue_script( 'psts-stripe-checkout-js' );
 
 		// Get the content as a string.
