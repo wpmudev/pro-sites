@@ -1494,6 +1494,11 @@ class ProSites_Gateway_Stripe {
 			// Process recurring payment.
 			$processed = self::process_recurring( $process_data, $plan_id, $customer, $tax_object, $coupon, $amount, $desc, $card );
 		} else {
+			// Calculate the total amount if we are upgrading.
+			if ( self::$upgrading ) {
+				$total = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $total );
+			}
+
 			// Process one time payment.
 			$processed = self::process_single( $process_data, $customer, $tax_object, $amount, $total, $desc, $card );
 		}
@@ -1706,14 +1711,11 @@ class ProSites_Gateway_Stripe {
 	 *
 	 * @return bool
 	 */
-	private static function process_single( $data, $customer, $tax_object, &$amount, $total, &$desc, $card = false ) {
+	private static function process_single( $data, $customer, $tax_object, $amount, $total, &$desc, $card = false ) {
 		global $psts;
 
 		// If customer created, now let's create a subscription.
 		if ( ! empty( $customer->id ) ) {
-			// Calculate the total amount if we are upgrading.
-			$amount = $psts->calc_upgrade_cost( self::$blog_id, self::$level, self::$period, $amount );
-
 			// Activation key.
 			$activation_key = self::get_activation_key( self::$blog_id );
 
@@ -1722,7 +1724,7 @@ class ProSites_Gateway_Stripe {
 
 			// Apply tax if required.
 			if ( $tax_object->apply_tax ) {
-				$amount   = $total + ( $total * $tax_object->tax_rate );
+				$total    = $total + ( $total * $tax_object->tax_rate );
 				$tax_rate = self::format_price( $tax_object->tax_rate );
 				// Update the description.
 				$desc .= sprintf( __( '(includes tax of %s%% [%s])', 'psts' ), $tax_rate, $tax_object->country );
@@ -1748,15 +1750,15 @@ class ProSites_Gateway_Stripe {
 				$charge_args['metadata']['tax_evidence'] = ProSites_Helper_Tax::get_evidence_string( $tax_object );
 			}
 
-			// If trial is not applicable charge directly.
-			if ( ! $psts->is_trial_allowed( self::$blog_id ) && $amount > 0 ) {
+			// Charge the amount now.
+			if ( $total > 0 ) {
 				// Set the charging card.
 				if ( ! empty( $card ) ) {
 					$charge_args['source'] = $card;
 				}
 				$result = self::$stripe_charge->create_item(
 					$customer->id,
-					$amount,
+					$total,
 					'charge',
 					$desc,
 					$charge_args
@@ -1765,7 +1767,7 @@ class ProSites_Gateway_Stripe {
 				// If trial is enabled, create invoice item.
 				$result = self::$stripe_charge->create_item(
 					$customer->id,
-					$amount,
+					$total,
 					'invoiceitem',
 					$desc,
 					$charge_args
