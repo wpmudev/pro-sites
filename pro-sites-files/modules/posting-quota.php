@@ -183,8 +183,8 @@ class ProSites_Module_PostingQuota {
 								<select name="psts[pq_quotas][<?php echo $post_type->name; ?>][quota]" class="chosen">
 									<option value="unlimited"<?php selected( $quota, 'unlimited' ); ?>><?php _e( 'Unlimited', 'psts' ); ?></option>
 									<?php
-									for ( $counter = 1; $counter <= 1000; $counter ++ ) {
-										echo '<option value="' . $counter . '"' . ( $counter == $quota ? ' selected' : '' ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
+									for ( $counter = 0; $counter <= 1000; $counter ++ ) {
+										echo '<option value="' . $counter . '" ' . selected( $counter, $quota, false ) . '>' . number_format_i18n( $counter ) . '</option>' . "\n";
 									}
 									?>
 								</select>
@@ -265,7 +265,7 @@ class ProSites_Module_PostingQuota {
 
 			} elseif ( count( $levels ) == $level ) { //highest level gets special message if has limits
 
-				$notice = isset( $quota_settings['highest_level_message'] ) ? $quota_settings['highest_level_message'] : "You have reached your publishing limits, no upgrades for this levell. Contact Administrator. &raquo;";
+				$notice = isset( $quota_settings['highest_level_message'] ) ? $quota_settings['highest_level_message'] : "You have reached your publishing limits, no upgrades for this level. Contact Administrator. &raquo;";
 				echo '<div class="error"><p>' . $notice . '</p></div>';
 			}
 		}
