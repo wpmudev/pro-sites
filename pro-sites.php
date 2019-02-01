@@ -1625,8 +1625,8 @@ class ProSites {
 	public static function send_receipt( $transaction ) {
 		global $psts, $wpdb;
 
-		//Don't send receipt if there is no blog id or level set for the transaction
-		if( empty( $transaction->blog_id ) || empty( $transaction->level ) ) {
+		//Don't send receipt if there is no blog id or level set for the transaction or amount is 0.
+		if( empty( $transaction->blog_id ) || empty( $transaction->level ) || empty( $transaction->total ) ) {
 			return false;
 		}
 

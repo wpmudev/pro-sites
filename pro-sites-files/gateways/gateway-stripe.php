@@ -1967,10 +1967,10 @@ class ProSites_Gateway_Stripe {
 		$object->invoice_date   = date( 'Y-m-d', $data->date );
 		$object->currency_code  = strtoupper( $data->currency );
 		// General (used for transaction recording).
-		$object->total       = self::format_price( $data->total );
-		$object->tax_percent = self::format_price( $data->tax_percent );
-		$object->subtotal    = self::format_price( $data->subtotal );
-		$object->tax         = self::format_price( $data->tax );
+		$object->total       = self::format_price( $data->total, false );
+		$object->tax_percent = self::format_price( $data->tax_percent, false );
+		$object->subtotal    = self::format_price( $data->subtotal, false );
+		$object->tax         = self::format_price( $data->tax, false );
 
 		// Get the line items.
 		if ( ! empty( $data->lines->data ) ) {
@@ -1979,7 +1979,7 @@ class ProSites_Gateway_Stripe {
 				// Set basic line data.
 				$line_object              = new stdClass();
 				$line_object->id          = $line->id;
-				$line_object->amount      = self::format_price( $line->amount );
+				$line_object->amount      = self::format_price( $line->amount, false );
 				$line_object->quantity    = $line->quantity;
 				$line_object->custom_id   = $line->id;
 				$line_object->description = '';
