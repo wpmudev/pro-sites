@@ -581,20 +581,6 @@ class ProSites_Stripe_Subscription {
 				$args['metadata']['period']  = $site_data->term;
 				$args['metadata']['blog_id'] = $blog_id;
 			}
-
-			// If we are upgrading to new level.
-			if ( $args['metadata']['level'] !== $site_data->level || $args['metadata']['period'] !== $site_data->term ) {
-				$updated = array(
-					'render'      => true,
-					'blog_id'     => $blog_id,
-					'level'       => $args['metadata']['level'],
-					'period'      => $args['metadata']['period'],
-					'prev_level'  => $site_data->level,
-					'prev_period' => $site_data->term,
-				);
-
-				ProSites_Helper_Session::session( 'plan_updated', $updated );
-			}
 		}
 
 		return $args;

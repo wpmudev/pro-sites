@@ -1503,6 +1503,24 @@ class ProSites_Gateway_Stripe {
 			$processed = self::process_single( $process_data, $customer, $tax_object, $amount, $total, $desc, $card );
 		}
 
+		// Get the existing site data.
+		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
+
+		// If plans have changed, set the upgrade flag to true.
+		if ( isset( $site_data->level, $site_data->term ) && self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id ) {
+			$updated = array(
+				'render'      => true,
+				'blog_id'     => self::$blog_id,
+				'level'       => self::$level,
+				'period'      => self::$period,
+				'prev_level'  => $site_data->level,
+				'prev_period' => $site_data->term,
+			);
+
+			// Set updated session.
+			ProSites_Helper_Session::session( 'plan_updated', $updated );
+		}
+
 		// Set the stat flags.
 		if ( self::$upgrading ) {
 			$psts->record_stat( self::$blog_id, 'upgrade' );
@@ -2218,7 +2236,7 @@ class ProSites_Gateway_Stripe {
 			}
 
 			// Activate the blog now.
-			$result = ProSites_Helper_Registration::activate_blog( $activation_key, false, self::$period, self::$level );
+			$result = ProSites_Helper_Registration::activate_blog( $activation_key, false, self::$period, self::$level, false, false, false );
 
 			if ( ! empty( $result['blog_id'] ) ) {
 				// If blog id is not found, try to get it after activation.
@@ -2267,6 +2285,11 @@ class ProSites_Gateway_Stripe {
 			'payment_success' => true,
 			'site_activated'  => true,
 		);
+
+		// If an existing site, clear password from session.
+		if ( self::$existing && isset( $existing['user_pass'] ) ) {
+			unset( $existing['user_pass'] );
+		}
 
 		// New session data.
 		$session_data = array_merge( $session_data, $existing );
