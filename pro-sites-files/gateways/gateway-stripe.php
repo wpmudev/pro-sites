@@ -409,12 +409,8 @@ class ProSites_Gateway_Stripe {
 	 * @return void
 	 */
 	public function delete_blog( $blog_id ) {
-		global $psts;
-
 		// Cancel the blog subscription.
-		if ( $psts->is_blog_recurring( $blog_id ) ) {
-			self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, true, true );
-		}
+		self::$stripe_subscription->cancel_blog_subscription( $blog_id, true, true, true );
 
 		// Delete the blog data from DB.
 		self::$stripe_customer->delete_db_customer( $blog_id );
@@ -973,6 +969,9 @@ class ProSites_Gateway_Stripe {
 		// Current action.
 		$action = self::from_request( 'stripe_mod_action' );
 
+		// First we need to clear caches.
+		ProSites_Helper_Cache::refresh_cache();
+
 		// Get customer and subcription ids from DB.
 		$customer_data = self::$stripe_customer->get_db_customer( $blog_id );
 
@@ -1090,6 +1089,9 @@ class ProSites_Gateway_Stripe {
 		if ( $from_id === $to_id ) {
 			return false;
 		}
+
+		// First we need to clear caches.
+		ProSites_Helper_Cache::refresh_cache();
 
 		// Get the customer data.
 		$customer_data = self::$stripe_customer->get_db_customer( $from_id );
@@ -2058,6 +2060,9 @@ class ProSites_Gateway_Stripe {
 			return false;
 		}
 
+		// First we need to clear caches.
+		ProSites_Helper_Cache::refresh_cache();
+
 		// Get event data.
 		$event_data = $event_json->data->object;
 
@@ -2130,10 +2135,11 @@ class ProSites_Gateway_Stripe {
 				$psts->log_action( self::$blog_id, sprintf( __( 'Stripe webhook "%1$s (%2$s)" received: The %3$s payment was successfully received. Date: "%4$s", Charge ID "%5$s"', 'psts' ), $event_type, $event_id, $amount, $date, $charge_id ) );
 				// Extend the blog if required.
 				self::maybe_extend(
-					$total, // Totoal amount paid.
+					$total, // Total amount paid.
 					$subscription->current_period_end, // Subscription end date.
 					true, // Is a payment?.
-					true // Is recurring?.
+					true, // Is recurring?.
+					$is_trial
 				);
 				// Log successful payment transaction.
 				self::record_transaction( $event_data );

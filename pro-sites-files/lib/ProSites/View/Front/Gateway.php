@@ -286,7 +286,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				// Last payment failed
 				if ( ! empty( $info_retrieved['payment_failed'] ) ) {
-					$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please select your plan below and choose a new payment option.', 'psts' ) . '</div>';
+					if ( ! empty( $info_retrieved['last_payment_gateway'] ) && 'stripe' === strtolower( $info_retrieved['last_payment_gateway'] ) ) {
+						$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please update your card below or choose a new payment option.', 'psts' ) . '</div>';
+					} else {
+						$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please select your plan below and choose a new payment option.', 'psts' ) . '</div>';
+					}
 				}
 
 				$content .= '<ul class="psts-info-list">';
