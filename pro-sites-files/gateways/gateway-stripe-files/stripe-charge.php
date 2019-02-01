@@ -115,12 +115,13 @@ class ProSites_Stripe_Charge {
 	 * @param array  $args        Additional arguments
 	 *                            (https://stripe.com/docs/api/charges/create?lang=php,
 	 *                            https://stripe.com/docs/api/invoiceitems/create?lang=php).
+	 * @param bool   $error       Should add the errors?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return bool|\Stripe\InvoiceItem|\Stripe\Charge
 	 */
-	public function create_item( $customer_id, $amount, $type = 'charge', $desc = '', $args = array() ) {
+	public function create_item( $customer_id, $amount, $type = 'charge', $desc = '', $args = array(), $error = false ) {
 		// Make sure arguments are array.
 		$args = (array) $args;
 
@@ -144,6 +145,11 @@ class ProSites_Stripe_Charge {
 		} catch ( \Exception $e ) {
 			// Log error message.
 			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
+			// Let the user know what happened.
+			if ( $error ) {
+				$GLOBALS['psts']->errors->add( 'stripe', $e->getMessage() );
+			}
 
 			$charge = false;
 		}
@@ -217,7 +223,9 @@ class ProSites_Stripe_Charge {
 				$customer,
 				$fee,
 				'invoiceitem',
-				__( 'One-time setup fee', 'psts' )
+				__( 'One-time setup fee', 'psts' ),
+				array(),
+				true
 			);
 		} catch ( \Exception $e ) {
 			// Oh well.

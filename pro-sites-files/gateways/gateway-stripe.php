@@ -1779,7 +1779,8 @@ class ProSites_Gateway_Stripe {
 					$total,
 					'charge',
 					$desc,
-					$charge_args
+					$charge_args,
+					true
 				);
 			} else {
 				// If trial is enabled, create invoice item.
@@ -1788,7 +1789,8 @@ class ProSites_Gateway_Stripe {
 					$total,
 					'invoiceitem',
 					$desc,
-					$charge_args
+					$charge_args,
+					true
 				);
 			}
 

@@ -66,12 +66,13 @@ class ProSites_Stripe_Subscription {
 	 * @param string $customer_id Customer ID.
 	 * @param string $plan_id     Plan ID.
 	 * @param array  $args        Array of fields to set.
+	 * @param bool   $error       Should add the errors?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return \Stripe\Subscription|false Created subscription object or false.
 	 */
-	public function create_subscription( $customer_id, $plan_id, $args = array() ) {
+	public function create_subscription( $customer_id, $plan_id, $args = array(), $error = false ) {
 		// Make sure we don't break.
 		try {
 			// Make sure we have a working plan.
@@ -112,6 +113,11 @@ class ProSites_Stripe_Subscription {
 			// Log error message.
 			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
 
+			// Let the user know what happened.
+			if ( $error ) {
+				$GLOBALS['psts']->errors->add( 'stripe', $e->getMessage() );
+			}
+
 			$subscription = false;
 		}
 
@@ -126,12 +132,13 @@ class ProSites_Stripe_Subscription {
 	 * to get the list of fields.
 	 * Pass the fields as an array in second argument in key -> value combination.
 	 *
-	 * @param string $id   Subscription ID.
-	 * @param array  $args Array of fields to update.
+	 * @param string $id    Subscription ID.
+	 * @param array  $args  Array of fields to update.
+	 * @param bool   $error Should add the errors?.
 	 *
 	 * @return \Stripe\Subscription|false
 	 */
-	public function update_subscription( $id, $args = array() ) {
+	public function update_subscription( $id, $args = array(), $error = false ) {
 		// Make sure we don't break.
 		try {
 			// First get the subscription.
@@ -151,6 +158,11 @@ class ProSites_Stripe_Subscription {
 		} catch ( \Exception $e ) {
 			// Log error message.
 			ProSites_Gateway_Stripe::error_log( $e->getMessage() );
+
+			// Let the user know what happened.
+			if ( $error ) {
+				$GLOBALS['psts']->errors->add( 'stripe', $e->getMessage() );
+			}
 
 			// Oh well. Failure.
 			$subscription = false;
@@ -329,7 +341,7 @@ class ProSites_Stripe_Subscription {
 			}
 
 			// Now let's create new subscription.
-			$subscription = $this->create_subscription( $customer_id, $plan_id, $args );
+			$subscription = $this->create_subscription( $customer_id, $plan_id, $args, true );
 
 			// New subscription created.
 			if ( ! empty( $subscription->id ) ) {
@@ -372,7 +384,7 @@ class ProSites_Stripe_Subscription {
 			}
 
 			// Update the subscription.
-			$subscription = $this->update_subscription( $subscription_id, $args );
+			$subscription = $this->update_subscription( $subscription_id, $args, true );
 
 			if ( $plan_changed ) {
 				// Copy meta values from subscription.
