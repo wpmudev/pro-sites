@@ -144,6 +144,9 @@ class ProSites {
 		add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
 
+		add_action( 'save_post', array( &$this, 'store_checkout_url' ) );
+		add_action( 'trashed_post', array( &$this, 'clear_checkout_url' ) );
+
 		add_action( 'pre_get_posts', array( &$this, 'checkout_page_load' ) );
 
 		// Change signup...
@@ -1051,11 +1054,9 @@ class ProSites {
 
 	function checkout_url( $blog_id = false, $domain = false ) {
 
-		$page = get_post( $this->get_setting( 'checkout_page' ) );
-		if ( ! $page || $page->post_status == 'trashed' ) {
+		$url = $this->get_setting( 'checkout_url' );
+		if ( ! $url ) {
 			$url = $this->create_checkout_page();
-		} else {
-			$url = get_permalink( $page );
 		}
 		/*
           //just in case the checkout page was not created do it now
@@ -1114,7 +1115,6 @@ class ProSites {
 			) );
 			$this->update_setting( 'checkout_page', $id );
 			$url = get_permalink( $id );
-			// Deprecated.
 			$this->update_setting( 'checkout_url', $url );
 
 			// Delete the existing page.
@@ -1130,12 +1130,50 @@ class ProSites {
 			$url = get_permalink( $page );
 		 } else {
 			$url = get_permalink( $this->get_setting( 'checkout_page' ) );
-			// Deprecated.
 			$this->update_setting( 'checkout_url', $url );
 		}
 		restore_current_blog();
 
 		return $url;
+	}
+
+	//If checkout page is being updated and url is changing, lets store it.
+	function store_checkout_url( $post_id ) {
+		global $current_site;
+		
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+		if( get_current_blog_id() != $checkout_site ) {
+			return;
+		}
+
+		$checkout_page_id = $this->get_setting( 'checkout_page' );
+		if( $post_id != $checkout_page_id ) {
+			return;
+		}
+
+		$post_url = get_permalink( $post_id );
+		$checkout_url = $this->get_setting( 'checkout_url' );
+		if( $post_url != $checkout_url ) {
+			$this->update_setting( 'checkout_url', $post_url );
+		}
+	}
+
+	//lets clear the checkout url if checkout page is being trashed or deleted
+	function clear_checkout_url( $post_id ) {
+		global $current_site;
+		
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+		if( get_current_blog_id() != $checkout_site ) {
+			return;
+		}
+
+		$checkout_page_id = $this->get_setting( 'checkout_page' );
+		if( $post_id != $checkout_page_id ) {
+			return;
+		}
+
+		$this->update_setting( 'checkout_url', false );
+		$this->update_setting( 'checkout_page', false );
 	}
 
 	function checkout_page_load( $query ) {
