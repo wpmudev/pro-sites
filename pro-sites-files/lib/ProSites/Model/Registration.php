@@ -432,7 +432,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					// Current active theme of the blog.
 					$theme_name = get_template();
 					// If the current active theme of the blog is not available for this template, remove this template.
-					if ( ! array_key_exists( $theme_name, $allowed_themes ) || ( isset( $allowed_themes[ $theme_name ] ) && $allowed_themes[ $theme_name ] > $level ) ) {
+					if ( ( isset( $allowed_themes[ $theme_name ] ) && $allowed_themes[ $theme_name ] > $level ) ) {
 						unset( $templates[ $key ] );
 					}
 				}
