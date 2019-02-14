@@ -75,7 +75,7 @@ from the PRs screen in Bitbucket.
 
 ## How to release?
 
-Prior to release, code needs to be checked and tested by QA team. Merge all active Pull Requests into `development` branch. Build the release with `npm run build` script and send the zip files to QA.
+Prior to release, code needs to be checked and tested by QA team. Merge all active Pull Requests into `development` branch. Build the release with `grunt build` script and send the zip files to QA.
 
 Follow these steps to make the release:
 
