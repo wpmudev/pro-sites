@@ -1,40 +1,55 @@
 <?php
 
+/**
+ * Pro Sites Settings Helper.
+ *
+ * @package    Helper
+ * @subpackage Settings
+ */
+
 if ( ! class_exists( 'ProSites_Helper_Settings' ) ) {
 
+	/**
+	 * Class ProSites_Helper_Settings.
+	 */
 	class ProSites_Helper_Settings {
 
+		/**
+		 * Settings page header content.
+		 *
+		 * @param null $args Arguments.
+		 */
 		public static function settings_header( $args = null ) {
 			$defaults = array(
-				'title' => '',
-				'title_icon_class' => '',
-				'desc' => '',
-				'bread_crumbs' => null,
-				'page_header' => false,
+				'title'              => '',
+				'title_icon_class'   => '',
+				'desc'               => '',
+				'bread_crumbs'       => null,
+				'page_header'        => false,
 				'header_save_button' => false,
-				'button_name' => null,
+				'button_name'        => null,
 			);
-			$args = wp_parse_args( $args, $defaults );
-			$args = apply_filters( 'prosites_helper_html_settings_header_args', $args );
+			$args     = wp_parse_args( $args, $defaults );
+			$args     = apply_filters( 'prosites_helper_html_settings_header_args', $args );
 			extract( $args );
 
 			if ( ! is_array( $desc ) ) {
 				$desc = array( $desc );
 			}
 
-			$context = ! empty( $page_header ) ? 'psts-settings-header-' : 'psts-settings-';
+			$context    = ! empty( $page_header ) ? 'psts-settings-header-' : 'psts-settings-';
 			$header_tag = ! empty( $page_header ) ? 'h2' : 'h3';
 
 //			MS_Helper_Html::bread_crumbs( $bread_crumbs );
 			?>
-			<div class="<?php echo esc_attr( $context ); ?>title-wrapper">
+		<div class="<?php echo esc_attr( $context ); ?>title-wrapper">
 
-			<?php if ( empty( $page_header) ) { ?>
-				<input type="hidden" name="active_tab" value="<?php echo esc_attr( $tab_key ); ?>" />
+			<?php if ( empty( $page_header ) ) { ?>
+				<input type="hidden" name="active_tab" value="<?php echo esc_attr( $tab_key ); ?>"/>
 			<?php } ?>
 
 			<?php
-			if( ! empty( $header_save_button ) && ! empty( $button_name ) ) {
+			if ( ! empty( $header_save_button ) && ! empty( $button_name ) ) {
 				?>
 				<p class="header-save-button">
 					<input type="submit" name="submit_<?php echo esc_attr( $button_name ); ?>_header" class="button-primary" value="<?php _e( 'Save Changes', 'psts' ) ?>"/>
@@ -43,10 +58,10 @@ if ( ! class_exists( 'ProSites_Helper_Settings' ) ) {
 			}
 			?>
 			<<?php echo $header_tag; ?> class="<?php echo esc_attr( $context ); ?>title">
-				<?php if ( ! empty( $title_icon_class ) ) : ?>
-					<i class="<?php echo esc_attr( $title_icon_class ); ?>"></i>
-				<?php endif; ?>
-				<?php printf( $title ); ?>
+			<?php if ( ! empty( $title_icon_class ) ) : ?>
+				<i class="<?php echo esc_attr( $title_icon_class ); ?>"></i>
+			<?php endif; ?>
+			<?php printf( $title ); ?>
 			</<?php echo $header_tag; ?>>
 			<div class="<?php echo esc_attr( $context ); ?>desc-wrapper">
 				<?php foreach ( $desc as $description ) : ?>
@@ -56,15 +71,23 @@ if ( ! class_exists( 'ProSites_Helper_Settings' ) ) {
 				<?php endforeach; ?>
 			</div>
 			</div>
-		<?php
+			<?php
 		}
 
+		/**
+		 * Get the current setup fee amount.
+		 *
+		 * @since 3.6.1
+		 *
+		 * @return mixed|void
+		 */
+		public static function setup_fee() {
+			global $psts;
 
+			// Setup fee.
+			$fee = $psts->get_setting( 'setup_fee', 0 );
 
-
-
-
+			return (float) apply_filters( 'pro_sites_setup_fee', $fee );
+		}
 	}
-
-
 }

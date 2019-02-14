@@ -525,7 +525,7 @@ if ( ! class_exists( 'PaypalApiHelper' ) ) {
 			//If there is some init amount (Setup Fee)
 
 				//apply setup fee (if applicable)
-				$setup_fee = $psts->get_setting( 'setup_fee', 0 );
+				$setup_fee = ProSites_Helper_Settings::setup_fee();
 
 				if ( empty( $blog_id ) ) {
 					if ( $level != 0 ) {

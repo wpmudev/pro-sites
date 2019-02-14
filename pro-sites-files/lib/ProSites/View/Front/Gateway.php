@@ -55,6 +55,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						if ( ! empty( $gateways[ $gateway ] ) && method_exists( $gateways[ $gateway ]['class'], 'cancel_subscription' ) ) {
 							call_user_func( $gateways[ $gateway ]['class'] . '::cancel_subscription', $blog_id, true );
 						}
+
+						do_action( 'psts_cancel_subscription_' . $gateway, $blog_id, true );
 					}
 
 					$site_details = $result;
@@ -115,11 +117,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$tabbed       = 'tabbed' == $psts->get_setting( 'pricing_gateways_style', 'tabbed' ) ? true : false;
 			$hidden_class = empty( $_POST ) ? 'hidden' : '';
+
 			/**
 			 * @todo Deal with upgraded_blog_details session
 			 */
-			$hidden_class = ( isset( $render_data['new_blog_details'] ) && isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
-			$hidden_class = isset( $render_data['new_blog_details']['site_activated'] ) && $render_data['new_blog_details']['site_activated'] ? 'hidden' : $hidden_class;
+			$hidden_class = ( isset( $render_data['new_blog_details']['blogname'] ) ) || isset( $render_data['upgraded_blog_details'] ) ? '' : $hidden_class;
+			$hidden_class = ( ! empty( $render_data['new_blog_details']['site_activated'] ) || ! empty( $render_data['upgraded_blog_details']['site_activated'] ) ) ? 'hidden' : $hidden_class;
 
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
@@ -260,6 +263,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 						if ( ! empty( $key ) && $result->gateway == $key && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 							$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain );
 						}
+
+						// Filter to update payment data.
+						$info_retrieved = apply_filters( 'psts_current_plan_info_retrieved', $info_retrieved, $blog_id, $domain, $key );
 					}
 				}
 			}
@@ -280,7 +286,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 				// Last payment failed
 				if ( ! empty( $info_retrieved['payment_failed'] ) ) {
-					$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please select your plan below and choose a new payment option.', 'psts' ) . '</div>';
+					if ( ! empty( $info_retrieved['last_payment_gateway'] ) && 'stripe' === strtolower( $info_retrieved['last_payment_gateway'] ) ) {
+						$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please update your card below or choose a new payment option.', 'psts' ) . '</div>';
+					} else {
+						$content .= '<div id="psts-general-error" class="psts-warning psts-payment-failed">' . __( 'Your last payment failed. Please select your plan below and choose a new payment option.', 'psts' ) . '</div>';
+					}
 				}
 
 				$content .= '<ul class="psts-info-list">';
@@ -431,7 +441,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 		public static function render_notification_information( $render_data = array(), $blog_id, $domain, $gateways, $gateway_order ) {
 			$content        = '';
-			$info_retrieved = '';
+			$info_retrieved = array();
 
 			foreach ( $gateway_order as $key ) {
 				//If the key is empty or The gateway is not enabled
@@ -442,6 +452,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				if ( empty( $info_retrieved ) && method_exists( $gateways[ $key ]['class'], 'get_existing_user_information' ) ) {
 					$info_retrieved = call_user_func( $gateways[ $key ]['class'] . '::get_existing_user_information', $blog_id, $domain, false );
 				}
+
+				// Filter to update payment data.
+				$info_retrieved = apply_filters( 'psts_render_notification_information', $info_retrieved, $blog_id );
 			}
 
 			// Notifications
@@ -472,8 +485,8 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				return self::render_payment_submitted( '', '', $blog_id );
 			}
 
-			if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
-			     ( isset( $session_data['upgraded_blog_details'] ) && isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
+			if ( ( isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
+			     ( isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
 			) {
 				$pre_content .= self::render_payment_submitted();
 			}
@@ -490,10 +503,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			//For gateways after redirection, upon page refresh
 			$page_reload = ! empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );
 
+			$cancel = ! empty( $_GET['action'] ) && $_GET['action'] == 'cancel';
+
 			//If action is new_blog, but new blog is not allowed
 			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
 
-			if ( $is_pro_site && ( ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
+			if ( $is_pro_site && ( $cancel || ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
 				// EXISTING DETAILS
 				if ( isset( $gateways ) && isset( $gateway_details ) ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();

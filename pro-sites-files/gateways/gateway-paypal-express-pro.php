@@ -538,7 +538,7 @@ class ProSites_Gateway_PayPalExpressPro {
 
 			$is_trial = $psts->is_trial_allowed( $blog_id );
 
-			$setup_fee = (float) $psts->get_setting( 'setup_fee', 0 );
+			$setup_fee = (float) ProSites_Helper_Settings::setup_fee();
 
 			$recurring = $psts->get_setting( 'recurring_subscriptions', true );
 
@@ -1602,12 +1602,12 @@ class ProSites_Gateway_PayPalExpressPro {
 			$level  = $data['level'];
 			$period = $data['period'];
 
-			ProSites_Helper_Session::session( 'upgrade_blog_details', array() );
-			ProSites_Helper_Session::session( array( 'upgrade_blog_details', 'blog_id' ), $blog_id );
-			ProSites_Helper_Session::session( array( 'upgrade_blog_details', 'level' ), $level );
-			ProSites_Helper_Session::session( array( 'upgrade_blog_details', 'period' ), $period );
+			ProSites_Helper_Session::session( 'upgraded_blog_details', array() );
+			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'blog_id' ), $blog_id );
+			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'level' ), $level );
+			ProSites_Helper_Session::session( array( 'upgraded_blog_details', 'period' ), $period );
 			ProSites_Helper_Session::session( array(
-				'upgrade_blog_details',
+				'upgraded_blog_details',
 				'payment_success'
 			), true );
 		}

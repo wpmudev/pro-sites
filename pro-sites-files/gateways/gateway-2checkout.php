@@ -232,7 +232,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 				$trial_days     = $psts->get_setting( 'trial_days', 0 );
 				$cp_code        = false;
 				$is_trial       = $psts->is_trial_allowed( $blog_id );
-				$setup_fee      = (float) $psts->get_setting( 'setup_fee', 0 );
+				$setup_fee      = (float) ProSites_Helper_Settings::setup_fee();
 				$has_coupon     = ( isset( $_SESSION['COUPON_CODE'] ) && $psts->check_coupon( $_SESSION['COUPON_CODE'], $blog_id, $_POST['level'] ) ) ? true : false;
 				$has_setup_fee  = $psts->has_setup_fee( $blog_id, $_POST['level'] );
 				$recurring      = $psts->get_setting( 'recurring_subscriptions', 1 );

@@ -498,7 +498,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				}
 
 				$level_list       = get_site_option( 'psts_levels' );
-				$setup_fee_amount = $psts->get_setting( 'setup_fee', 0 );
+				$setup_fee_amount = ProSites_Helper_Settings::setup_fee();
 
 				$level_details = array();
 

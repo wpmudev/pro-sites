@@ -66,7 +66,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			return $result;
 		}
 
-		public static function activate_blog( $data, $trial = false, $period = 1, $level = 1, $expire = false ) {
+		public static function activate_blog( $data, $trial = false, $period = 1, $level = 1, $expire = false, $extend = true, $recurring = true ) {
 			global $psts, $wpdb;
 
 			$user_pass = false;
@@ -176,10 +176,10 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			 * @todo: Make sure we dont over extend
 			 */
 			//Set Trial
-			if ( $trial ) {
+			if ( $trial && $extend ) {
 				$trial_days = $psts->get_setting( 'trial_days', 0 );
 				// Set to first level for $trial_days
-				$psts->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ) );
+				$psts->extend( $result['blog_id'], $period, 'trial', $level, '', strtotime( '+ ' . $trial_days . ' days' ), $recurring );
 
 				//Redirect to checkout on next signup
 				/**
