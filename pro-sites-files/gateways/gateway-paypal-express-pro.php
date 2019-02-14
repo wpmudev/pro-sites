@@ -2234,6 +2234,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			'FI' => 'Finland',
 			'FR' => 'France',
 			'DE' => 'Germany',
+			'GR' => 'Greece',
 			'HK' => 'Hong Kong',
 			'IN' => 'India',
 			'IL' => 'Israel',
