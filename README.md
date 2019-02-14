@@ -80,7 +80,6 @@ Prior to release, code needs to be checked and tested by QA team. Merge all acti
 Follow these steps to make the release:
 
 * Update `changelog.text` file.
-* Do not forget to update the version number. Always with
-format X.X.X. You'll need to update in `pro-sites.php` (header and $version variable) and also `package.json`
+* Do not forget to update the version number. Always with format X.X.X. You'll need to update in `pro-sites.php` (header and $version variable) and also `package.json`
 * Execute `grunt build`. zips and files will be generated in `releases` folder.
-* Do not forget to sync `master` on `development` by checking out `development` branch and then `git merge master`
+* Once QA passed, do not forget to sync `master` on `development` by checking out `development` branch and then `git merge master`
