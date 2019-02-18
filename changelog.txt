@@ -5,11 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.6.1 - 30/01/2019
+3.6.1 - 18/02/2019
 
 *Added:
     - Card update form for Stripe customers.
     - New setting to log the Stripe errors to error log.
+    - Responsive pricing tables.
 *Updated:
     - Updated Stripe library.
     - Updated checkout screen for Stripe.
@@ -18,7 +19,6 @@ Change Log:
     - Do not cancel subscriptions immediately unless the site is deleted.
     - Remove deprecated functions.
     - Minimum PHP version is updated to 5.4.
-
 
 3.6.0 - 15/01/2019
 
