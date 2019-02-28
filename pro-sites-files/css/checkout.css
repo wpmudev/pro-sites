@@ -1078,6 +1078,7 @@ ul.pricing-column ul.feature-section li {
 .pricing-column .coupon-box.coupon-valid:after {
 	font-family: dashicons;
 	content: "\f147";
+	color: #00CE8A;
 }
 
 #prosites-checkout-table .coupon-wrapper .coupon-box.coupon-valid span:after,
@@ -1087,7 +1088,8 @@ ul.pricing-column ul.feature-section li {
 	top: 1.6em;
 }
 
-#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-invalid span:after {
+#prosites-checkout-table .coupon-wrapper .coupon-box.coupon-invalid span:after,
+.pricing-column .coupon-box.coupon-invalid:after {
 	font-family: dashicons;
 	content: "\f158";
 	/* IE 9 */
@@ -1095,6 +1097,7 @@ ul.pricing-column ul.feature-section li {
 	/* Chrome, Safari, Opera */
 	-webkit-transform: scale(0.8, 0.8);
 	transform: scale(0.8, 0.8);
+	color: #ff0000;
 }
 
 /* Applying Coupon */
