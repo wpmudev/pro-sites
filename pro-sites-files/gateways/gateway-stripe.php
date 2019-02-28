@@ -986,6 +986,8 @@ class ProSites_Gateway_Stripe {
 		$last_charge = empty( $last_invoice->charge ) ? false : $last_invoice->charge;
 		// Last charge amount.
 		$last_charge_amount = empty( $last_charge->amount ) ? 0 : self::format_price( $last_charge->amount );
+		// Last invoice total.
+		$last_invoice_total = empty( $last_invoice->total ) ? 0 : self::format_price( $last_invoice->total, false );
 		// Current user's name.
 		$display_name = $current_user->display_name;
 		// Default messages.
@@ -1009,7 +1011,7 @@ class ProSites_Gateway_Stripe {
 			case 'cancel_refund':
 				// First cancel the subscription.
 				if ( self::$stripe_subscription->cancel_blog_subscription( $blog_id ) && $last_charge ) {
-					$refund_amount = $psts->format_currency( false, $last_invoice->total );
+					$refund_amount = $psts->format_currency( false, $last_invoice_total );
 					// Now process the refund.
 					if ( self::$stripe_charge->refund_charge( $last_charge, false, $error ) ) {
 						// Log the success message.
@@ -1022,7 +1024,7 @@ class ProSites_Gateway_Stripe {
 				break;
 
 			case 'refund':
-				$refund_amount = $psts->format_currency( false, $last_invoice->total );
+				$refund_amount = $psts->format_currency( false, $last_invoice_total );
 				// Process the refund.
 				if ( self::$stripe_charge->refund_charge( $last_charge, false, $error ) ) {
 					// Log the transaction.
