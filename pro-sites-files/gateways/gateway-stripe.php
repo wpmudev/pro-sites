@@ -1359,7 +1359,7 @@ class ProSites_Gateway_Stripe {
 			// Get the existing site data.
 			$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
 			// If plans have changed, set the upgrade flag to true.
-			if ( isset( $site_data->level, $site_data->term ) && self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id ) {
+			if ( ! empty( $site_data->level ) && ! empty( $site_data->term ) && self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id ) {
 				self::$upgrading = true;
 			}
 		}
@@ -1511,7 +1511,7 @@ class ProSites_Gateway_Stripe {
 		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
 
 		// If plans have changed, set the upgrade flag to true.
-		if ( isset( $site_data->level, $site_data->term ) && self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id ) {
+		if ( ! empty( $site_data->level ) && ! empty( $site_data->term ) && self::$stripe_plan->get_id( $site_data->level, $site_data->term ) !== $plan_id ) {
 			$updated = array(
 				'render'      => true,
 				'blog_id'     => self::$blog_id,
@@ -2334,7 +2334,7 @@ class ProSites_Gateway_Stripe {
 		// Get existing site's data.
 		$site_data = ProSites_Helper_ProSite::get_site( self::$blog_id );
 		// If data found, get the existing plan id.
-		if ( isset( $site_data->level, $site_data->term ) ) {
+		if ( ! empty( $site_data->level ) && ! empty( $site_data->term ) ) {
 			// Get the old plan.
 			$old_plan = self::$stripe_plan->get_id( $site_data->level, $site_data->term );
 
