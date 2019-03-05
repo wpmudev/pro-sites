@@ -323,7 +323,7 @@ class ProSites_Gateway_Stripe {
 			Stripe\Stripe::setApiKey( self::$secret_key );
 			// Set API version.
 			Stripe\Stripe::setApiVersion( $this->api_version );
-			// Set app info.
+			// Set app info. This name should not be translated.
 			Stripe\Stripe::setAppInfo( 'Pro Sites', $psts->version, network_home_url() );
 		}
 	}
@@ -631,15 +631,21 @@ class ProSites_Gateway_Stripe {
 	/**
 	 * Force SSL if not enabled.
 	 *
+	 * @param bool $force Should force?.
+	 *
 	 * @since 3.5.0
 	 *
 	 * @return bool
 	 */
-	public function force_ssl() {
+	public function force_ssl( $force ) {
 		global $psts;
 
 		// Should force?.
-		return (bool) $psts->get_setting( 'stripe_ssl', false );
+		if ( (bool) $psts->get_setting( 'stripe_ssl', false ) ) {
+			return true;
+		}
+
+		return $force;
 	}
 
 	/**
