@@ -1400,6 +1400,15 @@ class ProSites {
 	function email_notification( $blog_id, $action, $email = false, $args = array() ) {
 		global $wpdb;
 
+		/**
+		 * Let other plugins disable email notifications.
+		 *
+		 * @since 3.6.1
+		 */
+		if ( ! apply_filters( 'pro_sites_email_notification', true, $action, $blog_id, $email ) ) {
+			return;
+		}
+
 		if ( ! $email ) {
 			$email = get_blog_option( $blog_id, 'admin_email' );
 		}
@@ -1612,6 +1621,13 @@ class ProSites {
 				break;
 		}
 		remove_action('phpmailer_init', 'psts_text_body');
+
+		/**
+		 * Notify other plugins about email notifications.
+		 *
+		 * @since 3.6.1
+		 */
+		do_action( 'pro_sites_email_notification', $action, $blog_id, $email );
 	}
 
 	/**
