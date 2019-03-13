@@ -5,12 +5,13 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-3.6.1 - 18/02/2019
+3.6.1 - 13/03/2019
 
 *Added:
     - Card update form for Stripe customers.
     - New setting to log the Stripe errors to error log.
     - Responsive pricing tables.
+    - New action & filter hooks (pro_sites_email_notification) for email notifications.
 *Updated:
     - Updated Stripe library.
     - Updated checkout screen for Stripe.
