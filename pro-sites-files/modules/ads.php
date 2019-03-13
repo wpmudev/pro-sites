@@ -69,7 +69,7 @@ class ProSites_Module_Ads {
 		}
 
 		foreach ( $expirations as $expiration ) {
-			wp_cache_set( "supporter_ads:{$expiration->blog_ID}:expire", $expiration->expire, 'blog-details' );
+			ProSites_Helper_Cache::set_cache( "supporter_ads:{$expiration->blog_ID}:expire", $expiration->expire, 'blog-details' );
 		}
 	}
 
@@ -104,7 +104,7 @@ class ProSites_Module_Ads {
 			$blog_id = $wpdb->blogid;
 		}
 
-		$expire = wp_cache_get( "supporter_ads:$blog_id:expire", 'blog-details' );
+		$expire = ProSites_Helper_Cache::get_cache( "supporter_ads:$blog_id:expire", 'blog-details' );
 
 		if ( false === $expire ) {
 			$expire = $wpdb->get_var( "SELECT expire FROM {$wpdb->base_prefix}supporter_ads WHERE blog_ID = '$blog_id'" );
@@ -113,7 +113,7 @@ class ProSites_Module_Ads {
 				$expire = - 1;
 			}
 
-			wp_cache_set( "supporter_ads:$blog_id:expire", $expire, 'blog-details' );
+			ProSites_Helper_Cache::set_cache( "supporter_ads:$blog_id:expire", $expire, 'blog-details' );
 		}
 
 		return ( $expire > time() );

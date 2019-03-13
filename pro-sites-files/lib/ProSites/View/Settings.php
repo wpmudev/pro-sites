@@ -248,7 +248,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"
-                            class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
+						    class="psts-trial-message psts-help-div"><?php echo __( 'Free Trial Message', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Required - This message is displayed on the dashboard notifying how many days left in their free trial. "DAYS" will be replaced with the number of days left in the trial. "LEVEL" will be replaced with the needed level name.', 'psts' ) ); ?></th>
 						<td>
 							<input type="text" name="psts[trial_message]" id="trial_message"
 							       value="<?php esc_attr_e( $psts->get_setting( 'trial_message' ) ); ?>"
@@ -267,10 +267,9 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 						<th scope="row"
 						    class="psts-help-div psts-setup-fee"><?php echo __( 'Setup Fee', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Free sites are not charged a setup fee until upgraded to a paid level. If you want upgrades from any level to be charged a setup fee then check "Apply setup fee to upgrades".', 'psts' ) ); ?></th>
 						<td>
-							<label><?php echo $psts->format_currency(); ?></label><input type="text"
-							                                                             name="psts[setup_fee]" size="4"
-							                                                             value="<?php echo ( $setup_fee = $psts->get_setting( 'setup_fee', false ) ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
-							&nbsp;<br/><br/>
+							<label><?php echo $psts->format_currency(); ?></label><input type="text" name="psts[setup_fee]" size="4" value="<?php echo ( $setup_fee = ProSites_Helper_Settings::setup_fee() ) ? number_format( (float) $setup_fee, 2, '.', '' ) : ''; ?>"/>
+							<span class="description"><?php printf( __( '%sNote:%s Coupons will not be applied to the setup fee.', 'psts' ), '<strong>', '</strong>' ); ?></span>
+							<br/><br/>
 							<label for="psts-apply-setup-fee-upgrade">
 								<input type="checkbox" name="psts[apply_setup_fee_upgrade]"
 								       id="psts-apply-setup-fee-upgrade"
@@ -312,18 +311,18 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 						</td>
 					</tr>
 					<?php if ( is_ssl() ) : ?>
-					<tr valign="top">
-						<th scope="row"
-						    class="psts-help-div psts-ssl"><?php echo __( 'SSL for new sites', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enable this if wild card SSL available for all new sub sites. This will be applicable only if SSL is enabled and multisite is using sub domain setup.', 'psts' ) ); ?></th>
-						<td>
-							<label for="psts-subsites-ssl-on">
-								<input type="radio" name="psts[subsites_ssl]" id="psts-subsites-ssl-on" value="1" <?php checked( $psts->get_setting( 'subsites_ssl', 1 ), 1 ); ?> /> <?php _e( 'Enable', 'psts' ); ?>
-							</label>
-							<label for="psts-subsites-ssl-off">
-								<input type="radio" name="psts[subsites_ssl]" id="psts-subsites_ssl-off" value="0" <?php checked( $psts->get_setting( 'subsites_ssl', 1 ), 0 ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
-							</label>
-						</td>
-					</tr>
+						<tr valign="top">
+							<th scope="row"
+							    class="psts-help-div psts-ssl"><?php echo __( 'SSL for new sites', 'psts' ) . ProSites_Helper_UI::help_text( __( 'Enable this if wild card SSL available for all new sub sites. This will be applicable only if SSL is enabled and multisite is using sub domain setup.', 'psts' ) ); ?></th>
+							<td>
+								<label for="psts-subsites-ssl-on">
+									<input type="radio" name="psts[subsites_ssl]" id="psts-subsites-ssl-on" value="1" <?php checked( $psts->get_setting( 'subsites_ssl', 1 ), 1 ); ?> /> <?php _e( 'Enable', 'psts' ); ?>
+								</label>
+								<label for="psts-subsites-ssl-off">
+									<input type="radio" name="psts[subsites_ssl]" id="psts-subsites_ssl-off" value="0" <?php checked( $psts->get_setting( 'subsites_ssl', 1 ), 0 ); ?> /> <?php _e( 'Disable', 'psts' ); ?>
+								</label>
+							</td>
+						</tr>
 					<?php endif; ?>
 					<?php do_action( 'psts_general_settings' ); ?>
 				</table>
@@ -489,7 +488,7 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 									'&#8310;',
 									'&#8311;',
 									'&#8312;',
-									'&#8313;'
+									'&#8313;',
 								);
 								$gateways = ProSites_Helper_Gateway::get_gateways();
 
@@ -577,7 +576,8 @@ if ( ! class_exists( 'ProSites_View_Settings' ) ) {
 				<!--</table>-->
 				<!--<hr />-->
 				<h3 class="psts-settings-title"><br/>EU VAT - Taxamo Integration</h3>
-				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT requirements.
+				<div class="psts-settings-desc psts-description">Setup integration with Taxamo.com to handle your EU VAT
+					requirements.
 				</div>
 				<table class="form-table">
 					<tr valign="top">

@@ -45,7 +45,7 @@ if ( ! class_exists( 'ProSites_Model_Settings' ) ) {
 				 */
 				if ( isset( $_POST['quotas_for_level'] ) && isset( $_POST['psts']['pq_quotas'] ) ) {
 					$quotas_for_level = esc_attr( $_POST['quotas_for_level'] );
-					$levels_quotas = $old_settings['levels_quotas'];
+					$levels_quotas = empty( $old_settings['levels_quotas'] ) ? array() : $old_settings['levels_quotas'];
 					$levels_quotas[ $quotas_for_level ] = $_POST['psts']['pq_quotas'];
 
 					$per_level = isset( $_POST['psts']['per_level'] ) ? $_POST['psts']['per_level'] : 0;

@@ -65,3 +65,6 @@ nb-configuration.xml
 
 # Releases folder
 releases/
+
+# Others
+pro-sites-files/tcpdf/cache

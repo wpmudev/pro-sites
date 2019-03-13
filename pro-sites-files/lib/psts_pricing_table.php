@@ -192,7 +192,7 @@ class ProSites_Pricing_Table {
 
 		$setup_fee_label = '';
 		if ( $psts->has_setup_fee( $this->blog_id, $level ) ) {
-			$setup_fee_amt   = $psts->get_setting( 'setup_fee', 0 );
+			$setup_fee_amt   = ProSites_Helper_Settings::setup_fee();
 			$setup_fee       = $psts->format_currency( false, $setup_fee_amt );
 			$setup_fee_label = '<p class="setup fee">+ a one time ' . $setup_fee . ' setup fee.</p>';
 		}
@@ -283,7 +283,7 @@ class ProSites_Pricing_Table {
 
 		$equiv         = '';
 		$coupon_price  = '';
-		$setup_fee_amt = $psts->get_setting( 'setup_fee', 0 );
+		$setup_fee_amt = ProSites_Helper_Settings::setup_fee();
 		$levels        = $this->get_levels();
 		$column_width  = 100 / ( count( $levels ) + 1 );
 		$custom_style  = "";

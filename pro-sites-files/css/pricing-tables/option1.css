@@ -76,7 +76,7 @@
 }
 
 .pricing-column .coupon-box.coupon-invalid:after {
-    color: #B6B6B6;
+    color: #ff0000;
 }
 
 .plan-price.original-amount.scratch:after {
