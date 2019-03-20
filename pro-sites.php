@@ -2618,7 +2618,7 @@ class ProSites {
 
 		//Check if chosen css is already registered
 		if ( ! wp_style_is( 'chosen', 'registered' ) ) {
-			wp_register_style( 'chosen', $this->plugin_url . 'css/chosen/chosen.min.css' );
+			wp_register_style( 'chosen', $this->plugin_url . 'css/chosen/chosen.min.css', array(), '1.8.7' );
 		}
 
 		wp_register_script( 'psts-js', $this->plugin_url . 'js/psts-admin.js', array(
@@ -2643,7 +2643,7 @@ class ProSites {
 
 		//Check if chosen js is already registered
 		if ( ! wp_script_is( 'chosen', 'registered' ) ) {
-			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js' );
+			wp_register_script( 'chosen', $this->plugin_url . 'js/chosen/chosen.jquery.min.js', array( 'jquery' ), '1.8.7' );
 		}
 
 	}
