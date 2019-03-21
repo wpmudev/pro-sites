@@ -300,11 +300,10 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 * plan selected. If a restricted theme/plugin is active on a NBT
 		 * template, hide that template from registration form.
 		 *
-		 * @return strng
+		 * @return void
 		 */
 		public static function update_nbt_templates() {
-
-			global $psts;
+			global $psts, $blog_templates;
 
 			$templates = array();
 
@@ -315,13 +314,19 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 				$templates = self::get_filtered_nbt_templates( $level );
 			}
 
-			// Create new options based on the filtered data.
-			$content = '<option value="none">' . __( "None", "psts" ) . '</option>';
-			if ( ! empty( $templates ) ) {
-				foreach ( $templates as $key => $template ) {
-					$content .= '<option value="' . $key . '">' . strip_tags( $template['name'] ) . '</option>';
+			// Filter the templates using level.
+			add_filter( 'nbt_get_templates', function( $data ) use( $templates ) {
+				if ( ! empty( $templates ) ) {
+					return $templates;
 				}
-			}
+
+				return $data;
+			} );
+
+			// Get template selection box.
+			ob_start();
+			$blog_templates->registration_template_selection();
+			$content = ob_get_clean();
 
 			wp_send_json( $content );
 		}
@@ -387,11 +392,12 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 		 * selected level. Remove the templates if restricted
 		 * plugins or themes are active within the template.
 		 *
-		 * @param $level Selected level.
+		 * @param int   $level     Selected level.
+		 * @param array $templates Templates.
 		 *
 		 * @return array Filtered templates.
 		 */
-		public static function get_filtered_nbt_templates( $level ) {
+		public static function get_filtered_nbt_templates( $level, $templates = array() ) {
 
 			global $psts;
 
@@ -405,7 +411,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$nbt_model = nbt_get_model();
 
 			// All available NBT templates.
-			$templates = $nbt_model->get_templates();
+			$templates = empty( $templates ) ? $nbt_model->get_templates() : $templates;
 			if ( empty( $templates ) ) {
 				return array();
 			}

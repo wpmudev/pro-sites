@@ -678,7 +678,7 @@ jQuery( document ).ready( function ( $ ) {
     function nbt_template_update( level ) {
 
         // NBT temmplate selector.
-        var template_selector = $( 'select[name=blog_template]' );
+        var template_selector = $( '.blog_template-option' );
 
         if ( template_selector.length ) {
 
