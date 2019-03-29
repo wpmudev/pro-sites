@@ -1538,8 +1538,13 @@ class ProSites {
 				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
+				$pdf_receipt = '';
+				if( $this->get_setting( 'send_receipts', 1 ) ) {
+					$pdf_receipt = $this->pdf_receipt( $e['msg'] );
+				}
+
 				ob_start();
-				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $this->pdf_receipt( $e['msg'] ) );
+				wp_mail( $email, $e['subject'], nl2br( $e['msg'] ), implode( "\r\n", $mail_headers ), $pdf_receipt );
 				ob_end_clean();
 
 				$this->log_action( $blog_id, sprintf( __( 'Payment receipt email sent to %s', 'psts' ), $email ) );
