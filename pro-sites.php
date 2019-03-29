@@ -1538,8 +1538,9 @@ class ProSites {
 				) );
 				$e = str_replace( array_keys( $search_replace ), $search_replace, $e );
 
-				$pdf_receipt = '';
-				if( $this->get_setting( 'send_receipts', 1 ) ) {
+				$pdf_receipt = array();
+				// Get receipt only when enabled.
+				if ( $this->get_setting( 'send_receipts', 1 ) ) {
 					$pdf_receipt = $this->pdf_receipt( $e['msg'] );
 				}
 
