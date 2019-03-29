@@ -5,6 +5,15 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+3.6.2
+
+*Updated:
+    - Updated Chosen JS library.
+    - Refresh all NBT template when level is selected.
+    - Performance improvements in checkout page creation.
+*Fixed:
+    - Generate PDF receipt only when enabled in settings.
+
 3.6.1 - 13/03/2019
 
 *Added:
