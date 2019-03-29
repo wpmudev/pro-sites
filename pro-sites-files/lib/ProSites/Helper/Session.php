@@ -25,7 +25,7 @@ if ( ! class_exists( 'ProSites_Helper_Session' ) ) {
 			$session_value = null;
 
 			// Make sure session is started
-			if ( ! session_id() ) {
+			if ( ! session_id() && ! headers_sent()) {
 				session_start();
 			}
 
