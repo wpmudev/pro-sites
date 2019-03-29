@@ -368,7 +368,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 
 					<div id="poststuff" class="metabox-holder">
 
-						<div class="postbox">
+						<div class="postbox psts-coupon-postbox">
 							<h3 class="hndle" style="cursor:auto;"><span>
 							<?php
 							if ( isset( $_GET['code'] ) || $error ) {
@@ -438,7 +438,7 @@ if ( ! class_exists( 'ProSites_View_Coupons' ) ) {
 													value="indefinite"<?php selected( $coupon_life, 'indefinite' ) ?>><?php esc_html_e( 'Indefinite' ); ?></option>
 											</select>
 										</td>
-										<td>
+										<td class="psts-coupon-discount-td">
 											<input value="<?php echo $discount; ?>" size="3" name="discount"
 											       type="text"/>
 											<select name="discount_type" class="chosen narrow">

@@ -63,6 +63,7 @@ select.chosen.narrow {
 #add_coupon {
     border-collapse: separate;
     border-spacing: 10px 5px;
+    width: 100%;
 }
 
 #add_coupon th, #add_coupon td {
@@ -76,6 +77,14 @@ select.chosen.narrow {
 #add_coupon th {
     position: relative;
     text-align: left;
+}
+
+#add_coupon td.psts-coupon-discount-td {
+    display: inline-flex;
+}
+
+.postbox.psts-coupon-postbox {
+    overflow-x: auto;
 }
 
 input[name="uses"] {
