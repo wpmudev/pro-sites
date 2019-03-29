@@ -30,7 +30,7 @@ class ProSites_Module_Plugins {
 	}
 
 	function __construct() {
-		global $blog_id;
+		global $blog_id, $wp_version;
 
 		$this->is_admin_main_site = ( is_super_admin() || is_main_site( $blog_id ) ) ? true : false;
 
@@ -48,7 +48,14 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_all' ) );
 		add_action( 'psts_upgrade', array( &$this, 'auto_activate' ), 10, 3 );
 		add_action( 'psts_downgrade', array( &$this, 'deactivate' ), 10, 3 );
-		add_action( 'wpmu_new_blog', array( &$this, 'new_blog' ), 50 ); //auto activation hook
+
+		// WP 5.1 deprecated old hook, so use new one.
+		if ( version_compare( $wp_version, '5.1' ) >= 0 ) {
+			add_action( 'wp_insert_site', array( &$this, 'new_blog' ) );
+		} else {
+			// Auto activation hook.
+			add_action( 'wpmu_new_blog', array( &$this, 'new_blog' ), 50 );
+		}
 
 		add_filter( 'all_plugins', array( &$this, 'remove_plugins' ) );
 		add_filter( 'plugin_action_links', array( &$this, 'action_links' ), 10, 4 );
@@ -367,9 +374,18 @@ class ProSites_Module_Plugins {
 	}
 
 	//activate on new blog
-	function new_blog( $blog_id ) {
+	/**
+	 * @param int|WP_Site $blog Blog ID or Site.
+	 */
+	function new_blog( $blog ) {
+		// Get site.
+		$site = get_site( $blog );
+		// Do not continue if not valid.
+		if ( empty( $site->blog_id ) ) {
+			return;
+		}
 
-		if( is_main_site( $blog_id ) ) {
+		if( is_main_site( $site->blog_id ) ) {
 			return;
 		}
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
@@ -377,12 +393,12 @@ class ProSites_Module_Plugins {
 
 		$psts_plugins  = (array) $psts->get_setting( 'pp_plugins' );
 		$auto_activate = array();
-		switch_to_blog( $blog_id );
+		switch_to_blog( $site->blog_id );
 
 		//look for valid plugins with anyone access
 		foreach ( $psts_plugins as $plugin_file => $data ) {
 			if( !empty( $data ) ) {
-				if ( $data['auto'] && is_numeric( $data['level'] ) && ( is_pro_site( $blog_id, $data['level'] ) || $data['level'] == 0 ) && ! is_plugin_active( $plugin_file ) ) {
+				if ( $data['auto'] && is_numeric( $data['level'] ) && ( is_pro_site( $site->blog_id, $data['level'] ) || $data['level'] == 0 ) && ! is_plugin_active( $plugin_file ) ) {
 					$auto_activate[] = $plugin_file;
 				}
 			}

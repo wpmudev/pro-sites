@@ -58,7 +58,7 @@ class ProSites {
 		register_activation_hook( __FILE__, array( $this, 'install' ) );
 
 		//load dashboard notice
-		global $wpmudev_notices;
+		global $wpmudev_notices, $wp_version;
 		$wpmudev_notices[] = array(
 			'id'      => 49,
 			'name'    => 'Pro Sites',
@@ -140,8 +140,13 @@ class ProSites {
 			'signup_redirect',
 		), 100 ); //delay to make sure it is last hook to admin_init
 
-		//trials
-		add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
+		// WP 5.1 deprecated old hook, so use new one.
+		if ( version_compare( $wp_version, '5.1' ) >= 0 ) {
+			add_action( 'wp_insert_site', array( &$this, 'trial_extend' ) );
+		} else {
+			add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
+		}
+
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
 
 		add_action( 'save_post', array( &$this, 'store_checkout_url' ) );
@@ -631,11 +636,18 @@ class ProSites {
 	}
 
 	/**
-	* Add trial days
+	* Add trial days for the new blog.
 	*
-	* @param $blog_id
+	* @param int|WP_Site $blog Blog ID or Site.
 	*/
-	function trial_extend( $blog_id ) {
+	function trial_extend( $blog ) {
+		// Get site.
+		$site = get_site( $blog );
+		// Do not continue if not valid.
+		if ( empty( $site->blog_id ) ) {
+			return;
+		}
+
 		$trial_days = $this->get_setting( 'trial_days' );
 		$free_signup = $this->get_setting( 'free_signup' );
 
@@ -644,7 +656,7 @@ class ProSites {
 		    return;
 		}elseif ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
-			$this->extend( $blog_id, $extend, 'trial', $level );
+			$this->extend( $site->blog_id, $extend, 'trial', $level );
 		}
 	}
 
