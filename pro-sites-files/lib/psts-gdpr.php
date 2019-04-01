@@ -178,7 +178,7 @@ class ProSites_GDPR {
 		 *
 		 * @param string $error_text Error message.
 		 */
-		$error_text = apply_filters( 'psts_privacy_check_error_text', __( 'You must read and accept Privacy and Policy.', 'psts' ) );
+		$error_text = apply_filters( 'psts_privacy_check_error_text', __( 'You must read and accept Privacy Policy.', 'psts' ) );
 
 		// Add error for privacy policy field.
 		$result['errors']->add( 'psts_privacy_check', $error_text );
