@@ -211,7 +211,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_add_level', array( $this, 'update_plans' ), 10, 2 );
 
 		// Cancel subscriptions on blog deletion.
-		add_action( 'delete_blog', array( $this, 'delete_blog' ) );
+		add_action( 'psts_delete_blog', array( $this, 'delete_blog' ) );
 		// Cancel subscription when gateway is changed from Stripe to something else.
 		add_action( 'psts_gateway_change_from_stripe', array( $this, 'change_gateway' ) );
 		// Cancelling subscription.
