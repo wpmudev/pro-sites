@@ -1145,7 +1145,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Get Stripe customer object.
-		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
+		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id, false );
 		// Continue only if customer is not found.
 		if ( empty( $customer ) ) {
 			return $content;

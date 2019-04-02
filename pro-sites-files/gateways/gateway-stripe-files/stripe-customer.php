@@ -18,24 +18,21 @@ class ProSites_Stripe_Customer {
 	 *
 	 * Get a Stripe customer object using customer id.
 	 *
-	 * @param string $id    Stripe customer ID.
-	 * @param bool   $force Should get from API forcefully.
+	 * @param string $id      Stripe customer ID.
+	 * @param bool   $deleted Should we consider deleted customers?.
+	 * @param bool   $force   Should get from API forcefully.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return \Stripe\Customer|false
 	 */
-	public function get_customer( $id, $force = false ) {
+	public function get_customer( $id, $deleted = true, $force = false ) {
 		$customer = false;
 
 		// If not forced, try cache.
 		if ( ! $force ) {
 			// Try to get from cache.
 			$customer = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_customer_' . $id, 'psts' );
-			// If found in cache, return it.
-			if ( ! empty( $customer ) ) {
-				return $customer;
-			}
 		}
 
 		// Get from Stripe API.
@@ -47,19 +44,18 @@ class ProSites_Stripe_Customer {
 				if ( ! empty( $customer ) ) {
 					// Set to cache so we can reuse it.
 					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_customer_' . $id, $customer, 'psts' );
-
-					return $customer;
 				}
 			} catch ( \Exception $e ) {
 				// Log error message.
 				ProSites_Gateway_Stripe::error_log( $e->getMessage() );
 
 				// Oh well.
-				return false;
+				$customer = false;
 			}
 		}
 
-		return false;
+		// Do not return deleted customer if not requested.
+		return ( $deleted || empty( $customer->deleted ) ) ? $customer : false;
 	}
 
 	/**
@@ -340,10 +336,6 @@ class ProSites_Stripe_Customer {
 		if ( ! $force ) {
 			// Try to get from cache.
 			$card = ProSites_Helper_Cache::get_cache( 'pro_sites_stripe_get_card_' . $card_id, 'psts' );
-			// If found in cache, return it.
-			if ( ! empty( $card ) ) {
-				return $card;
-			}
 		}
 
 		// Get from Stripe API.
@@ -351,11 +343,13 @@ class ProSites_Stripe_Customer {
 			try {
 				// Get Stripe customer.
 				$customer = $this->get_customer( $customer_id );
-				// Default card.
-				$card = $customer->sources->retrieve( $card_id );
-				if ( ! empty( $card ) ) {
-					// Set to cache.
-					ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_get_card_' . $card_id, $card, 'psts' );
+				if ( ! empty( $customer->sources ) ) {
+					// Default card.
+					$card = $customer->sources->retrieve( $card_id );
+					if ( ! empty( $card ) ) {
+						// Set to cache.
+						ProSites_Helper_Cache::set_cache( 'pro_sites_stripe_get_card_' . $card_id, $card, 'psts' );
+					}
 				}
 			} catch ( \Exception $e ) {
 				// Log error message.
@@ -565,8 +559,8 @@ class ProSites_Stripe_Customer {
 
 		// If no customer is found, create new.
 		if ( ! empty( $db_customer->customer_id ) ) {
-			// Try to get the Stripe customer.
-			$customer = $this->get_customer( $db_customer->customer_id );
+			// Try to get the Stripe customer, excluding deleted customers.
+			$customer = $this->get_customer( $db_customer->customer_id, false );
 
 			// If an existing customer add new card.
 			if ( $customer && ! empty( $token ) ) {
@@ -582,11 +576,12 @@ class ProSites_Stripe_Customer {
 					$card = $card->id;
 				}
 			}
-		} elseif ( ! empty( $token ) ) {
+		}
+
+		// Create new customer if we have token.
+		if ( empty( $customer ) && ! empty( $token ) ) {
 			// Try to create a Stripe customer.
 			$customer = $this->create_customer( $email, $token );
-		} else {
-			$customer = false;
 		}
 
 		// If we could not create/update a customer, add to errors.
@@ -693,13 +688,15 @@ class ProSites_Stripe_Customer {
 	 * If customer id is set in db, we will get
 	 * the customer object from API.
 	 *
-	 * @param int $blog_id Blog ID.
+	 * @param int  $blog_id Blog ID.
+	 * @param bool $deleted Should we consider deleted customers?.
+	 * @param bool $force   Should forcefully get from db?.
 	 *
 	 * @since 3.6.1
 	 *
 	 * @return Stripe\Customer|bool
 	 */
-	public function get_customer_by_blog( $blog_id ) {
+	public function get_customer_by_blog( $blog_id, $deleted = true, $force = false ) {
 		$customer = false;
 
 		$blog_id = (int) $blog_id;
@@ -714,7 +711,7 @@ class ProSites_Stripe_Customer {
 
 		// Now try to get the Stripe customer.
 		if ( ! empty( $customer_data->customer_id ) ) {
-			$customer = $this->get_customer( $customer_data->customer_id );
+			$customer = $this->get_customer( $customer_data->customer_id, $deleted, $force );
 		}
 
 		return $customer;
