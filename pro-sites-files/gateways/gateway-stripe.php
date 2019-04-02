@@ -714,7 +714,7 @@ class ProSites_Gateway_Stripe {
 		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
 
 		// Continue only if customer is found and not deleted.
-		if ( $customer->deleted ) {
+		if ( ! empty( $customer->deleted ) ) {
 			// Show message.
 			printf( __( 'This customer (%s) account has been permanently closed.', 'psts' ), $customer->id );
 
