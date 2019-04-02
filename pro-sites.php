@@ -89,6 +89,9 @@ class ProSites {
 		// Setup GDPR compliance.
 		require_once $this->plugin_dir . 'lib/psts-gdpr.php';
 
+		// Setup GDPR compliance.
+		require_once $this->plugin_dir . 'lib/psts-compatibility.php';
+
 		// TAX integration
 		if ( $this->get_setting( 'taxamo_status', false ) ) {
 			ProSites_Helper_Tax::init_tax();
@@ -140,12 +143,7 @@ class ProSites {
 			'signup_redirect',
 		), 100 ); //delay to make sure it is last hook to admin_init
 
-		// WP 5.1 deprecated old hook, so use new one.
-		if ( version_compare( $wp_version, '5.1' ) >= 0 ) {
-			add_action( 'wp_insert_site', array( &$this, 'trial_extend' ) );
-		} else {
-			add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
-		}
+		add_action( 'psts_new_blog', array( &$this, 'trial_extend' ) );
 
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
 
@@ -219,7 +217,7 @@ class ProSites {
 		add_action( 'psts_extend', array( $this, 'cancel_on_gateway_change' ), 10, 6 );
 
 		// Delete blog
-		add_action( 'delete_blog', array( &$this, 'delete_blog' ) );
+		add_action( 'psts_delete_blog', array( &$this, 'delete_blog' ) );
 
 		// Update password in email.
 		add_filter( 'update_welcome_email', array( 'ProSites_Helper_Registration', 'update_welcome_email' ), 10, 4 );
@@ -638,16 +636,9 @@ class ProSites {
 	/**
 	* Add trial days for the new blog.
 	*
-	* @param int|WP_Site $blog Blog ID or Site.
+	* @param int $blog_id Blog ID.
 	*/
-	function trial_extend( $blog ) {
-		// Get site.
-		$site = get_site( $blog );
-		// Do not continue if not valid.
-		if ( empty( $site->blog_id ) ) {
-			return;
-		}
-
+	function trial_extend( $blog_id ) {
 		$trial_days = $this->get_setting( 'trial_days' );
 		$free_signup = $this->get_setting( 'free_signup' );
 
@@ -656,7 +647,7 @@ class ProSites {
 		    return;
 		}elseif ( $trial_days > 0 ) {
 			$extend = $trial_days * 86400;
-			$this->extend( $site->blog_id, $extend, 'trial', $level );
+			$this->extend( $blog_id, $extend, 'trial', $level );
 		}
 	}
 

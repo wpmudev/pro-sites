@@ -49,7 +49,7 @@ class ProSites_Gateway_PayPalExpressPro {
 		), 10, 3 );
 
 		//cancel subscriptions on blog deletion
-		add_action( 'delete_blog', array( &$this, 'cancel_subscription' ) );
+		add_action( 'psts_delete_blog', array( &$this, 'cancel_subscription' ) );
 
 		/* This sets the default prefix to the paypal custom field,
 		 * in case you use the same account for multiple IPN requiring scripts,

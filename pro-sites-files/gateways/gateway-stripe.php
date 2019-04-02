@@ -211,7 +211,7 @@ class ProSites_Gateway_Stripe {
 		add_action( 'psts_add_level', array( $this, 'update_plans' ), 10, 2 );
 
 		// Cancel subscriptions on blog deletion.
-		add_action( 'delete_blog', array( $this, 'delete_blog' ) );
+		add_action( 'psts_delete_blog', array( $this, 'delete_blog' ) );
 		// Cancel subscription when gateway is changed from Stripe to something else.
 		add_action( 'psts_gateway_change_from_stripe', array( $this, 'change_gateway' ) );
 		// Cancelling subscription.
@@ -1145,7 +1145,7 @@ class ProSites_Gateway_Stripe {
 		}
 
 		// Get Stripe customer object.
-		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
+		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id, false );
 		// Continue only if customer is not found.
 		if ( empty( $customer ) ) {
 			return $content;

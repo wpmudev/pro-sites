@@ -40,7 +40,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			add_action( 'psts_payment_info', array( &$this, 'payment_info' ), 10, 2 );
 
 			//cancel subscriptions on blog deletion
-			add_action( 'delete_blog', array( &$this, 'cancel_blog_subscription' ) );
+			add_action( 'psts_delete_blog', array( &$this, 'cancel_blog_subscription' ) );
 		}
 
 		function settings() {
