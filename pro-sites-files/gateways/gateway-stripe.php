@@ -713,8 +713,13 @@ class ProSites_Gateway_Stripe {
 		// Get the Stripe customer.
 		$customer = self::$stripe_customer->get_customer_by_blog( $blog_id );
 
-		// Continue only if customer found.
-		if ( empty( $customer ) ) {
+		// Continue only if customer is found and not deleted.
+		if ( $customer->deleted ) {
+			// Show message.
+			printf( __( 'This customer (%s) account has been permanently closed.', 'psts' ), $customer->id );
+
+			return;
+		} elseif ( empty( $customer ) ) { // Not found.
 			// Show message.
 			esc_html_e( 'This site is using different gateway so their information is not accessible.', 'psts' );
 
