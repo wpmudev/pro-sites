@@ -251,7 +251,6 @@ class ProSites {
 		 * @todo: Temporary until gateways are adopted into new structure
 		 */
 		$class_overrides = array(
-			'ProSites_Gateway_2Checkout' => 'gateways/gateway-2checkout.php',
 			'ProSites_Gateway_Manual' => 'gateways/gateway-manual.php',
 			'ProSites_Gateway_PayPalExpressPro' => 'gateways/gateway-paypal-express-pro.php',
 			'ProSites_Gateway_Stripe' => 'gateways/gateway-stripe.php',

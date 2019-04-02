@@ -65,7 +65,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			$active_tab = ProSites_Helper_Tabs_Pricing::get_active_tab();
 			ProSites_Helper_Settings::settings_header( $active_tab );
 
-			//			$class_name = 'ProSites_Gateway_2Checkout';
 			$featured_level      = $psts->get_setting( 'featured_level' );
 			$plans_table_enabled = $psts->get_setting( 'plans_table_enabled', 'enabled' );
 
@@ -326,8 +325,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 			</table>
 
 			<?php
-			//			$gateway = new ProSites_Gateway_2Checkout();
-			//			echo $gateway->settings();
 		}
 
 		/**
@@ -786,9 +783,6 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 
 			</table>
 			<?php
-			//			$gateway = new ProSites_Gateway_2Checkout();
-			//			echo $gateway->settings();
-
 		}
 
 		public static function render_tab_pricing_style() {
