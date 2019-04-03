@@ -9,7 +9,6 @@
  * @copyright (c) 2018, Incsub (http://incsub.com)
  */
 
-
 /**
  * Class ProSites_Compatibility
  *
@@ -40,7 +39,9 @@ class ProSites_Compatibility {
 
 
 	/**
-	 * Backward compatibility for delete_blog
+	 * Backward compatibility for delete_blog.
+	 *
+	 * @param int|WP_Site $site Site id or Site.
 	 *
 	 * @since 3.6.2
 	 *
@@ -59,7 +60,9 @@ class ProSites_Compatibility {
 	}
 
 	/**
-	 * Backward compatibility for wpmu_new_blog
+	 * Backward compatibility for wpmu_new_blog.
+	 *
+	 * @param int|WP_Site $site Site id or Site.
 	 *
 	 * @since 3.6.2
 	 *
