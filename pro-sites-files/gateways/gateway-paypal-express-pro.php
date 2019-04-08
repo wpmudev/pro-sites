@@ -707,7 +707,7 @@ class ProSites_Gateway_PayPalExpressPro {
 			/**
 			 * Checkout Description
 			 */
-			$desc = apply_filters( 'psts_pypl_checkout_desc', $desc, $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $tax_amt_payment, $tax_amt_init, $blog_id, $domain );
+			$desc = apply_filters( 'psts_pypl_checkout_desc', trim( $desc ), $_POST['period'], $_POST['level'], $paymentAmount, $initAmount, $tax_amt_payment, $tax_amt_init, $blog_id, $domain );
 
 			$modify = self::is_modifying( $blog_id, $_POST, $initAmount );
 		}
