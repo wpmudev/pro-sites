@@ -1055,12 +1055,20 @@ class ProSites {
 
 	function checkout_url( $blog_id = false, $domain = false ) {
 
+		global $current_site;
+
+		//allow overriding and changing the root site to put the checkout page on
+		$checkout_site = defined( 'PSTS_CHECKOUT_SITE' ) ? constant( 'PSTS_CHECKOUT_SITE' ) : $current_site->blog_id;
+
+		switch_to_blog( $checkout_site );
+
 		$page = get_post( $this->get_setting( 'checkout_page' ) );
 		if ( ! $page || $page->post_status == 'trashed' ) {
 			$url = $this->create_checkout_page();
 		} else {
 			$url = get_permalink( $page );
 		}
+
 		/*
           //just in case the checkout page was not created do it now
           if (!$url) {
@@ -1082,6 +1090,8 @@ class ProSites {
 		} elseif ( $domain ) {
 			$url = add_query_arg( array( 'domain' => $domain ), $url );
 		}
+
+		restore_current_blog();
 
 		return $url;
 	}
@@ -1422,9 +1432,9 @@ class ProSites {
 		);
 		// send emails as html (fixes some formatting issues with currencies)
 		$mail_headers = array( 'Content-Type: text/html' );
-		
+
 		add_action('phpmailer_init', 'psts_text_body' );
-		
+
 		switch ( $action ) {
 			case 'success':
 				$e = apply_filters( 'psts_email_success_fields', array(
@@ -2103,9 +2113,9 @@ class ProSites {
     */
 	function extend( $blog_id, $extend, $gateway = false, $level = 1, $amount = false, $expires = false, $is_recurring = true, $manual_notify = false, $extend_type = '', $set_trial = false ) {
 		global $wpdb, $current_site;
-		
+
 		$gateway = ! empty( $gateway ) ? strtolower( $gateway ) : false;
-		
+
 		$last_gateway = '';
 
 		$now    = time();
@@ -2170,18 +2180,18 @@ class ProSites {
 			$last_gateway = ! empty( $last_gateway ) ? strtolower( $last_gateway ) : '';
 			//control whether we are upgrading the user or extending trial period
 			if ( 'manual' === $extend_type && $last_gateway != 'trial' ){
-				$new_gateway = ( $last_gateway == $gateway ) ? 'manual': $last_gateway;			
+				$new_gateway = ( $last_gateway == $gateway ) ? 'manual': $last_gateway;
 			} elseif ( 'manual' === $extend_type && 'trial' === $last_gateway ){
 				$new_gateway = 'manual';
 			} else {
 				$new_gateway = 'trial';
 			}
-			
+
 			$extra_sql .= ", gateway = '" . $new_gateway . "'";
 		} else {
 			$extra_sql .= ( $gateway ) ? $wpdb->prepare( ", gateway = %s", $gateway ) : '';
 		}
-		
+
 		$extra_sql .= ( $amount ) ? $wpdb->prepare( ", amount = %s", $amount ) : '';
 		$extra_sql .= ( $term ) ? $wpdb->prepare( ", term = %d", $term ) : '';
 		$extra_sql .= $wpdb->prepare( ", is_recurring = %d", $is_recurring );
@@ -3218,7 +3228,7 @@ try{
 												FROM {$wpdb->base_prefix}pro_sites
 												WHERE blog_ID = %d", $blog_id
 											) );
-											
+
 											?>
 											<select name="extend_type">
 												<option value="trial" <?php selected( $gateway,'trial' ); ?>><?php echo ProSites_Helper_Gateway::get_nice_name( 'trial' ); ?></option>
@@ -5315,7 +5325,7 @@ function admin_modules() {
 			'style' => $allowed_atts,
 		);
 
-		$allowedposthtml =  wp_kses_allowed_html( 'post' );		
+		$allowedposthtml =  wp_kses_allowed_html( 'post' );
 		return wp_kses( $content, array_merge($allowed, $allowedposthtml) );
 	}
 
