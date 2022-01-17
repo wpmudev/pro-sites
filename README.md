@@ -173,7 +173,7 @@ When setting up and working with Pro Sites levels, there are a few things to kee
 
 ### To install
 
-For help with installing plugins please see our [Plugin installation guide](http://premium.wpmudev.org/wpmu-manual/installing-regular-plugins-on-wpmu/). Once installed log into to your admin panel, visit **Network Admin » Plugins** and **Network Activate** the plugin.
+For help with installing plugins please see our [Plugin installation guide](https://wpmudev.com/docs/using-wordpress/installing-wordpress-plugins/). Once installed log into to your admin panel, visit **Network Admin » Plugins** and **Network Activate** the plugin.
 
 ### To Configure
 
