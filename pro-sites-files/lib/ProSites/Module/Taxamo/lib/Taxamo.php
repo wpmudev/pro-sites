@@ -128,7 +128,7 @@ class Taxamo {
    * @return listPaymentsOut
 	 */
 
-   public function listPayments($limit=null, $offset=null, $key) {
+   public function listPayments($key, $limit=null, $offset=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/transactions/{key}/payments";
@@ -219,7 +219,7 @@ class Taxamo {
    * @return emailInvoiceOut
 	 */
 
-   public function emailInvoice($key=null, $body) {
+   public function emailInvoice($body, $key=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/transactions/{key}/invoice/send_email";
@@ -340,7 +340,7 @@ class Taxamo {
    * @return updateTransactionOut
 	 */
 
-   public function updateTransaction($key=null, $body) {
+   public function updateTransaction($body, $key=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/transactions/{key}";
@@ -383,7 +383,7 @@ class Taxamo {
    * @return confirmTransactionOut
 	 */
 
-   public function confirmTransaction($key=null, $body) {
+   public function confirmTransaction($body, $key=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/transactions/{key}/confirm";
@@ -468,7 +468,7 @@ class Taxamo {
    * @return unconfirmTransactionOut
 	 */
 
-   public function unconfirmTransaction($key=null, $body) {
+   public function unconfirmTransaction($body, $key=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/transactions/{key}/unconfirm";
@@ -658,7 +658,7 @@ class Taxamo {
    * @return calculateSimpleTaxOut
 	 */
 
-   public function calculateSimpleTax($buyer_credit_card_prefix=null, $buyer_tax_number=null, $product_type=null, $force_country_code=null, $quantity=null, $unit_price=null, $total_amount=null, $tax_deducted=null, $amount=null, $billing_country_code=null, $currency_code, $order_date=null) {
+   public function calculateSimpleTax($currency_code, $buyer_credit_card_prefix=null, $buyer_tax_number=null, $product_type=null, $force_country_code=null, $quantity=null, $unit_price=null, $total_amount=null, $tax_deducted=null, $amount=null, $billing_country_code=null, $order_date=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/tax/calculate";
@@ -733,7 +733,7 @@ class Taxamo {
    * @return validateTaxNumberOut
 	 */
 
-   public function validateTaxNumber($country_code=null, $tax_number) {
+   public function validateTaxNumber($tax_number, $country_code=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/tax/vat_numbers/{tax_number}/validate";
@@ -1042,7 +1042,7 @@ class Taxamo {
    * @return getRefundsOut
 	 */
 
-   public function getRefunds($format=null, $moss_country_code=null, $date_from) {
+   public function getRefunds($date_from, $format=null, $moss_country_code=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/settlement/refunds";
@@ -1092,7 +1092,7 @@ class Taxamo {
    * @return getSettlementOut
 	 */
 
-   public function getSettlement($format=null, $moss_country_code=null, $quarter) {
+   public function getSettlement($quarter, $format=null, $moss_country_code=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/settlement/{quarter}";
@@ -1141,7 +1141,7 @@ class Taxamo {
    * @return getSettlementSummaryOut
 	 */
 
-   public function getSettlementSummary($moss_country_code=null, $quarter) {
+   public function getSettlementSummary($quarter, $moss_country_code=null) {
 
   		//parse inputs
   		$resourcePath = "/api/v1/settlement/summary/{quarter}";

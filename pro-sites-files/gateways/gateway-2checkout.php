@@ -1383,7 +1383,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			return false;
 		}
 
-		function tcheckout_refund( $transaction_id, $partial_amt = false, $note ) {
+		function tcheckout_refund( $transaction_id, $note, $partial_amt = false ) {
 			$this->set_gateway_param();
 			$params = array(
 				'invoice_id' => $transaction_id,
@@ -1428,7 +1428,7 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			return $result;
 		}
 
-		function RefundTransaction( $transaction_id, $partial_amt = false, $note ) {
+		function RefundTransaction( $transaction_id, $note, $partial_amt = false ) {
 			global $psts;
 			$params               = array();
 			$params['invoice_id'] = $transaction_id;
@@ -1524,14 +1524,14 @@ if ( ! class_exists( 'ProSites_Gateway_2Checkout' ) ) {
 			);
 		}
 
-		public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
+		public static function render_gateway( $args, $blog_id, $domain, $render_data = array(), $prefer_cc = true ) {
 
 			$content = __( '2CheckOut Gateway', 'psts' );
 
 			return $content;
 		}
 
-		public static function process_checkout_form( $process_data = array(), $blog_id, $domain ) {
+		public static function process_checkout_form( $blog_id, $domain, $process_data = array() ) {
 
 		}
 

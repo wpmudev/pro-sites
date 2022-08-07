@@ -157,7 +157,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	 *
 	 * @return string|void
 	 */
-	public static function render_gateway( $render_data = array(), $args, $blog_id, $domain, $prefer_cc = true ) {
+	public static function render_gateway( $args, $blog_id, $domain, $render_data = array(), $prefer_cc = true ) {
 
 		global $psts, $current_site;
 		$content   = '';
@@ -1544,7 +1544,7 @@ class ProSites_Gateway_PayPalExpressPro {
 	 * @param $pending_reason
 	 * @param $payerid
 	 */
-	private static function update_pending_reason( $blog_id, $payment_status, $pending_reason = '', $payerid, $pending_profile = '' ) {
+	private static function update_pending_reason( $blog_id, $payment_status, $payerid, $pending_reason = '', $pending_profile = '' ) {
 		global $psts, $wpdb;
 		$psts->log_action( $blog_id, sprintf( __( 'PayPal response: Last payment is pending (%s). Reason: %s', 'psts' ), $payment_status, $pending_reason ) . '. Payer ID: ' . $payerid );
 
