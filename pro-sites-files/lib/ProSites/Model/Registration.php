@@ -282,7 +282,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 		}
 
-		public static function prosite_blog_check_only( $errors = false, $user, $email ) {
+		public static function prosite_blog_check_only( $user, $email, $errors = false ) {
 			if ( empty( $errors ) ) {
 				$errors = new WP_Error();
 			}
